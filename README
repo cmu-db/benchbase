@@ -1,1 +1,6 @@
-empty for now..
+Download this code..
+run ant to compile it... 
+you can test a simple tpcc benchmark (assuming you have a tpcc db installed) by running.. run/launch_simple_tpcc_test.sh
+
+
+(This readme needs a lot of help... sorry!)
