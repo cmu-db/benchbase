@@ -1,0 +1,9 @@
+delete from customer;
+delete from district;
+delete from history;
+delete from item;
+delete from new_order;
+delete from oorder;
+delete from order_line;
+delete from stock;
+delete from warehouse;

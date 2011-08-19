@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<parameters>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://localhost/test</DBUrl>
+    <DBName>test</DBName>
+    <username>root</username>
+    <password>hello</password>
+    <terminals>2</terminals>
+    <numWarehouses>10</numWarehouses>
+    <works>
+        <work>
+          <time>5</time>
+          <rate>100</rate>
+          <weights>0,0,0,0,100</weights>
+        </work>
+        <work>
+          <time>2</time>
+          <rate>200</rate>
+          <weights>20,20,20,20,20</weights>
+        </work>
+        <work>
+          <time>10</time>
+          <rate>20</rate>
+          <weights>30,10,0,40,20</weights>
+        </work>
+	</works>
+</parameters>

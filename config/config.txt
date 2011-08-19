@@ -1,0 +1,2 @@
+warmUpSeconds=0
+measureSeconds=120

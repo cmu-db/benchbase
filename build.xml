@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="benchmark">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../../../Applications/eclipse3.4"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+
+
+    <target name="build">
+            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <mkdir dir="build/classes"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build/classes" source="${source}" target="${target}">
+            <src path="src"/>
+    <classpath>
+      <pathelement path="classes"/>
+      <fileset dir="lib">
+        <include name="**/*.jar"/>
+      </fileset>
+    </classpath>
+
+
+        </javac>
+    </target>
+
+
+    <target name="clean" description="Destroys all generated files and dirs.">
+        <delete dir="build/classes"/>
+    </target>
+</project>

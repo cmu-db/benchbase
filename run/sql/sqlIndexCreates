@@ -1,0 +1,60 @@
+
+-- alter table warehouse add constraint pk_warehouse 
+--   primary key (w_id);  
+-- commit;  
+
+-- alter table district add constraint pk_district 
+--   primary key (d_w_id, d_id);
+-- commit; 
+
+
+-- alter table customer add constraint pk_customer 
+--   primary key (c_w_id, c_d_id, c_id);
+-- commit;
+create index ndx_customer_name 
+  on customer (c_w_id, c_d_id, c_last, c_first);
+commit;
+
+
+-- history table has no primary key
+-- commit;
+
+
+-- alter table oorder add constraint pk_oorder 
+--   primary key (o_w_id, o_d_id, o_id);
+-- commit;
+create unique index ndx_oorder_c_id
+  on oorder (o_w_id, o_d_id, o_c_id, o_id);
+commit;
+ 
+-- alter table new_order add constraint pk_new_order 
+--   primary key (no_w_id, no_d_id, no_o_id);
+-- commit;
+
+
+-- alter table order_line add constraint pk_order_line 
+--   primary key (ol_w_id, ol_d_id, ol_o_id, ol_number);
+-- commit;
+
+
+-- alter table stock add constraint pk_stock
+--   primary key (s_w_id, s_i_id);
+-- commit;
+
+
+-- alter table item add constraint pk_item
+--   primary key (i_id);
+-- commit;
+
+-- not supported on mysql
+-- vacuum analyze;
+-- this probably doesn't do much, but it can't hurt.
+analyze table customer;
+analyze table district;
+analyze table history;
+analyze table item;
+analyze table new_order;
+analyze table oorder;
+analyze table order_line;
+analyze table stock;
+analyze table warehouse;

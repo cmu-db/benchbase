@@ -1,0 +1,4 @@
+fast_deverticalize_align.m: the script doing bucketing and alingment... starts from transactions.csv and spits out latency, counts, percentiles
+load_and_plot: a simple visualization script...
+go.m: a simple main launching the fast_deverticalize_align.m
+

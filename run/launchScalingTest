@@ -1,0 +1,1 @@
+java -cp `./classpath.sh` -Dnwarehouses=40 -DtimeLimit=440 -Dnterminals=400 -Ddriver=com.mysql.jdbc.Driver -Dconn=jdbc:mysql://localhost:3310/tpcc40  -Duser=root -Dpassword= -Dprop=mysql-remote.properties client.jTPCCAutomaticScaling

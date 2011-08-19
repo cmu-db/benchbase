@@ -1,0 +1,6 @@
+$ sha1sum lib/*
+c80f0febf8437d5cd0424e90651ae15348b0ddce  lib/edb-jdbc14-8_0_3_14.jar
+f7e56f837b00e827136f66dacf94c525029a7dfa  lib/hsqldb.jar
+b83574124f1a00d6f70d56ba64aa52b8e1588e6d  lib/mysql-connector-java-5.1.10-bin.jar
+2d79529d51134ab5c4395d84d3b8f3b0aaea845d  lib/ojdbc14-10.2.jar
+d0c03073350b4b5a182ef0875af158c580a3f932  lib/postgresql-8.0.309.jdbc3.jar
