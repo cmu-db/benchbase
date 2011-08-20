@@ -32,6 +32,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 import com.oltpbenchmark.ThreadBench.Results;
 import com.oltpbenchmark.ThreadBench.Worker;
@@ -52,12 +53,21 @@ public class DBWorkload {
 		// TODO Auto-generated method stub
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
+		XMLConfiguration pluginConfig=null;
+		try {
+			pluginConfig = new XMLConfiguration("config/plugin.xml");
+		} catch (ConfigurationException e1) {
+			// TODO Auto-generated catch block
+			System.out.println("Plugin configuration file config/plugin.xml is missing");
+			e1.printStackTrace();
+		}
+		pluginConfig.setExpressionEngine(new XPathExpressionEngine());
 		Options options = new Options();
 		options.addOption(
 				"b",
 				"bench",
 				true,
-				"[required] Benchmark class. Currently supported [edu.mit.bechnmark.TPCCRateLimited]");
+				"[required] Benchmark class. Currently supported: "+ pluginConfig.getList("/plugin//@name"));
 		options.addOption("c", "config", true,
 				"[required] Workload configuration file");
 		options.addOption("v", "verbose", false, "Display Messages");
@@ -84,7 +94,13 @@ public class DBWorkload {
 				return;
 			}
 			if (argsLine.hasOption("b"))
-				classname = argsLine.getOptionValue("b");
+			{
+				String plugin = argsLine.getOptionValue("b");
+				classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
+				System.out.println(classname);
+				if(classname==null)
+						throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
+			}
 			else
 				throw new ParseException("Missing Benchmark Class to load");
 			if (argsLine.hasOption("c")) {
@@ -96,7 +112,9 @@ public class DBWorkload {
 				wrkld.setUsername(xmlConfig.getString("username"));
 				wrkld.setPassword(xmlConfig.getString("password"));
 				wrkld.setTerminals(xmlConfig.getInt("terminals"));
-				wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses"));
+				wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
+				wrkld.setTracefile(xmlConfig.getString("tracefile",null));
+				wrkld.setBaseIP(xmlConfig.getString("baseip",null));
 				int size = xmlConfig.configurationsAt("works.work").size();
 				for (int i = 0; i < size; i++)
 					wrkld.addWork(

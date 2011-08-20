@@ -925,17 +925,8 @@ public class ThreadBench {
 				// queue of the previous one
 				resetQueues = true;
 
-				intervalNs = (long) (1000000000. / (double) phase.rate + 0.5); // update
-																				// frequency
-																				// in
-																				// which
-																				// we
-																				// check
-																				// according
-																				// to
-																				// wakeup
-																				// speed
-				phase = workConf.getNextPhase(); // read the next line
+				// Fetch a new Phase
+				phase = workConf.getNextPhase();
 				if (phase == null) {
 					// Last phase
 					lastEntry = true;
@@ -944,6 +935,8 @@ public class ThreadBench {
 					System.out.println("[Starting Phase] [Time= " + phase.time
 							+ "] [Rate= " + phase.rate + "] [Ratios= "
 							+ phase.weights + "]");
+					// update frequency in which we check according to wakeup speed
+					intervalNs = (long) (1000000000. / (double) phase.rate + 0.5); 
 				}
 			}
 

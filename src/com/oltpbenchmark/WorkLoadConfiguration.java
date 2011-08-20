@@ -35,6 +35,18 @@ public class WorkLoadConfiguration {
 			rate = r;
 			weights = o;
 		}
+
+		/**
+		 * Computes the sum of weights.
+		 * Usually needs to add up to 100%
+		 * @return The total weight
+		 */
+		public double totalWeight() {
+			double total=0.0;
+			for(Double d:weights)
+				total+=d;
+			return total;
+		}
 	}
 
 	private static WorkLoadConfiguration instance = null;
@@ -45,6 +57,8 @@ public class WorkLoadConfiguration {
 	private String driver;
 	private int terminals;
 	private int numWarehouses;
+	private String tracefile;
+	private String baseIP;
 	private List<Phase> works = new ArrayList<Phase>();
 	private static Iterator<Phase> i;
 	private int workPhases = 0;
@@ -130,5 +144,21 @@ public class WorkLoadConfiguration {
 
 	public int getNumWarehouses() {
 		return numWarehouses;
+	}
+
+	public void setTracefile(String tracefile) {
+		this.tracefile = tracefile;
+	}
+
+	public String getTracefile() {
+		return tracefile;
+	}
+
+	public void setBaseIP(String baseIP) {
+		this.baseIP = baseIP;
+	}
+
+	public String getBaseIP() {
+		return baseIP;
 	}
 }

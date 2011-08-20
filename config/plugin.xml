@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<plugins>
+	<plugin name="tpcc">com.oltpbenchmark.tpcc.TPCCRateLimited</plugin>
+	<plugin name="wikipedia">com.oltpbenchmark.wikipedia.WikipediaBenchmark</plugin>
+</plugins>
