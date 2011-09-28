@@ -22,10 +22,14 @@ package com.oltpbenchmark.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+
+import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -33,12 +37,14 @@ import au.com.bytecode.opencsv.CSVReader;
  * @author pavlo
  */
 public class TableDataIterable implements Iterable<Object[]> {
+    private final Table catalog_tbl;
     private final File table_file;
     private final CSVReader reader;
-    private final int types[]; // TODO
-    private final boolean fkeys[]; // TODO
-    private final boolean nullable[]; // TODO
     private final boolean auto_generate_first_column;
+    
+    private final int types[];
+    private final boolean fkeys[];
+    private final boolean nullable[];
     
     private final DateFormat timestamp_formats[] = new DateFormat[] {
         new SimpleDateFormat("yyyy-MM-dd"),
@@ -54,14 +60,20 @@ public class TableDataIterable implements Iterable<Object[]> {
      * @param auto_generate_first_column TODO
      * @throws Exception
      */
-    public TableDataIterable(File table_file, int types[], boolean fkeys[], boolean nullable[], boolean has_header, boolean auto_generate_first_column) throws Exception {
-        assert(types.length == fkeys.length);
-        assert(types.length == nullable.length);
+    public TableDataIterable(Table catalog_tbl, File table_file, boolean has_header, boolean auto_generate_first_column) throws Exception {
+        this.catalog_tbl = catalog_tbl;
         this.table_file = table_file;
-        this.types = types;
-        this.fkeys = fkeys;
-        this.nullable = nullable;
         this.auto_generate_first_column = auto_generate_first_column;
+        
+        this.types = new int[this.catalog_tbl.getNumColumns()];
+        this.fkeys = new boolean[this.catalog_tbl.getNumColumns()];
+        this.nullable = new boolean[this.catalog_tbl.getNumColumns()];
+        for (int i = 0; i < this.types.length; i++) {
+            Column catalog_col = this.catalog_tbl.getColumn(i);
+            this.types[i] = catalog_col.getType();
+            this.fkeys[i] = false; // TODO
+            this.nullable[i] = catalog_col.isNullable();
+        } // FOR
         
         BufferedReader in = new BufferedReader(new FileReader(this.table_file));
         this.reader = new CSVReader(in);
@@ -123,7 +135,7 @@ public class TableDataIterable implements Iterable<Object[]> {
                     tuple[col_idx] = row[row_idx++];
                 }
                 // Timestamps
-                else if (types[col_idx] == 100) { // XXX VoltType.TIMESTAMP) {
+                else if (types[col_idx] == Types.TIMESTAMP) {
                     for (DateFormat f : timestamp_formats) {
                         try {
                             tuple[col_idx] = f.parse(row[row_idx]);
@@ -139,7 +151,7 @@ public class TableDataIterable implements Iterable<Object[]> {
                     row_idx++;
                 }
                 // Store string (truncate if necessary)
-                else if (types[col_idx] == 200) { // XXX VoltType.STRING) {
+                else if (types[col_idx] == Types.VARCHAR) {
                     tuple[col_idx] = row[row_idx++];
                 }    
                 // Default: Cast the string into the proper type
