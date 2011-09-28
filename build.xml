@@ -8,29 +8,41 @@
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../../Applications/eclipse3.4"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="javac.target" value="1.6"/>
+    <property name="javac.source" value="1.6"/>
+
+    <property name="src.dir"    location="src" />
+    <property name="build.dir"  location="build" />
+    <property name="lib.dir"    location="lib" />
+
+
+    <path id='project.classpath'>
+        <pathelement location='${build.dir}' />
+        <fileset dir='${lib.dir}'>
+            <include name='*.jar' />
+            <exclude name='ant.jar' />
+        </fileset>
+        <pathelement path="${java.class.path}"/>
+    </path>
 
 
     <target name="build">
-            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+        <fileset dir="${src.dir}" excludes="**/*.launch, **/*.java"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <mkdir dir="build/classes"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="build/classes" source="${source}" target="${target}">
+        
+        <mkdir dir="${build.dir}"/>
+        
+        <javac debug="true" debuglevel="${debuglevel}"
+               destdir="${build.dir}"
+               source="${javac.source}"
+               target="${javac.target}">
             <src path="src"/>
-    <classpath>
-      <pathelement path="classes"/>
-      <fileset dir="lib">
-        <include name="**/*.jar"/>
-      </fileset>
-    </classpath>
-
-
+            <classpath refid="project.classpath" />
         </javac>
     </target>
 
 
     <target name="clean" description="Destroys all generated files and dirs.">
-        <delete dir="build/classes"/>
+        <delete dir="${build.dir}"/>
     </target>
 </project>
