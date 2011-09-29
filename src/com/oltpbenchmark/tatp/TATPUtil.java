@@ -49,35 +49,89 @@
  *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR  *
  *  OTHER DEALINGS IN THE SOFTWARE.                                        *
  ***************************************************************************/
-package com.oltpbenchmark.tm1;
+package com.oltpbenchmark.tatp;
 
-public abstract class TM1Constants {
+import java.util.Random;
 
-    // ----------------------------------------------------------------
-    // STORED PROCEDURE EXECUTION FREQUENCIES (0-100)
-    // ----------------------------------------------------------------
-    public static final int FREQUENCY_DELETE_CALL_FORWARDING    = 2;    // Multi
-    public static final int FREQUENCY_GET_ACCESS_DATA           = 35;   // Single
-    public static final int FREQUENCY_GET_NEW_DESTINATION       = 10;   // Single
-    public static final int FREQUENCY_GET_SUBSCRIBER_DATA       = 35;   // Single
-    public static final int FREQUENCY_INSERT_CALL_FORWARDING    = 2;    // Multi
-    public static final int FREQUENCY_UPDATE_LOCATION           = 14;   // Multi
-    public static final int FREQUENCY_UPDATE_SUBSCRIBER_DATA    = 2;    // Single
-
-    // ----------------------------------------------------------------
-    // TABLE NAMES
-    // ----------------------------------------------------------------
-    public static final String TABLENAME_SUBSCRIBER = "SUBSCRIBER";
-    public static final String TABLENAME_ACCESS_INFO = "ACCESS_INFO";
-    public static final String TABLENAME_SPECIAL_FACILITY = "SPECIAL_FACILITY";
-    public static final String TABLENAME_CALL_FORWARDING = "CALL_FORWARDING";
- 
-    public static final int BATCH_SIZE = 5000;
+public abstract class TATPUtil {
     
-    public static final String TABLENAMES[] = {
-        TABLENAME_SUBSCRIBER,
-        TABLENAME_ACCESS_INFO,
-        TABLENAME_SPECIAL_FACILITY,
-        TABLENAME_CALL_FORWARDING
-    };
+    public static final Random rand = new Random();
+
+    public static int isActive() {
+        return number(1,100) < number(86,100) ? 1 : 0;
+    }
+
+    public static Long getSubscriberId(long subscriberSize) {
+        return (TATPUtil.number(1, subscriberSize));
+    }
+    
+    // modified from tpcc.RandomGenerator
+    /**
+     * @returns a random alphabetic string with length in range [minimum_length, maximum_length].
+     */
+    public static String astring(int minimum_length, int maximum_length) {
+        return randomString(minimum_length, maximum_length, 'A', 26);
+    }
+
+    // taken from tpcc.RandomGenerator
+    /**
+     * @returns a random numeric string with length in range [minimum_length, maximum_length].
+     */
+    public static String nstring(int minimum_length, int maximum_length) {
+        return randomString(minimum_length, maximum_length, '0', 10);
+    }
+
+    // taken from tpcc.RandomGenerator 
+    public static String randomString(int minimum_length, int maximum_length, char base, int numCharacters) {
+        int length = number(minimum_length, maximum_length).intValue();
+        byte baseByte = (byte) base;
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < length; ++i) {
+            bytes[i] = (byte)(baseByte + number(0, numCharacters-1));
+        }
+        return new String(bytes);
+    }
+
+    // taken from tpcc.RandomGenerator
+    public static Long number(long minimum, long maximum) {
+        assert minimum <= maximum;
+        long value = Math.abs( rand.nextLong() ) % ( maximum - minimum + 1 ) + minimum;
+        assert minimum <= value && value <= maximum;
+        return value;
+    }
+    
+    public static String padWithZero(Long n) {
+        String meat = n.toString();
+        char[] zeros = new char[15 - meat.length()];
+        for (int i = 0; i < zeros.length; i++)
+            zeros[i] = '0';
+        return (new String(zeros) + meat);
+    }
+
+    /**
+     * Returns sub array of arr, with length in range [min_len, max_len].
+     * Each element in arr appears at most once in sub array.
+     */
+    public static int[] subArr(int arr[], int min_len, int max_len) {
+        assert min_len <= max_len && min_len >= 0;
+        int sub_len = number(min_len, max_len).intValue();
+        int arr_len = arr.length;
+
+        assert sub_len <= arr_len;
+
+        int sub[] = new int[sub_len];
+        for (int i = 0; i < sub_len; i++) {
+            int j = number(0, arr_len - 1).intValue();
+            sub[i] = arr[j];
+            //arr[j] put to tail
+            int tmp = arr[j];
+            arr[j] = arr[arr_len - 1];
+            arr[arr_len - 1] = tmp;
+
+            arr_len--;
+        } // FOR
+
+        return sub;
+    }
+    
 }

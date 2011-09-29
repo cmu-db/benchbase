@@ -49,7 +49,7 @@
  *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR  *
  *  OTHER DEALINGS IN THE SOFTWARE.                                        *
  ***************************************************************************/
-package com.oltpbenchmark.tm1;
+package com.oltpbenchmark.tatp;
 
 import java.util.Map;
 import java.util.logging.Level;
@@ -57,8 +57,8 @@ import java.util.logging.Logger;
 
 import com.oltpbenchmark.catalog.*;
 
-public class TM1Loader {
-    private static final Logger LOG = Logger.getLogger(TM1Loader.class.getSimpleName());
+public class TATPLoader {
+    private static final Logger LOG = Logger.getLogger(TATPLoader.class.getSimpleName());
     private static final boolean d = LOG.isLoggable(Level.FINE);
     
     private final long subscriberSize = 100000; // FIXME
@@ -66,9 +66,9 @@ public class TM1Loader {
     private final boolean blocking = false; // FIXME
     private final Map<String, Table> tables;
     
-    public TM1Loader(Map<String, Table> tables) {
+    public TATPLoader(Map<String, Table> tables) {
         this.tables = tables;
-        if (d) LOG.fine("CONSTRUCTOR: " + TM1Loader.class.getName());
+        if (d) LOG.fine("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
 
     public void load() {
@@ -77,27 +77,27 @@ public class TM1Loader {
         Thread threads[] = new Thread[] {
             new Thread() {
                 public void run() {
-                    if (d) LOG.fine("Start loading " + TM1Constants.TABLENAME_SUBSCRIBER);
-                    Table catalog_tbl = tables.get(TM1Constants.TABLENAME_SUBSCRIBER);
+                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_SUBSCRIBER);
+                    Table catalog_tbl = tables.get(TATPConstants.TABLENAME_SUBSCRIBER);
                     genSubscriber(catalog_tbl);
-                    if (d) LOG.fine("Finished loading " + TM1Constants.TABLENAME_SUBSCRIBER);
+                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_SUBSCRIBER);
                 }
             },
             new Thread() {
                 public void run() {
-                    if (d) LOG.fine("Start loading " + TM1Constants.TABLENAME_ACCESS_INFO);
-                    Table catalog_tbl = tables.get(TM1Constants.TABLENAME_ACCESS_INFO);
+                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_ACCESS_INFO);
+                    Table catalog_tbl = tables.get(TATPConstants.TABLENAME_ACCESS_INFO);
                     genAccessInfo(catalog_tbl);
-                    if (d) LOG.fine("Finished loading " + TM1Constants.TABLENAME_ACCESS_INFO);
+                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_ACCESS_INFO);
                 }
             },
             new Thread() {
                 public void run() {
-                    if (d) LOG.fine("Start loading " + TM1Constants.TABLENAME_SPECIAL_FACILITY + " and " + TM1Constants.TABLENAME_CALL_FORWARDING);
-                    Table catalog_spe = tables.get(TM1Constants.TABLENAME_SPECIAL_FACILITY);
-                    Table catalog_cal = tables.get(TM1Constants.TABLENAME_CALL_FORWARDING);
+                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
+                    Table catalog_spe = tables.get(TATPConstants.TABLENAME_SPECIAL_FACILITY);
+                    Table catalog_cal = tables.get(TATPConstants.TABLENAME_CALL_FORWARDING);
                     genSpeAndCal(catalog_spe, catalog_cal);
-                    if (d) LOG.fine("Finished loading " + TM1Constants.TABLENAME_SPECIAL_FACILITY + " and " + TM1Constants.TABLENAME_CALL_FORWARDING);
+                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
                 }
             }
         };
@@ -134,23 +134,23 @@ public class TM1Loader {
         while (s_id++ < subscriberSize) {
             int col = 0;
             row[col++] = new Long(s_id);
-            row[col++] = TM1Util.padWithZero((Long) row[0]);
+            row[col++] = TATPUtil.padWithZero((Long) row[0]);
             
             // BIT_##
             for (int j = 0; j < 10; j++) {
-                row[col++] = TM1Util.number(0, 1).intValue();
+                row[col++] = TATPUtil.number(0, 1).intValue();
             } // FOR
             // HEX_##
             for (int j = 0; j < 10; j++) {
-                row[col++] = TM1Util.number(0, 15).intValue();
+                row[col++] = TATPUtil.number(0, 15).intValue();
             }
             // BYTE2_##
             for (int j = 0; j < 10; j++) {
-                row[col++] = TM1Util.number(0, 255).intValue();
+                row[col++] = TATPUtil.number(0, 255).intValue();
             }
             // msc_location + vlr_location
             for (int j = 0; j < 2; j++) {
-                row[col++] = TM1Util.number(0, Integer.MAX_VALUE).intValue();
+                row[col++] = TATPUtil.number(0, Integer.MAX_VALUE).intValue();
             }
             assert col == catalog_tbl.getColumnCount();
             // FIXME table.addRow(row);
@@ -182,17 +182,17 @@ public class TM1Loader {
         int s_id = 0;
         int[] arr = { 1, 2, 3, 4 };
 
-        int[] ai_types = TM1Util.subArr(arr, 1, 4);
+        int[] ai_types = TATPUtil.subArr(arr, 1, 4);
         long total = 0;
         while (s_id++ < subscriberSize) {
             for (int ai_type : ai_types) {
                 Object row[] = new Object[catalog_tbl.getColumnCount()];
                 row[0] = new Long(s_id);
                 row[1] = ai_type;
-                row[2] = TM1Util.number(0, 255).intValue();
-                row[3] = TM1Util.number(0, 255).intValue();
-                row[4] = TM1Util.astring(3, 3);
-                row[5] = TM1Util.astring(5, 5);
+                row[2] = TATPUtil.number(0, 255).intValue();
+                row[3] = TATPUtil.number(0, 255).intValue();
+                row[4] = TATPUtil.astring(3, 3);
+                row[5] = TATPUtil.astring(5, 5);
                 // FIXME table.addRow(row);
                 total++;
             } // FOR
@@ -228,27 +228,27 @@ public class TM1Loader {
         int[] arrCal = { 0, 8, 6 };
 
         while (s_id++ < subscriberSize) {
-            int[] sf_types = TM1Util.subArr(arrSpe, 1, 4);
+            int[] sf_types = TATPUtil.subArr(arrSpe, 1, 4);
             for (int sf_type : sf_types) {
                 Object row[] = new Object[catalog_spe.getColumnCount()];
                 row[0] = new Long(s_id);
                 row[1] = sf_type;
-                row[2] = TM1Util.isActive();
-                row[3] = TM1Util.number(0, 255).intValue();
-                row[4] = TM1Util.number(0, 255).intValue();
-                row[5] = TM1Util.astring(5, 5);
+                row[2] = TATPUtil.isActive();
+                row[3] = TATPUtil.number(0, 255).intValue();
+                row[4] = TATPUtil.number(0, 255).intValue();
+                row[5] = TATPUtil.astring(5, 5);
                 // FIXME speTbl.addRow(row);
                 speTotal++;
 
                 // now call_forwarding
-                int[] start_times = TM1Util.subArr(arrCal, 0, 3);
+                int[] start_times = TATPUtil.subArr(arrCal, 0, 3);
                 for (int start_time : start_times) {
                     Object row_cal[] = new Object[catalog_cal.getColumnCount()];
                     row_cal[0] = row[0];
                     row_cal[1] = row[1];
                     row_cal[2] = start_time;
-                    row_cal[3] = start_time + TM1Util.number(1, 8);
-                    row_cal[4] = TM1Util.nstring(15, 15);
+                    row_cal[3] = start_time + TATPUtil.number(1, 8);
+                    row_cal[4] = TATPUtil.nstring(15, 15);
                     // FIXME calTbl.addRow(row_cal);
                     calTotal++;
                 } // FOR
