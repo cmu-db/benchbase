@@ -26,8 +26,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -41,8 +41,8 @@ public abstract class CatalogUtil {
      * @return
      * @throws SQLException
      */
-    public static Collection<Table> getTables(Connection c) throws SQLException {
-        Collection<Table> tables = new HashSet<Table>();
+    public static Map<String, Table> getTables(Connection c) throws SQLException {
+        Map<String, Table> tables = new HashMap<String, Table>();
         
         DatabaseMetaData md = c.getMetaData();
         ResultSet rs = md.getTables(null, null, "%", null);
@@ -74,7 +74,7 @@ public abstract class CatalogUtil {
                 
                 table_catalog.addColumn(col_catalog);
             } // FOR
-            tables.add(table_catalog);
+            tables.put(table_name, table_catalog);
         } // WHILE
         
         return (tables);

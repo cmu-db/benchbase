@@ -69,7 +69,7 @@ public class Table implements Serializable {
     public String getName() {
         return tableName;
     }
-    public int getNumColumns() {
+    public int getColumnCount() {
         return this.columns.size();
     }
     public List<Column> getColumns() {
@@ -84,7 +84,7 @@ public class Table implements Serializable {
     }
 
     public int indexOf(String columnName) {
-        for (int i = 0, cnt = getNumColumns(); i < cnt; i++) {
+        for (int i = 0, cnt = getColumnCount(); i < cnt; i++) {
             if (this.columns.get(i).getName().equalsIgnoreCase(columnName)) {
                 return (i);
             }

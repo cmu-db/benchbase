@@ -65,9 +65,9 @@ public class TableDataIterable implements Iterable<Object[]> {
         this.table_file = table_file;
         this.auto_generate_first_column = auto_generate_first_column;
         
-        this.types = new int[this.catalog_tbl.getNumColumns()];
-        this.fkeys = new boolean[this.catalog_tbl.getNumColumns()];
-        this.nullable = new boolean[this.catalog_tbl.getNumColumns()];
+        this.types = new int[this.catalog_tbl.getColumnCount()];
+        this.fkeys = new boolean[this.catalog_tbl.getColumnCount()];
+        this.nullable = new boolean[this.catalog_tbl.getColumnCount()];
         for (int i = 0; i < this.types.length; i++) {
             Column catalog_col = this.catalog_tbl.getColumn(i);
             this.types[i] = catalog_col.getType();
