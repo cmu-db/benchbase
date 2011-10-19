@@ -39,7 +39,13 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 	public ArrayList<Worker> makeWorkers(boolean verbose) throws IOException {
 		// TODO Auto-generated method stub
 		WorkLoadConfiguration workConf=WorkLoadConfiguration.getInstance();
+		
+		if(workConf==null)
+			throw new IOException("The WorkloadConfiguration instance is null.");
+		
 		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile());
+		
+		
 		List<Transaction> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		Random rand = new Random();

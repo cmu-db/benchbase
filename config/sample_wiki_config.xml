@@ -6,7 +6,7 @@
     <username>root</username>
     <password>pass</password>
     <terminals>160</terminals>
-    <trace>tracefile.trc</trace>
+    <trace>run/tracefile.trc</trace>
     <base_ip>10.1.</base_ip>
     <works>
         <work>

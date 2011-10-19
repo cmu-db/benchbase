@@ -44,6 +44,9 @@ public class TransactionSelector {
 		r = new Random();
 		this.filename = filename;
 
+		if(filename==null || filename.isEmpty())
+			throw new FileNotFoundException("You must specify a filename to instantiate the TransactionSelector... (probably missing in your workload configuration?)");
+		
 		File file = new File(filename);
 		FileInputStream fis = null;
 		BufferedInputStream bis = null;
