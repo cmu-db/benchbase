@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/ganymed-ssh2-build250.jar"/>
 	<classpathentry kind="lib" path="lib/edb-jdbc14-8_0_3_14.jar"/>
 	<classpathentry kind="lib" path="lib/commons-jxpath-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
