@@ -52,6 +52,8 @@ public class DBWorkload {
 			IOException {
 		// TODO Auto-generated method stub
 		// create the command line parser
+		System.out.println("Starting test...");
+		
 		CommandLineParser parser = new PosixParser();
 		XMLConfiguration pluginConfig=null;
 		try {
@@ -152,7 +154,7 @@ public class DBWorkload {
 		try {
 			Class c = Class.forName(classname);
 			IBenchmarkModule bench = (IBenchmarkModule) c.newInstance();
-			ArrayList<Worker> workers = bench.makeWorkers(verbose);
+			ArrayList<Worker> workers = bench.makeWorkers(verbose,wrkld);
 			System.out.println("Launching the Benchmark with " + wrkld.size()
 					+ " Phases ...");
 			ThreadBench.Results r = ThreadBench

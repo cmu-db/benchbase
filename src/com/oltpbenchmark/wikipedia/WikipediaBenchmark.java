@@ -36,12 +36,13 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 public class WikipediaBenchmark implements IBenchmarkModule{
 
 	@Override
-	public ArrayList<Worker> makeWorkers(boolean verbose) throws IOException {
+	public ArrayList<Worker> makeWorkers(boolean verbose, WorkLoadConfiguration workConf) throws IOException {
 		// TODO Auto-generated method stub
-		WorkLoadConfiguration workConf=WorkLoadConfiguration.getInstance();
+		//WorkLoadConfiguration workConf=WorkLoadConfiguration.getInstance();
 		
 		if(workConf==null)
 			throw new IOException("The WorkloadConfiguration instance is null.");
+		System.out.println("Using trace:" +workConf.getTracefile());
 		
 		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile());
 		

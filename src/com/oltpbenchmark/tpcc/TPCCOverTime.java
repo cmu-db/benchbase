@@ -69,7 +69,7 @@ public class TPCCOverTime {
 		if (args.length >= 7)
 			WARMUP_SECONDS = Integer.parseInt(args[6]);
 
-		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(true);
+		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(true,null);
 
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
 				WARMUP_SECONDS, measurementSeconds, rateLimit);

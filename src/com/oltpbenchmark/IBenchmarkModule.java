@@ -30,6 +30,6 @@ import com.oltpbenchmark.ThreadBench.Worker;
  */
 public interface IBenchmarkModule {
 
-	public ArrayList<Worker> makeWorkers(boolean verbose) throws IOException;
+	public ArrayList<Worker> makeWorkers(boolean verbose,WorkLoadConfiguration wrkld) throws IOException;
 
 }

@@ -1,27 +1,14 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/tpcc</DBUrl>
-    <DBName>tpcc</DBName>
+    <DBUrl>jdbc:mysql://127.0.0.1:3500/wiki1k</DBUrl>
+    <DBName>wiki1k</DBName>
     <username>root</username>
-    <password>hellp</password>
-    <terminals>160</terminals>
-    <numWarehouses>32</numWarehouses>
+    <password></password>
     <works>
         <work>
-          <time>5</time>
-          <rate>100</rate>
-          <weights>0,0,0,0,100</weights>
+          <time>20</time>
+          <rate>10</rate>
+          <weights>5,5,5,5</weights>
         </work>
-        <work>
-          <time>2</time>
-          <rate>200</rate>
-          <weights>20,20,20,20,20</weights>
-        </work>
-        <work>
-          <time>10</time>
-          <rate>20</rate>
-          <weights>30,10,0,40,20</weights>
-        </work>
-	</works>
 </parameters>

@@ -48,7 +48,7 @@ public class TPCCRateLimitedFromFile {
 
 		File profileFile = new File(args[1]);
 
-		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(true);
+		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(true,null);
 
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
 				profileFile);

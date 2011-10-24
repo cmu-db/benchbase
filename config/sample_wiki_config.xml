@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/wiki</DBUrl>
-    <DBName>wiki</DBName>
+    <DBUrl>jdbc:mysql://127.0.0.1:3500/wiki1k</DBUrl>
+    <DBName>wiki1k</DBName>
     <username>root</username>
-    <password>pass</password>
-    <terminals>160</terminals>
-    <trace>run/tracefile.trc</trace>
+    <password></password>
+    <terminals>10</terminals>
+    <tracefile>config/traces/longtrace_1k.txt</tracefile>
     <base_ip>10.1.</base_ip>
     <works>
         <work>

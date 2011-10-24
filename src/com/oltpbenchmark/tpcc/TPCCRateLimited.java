@@ -28,6 +28,7 @@ import com.oltpbenchmark.IBenchmarkModule;
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.ThreadBench.Worker;
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.WorkLoadConfiguration.Phase;
 import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
 
@@ -53,7 +54,7 @@ public class TPCCRateLimited implements IBenchmarkModule {
 	/**
 	 * @param Bool
 	 */
-	public ArrayList<Worker> makeWorkers(boolean verbose) throws IOException {
+	public ArrayList<Worker> makeWorkers(boolean verbose,WorkLoadConfiguration wrkld) throws IOException {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
@@ -99,7 +100,7 @@ public class TPCCRateLimited implements IBenchmarkModule {
 		 * BufferedWriter(fstream2);
 		 */
 
-		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(false);
+		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(false,null);
 
 		/*
 		 * MeasureTargetSystem m = new MeasureTargetSystem(out,out2,new
