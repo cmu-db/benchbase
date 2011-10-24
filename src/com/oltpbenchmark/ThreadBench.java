@@ -44,6 +44,8 @@ public class ThreadBench {
 	private static final WorkLoadConfiguration workConf = WorkLoadConfiguration
 			.getInstance();
 
+
+	
 	private static enum State {
 		WARMUP, MEASURE, DONE, EXIT,
 	}

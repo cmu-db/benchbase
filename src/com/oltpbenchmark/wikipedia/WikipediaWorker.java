@@ -34,13 +34,13 @@ import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.WorkLoadConfiguration.Phase;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
 
-
 public class WikipediaWorker extends ThreadBench.Worker {
 	private final Connection conn;
 	private final TransactionGenerator generator;
 	private final Statement st;
 	private final String userIp;
 	private final Random r;
+
 
 	public WikipediaWorker(Connection conn, TransactionGenerator generator,
 			String userIp) {
@@ -61,37 +61,43 @@ public class WikipediaWorker extends ThreadBench.Worker {
 
 		// we should work using the LLR to drive wikipedia at different speeds!!
 
-		// select next transaction from trace
-		Transaction t = generator.nextTransaction();
-		try {
 
-			// with 2% probability user (if logged-in) add or remove entry from
-			// their watchlists
-			// the overall probabiliy is around 0.14% of an access to be an edit
-			// to watchlist
-			if (r.nextInt(100) < 2) {
-				if (r.nextBoolean()) {
-					addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
-				} else {
-					removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
-				}
-			} else {
-				if (t.isUpdate) {
-					updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
-				} else {
-					selectPage(true, userIp, t.userId, t.nameSpace, t.pageTitle);
+		
+		Transaction t= generator.nextTransaction();
+		jTPCCConfig.TransactionType retTP = jTPCCConfig.TransactionType.INVALID;
+
+		try {
+			
+			
+			// with 2% probability and if the user is logged-in we add or remove entry from their watchlists 
+			// the overall probabiliy is around 0.14% of an access to be an edit to watchlist  
+			if(r.nextInt(100)<2 && t.userId > 0){
+				if(r.nextBoolean()){
+					addToWatchlist(t.userId,t.nameSpace,t.pageTitle);
+					retTP = jTPCCConfig.TransactionType.WIKI_ADD_WATCHLIST;
+				}else{
+					removeFromWatchlist(t.userId,t.nameSpace,t.pageTitle);
+					retTP = jTPCCConfig.TransactionType.WIKI_REMOVE_WATCHLIST;
+				}	
+			}else{
+				if(t.isUpdate){
+					updatePage(userIp, t.userId,t.nameSpace,t.pageTitle);
+					retTP = jTPCCConfig.TransactionType.WIKI_UPDATE_PAGE;
+				}else{
+					selectPage(true,userIp, t.userId,t.nameSpace,t.pageTitle);
+					retTP = jTPCCConfig.TransactionType.WIKI_SELECT_PAGE;
 				}
 			}
-
-		} catch (MySQLTransactionRollbackException m) {
+			
+		} catch (MySQLTransactionRollbackException m){
 			System.err.println("Rollback:" + m.getMessage());
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
-		return jTPCCConfig.TransactionType.INVALID; // to be changed. We need to
-													// include Wikipedia type of
-													// transactions in the
-													// config too!
+		return retTP;
+	
+		
+	
 	}
 
 	/**
