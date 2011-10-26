@@ -52,7 +52,7 @@ public class DBWorkload {
 			IOException {
 		// TODO Auto-generated method stub
 		// create the command line parser
-		System.out.println("Starting test...");
+		//System.out.println("Starting test...");
 		
 		CommandLineParser parser = new PosixParser();
 		XMLConfiguration pluginConfig=null;
@@ -133,7 +133,7 @@ public class DBWorkload {
 							.getOptionValue("s"));
 					r.writeCSV(windowSize, ps);
 				} else
-					r.writeAllCSVAbsoluteTiming(System.out);
+					r.writeAllCSVAbsoluteTiming(ps);
 				ps.close();
 			} else
 				throw new ParseException("Missing Configuration file");

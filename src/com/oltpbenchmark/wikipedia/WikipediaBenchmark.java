@@ -42,7 +42,7 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 		
 		if(workConf==null)
 			throw new IOException("The WorkloadConfiguration instance is null.");
-		System.out.println("Using trace:" +workConf.getTracefile());
+		//System.out.println("Using trace:" +workConf.getTracefile());
 		
 		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile());
 		
