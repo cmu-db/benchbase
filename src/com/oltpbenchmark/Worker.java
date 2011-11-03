@@ -3,7 +3,7 @@ package com.oltpbenchmark;
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.ThreadBench.BenchmarkState;
 import com.oltpbenchmark.ThreadBench.State;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
 
 public abstract class Worker implements Runnable {
@@ -52,10 +52,10 @@ public abstract class Worker implements Runnable {
 				start = System.nanoTime();
 			}
 
-			jTPCCConfig.TransactionType type = doWork(measure, phase);
+			TransactionType type = doWork(measure, phase);
 			if (measure) {
 				long end = System.nanoTime();
-				latencies.addLatency(type.ordinal(), start, end);
+				latencies.addLatency(type.getId(), start, end);
 			}
 			state = testState.getState();
 		}
@@ -77,8 +77,7 @@ public abstract class Worker implements Runnable {
 	 * 
 	 * @param llr
 	 */
-	protected abstract jTPCCConfig.TransactionType doWork(boolean measure,
-			Phase phase);
+	protected abstract TransactionType doWork(boolean measure, Phase phase);
 
 	/**
 	 * Called at the end of the test to do any clean up that may be

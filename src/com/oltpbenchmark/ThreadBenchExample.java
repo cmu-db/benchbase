@@ -22,9 +22,9 @@ package com.oltpbenchmark;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
-import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
+import com.oltpbenchmark.TransactionType;
 
 
 public class ThreadBenchExample {
@@ -44,8 +44,7 @@ public class ThreadBenchExample {
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-			return jTPCCConfig.TransactionType.INVALID; // I don't know the type
-														// here!
+			return new TransactionType("INVALID",0); // I don't know the type here!
 		}
 	}
 

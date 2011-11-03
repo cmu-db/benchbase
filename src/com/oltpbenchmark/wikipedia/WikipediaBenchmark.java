@@ -44,7 +44,7 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 			throw new IOException("The WorkloadConfiguration instance is null.");
 		//System.out.println("Using trace:" +workConf.getTracefile());
 		
-		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile());
+		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile(),workConf.getTransTypes());
 		
 		
 		List<Transaction> trace = Collections.unmodifiableList(transSel.readAll());
@@ -60,7 +60,7 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 			TransactionGenerator generator = new TraceTransactionGenerator(
 					trace);
 			workers.add(new WikipediaWorker(conn, generator, workConf.getBaseIP()
-					+ (i % 256) + "." + rand.nextInt(256)));
+					+ (i % 256) + "." + rand.nextInt(256),workConf.getTransTypes()));
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

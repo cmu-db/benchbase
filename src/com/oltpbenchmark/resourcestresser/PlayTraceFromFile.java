@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.resourcestresser;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -33,18 +33,22 @@ import java.util.StringTokenizer;
 
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
+import com.oltpbenchmark.tpcc.MeasureTargetSystem;
+import com.oltpbenchmark.tpcc.StatisticsCollector;
+import com.oltpbenchmark.tpcc.jTPCCConfig;
+import com.oltpbenchmark.tpcc.jTPCCHeadless;
+import com.oltpbenchmark.TransactionType;
 
 
 public class PlayTraceFromFile {
 
 	private static final class DiskStresserWorker extends Worker {
 		private final DiskStresser terminal;
-		private final int type;
+		private final TransactionType type;
 
-		public DiskStresserWorker(DiskStresser terminal, int type) {
+		public DiskStresserWorker(DiskStresser terminal, TransactionType type) {
 			this.terminal = terminal;
 			this.type = type;
 		}
@@ -52,7 +56,7 @@ public class PlayTraceFromFile {
 		@Override
 		protected TransactionType doWork(boolean measure, Phase phase) {
 			try {
-				long latency = terminal.executeTransaction(type);
+				long latency = terminal.executeTransaction(type.getId());
 				terminal.out3.write(latency + "\n");
 				terminal.out3.flush();
 			} catch (SQLException e) {
@@ -62,12 +66,12 @@ public class PlayTraceFromFile {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return jTPCCConfig.TransactionType.values()[type];
+			return type;
 		}
 	}
 
 	public static ArrayList<DiskStresserWorker> makeDiskStresserWorkers(
-			int size, int numTerminals, int type, BufferedWriter out3)
+			int size, int numTerminals, TransactionType tt, BufferedWriter out3)
 			throws IOException, SQLException {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = true;
@@ -81,7 +85,7 @@ public class PlayTraceFromFile {
 				numTerminals, out3);
 
 		for (DiskStresser terminal : terminals) {
-			workers.add(new DiskStresserWorker(terminal, type));
+			workers.add(new DiskStresserWorker(terminal, tt));
 		}
 		return workers;
 	}
@@ -134,8 +138,15 @@ public class PlayTraceFromFile {
 			int type = Integer.parseInt(st.nextToken());
 			int speed = Integer.parseInt(st.nextToken());
 
+			TransactionType tt;
+			if(type==1)
+				tt=new TransactionType("CPU_STRESSER",1);
+			else
+				tt=new TransactionType("DISK_IO_WRITE_STRESSER",2);
+			
+			
 			ArrayList<DiskStresserWorker> workers = makeDiskStresserWorkers(
-					size, terminal, type, out3);
+					size, terminal, tt, out3);
 
 			m.setSpeed(speed);
 

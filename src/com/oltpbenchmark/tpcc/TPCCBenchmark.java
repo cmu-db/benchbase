@@ -28,8 +28,9 @@ import java.util.Properties;
 
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.Worker;
+import com.oltpbenchmark.TransactionType;
 
 
 public class TPCCBenchmark {
@@ -42,11 +43,11 @@ public class TPCCBenchmark {
 		}
 
 		@Override
-		protected jTPCCConfig.TransactionType doWork(boolean measure,
+		protected TransactionType doWork(boolean measure,
 				Phase phase) {
-			jTPCCConfig.TransactionType type = terminal
+			TransactionType type = terminal
 					.chooseTransaction(phase);
-			terminal.executeTransaction(type.ordinal());
+			terminal.executeTransaction(type.getId());
 			return type;
 		}
 	}

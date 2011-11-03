@@ -45,11 +45,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.TransactionType;
+import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.tpcc.pojo.Customer;
 
 
 public class jTPCCTerminal implements Runnable {
+	
+	private TransactionTypes transactionTypes;
+	
 	private String terminalName;
 	private Connection conn = null;
 	private Statement stmt = null;
@@ -176,7 +181,7 @@ public class jTPCCTerminal implements Runnable {
 		printMessage("Finishing current transaction before exit...");
 	}
 
-	public jTPCCConfig.TransactionType chooseTransaction(Phase phase) {
+	public TransactionType chooseTransaction(Phase phase) {
 
 		if (phase != null) {
 
@@ -213,7 +218,7 @@ public class jTPCCTerminal implements Runnable {
 			type = jTPCCConfig.TransactionType.NEW_ORDER;
 		}
 
-		return type;
+		return transactionTypes.getType(type.ordinal());
 	}
 
 	private void executeTransactions(int numTransactions) {
@@ -236,9 +241,9 @@ public class jTPCCTerminal implements Runnable {
 
 		for (int i = 0; (i < numTransactions || numTransactions == -1)
 				&& !stopRunning; i++) {
-			jTPCCConfig.TransactionType type = chooseTransaction(null);
+			TransactionType type = chooseTransaction(null);
 
-			if (type == jTPCCConfig.TransactionType.NEW_ORDER) {
+			if (type.isType("NEW_ORDER")) {
 				Double targetTpmcRef = jTPCCDriver.targetTpmc.get();
 				double targetTpmc = targetTpmcRef == null ? 0 : targetTpmcRef
 						.doubleValue();
@@ -279,16 +284,16 @@ public class jTPCCTerminal implements Runnable {
 			}
 
 			long transactionStart = System.currentTimeMillis();
-			int skippedDeliveries = executeTransaction(type.ordinal());
+			int skippedDeliveries = executeTransaction(type.getId());
 			long transactionEnd = System.currentTimeMillis();
 
 			String skippedMessage = null;
-			if (type == jTPCCConfig.TransactionType.DELIVERY) {
+			if (type.isType("DELIVERY")) {
 				skippedMessage = skippedDeliveries == 0 ? "None" : ""
 						+ skippedDeliveries + " delivery(ies) skipped.";
 			}
 
-			int isNewOrder = type == jTPCCConfig.TransactionType.NEW_ORDER ? 1
+			int isNewOrder = type.isType("NEW_ORDER") ? 1
 					: 0;
 			parent.signalTerminalEndedTransaction(this.terminalName,
 					type.toString(), transactionEnd - transactionStart,
@@ -1307,6 +1312,7 @@ public class jTPCCTerminal implements Runnable {
 
 	PreparedStatement customerByName;
 
+
 	private Customer getCustomerByName(int c_w_id, int c_d_id, String c_last)
 			throws SQLException {
 		ArrayList<Customer> customers = new ArrayList<Customer>();
@@ -1634,5 +1640,9 @@ public class jTPCCTerminal implements Runnable {
 	private void printMessage(String message) {
 		if (debugMessages)
 			terminalOutputArea.println("[ jTPCC ] " + message);
+	}
+
+	public void setTransactionTypes(TransactionTypes transactionTypes) {
+		this.transactionTypes =transactionTypes;
 	}
 }

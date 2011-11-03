@@ -30,7 +30,9 @@ import java.util.Calendar;
 import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.TransactionType;
+import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
 
@@ -40,10 +42,11 @@ public class WikipediaWorker extends Worker {
 	private final Statement st;
 	private final String userIp;
 	private final Random r;
-
+    private final TransactionTypes transTypes;
 
 	public WikipediaWorker(Connection conn, TransactionGenerator generator,
-			String userIp) {
+			String userIp,TransactionTypes transTypes) {
+		this.transTypes=transTypes;
 		this.conn = conn;
 		r = new Random();
 
@@ -57,16 +60,14 @@ public class WikipediaWorker extends Worker {
 	}
 
 	@Override
-	protected jTPCCConfig.TransactionType doWork(boolean measure, Phase phase) {
+	protected TransactionType doWork(boolean measure, Phase phase) {
 
 		// we should work using the LLR to drive wikipedia at different speeds!!
 
-		
-		
-
+		transTypes.getType("INVALID");
 		
 		Transaction t= generator.nextTransaction();
-		jTPCCConfig.TransactionType retTP = jTPCCConfig.TransactionType.INVALID;
+		TransactionType retTP = transTypes.getType("INVALID");
 
 		try {
 			
@@ -76,18 +77,18 @@ public class WikipediaWorker extends Worker {
 			if(r.nextInt(100)<2 && t.userId > 0){
 				if(r.nextBoolean()){
 					addToWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = jTPCCConfig.TransactionType.WIKI_ADD_WATCHLIST;
+					retTP = transTypes.getType("WIKI_ADD_WATCHLIST");
 				}else{
 					removeFromWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = jTPCCConfig.TransactionType.WIKI_REMOVE_WATCHLIST;
+					retTP = transTypes.getType("WIKI_REMOVE_WATCHLIST");
 				}	
 			}else{
 				if(t.isUpdate){
 					updatePage(userIp, t.userId,t.nameSpace,t.pageTitle);
-					retTP = jTPCCConfig.TransactionType.WIKI_UPDATE_PAGE;
+					retTP = transTypes.getType("WIKI_UPDATE_PAGE");
 				}else{
 					selectPage(true,userIp, t.userId,t.nameSpace,t.pageTitle);
-					retTP = jTPCCConfig.TransactionType.WIKI_SELECT_PAGE;
+					retTP = transTypes.getType("WIKI_SELECT_PAGE");
 				}
 			}
 			

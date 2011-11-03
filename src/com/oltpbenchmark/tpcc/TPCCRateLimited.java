@@ -27,26 +27,31 @@ import java.util.List;
 import com.oltpbenchmark.IBenchmarkModule;
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
+import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
+import com.oltpbenchmark.TransactionType;
 
 
 public class TPCCRateLimited implements IBenchmarkModule {
 
 	public static final class TPCCWorker extends Worker {
 		private final jTPCCTerminal terminal;
-
-		public TPCCWorker(jTPCCTerminal terminal) {
+		private final  TransactionTypes transTypes;
+		
+		public TPCCWorker(jTPCCTerminal terminal, TransactionTypes transactionTypes) {
 			this.terminal = terminal;
+
+			transTypes= transactionTypes;
+			terminal.setTransactionTypes(transactionTypes);
 		}
 
 		@Override
 		protected TransactionType doWork(boolean measure, Phase phase) {
-			jTPCCConfig.TransactionType type = terminal
+			TransactionType type = terminal
 					.chooseTransaction(phase);
-			terminal.executeTransaction(type.ordinal());
+			terminal.executeTransaction(type.getId());
 			return type;
 		}
 	}
@@ -64,7 +69,7 @@ public class TPCCRateLimited implements IBenchmarkModule {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		List<jTPCCTerminal> terminals = head.getTerminals();
 		for (jTPCCTerminal terminal : terminals) {
-			workers.add(new TPCCWorker(terminal));
+			workers.add(new TPCCWorker(terminal,wrkld.getTransTypes()));
 		}
 		return workers;
 	}

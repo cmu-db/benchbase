@@ -7,6 +7,34 @@
     <password>hello</password>
     <terminals>10</terminals>
     <numWarehouses>10</numWarehouses>
+    
+    <transactiontypes>
+    	<transactiontype>
+    		<name>INVALID</name>
+    		<id>0</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>NEW_ORDER</name>
+    		<id>1</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>PAYMENT</name>
+    		<id>2</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>ORDER_STATUS</name>
+    		<id>3</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>DELIVERY</name>
+    		<id>4</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>STOCK_LEVEL</name>
+    		<id>5</id>
+    	</transactiontype>
+    </transactiontypes>
+    
     <works>
         <work>
           <time>5</time>

@@ -8,6 +8,30 @@
     <terminals>10</terminals>
     <tracefile>config/traces/longtrace_1k.txt</tracefile>
     <base_ip>10.1.</base_ip>
+  
+    <transactiontypes>
+    	<transactiontype>
+    		<name>INVALID</name>
+    		<id>0</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>WIKI_ADD_WATCHLIST</name>
+    		<id>1</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>WIKI_REMOVE_WATCHLIST</name>
+    		<id>2</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>WIKI_UPDATE_PAGE</name>
+    		<id>3</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>WIKI_SELECT_PAGE</name>
+    		<id>4</id>
+    	</transactiontype>
+    </transactiontypes>
+    
     <works>
         <work>
           <time>5</time>

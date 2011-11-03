@@ -26,9 +26,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
-import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
+import com.oltpbenchmark.TransactionType;
 
 
 public class IncrementBench {
@@ -71,7 +71,7 @@ public class IncrementBench {
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
-			return jTPCCConfig.TransactionType.INVALID; // To be changed. I
+			return  new TransactionType("INVALID",0); // To be changed. I
 														// don't know the proper
 														// type here!
 		}

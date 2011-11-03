@@ -33,7 +33,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 
 
 public class ThreadBench {

@@ -25,29 +25,7 @@ import java.util.List;
 
 public class WorkLoadConfiguration {
 
-	public class Phase {
-		public int time;
-		public int rate;
-		public List<Double> weights;
-
-		Phase(int t, int r, List<Double> o) {
-			time = t;
-			rate = r;
-			weights = o;
-		}
-
-		/**
-		 * Computes the sum of weights.
-		 * Usually needs to add up to 100%
-		 * @return The total weight
-		 */
-		public double totalWeight() {
-			double total=0.0;
-			for(Double d:weights)
-				total+=d;
-			return total;
-		}
-	}
+	
 
 	private static WorkLoadConfiguration instance = null;
 	private String database;
@@ -62,6 +40,7 @@ public class WorkLoadConfiguration {
 	private List<Phase> works = new ArrayList<Phase>();
 	private static Iterator<Phase> i;
 	private int workPhases = 0;
+	private TransactionTypes transTypes = null;
 
 	public void addWork(int time, int rate, List<Double> weights) {
 		works.add(new Phase(time, rate, weights));
@@ -160,5 +139,13 @@ public class WorkLoadConfiguration {
 
 	public String getBaseIP() {
 		return baseIP;
+	}
+
+	public TransactionTypes getTransTypes() {
+		return transTypes;
+	}
+
+	public void setTransTypes(TransactionTypes transTypes) {
+		this.transTypes = transTypes;
 	}
 }

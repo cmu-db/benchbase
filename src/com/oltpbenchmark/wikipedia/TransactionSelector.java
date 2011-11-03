@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.oltpbenchmark.TransactionTypes;
+
 import ch.ethz.ssh2.util.Tokenizer;
 
 public class TransactionSelector {
@@ -35,12 +37,12 @@ public class TransactionSelector {
 	String filename;
 	DataInputStream dis = null;
 	Random r = null;
-
+	TransactionTypes transTypes;
 	static final double READ_WRITE_RATIO = 11.8; // from
 													// http://www.globule.org/publi/WWADH_comnet2009.html
 
-	public TransactionSelector(String filename) throws FileNotFoundException {
-
+	public TransactionSelector(String filename, TransactionTypes transTypes) throws FileNotFoundException {
+		this.transTypes = transTypes;
 		r = new Random();
 		this.filename = filename;
 

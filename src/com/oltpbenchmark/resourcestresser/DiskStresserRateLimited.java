@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.resourcestresser;
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -30,18 +30,22 @@ import java.util.Properties;
 
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
+import com.oltpbenchmark.tpcc.MeasureTargetSystem;
+import com.oltpbenchmark.tpcc.StatisticsCollector;
+import com.oltpbenchmark.tpcc.jTPCCConfig;
+import com.oltpbenchmark.tpcc.jTPCCHeadless;
+import com.oltpbenchmark.TransactionType;
 
 
 public class DiskStresserRateLimited {
 
 	private static final class DiskStresserWorker extends Worker {
 		private final DiskStresser terminal;
-		private final int type;
+		private final TransactionType type;
 
-		public DiskStresserWorker(DiskStresser terminal, int type) {
+		public DiskStresserWorker(DiskStresser terminal, TransactionType type) {
 			this.terminal = terminal;
 			this.type = type;
 		}
@@ -50,17 +54,17 @@ public class DiskStresserRateLimited {
 		protected TransactionType doWork(boolean measure, Phase phase) {
 
 			try {
-				terminal.executeTransaction(type);
+				terminal.executeTransaction(type.getId());
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return jTPCCConfig.TransactionType.values()[type];
+			return type;
 		}
 	}
 
 	public static ArrayList<DiskStresserWorker> makeDiskStresserWorkers(
-			int size, int numTerminals, int type, BufferedWriter out3)
+			int size, int numTerminals, TransactionType type, BufferedWriter out3)
 			throws IOException, SQLException {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = true;
@@ -121,9 +125,15 @@ public class DiskStresserRateLimited {
 			int temp = 0;
 			if (args.length == 2)
 				temp = Integer.parseInt(args[1]);
+			
+			TransactionType tt;
+			if(temp==1)
+				tt = new TransactionType("CPU_STRESSER",1);
+			else
+				tt = new TransactionType("DISK_IO_WRITE_STRESSER",2);
+			
 
-			ArrayList<DiskStresserWorker> workers = makeDiskStresserWorkers(j,
-					Integer.parseInt(args[0]), temp, out3);
+			ArrayList<DiskStresserWorker> workers = makeDiskStresserWorkers(j,Integer.parseInt(args[0]),tt, out3);
 
 			// Run the unlimited test
 			m.setSpeed(-1);

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -49,10 +50,8 @@ public class DBWorkload {
 	 */
 	public static void main(String[] args) throws QueueLimitException,
 			IOException {
-		// TODO Auto-generated method stub
-		// create the command line parser
-		//System.out.println("Starting test...");
 		
+		// create the command line parser
 		CommandLineParser parser = new PosixParser();
 		XMLConfiguration pluginConfig=null;
 		try {
@@ -116,12 +115,27 @@ public class DBWorkload {
 				wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
 				wrkld.setTracefile(xmlConfig.getString("tracefile",null));
 				wrkld.setBaseIP(xmlConfig.getString("baseip",null));
+				
+				
 				int size = xmlConfig.configurationsAt("works.work").size();
 				for (int i = 0; i < size; i++)
 					wrkld.addWork(
 							xmlConfig.getInt("works.work(" + i + ").time"),
 							xmlConfig.getInt("works.work(" + i + ").rate"),
 							xmlConfig.getList("works.work(" + i + ").weights"));
+				
+				int numTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
+				
+				//TODO: add assert to check number of types and number of weights is consistent
+				
+				ArrayList<TransactionType> ttypes = new ArrayList<TransactionType>();
+				for (int i = 0; i < numTypes; i++)
+					ttypes.add(new TransactionType(
+							xmlConfig.getString("transactiontypes.transactiontype(" + i + ").name"),
+							xmlConfig.getInt("transactiontypes.transactiontype(" + i + ").id")));
+							
+				wrkld.setTransTypes(new TransactionTypes(ttypes));
+				
 				wrkld.init();
 				Results r = run(wrkld, argsLine.hasOption("v"));
 				PrintStream ps = System.out;
@@ -149,7 +163,6 @@ public class DBWorkload {
 
 	private static Results run(WorkLoadConfiguration wrkld, boolean verbose)
 			throws QueueLimitException, IOException {
-		// TODO Auto-generated method stub
 		try {
 			Class c = Class.forName(classname);
 			IBenchmarkModule bench = (IBenchmarkModule) c.newInstance();
@@ -163,10 +176,8 @@ public class DBWorkload {
 		} catch (ClassNotFoundException e) {
 			System.err.println("Benchmark module not found " + classname);
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

@@ -40,11 +40,26 @@ public final class jTPCCConfig {
 	// TODO: This was final; Modified by TPCCRateLimited. Better system?
 	public static boolean TERMINAL_MESSAGES = true;
 
-	  public static enum TransactionType {
-		  // Exists so the order is the same as the constants below
-		       INVALID, 
-		 	  NEW_ORDER, PAYMENT, ORDER_STATUS, DELIVERY, STOCK_LEVEL, CPU1, CPU2, IO1, IO2,  CONTENTION1, CONTENTION2,WIKI_ADD_WATCHLIST,WIKI_REMOVE_WATCHLIST, WIKI_UPDATE_PAGE,WIKI_SELECT_PAGE
-		   }
+	public static enum TransactionType {
+
+		      INVALID, 		  // Exists so the order is the same as the constants below 
+		 	  NEW_ORDER, 
+		 	  PAYMENT, 
+		 	  ORDER_STATUS, 
+		 	  DELIVERY, 
+		 	  STOCK_LEVEL, 
+		 	  CPU1, 
+		 	  CPU2, 
+		 	  IO1, 
+		 	  IO2,  
+		 	  CONTENTION1, 
+		 	  CONTENTION2, 
+		 	  WIKI_ADD_WATCHLIST, 
+		 	  WIKI_REMOVE_WATCHLIST, 
+		 	  WIKI_UPDATE_PAGE,
+		 	  WIKI_SELECT_PAGE
+	}
+	
 	// TODO: Remove these constants
 	public final static int NEW_ORDER = 1, PAYMENT = 2, ORDER_STATUS = 3,
 			DELIVERY = 4, STOCK_LEVEL = 5;
