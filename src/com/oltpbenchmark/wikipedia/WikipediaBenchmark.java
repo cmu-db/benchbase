@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.oltpbenchmark.IBenchmarkModule;
-import com.oltpbenchmark.ThreadBench.Worker;
 import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.Worker;
 
 
 public class WikipediaBenchmark implements IBenchmarkModule{

@@ -35,7 +35,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 import com.oltpbenchmark.ThreadBench.Results;
-import com.oltpbenchmark.ThreadBench.Worker;
 
 
 

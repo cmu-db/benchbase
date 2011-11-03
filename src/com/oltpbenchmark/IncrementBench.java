@@ -32,7 +32,7 @@ import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
 
 
 public class IncrementBench {
-	private static final class IncrementWorker extends ThreadBench.Worker {
+	private static final class IncrementWorker extends Worker {
 		private final Random rng = new Random();
 		private final Connection connection;
 		private final PreparedStatement prepared;

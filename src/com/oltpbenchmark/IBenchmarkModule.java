@@ -22,7 +22,6 @@ package com.oltpbenchmark;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.oltpbenchmark.ThreadBench.Worker;
 
 
 /*

@@ -30,11 +30,11 @@ import java.util.Calendar;
 import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
-import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
 
-public class WikipediaWorker extends ThreadBench.Worker {
+public class WikipediaWorker extends Worker {
 	private final Connection conn;
 	private final TransactionGenerator generator;
 	private final Statement st;
@@ -61,6 +61,8 @@ public class WikipediaWorker extends ThreadBench.Worker {
 
 		// we should work using the LLR to drive wikipedia at different speeds!!
 
+		
+		
 
 		
 		Transaction t= generator.nextTransaction();

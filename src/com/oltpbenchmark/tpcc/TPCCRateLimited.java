@@ -27,15 +27,15 @@ import java.util.List;
 import com.oltpbenchmark.IBenchmarkModule;
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.ThreadBench.Worker;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
 
 
 public class TPCCRateLimited implements IBenchmarkModule {
 
-	public static final class TPCCWorker extends ThreadBench.Worker {
+	public static final class TPCCWorker extends Worker {
 		private final jTPCCTerminal terminal;
 
 		public TPCCWorker(jTPCCTerminal terminal) {

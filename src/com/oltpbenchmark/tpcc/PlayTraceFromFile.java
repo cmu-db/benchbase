@@ -34,12 +34,13 @@ import java.util.StringTokenizer;
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
 
 
 public class PlayTraceFromFile {
 
-	private static final class DiskStresserWorker extends ThreadBench.Worker {
+	private static final class DiskStresserWorker extends Worker {
 		private final DiskStresser terminal;
 		private final int type;
 

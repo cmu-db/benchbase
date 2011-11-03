@@ -28,7 +28,7 @@ import com.oltpbenchmark.tpcc.jTPCCConfig.TransactionType;
 
 
 public class ThreadBenchExample {
-	private static final class RandomSleepWorker extends ThreadBench.Worker {
+	private static final class RandomSleepWorker extends Worker {
 		private final Random rng = new Random();
 		private final int maxMs;
 

@@ -29,11 +29,12 @@ import java.util.Properties;
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.WorkLoadConfiguration.Phase;
+import com.oltpbenchmark.Worker;
 
 
 public class TPCCBenchmark {
 
-	private static final class TPCCWorker extends ThreadBench.Worker {
+	private static final class TPCCWorker extends Worker {
 		private final jTPCCTerminal terminal;
 
 		public TPCCWorker(jTPCCTerminal terminal) {

@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.ThreadBench.Worker;
+import com.oltpbenchmark.Worker;
 
 
 public class TPCCRateLimitedFromFile {

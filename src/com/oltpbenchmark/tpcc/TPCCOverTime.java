@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.ThreadBench.Worker;
+import com.oltpbenchmark.Worker;
 
 
 public class TPCCOverTime {
