@@ -6,5 +6,8 @@ WIKIPEDIA TEST:
 - load a wikipedia database (e.g., wb_1k.sql)
 - launch from the homedir of this project run/runWiki.sh 
 
+TPCC TEST:
+- load a TPCC database 
+- launch from the homedir of this project run/runTPCC.sh
 
 (This readme needs a lot of help... sorry!)
