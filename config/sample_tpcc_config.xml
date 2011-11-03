@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/test</DBUrl>
-    <DBName>tests</DBName>
+    <DBUrl>jdbc:mysql://127.0.0.1:3400/tpcc</DBUrl>
+    <DBName>tpcc</DBName>
     <username>root</username>
-    <password>hello</password>
-    <terminals>10</terminals>
-    <numWarehouses>10</numWarehouses>
+    <password></password>
+    <terminals>2</terminals>
+    <numWarehouses>2</numWarehouses>
     
     <transactiontypes>
     	<transactiontype>
@@ -36,16 +36,6 @@
     </transactiontypes>
     
     <works>
-        <work>
-          <time>5</time>
-          <rate>100</rate>
-          <weights>0,0,0,0,100</weights>
-        </work>
-        <work>
-          <time>2</time>
-          <rate>200</rate>
-          <weights>20,20,20,20,20</weights>
-        </work>
         <work>
           <time>10</time>
           <rate>20</rate>

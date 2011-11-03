@@ -2,5 +2,9 @@ Download this code..
 run ant to compile it... 
 you can test a simple tpcc benchmark (assuming you have a tpcc db installed) by running.. run/launch_simple_tpcc_test.sh
 
+WIKIPEDIA TEST:
+- load a wikipedia database (e.g., wb_1k.sql)
+- launch from the homedir of this project run/runWiki.sh 
+
 
 (This readme needs a lot of help... sorry!)

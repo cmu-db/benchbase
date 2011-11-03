@@ -34,19 +34,9 @@
     
     <works>
         <work>
-          <time>5</time>
+          <time>30</time>
           <rate>100</rate>
           <weights>0,0,0,0,100</weights>
         </work>
-        <work>
-          <time>2</time>
-          <rate>200</rate>
-          <weights>20,20,20,20,20</weights>
-        </work>
-        <work>
-          <time>10</time>
-          <rate>20</rate>
-          <weights>30,10,0,40,20</weights>
-        </work>
-	</works>
+    </works>
 </parameters>
