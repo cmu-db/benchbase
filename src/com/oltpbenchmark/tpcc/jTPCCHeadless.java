@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class jTPCCHeadless implements jTPCCDriver {
 	/** If true, messages are printed when creating the terminals. */

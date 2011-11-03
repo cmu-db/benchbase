@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.tpcc.old;
 
 /*
  * Copyright (C) 2004-2006, Denis Lussier
@@ -54,6 +54,7 @@ import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.Random;
 
+import com.oltpbenchmark.tpcc.jTPCCUtil;
 import com.oltpbenchmark.tpcc.jdbc.HSQLDBjdbcIO;
 import com.oltpbenchmark.tpcc.pojo.Customer;
 import com.oltpbenchmark.tpcc.pojo.District;

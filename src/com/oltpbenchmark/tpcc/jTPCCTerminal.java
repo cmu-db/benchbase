@@ -49,6 +49,7 @@ import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.TransactionType;
 import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.tpcc.pojo.Customer;
+import com.oltpbenchmark.util.SimplePrinter;
 
 
 public class jTPCCTerminal implements Runnable {

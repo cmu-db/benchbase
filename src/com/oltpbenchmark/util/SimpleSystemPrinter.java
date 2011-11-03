@@ -17,35 +17,19 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.util;
 
-import java.sql.SQLException;
-import java.util.Properties;
+import java.io.PrintStream;
 
-public class StatisticsCollector {
+public class SimpleSystemPrinter implements SimplePrinter {
+	PrintStream out;
 
-	SSHGetStats osStats;
-	MysqlGetStats mysqlGetStats;
-
-	public StatisticsCollector(Properties ini) throws SQLException {
-		osStats = new SSHGetStats(ini);
-		mysqlGetStats = new MysqlGetStats(ini);
+	public SimpleSystemPrinter(PrintStream out) {
+		this.out = out;
 	}
 
-	public double[] getStats() throws SQLException {
-
-		double[] re = new double[13];
-
-		re[0] = mysqlGetStats.getAverageTransactionPerSecondSinceLastCall();
-		re[1] = osStats.getPercentageCPUSinceLastCall();
-
-		double[] temp = osStats.getDifferentialDiskStats();
-
-		for (int i = 0; i < 11; i++) {
-			re[2 + i] = temp[i];
-		}
-
-		return re;
+	public void println(String msg) {
+		if (out != null)
+			out.println(msg);
 	}
-
 }

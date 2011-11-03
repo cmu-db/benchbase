@@ -35,10 +35,10 @@ import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.tpcc.MeasureTargetSystem;
-import com.oltpbenchmark.tpcc.StatisticsCollector;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
 import com.oltpbenchmark.tpcc.jTPCCHeadless;
+import com.oltpbenchmark.util.MeasureTargetSystem;
+import com.oltpbenchmark.util.StatisticsCollector;
 import com.oltpbenchmark.TransactionType;
 
 

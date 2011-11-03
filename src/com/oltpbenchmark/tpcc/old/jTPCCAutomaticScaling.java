@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.tpcc.old;
 
 /*
  * jTPCC - Open Source Java implementation of a TPC-C like benchmark
@@ -64,6 +64,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Random;
+
+import com.oltpbenchmark.tpcc.jTPCCDriver;
+import com.oltpbenchmark.tpcc.jTPCCTerminal;
+import com.oltpbenchmark.util.SimpleSystemPrinter;
+import com.oltpbenchmark.util.StatisticsCollector;
+import com.oltpbenchmark.util.StatsHolder;
 
 public class jTPCCAutomaticScaling implements jTPCCDriver {
 

@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.tpcc.old;
 
 /*
  * JOutputArea - Simple output area for jTPCC
@@ -31,6 +31,8 @@ import java.awt.Font;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
+import com.oltpbenchmark.util.SimplePrinter;
 
 public class JOutputArea extends JScrollPane implements SimplePrinter {
 	public final static long DEFAULT_MAX_CHARS = 20000, NO_CHAR_LIMIT = 0;

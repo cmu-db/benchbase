@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.tpcc;
+package com.oltpbenchmark.tpcc.old;
 
 /*
  * jTPCC - Open Source Java implementation of a TPC-C like benchmark
@@ -82,8 +82,12 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import com.oltpbenchmark.tpcc.jTPCCDriver;
+import com.oltpbenchmark.tpcc.jTPCCTerminal;
+import com.oltpbenchmark.tpcc.old.JOutputArea;
+
 public class jTPCC extends JFrame implements ActionListener, WindowListener,
-		jTPCCDriver {
+		 jTPCCDriver {
 	private JTabbedPane jTabbedPane;
 	private JPanel jPanelControl, jPanelConfigSwitch, jPanelTerminalOutputs,
 			jPanelOutputSwitch;
