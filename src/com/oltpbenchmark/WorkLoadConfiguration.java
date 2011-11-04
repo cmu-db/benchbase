@@ -42,7 +42,7 @@ public class WorkLoadConfiguration {
 	private int workPhases = 0;
 	private TransactionTypes transTypes = null;
 
-	public void addWork(int time, int rate, List<Double> weights) {
+	public void addWork(int time, int rate, List<String> weights) {
 		works.add(new Phase(time, rate, weights));
 		workPhases++;
 	}

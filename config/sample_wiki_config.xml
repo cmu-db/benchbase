@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3500/wiki1k</DBUrl>
+    <DBUrl>jdbc:mysql://vise4.csail.mit.edu:3500/wiki1k</DBUrl>
     <DBName>wiki1k</DBName>
     <username>root</username>
     <password></password>
@@ -38,8 +38,13 @@
     
     <works>
         <work>
+          <time>10</time>
+          <rate>200</rate>
+          <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+        <work>
           <time>30</time>
-          <rate>100</rate>
+          <rate>200</rate>
           <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
         </work>
     </works>

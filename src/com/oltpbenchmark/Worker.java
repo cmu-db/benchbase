@@ -1,10 +1,10 @@
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
-import com.oltpbenchmark.ThreadBench.BenchmarkState;
 import com.oltpbenchmark.ThreadBench.State;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.tpcc.jTPCCConfig;
+import com.oltpbenchmark.BenchmarkState;
 
 public abstract class Worker implements Runnable {
 	private BenchmarkState testState;

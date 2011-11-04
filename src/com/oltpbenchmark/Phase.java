@@ -1,5 +1,6 @@
 package com.oltpbenchmark;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,10 +14,16 @@ public class Phase {
 	public int rate;
 	public List<Double> weights;
 
-	Phase(int t, int r, List<Double> o) {
+	Phase(int t, int r, List<String> o) {
+		
+		ArrayList<Double> w= new ArrayList<Double>();
+		
+		for(String s:o)
+			w.add(Double.parseDouble(s));
+		
 		time = t;
 		rate = r;
-		weights = o;
+		weights = w;
 	}
 
 	/**
@@ -38,7 +45,7 @@ public class Phase {
 	public int chooseTransaction() {
 		
 		int randomPercentage = gen.nextInt(100) + 1;
-		double weight = 0;
+		Double weight = 0.0;
 		
 		for(int i=0; i<weights.size();i++){
 			weight += weights.get(i);

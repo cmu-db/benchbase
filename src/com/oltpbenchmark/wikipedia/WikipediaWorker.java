@@ -69,7 +69,7 @@ public class WikipediaWorker extends Worker {
 		WikipediaOperation t= generator.nextTransaction();
 		TransactionType retTP = transTypes.getType("INVALID");
 		
-		
+		assert(phase!=null);
 		int nextTrans = phase.chooseTransaction();
 		
 
