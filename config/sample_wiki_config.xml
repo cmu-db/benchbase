@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4.csail.mit.edu:3500/wiki1k</DBUrl>
+    <DBUrl>jdbc:mysql://127.0.0.1:3400/wiki1k</DBUrl>
     <DBName>wiki1k</DBName>
     <username>root</username>
     <password></password>
