@@ -383,7 +383,7 @@ public class WikipediaWorker extends Worker {
 		
 		int nextRevID = -1;
 
-		rs = st.getGeneratedKeys();
+		rs = ps2.getGeneratedKeys();
 		if (rs.next()) {
 			nextRevID = rs.getInt(1);
 		} else {
