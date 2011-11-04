@@ -148,4 +148,8 @@ public class WorkLoadConfiguration {
 	public void setTransTypes(TransactionTypes transTypes) {
 		this.transTypes = transTypes;
 	}
+
+	public List<Phase> getAllPhases() {
+		return works;
+	}
 }

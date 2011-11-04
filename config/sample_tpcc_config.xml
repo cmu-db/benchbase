@@ -39,7 +39,7 @@
         <work>
           <time>10</time>
           <rate>20</rate>
-          <weights>30,10,0,40,20</weights>
+          <weights>0,30,10,0,40,20</weights>
         </work>
 	</works>
 </parameters>

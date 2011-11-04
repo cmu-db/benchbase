@@ -42,12 +42,12 @@
         <work>
           <time>10</time>
           <rate>200</rate>
-          <weights>30,10,0,40,10,10</weights>
+          <weights>0,30,10,0,40,10,10</weights>
         </work>
 		<work>
           <time>10</time>
           <rate>200</rate>
-          <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
+          <weights>0,16.66,16.66,16.66,16.66,16.66,16.7</weights>
         </work>
 	</works>
 </parameters>

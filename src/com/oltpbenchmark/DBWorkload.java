@@ -126,7 +126,17 @@ public class DBWorkload {
 				
 				int numTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
 				
-				//TODO: add assert to check number of types and number of weights is consistent
+				
+				//CHECKING INPUT PHASES
+				int j =0;
+				for(Phase p:wrkld.getAllPhases()){
+					j++;
+					if(p.weights.size()!=numTypes){
+						System.err.println("Configuration files is inconsistent, phase " + j + " contains " +p.weights.size() + " weights while you defined "+ numTypes + " transaction types");
+						System.exit(-1);
+					}
+				}		
+			
 				
 				ArrayList<TransactionType> ttypes = new ArrayList<TransactionType>();
 				for (int i = 0; i < numTypes; i++)
