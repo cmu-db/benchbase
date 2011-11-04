@@ -2,4 +2,5 @@
 <plugins>
 	<plugin name="tpcc">com.oltpbenchmark.tpcc.TPCCRateLimited</plugin>
 	<plugin name="wikipedia">com.oltpbenchmark.wikipedia.WikipediaBenchmark</plugin>
+	<plugin name="resourcestresser">com.oltpbenchmark.resourcestresser.ResourceStresserBenchmark</plugin>
 </plugins>

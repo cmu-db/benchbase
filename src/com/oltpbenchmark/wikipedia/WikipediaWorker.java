@@ -98,7 +98,7 @@ public class WikipediaWorker extends Worker {
 			} catch (MySQLTransactionRollbackException m){
 				System.err.println("Rollback:" + m.getMessage());
 			} catch (SQLException e) {
-				throw new RuntimeException(e);
+				System.err.println("Timeout:" + e.getMessage());
 			}
 		}
 		return retTP;
