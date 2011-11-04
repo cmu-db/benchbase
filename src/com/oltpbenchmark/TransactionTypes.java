@@ -26,5 +26,15 @@ public class TransactionTypes {
 		return null;
 	}
 	
+	public String toString(){
+		
+		String out = "";
+		
+		for(TransactionType t:transactiontypes)
+			out += "\n " + t.name +":"+t.getId();
+			 
+		return out;		
+		
+	}
 	
 }

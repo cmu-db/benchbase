@@ -134,7 +134,11 @@ public class DBWorkload {
 							xmlConfig.getString("transactiontypes.transactiontype(" + i + ").name"),
 							xmlConfig.getInt("transactiontypes.transactiontype(" + i + ").id")));
 							
-				wrkld.setTransTypes(new TransactionTypes(ttypes));
+				TransactionTypes tt =new TransactionTypes(ttypes);
+				wrkld.setTransTypes(tt);
+				
+				System.out.println("Using the following transaction types: " +tt);
+				
 				
 				wrkld.init();
 				Results r = run(wrkld, argsLine.hasOption("v"));
