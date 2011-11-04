@@ -21,5 +21,5 @@ package com.oltpbenchmark.wikipedia;
 
 public interface TransactionGenerator {
 	/** Implementations *must* be thread-safe. */
-	Transaction nextTransaction();
+	WikipediaOperation nextTransaction();
 }

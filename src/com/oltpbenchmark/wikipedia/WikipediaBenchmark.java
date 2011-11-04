@@ -47,7 +47,7 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile(),workConf.getTransTypes());
 		
 		
-		List<Transaction> trace = Collections.unmodifiableList(transSel.readAll());
+		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();

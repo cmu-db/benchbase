@@ -66,30 +66,34 @@ public class WikipediaWorker extends Worker {
 
 		transTypes.getType("INVALID");
 		
-		Transaction t= generator.nextTransaction();
+		WikipediaOperation t= generator.nextTransaction();
 		TransactionType retTP = transTypes.getType("INVALID");
+		
+		
+		int nextTrans = phase.chooseTransaction();
+		
 
 		try {
 			
-			
-			// with 2% probability and if the user is logged-in we add or remove entry from their watchlists 
-			// the overall probabiliy is around 0.14% of an access to be an edit to watchlist  
-			if(r.nextInt(100)<2 && t.userId > 0){
-				if(r.nextBoolean()){
-					addToWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_ADD_WATCHLIST");
-				}else{
-					removeFromWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_REMOVE_WATCHLIST");
-				}	
-			}else{
-				if(t.isUpdate){
-					updatePage(userIp, t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_UPDATE_PAGE");
-				}else{
+			if(nextTrans == transTypes.getType("WIKI_ADD_WATCHLIST").getId()){
+				addToWatchlist(t.userId,t.nameSpace,t.pageTitle);
+				retTP = transTypes.getType("WIKI_ADD_WATCHLIST");
+			}else
+			if(nextTrans == transTypes.getType("WIKI_REMOVE_WATCHLIST").getId()){
+				removeFromWatchlist(t.userId,t.nameSpace,t.pageTitle);
+				retTP = transTypes.getType("WIKI_REMOVE_WATCHLIST");
+			}else
+			if(nextTrans == transTypes.getType("WIKI_UPDATE_PAGE").getId()){
+				updatePage(userIp, t.userId,t.nameSpace,t.pageTitle);
+				retTP = transTypes.getType("WIKI_UPDATE_PAGE");
+			}else
+			if(nextTrans == transTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS").getId()){
+				selectPage(true,userIp, 0,t.nameSpace,t.pageTitle);
+				retTP = transTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS");
+			}else
+			if(nextTrans == transTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN").getId()){
 					selectPage(true,userIp, t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_SELECT_PAGE");
-				}
+					retTP = transTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN");
 			}
 			
 		} catch (MySQLTransactionRollbackException m){

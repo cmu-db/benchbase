@@ -27,8 +27,12 @@
     		<id>3</id>
     	</transactiontype>
     	<transactiontype>
-    		<name>WIKI_SELECT_PAGE</name>
+    		<name>WIKI_SELECT_PAGE_ANONYMOUS</name>
     		<id>4</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>WIKI_SELECT_PAGE_LOGGED_IN</name>
+    		<id>5</id>
     	</transactiontype>
     </transactiontypes>
     
@@ -36,7 +40,9 @@
         <work>
           <time>30</time>
           <rate>100</rate>
-          <weights>0,0,0,0,100</weights>
+          <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
         </work>
     </works>
 </parameters>
+
+<?READ_OVER_WRITE_RATIO 11.8   WATCHLIST UPDATE 0.14%  LOGGED IN SELECT 1% ?>

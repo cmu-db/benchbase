@@ -24,18 +24,18 @@ import java.util.Random;
 
 public class TraceTransactionGenerator implements TransactionGenerator {
 	private final Random rng = new Random();
-	private final List<Transaction> transactions;
+	private final List<WikipediaOperation> transactions;
 
 	/**
 	 * @param transactions
 	 *            a list of transactions shared between threads.
 	 */
-	public TraceTransactionGenerator(List<Transaction> transactions) {
+	public TraceTransactionGenerator(List<WikipediaOperation> transactions) {
 		this.transactions = transactions;
 	}
 
 	@Override
-	public Transaction nextTransaction() {
+	public WikipediaOperation nextTransaction() {
 		int transactionIndex = rng.nextInt(transactions.size());
 		return transactions.get(transactionIndex);
 	}

@@ -21,15 +21,13 @@
 package com.oltpbenchmark.wikipedia;
 
 /** Immutable class containing information about transactions. */
-public final class Transaction {
-	public final boolean isUpdate;
+public final class WikipediaOperation {
+	
 	public final int userId;
 	public final int nameSpace;
 	public final String pageTitle;
 
-	public Transaction(boolean isUpdate, int userId, int nameSpace,
-			String pageTitle) {
-		this.isUpdate = isUpdate;
+	public WikipediaOperation(int userId, int nameSpace, String pageTitle) {
 		// value of -1 indicate user is not logged in
 		this.userId = userId;
 		this.nameSpace = nameSpace;

@@ -61,39 +61,24 @@ public class TransactionSelector {
 
 	}
 
-	public synchronized Transaction nextTransaction() throws IOException {
+	public synchronized WikipediaOperation nextTransaction() throws IOException {
 		if (dis.available() == 0)
 			dis.reset();
 
 		return readNextTransaction();
 	}
 
-	private Transaction readNextTransaction() throws IOException {
+	private WikipediaOperation readNextTransaction() throws IOException {
 		String line = dis.readLine();
 		String[] sa = Tokenizer.parseTokens(line, ' ');
 
-		// boolean isUpdate = sa[2].equals("save");
-		boolean isUpdate = false;
+		int user = Integer.parseInt(sa[0]);
 
-		if (r.nextInt(1000) <= 1000 / READ_WRITE_RATIO)
-			isUpdate = true;
-
-		int user = 0;
-		if (isUpdate) // for updates we use user_ids from the trace. The trace
-						// contains in 25%-33% of the cases 0 as user_id which
-						// indicates anonymous edits
-			user = Integer.parseInt(sa[0]);
-
-		// WILD GUESS ON HOW FREQUENT IS A SELECT FROM LOGGED-USER is 1% (plus
-		// the anonymity factor intrinsic in the trace)
-		if (!isUpdate && r.nextInt(1000) >= (9990))
-			user = Integer.parseInt(sa[0]); // using user from the trace
-
-		return new Transaction(isUpdate, user, Integer.parseInt(sa[1]), sa[2]);
+		return new WikipediaOperation(user, Integer.parseInt(sa[1]), sa[2]);
 	}
 
-	public ArrayList<Transaction> readAll() throws IOException {
-		ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+	public ArrayList<WikipediaOperation> readAll() throws IOException {
+		ArrayList<WikipediaOperation> transactions = new ArrayList<WikipediaOperation>();
 
 		while (dis.available() > 0) {
 			transactions.add(readNextTransaction());
