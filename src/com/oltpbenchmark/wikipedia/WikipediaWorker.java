@@ -373,13 +373,14 @@ public class WikipediaWorker extends Worker {
 				+ nextTextId
 				+ ",'','0','"
 				+ userId
-				+ "',\""
-				+ a.userText
-				+ "\",\""
+				+ "',?,\""
 				+ getTimeStamp14char()
 				+ "\",'0','" + a.oldText.length() + "','" + a.revisionId + "')";
-		st.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
-
+		
+		PreparedStatement ps2 = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+		ps2.setString(1, a.userText);
+		ps2.execute();
+		
 		int nextRevID = -1;
 
 		rs = st.getGeneratedKeys();
