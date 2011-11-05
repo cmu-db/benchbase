@@ -114,6 +114,7 @@ public class DBWorkload {
 				wrkld.setTerminals(xmlConfig.getInt("terminals"));
 				wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
 				wrkld.setTracefile(xmlConfig.getString("tracefile",null));
+				wrkld.setTracefile2(xmlConfig.getString("tracefile2",null));
 				wrkld.setBaseIP(xmlConfig.getString("baseip",null));
 				
 				

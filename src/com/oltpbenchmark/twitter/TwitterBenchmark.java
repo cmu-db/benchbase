@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.wikipedia;
+package com.oltpbenchmark.twitter;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -33,19 +33,16 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 
 
-public class WikipediaBenchmark implements IBenchmarkModule{
+public class TwitterBenchmark implements IBenchmarkModule{
 
 	@Override
 	public ArrayList<Worker> makeWorkers(boolean verbose, WorkLoadConfiguration workConf) throws IOException {
-		// TODO Auto-generated method stub
-		//WorkLoadConfiguration workConf=WorkLoadConfiguration.getInstance();
 		
 		if(workConf==null)
 			throw new IOException("The WorkloadConfiguration instance is null.");
-		//System.out.println("Using trace:" +workConf.getTracefile());
 		
-		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile(),workConf.getTransTypes());
-		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
+		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile(),workConf.getTracefile2(),workConf.getTransTypes());
+		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
@@ -57,8 +54,7 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 			conn.setAutoCommit(false);
 			TransactionGenerator generator = new TraceTransactionGenerator(
 					trace);
-			workers.add(new WikipediaWorker(conn, generator, workConf.getBaseIP()
-					+ (i % 256) + "." + rand.nextInt(256),workConf.getTransTypes()));
+			workers.add(new TwitterWorker(conn, generator,workConf));
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -36,6 +36,7 @@ public class WorkLoadConfiguration {
 	private int terminals;
 	private int numWarehouses;
 	private String tracefile;
+	private String tracefile2;
 	private String baseIP;
 	private List<Phase> works = new ArrayList<Phase>();
 	private static Iterator<Phase> i;
@@ -151,5 +152,14 @@ public class WorkLoadConfiguration {
 
 	public List<Phase> getAllPhases() {
 		return works;
+	}
+
+	public String getTracefile2() {
+		return tracefile2;
+	}
+	
+	public void setTracefile2(String string) {
+		tracefile2 =string;
+		
 	}
 }

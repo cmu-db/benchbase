@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<parameters>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://127.0.0.1:3400/wiki1k</DBUrl>
+    <DBName>wiki1k</DBName>
+    <username>root</username>
+    <password></password>
+    <terminals>10</terminals>
+    <tracefile>config/traces/twitter_tweetids.txt</tracefile>
+    <tracefile2>config/traces/twitter_user_ids.txt</tracefile2>
+    <base_ip>10.1.</base_ip>
+  
+    <transactiontypes>
+    	<transactiontype>
+    		<name>INVALID</name>
+    		<id>0</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>TWITTER_SELECT1_TWEET_BY_TWEETID</name>
+    		<id>1</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>TWITTER_SELECT_TWEETS_I_FOLLOW</name>
+    		<id>2</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>TWITTER_SELECT_FOLLOWERS</name>
+    		<id>3</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>TWITTER_SELECT_TWEETS_BY_USERID</name>
+    		<id>4</id>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>TWITTER_INSERT1_TWEET</name>
+    		<id>5</id>
+    	</transactiontype>
+
+    </transactiontypes>
+    
+    <works>
+        <work>
+          <time>10</time>
+          <rate>200</rate>
+          <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+        <work>
+          <time>5</time>
+          <rate>200</rate>
+          <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+    </works>
+</parameters>
+
+<?READ_OVER_WRITE_RATIO 11.8   WATCHLIST UPDATE 0.14%  LOGGED IN SELECT 1% ?>
