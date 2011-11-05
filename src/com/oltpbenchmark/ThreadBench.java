@@ -37,14 +37,16 @@ import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.BenchmarkState;
 
 
-public class ThreadBench {
+public class ThreadBench implements Thread.UncaughtExceptionHandler{
 	private BenchmarkState testState;
 	private final List<? extends Worker> workers;
 	private File profileFile;
 	private static final WorkLoadConfiguration workConf = WorkLoadConfiguration
 			.getInstance();
+	ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 
 
+	
 	
 	static enum State {
 		WARMUP, MEASURE, DONE, EXIT,
@@ -339,6 +341,7 @@ public class ThreadBench {
 		for (Worker worker : workers) {
 			worker.setBenchmark(testState);
 			Thread thread = new Thread(worker);
+			thread.setUncaughtExceptionHandler(this);
 			thread.start();
 			workerThreads.add(thread);
 		}
@@ -400,6 +403,8 @@ public class ThreadBench {
 				|| testState.getState() == State.EXIT;
 		int requests = 0;
 		for (int i = 0; i < workerThreads.size(); ++i) {
+			
+			//FIXME put a timeout here...
 			workerThreads.get(i).join();
 			requests += workers.get(i).getRequests();
 		}
@@ -674,7 +679,6 @@ public class ThreadBench {
 
 			// Combine all the latencies together in the most disgusting way
 			// possible: sorting!
-			ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 			for (Worker w : workers) {
 				for (LatencyRecord.Sample sample : w.getLatencyRecords()) {
 					samples.add(sample);
@@ -695,4 +699,23 @@ public class ThreadBench {
 			throw new RuntimeException(e);
 		}
 	}
+
+	@Override
+	public void uncaughtException(Thread t, Throwable e) {
+		//HERE WE HANDLE THE CASE IN WHICH ONE OF OUR WOKERTHREADS DIED
+		e.printStackTrace();
+		System.exit(-1);
+		
+		/*
+		 * Alternatively, we could keep an HashMap<Thread,Worker> storing the runnable for each thread, 
+		 * so that we can get the latency numbers from a thread that died, and either continue 
+		 * or at least report current status. (Remember to remove this thread from the list of threads to wait for) 
+		 */
+		
+		
+	}	
+		
+	
+
+			
 }

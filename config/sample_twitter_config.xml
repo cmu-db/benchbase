@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3400/wiki1k</DBUrl>
-    <DBName>wiki1k</DBName>
+    <DBUrl>jdbc:mysql://127.0.0.1:3400/twitter</DBUrl>
+    <DBName>twitter</DBName>
     <username>root</username>
     <password></password>
     <terminals>10</terminals>
