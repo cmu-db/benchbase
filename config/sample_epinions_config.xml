@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3400/tpcc</DBUrl>
-    <DBName>tpcc</DBName>
+    <DBUrl>jdbc:mysql://vise4:3400/epinions</DBUrl>
+    <DBName>epinions</DBName>
     <username>root</username>
     <password></password>
     <terminals>2</terminals>
