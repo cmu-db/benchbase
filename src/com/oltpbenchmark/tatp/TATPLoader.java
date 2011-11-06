@@ -51,6 +51,9 @@
  ***************************************************************************/
 package com.oltpbenchmark.tatp;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,11 +65,15 @@ public class TATPLoader {
     private static final boolean d = LOG.isLoggable(Level.FINE);
     
     private final long subscriberSize = 100000; // FIXME
+    private final int batchSize = 10000; // FIXME
     private final double scaleFactor = 1.0; // FIXME
     private final boolean blocking = false; // FIXME
+    
+    private final Connection c;
     private final Map<String, Table> tables;
     
-    public TATPLoader(Map<String, Table> tables) {
+    public TATPLoader(Connection c, Map<String, Table> tables) {
+    	this.c = c;
         this.tables = tables;
         if (d) LOG.fine("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
@@ -79,27 +86,31 @@ public class TATPLoader {
                 public void run() {
                     if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_SUBSCRIBER);
                     Table catalog_tbl = tables.get(TATPConstants.TABLENAME_SUBSCRIBER);
-                    genSubscriber(catalog_tbl);
+                    try {
+                    	genSubscriber(catalog_tbl);
+                    } catch (SQLException ex) {
+                    	throw new RuntimeException(ex);
+                    }
                     if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_SUBSCRIBER);
                 }
             },
-            new Thread() {
-                public void run() {
-                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_ACCESS_INFO);
-                    Table catalog_tbl = tables.get(TATPConstants.TABLENAME_ACCESS_INFO);
-                    genAccessInfo(catalog_tbl);
-                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_ACCESS_INFO);
-                }
-            },
-            new Thread() {
-                public void run() {
-                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
-                    Table catalog_spe = tables.get(TATPConstants.TABLENAME_SPECIAL_FACILITY);
-                    Table catalog_cal = tables.get(TATPConstants.TABLENAME_CALL_FORWARDING);
-                    genSpeAndCal(catalog_spe, catalog_cal);
-                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
-                }
-            }
+//            new Thread() {
+//                public void run() {
+//                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_ACCESS_INFO);
+//                    Table catalog_tbl = tables.get(TATPConstants.TABLENAME_ACCESS_INFO);
+//                    genAccessInfo(catalog_tbl);
+//                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_ACCESS_INFO);
+//                }
+//            },
+//            new Thread() {
+//                public void run() {
+//                    if (d) LOG.fine("Start loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
+//                    Table catalog_spe = tables.get(TATPConstants.TABLENAME_SPECIAL_FACILITY);
+//                    Table catalog_cal = tables.get(TATPConstants.TABLENAME_CALL_FORWARDING);
+//                    genSpeAndCal(catalog_spe, catalog_cal);
+//                    if (d) LOG.fine("Finished loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
+//                }
+//            }
         };
 
         try {
@@ -125,53 +136,58 @@ public class TATPLoader {
     /**
      * Populate Subscriber table per benchmark spec.
      */
-    void genSubscriber(Table catalog_tbl) {
-        // FIXME final VoltTable table = CatalogUtil.getVoltTable(catalog_tbl);
+    void genSubscriber(Table catalog_tbl) throws SQLException {
         long s_id = 0;
         Object row[] = new Object[catalog_tbl.getColumnCount()];
 
+        // Disable auto-commit
+        this.c.setAutoCommit(false);
+
+        // Create a prepared statement
+        PreparedStatement pstmt = this.c.prepareStatement(catalog_tbl.getInsertSQL(this.batchSize));
+        
         long total = 0;
+        int offset = 0;
+        int batch = 0;
         while (s_id++ < subscriberSize) {
-            int col = 0;
-            row[col++] = new Long(s_id);
-            row[col++] = TATPUtil.padWithZero((Long) row[0]);
+            int col = offset;
+            
+            pstmt.setLong(++col, new Long(s_id));
+            pstmt.setString(++col, TATPUtil.padWithZero((Long) row[0]));
             
             // BIT_##
             for (int j = 0; j < 10; j++) {
-                row[col++] = TATPUtil.number(0, 1).intValue();
-            } // FOR
+            	pstmt.setByte(++col, TATPUtil.number(0, 1).byteValue());
+            }
             // HEX_##
             for (int j = 0; j < 10; j++) {
-                row[col++] = TATPUtil.number(0, 15).intValue();
+            	pstmt.setByte(++col, TATPUtil.number(0, 15).byteValue());
             }
             // BYTE2_##
             for (int j = 0; j < 10; j++) {
-                row[col++] = TATPUtil.number(0, 255).intValue();
+            	pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
             }
             // msc_location + vlr_location
             for (int j = 0; j < 2; j++) {
-                row[col++] = TATPUtil.number(0, Integer.MAX_VALUE).intValue();
+            	pstmt.setInt(++col, TATPUtil.number(0, Integer.MAX_VALUE).intValue());
             }
-            assert col == catalog_tbl.getColumnCount();
-            // FIXME table.addRow(row);
             total++;
             
-            
-            /* FIXME
-            if (table.getRowCount() >= TM1Constants.BATCH_SIZE) {
-                if (d) LOG.fine(String.format("%s: %6d / %d", TM1Constants.TABLENAME_SUBSCRIBER, total, subscriberSize));
-                loadVoltTable(TM1Constants.TABLENAME_SUBSCRIBER, table);
-                table.clearRowData();
+            if (++batch >= this.batchSize) {
+                if (d) LOG.fine(String.format("%s: %6d / %d", catalog_tbl, total, subscriberSize));
+                int results[] = pstmt.executeBatch();
+                assert(results != null);
+                this.c.commit();
+                offset = 0;
+                batch = 0;
             }
-            */
         } // WHILE
-        /* FIXME
-        if (table.getRowCount() > 0) {
-            if (d) LOG.fine(String.format("%s: %6d / %d", TM1Constants.TABLENAME_SUBSCRIBER, total, subscriberSize));
-            loadVoltTable(TM1Constants.TABLENAME_SUBSCRIBER, table);
-            table.clearRowData();
+        if (batch > 0) {
+        	if (d) LOG.fine(String.format("%s: %6d / %d", catalog_tbl, total, subscriberSize));
+            int results[] = pstmt.executeBatch();
+            assert(results != null);
+            this.c.commit();
         }
-        */
     }
 
     /**

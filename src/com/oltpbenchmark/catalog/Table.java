@@ -63,6 +63,33 @@ public class Table implements Serializable {
         this.columns.add(col);
     }
 
+    
+    public String getInsertSQL(int batchSize) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("INSERT INTO ").append(this.tableName).append(" (");
+    	
+    	StringBuilder inner = new StringBuilder();
+    	boolean first = true;
+    	for (Column catalog_col : this.columns) {
+    		if (first == false) {
+    			sb.append(", ");
+    			inner.append(", ");
+    		}
+    		sb.append(catalog_col.getName());
+    		inner.append("?");
+    		first = false;
+    	} // FOR
+    	sb.append(") VALUES ");
+    	first = true;
+    	for (int i = 0; i < batchSize; i++) {
+    		if (first == false) sb.append(", ");
+    		sb.append(inner.toString());
+    	} // FOR
+    	sb.append(";");
+    	
+    	return (sb.toString());
+    }
+    
     /**
      * @return the tableName
      */
