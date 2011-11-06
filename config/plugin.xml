@@ -5,5 +5,4 @@
 	<plugin name="resourcestresser">com.oltpbenchmark.resourcestresser.ResourceStresserBenchmark</plugin>
 	<plugin name="twitter">com.oltpbenchmark.twitter.TwitterBenchmark</plugin>
 	<plugin name="epinions">com.oltpbenchmark.epinions.EpinionsBenchmark</plugin>
-
 </plugins>

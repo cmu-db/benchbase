@@ -45,11 +45,9 @@ public class DBWorkload {
 
 	/**
 	 * @param args
-	 * @throws QueueLimitException
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws QueueLimitException,
-			IOException {
+	public static void main(String[] args) throws Exception {
 		
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -119,11 +117,17 @@ public class DBWorkload {
 				
 				
 				int size = xmlConfig.configurationsAt("works.work").size();
-				for (int i = 0; i < size; i++)
+				for (int i = 0; i < size; i++){
+				
+					if((int) xmlConfig.getInt("works.work(" + i + ").rate")<1)
+						throw new Exception("You cannot use less than 1 TPS in a Phase of your expeirment");
+
 					wrkld.addWork(
 							xmlConfig.getInt("works.work(" + i + ").time"),
 							xmlConfig.getInt("works.work(" + i + ").rate"),
 							xmlConfig.getList("works.work(" + i + ").weights"));
+				}
+				
 				
 				int numTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
 				
