@@ -20,15 +20,34 @@
 package com.oltpbenchmark;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
 
 /*
  * The interface that each new Benchmark need to implement
  */
-public interface IBenchmarkModule {
+public abstract class BenchmarkModule {
+	
+	protected final WorkLoadConfiguration workConf;
+	
+	public BenchmarkModule(WorkLoadConfiguration workConf) {
+		assert(workConf != null) : "The WorkloadConfiguration instance is null.";
+		this.workConf = workConf;
+	}
+	
 
-	public ArrayList<Worker> makeWorkers(boolean verbose,WorkLoadConfiguration wrkld) throws IOException;
+	public abstract List<Worker> makeWorkersImpl(boolean verbose) throws IOException;
+	
+	public final List<Worker> makeWorkers(boolean verbose) throws IOException {
+		return (this.makeWorkersImpl(verbose));
+	}
 
+	public final Connection getConnection() throws SQLException {
+		return (DriverManager.getConnection(workConf.getDatabase(),
+											workConf.getUsername(),
+											workConf.getPassword()));
+	}
+	
 }

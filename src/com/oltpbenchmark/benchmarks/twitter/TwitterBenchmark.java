@@ -21,45 +21,40 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-
-import com.oltpbenchmark.IBenchmarkModule;
+import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.benchmarks.TransactionGenerator;
 
+public class TwitterBenchmark extends BenchmarkModule {
 
-public class TwitterBenchmark implements IBenchmarkModule{
+	public TwitterBenchmark(WorkLoadConfiguration workConf) {
+		super(workConf);
+	}
 
 	@Override
-	public ArrayList<Worker> makeWorkers(boolean verbose, WorkLoadConfiguration workConf) throws IOException {
-		
-		if(workConf==null)
-			throw new IOException("The WorkloadConfiguration instance is null.");
-		
-		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile(),workConf.getTracefile2(),workConf.getTransTypes());
+	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+		TransactionSelector transSel = new TransactionSelector(workConf
+				.getTracefile(), workConf.getTracefile2(), workConf
+				.getTransTypes());
 		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
-		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			Connection conn;
-			try {
-				conn = DriverManager.getConnection(workConf.getDatabase(), workConf.getUsername(),
-						workConf.getPassword());
-			conn.setAutoCommit(false);
-			TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(
-					trace);
-			workers.add(new TwitterWorker(conn, generator,workConf));
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			for (int i = 0; i < this.workConf.getTerminals(); ++i) {
+				Connection conn = this.getConnection();
+				conn.setAutoCommit(false);
+				TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(
+						trace);
+				workers.add(new TwitterWorker(conn, generator, this.workConf));
+			} // FOR
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return workers;
 	}

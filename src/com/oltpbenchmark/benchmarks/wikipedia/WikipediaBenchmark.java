@@ -21,49 +21,49 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import com.oltpbenchmark.IBenchmarkModule;
+import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.benchmarks.TransactionGenerator;
 
+public class WikipediaBenchmark extends BenchmarkModule {
 
-public class WikipediaBenchmark implements IBenchmarkModule{
+	public WikipediaBenchmark(WorkLoadConfiguration workConf) {
+		super(workConf);
+	}
 
 	@Override
-	public ArrayList<Worker> makeWorkers(boolean verbose, WorkLoadConfiguration workConf) throws IOException {
-		// TODO Auto-generated method stub
-		//WorkLoadConfiguration workConf=WorkLoadConfiguration.getInstance();
-		
-		if(workConf==null)
-			throw new IOException("The WorkloadConfiguration instance is null.");
-		//System.out.println("Using trace:" +workConf.getTracefile());
-		
-		TransactionSelector transSel = new TransactionSelector(workConf.getTracefile(),workConf.getTransTypes());
-		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
+	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+		// System.out.println("Using trace:" +workConf.getTracefile());
+
+		TransactionSelector transSel = new TransactionSelector(workConf
+				.getTracefile(), workConf.getTransTypes());
+		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel
+				.readAll());
 		transSel.close();
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			Connection conn;
-			try {
-				conn = DriverManager.getConnection(workConf.getDatabase(), workConf.getUsername(),
-						workConf.getPassword());
-			conn.setAutoCommit(false);
-			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
-					trace);
-			workers.add(new WikipediaWorker(conn, generator, workConf.getBaseIP()
-					+ (i % 256) + "." + rand.nextInt(256),workConf.getTransTypes()));
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
+		try {
+			for (int i = 0; i < workConf.getTerminals(); ++i) {
+				Connection conn = this.getConnection();
+				conn.setAutoCommit(false);
+				TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
+						trace);
+				workers.add(new WikipediaWorker(conn, generator, workConf
+						.getBaseIP()
+						+ (i % 256) + "." + rand.nextInt(256), workConf
+						.getTransTypes()));
+			} // FOR
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return workers;
 	}

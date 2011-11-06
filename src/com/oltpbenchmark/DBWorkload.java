@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -36,6 +36,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 import com.oltpbenchmark.ThreadBench.Results;
+import com.oltpbenchmark.util.ClassUtil;
 
 
 
@@ -182,24 +183,16 @@ public class DBWorkload {
 
 	private static Results run(WorkLoadConfiguration wrkld, boolean verbose)
 			throws QueueLimitException, IOException {
-		try {
-			Class c = Class.forName(classname);
-			IBenchmarkModule bench = (IBenchmarkModule) c.newInstance();
-			ArrayList<Worker> workers = bench.makeWorkers(verbose,wrkld);
-			System.out.println("Launching the Benchmark with " + wrkld.size()
-					+ " Phases ...");
-			ThreadBench.Results r = ThreadBench
-					.runRateLimitedBenchmark(workers);
-			System.out.println("Rate limited reqs/s: " + r);
-			return r;
-		} catch (ClassNotFoundException e) {
-			System.err.println("Benchmark module not found " + classname);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		return null;
+		BenchmarkModule bench = ClassUtil.newInstance(classname,
+										   new Object[]{ wrkld },
+										   new Class<?>[]{ WorkLoadConfiguration.class });
+		List<Worker> workers = bench.makeWorkers(verbose);
+		System.out.println("Launching the Benchmark with " + wrkld.size()
+				+ " Phases ...");
+		ThreadBench.Results r = ThreadBench
+				.runRateLimitedBenchmark(workers);
+		System.out.println("Rate limited reqs/s: " + r);
+		return r;
 	}
 
 	private static void printUsage(Options options) {

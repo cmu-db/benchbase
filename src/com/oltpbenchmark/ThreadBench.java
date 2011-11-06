@@ -57,7 +57,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		this.workers = workers;
 	}
 
-	public ThreadBench(ArrayList<? extends Worker> workers, File profileFile) {
+	public ThreadBench(List<? extends Worker> workers, File profileFile) {
 		this.workers = workers;
 		this.profileFile = profileFile;
 	}
@@ -428,14 +428,14 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 				requestsPerSecond);
 	}
 
-	public static Results runRateLimitedBenchmark(ArrayList<Worker> workers,
+	public static Results runRateLimitedBenchmark(List<Worker> workers,
 			File profileFile) throws QueueLimitException, IOException {
 
 		ThreadBench bench = new ThreadBench(workers, profileFile);
 		return bench.runRateLimitedFromFile();
 	}
 
-	public static Results runRateLimitedBenchmark(ArrayList<Worker> workers)
+	public static Results runRateLimitedBenchmark(List<Worker> workers)
 			throws QueueLimitException, IOException {
 		ThreadBench bench = new ThreadBench(workers);
 		return bench.runRateLimitedMultiPhase();

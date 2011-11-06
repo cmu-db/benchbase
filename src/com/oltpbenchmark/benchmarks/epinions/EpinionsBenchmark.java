@@ -21,65 +21,53 @@ package com.oltpbenchmark.benchmarks.epinions;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
-import com.oltpbenchmark.IBenchmarkModule;
+import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 
+public class EpinionsBenchmark extends BenchmarkModule {
 
-public class EpinionsBenchmark implements IBenchmarkModule{
+	public EpinionsBenchmark(WorkLoadConfiguration workConf) {
+		super(workConf);
+	}
 
 	@Override
-	public ArrayList<Worker> makeWorkers(boolean verbose, WorkLoadConfiguration workConf) throws IOException {
-		
-		if(workConf==null)
-			throw new IOException("The WorkloadConfiguration instance is null.");
-		
+	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 
-		
 		try {
-		Connection metaConn = DriverManager.getConnection(workConf.getDatabase(), workConf.getUsername(), workConf.getPassword());
+			Connection metaConn = this.getConnection();
 
-		//LOADING FROM THE DATABASE IMPORTANT INFORMATION LIST OF ITEMS AND LIST OF USERS
-		
-		  Statement stmt = metaConn.createStatement();
-	      ArrayList<String> user_ids = new ArrayList<String>();
-	      ResultSet res = stmt.executeQuery("SELECT u_id from user");
+			// LOADING FROM THE DATABASE IMPORTANT INFORMATION LIST OF ITEMS AND
+			// LIST OF USERS
 
-	      while (res.next()) {
-	        user_ids.add(res.getString(1));
-	      }
+			Statement stmt = metaConn.createStatement();
+			ArrayList<String> user_ids = new ArrayList<String>();
+			ResultSet res = stmt.executeQuery("SELECT u_id from user");
 
-	      ArrayList<String> item_ids = new ArrayList<String>();
-	      res = stmt.executeQuery("SELECT i_id from item");
+			while (res.next()) {
+				user_ids.add(res.getString(1));
+			}
 
-	      while (res.next()) {
-	        item_ids.add(res.getString(1));
-	      }
+			ArrayList<String> item_ids = new ArrayList<String>();
+			res = stmt.executeQuery("SELECT i_id from item");
 
-		
-		
-		
-		
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			Connection conn;
-			
-				conn = DriverManager.getConnection(workConf.getDatabase(), workConf.getUsername(), workConf.getPassword());
-			conn.setAutoCommit(false);
+			while (res.next()) {
+				item_ids.add(res.getString(1));
+			}
 
-			workers.add(new EpinionsWorker(conn, i ,workConf,user_ids,item_ids));
-		
-		}
-		
+			for (int i = 0; i < workConf.getTerminals(); ++i) {
+				Connection conn = this.getConnection();
+				conn.setAutoCommit(false);
+				workers.add(new EpinionsWorker(conn, i, workConf, user_ids, item_ids));
+			}
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import com.oltpbenchmark.QueueLimitException;
@@ -49,7 +50,7 @@ public class TPCCRateLimitedFromFile {
 
 		File profileFile = new File(args[1]);
 
-		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(true,null);
+		List<Worker> workers = new TPCCRateLimited(null).makeWorkers(true);
 
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
 				profileFile);

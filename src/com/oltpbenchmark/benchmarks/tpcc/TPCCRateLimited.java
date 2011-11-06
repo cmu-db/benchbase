@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oltpbenchmark.IBenchmarkModule;
+import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.TransactionTypes;
@@ -34,7 +34,7 @@ import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.TransactionType;
 
 
-public class TPCCRateLimited implements IBenchmarkModule {
+public class TPCCRateLimited extends BenchmarkModule {
 
 	public static final class TPCCWorker extends Worker {
 		private final jTPCCTerminal terminal;
@@ -55,11 +55,15 @@ public class TPCCRateLimited implements IBenchmarkModule {
 			return type;
 		}
 	}
+	
+	public TPCCRateLimited(WorkLoadConfiguration wrkld) {
+		super(wrkld);
+	}
 
 	/**
 	 * @param Bool
 	 */
-	public ArrayList<Worker> makeWorkers(boolean verbose,WorkLoadConfiguration wrkld) throws IOException {
+	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
@@ -69,7 +73,7 @@ public class TPCCRateLimited implements IBenchmarkModule {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		List<jTPCCTerminal> terminals = head.getTerminals();
 		for (jTPCCTerminal terminal : terminals) {
-			workers.add(new TPCCWorker(terminal,wrkld.getTransTypes()));
+			workers.add(new TPCCWorker(terminal, this.workConf.getTransTypes()));
 		}
 		return workers;
 	}
@@ -105,7 +109,7 @@ public class TPCCRateLimited implements IBenchmarkModule {
 		 * BufferedWriter(fstream2);
 		 */
 
-		ArrayList<Worker> workers = new TPCCRateLimited().makeWorkers(false,null);
+		List<Worker> workers = new TPCCRateLimited(null).makeWorkers(false);
 
 		/*
 		 * MeasureTargetSystem m = new MeasureTargetSystem(out,out2,new

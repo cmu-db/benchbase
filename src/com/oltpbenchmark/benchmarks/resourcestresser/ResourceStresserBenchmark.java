@@ -21,38 +21,33 @@ package com.oltpbenchmark.benchmarks.resourcestresser;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-
-import com.oltpbenchmark.IBenchmarkModule;
+import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 
+public class ResourceStresserBenchmark extends BenchmarkModule {
 
-public class ResourceStresserBenchmark implements IBenchmarkModule{
-
+	public ResourceStresserBenchmark(WorkLoadConfiguration workConf) {
+		super(workConf);
+	}
+	
 	@Override
-	public ArrayList<Worker> makeWorkers(boolean verbose, WorkLoadConfiguration workConf) throws IOException {
-		
-		if(workConf==null)
-			throw new IOException("The WorkloadConfiguration instance is null.");
-		
+	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			Connection conn;
-			try {
-				conn = DriverManager.getConnection(workConf.getDatabase(), workConf.getUsername(), workConf.getPassword());
-			conn.setAutoCommit(false);
-
-			workers.add(new ResourceStresserWorker(conn, i ,workConf));
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+		
+		try {
+			for (int i = 0; i < workConf.getTerminals(); ++i) {
+				Connection conn = this.getConnection();
+				conn.setAutoCommit(false);
+				workers.add(new ResourceStresserWorker(conn, i ,workConf));
+			} // FOR
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
+
 		return workers;
 	}
 }
