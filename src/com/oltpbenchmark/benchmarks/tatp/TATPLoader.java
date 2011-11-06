@@ -62,19 +62,22 @@ import com.oltpbenchmark.catalog.*;
 
 public class TATPLoader {
     private static final Logger LOG = Logger.getLogger(TATPLoader.class.getSimpleName());
-    private static final boolean d = LOG.isLoggable(Level.FINE);
     
     private final long subscriberSize = 100000; // FIXME
     private final int batchSize = 10000; // FIXME
     private final double scaleFactor = 1.0; // FIXME
-    private final boolean blocking = false; // FIXME
+    private final boolean blocking = true; // FIXME
     
     private final Connection c;
     private final Map<String, Table> tables;
+    private final boolean d;
     
     public TATPLoader(Connection c, Map<String, Table> tables) {
     	this.c = c;
         this.tables = tables;
+        this.d = true; // LOG.isLoggable(Level.FINE);
+        LOG.setLevel(Level.FINE);
+        
         if (d) LOG.fine("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
 
@@ -124,8 +127,7 @@ public class TATPLoader {
                     t.join();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
+            throw new RuntimeException("Failed to complete TATP loading phase", e);
         }
 
         // System.err.println("\n" + this.dumpTableCounts());
@@ -137,23 +139,21 @@ public class TATPLoader {
      * Populate Subscriber table per benchmark spec.
      */
     void genSubscriber(Table catalog_tbl) throws SQLException {
-        long s_id = 0;
-        Object row[] = new Object[catalog_tbl.getColumnCount()];
-
         // Disable auto-commit
         this.c.setAutoCommit(false);
 
         // Create a prepared statement
         PreparedStatement pstmt = this.c.prepareStatement(catalog_tbl.getInsertSQL(this.batchSize));
-        
+
+        long s_id = 0;
         long total = 0;
         int offset = 0;
         int batch = 0;
         while (s_id++ < subscriberSize) {
             int col = offset;
             
-            pstmt.setLong(++col, new Long(s_id));
-            pstmt.setString(++col, TATPUtil.padWithZero((Long) row[0]));
+            pstmt.setLong(++col, s_id);
+            pstmt.setString(++col, TATPUtil.padWithZero((Long) s_id));
             
             // BIT_##
             for (int j = 0; j < 10; j++) {

@@ -17,58 +17,50 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.twitter;
+package com.oltpbenchmark.benchmarks.tatp;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang.NotImplementedException;
+import java.util.Map;
 
 import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.benchmarks.TransactionGenerator;
+import com.oltpbenchmark.catalog.Table;
 
-public class TwitterBenchmark extends BenchmarkModule {
+public class TATPBenchmark extends BenchmarkModule {
 
-	public TwitterBenchmark(WorkLoadConfiguration workConf) {
+	private final File ddl; 
+	
+	public TATPBenchmark(WorkLoadConfiguration workConf) {
 		super(workConf);
+		
+		this.ddl = new File(TATPBenchmark.class.getResource("tatp-ddl.sql").getPath());
+		assert(this.ddl != null);
 	}
 
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		TransactionSelector transSel = new TransactionSelector(workConf
-				.getTracefile(), workConf.getTracefile2(), workConf
-				.getTransTypes());
-		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
-		transSel.close();
-		ArrayList<Worker> workers = new ArrayList<Worker>();
-		try {
-			for (int i = 0; i < this.workConf.getTerminals(); ++i) {
-				Connection conn = this.getConnection();
-				conn.setAutoCommit(false);
-				TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(
-						trace);
-				workers.add(new TwitterWorker(conn, this.workConf, generator));
-			} // FOR
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return workers;
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	@Override
 	protected void createDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
+		this.executeFile(conn, this.ddl);
 	}
 	
 	@Override
 	protected void loadDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
+		Map<String, Table> tables = this.getTables(conn);
+		assert(tables != null);
+		
+		TATPLoader loader = new TATPLoader(conn, tables);
+		loader.load(); // Blocking...
+		
 	}
+
 }

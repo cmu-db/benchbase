@@ -25,9 +25,9 @@ import java.util.List;
 
 public class WorkLoadConfiguration {
 
+	private static WorkLoadConfiguration instance = null; // ???
 	
-
-	private static WorkLoadConfiguration instance = null;
+	
 	private String database;
 	private String dbname;
 	private String username;
@@ -141,7 +141,7 @@ public class WorkLoadConfiguration {
 	public String getBaseIP() {
 		return baseIP;
 	}
-
+	
 	public TransactionTypes getTransTypes() {
 		return transTypes;
 	}

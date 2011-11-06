@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
@@ -39,7 +41,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// System.out.println("Using trace:" +workConf.getTracefile());
 
 		TransactionSelector transSel = new TransactionSelector(workConf
@@ -66,5 +68,15 @@ public class WikipediaBenchmark extends BenchmarkModule {
 			e.printStackTrace();
 		}
 		return workers;
+	}
+	
+	@Override
+	protected void createDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	protected void loadDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
 	}
 }

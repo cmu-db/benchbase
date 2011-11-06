@@ -27,6 +27,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
@@ -38,7 +40,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 
 		try {
@@ -72,5 +74,15 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			e.printStackTrace();
 		}
 		return workers;
+	}
+	
+	@Override
+	protected void createDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	protected void loadDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
 	}
 }

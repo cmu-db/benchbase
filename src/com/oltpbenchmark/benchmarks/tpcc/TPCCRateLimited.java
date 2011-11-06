@@ -20,9 +20,12 @@
 package com.oltpbenchmark.benchmarks.tpcc;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.QueueLimitException;
@@ -64,7 +67,7 @@ public class TPCCRateLimited extends BenchmarkModule {
 	/**
 	 * @param Bool
 	 */
-	public List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
@@ -132,6 +135,16 @@ public class TPCCRateLimited extends BenchmarkModule {
 				10, 30 * 60, 1300);
 		System.out.println("Rate limited reqs/s: " + r);
 		r.writeCSV(30, System.out);
+	}
+	
+	@Override
+	protected void createDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	protected void loadDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
 	}
 
 }
