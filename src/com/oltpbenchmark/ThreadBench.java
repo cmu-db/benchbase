@@ -405,7 +405,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		for (int i = 0; i < workerThreads.size(); ++i) {
 			
 			//FIXME put a timeout here...
-			workerThreads.get(i).join();
+			workerThreads.get(i).join(60000);//wait for 60second for threads to terminate... hands otherwise
 			requests += workers.get(i).getRequests();
 		}
 		testState = null;
