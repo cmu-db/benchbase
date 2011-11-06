@@ -1,14 +1,20 @@
 package com.oltpbenchmark;
 
-import com.oltpbenchmark.LatencyRecord.Sample;
+import java.sql.Connection;
+
 import com.oltpbenchmark.ThreadBench.State;
-import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
-import com.oltpbenchmark.BenchmarkState;
 
 public abstract class Worker implements Runnable {
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
+	
+	protected final Connection conn;
+	protected final WorkLoadConfiguration wrkld;
+	
+	public Worker(Connection conn, WorkLoadConfiguration wrkld) {
+		this.conn = conn;
+		this.wrkld = wrkld;
+	}
 
 	@Override
 	public final void run() {

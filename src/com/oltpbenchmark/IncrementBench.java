@@ -34,13 +34,12 @@ import com.oltpbenchmark.TransactionType;
 public class IncrementBench {
 	private static final class IncrementWorker extends Worker {
 		private final Random rng = new Random();
-		private final Connection connection;
 		private final PreparedStatement prepared;
 		private final int numRows;
 
-		public IncrementWorker(Connection connection, int numRows) {
+		public IncrementWorker(Connection connection, WorkLoadConfiguration wrkld, int numRows) {
+			super(connection, wrkld);
 			assert 0 < numRows;
-			this.connection = connection;
 			this.numRows = numRows;
 
 			try {
@@ -55,7 +54,7 @@ public class IncrementBench {
 		protected void tearDown() {
 			try {
 				prepared.close();
-				connection.close();
+				conn.close();
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
 			}
@@ -107,7 +106,7 @@ public class IncrementBench {
 		for (int i = 0; i < numClients; ++i) {
 			Connection connection = DriverManager.getConnection(jdbcUrl,
 					USERNAME, PASSWORD);
-			workers.add(new IncrementWorker(connection, numRows));
+			workers.add(new IncrementWorker(connection, null, numRows));
 		}
 
 		System.out.println(numClients + " clients; " + numRows

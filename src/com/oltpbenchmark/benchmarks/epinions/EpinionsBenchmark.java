@@ -65,7 +65,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				workers.add(new EpinionsWorker(conn, i, workConf, user_ids, item_ids));
+				workers.add(new EpinionsWorker(conn, workConf, i, user_ids, item_ids));
 			}
 
 		} catch (SQLException e) {

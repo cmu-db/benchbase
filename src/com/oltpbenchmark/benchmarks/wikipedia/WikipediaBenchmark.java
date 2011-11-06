@@ -56,7 +56,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 				conn.setAutoCommit(false);
 				TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
 						trace);
-				workers.add(new WikipediaWorker(conn, generator, workConf
+				workers.add(new WikipediaWorker(conn, workConf, generator, workConf
 						.getBaseIP()
 						+ (i % 256) + "." + rand.nextInt(256), workConf
 						.getTransTypes()));

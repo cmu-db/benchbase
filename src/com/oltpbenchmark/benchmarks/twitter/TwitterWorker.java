@@ -19,15 +19,11 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.twitter;
 
-import java.net.UnknownHostException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
@@ -37,14 +33,11 @@ import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.benchmarks.TransactionGenerator;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class TwitterWorker extends Worker {
-	private final Connection conn;
 	private final Statement st;
 	private final Random r;
     private final TransactionTypes transTypes;
-    private WorkLoadConfiguration wrkld;
     private TransactionGenerator<TwitterOperation> generator;
     private Random gen = new Random();
     
@@ -53,13 +46,10 @@ public class TwitterWorker extends Worker {
     public static int LIMIT_TWEETS_FOR_UID = 10;
     public static int LIMIT_FOLLOWERS = 20;
     
-
-    
-	public TwitterWorker(Connection conn, TransactionGenerator<TwitterOperation> generator, WorkLoadConfiguration wrkld) {
+	public TwitterWorker(Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<TwitterOperation> generator) {
+		super(conn, wrkld);
 		this.generator=generator;
-		this.wrkld = wrkld;
 		this.transTypes=wrkld.getTransTypes();
-		this.conn = conn;
 		r = new Random();
 	
 		try {

@@ -42,7 +42,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				workers.add(new ResourceStresserWorker(conn, i ,workConf));
+				workers.add(new ResourceStresserWorker(conn, workConf ,i));
 			} // FOR
 		} catch (SQLException e) {
 			e.printStackTrace();

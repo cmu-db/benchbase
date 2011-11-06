@@ -33,6 +33,7 @@ public class ThreadBenchExample {
 		private final int maxMs;
 
 		public RandomSleepWorker(int maxMs) {
+			super(null, null); // XXX
 			this.maxMs = maxMs;
 		}
 

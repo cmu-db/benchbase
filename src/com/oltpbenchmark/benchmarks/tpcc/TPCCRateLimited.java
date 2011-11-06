@@ -41,6 +41,7 @@ public class TPCCRateLimited extends BenchmarkModule {
 		private final  TransactionTypes transTypes;
 		
 		public TPCCWorker(jTPCCTerminal terminal, TransactionTypes transactionTypes) {
+			super(terminal.getConnection(), null); // XXX
 			this.terminal = terminal;
 
 			transTypes= transactionTypes;

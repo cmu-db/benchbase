@@ -39,6 +39,7 @@ public class TPCCBenchmark {
 		private final jTPCCTerminal terminal;
 
 		public TPCCWorker(jTPCCTerminal terminal) {
+			super(terminal.getConnection(), null); // XXX
 			this.terminal = terminal;
 		}
 

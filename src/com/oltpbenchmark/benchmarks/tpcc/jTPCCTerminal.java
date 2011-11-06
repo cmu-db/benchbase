@@ -1651,4 +1651,8 @@ public class jTPCCTerminal implements Runnable {
 	public void setTransactionTypes(TransactionTypes transactionTypes) {
 		this.transactionTypes =transactionTypes;
 	}
+	
+	public Connection getConnection() {
+		return conn;
+	}
 }

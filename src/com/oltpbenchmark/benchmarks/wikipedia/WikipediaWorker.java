@@ -33,23 +33,22 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.TransactionType;
 import com.oltpbenchmark.TransactionTypes;
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.benchmarks.TransactionGenerator;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class WikipediaWorker extends Worker {
-	private final Connection conn;
 	private final TransactionGenerator<WikipediaOperation> generator;
 	private final Statement st;
 	private final String userIp;
 //	private final Random r;
     private final TransactionTypes transTypes;
 
-	public WikipediaWorker(Connection conn, TransactionGenerator<WikipediaOperation> generator,
+	public WikipediaWorker(Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<WikipediaOperation> generator,
 			String userIp,TransactionTypes transTypes) {
+		super(conn, wrkld);
 		this.transTypes=transTypes;
-		this.conn = conn;
-//		r = new Random();
 
 		this.generator = generator;
 		try {

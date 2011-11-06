@@ -39,7 +39,6 @@ import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class ResourceStresserWorker extends Worker {
-	private final Connection conn;
 	private final Statement st;
 	private final Random r;
     private final TransactionTypes transTypes;
@@ -64,15 +63,11 @@ public class ResourceStresserWorker extends Worker {
     private int result = 0;
     private ResultSet rs = null;
     private int terminalUniqueId = -1;
-    private WorkLoadConfiguration wrkld;
-
     
-	public ResourceStresserWorker(Connection conn, int terminalUniqueId, WorkLoadConfiguration wrkld) {
-		
-		this.wrkld = wrkld;
+	public ResourceStresserWorker(Connection conn, WorkLoadConfiguration wrkld, int terminalUniqueId) {
+		super(conn, wrkld);
 		this.terminalUniqueId =terminalUniqueId;
 		this.transTypes=wrkld.getTransTypes();
-		this.conn = conn;
 		r = new Random();
 	
 		try {

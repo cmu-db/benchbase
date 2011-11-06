@@ -39,11 +39,9 @@ import com.oltpbenchmark.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class EpinionsWorker extends Worker {
-	private final Connection conn;
 	private final Statement st;
 	private final Random r;
     private final TransactionTypes transTypes;
-
 
     // CPU-bound Txn
     private PreparedStatement cpu1PS = null;
@@ -64,20 +62,17 @@ public class EpinionsWorker extends Worker {
     private int result = 0;
     private ResultSet rs = null;
     private int terminalUniqueId = -1;
-    private WorkLoadConfiguration wrkld;
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
     Random rand = new Random();
 
     
-	public EpinionsWorker(Connection conn, int terminalUniqueId, WorkLoadConfiguration wrkld,ArrayList<String> user_ids,ArrayList<String> item_ids) {
-		
+	public EpinionsWorker(Connection conn, WorkLoadConfiguration wrkld, int terminalUniqueId,ArrayList<String> user_ids,ArrayList<String> item_ids) {
+		super(conn, wrkld);
 		this.user_ids=user_ids;
 		this.item_ids=item_ids;
-		this.wrkld = wrkld;
 		this.terminalUniqueId =terminalUniqueId;
 		this.transTypes=wrkld.getTransTypes();
-		this.conn = conn;
 		r = new Random();
 	
 		try {
