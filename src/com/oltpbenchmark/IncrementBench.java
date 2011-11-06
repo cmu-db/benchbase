@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.tpcc.jTPCCConfig;
+import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 import com.oltpbenchmark.TransactionType;
 
 
