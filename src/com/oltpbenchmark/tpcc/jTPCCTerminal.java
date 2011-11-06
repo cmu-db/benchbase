@@ -191,11 +191,12 @@ public class jTPCCTerminal implements Runnable {
 				throw new RuntimeException(
 						"Wrong transaction percentages in Configuration file.. they don't add up to 100%");
 
-			newOrderWeight = phase.weights.get(0);
-			paymentWeight = phase.weights.get(1);
-			orderStatusWeight = phase.weights.get(2);
-			deliveryWeight = phase.weights.get(3);
-			stockLevelWeight = phase.weights.get(4);
+			//weights of 0 is for the "INVALID" transaction
+			newOrderWeight = phase.weights.get(1);
+			paymentWeight = phase.weights.get(2);
+			orderStatusWeight = phase.weights.get(3);
+			deliveryWeight = phase.weights.get(4);
+			stockLevelWeight = phase.weights.get(5);
 		}
 
 		// Generate an integer in the range [1, 100] (that means inclusive!)
