@@ -34,21 +34,22 @@ import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.TransactionType;
 import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.Worker;
+import com.oltpbenchmark.benchmarks.TransactionGenerator;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class WikipediaWorker extends Worker {
 	private final Connection conn;
-	private final TransactionGenerator generator;
+	private final TransactionGenerator<WikipediaOperation> generator;
 	private final Statement st;
 	private final String userIp;
-	private final Random r;
+//	private final Random r;
     private final TransactionTypes transTypes;
 
-	public WikipediaWorker(Connection conn, TransactionGenerator generator,
+	public WikipediaWorker(Connection conn, TransactionGenerator<WikipediaOperation> generator,
 			String userIp,TransactionTypes transTypes) {
 		this.transTypes=transTypes;
 		this.conn = conn;
-		r = new Random();
+//		r = new Random();
 
 		this.generator = generator;
 		try {

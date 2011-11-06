@@ -36,6 +36,7 @@ import com.oltpbenchmark.TransactionType;
 import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
+import com.oltpbenchmark.benchmarks.TransactionGenerator;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class TwitterWorker extends Worker {
@@ -44,7 +45,7 @@ public class TwitterWorker extends Worker {
 	private final Random r;
     private final TransactionTypes transTypes;
     private WorkLoadConfiguration wrkld;
-    private TransactionGenerator generator;
+    private TransactionGenerator<TwitterOperation> generator;
     private Random gen = new Random();
     
     //TODO: make the next parameters of WorkLoadConfiguration
@@ -54,7 +55,7 @@ public class TwitterWorker extends Worker {
     
 
     
-	public TwitterWorker(Connection conn, TransactionGenerator generator, WorkLoadConfiguration wrkld) {
+	public TwitterWorker(Connection conn, TransactionGenerator<TwitterOperation> generator, WorkLoadConfiguration wrkld) {
 		this.generator=generator;
 		this.wrkld = wrkld;
 		this.transTypes=wrkld.getTransTypes();

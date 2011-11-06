@@ -22,7 +22,9 @@ package com.oltpbenchmark.benchmarks.twitter;
 import java.util.List;
 import java.util.Random;
 
-public class TraceTransactionGenerator implements TransactionGenerator {
+import com.oltpbenchmark.benchmarks.TransactionGenerator;
+
+public class TraceTransactionGenerator implements TransactionGenerator<TwitterOperation> {
 	private final Random rng = new Random();
 	private final List<TwitterOperation> transactions;
 

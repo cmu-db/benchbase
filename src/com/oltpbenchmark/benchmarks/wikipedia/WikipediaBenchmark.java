@@ -31,6 +31,7 @@ import java.util.Random;
 import com.oltpbenchmark.IBenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Worker;
+import com.oltpbenchmark.benchmarks.TransactionGenerator;
 
 
 public class WikipediaBenchmark implements IBenchmarkModule{
@@ -55,7 +56,7 @@ public class WikipediaBenchmark implements IBenchmarkModule{
 				conn = DriverManager.getConnection(workConf.getDatabase(), workConf.getUsername(),
 						workConf.getPassword());
 			conn.setAutoCommit(false);
-			TransactionGenerator generator = new TraceTransactionGenerator(
+			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
 					trace);
 			workers.add(new WikipediaWorker(conn, generator, workConf.getBaseIP()
 					+ (i % 256) + "." + rand.nextInt(256),workConf.getTransTypes()));

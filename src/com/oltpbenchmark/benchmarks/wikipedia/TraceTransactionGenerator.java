@@ -22,7 +22,9 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 import java.util.List;
 import java.util.Random;
 
-public class TraceTransactionGenerator implements TransactionGenerator {
+import com.oltpbenchmark.benchmarks.TransactionGenerator;
+
+public class TraceTransactionGenerator implements TransactionGenerator<WikipediaOperation> {
 	private final Random rng = new Random();
 	private final List<WikipediaOperation> transactions;
 
