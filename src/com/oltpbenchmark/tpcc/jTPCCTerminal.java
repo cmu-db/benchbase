@@ -186,7 +186,11 @@ public class jTPCCTerminal implements Runnable {
 
 		if (phase != null) {
 
-			int count = phase.weights.size();
+			double count = 0;
+			
+			for(Double d:phase.weights)
+				count+=d;
+					
 			if (Math.abs(count - 100) > 0.000001)
 				throw new RuntimeException(
 						"Wrong transaction percentages in Configuration file.. they don't add up to 100%");
