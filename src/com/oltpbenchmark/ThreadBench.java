@@ -409,6 +409,19 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			//FIXME not sure this is the best solution... ensure we don't hang forever, however we might ignore 
 			//problems
 			workerThreads.get(i).join(60000);  //wait for 60second for threads to terminate... hands otherwise
+			
+			
+			/*// CARLO: Maybe we might want to do this to kill threads that are hanging... 
+			  if (workerThreads.get(i).isAlive()) {
+				workerThreads.get(i).kill();
+				try {
+					workerThreads.get(i).join();
+				}
+				catch (InterruptedException e) {
+				}
+			}*/
+			
+			
 			requests += workers.get(i).getRequests();
 		}
 		testState = null;

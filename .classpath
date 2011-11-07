@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/commons-jxpath-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections15-4.01.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
