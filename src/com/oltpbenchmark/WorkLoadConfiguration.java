@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.oltpbenchmark.api.TransactionTypes;
+
 public class WorkLoadConfiguration {
 
 	private static WorkLoadConfiguration instance = null; // ???

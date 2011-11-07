@@ -17,22 +17,28 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.tpcc;
+package com.oltpbenchmark.util;
 
-public class TestTimeAPI {
+public class QueueLimitException extends Exception {
+	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public QueueLimitException() {
+		// TODO Auto-generated constructor stub
+	}
 
-		double x = ((double) System.nanoTime() / (double) 1000000000);
-		double y = ((double) System.currentTimeMillis() / (double) 1000);
-		double offset = x - y;
-		System.out.println(" NANO TIME: "
-				+ String.format("%10.10f", x - offset)
-				+ " CURRENT TIME IN MILLIS:" + String.format("%10.10f", y));
+	public QueueLimitException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
+
+	public QueueLimitException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
+
+	public QueueLimitException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
 	}
 
 }

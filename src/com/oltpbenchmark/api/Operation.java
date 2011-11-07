@@ -1,4 +1,4 @@
-package com.oltpbenchmark.benchmarks;
+package com.oltpbenchmark.api;
 
 public abstract class Operation {
 

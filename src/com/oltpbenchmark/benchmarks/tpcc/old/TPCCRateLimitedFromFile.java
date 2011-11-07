@@ -22,14 +22,13 @@ package com.oltpbenchmark.benchmarks.tpcc.old;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCRateLimited;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
+import com.oltpbenchmark.util.QueueLimitException;
 
 
 public class TPCCRateLimitedFromFile {
@@ -50,7 +49,7 @@ public class TPCCRateLimitedFromFile {
 
 		File profileFile = new File(args[1]);
 
-		List<Worker> workers = new TPCCRateLimited(null).makeWorkers(true);
+		List<Worker> workers = new TPCCBenchmark(null).makeWorkers(true);
 
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
 				profileFile);

@@ -29,10 +29,10 @@ import java.util.Random;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.benchmarks.TransactionGenerator;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.api.Worker;
 
 public class WikipediaBenchmark extends BenchmarkModule {
 

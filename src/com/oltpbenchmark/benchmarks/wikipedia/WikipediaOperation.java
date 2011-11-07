@@ -20,7 +20,7 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.wikipedia;
 
-import com.oltpbenchmark.benchmarks.Operation;
+import com.oltpbenchmark.api.Operation;
 
 /** Immutable class containing information about transactions. */
 public final class WikipediaOperation extends Operation {

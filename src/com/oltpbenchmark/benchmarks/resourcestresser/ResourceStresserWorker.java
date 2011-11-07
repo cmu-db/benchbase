@@ -19,30 +19,23 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.TransactionType;
-import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.Worker;
 
 public class ResourceStresserWorker extends Worker {
 	private final Statement st;
 	private final Random r;
-    private final TransactionTypes transTypes;
-
 
     // CPU-bound Txn
     private PreparedStatement cpu1PS = null;
@@ -67,7 +60,6 @@ public class ResourceStresserWorker extends Worker {
 	public ResourceStresserWorker(Connection conn, WorkLoadConfiguration wrkld, int terminalUniqueId) {
 		super(conn, wrkld);
 		this.terminalUniqueId =terminalUniqueId;
-		this.transTypes=wrkld.getTransTypes();
 		r = new Random();
 	
 		try {
@@ -79,50 +71,35 @@ public class ResourceStresserWorker extends Worker {
 
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
-
-		transTypes.getType("INVALID");
-		TransactionType retTP = transTypes.getType("INVALID");
-		
-		if(phase!=null){
-			int nextTrans = phase.chooseTransaction();
-			
-			try {
-				
-				if(nextTrans == transTypes.getType("CPU1").getId()){
-	                cpuTransaction(10,1);
-					retTP = transTypes.getType("CPU1");
-				}else
-				if(nextTrans == transTypes.getType("CPU2").getId()){
-	                cpuTransaction(5,2);
-					retTP = transTypes.getType("CPU2");
-				}else
-				if(nextTrans == transTypes.getType("IO1").getId()){
-	                io1Transaction(10,10);
-					retTP = transTypes.getType("IO1");
-				}else
-				if(nextTrans == transTypes.getType("IO2").getId()){
-	                io2Transaction(true, 50);
-					retTP = transTypes.getType("IO2");
-				}else
-				if(nextTrans == transTypes.getType("CONTENTION1").getId()){
-	                lock1Transaction(2, 1);
-					retTP = transTypes.getType("CONTENTION1");
-				}else
-				if(nextTrans == transTypes.getType("CONTENTION2").getId()){
-			        lock2Transaction(2, 5, 1);
-					retTP = transTypes.getType("CONTENTION2");
-				}
-				
-			} catch (MySQLTransactionRollbackException m){
-				System.err.println("Rollback:" + m.getMessage());
-			} catch (SQLException e) {
-				System.err.println("Timeout:" + e.getMessage());			
+		TransactionType retTP = null;
+		int nextTrans = phase.chooseTransaction();
+		try {
+			if (nextTrans == transTypes.getType("CPU1").getId()) {
+				cpuTransaction(10, 1);
+				retTP = transTypes.getType("CPU1");
+			} else if (nextTrans == transTypes.getType("CPU2").getId()) {
+				cpuTransaction(5, 2);
+				retTP = transTypes.getType("CPU2");
+			} else if (nextTrans == transTypes.getType("IO1").getId()) {
+				io1Transaction(10, 10);
+				retTP = transTypes.getType("IO1");
+			} else if (nextTrans == transTypes.getType("IO2").getId()) {
+				io2Transaction(true, 50);
+				retTP = transTypes.getType("IO2");
+			} else if (nextTrans == transTypes.getType("CONTENTION1").getId()) {
+				lock1Transaction(2, 1);
+				retTP = transTypes.getType("CONTENTION1");
+			} else if (nextTrans == transTypes.getType("CONTENTION2").getId()) {
+				lock2Transaction(2, 5, 1);
+				retTP = transTypes.getType("CONTENTION2");
 			}
+
+		} catch (MySQLTransactionRollbackException m) {
+			System.err.println("Rollback:" + m.getMessage());
+		} catch (SQLException e) {
+			System.err.println("Timeout:" + e.getMessage());
 		}
 		return retTP;
-	
-		
-	
 	}
 
 	/*

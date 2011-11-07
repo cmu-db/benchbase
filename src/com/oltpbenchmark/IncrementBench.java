@@ -27,8 +27,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
-import com.oltpbenchmark.TransactionType;
 
 
 public class IncrementBench {

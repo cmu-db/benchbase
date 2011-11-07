@@ -4,8 +4,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.oltpbenchmark.ThreadBench.State;
+import com.oltpbenchmark.util.QueueLimitException;
 
-final class BenchmarkState {
+public final class BenchmarkState {
 	private final int queueLimit;
 
 	private volatile State state = State.WARMUP;
@@ -93,7 +94,7 @@ final class BenchmarkState {
 	}
 
 	/** Notify that this thread has entered the done state. */
-	void signalDone() {
+	public void signalDone() {
 		assert state == State.DONE;
 		int current = notDoneCount.decrementAndGet();
 		assert current >= 0;

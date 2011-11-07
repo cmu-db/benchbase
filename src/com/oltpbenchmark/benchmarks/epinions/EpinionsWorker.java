@@ -32,16 +32,15 @@ import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.TransactionType;
-import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.Worker;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class EpinionsWorker extends Worker {
 	private final Statement st;
 	private final Random r;
-    private final TransactionTypes transTypes;
 
     // CPU-bound Txn
     private PreparedStatement cpu1PS = null;
@@ -72,7 +71,6 @@ public class EpinionsWorker extends Worker {
 		this.user_ids=user_ids;
 		this.item_ids=item_ids;
 		this.terminalUniqueId =terminalUniqueId;
-		this.transTypes=wrkld.getTransTypes();
 		r = new Random();
 	
 		try {

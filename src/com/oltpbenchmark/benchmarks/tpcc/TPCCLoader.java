@@ -88,7 +88,7 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 
 
-public class LoadData {
+public class TPCCLoader {
 
 	static boolean fastLoad;
 

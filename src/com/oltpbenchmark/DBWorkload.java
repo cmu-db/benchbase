@@ -36,7 +36,12 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 import com.oltpbenchmark.ThreadBench.Results;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.ClassUtil;
+import com.oltpbenchmark.util.QueueLimitException;
 
 
 

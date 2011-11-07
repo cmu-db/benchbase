@@ -46,8 +46,8 @@ import java.util.Map;
 import java.util.Random;
 
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.TransactionType;
-import com.oltpbenchmark.TransactionTypes;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 import com.oltpbenchmark.util.SimplePrinter;
 
@@ -249,7 +249,7 @@ public class jTPCCTerminal implements Runnable {
 				&& !stopRunning; i++) {
 			TransactionType type = chooseTransaction(null);
 
-			if (type.isType("NEW_ORDER")) {
+			if (type.equals("NEW_ORDER")) {
 				Double targetTpmcRef = jTPCCDriver.targetTpmc.get();
 				double targetTpmc = targetTpmcRef == null ? 0 : targetTpmcRef
 						.doubleValue();
@@ -294,12 +294,12 @@ public class jTPCCTerminal implements Runnable {
 			long transactionEnd = System.currentTimeMillis();
 
 			String skippedMessage = null;
-			if (type.isType("DELIVERY")) {
+			if (type.equals("DELIVERY")) {
 				skippedMessage = skippedDeliveries == 0 ? "None" : ""
 						+ skippedDeliveries + " delivery(ies) skipped.";
 			}
 
-			int isNewOrder = type.isType("NEW_ORDER") ? 1
+			int isNewOrder = type.equals("NEW_ORDER") ? 1
 					: 0;
 			parent.signalTerminalEndedTransaction(this.terminalName,
 					type.toString(), transactionEnd - transactionStart,

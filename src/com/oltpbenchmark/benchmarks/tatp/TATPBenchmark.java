@@ -26,9 +26,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.oltpbenchmark.BenchmarkModule;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.Worker;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.catalog.Table;
 
 public class TATPBenchmark extends BenchmarkModule {

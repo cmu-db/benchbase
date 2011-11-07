@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oltpbenchmark.QueueLimitException;
 import com.oltpbenchmark.ThreadBench;
-import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCRateLimited;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
+import com.oltpbenchmark.util.QueueLimitException;
 
 
 public class TPCCOverTime {
@@ -71,7 +71,7 @@ public class TPCCOverTime {
 		if (args.length >= 7)
 			WARMUP_SECONDS = Integer.parseInt(args[6]);
 
-		List<Worker> workers = new TPCCRateLimited(null).makeWorkers(true);
+		List<Worker> workers = new TPCCBenchmark(null).makeWorkers(true);
 
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
 				WARMUP_SECONDS, measurementSeconds, rateLimit);

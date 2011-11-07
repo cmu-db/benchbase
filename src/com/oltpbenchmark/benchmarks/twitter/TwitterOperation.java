@@ -20,7 +20,7 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.twitter;
 
-import com.oltpbenchmark.benchmarks.Operation;
+import com.oltpbenchmark.api.Operation;
 
 /** Immutable class containing information about transactions. */
 public final class TwitterOperation extends Operation {

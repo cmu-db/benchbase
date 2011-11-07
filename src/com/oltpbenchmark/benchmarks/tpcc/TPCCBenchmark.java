@@ -19,52 +19,65 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.tpcc;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import com.oltpbenchmark.QueueLimitException;
+import org.apache.commons.lang.NotImplementedException;
+
 import com.oltpbenchmark.ThreadBench;
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.TransactionType;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.QueueLimitException;
 
 
-public class TPCCBenchmark {
+public class TPCCBenchmark extends BenchmarkModule {
 
-	private static final class TPCCWorker extends Worker {
+	public static final class TPCCWorker extends Worker {
 		private final jTPCCTerminal terminal;
-
-		public TPCCWorker(jTPCCTerminal terminal) {
+		private final  TransactionTypes transTypes;
+		
+		public TPCCWorker(jTPCCTerminal terminal, TransactionTypes transactionTypes) {
 			super(terminal.getConnection(), null); // XXX
 			this.terminal = terminal;
+
+			transTypes= transactionTypes;
+			terminal.setTransactionTypes(transactionTypes);
 		}
 
 		@Override
-		protected TransactionType doWork(boolean measure,
-				Phase phase) {
+		protected TransactionType doWork(boolean measure, Phase phase) {
 			TransactionType type = terminal
 					.chooseTransaction(phase);
 			terminal.executeTransaction(type.getId());
 			return type;
 		}
 	}
+	
+	public TPCCBenchmark(WorkLoadConfiguration wrkld) {
+		super(wrkld);
+	}
 
-	public static ArrayList<TPCCWorker> makeTPCCWorkers() throws IOException {
+	/**
+	 * @param Bool
+	 */
+	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
-		jTPCCHeadless.SILENT = true;
+		jTPCCHeadless.SILENT = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
 
 		jTPCCHeadless head = new jTPCCHeadless();
-		head.createTerminals();
 
-		ArrayList<TPCCWorker> workers = new ArrayList<TPCCWorker>();
+		ArrayList<Worker> workers = new ArrayList<Worker>();
 		List<jTPCCTerminal> terminals = head.getTerminals();
 		for (jTPCCTerminal terminal : terminals) {
-			workers.add(new TPCCWorker(terminal));
+			workers.add(new TPCCWorker(terminal, this.workConf.getTransTypes()));
 		}
 		return workers;
 	}
@@ -75,19 +88,64 @@ public class TPCCBenchmark {
 	public static void main(String[] args) throws IOException, SQLException,
 			QueueLimitException {
 
-		Properties ini = new Properties();
-		ini.load(new FileInputStream(System.getProperty("prop")));
+		/*
+		 * Properties ini = new Properties(); ini.load(new
+		 * FileInputStream(System.getProperty("prop")));
+		 * 
+		 * int initialWarmupTime =
+		 * Integer.parseInt(ini.getProperty("initialWarmupTimeInSec")); int
+		 * intermediateWarmupTime =
+		 * Integer.parseInt(ini.getProperty("intermediateWarmupTimeInSec")); int
+		 * measuringTime = Integer.parseInt(ini.getProperty("measuringTime"));
+		 * //int coolDownBeforeThrottledMeasures =
+		 * Integer.parseInt(ini.getProperty("coolDownBeforeThrottledMeasures"));
+		 * int scaleDownPace =
+		 * Integer.parseInt(ini.getProperty("scaleDownPace")); int maxSpeed =
+		 * Integer.parseInt(ini.getProperty("maxSpeed"));
+		 * 
+		 * String fileName = ini.getProperty("logfile");
+		 * 
+		 * FileWriter fstream = new FileWriter(fileName + "_details.csv",true);
+		 * BufferedWriter out = new BufferedWriter(fstream);
+		 * 
+		 * FileWriter fstream2 = new FileWriter(fileName +
+		 * "_aggregated.csv",true); BufferedWriter out2 = new
+		 * BufferedWriter(fstream2);
+		 */
 
-		int intermediateWarmupTime = Integer.parseInt(ini
-				.getProperty("intermediateWarmupTimeInSec"));
-		int measuringTime = Integer.parseInt(ini.getProperty("measuringTime"));
-		int rateLimit = Integer.parseInt(ini.getProperty("rateLimit"));
+		List<Worker> workers = new TPCCBenchmark(null).makeWorkers(false);
 
-		ArrayList<TPCCWorker> workers = makeTPCCWorkers();
-
+		/*
+		 * MeasureTargetSystem m = new MeasureTargetSystem(out,out2,new
+		 * StatisticsCollector(ini),intermediateWarmupTime,measuringTime);
+		 * Thread t = new Thread(m); t.start();
+		 * 
+		 * // Run the unlimited test m.setSpeed(-1); ThreadBench.Results r =
+		 * ThreadBench.runBenchmark(workers, initialWarmupTime, measuringTime);
+		 * System.out.println("Unlimited: " + r);
+		 * 
+		 * 
+		 * for(int i = scaleDownPace; i<maxSpeed; i+=scaleDownPace){ // Run a
+		 * rate-limited test m.setSpeed(i); r =
+		 * ThreadBench.runRateLimitedBenchmark(workers, intermediateWarmupTime,
+		 * measuringTime, i); System.out.println("Rate limited "+ i +" reqs/s: "
+		 * + r); }
+		 */
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
-				intermediateWarmupTime, measuringTime, rateLimit);
-		System.out.println("Rate limited " + rateLimit + " reqs/s: " + r);
-
+				10, 30 * 60, 1300);
+		System.out.println("Rate limited reqs/s: " + r);
+		r.writeCSV(30, System.out);
 	}
+	
+	@Override
+	protected void createDatabaseImpl(Connection conn) throws SQLException {
+		throw new NotImplementedException();
+	}
+	
+	@Override
+	protected void loadDatabaseImpl(Connection conn) throws SQLException {
+		// TODO TPCCLoader loader = new TPCCLoader();
+		throw new NotImplementedException();
+	}
+
 }

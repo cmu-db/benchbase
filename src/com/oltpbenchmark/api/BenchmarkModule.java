@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark;
+package com.oltpbenchmark.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.ScriptRunner;

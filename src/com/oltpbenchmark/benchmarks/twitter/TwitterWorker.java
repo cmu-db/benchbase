@@ -28,16 +28,14 @@ import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.TransactionType;
-import com.oltpbenchmark.TransactionTypes;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.Worker;
-import com.oltpbenchmark.benchmarks.TransactionGenerator;
+import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.Worker;
 
 public class TwitterWorker extends Worker {
 	private final Statement st;
 	private final Random r;
-    private final TransactionTypes transTypes;
     private TransactionGenerator<TwitterOperation> generator;
     private Random gen = new Random();
     
@@ -49,7 +47,6 @@ public class TwitterWorker extends Worker {
 	public TwitterWorker(Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<TwitterOperation> generator) {
 		super(conn, wrkld);
 		this.generator=generator;
-		this.transTypes=wrkld.getTransTypes();
 		r = new Random();
 	
 		try {

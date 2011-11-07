@@ -1,7 +1,11 @@
-package com.oltpbenchmark;
+package com.oltpbenchmark.api;
 
 import java.sql.Connection;
 
+import com.oltpbenchmark.BenchmarkState;
+import com.oltpbenchmark.LatencyRecord;
+import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.ThreadBench.State;
 
 public abstract class Worker implements Runnable {
@@ -10,10 +14,12 @@ public abstract class Worker implements Runnable {
 	
 	protected final Connection conn;
 	protected final WorkLoadConfiguration wrkld;
+	protected final TransactionTypes transTypes;
 	
 	public Worker(Connection conn, WorkLoadConfiguration wrkld) {
 		this.conn = conn;
 		this.wrkld = wrkld;
+		this.transTypes = this.wrkld.getTransTypes();
 	}
 
 	@Override
@@ -29,6 +35,10 @@ public abstract class Worker implements Runnable {
 		// System.out.println(this + " start");
 		boolean seenDone = false;
 		State state = testState.getState();
+		
+		TransactionType invalidTT = transTypes.getType("INVALID");
+		assert(invalidTT != null);
+		
 		while (state != State.EXIT) {
 			if (state == State.DONE && !seenDone) {
 				// This is the first time we have observed that the test is
@@ -58,7 +68,10 @@ public abstract class Worker implements Runnable {
 				start = System.nanoTime();
 			}
 
-			TransactionType type = doWork(measure, phase);
+			TransactionType type = invalidTT;
+			if (phase != null) type = doWork(measure, phase);
+			assert(type != null);
+			
 			if (measure) {
 				long end = System.nanoTime();
 				latencies.addLatency(type.getId(), start, end);
