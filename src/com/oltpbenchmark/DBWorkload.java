@@ -56,7 +56,6 @@ public class DBWorkload {
 		try {
 			pluginConfig = new XMLConfiguration("config/plugin.xml");
 		} catch (ConfigurationException e1) {
-			// TODO Auto-generated catch block
 			System.out.println("Plugin configuration file config/plugin.xml is missing");
 			e1.printStackTrace();
 		}
