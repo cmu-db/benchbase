@@ -162,7 +162,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 	public void createTerminals() {
 		fastNewOrderCounter = 0;
 		try {
-			String driver = workConf.getDriver();
+			String driver = workConf.getDBDriver();
 			printMessage("Loading database driver: \'" + driver + "\'...");
 			Class.forName(driver);
 			databaseDriverLoaded = true;
@@ -282,9 +282,9 @@ public class jTPCCHeadless implements jTPCCDriver {
 				terminalNames = new String[numTerminals];
 				terminalsStarted = numTerminals;
 				try {
-					String database = workConf.getDatabase();
-					String username = workConf.getUsername();
-					String password = workConf.getPassword();
+					String database = workConf.getDBConnection();
+					String username = workConf.getDBUsername();
+					String password = workConf.getDBPassword();
 					// TODO: This is currenly broken: fix it!
 					int warehouseOffset = Integer.getInteger("warehouseOffset",
 							1);

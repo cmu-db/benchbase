@@ -28,16 +28,17 @@ public class WorkLoadConfiguration {
 	private static WorkLoadConfiguration instance = null; // ???
 	
 	
-	private String database;
-	private String dbname;
-	private String username;
-	private String password;
-	private String driver;
+	private String db_connection;
+	private String db_host;
+	private String db_name;
+	private String db_username;
+	private String db_password;
+	private String db_driver;
+	
 	private int terminals;
 	private int numWarehouses;
 	private String tracefile;
 	private String tracefile2;
-	private String baseIP;
 	private List<Phase> works = new ArrayList<Phase>();
 	private static Iterator<Phase> i;
 	private int workPhases = 0;
@@ -54,36 +55,39 @@ public class WorkLoadConfiguration {
 		return null;
 	}
 
-	public void setDatabase(String database) {
-		this.database = database;
+	public void setDBConnection(String database) {
+		this.db_connection = database;
+	}
+	public String getDBConnection() {
+		return db_connection;
+	}
+	
+	public void setDBName(String dbname) {
+		this.db_name = dbname;
+	}
+	public String getDBName() {
+		return db_name;
 	}
 
-	public String getDatabase() {
-		return database;
+	public void setDBUsername(String username) {
+		this.db_username = username;
+	}
+	public String getDBUsername() {
+		return db_username;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setDBPassword(String password) {
+		this.db_password = password;
+	}
+	public String getDBPassword() {
+		return this.db_password;
 	}
 
-	public String getUsername() {
-		return username;
+	public void setDBDriver(String driver) {
+		this.db_driver = driver;
 	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setDriver(String driver) {
-		this.driver = driver;
-	}
-
-	public String getDriver() {
-		return this.driver;
+	public String getDBDriver() {
+		return this.db_driver;
 	}
 
 	public int size() {
@@ -93,14 +97,6 @@ public class WorkLoadConfiguration {
 	public void init() {
 		// TODO Auto-generated method stub
 		i = works.iterator();
-	}
-
-	public void setDbname(String dbname) {
-		this.dbname = dbname;
-	}
-
-	public String getDbname() {
-		return dbname;
 	}
 
 	public static WorkLoadConfiguration getInstance() {
@@ -135,11 +131,11 @@ public class WorkLoadConfiguration {
 	}
 
 	public void setBaseIP(String baseIP) {
-		this.baseIP = baseIP;
+		this.db_host = baseIP;
 	}
 
 	public String getBaseIP() {
-		return baseIP;
+		return db_host;
 	}
 	
 	public TransactionTypes getTransTypes() {

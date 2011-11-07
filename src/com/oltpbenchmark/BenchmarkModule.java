@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
@@ -35,6 +38,7 @@ import com.oltpbenchmark.util.ScriptRunner;
  * The interface that each new Benchmark need to implement
  */
 public abstract class BenchmarkModule {
+	private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 	
 	protected final WorkLoadConfiguration workConf;
 	
@@ -69,7 +73,6 @@ public abstract class BenchmarkModule {
 	 */
 	protected abstract void loadDatabaseImpl(Connection conn) throws SQLException;
 	
-	
 	// --------------------------------------------------------------------------
 	// PUBLIC INTERFACE
 	// --------------------------------------------------------------------------
@@ -84,7 +87,7 @@ public abstract class BenchmarkModule {
 			this.createDatabaseImpl(conn);
 		} catch (SQLException ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to create the %s database",
-												     workConf.getDbname()), ex);
+												     workConf.getDBName()), ex);
 		}
 	}
 	
@@ -94,7 +97,34 @@ public abstract class BenchmarkModule {
 			this.loadDatabaseImpl(conn);
 		} catch (SQLException ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to load the %s database",
-												     workConf.getDbname()), ex);
+												     workConf.getDBName()), ex);
+		}
+	}
+
+	
+	/**
+	 * 
+	 * @param conn
+	 * @throws SQLException
+	 */
+	public final void clearDatabase() {
+		try {
+			Connection conn = this.getConnection();
+			Map<String, Table> tables = this.getTables(conn);
+			assert(tables != null);
+			
+			conn.setAutoCommit(false);
+			Statement st = conn.createStatement();
+			for (Table catalog_tbl : tables.values()) {
+				LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
+				String sql = "DELETE FROM " + catalog_tbl.getName();
+				st.execute(sql);
+			} // FOR
+			conn.commit();
+			
+		} catch (SQLException ex) {
+			throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database",
+												     workConf.getDBName()), ex);
 		}
 	}
 	
@@ -103,9 +133,9 @@ public abstract class BenchmarkModule {
 	// --------------------------------------------------------------------------
 
 	protected final Connection getConnection() throws SQLException {
-		return (DriverManager.getConnection(workConf.getDatabase(),
-											workConf.getUsername(),
-											workConf.getPassword()));
+		return (DriverManager.getConnection(workConf.getDBConnection(),
+											workConf.getDBUsername(),
+											workConf.getDBPassword()));
 	}
 	
 	/**

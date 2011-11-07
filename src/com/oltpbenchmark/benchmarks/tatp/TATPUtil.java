@@ -57,8 +57,8 @@ public abstract class TATPUtil {
     
     public static final Random rand = new Random();
 
-    public static int isActive() {
-        return number(1,100) < number(86,100) ? 1 : 0;
+    public static byte isActive() {
+        return (byte)(number(1,100) < number(86,100) ? 1 : 0);
     }
 
     public static Long getSubscriberId(long subscriberSize) {

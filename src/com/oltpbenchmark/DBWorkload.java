@@ -105,11 +105,11 @@ public class DBWorkload {
 			if (argsLine.hasOption("c")) {
 				String configFile = argsLine.getOptionValue("c");
 				XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
-				wrkld.setDriver(xmlConfig.getString("driver"));
-				wrkld.setDatabase(xmlConfig.getString("DBUrl"));
-				wrkld.setDbname(xmlConfig.getString("DBName"));
-				wrkld.setUsername(xmlConfig.getString("username"));
-				wrkld.setPassword(xmlConfig.getString("password"));
+				wrkld.setDBDriver(xmlConfig.getString("driver"));
+				wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
+				wrkld.setDBName(xmlConfig.getString("DBName"));
+				wrkld.setDBUsername(xmlConfig.getString("username"));
+				wrkld.setDBPassword(xmlConfig.getString("password"));
 				wrkld.setTerminals(xmlConfig.getInt("terminals"));
 				wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
 				wrkld.setTracefile(xmlConfig.getString("tracefile",null));

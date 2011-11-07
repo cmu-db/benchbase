@@ -83,7 +83,7 @@ public class Table implements Serializable {
     	first = true;
     	for (int i = 0; i < batchSize; i++) {
     		if (first == false) sb.append(", ");
-    		sb.append(inner.toString());
+    		sb.append("(").append(inner.toString()).append(")");
     	} // FOR
     	sb.append(";");
     	

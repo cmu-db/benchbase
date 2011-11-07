@@ -37,7 +37,6 @@ public class TATPBenchmark extends BenchmarkModule {
 	
 	public TATPBenchmark(WorkLoadConfiguration workConf) {
 		super(workConf);
-		
 		this.ddl = new File(TATPBenchmark.class.getResource("tatp-ddl.sql").getPath());
 		assert(this.ddl != null);
 	}
@@ -58,9 +57,10 @@ public class TATPBenchmark extends BenchmarkModule {
 		Map<String, Table> tables = this.getTables(conn);
 		assert(tables != null);
 		
-		TATPLoader loader = new TATPLoader(conn, tables);
+		conn.setAutoCommit(false);
+		TATPLoader loader = new TATPLoader(conn, this.workConf, tables);
 		loader.load(); // Blocking...
+		conn.commit();
 		
 	}
-
 }
