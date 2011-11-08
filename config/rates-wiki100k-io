@@ -2,7 +2,7 @@
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
     <DBUrl>jdbc:mysql://vise4:3400/wiki100k</DBUrl>
-    <DBName>wiki1k</DBName>
+    <DBName>wiki100k</DBName>
     <username>root</username>
     <password></password>
     <terminals>160</terminals>
