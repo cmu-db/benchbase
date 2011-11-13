@@ -23,12 +23,17 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.catalog.Table;
 
 public class TATPBenchmark extends BenchmarkModule {
@@ -40,11 +45,28 @@ public class TATPBenchmark extends BenchmarkModule {
 		this.ddl = new File(TATPBenchmark.class.getResource("tatp-ddl.sql").getPath());
 		assert(this.ddl != null);
 	}
+	
+	@Override
+	protected Map<TransactionType, Procedure> getProcedures(Collection<TransactionType> txns) {
+		return (this.getProcedures(txns, DeleteCallForwarding.class.getPackage()));
+	}
 
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		List<Worker> workers = new ArrayList<Worker>();
+		Map<TransactionType, Procedure> procedures = this.getProcedures(this.workConf.getTransTypes());
+		
+		try {
+			for (int i = 0; i < workConf.getTerminals(); ++i) {
+				Connection conn = this.getConnection();
+				conn.setAutoCommit(false);
+				workers.add(new TATPWorker(i, conn, this.workConf, procedures));
+			} // FOR
+		} catch (SQLException ex) {
+			throw new RuntimeException("Failed to create TATP workers", ex);
+		}
+		
+		return (workers);
 	}
 	
 	@Override

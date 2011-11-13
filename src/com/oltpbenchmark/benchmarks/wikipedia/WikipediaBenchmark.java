@@ -23,15 +23,19 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 
 public class WikipediaBenchmark extends BenchmarkModule {
@@ -40,6 +44,13 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		super(workConf);
 	}
 
+	@Override
+	protected Map<TransactionType, Procedure> getProcedures(
+			Collection<TransactionType> txns) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// System.out.println("Using trace:" +workConf.getTracefile());
@@ -58,7 +69,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 				conn.setAutoCommit(false);
 				TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
 						trace);
-				workers.add(new WikipediaWorker(conn, workConf, generator, workConf
+				workers.add(new WikipediaWorker(i, conn, workConf, generator, workConf
 						.getBaseIP()
 						+ (i % 256) + "." + rand.nextInt(256), workConf
 						.getTransTypes()));

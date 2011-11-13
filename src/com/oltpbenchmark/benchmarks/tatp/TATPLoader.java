@@ -59,9 +59,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.*;
 
-public class TATPLoader {
+public class TATPLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TATPLoader.class);
     
     private final long subscriberSize = 10000; // FIXME
@@ -69,17 +70,12 @@ public class TATPLoader {
     private final double scaleFactor = 1.0; // FIXME
     private final boolean blocking = true; // FIXME
     
-    private final Connection conn;
-    private final WorkLoadConfiguration workConf;
-    private final Map<String, Table> tables;
-    
     public TATPLoader(Connection c, WorkLoadConfiguration workConf, Map<String, Table> tables) {
-    	this.conn = c;
-    	this.workConf = workConf;
-        this.tables = tables;
+    	super(c, workConf, tables);
         if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
 
+    @Override
     public void load() {
         if (LOG.isDebugEnabled()) LOG.debug("Starting TM1Loader [subscriberSize=" + subscriberSize + ",scaleFactor=" + scaleFactor + "]");
         

@@ -12,14 +12,24 @@ public abstract class Worker implements Runnable {
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
 	
+	private final int id;
 	protected final Connection conn;
 	protected final WorkLoadConfiguration wrkld;
 	protected final TransactionTypes transTypes;
 	
-	public Worker(Connection conn, WorkLoadConfiguration wrkld) {
+	public Worker(int id, Connection conn, WorkLoadConfiguration wrkld) {
+		this.id = id;
 		this.conn = conn;
 		this.wrkld = wrkld;
 		this.transTypes = this.wrkld.getTransTypes();
+	}
+	
+	/**
+	 * Unique thread id for this worker
+	 * @return
+	 */
+	public int getId() {
+		return this.id;
 	}
 
 	@Override
@@ -93,6 +103,8 @@ public abstract class Worker implements Runnable {
 
 	/**
 	 * Called in a loop in the thread to exercise the system under test.
+	 * Each implementing worker should return the TransactionType handle that
+	 * was executed.
 	 * 
 	 * @param llr
 	 */

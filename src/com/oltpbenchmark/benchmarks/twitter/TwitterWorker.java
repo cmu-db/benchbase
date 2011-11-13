@@ -44,8 +44,8 @@ public class TwitterWorker extends Worker {
     public static int LIMIT_TWEETS_FOR_UID = 10;
     public static int LIMIT_FOLLOWERS = 20;
     
-	public TwitterWorker(Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<TwitterOperation> generator) {
-		super(conn, wrkld);
+	public TwitterWorker(int id, Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<TwitterOperation> generator) {
+		super(id, conn, wrkld);
 		this.generator=generator;
 		r = new Random();
 	

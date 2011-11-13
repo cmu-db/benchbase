@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
@@ -31,6 +33,7 @@ import com.oltpbenchmark.ThreadBench;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
@@ -43,8 +46,8 @@ public class TPCCBenchmark extends BenchmarkModule {
 		private final jTPCCTerminal terminal;
 		private final  TransactionTypes transTypes;
 		
-		public TPCCWorker(jTPCCTerminal terminal, TransactionTypes transactionTypes) {
-			super(terminal.getConnection(), null); // XXX
+		public TPCCWorker(int id, jTPCCTerminal terminal, TransactionTypes transactionTypes) {
+			super(id, terminal.getConnection(), null); // XXX
 			this.terminal = terminal;
 
 			transTypes= transactionTypes;
@@ -64,6 +67,13 @@ public class TPCCBenchmark extends BenchmarkModule {
 		super(wrkld);
 	}
 
+	@Override
+	protected Map<TransactionType, Procedure> getProcedures(
+			Collection<TransactionType> txns) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/**
 	 * @param Bool
 	 */
@@ -76,8 +86,9 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		List<jTPCCTerminal> terminals = head.getTerminals();
+		int id = 0;
 		for (jTPCCTerminal terminal : terminals) {
-			workers.add(new TPCCWorker(terminal, this.workConf.getTransTypes()));
+			workers.add(new TPCCWorker(id++, terminal, this.workConf.getTransTypes()));
 		}
 		return workers;
 	}

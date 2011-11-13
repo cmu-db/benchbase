@@ -25,12 +25,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 
 public class EpinionsBenchmark extends BenchmarkModule {
@@ -39,6 +43,13 @@ public class EpinionsBenchmark extends BenchmarkModule {
 		super(workConf);
 	}
 
+	@Override
+	protected Map<TransactionType, Procedure> getProcedures(
+			Collection<TransactionType> txns) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		ArrayList<Worker> workers = new ArrayList<Worker>();
@@ -67,7 +78,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				workers.add(new EpinionsWorker(conn, workConf, i, user_ids, item_ids));
+				workers.add(new EpinionsWorker(i, conn, workConf, user_ids, item_ids));
 			}
 
 		} catch (SQLException e) {

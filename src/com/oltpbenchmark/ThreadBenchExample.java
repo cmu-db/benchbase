@@ -34,8 +34,8 @@ public class ThreadBenchExample {
 		private final Random rng = new Random();
 		private final int maxMs;
 
-		public RandomSleepWorker(int maxMs) {
-			super(null, null); // XXX
+		public RandomSleepWorker(int id, int maxMs) {
+			super(id, null, null); // XXX
 			this.maxMs = maxMs;
 		}
 
@@ -63,7 +63,7 @@ public class ThreadBenchExample {
 		int threads = Integer.parseInt(arguments[0]);
 		ArrayList<RandomSleepWorker> workers = new ArrayList<RandomSleepWorker>();
 		for (int i = 0; i < threads; ++i) {
-			workers.add(new RandomSleepWorker(100));
+			workers.add(new RandomSleepWorker(i, 100));
 		}
 
 		ThreadBench.Results r = ThreadBench.runBenchmark(workers, WARMUP_S,

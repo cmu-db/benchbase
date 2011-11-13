@@ -25,14 +25,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 
 /*
@@ -73,6 +77,13 @@ public abstract class BenchmarkModule {
 	 * 
 	 */
 	protected abstract void loadDatabaseImpl(Connection conn) throws SQLException;
+	
+	/**
+	 * 
+	 * @param txns
+	 * @return
+	 */
+	protected abstract Map<TransactionType, Procedure> getProcedures(Collection<TransactionType> txns);
 	
 	// --------------------------------------------------------------------------
 	// PUBLIC INTERFACE
@@ -156,6 +167,11 @@ public abstract class BenchmarkModule {
 		return (true);
 	}
 	
+	/**
+	 * Return a mapping from table names to Table catalog handles
+	 * @param c
+	 * @return
+	 */
 	protected final Map<String, Table> getTables(Connection c) {
 		Map<String, Table> ret = null;
 		try {
@@ -164,5 +180,22 @@ public abstract class BenchmarkModule {
 			throw new RuntimeException("Failed to retrieve table catalog information", ex);
 		}
 		return (ret);
+	}
+	
+	/**
+	 * Return a mapping from TransactionTypes to Procedure invocations
+	 * @param txns
+	 * @param pkg
+	 * @return
+	 */
+	protected final Map<TransactionType, Procedure> getProcedures(Collection<TransactionType> txns, Package pkg) {
+		Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
+		String pkgName = pkg.getName();
+		for (TransactionType txn : txns) {
+			String fullName = pkgName + "." + txn.getName();
+			Procedure proc = (Procedure)ClassUtil.newInstance(fullName, new Object[0], new Class<?>[0]);
+			proc_xref.put(txn, proc);
+		} // FOR
+		return (proc_xref);
 	}
 }

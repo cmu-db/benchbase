@@ -23,18 +23,29 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
 
 	public ResourceStresserBenchmark(WorkLoadConfiguration workConf) {
 		super(workConf);
+	}
+	
+	@Override
+	protected Map<TransactionType, Procedure> getProcedures(
+			Collection<TransactionType> txns) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	@Override
@@ -45,7 +56,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				workers.add(new ResourceStresserWorker(conn, workConf ,i));
+				workers.add(new ResourceStresserWorker(i, conn, workConf));
 			} // FOR
 		} catch (SQLException e) {
 			e.printStackTrace();

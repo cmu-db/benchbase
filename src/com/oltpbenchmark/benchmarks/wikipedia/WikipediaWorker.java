@@ -44,9 +44,9 @@ public class WikipediaWorker extends Worker {
 	private final String userIp;
 //	private final Random r;
 
-	public WikipediaWorker(Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<WikipediaOperation> generator,
+	public WikipediaWorker(int id, Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<WikipediaOperation> generator,
 			String userIp,TransactionTypes transTypes) {
-		super(conn, wrkld);
+		super(id, conn, wrkld);
 
 		this.generator = generator;
 		try {

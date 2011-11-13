@@ -55,11 +55,9 @@ public class ResourceStresserWorker extends Worker {
 
     private int result = 0;
     private ResultSet rs = null;
-    private int terminalUniqueId = -1;
     
-	public ResourceStresserWorker(Connection conn, WorkLoadConfiguration wrkld, int terminalUniqueId) {
-		super(conn, wrkld);
-		this.terminalUniqueId =terminalUniqueId;
+	public ResourceStresserWorker(int id, Connection conn, WorkLoadConfiguration wrkld) {
+		super(id, conn, wrkld);
 		r = new Random();
 	
 		try {
@@ -210,7 +208,7 @@ public class ResourceStresserWorker extends Worker {
 		  		io1PS = conn.prepareStatement(sqlStatement);
 		    }
 		    	    
-		  	int myId = this.terminalUniqueId;
+		  	int myId = this.getId();
 		  	int keyRange = 1024000 / 160;
 		  	int startingKey = myId * keyRange;
 		  	int lastKey = (myId+1) * keyRange - 1;
@@ -253,7 +251,7 @@ public class ResourceStresserWorker extends Worker {
 				io2PS = conn.prepareStatement(sqlStatement);
 		    }
 		    
-		  	int myId = this.terminalUniqueId;
+		  	int myId = this.getId();
 		  	int keyRange = (makeSureWorketSetFitsInMemory? 16777216 / 160 : 167772160 / 160);
 		  	int startingKey = myId * keyRange;
 		  	int lastKey = (myId+1) * keyRange - 1;

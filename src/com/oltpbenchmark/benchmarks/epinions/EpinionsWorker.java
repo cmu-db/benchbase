@@ -60,17 +60,15 @@ public class EpinionsWorker extends Worker {
 
     private int result = 0;
     private ResultSet rs = null;
-    private int terminalUniqueId = -1;
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
     Random rand = new Random();
 
     
-	public EpinionsWorker(Connection conn, WorkLoadConfiguration wrkld, int terminalUniqueId,ArrayList<String> user_ids,ArrayList<String> item_ids) {
-		super(conn, wrkld);
+	public EpinionsWorker(int id, Connection conn, WorkLoadConfiguration wrkld, ArrayList<String> user_ids,ArrayList<String> item_ids) {
+		super(id, conn, wrkld);
 		this.user_ids=user_ids;
 		this.item_ids=item_ids;
-		this.terminalUniqueId =terminalUniqueId;
 		r = new Random();
 	
 		try {

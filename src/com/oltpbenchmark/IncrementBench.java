@@ -38,8 +38,8 @@ public class IncrementBench {
 		private final PreparedStatement prepared;
 		private final int numRows;
 
-		public IncrementWorker(Connection connection, WorkLoadConfiguration wrkld, int numRows) {
-			super(connection, wrkld);
+		public IncrementWorker(int id, Connection connection, WorkLoadConfiguration wrkld, int numRows) {
+			super(id, connection, wrkld);
 			assert 0 < numRows;
 			this.numRows = numRows;
 
@@ -107,7 +107,7 @@ public class IncrementBench {
 		for (int i = 0; i < numClients; ++i) {
 			Connection connection = DriverManager.getConnection(jdbcUrl,
 					USERNAME, PASSWORD);
-			workers.add(new IncrementWorker(connection, null, numRows));
+			workers.add(new IncrementWorker(i, connection, null, numRows));
 		}
 
 		System.out.println(numClients + " clients; " + numRows
