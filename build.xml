@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="benchmark">
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../../Applications/eclipse3.4"/>
@@ -11,10 +6,13 @@
     <property name="javac.target" value="1.6"/>
     <property name="javac.source" value="1.6"/>
 
-    <property name="src.dir"    location="src" />
-    <property name="build.dir"  location="build" />
-    <property name="lib.dir"    location="lib" />
-
+    <!-- *************************************** CONFIGURATION *************************************** -->
+    
+    <property name="src.dir"                    location="src" />
+    <property name="tests.dir"                  location="tests" />
+    <property name="lib.dir"                    location="lib" />
+    <property name="build.dir"                  location="build" />
+    <property name='build.testoutput.dir'       location='${build.dir}/testoutput' />
 
     <path id='project.classpath'>
         <pathelement location='${build.dir}' />
@@ -25,7 +23,8 @@
         <pathelement path="${java.class.path}"/>
     </path>
 
-
+    <!-- *************************************** BUILDING *************************************** -->
+    
     <target name="build">
         <fileset dir="${src.dir}" excludes="**/*.launch, **/*.java"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
@@ -36,13 +35,56 @@
                destdir="${build.dir}"
                source="${javac.source}"
                target="${javac.target}">
-            <src path="src"/>
+            <src path="${src.dir}"/>
+            <classpath refid="project.classpath" />
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}"
+               destdir="${build.dir}"
+               source="${javac.source}"
+               target="${javac.target}">
+            <src path="${tests.dir}"/>
             <classpath refid="project.classpath" />
         </javac>
     </target>
 
-
     <target name="clean" description="Destroys all generated files and dirs.">
         <delete dir="${build.dir}"/>
     </target>
+
+   <!-- *************************************** TESTING *************************************** -->
+    
+    <!-- common junit parameters go here -->
+    <macrodef name='run_junit'>
+        <attribute name='timeout' default='240000' />
+        <attribute name='printsummary' default='off' />
+        <attribute name='showoutput' default='false' />
+        <element name='tests'/>
+        <element name='formatters'/>
+        
+        <sequential>
+            <mkdir dir='${build.testoutput.dir}' />
+            <junit
+                fork="yes"
+                haltonfailure="${junit.haltonfailure}"
+                failureproperty="junit.failures"
+                printsummary="@{printsummary}"
+                timeout="@{timeout}"
+                maxmemory='1024M'
+                showoutput="@{showoutput}"
+            >
+                <classpath refid='project.classpath' />
+                <jvmarg value="-Djava.library.path=${build.dir}/nativelibs" />
+                <jvmarg value="-server" />
+                <jvmarg value="-Xcheck:jni" />
+                <jvmarg value="-Xmx2048m"/>
+                <jvmarg value="-XX:+HeapDumpOnOutOfMemoryError"/>
+                
+                <formatters/>
+                <batchtest todir="${build.testoutput.dir}">
+                    <tests/>
+                </batchtest>
+                <assertions><enable/></assertions>
+            </junit>
+        </sequential>
+    </macrodef>
 </project>

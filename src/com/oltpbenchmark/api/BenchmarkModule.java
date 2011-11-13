@@ -33,7 +33,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.ClassUtil;
@@ -45,10 +44,13 @@ import com.oltpbenchmark.util.ScriptRunner;
 public abstract class BenchmarkModule {
 	private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 	
+	protected final String benchmarkName;
 	protected final WorkLoadConfiguration workConf;
 	
-	public BenchmarkModule(WorkLoadConfiguration workConf) {
+	public BenchmarkModule(String benchmarkName, WorkLoadConfiguration workConf) {
 		assert(workConf != null) : "The WorkloadConfiguration instance is null.";
+		
+		this.benchmarkName = benchmarkName;
 		this.workConf = workConf;
 	}
 	
@@ -69,13 +71,6 @@ public abstract class BenchmarkModule {
 	 * @throws SQLException TODO
 	 * 
 	 */
-	protected abstract void createDatabaseImpl(Connection conn) throws SQLException;
-	
-	/**
-	 * @param conn TODO
-	 * @throws SQLException TODO
-	 * 
-	 */
 	protected abstract void loadDatabaseImpl(Connection conn) throws SQLException;
 	
 	/**
@@ -88,15 +83,26 @@ public abstract class BenchmarkModule {
 	// --------------------------------------------------------------------------
 	// PUBLIC INTERFACE
 	// --------------------------------------------------------------------------
+
+	/**
+	 * Return the File handle to the DDL used to load the
+	 * benchmark's database schema.
+	 */
+	public File getDatabaseDDL() {
+		String ddlName = this.benchmarkName + "-ddl.sql";
+		return new File(this.getClass().getResource(ddlName).getPath());
+	}
 	
 	public final List<Worker> makeWorkers(boolean verbose) throws IOException {
 		return (this.makeWorkersImpl(verbose));
 	}
 	
 	public final void createDatabase() {
+		File ddl = this.getDatabaseDDL();
+		assert(ddl.exists()) : "The file '" + ddl + "' does not exist";
 		try {
 			Connection conn = this.getConnection();
-			this.createDatabaseImpl(conn);
+			this.executeFile(conn, ddl);
 		} catch (SQLException ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to create the %s database",
 												     workConf.getDBName()), ex);

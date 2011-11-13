@@ -40,7 +40,7 @@ import com.oltpbenchmark.api.Worker;
 public class EpinionsBenchmark extends BenchmarkModule {
 
 	public EpinionsBenchmark(WorkLoadConfiguration workConf) {
-		super(workConf);
+		super("epinions", workConf);
 	}
 
 	@Override
@@ -85,11 +85,6 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			e.printStackTrace();
 		}
 		return workers;
-	}
-	
-	@Override
-	protected void createDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
 	}
 	
 	@Override

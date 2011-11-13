@@ -64,7 +64,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 	}
 	
 	public TPCCBenchmark(WorkLoadConfiguration wrkld) {
-		super(wrkld);
+		super("tpcc", wrkld);
 	}
 
 	@Override
@@ -146,11 +146,6 @@ public class TPCCBenchmark extends BenchmarkModule {
 				10, 30 * 60, 1300);
 		System.out.println("Rate limited reqs/s: " + r);
 		r.writeCSV(30, System.out);
-	}
-	
-	@Override
-	protected void createDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
 	}
 	
 	@Override

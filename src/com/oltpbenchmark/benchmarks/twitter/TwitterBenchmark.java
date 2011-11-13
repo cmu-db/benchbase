@@ -40,7 +40,7 @@ import com.oltpbenchmark.api.Worker;
 public class TwitterBenchmark extends BenchmarkModule {
 
 	public TwitterBenchmark(WorkLoadConfiguration workConf) {
-		super(workConf);
+		super("twitter",workConf);
 	}
 	
 	@Override
@@ -71,11 +71,6 @@ public class TwitterBenchmark extends BenchmarkModule {
 			e.printStackTrace();
 		}
 		return workers;
-	}
-	
-	@Override
-	protected void createDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
 	}
 	
 	@Override

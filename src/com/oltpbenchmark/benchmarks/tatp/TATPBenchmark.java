@@ -38,12 +38,8 @@ import com.oltpbenchmark.catalog.Table;
 
 public class TATPBenchmark extends BenchmarkModule {
 
-	private final File ddl; 
-	
 	public TATPBenchmark(WorkLoadConfiguration workConf) {
-		super(workConf);
-		this.ddl = new File(TATPBenchmark.class.getResource("tatp-ddl.sql").getPath());
-		assert(this.ddl != null);
+		super("tatp", workConf);
 	}
 	
 	@Override
@@ -67,11 +63,6 @@ public class TATPBenchmark extends BenchmarkModule {
 		}
 		
 		return (workers);
-	}
-	
-	@Override
-	protected void createDatabaseImpl(Connection conn) throws SQLException {
-		this.executeFile(conn, this.ddl);
 	}
 	
 	@Override
