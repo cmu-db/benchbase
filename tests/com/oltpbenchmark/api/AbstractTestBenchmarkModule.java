@@ -42,9 +42,9 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     protected Connection conn;
     
     // HACK
-    static {
-        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
-    }
+//    static {
+//        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
+//    }
 
     protected final void setUp(Class<T> clazz) throws Exception {
         super.setUp();
