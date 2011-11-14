@@ -81,49 +81,49 @@ public class EpinionsWorker extends Worker {
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
 
-		transTypes.getType("INVALID");
-		TransactionType retTP = transTypes.getType("INVALID");
+		transactionTypes.getType("INVALID");
+		TransactionType retTP = transactionTypes.getType("INVALID");
 		
 		if(phase!=null){
 			int nextTrans = phase.chooseTransaction();
 			
 			try {
 				
-				if(nextTrans == transTypes.getType("ITEM_BY_ID").getId()){
+				if(nextTrans == transactionTypes.getType("ITEM_BY_ID").getId()){
 					reviewItemByID();
-					retTP = transTypes.getType("ITEM_BY_ID");
+					retTP = transactionTypes.getType("ITEM_BY_ID");
 				}else
-				if(nextTrans == transTypes.getType("ALL_REVIEWS_OF_A_USER").getId()){
+				if(nextTrans == transactionTypes.getType("ALL_REVIEWS_OF_A_USER").getId()){
 					reviewsByUser();
-					retTP = transTypes.getType("ALL_REVIEWS_OF_A_USER");
+					retTP = transactionTypes.getType("ALL_REVIEWS_OF_A_USER");
 				}else
-				if(nextTrans == transTypes.getType("AVG_RATING_BY_TRUSTED_REVIEWERS").getId()){
+				if(nextTrans == transactionTypes.getType("AVG_RATING_BY_TRUSTED_REVIEWERS").getId()){
 					averageRatingByTrustedUser();
-					retTP = transTypes.getType("AVG_RATING_BY_TRUSTED_REVIEWERS");
+					retTP = transactionTypes.getType("AVG_RATING_BY_TRUSTED_REVIEWERS");
 				}else
-				if(nextTrans == transTypes.getType("AVG_RATING_OF_ITEM").getId()){
+				if(nextTrans == transactionTypes.getType("AVG_RATING_OF_ITEM").getId()){
 					averageRatingOfItem();
-					retTP = transTypes.getType("AVG_RATING_OF_ITEM");
+					retTP = transactionTypes.getType("AVG_RATING_OF_ITEM");
 				}else
-				if(nextTrans == transTypes.getType("REVIEWS_BY_TRUSTED_USERS").getId()){
+				if(nextTrans == transactionTypes.getType("REVIEWS_BY_TRUSTED_USERS").getId()){
 					itemReviewsByTrustedUser();
-					retTP = transTypes.getType("REVIEWS_BY_TRUSTED_USERS");
+					retTP = transactionTypes.getType("REVIEWS_BY_TRUSTED_USERS");
 				}else
-				if(nextTrans == transTypes.getType("UPDATE_USER_NAME").getId()){
+				if(nextTrans == transactionTypes.getType("UPDATE_USER_NAME").getId()){
 					updateUserName();
-					retTP = transTypes.getType("UPDATE_USER_NAME");
+					retTP = transactionTypes.getType("UPDATE_USER_NAME");
 				}else
-				if(nextTrans == transTypes.getType("UPDATE_ITEM_TITLE").getId()){
+				if(nextTrans == transactionTypes.getType("UPDATE_ITEM_TITLE").getId()){
 					updateItemTitle();
-						retTP = transTypes.getType("UPDATE_ITEM_TITLE");
+						retTP = transactionTypes.getType("UPDATE_ITEM_TITLE");
 				}else
-				if(nextTrans == transTypes.getType("UPDATE_REVIEW_RATING").getId()){
+				if(nextTrans == transactionTypes.getType("UPDATE_REVIEW_RATING").getId()){
 					updateReviewRating();
-						retTP = transTypes.getType("UPDATE_REVIEW_RATING");
+						retTP = transactionTypes.getType("UPDATE_REVIEW_RATING");
 				}
-				if(nextTrans == transTypes.getType("UPDATE_TRUST_RATING").getId()){
+				if(nextTrans == transactionTypes.getType("UPDATE_TRUST_RATING").getId()){
 					updateTrustRating();
-						retTP = transTypes.getType("UPDATE_TRUST_RATING");
+						retTP = transactionTypes.getType("UPDATE_TRUST_RATING");
 				}
 				
 				

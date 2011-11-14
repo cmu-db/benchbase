@@ -72,24 +72,24 @@ public class ResourceStresserWorker extends Worker {
 		TransactionType retTP = null;
 		int nextTrans = phase.chooseTransaction();
 		try {
-			if (nextTrans == transTypes.getType("CPU1").getId()) {
+			if (nextTrans == transactionTypes.getType("CPU1").getId()) {
 				cpuTransaction(10, 1);
-				retTP = transTypes.getType("CPU1");
-			} else if (nextTrans == transTypes.getType("CPU2").getId()) {
+				retTP = transactionTypes.getType("CPU1");
+			} else if (nextTrans == transactionTypes.getType("CPU2").getId()) {
 				cpuTransaction(5, 2);
-				retTP = transTypes.getType("CPU2");
-			} else if (nextTrans == transTypes.getType("IO1").getId()) {
+				retTP = transactionTypes.getType("CPU2");
+			} else if (nextTrans == transactionTypes.getType("IO1").getId()) {
 				io1Transaction(10, 10);
-				retTP = transTypes.getType("IO1");
-			} else if (nextTrans == transTypes.getType("IO2").getId()) {
+				retTP = transactionTypes.getType("IO1");
+			} else if (nextTrans == transactionTypes.getType("IO2").getId()) {
 				io2Transaction(true, 50);
-				retTP = transTypes.getType("IO2");
-			} else if (nextTrans == transTypes.getType("CONTENTION1").getId()) {
+				retTP = transactionTypes.getType("IO2");
+			} else if (nextTrans == transactionTypes.getType("CONTENTION1").getId()) {
 				lock1Transaction(2, 1);
-				retTP = transTypes.getType("CONTENTION1");
-			} else if (nextTrans == transTypes.getType("CONTENTION2").getId()) {
+				retTP = transactionTypes.getType("CONTENTION1");
+			} else if (nextTrans == transactionTypes.getType("CONTENTION2").getId()) {
 				lock2Transaction(2, 5, 1);
-				retTP = transTypes.getType("CONTENTION2");
+				retTP = transactionTypes.getType("CONTENTION2");
 			}
 
 		} catch (MySQLTransactionRollbackException m) {

@@ -12,16 +12,16 @@ public abstract class Worker implements Runnable {
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
 	
-	private final int id;
+	protected static int id=0;
 	protected final Connection conn;
 	protected final WorkLoadConfiguration wrkld;
-	protected final TransactionTypes transTypes;
+	protected final TransactionTypes transactionTypes;
 	
 	public Worker(int id, Connection conn, WorkLoadConfiguration wrkld) {
 		this.id = id;
 		this.conn = conn;
-		this.wrkld = wrkld;
-		this.transTypes = this.wrkld.getTransTypes();
+		this.wrkld=wrkld;
+		this.transactionTypes = this.wrkld.getTransTypes();
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public abstract class Worker implements Runnable {
 		boolean seenDone = false;
 		State state = testState.getState();
 		
-		TransactionType invalidTT = transTypes.getType("INVALID");
+		TransactionType invalidTT = wrkld.getTransTypes().getType("INVALID");
 		assert(invalidTT != null);
 		
 		while (state != State.EXIT) {

@@ -46,15 +46,24 @@ import java.util.Map;
 import java.util.Random;
 
 import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 import com.oltpbenchmark.util.SimplePrinter;
 
 
-public class jTPCCTerminal implements Runnable {
+public class TPCCWorker extends Worker {
 	
-	private TransactionTypes transactionTypes;
+	@Override
+	protected TransactionType doWork(boolean measure, Phase phase) {
+		TransactionType type = chooseTransaction(phase);
+		executeTransaction(type.getId());
+		return type;
+	}
+	
+	//private TransactionTypes transactionTypes;
 	
 	private String terminalName;
 	private Connection conn = null;
@@ -115,13 +124,14 @@ public class jTPCCTerminal implements Runnable {
 	private PreparedStatement stockGetDistOrderId = null;
 	private PreparedStatement stockGetCountStock = null;
 
-	public jTPCCTerminal(String terminalName, int terminalWarehouseID,
+	public TPCCWorker(String terminalName, int terminalWarehouseID,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
 			Connection conn, int numTransactions,
 			SimplePrinter terminalOutputArea, SimplePrinter errorOutputArea,
 			boolean debugMessages, int paymentWeight, int orderStatusWeight,
 			int deliveryWeight, int stockLevelWeight, int numWarehouses,
-			jTPCCDriver parent) throws SQLException {
+			jTPCCDriver parent, WorkLoadConfiguration wrkld) throws SQLException {
+		super(id++,conn,wrkld);
 		this.terminalName = terminalName;
 		this.conn = conn;
 		this.stmt = conn.createStatement();
@@ -151,30 +161,30 @@ public class jTPCCTerminal implements Runnable {
 				+ "].");
 	}
 
-	public void run() {
-		executeTransactions(numTransactions);
-
-		printMessage("Closing statement and connection...");
-
-		try {
-			stmt.close();
-			conn.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-		printMessage("Terminal \'" + terminalName + "\' finished after "
-				+ (transactionCount - 1) + " transaction(s).");
-
-		parent.signalTerminalEnded(this, newOrderCounter);
-
-		if (deadlockLocations != null) {
-			for (Map.Entry<Integer, Integer> e : deadlockLocations.entrySet()) {
-				System.out.println("jTPCCTerminal.java:" + e.getKey() + ": "
-						+ e.getValue() + " deadlocks");
-			}
-		}
-	}
+//	public void run() {
+//		executeTransactions(numTransactions);
+//
+//		printMessage("Closing statement and connection...");
+//
+//		try {
+//			stmt.close();
+//			conn.close();
+//		} catch (SQLException e) {
+//			throw new RuntimeException(e);
+//		}
+//
+//		printMessage("Terminal \'" + terminalName + "\' finished after "
+//				+ (transactionCount - 1) + " transaction(s).");
+//
+//		parent.signalTerminalEnded(this, newOrderCounter);
+//
+//		if (deadlockLocations != null) {
+//			for (Map.Entry<Integer, Integer> e : deadlockLocations.entrySet()) {
+//				System.out.println("jTPCCTerminal.java:" + e.getKey() + ": "
+//						+ e.getValue() + " deadlocks");
+//			}
+//		}
+//	}
 
 	public void stopRunningWhenPossible() {
 		stopRunningSignal = true;
@@ -227,94 +237,9 @@ public class jTPCCTerminal implements Runnable {
 		return transactionTypes.getType(type.ordinal());
 	}
 
-	private void executeTransactions(int numTransactions) {
-		boolean stopRunning = false;
-
-		int nhot = Integer.getInteger("nhot", 0);
-
-		//
-		// Following vars for TPMC throttling.
-		//
-
-		long startTime = System.currentTimeMillis();
-		int numNewOrders = 0;
-		// double lastTargetTpmc = 0;
-
-		if (numTransactions != -1)
-			printMessage("Executing " + numTransactions + " transactions...");
-		else
-			printMessage("Executing for a limited time...");
-
-		for (int i = 0; (i < numTransactions || numTransactions == -1)
-				&& !stopRunning; i++) {
-			TransactionType type = chooseTransaction(null);
-
-			if (type.equals("NEW_ORDER")) {
-				Double targetTpmcRef = jTPCCDriver.targetTpmc.get();
-				double targetTpmc = targetTpmcRef == null ? 0 : targetTpmcRef
-						.doubleValue();
-				// Throttle TPMC?
-				if (targetTpmc != 0) {
-					// This was a bad idea because the target TPMC is being
-					// updated continuously.
-					//
-					// // Reset our counters if the rate has been changed, since
-					// // this should mark a new epoch (otherwise we may
-					// suddenly
-					// // try to catch up or slow down a lot).
-					long t = System.currentTimeMillis();
-					if (t - startTime > 10000) {
-						startTime = t;
-						numNewOrders = 0;
-					}
-					// lastTargetTpmc = targetTpmc;
-
-					long deadline = startTime + (long) (60000.0 / targetTpmc)
-							* numNewOrders;
-					long currTime = System.currentTimeMillis();
-					long wait = deadline - currTime;
-					System.out.println("targetTpmc " + targetTpmc
-							+ " currentTtpmc " + 60e3 * numNewOrders
-							/ (currTime - startTime) + " wait " + wait);
-					if (wait > 0) {
-						try {
-							Thread.sleep(wait);
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-					}
-					numNewOrders++;
-				}
-
-				newOrderCounter++;
-			}
-
-			long transactionStart = System.currentTimeMillis();
-			int skippedDeliveries = executeTransaction(type.getId());
-			long transactionEnd = System.currentTimeMillis();
-
-			String skippedMessage = null;
-			if (type.equals("DELIVERY")) {
-				skippedMessage = skippedDeliveries == 0 ? "None" : ""
-						+ skippedDeliveries + " delivery(ies) skipped.";
-			}
-
-			int isNewOrder = type.equals("NEW_ORDER") ? 1
-					: 0;
-			parent.signalTerminalEndedTransaction(this.terminalName,
-					type.toString(), transactionEnd - transactionStart,
-					skippedMessage, isNewOrder);
-
-			if (this.terminalWarehouseID < nhot) {
-				nhot = 0;
-			}
-
-			if (stopRunningSignal)
-				stopRunning = true;
-		}
-	}
-
-	/** Executes a single TPCC transaction of type transactionType. */
+	/** 
+	 * Executes a single TPCC transaction of type transactionType. 
+	 */
 	public int executeTransaction(int transaction) {
 
 		int result = 0;
@@ -521,8 +446,7 @@ public class jTPCCTerminal implements Runnable {
 		} else if (e.getErrorCode() == 0 && e.getSQLState().equals("40001")) {
 			// Postgres serialization
 			isSerialization = true;
-			assert e.getMessage().equals(
-					"could not serialize access due to concurrent update");
+			assert e.getMessage().equals("could not serialize access due to concurrent update");
 		}
 
 		// Djellel
@@ -1648,10 +1572,6 @@ public class jTPCCTerminal implements Runnable {
 			terminalOutputArea.println("[ jTPCC ] " + message);
 	}
 
-	public void setTransactionTypes(TransactionTypes transactionTypes) {
-		this.transactionTypes =transactionTypes;
-	}
-	
 	public Connection getConnection() {
 		return conn;
 	}

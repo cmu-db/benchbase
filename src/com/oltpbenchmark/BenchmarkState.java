@@ -25,7 +25,7 @@ public final class BenchmarkState {
 	// Protected by this
 	private int workAvailable = 0;
 	private int workersWaiting = 0;
-	private LoadLineReader llr;
+	//private LoadLineReader llr;
 	private volatile Phase currentPhase;
 
 	public Phase getCurrentPhase() {
@@ -193,7 +193,7 @@ public final class BenchmarkState {
 
 		synchronized (this) {
 			assert workAvailable >= 0;
-			this.llr = new LoadLineReader(llr);
+			//this.llr = new LoadLineReader(llr);
 			if (resetQueues)
 				workAvailable = amount;
 			else

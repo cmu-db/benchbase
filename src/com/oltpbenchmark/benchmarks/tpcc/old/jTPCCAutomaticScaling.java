@@ -65,8 +65,9 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Random;
 
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCDriver;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCTerminal;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 import com.oltpbenchmark.util.StatisticsCollector;
 import com.oltpbenchmark.util.StatsHolder;
@@ -75,7 +76,7 @@ public class jTPCCAutomaticScaling implements jTPCCDriver {
 
 	public long lastTimeMillis = 0;
 
-	private jTPCCTerminal[] terminals;
+	private TPCCWorker[] terminals;
 	private String[] terminalNames;
 	private Random random = new Random(System.currentTimeMillis());
 	private long terminalsStarted = 0, sessionCount = 0, transactionCount;
@@ -454,7 +455,7 @@ public class jTPCCAutomaticScaling implements jTPCCDriver {
 				printMessage("A complete report of the transactions will be saved to the file \'"
 						+ reportFileName + "\'");
 
-				terminals = new jTPCCTerminal[numTerminals];
+				terminals = new TPCCWorker[numTerminals];
 				terminalNames = new String[numTerminals];
 				terminalsStarted = numTerminals;
 				try {
@@ -501,7 +502,7 @@ public class jTPCCAutomaticScaling implements jTPCCDriver {
 						conn = DriverManager.getConnection(database, username,
 								password);
 						conn.setAutoCommit(false);
-						jTPCCTerminal terminal = new jTPCCTerminal(
+						TPCCWorker terminal = new TPCCWorker(
 								terminalName, terminalWarehouseID,
 								terminalDistrictID, terminalDistrictID, conn,
 								transactionsPerTerminal,
@@ -509,7 +510,7 @@ public class jTPCCAutomaticScaling implements jTPCCDriver {
 								new SimpleSystemPrinter(System.err),
 								debugMessages, paymentWeightValue,
 								orderStatusWeightValue, deliveryWeightValue,
-								stockLevelWeightValue, numWarehouses, this);
+								stockLevelWeightValue, numWarehouses, this, WorkLoadConfiguration.getInstance());
 						terminals[i] = terminal;
 						terminalNames[i] = terminalName;
 						printStreamReport.println(terminalName + "\t"
@@ -647,7 +648,7 @@ public class jTPCCAutomaticScaling implements jTPCCDriver {
 		}
 	}
 
-	public void signalTerminalEnded(jTPCCTerminal terminal,
+	public void signalTerminalEnded(TPCCWorker terminal,
 			long countNewOrdersExecuted) {
 		synchronized (terminals) {
 			boolean found = false;

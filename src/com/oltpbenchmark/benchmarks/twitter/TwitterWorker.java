@@ -60,7 +60,7 @@ public class TwitterWorker extends Worker {
 	protected TransactionType doWork(boolean measure, Phase phase) {
 
 		
-		TransactionType retTP = transTypes.getType("INVALID");
+		TransactionType retTP = transactionTypes.getType("INVALID");
 		TwitterOperation t= generator.nextTransaction();
 		
 		
@@ -74,25 +74,25 @@ public class TwitterWorker extends Worker {
 			int nextTrans = phase.chooseTransaction();
 			
 			try {
-				if(nextTrans == transTypes.getType("TWITTER_SELECT1_TWEET_BY_TWEETID").getId()){
+				if(nextTrans == transactionTypes.getType("TWITTER_SELECT1_TWEET_BY_TWEETID").getId()){
 					doSelect1Tweet(t.tweetid);
-					retTP = transTypes.getType("TWITTER_SELECT1_TWEET_BY_TWEETID");
+					retTP = transactionTypes.getType("TWITTER_SELECT1_TWEET_BY_TWEETID");
 				}else
-				if(nextTrans == transTypes.getType("TWITTER_SELECT_TWEETS_I_FOLLOW").getId()){
+				if(nextTrans == transactionTypes.getType("TWITTER_SELECT_TWEETS_I_FOLLOW").getId()){
 					doSelectTweetsFromPplIFollow(t.uid);
-					retTP = transTypes.getType("TWITTER_SELECT_TWEETS_I_FOLLOW");
+					retTP = transactionTypes.getType("TWITTER_SELECT_TWEETS_I_FOLLOW");
 				}else
-				if(nextTrans == transTypes.getType("TWITTER_SELECT_FOLLOWERS").getId()){
+				if(nextTrans == transactionTypes.getType("TWITTER_SELECT_FOLLOWERS").getId()){
 					doSelectNamesOfPplThatFollowMe(t.uid);
-					retTP = transTypes.getType("TWITTER_SELECT_FOLLOWERS");
+					retTP = transactionTypes.getType("TWITTER_SELECT_FOLLOWERS");
 				}else
-				if(nextTrans == transTypes.getType("TWITTER_SELECT_TWEETS_BY_USERID").getId()){
+				if(nextTrans == transactionTypes.getType("TWITTER_SELECT_TWEETS_BY_USERID").getId()){
 					doSelectTweetsForUid(t.uid);
-					retTP = transTypes.getType("TWITTER_SELECT_TWEETS_BY_USERID");
+					retTP = transactionTypes.getType("TWITTER_SELECT_TWEETS_BY_USERID");
 				}else
-				if(nextTrans == transTypes.getType("TWITTER_INSERT1_TWEET").getId()){
+				if(nextTrans == transactionTypes.getType("TWITTER_INSERT1_TWEET").getId()){
 					doInsertTweet(t.uid,text);
-					retTP = transTypes.getType("TWITTER_INSERT1_TWEET");
+					retTP = transactionTypes.getType("TWITTER_INSERT1_TWEET");
 				}
 				
 			} catch (MySQLTransactionRollbackException m){

@@ -60,7 +60,6 @@ public abstract class BenchmarkModule {
 	// --------------------------------------------------------------------------
 	
 	/**
-	 * 
 	 * @param verbose
 	 * @return
 	 * @throws IOException

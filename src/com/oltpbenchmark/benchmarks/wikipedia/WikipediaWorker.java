@@ -62,35 +62,35 @@ public class WikipediaWorker extends Worker {
 
 		// we should work using the LLR to drive wikipedia at different speeds!!
 
-		transTypes.getType("INVALID");
+		transactionTypes.getType("INVALID");
 		
 		WikipediaOperation t= generator.nextTransaction();
-		TransactionType retTP = transTypes.getType("INVALID");
+		TransactionType retTP = transactionTypes.getType("INVALID");
 		
 		if(phase!=null){
 			int nextTrans = phase.chooseTransaction();
 			
 			try {
 				
-				if(nextTrans == transTypes.getType("WIKI_ADD_WATCHLIST").getId()){
+				if(nextTrans == transactionTypes.getType("WIKI_ADD_WATCHLIST").getId()){
 					addToWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_ADD_WATCHLIST");
+					retTP = transactionTypes.getType("WIKI_ADD_WATCHLIST");
 				}else
-				if(nextTrans == transTypes.getType("WIKI_REMOVE_WATCHLIST").getId()){
+				if(nextTrans == transactionTypes.getType("WIKI_REMOVE_WATCHLIST").getId()){
 					removeFromWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_REMOVE_WATCHLIST");
+					retTP = transactionTypes.getType("WIKI_REMOVE_WATCHLIST");
 				}else
-				if(nextTrans == transTypes.getType("WIKI_UPDATE_PAGE").getId()){
+				if(nextTrans == transactionTypes.getType("WIKI_UPDATE_PAGE").getId()){
 					updatePage(userIp, t.userId,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_UPDATE_PAGE");
+					retTP = transactionTypes.getType("WIKI_UPDATE_PAGE");
 				}else
-				if(nextTrans == transTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS").getId()){
+				if(nextTrans == transactionTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS").getId()){
 					selectPage(true,userIp, 0,t.nameSpace,t.pageTitle);
-					retTP = transTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS");
+					retTP = transactionTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS");
 				}else
-				if(nextTrans == transTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN").getId()){
+				if(nextTrans == transactionTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN").getId()){
 						selectPage(true,userIp, t.userId,t.nameSpace,t.pageTitle);
-						retTP = transTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN");
+						retTP = transactionTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN");
 				}
 				
 			} catch (MySQLTransactionRollbackException m){

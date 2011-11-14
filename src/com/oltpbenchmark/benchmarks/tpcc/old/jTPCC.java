@@ -82,8 +82,9 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCDriver;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCTerminal;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.old.JOutputArea;
 
 public class jTPCC extends JFrame implements ActionListener, WindowListener,
@@ -114,7 +115,7 @@ public class jTPCC extends JFrame implements ActionListener, WindowListener,
 	private JRadioButton jRadioButtonTime, jRadioButtonNum;
 	private JCheckBox jCheckBoxDebugMessages;
 
-	private jTPCCTerminal[] terminals;
+	private TPCCWorker[] terminals;
 	private JOutputArea[] terminalOutputAreas;
 	private String[] terminalNames;
 	private boolean terminalsBlockingExit = false;
@@ -496,7 +497,7 @@ public class jTPCC extends JFrame implements ActionListener, WindowListener,
 					printMessage("A complete report of the transactions will be saved to the file \'"
 							+ reportFileName + "\'");
 
-					terminals = new jTPCCTerminal[numTerminals];
+					terminals = new TPCCWorker[numTerminals];
 					terminalOutputAreas = new JOutputArea[numTerminals];
 					terminalNames = new String[numTerminals];
 					terminalsStarted = numTerminals;
@@ -538,7 +539,7 @@ public class jTPCC extends JFrame implements ActionListener, WindowListener,
 							if (maxChars < 2000)
 								maxChars = 2000;
 							terminalOutputArea.setMaxChars(maxChars);
-							jTPCCTerminal terminal = new jTPCCTerminal(
+							TPCCWorker terminal = new TPCCWorker(
 									terminalName, terminalWarehouseID,
 									terminalDistrictID, terminalDistrictID,
 									conn, transactionsPerTerminal,
@@ -546,7 +547,7 @@ public class jTPCC extends JFrame implements ActionListener, WindowListener,
 									debugMessages, paymentWeightValue,
 									orderStatusWeightValue,
 									deliveryWeightValue, stockLevelWeightValue,
-									numWarehouses, this);
+									numWarehouses, this, WorkLoadConfiguration.getInstance());
 							terminals[i] = terminal;
 							terminalOutputAreas[i] = terminalOutputArea;
 							terminalNames[i] = terminalName;
@@ -680,7 +681,7 @@ public class jTPCC extends JFrame implements ActionListener, WindowListener,
 		}
 	}
 
-	public void signalTerminalEnded(jTPCCTerminal terminal,
+	public void signalTerminalEnded(TPCCWorker terminal,
 			long countNewOrdersExecuted) {
 		synchronized (terminals) {
 			boolean found = false;

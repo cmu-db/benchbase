@@ -150,7 +150,7 @@ public class TATPWorker extends Worker {
 	
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
-		TransactionType next = transTypes.getType(phase.chooseTransaction());
+		TransactionType next = transactionTypes.getType(phase.chooseTransaction());
 		Transaction t = Transaction.get(next.getName());
 		assert(t != null) : "Unexpected " + next;
 		

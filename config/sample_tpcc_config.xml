@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4:3400/tpcc</DBUrl>
+    <DBUrl>jdbc:mysql://diuflx01:3306/tpcc</DBUrl>
     <DBName>tpcc</DBName>
     <username>root</username>
-    <password></password>
-    <terminals>160</terminals>
-    <numWarehouses>32</numWarehouses>
+    <password>hello</password>
+    <terminals>10</terminals>
     
-    <transactiontypes>
+   	<numWarehouses>32</numWarehouses>
+   	
+   	<transactiontypes>
     	<transactiontype>
     		<name>INVALID</name>
     		<id>0</id>
@@ -33,13 +34,14 @@
     		<name>STOCK_LEVEL</name>
     		<id>5</id>
     	</transactiontype>
-    </transactiontypes>
-    
+   	</transactiontypes>
+   	
     <works>
         <work>
-          <time>10</time>
-          <rate>20000</rate>
+          <time>20</time>
+          <rate>10</rate>
           <weights>0,20,20,20,20,20</weights>
         </work>
 	</works>
+		
 </parameters>

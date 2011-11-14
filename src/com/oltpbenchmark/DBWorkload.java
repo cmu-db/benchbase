@@ -156,10 +156,9 @@ public class DBWorkload {
 							
 				TransactionTypes tt =new TransactionTypes(ttypes);
 				wrkld.setTransTypes(tt);
-				
+
 				System.out.println("Using the following transaction types: " +tt);
-				
-				
+
 				wrkld.init();
 				Results r = run(wrkld, argsLine.hasOption("v"));
 				PrintStream ps = System.out;
@@ -187,14 +186,14 @@ public class DBWorkload {
 
 	private static Results run(WorkLoadConfiguration wrkld, boolean verbose)
 			throws QueueLimitException, IOException {
+		
 		BenchmarkModule bench = ClassUtil.newInstance(classname,
 										   new Object[]{ wrkld },
 										   new Class<?>[]{ WorkLoadConfiguration.class });
 		List<Worker> workers = bench.makeWorkers(verbose);
 		System.out.println("Launching the Benchmark with " + wrkld.size()
 				+ " Phases ...");
-		ThreadBench.Results r = ThreadBench
-				.runRateLimitedBenchmark(workers);
+		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
 		System.out.println("Rate limited reqs/s: " + r);
 		return r;
 	}

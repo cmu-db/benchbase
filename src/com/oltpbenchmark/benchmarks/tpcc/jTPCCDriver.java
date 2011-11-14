@@ -22,7 +22,7 @@ package com.oltpbenchmark.benchmarks.tpcc;
 import java.util.concurrent.atomic.AtomicReference;
 
 public interface jTPCCDriver {
-	public void signalTerminalEnded(jTPCCTerminal terminal,
+	public void signalTerminalEnded(TPCCWorker terminal,
 			long countNewOrdersExecuted);
 
 	public void signalTerminalEndedTransaction(String terminalName,

@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <plugins>
 	<plugin name="tpcc">com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark</plugin>
-        <plugin name="tatp">com.oltpbenchmark.benchmarks.tatp.TATPBenchmark</plugin>
+    <plugin name="tatp">com.oltpbenchmark.benchmarks.tatp.TATPBenchmark</plugin>
 	<plugin name="wikipedia">com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark</plugin>
 	<plugin name="resourcestresser">com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark</plugin>
 	<plugin name="twitter">com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark</plugin>
 	<plugin name="epinions">com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark</plugin>
-
 </plugins>

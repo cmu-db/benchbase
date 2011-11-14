@@ -43,12 +43,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 	private BenchmarkState testState;
 	private final List<? extends Worker> workers;
 	private File profileFile;
-	private static final WorkLoadConfiguration workConf = WorkLoadConfiguration
-			.getInstance();
+	private static final WorkLoadConfiguration workConf = WorkLoadConfiguration.getInstance();
 	ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
-
-
-	
 	
 	public static enum State {
 		WARMUP, MEASURE, DONE, EXIT,
@@ -336,9 +332,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 
 	private ArrayList<Thread> createWorkerThreads(boolean isRateLimited) {
 		assert testState == null;
-		testState = new BenchmarkState(workers.size() + 1, isRateLimited,
-				RATE_QUEUE_LIMIT);
-
+		testState = new BenchmarkState(workers.size() + 1, isRateLimited, RATE_QUEUE_LIMIT);
 		ArrayList<Thread> workerThreads = new ArrayList<Thread>(workers.size());
 		for (Worker worker : workers) {
 			worker.setBenchmark(testState);
@@ -445,7 +439,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 
 	public static Results runRateLimitedBenchmark(List<Worker> workers,
 			File profileFile) throws QueueLimitException, IOException {
-
 		ThreadBench bench = new ThreadBench(workers, profileFile);
 		return bench.runRateLimitedFromFile();
 	}

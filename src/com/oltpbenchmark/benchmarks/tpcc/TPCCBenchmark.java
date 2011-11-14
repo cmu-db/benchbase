@@ -42,27 +42,6 @@ import com.oltpbenchmark.util.QueueLimitException;
 
 public class TPCCBenchmark extends BenchmarkModule {
 
-	public static final class TPCCWorker extends Worker {
-		private final jTPCCTerminal terminal;
-		private final  TransactionTypes transTypes;
-		
-		public TPCCWorker(int id, jTPCCTerminal terminal, TransactionTypes transactionTypes) {
-			super(id, terminal.getConnection(), null); // XXX
-			this.terminal = terminal;
-
-			transTypes= transactionTypes;
-			terminal.setTransactionTypes(transactionTypes);
-		}
-
-		@Override
-		protected TransactionType doWork(boolean measure, Phase phase) {
-			TransactionType type = terminal
-					.chooseTransaction(phase);
-			terminal.executeTransaction(type.getId());
-			return type;
-		}
-	}
-	
 	public TPCCBenchmark(WorkLoadConfiguration wrkld) {
 		super("tpcc", wrkld);
 	}
@@ -81,15 +60,10 @@ public class TPCCBenchmark extends BenchmarkModule {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
-
 		jTPCCHeadless head = new jTPCCHeadless();
-
+		List<TPCCWorker> terminals = head.getTerminals();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		List<jTPCCTerminal> terminals = head.getTerminals();
-		int id = 0;
-		for (jTPCCTerminal terminal : terminals) {
-			workers.add(new TPCCWorker(id++, terminal, this.workConf.getTransTypes()));
-		}
+		workers.addAll(terminals);
 		return workers;
 	}
 

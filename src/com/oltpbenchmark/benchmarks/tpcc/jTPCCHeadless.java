@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class jTPCCHeadless implements jTPCCDriver {
@@ -66,7 +67,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 
 	public long lastTimeMillis = 0;
 
-	private jTPCCTerminal[] terminals;
+	private TPCCWorker[] terminals;
 	private String[] terminalNames;
 	private long terminalsStarted = 0, sessionCount = 0, transactionCount;
 
@@ -93,8 +94,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 	public long sumtime = 0;
 	double windowlatencyavg = 10;
 
-	private WorkLoadConfiguration workConf = WorkLoadConfiguration
-			.getInstance();
+	private WorkLoadConfiguration workConf = WorkLoadConfiguration.getInstance();
 
 	public static void main(String args[]) throws Exception {
 		jTPCCHeadless test = new jTPCCHeadless();
@@ -278,7 +278,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 						+ reportFileName + "\'");
 				printMessage("-----------------");
 
-				terminals = new jTPCCTerminal[numTerminals];
+				terminals = new TPCCWorker[numTerminals];
 				terminalNames = new String[numTerminals];
 				terminalsStarted = numTerminals;
 				try {
@@ -342,7 +342,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 							// conn = new
 							// net.sf.log4jdbc.ConnectionSpy(conn,true,"tpcc");
 
-							jTPCCTerminal terminal = new jTPCCTerminal(
+							TPCCWorker terminal = new TPCCWorker(
 									terminalName, w_id, lowerDistrictId,
 									upperDistrictId, conn,
 									transactionsPerTerminal,
@@ -351,11 +351,10 @@ public class jTPCCHeadless implements jTPCCDriver {
 									debugMessages, paymentWeightValue,
 									orderStatusWeightValue,
 									deliveryWeightValue, stockLevelWeightValue,
-									numWarehouses, this);
+									numWarehouses, this, workConf);
 							terminals[lowerTerminalId + terminalId] = terminal;
 							terminalNames[lowerTerminalId + terminalId] = terminalName;
-							printStreamReport.println(terminalName + "\t"
-									+ w_id);
+							printStreamReport.println(terminalName + "\t"+ w_id);
 						}
 
 					}
@@ -492,7 +491,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 		}
 	}
 
-	public void signalTerminalEnded(jTPCCTerminal terminal,
+	public void signalTerminalEnded(TPCCWorker terminal,
 			long countNewOrdersExecuted) {
 		synchronized (terminals) {
 			boolean found = false;
@@ -622,7 +621,7 @@ public class jTPCCHeadless implements jTPCCDriver {
 		return dateFormat.format(new java.util.Date());
 	}
 
-	public List<jTPCCTerminal> getTerminals() {
+	public List<TPCCWorker> getTerminals() {
 		return Collections.unmodifiableList(Arrays.asList(terminals));
 	}
 }

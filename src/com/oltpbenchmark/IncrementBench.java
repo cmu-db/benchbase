@@ -29,10 +29,9 @@ import java.util.Random;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
-
 
 public class IncrementBench {
+
 	private static final class IncrementWorker extends Worker {
 		private final Random rng = new Random();
 		private final PreparedStatement prepared;
@@ -87,8 +86,7 @@ public class IncrementBench {
 	static private final String USERNAME = "root";
 	static private final String PASSWORD = null;
 
-	public static void main(String[] arguments) throws ClassNotFoundException,
-			SQLException {
+	public static void main(String[] arguments) throws ClassNotFoundException, SQLException {
 		if (arguments.length != 3) {
 			System.err
 					.println("IncrementBench (router host:port) (num clients) (num rows)");
