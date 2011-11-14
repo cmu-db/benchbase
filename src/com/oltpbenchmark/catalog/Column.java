@@ -121,5 +121,9 @@ public class Column implements Cloneable {
     }
 
     
+    @Override
+    public String toString() {
+        return (this.getName());
+    }
     
 }

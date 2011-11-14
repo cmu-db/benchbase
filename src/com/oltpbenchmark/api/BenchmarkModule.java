@@ -21,6 +21,7 @@ package com.oltpbenchmark.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -90,7 +91,9 @@ public abstract class BenchmarkModule {
 	 */
 	public File getDatabaseDDL() {
 		String ddlName = this.benchmarkName + "-ddl.sql";
-		return new File(this.getClass().getResource(ddlName).getPath());
+		URL ddlURL = this.getClass().getResource(ddlName);
+		assert(ddlURL != null) : "Unable to find '" + ddlName + "'";
+		return new File(ddlURL.getPath());
 	}
 	
 	public final List<Worker> makeWorkers(boolean verbose) throws IOException {
@@ -102,10 +105,11 @@ public abstract class BenchmarkModule {
 		assert(ddl.exists()) : "The file '" + ddl + "' does not exist";
 		try {
 			Connection conn = this.getConnection();
-			this.executeFile(conn, ddl);
-		} catch (SQLException ex) {
+			ScriptRunner runner = new ScriptRunner(conn, true, true);
+            runner.runScript(ddl);
+		} catch (Exception ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to create the %s database",
-												     workConf.getDBName()), ex);
+												     this.benchmarkName), ex);
 		}
 	}
 	
@@ -115,10 +119,9 @@ public abstract class BenchmarkModule {
 			this.loadDatabaseImpl(conn);
 		} catch (SQLException ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to load the %s database",
-												     workConf.getDBName()), ex);
+												     this.benchmarkName), ex);
 		}
 	}
-
 	
 	/**
 	 * 
@@ -142,7 +145,7 @@ public abstract class BenchmarkModule {
 			
 		} catch (SQLException ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database",
-												     workConf.getDBName()), ex);
+												     this.benchmarkName), ex);
 		}
 	}
 	
@@ -163,11 +166,12 @@ public abstract class BenchmarkModule {
 	 * @return
 	 */
 	protected final boolean executeFile(Connection c, File path) {
-		ScriptRunner runner = new ScriptRunner(c, false, true);
+		ScriptRunner runner = new ScriptRunner(c, true, false);
 		try {
 			runner.runScript(path);
-		} catch (Throwable ex) {
-			ex.printStackTrace();
+		} catch (Exception ex) {
+		    ex.printStackTrace();
+		    LOG.error("Failed to execute script '"+ path + "'", ex);
 			return (false);
 		}
 		return (true);

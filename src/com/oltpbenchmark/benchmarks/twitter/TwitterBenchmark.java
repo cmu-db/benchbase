@@ -40,7 +40,7 @@ import com.oltpbenchmark.api.Worker;
 public class TwitterBenchmark extends BenchmarkModule {
 
 	public TwitterBenchmark(WorkLoadConfiguration workConf) {
-		super("twitter",workConf);
+		super("twitter", workConf);
 	}
 	
 	@Override

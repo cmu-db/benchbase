@@ -150,17 +150,17 @@ public class ScriptRunner {
 					command.append(" ");
 					Statement statement = conn.createStatement();
 
-					println(command);
+					// println(command);
 
 					boolean hasResults = false;
+					final String sql = command.toString().trim();
 					if (stopOnError) {
-						hasResults = statement.execute(command.toString());
+						hasResults = statement.execute(sql);
 					} else {
 						try {
-							statement.execute(command.toString());
+							statement.execute(sql);
 						} catch (SQLException e) {
-							e.fillInStackTrace();
-							printlnError("Error executing: " + command);
+							printlnError("Error executing: " + sql);
 							printlnError(e);
 						}
 					}
@@ -168,23 +168,26 @@ public class ScriptRunner {
 					if (autoCommit && !conn.getAutoCommit()) {
 						conn.commit();
 					}
-
-					ResultSet rs = statement.getResultSet();
-					if (hasResults && rs != null) {
-						ResultSetMetaData md = rs.getMetaData();
-						int cols = md.getColumnCount();
-						for (int i = 0; i < cols; i++) {
-							String name = md.getColumnLabel(i);
-							print(name + "\t");
-						}
-						println("");
-						while (rs.next()) {
-							for (int i = 0; i < cols; i++) {
-								String value = rs.getString(i);
-								print(value + "\t");
-							}
-							println("");
-						}
+					
+					// HACK
+					if (hasResults && sql.toUpperCase().startsWith("CREATE") == false) {
+    					ResultSet rs = statement.getResultSet();
+    					if (hasResults && rs != null) {
+    						ResultSetMetaData md = rs.getMetaData();
+    						int cols = md.getColumnCount();
+    						for (int i = 0; i < cols; i++) {
+    							String name = md.getColumnLabel(i);
+    							print(name + "\t");
+    						}
+    						println("");
+    						while (rs.next()) {
+    							for (int i = 0; i < cols; i++) {
+    								String value = rs.getString(i);
+    								print(value + "\t");
+    							}
+    							println("");
+    						}
+    					}
 					}
 
 					command = null;
@@ -203,17 +206,15 @@ public class ScriptRunner {
 				conn.commit();
 			}
 		} catch (SQLException e) {
-			e.fillInStackTrace();
+//			e.fillInStackTrace();
 			printlnError("Error executing: " + command);
-			printlnError(e);
 			throw e;
 		} catch (IOException e) {
-			e.fillInStackTrace();
+//			e.fillInStackTrace();
 			printlnError("Error executing: " + command);
-			printlnError(e);
 			throw e;
 		} finally {
-			conn.rollback();
+			if (!autoCommit) conn.rollback();
 			flush();
 		}
 	}
