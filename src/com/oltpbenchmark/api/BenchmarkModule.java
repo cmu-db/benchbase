@@ -60,17 +60,15 @@ public abstract class BenchmarkModule {
 		TransactionTypes txns = this.workConf.getTransTypes();
 		if (txns != null && txns.isEmpty() == false) {
     		this.procedures.putAll(this.getProcedures(txns));
-    		if (this.procedures != null) {
-        		for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
-        		    this.name_procedures.put(e.getKey().getName(), e.getValue());
-        
-        		    // TODO: Load up the procedures so that we can get the database-specific
-        		    //       versions of the queries
-        		} // FOR
-    		}
+    		for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
+    		    this.name_procedures.put(e.getKey().getName(), e.getValue());
+    
+    		    // TODO: Load up the procedures so that we can get the database-specific
+    		    //       versions of the queries
+    		} // FOR
 		}
 		if (this.procedures.isEmpty()) {
-		    LOG.warn("No procedures for " + this.benchmarkName);
+		    LOG.warn("No procedures defined for " + this.benchmarkName);
 		}
 		
 	}
