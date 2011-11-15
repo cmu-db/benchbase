@@ -19,24 +19,27 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.epinions;
 
-import java.net.UnknownHostException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
-import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetItemReviewsByTrustedUser;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser;
+import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle;
+import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating;
+import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
+import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
 
 public class EpinionsWorker extends Worker {
 	private final Statement st;
@@ -141,90 +144,89 @@ public class EpinionsWorker extends Worker {
 	
 	}
 
-	
-	public void reviewItemByID() throws SQLException{
-	      String iid = item_ids.get(rand.nextInt(item_ids.size()));
-	      String sql = ("SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id="
-	          + iid + " ORDER BY rating LIMIT 10;");
-	      st.execute(sql);
-	      conn.commit();
-	}
-	
-
-	public void reviewsByUser() throws SQLException{
-		  String uid = user_ids.get(rand.nextInt(user_ids.size()));
-	      String sql = ("SELECT * FROM review r, user u WHERE u.u_id = r.u_id AND r.u_id="
-	          + uid + " ORDER BY rating LIMIT 10;");
-	      st.execute(sql);
-	      conn.commit();
+    public void reviewItemByID() throws SQLException {
+        GetReviewItemById proc = (GetReviewItemById) this.benchmarkModule.getProcedure("GetReviewItemById");
+        assert (proc != null);
+        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        proc.run(conn, iid);
+        conn.commit();
     }
 
-	
-	public void averageRatingByTrustedUser() throws SQLException{
-	      String uid = user_ids.get(rand.nextInt(user_ids.size()));
-	      String iid = item_ids.get(rand.nextInt(item_ids.size()));
-	      String sql = ("SELECT avg(rating) FROM review r, trust t WHERE r.i_id=" + iid
-	          + " AND r.u_id=t.target_u_id AND t.source_u_id=" + uid + ";");
-	      st.execute(sql);
-	      conn.commit();
+    public void reviewsByUser() throws SQLException {
+        GetReviewsByUser proc = (GetReviewsByUser) this.benchmarkModule.getProcedure("GetReviewsByUser");
+        assert (proc != null);
+        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        proc.run(conn, uid);
+        conn.commit();
     }
 
-	
-	public void averageRatingOfItem() throws SQLException{
-	      String iid = item_ids.get(rand.nextInt(item_ids.size()));
-	      String sql = ("SELECT avg(rating) FROM review r WHERE r.i_id=" + iid + ";");
-	      st.execute(sql);
-	      conn.commit();
+    public void averageRatingByTrustedUser() throws SQLException {
+        GetAverageRatingByTrustedUser proc = (GetAverageRatingByTrustedUser) this.benchmarkModule.getProcedure("GetAverageRatingByTrustedUser");
+        assert (proc != null);
+        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        proc.run(conn, iid, uid);
+        conn.commit();
     }
 
-	public void itemReviewsByTrustedUser() throws SQLException{
-	      String uid = user_ids.get(rand.nextInt(user_ids.size()));
-	      String iid = item_ids.get(rand.nextInt(item_ids.size()));
-	      String sql = ("SELECT * FROM review r WHERE r.i_id=" + iid + ";");
-	      st.execute(sql);
-	      sql = ("SELECT * FROM trust t WHERE t.source_u_id=" + uid + ";");
-	      st.execute(sql);
-	      conn.commit();
+    public void averageRatingOfItem() throws SQLException {
+        GetItemAverageRating proc = (GetItemAverageRating) this.benchmarkModule.getProcedure("GetItemAverageRating");
+        assert (proc != null);
+        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        proc.run(conn, iid);
+        conn.commit();
+    }
+
+    public void itemReviewsByTrustedUser() throws SQLException {
+        GetItemReviewsByTrustedUser proc = (GetItemReviewsByTrustedUser) this.benchmarkModule.getProcedure("GetItemReviewsByTrustedUser");
+        assert (proc != null);
+        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        proc.run(conn, iid, uid);
+        conn.commit();
     }
 
     // ===================================== UPDATES
     // ===================================================
 
-	public void updateUserName() throws SQLException{
-	      String uid = user_ids.get(rand.nextInt(user_ids.size()));
-	      String sql = ("UPDATE user SET name = name WHERE u_id=" + uid + ";"); //FIXME this has no effect on DB... need to change
-	      st.execute(sql);
-	      conn.commit();
+    public void updateUserName() throws SQLException {
+        UpdateUserName proc = (UpdateUserName) this.benchmarkModule.getProcedure("UpdateUserName");
+        assert (proc != null);
+        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        String name = "XXXXXXXXXXX"; // FIXME
+        proc.run(conn, uid, name);
+        conn.commit();
     }
 
-	
-	public void updateItemTitle() throws SQLException{
-	      String iid = item_ids.get(rand.nextInt(item_ids.size()));
-	      String sql = ("UPDATE item SET title = title WHERE i_id=" + iid + ";");
-	      st.execute(sql);
-	      conn.commit();
+    public void updateItemTitle() throws SQLException {
+        UpdateItemTitle proc = (UpdateItemTitle) this.benchmarkModule.getProcedure("UpdateItemTitle");
+        assert (proc != null);
+        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        String title = "XXXXXXXXXXX"; // FIXME
+        proc.run(conn, iid, title);
+        conn.commit();
     }
 
-	
-	public void updateReviewRating() throws SQLException{
-      String iid = item_ids.get(rand.nextInt(item_ids.size()));
-      String uid = user_ids.get(rand.nextInt(user_ids.size()));
-      String sql = ("UPDATE review SET rating = rating WHERE i_id=" + iid
-          + " AND u_id=" + uid + ";");
-      st.execute(sql);
-      conn.commit();
+    public void updateReviewRating() throws SQLException {
+        UpdateReviewRating proc = (UpdateReviewRating) this.benchmarkModule.getProcedure("UpdateReviewRating");
+        assert (proc != null);
+        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        int rating = rand.nextInt(1000); // ???
+        proc.run(conn, iid, uid, rating);
+        conn.commit();
     }
 
-	
-	public void updateTrustRating() throws SQLException{
-      String uid = user_ids.get(rand.nextInt(user_ids.size()));
-      String uid2 = user_ids.get(rand.nextInt(user_ids.size()));
-      String sql = ("UPDATE trust SET trust = trust WHERE source_u_id=" + uid
-          + " AND target_u_id=" + uid2 + ";");
-      st.execute(sql);
-      conn.commit();
-	}
-	
-
+    public void updateTrustRating() throws SQLException {
+        UpdateTrustRating proc = (UpdateTrustRating) this.benchmarkModule.getProcedure("UpdateTrustRating");
+        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        long uid2 = uid;
+        while (uid2 == uid) {
+            uid2 = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        } // WHILE
+        int trust = rand.nextInt(100); // ???
+        proc.run(conn, uid, uid2, trust);
+        conn.commit();
+    }
 
 }
