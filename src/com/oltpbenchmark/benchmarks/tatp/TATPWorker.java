@@ -7,11 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tatp.procedures.*;
+import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
+import com.oltpbenchmark.benchmarks.tatp.procedures.GetAccessData;
+import com.oltpbenchmark.benchmarks.tatp.procedures.GetNewDestination;
+import com.oltpbenchmark.benchmarks.tatp.procedures.GetSubscriberData;
+import com.oltpbenchmark.benchmarks.tatp.procedures.InsertCallForwarding;
+import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation;
+import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData;
 
 public class TATPWorker extends Worker {
 	
@@ -140,12 +145,10 @@ public class TATPWorker extends Worker {
         
     } // TRANSCTION ENUM
     
-    private final Map<TransactionType, Procedure> procedures;
     private final long subscriberSize = 10000; // FIXME
 	
-	public TATPWorker(int id, Connection conn, WorkLoadConfiguration workConf, Map<TransactionType, Procedure> procedures) {
-		super(id, conn, workConf);
-		this.procedures = procedures;
+	public TATPWorker(int id, TATPBenchmark benchmarkModule) {
+		super(id, benchmarkModule);
 	}
 	
 	@Override
@@ -155,7 +158,7 @@ public class TATPWorker extends Worker {
 		assert(t != null) : "Unexpected " + next;
 		
 		// Get the Procedure handle
-		Procedure proc = this.procedures.get(next);
+		Procedure proc = this.benchmarkModule.getProcedure(next);
 		assert(proc != null);
 		
 		try {

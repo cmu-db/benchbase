@@ -63,21 +63,14 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 
-		try {
-			for (int i = 0; i < workConf.getTerminals(); ++i) {
-				Connection conn = this.getConnection();
-				conn.setAutoCommit(false);
-				TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
-						trace);
-				workers.add(new WikipediaWorker(i, conn, workConf, generator, workConf
-						.getBaseIP()
-						+ (i % 256) + "." + rand.nextInt(256), workConf
-						.getTransTypes()));
-			} // FOR
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		for (int i = 0; i < workConf.getTerminals(); ++i) {
+			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
+					trace);
+			workers.add(new WikipediaWorker(i, this, generator, workConf
+					.getBaseIP()
+					+ (i % 256) + "." + rand.nextInt(256), workConf
+					.getTransTypes()));
+		} // FOR
 		return workers;
 	}
 	

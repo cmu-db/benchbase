@@ -55,6 +55,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         this.workConf = new WorkLoadConfiguration();
         this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
         
+//        String benchmarkName = clazz.getSimpleName().toLowerCase().replace("Benchmark", "");
         this.benchmark = (T) ClassUtil.newInstance(clazz,
                                                    new Object[] { this.workConf },
                                                    new Class<?>[] { WorkLoadConfiguration.class });

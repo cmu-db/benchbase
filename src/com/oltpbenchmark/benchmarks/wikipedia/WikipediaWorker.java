@@ -20,23 +20,19 @@
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import java.net.UnknownHostException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class WikipediaWorker extends Worker {
 	private final TransactionGenerator<WikipediaOperation> generator;
@@ -44,9 +40,9 @@ public class WikipediaWorker extends Worker {
 	private final String userIp;
 //	private final Random r;
 
-	public WikipediaWorker(int id, Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<WikipediaOperation> generator,
+	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule, TransactionGenerator<WikipediaOperation> generator,
 			String userIp,TransactionTypes transTypes) {
-		super(id, conn, wrkld);
+		super(id, benchmarkModule);
 
 		this.generator = generator;
 		try {

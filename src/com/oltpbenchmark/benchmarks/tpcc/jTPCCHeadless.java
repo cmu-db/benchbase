@@ -95,11 +95,12 @@ public class jTPCCHeadless implements jTPCCDriver {
 	double windowlatencyavg = 10;
 
 	private WorkLoadConfiguration workConf = WorkLoadConfiguration.getInstance();
+	private final TPCCBenchmark benchmarkModule;
 
-	public static void main(String args[]) throws Exception {
-		jTPCCHeadless test = new jTPCCHeadless();
-		test.startTransactions();
-	}
+//	public static void main(String args[]) throws Exception {
+//		jTPCCHeadless test = new jTPCCHeadless();
+//		test.startTransactions();
+//	}
 
 	private static RandomAccessFile tryOpenFileFromProperty(String propertyName) {
 		String fileName = System.getProperty(propertyName);
@@ -112,8 +113,9 @@ public class jTPCCHeadless implements jTPCCDriver {
 		}
 	}
 
-	public jTPCCHeadless() throws IOException {
+	public jTPCCHeadless(TPCCBenchmark benchmarkModule) throws IOException {
 		// CARLO
+	    this.benchmarkModule = benchmarkModule;
 		throughputfile = tryOpenFileFromProperty("throughputfile");
 		latencyfile = tryOpenFileFromProperty("latencyfile");
 		eventsfile = tryOpenFileFromProperty("eventsfile");
@@ -344,14 +346,15 @@ public class jTPCCHeadless implements jTPCCDriver {
 
 							TPCCWorker terminal = new TPCCWorker(
 									terminalName, w_id, lowerDistrictId,
-									upperDistrictId, conn,
+									upperDistrictId,
+									this.benchmarkModule,
 									transactionsPerTerminal,
 									new SimpleSystemPrinter(null),
 									new SimpleSystemPrinter(System.err),
 									debugMessages, paymentWeightValue,
 									orderStatusWeightValue,
 									deliveryWeightValue, stockLevelWeightValue,
-									numWarehouses, this, workConf);
+									numWarehouses, this);
 							terminals[lowerTerminalId + terminalId] = terminal;
 							terminalNames[lowerTerminalId + terminalId] = terminalName;
 							printStreamReport.println(terminalName + "\t"+ w_id);

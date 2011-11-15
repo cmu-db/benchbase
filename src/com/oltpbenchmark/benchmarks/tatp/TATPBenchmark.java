@@ -49,18 +49,9 @@ public class TATPBenchmark extends BenchmarkModule {
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		List<Worker> workers = new ArrayList<Worker>();
-		Map<TransactionType, Procedure> procedures = this.getProcedures(this.workConf.getTransTypes());
-		
-		try {
-			for (int i = 0; i < workConf.getTerminals(); ++i) {
-				Connection conn = this.getConnection();
-				conn.setAutoCommit(false);
-				workers.add(new TATPWorker(i, conn, this.workConf, procedures));
-			} // FOR
-		} catch (SQLException ex) {
-			throw new RuntimeException("Failed to create TATP workers", ex);
-		}
-		
+		for (int i = 0; i < workConf.getTerminals(); ++i) {
+			workers.add(new TATPWorker(i, this));
+		} // FOR
 		return (workers);
 	}
 	

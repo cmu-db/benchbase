@@ -21,8 +21,6 @@ package com.oltpbenchmark.api;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -41,15 +40,16 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 
-/*
- * The interface that each new Benchmark need to implement
+/**
+ * Base class for all benchmark implementations
  */
 public abstract class BenchmarkModule {
 	private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 	
 	protected final String benchmarkName;
 	protected final WorkLoadConfiguration workConf;
-	protected final Map<TransactionType, Procedure> procedures;
+	protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
+	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
 	
 	public BenchmarkModule(String benchmarkName, WorkLoadConfiguration workConf) {
 		assert(workConf != null) : "The WorkloadConfiguration instance is null.";
@@ -57,11 +57,21 @@ public abstract class BenchmarkModule {
 		this.benchmarkName = benchmarkName;
 		this.workConf = workConf;
 		
-		// Load up the procedures so that we can get the database-specific versions of the queries
-		this.procedures = this.getProcedures(this.workConf.getTransTypes());
-		for (Procedure proc : this.procedures.values()) {
-		    
-		} // FOR
+		TransactionTypes txns = this.workConf.getTransTypes();
+		if (txns != null && txns.isEmpty() == false) {
+    		this.procedures.putAll(this.getProcedures(txns));
+    		if (this.procedures != null) {
+        		for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
+        		    this.name_procedures.put(e.getKey().getName(), e.getValue());
+        
+        		    // TODO: Load up the procedures so that we can get the database-specific
+        		    //       versions of the queries
+        		} // FOR
+    		}
+		}
+		if (this.procedures.isEmpty()) {
+		    LOG.warn("No procedures for " + this.benchmarkName);
+		}
 		
 	}
 	
@@ -167,6 +177,17 @@ public abstract class BenchmarkModule {
 											workConf.getDBUsername(),
 											workConf.getDBPassword()));
 	}
+	
+	public final WorkLoadConfiguration getWorkloadConfiguration() {
+	    return (this.workConf);
+	}
+	
+	public final Procedure getProcedure(TransactionType type) {
+	    return (this.procedures.get(type));
+	}
+	public final Procedure getProcedure(String name) {
+        return (this.name_procedures.get(name));
+    }
 	
 	/**
 	 * Execute a SQL file using the ScriptRunner

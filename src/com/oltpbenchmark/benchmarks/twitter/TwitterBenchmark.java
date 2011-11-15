@@ -64,7 +64,7 @@ public class TwitterBenchmark extends BenchmarkModule {
 				conn.setAutoCommit(false);
 				TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(
 						trace);
-				workers.add(new TwitterWorker(i, conn, this.workConf, generator));
+				workers.add(new TwitterWorker(i, this, generator));
 			} // FOR
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

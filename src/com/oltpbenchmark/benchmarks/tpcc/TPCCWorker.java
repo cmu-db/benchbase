@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkLoadConfiguration;
@@ -66,7 +67,6 @@ public class TPCCWorker extends Worker {
 	//private TransactionTypes transactionTypes;
 	
 	private String terminalName;
-	private Connection conn = null;
 	private Statement stmt = null;
 	private ResultSet rs = null;
 	private final int terminalWarehouseID;
@@ -124,16 +124,17 @@ public class TPCCWorker extends Worker {
 	private PreparedStatement stockGetDistOrderId = null;
 	private PreparedStatement stockGetCountStock = null;
 
+	private static final AtomicInteger terminalId = new AtomicInteger(0);
+	
 	public TPCCWorker(String terminalName, int terminalWarehouseID,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
-			Connection conn, int numTransactions,
+			TPCCBenchmark benchmarkModule, int numTransactions,
 			SimplePrinter terminalOutputArea, SimplePrinter errorOutputArea,
 			boolean debugMessages, int paymentWeight, int orderStatusWeight,
 			int deliveryWeight, int stockLevelWeight, int numWarehouses,
-			jTPCCDriver parent, WorkLoadConfiguration wrkld) throws SQLException {
-		super(id++,conn,wrkld);
+			jTPCCDriver parent) throws SQLException {
+		super(terminalId.getAndIncrement(), benchmarkModule);
 		this.terminalName = terminalName;
-		this.conn = conn;
 		this.stmt = conn.createStatement();
 		// this.stmt.setMaxRows(200);
 		// this.stmt.setFetchSize(100);

@@ -19,19 +19,21 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.twitter;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.sql.Time;
 import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets;
+import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
 
 public class TwitterWorker extends Worker {
 	private final Statement st;
@@ -44,8 +46,8 @@ public class TwitterWorker extends Worker {
     public static int LIMIT_TWEETS_FOR_UID = 10;
     public static int LIMIT_FOLLOWERS = 20;
     
-	public TwitterWorker(int id, Connection conn, WorkLoadConfiguration wrkld, TransactionGenerator<TwitterOperation> generator) {
-		super(id, conn, wrkld);
+	public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
+		super(id, benchmarkModule);
 		this.generator=generator;
 		r = new Random();
 	
@@ -102,95 +104,42 @@ public class TwitterWorker extends Worker {
 			}
 		}
 		return retTP;
-	
-		
-	
 	}
 
 	
-	public void doSelect1Tweet(int tweet_id) throws SQLException{
-	    // this is autocommit
-	    String query = "select * from tweets where id = "+ tweet_id;
-	    Statement st = conn.createStatement();
-	    ResultSet rs = st.executeQuery(query);
+	public void doSelect1Tweet(int tweet_id) throws SQLException {
+	    GetTweet proc = (GetTweet)this.benchmarkModule.getProcedure("GetTweet");
+	    assert(proc != null);
+	    proc.run(conn, tweet_id);
 	    conn.commit();
-	  }
+	}
 
-
-	  public void doSelectTweetsFromPplIFollow(int uid) throws SQLException{
-	    String query1 = "select f2 from follows where f1 =" + uid;
-	    System.out.println(query1);
-	    Statement st = conn.createStatement();
-	    ResultSet rs = st.executeQuery(query1);
-	    String query2 = "select * from tweets where uid IN(";
-	    ArrayList<String> ids = new ArrayList<String>();
-	    while(rs.next()){
-	      ids.add(rs.getString(1));
-	    }
-	    int sz = ids.size();
-	    if(sz>0){
-	      for(int i = 0; i < sz; i++){
-	        query2+=ids.get(i);
-	        if(i == (sz-1)){
-	          query2+=") LIMIT " + LIMIT_TWEETS;
-	        }else{
-	          query2+= ", ";
-	        }
-	      }
-
-	      System.out.println(query2);
-	      rs = st.executeQuery(query2);
-	    }else{
-	      System.out.println("doesnt follow anyone");
-	    }
-	    
+	public void doSelectTweetsFromPplIFollow(int uid) throws SQLException{
+	    GetTweetsFromFollowing proc = (GetTweetsFromFollowing)this.benchmarkModule.getProcedure("GetTweetsFromFollowing");
+	    assert(proc != null);
+        proc.run(conn, uid);
 	    conn.commit();
-	  }
+	}
 	  
-	  public void doSelectNamesOfPplThatFollowMe(int uid) throws SQLException{
-	    String query1 = "select f2 from followers where f1 =" + uid;
-	    System.out.println(query1);
-	    Statement st = conn.createStatement();
-	    ResultSet rs = st.executeQuery(query1);
-//	    String query2 = "select * from user where uid IN(";
-	    String query2 = "select name from user where uid IN(";
-
-	    ArrayList<String> ids = new ArrayList<String>();
-	    while(rs.next()){
-	      ids.add(rs.getString(1));
-	    }
-	    int sz = ids.size();
-	    if(sz>0){
-	      for(int i = 0; i < sz; i++){
-	        query2+=ids.get(i);
-	        if(i == (sz-1)){
-	          query2+=") LIMIT " + LIMIT_FOLLOWERS;
-	        }else{
-	          query2+= ", ";
-	        }
-	      }
-	      System.out.println(query2);
-	      rs = st.executeQuery(query2);
-	    }else{
-	      System.out.println("doesnt have followers");
-	    }
-
+	public void doSelectNamesOfPplThatFollowMe(int uid) throws SQLException{
+	    GetFollowers proc = (GetFollowers)this.benchmarkModule.getProcedure("GetFollowers");
+        assert(proc != null);
+        proc.run(conn, uid);
 	    conn.commit();
-	  }
+	}
 	  
-	  public void doSelectTweetsForUid(int uid) throws SQLException{
-	    String query = "select * from tweets where uid = "+ uid + " LIMIT " + LIMIT_TWEETS_FOR_UID;
-	    Statement st = conn.createStatement();
-	    ResultSet rs = st.executeQuery(query);
+	public void doSelectTweetsForUid(int uid) throws SQLException{
+	    GetUserTweets proc = (GetUserTweets)this.benchmarkModule.getProcedure("GetUserTweets");
+        assert(proc != null);
+        proc.run(conn, uid);
 	    conn.commit();
-	  }
+    }
 
-	  public void doInsertTweet(int uid, String text) throws SQLException{
-	    String query = "INSERT INTO added_tweets VALUES (null,"+uid+",'"+text+"',now())";
-	    Statement st = conn.createStatement();
-	    int rs = st.executeUpdate(query);
-	    conn.commit();
-	  }
-	
-
+	public void doInsertTweet(int uid, String text) throws SQLException{
+	    InsertTweet proc = (InsertTweet)this.benchmarkModule.getProcedure("InsertTweet");
+        assert(proc != null);
+        Time time = new Time(System.currentTimeMillis());
+        proc.run(conn, uid, text, time);
+        conn.commit();
+	}
 }

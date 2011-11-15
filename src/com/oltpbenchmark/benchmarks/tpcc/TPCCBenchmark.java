@@ -60,7 +60,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 		// HACK: Turn off terminal messages
 		jTPCCHeadless.SILENT = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
-		jTPCCHeadless head = new jTPCCHeadless();
+		jTPCCHeadless head = new jTPCCHeadless(this);
 		List<TPCCWorker> terminals = head.getTerminals();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		workers.addAll(terminals);

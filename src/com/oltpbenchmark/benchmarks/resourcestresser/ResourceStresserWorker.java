@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +28,6 @@ import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 
@@ -56,8 +54,8 @@ public class ResourceStresserWorker extends Worker {
     private int result = 0;
     private ResultSet rs = null;
     
-	public ResourceStresserWorker(int id, Connection conn, WorkLoadConfiguration wrkld) {
-		super(id, conn, wrkld);
+	public ResourceStresserWorker(int id, ResourceStresserBenchmark benchmarkModule) {
+		super(id, benchmarkModule);
 		r = new Random();
 	
 		try {

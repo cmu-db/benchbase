@@ -65,8 +65,8 @@ public class EpinionsWorker extends Worker {
     Random rand = new Random();
 
     
-	public EpinionsWorker(int id, Connection conn, WorkLoadConfiguration wrkld, ArrayList<String> user_ids,ArrayList<String> item_ids) {
-		super(id, conn, wrkld);
+	public EpinionsWorker(int id, EpinionsBenchmark benchmarkModule, ArrayList<String> user_ids,ArrayList<String> item_ids) {
+		super(id, benchmarkModule);
 		this.user_ids=user_ids;
 		this.item_ids=item_ids;
 		r = new Random();

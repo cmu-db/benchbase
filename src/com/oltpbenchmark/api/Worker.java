@@ -1,6 +1,7 @@
 package com.oltpbenchmark.api;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
@@ -12,16 +13,24 @@ public abstract class Worker implements Runnable {
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
 	
-	protected static int id=0;
+	protected final int id;
+	protected final BenchmarkModule benchmarkModule;
 	protected final Connection conn;
 	protected final WorkLoadConfiguration wrkld;
 	protected final TransactionTypes transactionTypes;
 	
-	public Worker(int id, Connection conn, WorkLoadConfiguration wrkld) {
+	public Worker(int id, BenchmarkModule benchmarkModule) {
 		this.id = id;
-		this.conn = conn;
-		this.wrkld=wrkld;
+		this.benchmarkModule = benchmarkModule;
+		this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
 		this.transactionTypes = this.wrkld.getTransTypes();
+		
+		try {
+		    this.conn = this.benchmarkModule.getConnection();
+		    this.conn.setAutoCommit(false);
+		} catch (SQLException ex) {
+		    throw new RuntimeException("Failed to connect to database", ex);
+		}
 	}
 	
 	/**
