@@ -16,10 +16,7 @@ public class GetTweetsFromFollowing extends Procedure {
     );
     
     public final SQLStmt getTweets = new SQLStmt(
-        "SELECT * FROM tweets WHERE uid IN (" +
-        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +  // 10
-        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +  // 10
-        ")"
+        "SELECT * FROM tweets WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
     );
     
     public ResultSet run(Connection conn, int uid) throws SQLException {
