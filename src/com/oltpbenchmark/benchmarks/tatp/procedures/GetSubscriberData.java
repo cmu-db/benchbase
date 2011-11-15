@@ -38,16 +38,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
 
 public class GetSubscriberData extends Procedure {
 
-     public final String getSubscriber = new String(
+     public final SQLStmt getSubscriber = new SQLStmt(
 		 "SELECT * FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE s_id = ?"
 	 );
 
      public ResultSet run(Connection conn, long s_id) throws SQLException {
-    	 PreparedStatement stmt = conn.prepareStatement(getSubscriber);
+    	 PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
     	 stmt.setLong(1, s_id);
     	 ResultSet results = stmt.executeQuery();
     	 assert(results != null);

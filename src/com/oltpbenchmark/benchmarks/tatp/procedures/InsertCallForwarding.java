@@ -38,24 +38,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
 
 public class InsertCallForwarding extends Procedure {
 
-	public final String getSubscriber = new String(
+	public final SQLStmt getSubscriber = new SQLStmt(
 		"SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
 	);
 
-    public final String getSpecialFacility = new String(
+    public final SQLStmt getSpecialFacility = new SQLStmt(
         "SELECT sf_type FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " WHERE s_id = ?"
     );
 
-    public final String insertCallForwarding = new String(
+    public final SQLStmt insertCallForwarding = new SQLStmt(
         "INSERT INTO " + TATPConstants.TABLENAME_CALL_FORWARDING + " VALUES (?, ?, ?, ?, ?)"
     );
      
     public long run(Connection conn, String sub_nbr, byte sf_type, byte start_time, byte end_time, String numberx) throws SQLException {
-    	PreparedStatement stmt = conn.prepareStatement(getSubscriber);
+    	PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
     	stmt.setString(1, sub_nbr);
     	ResultSet results = stmt.executeQuery();
     	assert(results != null);
@@ -63,13 +64,13 @@ public class InsertCallForwarding extends Procedure {
     	assert(adv);
         long s_id = results.getLong(1);
     	 
-        stmt = conn.prepareStatement(getSpecialFacility);
+        stmt = this.getPreparedStatement(conn, getSpecialFacility);
         stmt.setLong(1, s_id);
         results = stmt.executeQuery();
     	assert(results != null);
     	 
     	// Inserting a new CALL_FORWARDING record only succeeds 30% of the time
-    	stmt = conn.prepareStatement(insertCallForwarding);
+    	stmt = this.getPreparedStatement(conn, insertCallForwarding);
     	stmt.setLong(1, s_id);
         stmt.setByte(2, sf_type);
         stmt.setByte(3, start_time);

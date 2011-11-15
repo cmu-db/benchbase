@@ -38,11 +38,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
 
 public class GetNewDestination extends Procedure {
 
-     public final String getNewDestination = new String(
+     public final SQLStmt getNewDestination = new SQLStmt(
          "SELECT cf.numberx " +
          "  FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " AS sf, " +
          "       " + TATPConstants.TABLENAME_CALL_FORWARDING + " AS cf " +
@@ -56,7 +57,7 @@ public class GetNewDestination extends Procedure {
      );
 
      public ResultSet run(Connection conn, long s_id, byte sf_type, byte start_time, byte end_time) throws SQLException {
-    	 PreparedStatement stmt = conn.prepareStatement(getNewDestination);
+    	 PreparedStatement stmt = this.getPreparedStatement(conn, getNewDestination);
     	 stmt.setLong(1, s_id);
     	 stmt.setByte(2, sf_type);
     	 stmt.setByte(3, start_time);

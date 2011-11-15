@@ -21,6 +21,8 @@ package com.oltpbenchmark.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -47,12 +49,20 @@ public abstract class BenchmarkModule {
 	
 	protected final String benchmarkName;
 	protected final WorkLoadConfiguration workConf;
+	protected final Map<TransactionType, Procedure> procedures;
 	
 	public BenchmarkModule(String benchmarkName, WorkLoadConfiguration workConf) {
 		assert(workConf != null) : "The WorkloadConfiguration instance is null.";
 		
 		this.benchmarkName = benchmarkName;
 		this.workConf = workConf;
+		
+		// Load up the procedures so that we can get the database-specific versions of the queries
+		this.procedures = this.getProcedures(this.workConf.getTransTypes());
+		for (Procedure proc : this.procedures.values()) {
+		    
+		} // FOR
+		
 	}
 	
 	// --------------------------------------------------------------------------

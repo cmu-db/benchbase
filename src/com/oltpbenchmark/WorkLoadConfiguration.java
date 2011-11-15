@@ -24,11 +24,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.types.DatabaseType;
 
 public class WorkLoadConfiguration {
 
 	private static WorkLoadConfiguration instance = null; // ???
 	
+	private DatabaseType db_type;
 	
 	private String db_connection;
 	private String db_host;
@@ -56,6 +58,14 @@ public class WorkLoadConfiguration {
 			return (Phase) i.next();
 		return null;
 	}
+	
+	public void setDBType(DatabaseType dbType) {
+        db_type = dbType;
+    }
+	public DatabaseType getDBType() {
+        return db_type;
+    }
+	
 
 	public void setDBConnection(String database) {
 		this.db_connection = database;
