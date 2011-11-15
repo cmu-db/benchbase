@@ -10,7 +10,7 @@ public final class SQLStmt {
     private final String sql;
     
     /**
-     * Contructor
+     * Constructor
      * Each occurence of the pattern "??" will be replaced by a string
      * of repeated ?'s
      * @param sql

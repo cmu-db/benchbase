@@ -15,6 +15,7 @@ public class GetFollowers extends Procedure {
         "SELECT f2 FROM followers WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
     );
     
+    /** NOTE: The ?? is substituted into a string of repeated ?'s */
     public final SQLStmt getFollowerNames = new SQLStmt(
         "SELECT uid, name FROM user WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
     );
