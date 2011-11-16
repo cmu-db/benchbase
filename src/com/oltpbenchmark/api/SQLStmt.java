@@ -37,6 +37,7 @@ public final class SQLStmt {
      */
     public SQLStmt(String sql, int...substitutions) {
         for (int ctr : substitutions) {
+            assert(ctr > 0);
             String replace = "";
             for (int i = 0; i < ctr; i++) {
                 replace += (i > 0 ? ", " : "") + "?";

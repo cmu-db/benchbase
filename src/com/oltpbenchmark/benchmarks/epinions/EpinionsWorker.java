@@ -39,7 +39,6 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
 
 public class EpinionsWorker extends Worker {
 	private final Statement st;
