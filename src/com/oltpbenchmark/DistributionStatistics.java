@@ -56,8 +56,15 @@ public class DistributionStatistics {
 	 */
 	public static DistributionStatistics computeStatistics(int[] values) {
 		if (values.length == 0) {
-			throw new IllegalArgumentException(
-					"cannot compute statistics for an empty list");
+			//			throw new IllegalArgumentException(
+			//					"cannot compute statistics for an empty list");
+			
+			long[] percentiles = new long[PERCENTILES.length];
+			for (int i = 0; i < percentiles.length; ++i) {
+				percentiles[i] = -1;
+			}
+			return new DistributionStatistics(values.length, percentiles, 0,0);
+		
 		}
 		Arrays.sort(values);
 

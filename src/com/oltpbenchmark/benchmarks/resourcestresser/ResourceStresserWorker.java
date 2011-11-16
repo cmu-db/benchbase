@@ -149,7 +149,7 @@ public class ResourceStresserWorker extends Worker {
 	  
 	  /*
 	   * Uses a range of primary keys.
-	 */
+	   */
 	  private void lock2Transaction(int howManyUpdates, int howManyKeys , int sleepLength) throws SQLException {
 
 		  	assert howManyUpdates > 0;
