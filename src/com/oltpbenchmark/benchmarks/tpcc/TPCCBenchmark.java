@@ -19,6 +19,8 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.tpcc;
 
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.terminalPrefix;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,10 +40,12 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.QueueLimitException;
+import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 
 public class TPCCBenchmark extends BenchmarkModule {
 
+	boolean verbose;
 	public TPCCBenchmark(WorkLoadConfiguration wrkld) {
 		super("tpcc", wrkld);
 	}
@@ -56,76 +60,91 @@ public class TPCCBenchmark extends BenchmarkModule {
 	/**
 	 * @param Bool
 	 */
+	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
-		jTPCCHeadless.SILENT = !verbose;
+		this.verbose = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
-		jTPCCHeadless head = new jTPCCHeadless(this);
-		List<TPCCWorker> terminals = head.getTerminals();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		workers.addAll(terminals);
+		
+		try {
+			List<TPCCWorker> terminals = createTerminals();
+			workers.addAll(terminals);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return workers;
-	}
-
-	static final int WARMUP_SECONDS = 30;
-	static final int MEASURE_SECONDS = 30;
-
-	public static void main(String[] args) throws IOException, SQLException,
-			QueueLimitException {
-
-		/*
-		 * Properties ini = new Properties(); ini.load(new
-		 * FileInputStream(System.getProperty("prop")));
-		 * 
-		 * int initialWarmupTime =
-		 * Integer.parseInt(ini.getProperty("initialWarmupTimeInSec")); int
-		 * intermediateWarmupTime =
-		 * Integer.parseInt(ini.getProperty("intermediateWarmupTimeInSec")); int
-		 * measuringTime = Integer.parseInt(ini.getProperty("measuringTime"));
-		 * //int coolDownBeforeThrottledMeasures =
-		 * Integer.parseInt(ini.getProperty("coolDownBeforeThrottledMeasures"));
-		 * int scaleDownPace =
-		 * Integer.parseInt(ini.getProperty("scaleDownPace")); int maxSpeed =
-		 * Integer.parseInt(ini.getProperty("maxSpeed"));
-		 * 
-		 * String fileName = ini.getProperty("logfile");
-		 * 
-		 * FileWriter fstream = new FileWriter(fileName + "_details.csv",true);
-		 * BufferedWriter out = new BufferedWriter(fstream);
-		 * 
-		 * FileWriter fstream2 = new FileWriter(fileName +
-		 * "_aggregated.csv",true); BufferedWriter out2 = new
-		 * BufferedWriter(fstream2);
-		 */
-
-		List<Worker> workers = new TPCCBenchmark(null).makeWorkers(false);
-
-		/*
-		 * MeasureTargetSystem m = new MeasureTargetSystem(out,out2,new
-		 * StatisticsCollector(ini),intermediateWarmupTime,measuringTime);
-		 * Thread t = new Thread(m); t.start();
-		 * 
-		 * // Run the unlimited test m.setSpeed(-1); ThreadBench.Results r =
-		 * ThreadBench.runBenchmark(workers, initialWarmupTime, measuringTime);
-		 * System.out.println("Unlimited: " + r);
-		 * 
-		 * 
-		 * for(int i = scaleDownPace; i<maxSpeed; i+=scaleDownPace){ // Run a
-		 * rate-limited test m.setSpeed(i); r =
-		 * ThreadBench.runRateLimitedBenchmark(workers, intermediateWarmupTime,
-		 * measuringTime, i); System.out.println("Rate limited "+ i +" reqs/s: "
-		 * + r); }
-		 */
-		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers,
-				10, 30 * 60, 1300);
-		System.out.println("Rate limited reqs/s: " + r);
-		r.writeCSV(30, System.out);
 	}
 	
 	@Override
 	protected void loadDatabaseImpl(Connection conn) throws SQLException {
 		// TODO TPCCLoader loader = new TPCCLoader();
 		throw new NotImplementedException();
+	}
+	
+	
+	protected ArrayList<TPCCWorker> createTerminals() throws SQLException{
+		
+		TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
+
+		int numWarehouses = workConf.getNumWarehouses();
+		int numTerminals = workConf.getTerminals();
+		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses);
+		 
+		String[] terminalNames = new String[numTerminals];
+		// TODO: This is currenly broken: fix it!
+		int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
+		assert warehouseOffset == 1;
+
+		// We distribute terminals evenly across the warehouses
+		// Eg. if there are 10 terminals across 7 warehouses, they
+		// are distributed as
+		// 1, 1, 2, 1, 2, 1, 2
+		final double terminalsPerWarehouse = (double) numTerminals
+				/ numWarehouses;
+		assert terminalsPerWarehouse >= 1;
+		for (int w = 0; w < numWarehouses; w++) {
+			// Compute the number of terminals in *this* warehouse
+			int lowerTerminalId = (int) (w * terminalsPerWarehouse);
+			int upperTerminalId = (int) ((w + 1) * terminalsPerWarehouse);
+			// protect against double rounding errors
+			int w_id = w + 1;
+			if (w_id == numWarehouses)
+				upperTerminalId = numTerminals;
+			int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
+
+			// System.out.println("w_id " + w_id + " = " +
+			// numWarehouseTerminals +" terminals");
+
+			final double districtsPerTerminal = jTPCCConfig.configDistPerWhse
+					/ (double) numWarehouseTerminals;
+			assert districtsPerTerminal >= 1;
+			for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
+				int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
+				int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
+				if (terminalId + 1 == numWarehouseTerminals) {
+					upperDistrictId = jTPCCConfig.configDistPerWhse;
+				}
+				lowerDistrictId += 1;
+
+				String terminalName = terminalPrefix + "w" + w_id + "d" + lowerDistrictId + "-" + upperDistrictId;
+
+				TPCCWorker terminal = new TPCCWorker(terminalName, w_id,
+						lowerDistrictId, upperDistrictId, this,
+						new SimpleSystemPrinter(null), new SimpleSystemPrinter(
+								System.err), numWarehouses);
+				terminals[lowerTerminalId + terminalId] = terminal;
+				terminalNames[lowerTerminalId + terminalId] = terminalName;
+			}
+
+		}
+		assert terminals[terminals.length - 1] != null;
+		
+		ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
+		for(TPCCWorker w:terminals)
+			ret.add(w);
+		return ret;
 	}
 
 }

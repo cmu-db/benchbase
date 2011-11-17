@@ -67,7 +67,6 @@ public class TPCCWorker extends Worker {
 	//private TransactionTypes transactionTypes;
 	
 	private String terminalName;
-	private Statement stmt = null;
 	private ResultSet rs = null;
 	private final int terminalWarehouseID;
 	/** Forms a range [lower, upper] (inclusive). */
@@ -76,14 +75,11 @@ public class TPCCWorker extends Worker {
 	private double paymentWeight, orderStatusWeight, deliveryWeight,
 			stockLevelWeight, newOrderWeight;
 	private SimplePrinter terminalOutputArea, errorOutputArea;
-	private boolean debugMessages;
-	private jTPCCDriver parent;
+	//private boolean debugMessages;
 	private final Random gen = new Random();
 
-	private int transactionCount = 1, numTransactions, numWarehouses,
-			newOrderCounter;
+	private int transactionCount = 1, numWarehouses;
 	private int result = 0;
-	private volatile boolean stopRunningSignal = false;
 
 	// NewOrder Txn
 	private PreparedStatement stmtGetCustWhse = null;
@@ -128,16 +124,11 @@ public class TPCCWorker extends Worker {
 	
 	public TPCCWorker(String terminalName, int terminalWarehouseID,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
-			TPCCBenchmark benchmarkModule, int numTransactions,
+			TPCCBenchmark benchmarkModule,
 			SimplePrinter terminalOutputArea, SimplePrinter errorOutputArea,
-			boolean debugMessages, int paymentWeight, int orderStatusWeight,
-			int deliveryWeight, int stockLevelWeight, int numWarehouses,
-			jTPCCDriver parent) throws SQLException {
+			 int numWarehouses) throws SQLException {
 		super(terminalId.getAndIncrement(), benchmarkModule);
 		this.terminalName = terminalName;
-		this.stmt = conn.createStatement();
-		// this.stmt.setMaxRows(200);
-		// this.stmt.setFetchSize(100);
 
 		this.terminalWarehouseID = terminalWarehouseID;
 		this.terminalDistrictLowerID = terminalDistrictLowerID;
@@ -147,15 +138,7 @@ public class TPCCWorker extends Worker {
 		assert this.terminalDistrictLowerID <= this.terminalDistrictUpperID;
 		this.terminalOutputArea = terminalOutputArea;
 		this.errorOutputArea = errorOutputArea;
-		this.debugMessages = debugMessages;
-		this.parent = parent;
-		this.numTransactions = numTransactions;
-		this.paymentWeight = paymentWeight;
-		this.orderStatusWeight = orderStatusWeight;
-		this.deliveryWeight = deliveryWeight;
-		this.stockLevelWeight = stockLevelWeight;
 		this.numWarehouses = numWarehouses;
-		this.newOrderCounter = 0;
 		terminalMessage("Terminal \'" + terminalName + "\' has WarehouseID="
 				+ terminalWarehouseID + " and DistrictID=["
 				+ terminalDistrictLowerID + ", " + terminalDistrictUpperID
@@ -187,11 +170,6 @@ public class TPCCWorker extends Worker {
 //		}
 //	}
 
-	public void stopRunningWhenPossible() {
-		stopRunningSignal = true;
-		printMessage("Terminal received stop signal!");
-		printMessage("Finishing current transaction before exit...");
-	}
 
 	public TransactionType chooseTransaction(Phase phase) {
 
@@ -1156,8 +1134,7 @@ public class TPCCWorker extends Worker {
 		// XXX OrderLine orln = new OrderLine();
 		// XXX Stock stck = new Stock();
 
-		printMessage("Stock Level Txn for W_ID=" + w_id + ", D_ID=" + d_id
-				+ ", threshold=" + threshold);
+
 
 		if (stockGetDistOrderId == null) {
 			stockGetDistOrderId = conn.prepareStatement("SELECT d_next_o_id"
@@ -1173,7 +1150,6 @@ public class TPCCWorker extends Worker {
 		o_id = rs.getInt("d_next_o_id");
 		rs.close();
 		rs = null;
-		printMessage("Next Order ID for District = " + o_id);
 
 		if (stockGetCountStock == null) {
 			stockGetCountStock = conn
@@ -1566,11 +1542,6 @@ public class TPCCWorker extends Worker {
 	private void terminalMessage(String message) {
 		if (TERMINAL_MESSAGES)
 			terminalOutputArea.println(message);
-	}
-
-	private void printMessage(String message) {
-		if (debugMessages)
-			terminalOutputArea.println("[ jTPCC ] " + message);
 	}
 
 	public Connection getConnection() {
