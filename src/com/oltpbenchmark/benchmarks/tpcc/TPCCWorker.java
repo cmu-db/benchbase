@@ -227,30 +227,30 @@ public class TPCCWorker extends Worker {
 			switch (transaction) {
 			case NEW_ORDER:
 				int districtID = chooseRandomDistrict();
-				int customerID = jTPCCUtil.getCustomerID(gen);
+				int customerID = TPCCUtil.getCustomerID(gen);
 
-				int numItems = (int) jTPCCUtil.randomNumber(5, 15, gen);
+				int numItems = (int) TPCCUtil.randomNumber(5, 15, gen);
 				int[] itemIDs = new int[numItems];
 				int[] supplierWarehouseIDs = new int[numItems];
 				int[] orderQuantities = new int[numItems];
 				int allLocal = 1;
 				for (int i = 0; i < numItems; i++) {
-					itemIDs[i] = jTPCCUtil.getItemID(gen);
-					if (jTPCCUtil.randomNumber(1, 100, gen) > 1) {
+					itemIDs[i] = TPCCUtil.getItemID(gen);
+					if (TPCCUtil.randomNumber(1, 100, gen) > 1) {
 						supplierWarehouseIDs[i] = terminalWarehouseID;
 					} else {
 						do {
-							supplierWarehouseIDs[i] = jTPCCUtil.randomNumber(1,
+							supplierWarehouseIDs[i] = TPCCUtil.randomNumber(1,
 									numWarehouses, gen);
 						} while (supplierWarehouseIDs[i] == terminalWarehouseID
 								&& numWarehouses > 1);
 						allLocal = 0;
 					}
-					orderQuantities[i] = jTPCCUtil.randomNumber(1, 10, gen);
+					orderQuantities[i] = TPCCUtil.randomNumber(1, 10, gen);
 				}
 
 				// we need to cause 1% of the new orders to be rolled back.
-				if (jTPCCUtil.randomNumber(1, 100, gen) == 1)
+				if (TPCCUtil.randomNumber(1, 100, gen) == 1)
 					itemIDs[numItems - 1] = jTPCCConfig.INVALID_ITEM_ID;
 
 				terminalMessage("\nStarting transaction #" + transactionCount
@@ -270,38 +270,38 @@ public class TPCCWorker extends Worker {
 			case PAYMENT:
 				districtID = chooseRandomDistrict();
 
-				int x = jTPCCUtil.randomNumber(1, 100, gen);
+				int x = TPCCUtil.randomNumber(1, 100, gen);
 				int customerDistrictID;
 				int customerWarehouseID;
 				if (x <= 85) {
 					customerDistrictID = districtID;
 					customerWarehouseID = terminalWarehouseID;
 				} else {
-					customerDistrictID = jTPCCUtil.randomNumber(1,
+					customerDistrictID = TPCCUtil.randomNumber(1,
 							jTPCCConfig.configDistPerWhse, gen);
 					do {
-						customerWarehouseID = jTPCCUtil.randomNumber(1,
+						customerWarehouseID = TPCCUtil.randomNumber(1,
 								numWarehouses, gen);
 					} while (customerWarehouseID == terminalWarehouseID
 							&& numWarehouses > 1);
 				}
 
-				long y = jTPCCUtil.randomNumber(1, 100, gen);
+				long y = TPCCUtil.randomNumber(1, 100, gen);
 				boolean customerByName;
 				String customerLastName = null;
 				customerID = -1;
 				if (y <= 60) {
 					// 60% lookups by last name
 					customerByName = true;
-					customerLastName = jTPCCUtil
+					customerLastName = TPCCUtil
 							.getNonUniformRandomLastNameForRun(gen);
 				} else {
 					// 40% lookups by customer ID
 					customerByName = false;
-					customerID = jTPCCUtil.getCustomerID(gen);
+					customerID = TPCCUtil.getCustomerID(gen);
 				}
 
-				float paymentAmount = (float) (jTPCCUtil.randomNumber(100,
+				float paymentAmount = (float) (TPCCUtil.randomNumber(100,
 						500000, gen) / 100.0);
 
 				terminalMessage("\nStarting transaction #" + transactionCount
@@ -320,7 +320,7 @@ public class TPCCWorker extends Worker {
 				break;
 
 			case STOCK_LEVEL:
-				int threshold = jTPCCUtil.randomNumber(10, 20, gen);
+				int threshold = TPCCUtil.randomNumber(10, 20, gen);
 
 				terminalMessage("\nStarting transaction #" + transactionCount
 						+ " (Stock-Level)...");
@@ -340,16 +340,16 @@ public class TPCCWorker extends Worker {
 			case ORDER_STATUS:
 				districtID = chooseRandomDistrict();
 
-				y = jTPCCUtil.randomNumber(1, 100, gen);
+				y = TPCCUtil.randomNumber(1, 100, gen);
 				customerLastName = null;
 				customerID = -1;
 				if (y <= 60) {
 					customerByName = true;
-					customerLastName = jTPCCUtil
+					customerLastName = TPCCUtil
 							.getNonUniformRandomLastNameForRun(gen);
 				} else {
 					customerByName = false;
-					customerID = jTPCCUtil.getCustomerID(gen);
+					customerID = TPCCUtil.getCustomerID(gen);
 				}
 
 				terminalMessage("\nStarting transaction #" + transactionCount
@@ -366,7 +366,7 @@ public class TPCCWorker extends Worker {
 				break;
 
 			case DELIVERY:
-				int orderCarrierID = jTPCCUtil.randomNumber(1, 10, gen);
+				int orderCarrierID = TPCCUtil.randomNumber(1, 10, gen);
 
 				terminalMessage("\nStarting transaction #" + transactionCount
 						+ " (Delivery)...");
@@ -456,7 +456,7 @@ public class TPCCWorker extends Worker {
 	}
 
 	private int chooseRandomDistrict() {
-		return jTPCCUtil.randomNumber(terminalDistrictLowerID,
+		return TPCCUtil.randomNumber(terminalDistrictLowerID,
 				terminalDistrictUpperID, gen);
 	}
 
@@ -613,7 +613,7 @@ public class TPCCWorker extends Worker {
 		terminalMessage
 				.append("\n+---------------------------- DELIVERY ---------------------------+\n");
 		terminalMessage.append(" Date: ");
-		terminalMessage.append(jTPCCUtil.getCurrentTime());
+		terminalMessage.append(TPCCUtil.getCurrentTime());
 		terminalMessage.append("\n\n Warehouse: ");
 		terminalMessage.append(w_id);
 		terminalMessage.append("\n Carrier:   ");
@@ -711,7 +711,7 @@ public class TPCCWorker extends Worker {
 			orderLine.append(" - ");
 			orderLine.append(rs.getLong("ol_quantity"));
 			orderLine.append(" - ");
-			orderLine.append(jTPCCUtil.formattedDouble(rs
+			orderLine.append(TPCCUtil.formattedDouble(rs
 					.getDouble("ol_amount")));
 			orderLine.append(" - ");
 			if (rs.getTimestamp("ol_delivery_d") != null)
@@ -732,7 +732,7 @@ public class TPCCWorker extends Worker {
 		terminalMessage
 				.append("+-------------------------- ORDER-STATUS -------------------------+\n");
 		terminalMessage.append(" Date: ");
-		terminalMessage.append(jTPCCUtil.getCurrentTime());
+		terminalMessage.append(TPCCUtil.getCurrentTime());
 		terminalMessage.append("\n\n Warehouse: ");
 		terminalMessage.append(w_id);
 		terminalMessage.append("\n District:  ");
@@ -1038,7 +1038,7 @@ public class TPCCWorker extends Worker {
 			terminalMessage
 					.append("\n+--------------------------- NEW-ORDER ---------------------------+\n");
 			terminalMessage.append(" Date: ");
-			terminalMessage.append(jTPCCUtil.getCurrentTime());
+			terminalMessage.append(TPCCUtil.getCurrentTime());
 			terminalMessage.append("\n\n Warehouse: ");
 			terminalMessage.append(w_id);
 			terminalMessage.append("\n   Tax:     ");
@@ -1076,9 +1076,9 @@ public class TPCCWorker extends Worker {
 				terminalMessage.append(brandGeneric[i]);
 				terminalMessage.append(" - ");
 				terminalMessage
-						.append(jTPCCUtil.formattedDouble(itemPrices[i]));
+						.append(TPCCUtil.formattedDouble(itemPrices[i]));
 				terminalMessage.append(" - ");
-				terminalMessage.append(jTPCCUtil
+				terminalMessage.append(TPCCUtil
 						.formattedDouble(orderLineAmounts[i]));
 				terminalMessage.append("]\n");
 			}
@@ -1454,7 +1454,7 @@ public class TPCCWorker extends Worker {
 		StringBuilder terminalMessage = new StringBuilder();
 		terminalMessage
 				.append("\n+---------------------------- PAYMENT ----------------------------+");
-		terminalMessage.append("\n Date: " + jTPCCUtil.getCurrentTime());
+		terminalMessage.append("\n Date: " + TPCCUtil.getCurrentTime());
 		terminalMessage.append("\n\n Warehouse: ");
 		terminalMessage.append(w_id);
 		terminalMessage.append("\n   Street:  ");

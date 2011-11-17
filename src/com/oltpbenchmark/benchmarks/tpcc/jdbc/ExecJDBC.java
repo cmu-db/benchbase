@@ -37,7 +37,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCUtil;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 
 
 public class ExecJDBC {
@@ -84,7 +84,7 @@ public class ExecJDBC {
 
 			// Open inputFile
 			BufferedReader in = new BufferedReader(new FileReader(
-					jTPCCUtil.getSysProp("commandFile", null)));
+					TPCCUtil.getSysProp("commandFile", null)));
 			System.out
 					.println("-------------------------------------------------\n");
 

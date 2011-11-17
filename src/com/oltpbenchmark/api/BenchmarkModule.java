@@ -58,7 +58,7 @@ public abstract class BenchmarkModule {
 		this.workConf = workConf;
 		
 		TransactionTypes txns = this.workConf.getTransTypes();
-		if (txns != null && txns.isEmpty() == false) {
+		if (txns != null && txns.isEmpty() == false && this.getProcedures(txns)!=null) {
     		this.procedures.putAll(this.getProcedures(txns));
     		for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
     		    this.name_procedures.put(e.getKey().getName(), e.getValue());

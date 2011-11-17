@@ -44,24 +44,7 @@ public class EpinionsWorker extends Worker {
 	private final Statement st;
 	private final Random r;
 
-    // CPU-bound Txn
-    private PreparedStatement cpu1PS = null;
-    private PreparedStatement cpu2PS = null;
-    
-    // IO-bound Txn
-    private PreparedStatement io1PS = null;
-    private PreparedStatement io2PS = null;
-    
-    // Contention-bound Txn
-    private PreparedStatement lock1PSupdate = null;
-    private PreparedStatement lock1PSselect = null;
-    private PreparedStatement lock2PSupdate = null;
-    private PreparedStatement lock2PSselect = null;
-    
-    private final Random gen = new Random(1); // I change the random seed every time!
 
-    private int result = 0;
-    private ResultSet rs = null;
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
     Random rand = new Random();

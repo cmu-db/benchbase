@@ -33,7 +33,7 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.nameTokens;
 
 import java.util.Random;
 
-public class jTPCCUtil {
+public class TPCCUtil {
 
 	public static String getSysProp(String inSysProperty, String defaultValue) {
 

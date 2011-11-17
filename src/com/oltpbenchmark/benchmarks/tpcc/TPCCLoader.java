@@ -1023,26 +1023,26 @@ public class TPCCLoader {
 			for (int i = 1; i <= itemKount; i++) {
 
 				item.i_id = i;
-				item.i_name = jTPCCUtil.randomStr(jTPCCUtil.randomNumber(14,
+				item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14,
 						24, gen));
-				item.i_price = (float) (jTPCCUtil.randomNumber(100, 10000, gen) / 100.0);
+				item.i_price = (float) (TPCCUtil.randomNumber(100, 10000, gen) / 100.0);
 
 				// i_data
-				randPct = jTPCCUtil.randomNumber(1, 100, gen);
-				len = jTPCCUtil.randomNumber(26, 50, gen);
+				randPct = TPCCUtil.randomNumber(1, 100, gen);
+				len = TPCCUtil.randomNumber(26, 50, gen);
 				if (randPct > 10) {
 					// 90% of time i_data isa random string of length [26 .. 50]
-					item.i_data = jTPCCUtil.randomStr(len);
+					item.i_data = TPCCUtil.randomStr(len);
 				} else {
 					// 10% of time i_data has "ORIGINAL" crammed somewhere in
 					// middle
-					startORIGINAL = jTPCCUtil.randomNumber(2, (len - 8), gen);
-					item.i_data = jTPCCUtil.randomStr(startORIGINAL - 1)
+					startORIGINAL = TPCCUtil.randomNumber(2, (len - 8), gen);
+					item.i_data = TPCCUtil.randomStr(startORIGINAL - 1)
 							+ "ORIGINAL"
-							+ jTPCCUtil.randomStr(len - startORIGINAL - 9);
+							+ TPCCUtil.randomStr(len - startORIGINAL - 9);
 				}
 
-				item.i_im_id = jTPCCUtil.randomNumber(1, 10000, gen);
+				item.i_im_id = TPCCUtil.randomNumber(1, 10000, gen);
 
 				k++;
 
@@ -1138,18 +1138,18 @@ public class TPCCLoader {
 				warehouse.w_ytd = 300000;
 
 				// random within [0.0000 .. 0.2000]
-				warehouse.w_tax = (float) ((jTPCCUtil
+				warehouse.w_tax = (float) ((TPCCUtil
 						.randomNumber(0, 2000, gen)) / 10000.0);
 
-				warehouse.w_name = jTPCCUtil.randomStr(jTPCCUtil.randomNumber(
+				warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(
 						6, 10, gen));
-				warehouse.w_street_1 = jTPCCUtil.randomStr(jTPCCUtil
+				warehouse.w_street_1 = TPCCUtil.randomStr(TPCCUtil
 						.randomNumber(10, 20, gen));
-				warehouse.w_street_2 = jTPCCUtil.randomStr(jTPCCUtil
+				warehouse.w_street_2 = TPCCUtil.randomStr(TPCCUtil
 						.randomNumber(10, 20, gen));
-				warehouse.w_city = jTPCCUtil.randomStr(jTPCCUtil.randomNumber(
+				warehouse.w_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(
 						10, 20, gen));
-				warehouse.w_state = jTPCCUtil.randomStr(3).toUpperCase();
+				warehouse.w_state = TPCCUtil.randomStr(3).toUpperCase();
 				warehouse.w_zip = "123456789";
 
 				if (outputFiles == false) {
@@ -1230,38 +1230,38 @@ public class TPCCLoader {
 
 					stock.s_i_id = i;
 					stock.s_w_id = w;
-					stock.s_quantity = jTPCCUtil.randomNumber(10, 100, gen);
+					stock.s_quantity = TPCCUtil.randomNumber(10, 100, gen);
 					stock.s_ytd = 0;
 					stock.s_order_cnt = 0;
 					stock.s_remote_cnt = 0;
 
 					// s_data
-					randPct = jTPCCUtil.randomNumber(1, 100, gen);
-					len = jTPCCUtil.randomNumber(26, 50, gen);
+					randPct = TPCCUtil.randomNumber(1, 100, gen);
+					len = TPCCUtil.randomNumber(26, 50, gen);
 					if (randPct > 10) {
 						// 90% of time i_data isa random string of length [26 ..
 						// 50]
-						stock.s_data = jTPCCUtil.randomStr(len);
+						stock.s_data = TPCCUtil.randomStr(len);
 					} else {
 						// 10% of time i_data has "ORIGINAL" crammed somewhere
 						// in middle
-						startORIGINAL = jTPCCUtil.randomNumber(2, (len - 8),
+						startORIGINAL = TPCCUtil.randomNumber(2, (len - 8),
 								gen);
-						stock.s_data = jTPCCUtil.randomStr(startORIGINAL - 1)
+						stock.s_data = TPCCUtil.randomStr(startORIGINAL - 1)
 								+ "ORIGINAL"
-								+ jTPCCUtil.randomStr(len - startORIGINAL - 9);
+								+ TPCCUtil.randomStr(len - startORIGINAL - 9);
 					}
 
-					stock.s_dist_01 = jTPCCUtil.randomStr(24);
-					stock.s_dist_02 = jTPCCUtil.randomStr(24);
-					stock.s_dist_03 = jTPCCUtil.randomStr(24);
-					stock.s_dist_04 = jTPCCUtil.randomStr(24);
-					stock.s_dist_05 = jTPCCUtil.randomStr(24);
-					stock.s_dist_06 = jTPCCUtil.randomStr(24);
-					stock.s_dist_07 = jTPCCUtil.randomStr(24);
-					stock.s_dist_08 = jTPCCUtil.randomStr(24);
-					stock.s_dist_09 = jTPCCUtil.randomStr(24);
-					stock.s_dist_10 = jTPCCUtil.randomStr(24);
+					stock.s_dist_01 = TPCCUtil.randomStr(24);
+					stock.s_dist_02 = TPCCUtil.randomStr(24);
+					stock.s_dist_03 = TPCCUtil.randomStr(24);
+					stock.s_dist_04 = TPCCUtil.randomStr(24);
+					stock.s_dist_05 = TPCCUtil.randomStr(24);
+					stock.s_dist_06 = TPCCUtil.randomStr(24);
+					stock.s_dist_07 = TPCCUtil.randomStr(24);
+					stock.s_dist_08 = TPCCUtil.randomStr(24);
+					stock.s_dist_09 = TPCCUtil.randomStr(24);
+					stock.s_dist_10 = TPCCUtil.randomStr(24);
 
 					k++;
 					if (outputFiles == false) {
@@ -1390,19 +1390,19 @@ public class TPCCLoader {
 					district.d_ytd = 30000;
 
 					// random within [0.0000 .. 0.2000]
-					district.d_tax = (float) ((jTPCCUtil.randomNumber(0, 2000,
+					district.d_tax = (float) ((TPCCUtil.randomNumber(0, 2000,
 							gen)) / 10000.0);
 
 					district.d_next_o_id = 3001;
-					district.d_name = jTPCCUtil.randomStr(jTPCCUtil
+					district.d_name = TPCCUtil.randomStr(TPCCUtil
 							.randomNumber(6, 10, gen));
-					district.d_street_1 = jTPCCUtil.randomStr(jTPCCUtil
+					district.d_street_1 = TPCCUtil.randomStr(TPCCUtil
 							.randomNumber(10, 20, gen));
-					district.d_street_2 = jTPCCUtil.randomStr(jTPCCUtil
+					district.d_street_2 = TPCCUtil.randomStr(TPCCUtil
 							.randomNumber(10, 20, gen));
-					district.d_city = jTPCCUtil.randomStr(jTPCCUtil
+					district.d_city = TPCCUtil.randomStr(TPCCUtil
 							.randomNumber(10, 20, gen));
-					district.d_state = jTPCCUtil.randomStr(3).toUpperCase();
+					district.d_state = TPCCUtil.randomStr(3).toUpperCase();
 					district.d_zip = "123456789";
 
 					k++;
@@ -1504,21 +1504,21 @@ public class TPCCLoader {
 						customer.c_w_id = w;
 
 						// discount is random between [0.0000 ... 0.5000]
-						customer.c_discount = (float) (jTPCCUtil.randomNumber(
+						customer.c_discount = (float) (TPCCUtil.randomNumber(
 								1, 5000, gen) / 10000.0);
 
-						if (jTPCCUtil.randomNumber(1, 100, gen) <= 10) {
+						if (TPCCUtil.randomNumber(1, 100, gen) <= 10) {
 							customer.c_credit = "BC"; // 10% Bad Credit
 						} else {
 							customer.c_credit = "GC"; // 90% Good Credit
 						}
 						if (c <= 1000) {
-							customer.c_last = jTPCCUtil.getLastName(c - 1);
+							customer.c_last = TPCCUtil.getLastName(c - 1);
 						} else {
-							customer.c_last = jTPCCUtil
+							customer.c_last = TPCCUtil
 									.getNonUniformRandomLastNameForLoad(gen);
 						}
-						customer.c_first = jTPCCUtil.randomStr(jTPCCUtil
+						customer.c_first = TPCCUtil.randomStr(TPCCUtil
 								.randomNumber(8, 16, gen));
 						customer.c_credit_lim = 50000;
 
@@ -1527,21 +1527,21 @@ public class TPCCLoader {
 						customer.c_payment_cnt = 1;
 						customer.c_delivery_cnt = 0;
 
-						customer.c_street_1 = jTPCCUtil.randomStr(jTPCCUtil
+						customer.c_street_1 = TPCCUtil.randomStr(TPCCUtil
 								.randomNumber(10, 20, gen));
-						customer.c_street_2 = jTPCCUtil.randomStr(jTPCCUtil
+						customer.c_street_2 = TPCCUtil.randomStr(TPCCUtil
 								.randomNumber(10, 20, gen));
-						customer.c_city = jTPCCUtil.randomStr(jTPCCUtil
+						customer.c_city = TPCCUtil.randomStr(TPCCUtil
 								.randomNumber(10, 20, gen));
-						customer.c_state = jTPCCUtil.randomStr(3).toUpperCase();
+						customer.c_state = TPCCUtil.randomStr(3).toUpperCase();
 						// TPC-C 4.3.2.7: 4 random digits + "11111"
-						customer.c_zip = jTPCCUtil.randomNStr(gen, 4) + "11111";
+						customer.c_zip = TPCCUtil.randomNStr(gen, 4) + "11111";
 
-						customer.c_phone = jTPCCUtil.randomNStr(gen, 16);
+						customer.c_phone = TPCCUtil.randomNStr(gen, 16);
 
 						customer.c_since = sysdate;
 						customer.c_middle = "OE";
-						customer.c_data = jTPCCUtil.randomStr(jTPCCUtil
+						customer.c_data = TPCCUtil.randomStr(TPCCUtil
 								.randomNumber(300, 500, gen));
 
 						history.h_c_id = c;
@@ -1551,7 +1551,7 @@ public class TPCCLoader {
 						history.h_w_id = w;
 						history.h_date = sysdate;
 						history.h_amount = 10;
-						history.h_data = jTPCCUtil.randomStr(jTPCCUtil
+						history.h_data = TPCCUtil.randomStr(TPCCUtil
 								.randomNumber(10, 24, gen));
 
 						k = k + 2;
@@ -1760,12 +1760,12 @@ public class TPCCLoader {
 						// o_carrier_id is set *only* for orders with ids < 2101
 						// [4.3.3.1]
 						if (oorder.o_id < FIRST_UNPROCESSED_O_ID) {
-							oorder.o_carrier_id = jTPCCUtil.randomNumber(1, 10,
+							oorder.o_carrier_id = TPCCUtil.randomNumber(1, 10,
 									gen);
 						} else {
 							oorder.o_carrier_id = null;
 						}
-						oorder.o_ol_cnt = jTPCCUtil.randomNumber(5, 15, gen);
+						oorder.o_ol_cnt = TPCCUtil.randomNumber(5, 15, gen);
 						oorder.o_all_local = 1;
 						oorder.o_entry_d = System.currentTimeMillis();
 
@@ -1817,7 +1817,7 @@ public class TPCCLoader {
 							order_line.ol_d_id = d;
 							order_line.ol_o_id = c;
 							order_line.ol_number = l; // ol_number
-							order_line.ol_i_id = jTPCCUtil.randomNumber(1,
+							order_line.ol_i_id = TPCCUtil.randomNumber(1,
 									100000, gen);
 							if (order_line.ol_o_id < FIRST_UNPROCESSED_O_ID) {
 								order_line.ol_delivery_d = oorder.o_entry_d;
@@ -1825,13 +1825,13 @@ public class TPCCLoader {
 							} else {
 								order_line.ol_delivery_d = null;
 								// random within [0.01 .. 9,999.99]
-								order_line.ol_amount = (float) (jTPCCUtil
+								order_line.ol_amount = (float) (TPCCUtil
 										.randomNumber(1, 999999, gen) / 100.0);
 							}
 
 							order_line.ol_supply_w_id = order_line.ol_w_id;
 							order_line.ol_quantity = 5;
-							order_line.ol_dist_info = jTPCCUtil.randomStr(24);
+							order_line.ol_dist_info = TPCCUtil.randomStr(24);
 
 							k++;
 							if (outputFiles == false) {
