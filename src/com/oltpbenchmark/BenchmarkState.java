@@ -3,7 +3,7 @@ package com.oltpbenchmark;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.oltpbenchmark.ThreadBench.State;
+import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
 
 public final class BenchmarkState {

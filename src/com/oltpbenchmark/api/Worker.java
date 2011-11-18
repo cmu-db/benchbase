@@ -12,7 +12,7 @@ import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.ThreadBench.State;
+import com.oltpbenchmark.types.State;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);

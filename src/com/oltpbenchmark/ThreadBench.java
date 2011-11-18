@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.BenchmarkState;
@@ -46,11 +47,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 	private static final WorkLoadConfiguration workConf = WorkLoadConfiguration.getInstance();
 	ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 	
-	public static enum State {
-		WARMUP, MEASURE, DONE, EXIT,
-	}
-
-
 	private ThreadBench(List<? extends Worker> workers) {
 		this.workers = workers;
 	}
