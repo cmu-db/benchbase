@@ -2,6 +2,11 @@ package com.oltpbenchmark.api;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
@@ -10,6 +15,8 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.ThreadBench.State;
 
 public abstract class Worker implements Runnable {
+    private static final Logger LOG = Logger.getLogger(Worker.class);
+            
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
 	
@@ -18,6 +25,9 @@ public abstract class Worker implements Runnable {
 	protected final Connection conn;
 	protected final WorkLoadConfiguration wrkld;
 	protected final TransactionTypes transactionTypes;
+	protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
+	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
+	
 	
 	public Worker(int id, BenchmarkModule benchmarkModule) {
 		this.id = id;
@@ -31,6 +41,23 @@ public abstract class Worker implements Runnable {
 		} catch (SQLException ex) {
 		    throw new RuntimeException("Failed to connect to database", ex);
 		}
+		
+		// Generate all the Procedures that we're going to need
+		TransactionTypes txns = this.wrkld.getTransTypes();
+        if (txns != null && txns.isEmpty() == false) {
+            this.procedures.putAll(this.benchmarkModule.getProcedures(txns));
+            for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
+                this.name_procedures.put(e.getKey().getName(), e.getValue());
+    
+                // TODO: Load up the procedures so that we can get the database-specific
+                //       versions of the queries
+                
+                e.getValue().generateAllPreparedStatements(this.conn);
+            } // FOR
+        }
+        if (this.procedures.isEmpty()) {
+            LOG.warn("No procedures defined for " + this.benchmarkModule);
+        }
 	}
 	
 	/**
@@ -40,6 +67,13 @@ public abstract class Worker implements Runnable {
 	public int getId() {
 		return this.id;
 	}
+	
+	public final Procedure getProcedure(TransactionType type) {
+        return (this.procedures.get(type));
+    }
+    public final Procedure getProcedure(String name) {
+        return (this.name_procedures.get(name));
+    }
 
 	@Override
 	public final void run() {

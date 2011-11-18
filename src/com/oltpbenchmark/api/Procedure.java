@@ -13,6 +13,7 @@ public abstract class Procedure {
 
     private final Map<String, SQLStmt> name_stmt_xref;
     private final Map<SQLStmt, String> stmt_name_xref;
+    private final Map<SQLStmt, PreparedStatement> prepardStatements = new HashMap<SQLStmt, PreparedStatement>();
     
     /**
      * Mapping from SQLStmt to database-specific SQL
@@ -28,9 +29,30 @@ public abstract class Procedure {
     }
     
     public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt) throws SQLException {
-        String sql = this.database_sql.get(stmt);
-        assert(sql != null) : "Unexpected SQLStmt handle " + this.getClass().getSimpleName() + "." + this.stmt_name_xref.get(stmt);
-        return (conn.prepareStatement(sql));
+        PreparedStatement pStmt = this.prepardStatements.get(stmt);
+        if (pStmt == null) {
+            String sql = this.database_sql.get(stmt);
+            assert(sql != null) : "Unexpected SQLStmt handle " + this.getClass().getSimpleName() + "." + this.stmt_name_xref.get(stmt);
+            pStmt = conn.prepareStatement(sql);
+            this.prepardStatements.put(stmt, pStmt);
+        }
+        assert(pStmt != null) : "Unexpected null PreparedStatement for " + stmt;
+        return (pStmt);
+    }
+    
+    /**
+     * Initialize all the PreparedStatements needed by this Procedure
+     * @param conn
+     * @throws SQLException
+     */
+    protected final void generateAllPreparedStatements(Connection conn) {
+        for (SQLStmt stmt : this.stmt_name_xref.keySet()) {
+            try {
+                this.getPreparedStatement(conn, stmt);
+            } catch (SQLException ex) {
+                throw new RuntimeException(String.format("Failed to generate PreparedStatements for %s.%s", this, stmt), ex);
+            }
+        } // FOR
     }
     
     protected final void setDatabaseSQL(String name, String sql) {
@@ -58,6 +80,11 @@ public abstract class Procedure {
             }
         } // FOR
         return (stmts);
+    }
+    
+    @Override
+    public String toString() {
+        return (this.getClass().getSimpleName());
     }
     
 }

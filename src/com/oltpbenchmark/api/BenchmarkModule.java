@@ -180,13 +180,6 @@ public abstract class BenchmarkModule {
 	    return (this.workConf);
 	}
 	
-	public final Procedure getProcedure(TransactionType type) {
-	    return (this.procedures.get(type));
-	}
-	public final Procedure getProcedure(String name) {
-        return (this.name_procedures.get(name));
-    }
-	
 	/**
 	 * Execute a SQL file using the ScriptRunner
 	 * @param c

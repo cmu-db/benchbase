@@ -36,10 +36,7 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets;
 import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
 
 public class TwitterWorker extends Worker {
-	private final Statement st;
-	private final Random r;
     private TransactionGenerator<TwitterOperation> generator;
-    private Random gen = new Random();
     
     //TODO: make the next parameters of WorkLoadConfiguration
     public static int LIMIT_TWEETS = 100;
@@ -49,13 +46,6 @@ public class TwitterWorker extends Worker {
 	public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
 		super(id, benchmarkModule);
 		this.generator=generator;
-		r = new Random();
-	
-		try {
-			st = conn.createStatement();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
@@ -108,35 +98,35 @@ public class TwitterWorker extends Worker {
 
 	
 	public void doSelect1Tweet(int tweet_id) throws SQLException {
-	    GetTweet proc = (GetTweet)this.benchmarkModule.getProcedure("GetTweet");
+	    GetTweet proc = (GetTweet)this.getProcedure("GetTweet");
 	    assert(proc != null);
 	    proc.run(conn, tweet_id);
 	    conn.commit();
 	}
 
 	public void doSelectTweetsFromPplIFollow(int uid) throws SQLException{
-	    GetTweetsFromFollowing proc = (GetTweetsFromFollowing)this.benchmarkModule.getProcedure("GetTweetsFromFollowing");
+	    GetTweetsFromFollowing proc = (GetTweetsFromFollowing)this.getProcedure("GetTweetsFromFollowing");
 	    assert(proc != null);
         proc.run(conn, uid);
 	    conn.commit();
 	}
 	  
 	public void doSelectNamesOfPplThatFollowMe(int uid) throws SQLException{
-	    GetFollowers proc = (GetFollowers)this.benchmarkModule.getProcedure("GetFollowers");
+	    GetFollowers proc = (GetFollowers)this.getProcedure("GetFollowers");
         assert(proc != null);
         proc.run(conn, uid);
 	    conn.commit();
 	}
 	  
 	public void doSelectTweetsForUid(int uid) throws SQLException{
-	    GetUserTweets proc = (GetUserTweets)this.benchmarkModule.getProcedure("GetUserTweets");
+	    GetUserTweets proc = (GetUserTweets)this.getProcedure("GetUserTweets");
         assert(proc != null);
         proc.run(conn, uid);
 	    conn.commit();
     }
 
 	public void doInsertTweet(int uid, String text) throws SQLException{
-	    InsertTweet proc = (InsertTweet)this.benchmarkModule.getProcedure("InsertTweet");
+	    InsertTweet proc = (InsertTweet)this.getProcedure("InsertTweet");
         assert(proc != null);
         Time time = new Time(System.currentTimeMillis());
         proc.run(conn, uid, text, time);

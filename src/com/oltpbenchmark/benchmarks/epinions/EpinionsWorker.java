@@ -19,10 +19,8 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.epinions;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -41,10 +39,10 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
 
 public class EpinionsWorker extends Worker {
-	private final Statement st;
-	private final Random r;
+    
+    private final Random gen = new Random(1); // I change the random seed every time!
 
-
+    private ResultSet rs = null;
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
     Random rand = new Random();
@@ -54,13 +52,6 @@ public class EpinionsWorker extends Worker {
 		super(id, benchmarkModule);
 		this.user_ids=user_ids;
 		this.item_ids=item_ids;
-		r = new Random();
-	
-		try {
-			st = conn.createStatement();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
@@ -127,7 +118,7 @@ public class EpinionsWorker extends Worker {
 	}
 
     public void reviewItemByID() throws SQLException {
-        GetReviewItemById proc = (GetReviewItemById) this.benchmarkModule.getProcedure("GetReviewItemById");
+        GetReviewItemById proc = (GetReviewItemById) this.getProcedure("GetReviewItemById");
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
@@ -135,7 +126,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void reviewsByUser() throws SQLException {
-        GetReviewsByUser proc = (GetReviewsByUser) this.benchmarkModule.getProcedure("GetReviewsByUser");
+        GetReviewsByUser proc = (GetReviewsByUser) this.getProcedure("GetReviewsByUser");
         assert (proc != null);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         proc.run(conn, uid);
@@ -143,7 +134,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void averageRatingByTrustedUser() throws SQLException {
-        GetAverageRatingByTrustedUser proc = (GetAverageRatingByTrustedUser) this.benchmarkModule.getProcedure("GetAverageRatingByTrustedUser");
+        GetAverageRatingByTrustedUser proc = (GetAverageRatingByTrustedUser) this.getProcedure("GetAverageRatingByTrustedUser");
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -152,7 +143,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void averageRatingOfItem() throws SQLException {
-        GetItemAverageRating proc = (GetItemAverageRating) this.benchmarkModule.getProcedure("GetItemAverageRating");
+        GetItemAverageRating proc = (GetItemAverageRating) this.getProcedure("GetItemAverageRating");
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
@@ -160,7 +151,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void itemReviewsByTrustedUser() throws SQLException {
-        GetItemReviewsByTrustedUser proc = (GetItemReviewsByTrustedUser) this.benchmarkModule.getProcedure("GetItemReviewsByTrustedUser");
+        GetItemReviewsByTrustedUser proc = (GetItemReviewsByTrustedUser) this.getProcedure("GetItemReviewsByTrustedUser");
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -172,7 +163,7 @@ public class EpinionsWorker extends Worker {
     // ===================================================
 
     public void updateUserName() throws SQLException {
-        UpdateUserName proc = (UpdateUserName) this.benchmarkModule.getProcedure("UpdateUserName");
+        UpdateUserName proc = (UpdateUserName) this.getProcedure("UpdateUserName");
         assert (proc != null);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         String name = "XXXXXXXXXXX"; // FIXME
@@ -181,7 +172,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void updateItemTitle() throws SQLException {
-        UpdateItemTitle proc = (UpdateItemTitle) this.benchmarkModule.getProcedure("UpdateItemTitle");
+        UpdateItemTitle proc = (UpdateItemTitle) this.getProcedure("UpdateItemTitle");
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         String title = "XXXXXXXXXXX"; // FIXME
@@ -190,7 +181,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void updateReviewRating() throws SQLException {
-        UpdateReviewRating proc = (UpdateReviewRating) this.benchmarkModule.getProcedure("UpdateReviewRating");
+        UpdateReviewRating proc = (UpdateReviewRating) this.getProcedure("UpdateReviewRating");
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -200,7 +191,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void updateTrustRating() throws SQLException {
-        UpdateTrustRating proc = (UpdateTrustRating) this.benchmarkModule.getProcedure("UpdateTrustRating");
+        UpdateTrustRating proc = (UpdateTrustRating) this.getProcedure("UpdateTrustRating");
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         long uid2 = uid;
         while (uid2 == uid) {

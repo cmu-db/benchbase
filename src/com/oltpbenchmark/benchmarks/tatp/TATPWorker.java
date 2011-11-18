@@ -177,7 +177,7 @@ public class TATPWorker extends Worker {
 		assert(t != null) : "Unexpected " + next;
 		
 		// Get the Procedure handle
-		Procedure proc = this.benchmarkModule.getProcedure(next);
+		Procedure proc = this.getProcedure(next);
 		assert(proc != null);
 		
 		try {

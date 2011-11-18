@@ -95,7 +95,7 @@ public class ResourceStresserWorker extends Worker {
 
 
     private void lock1Transaction() throws SQLException {
-        Lock1 proc = (Lock1) this.benchmarkModule.getProcedure("Lock1");
+        Lock1 proc = (Lock1) this.getProcedure("Lock1");
         assert (proc != null);
         proc.run(conn);
         conn.commit();
@@ -103,35 +103,35 @@ public class ResourceStresserWorker extends Worker {
     }
 
     private void lock2Transaction(int howManyUpdates, int howManyKeys, int sleepLength) throws SQLException {
-        Lock2 proc = (Lock2) this.benchmarkModule.getProcedure("Lock2");
+        Lock2 proc = (Lock2) this.getProcedure("Lock2");
         assert (proc != null);
         proc.run(conn);
         conn.commit();
     }
 
     private void io1Transaction(int howManyUpdatePerTransaction, int howManyRowsPerUpdate) throws SQLException {
-        IO1 proc = (IO1) this.benchmarkModule.getProcedure("IO1");
+        IO1 proc = (IO1) this.getProcedure("IO1");
         assert (proc != null);
         proc.run(conn, this.getId());
         conn.commit();
     }
 
     private void io2Transaction(boolean makeSureWorketSetFitsInMemory, int howManyUpdatePerTransaction) throws SQLException {
-        IO2 proc = (IO2) this.benchmarkModule.getProcedure("IO2");
+        IO2 proc = (IO2) this.getProcedure("IO2");
         assert (proc != null);
         proc.run(conn, this.getId());
         conn.commit();
     }
 
     private void cpu1Transaction(int howManyPerTrasaction, long sleepLength) throws SQLException {
-        CPU1 proc = (CPU1) this.benchmarkModule.getProcedure("CPU1");
+        CPU1 proc = (CPU1) this.getProcedure("CPU1");
         assert (proc != null);
         proc.run(conn);
         conn.commit();
     }
 
     private void cpu2Transaction(int howManyPerTrasaction, long sleepLength) throws SQLException {
-        CPU2 proc = (CPU2) this.benchmarkModule.getProcedure("CPU2");
+        CPU2 proc = (CPU2) this.getProcedure("CPU2");
         assert (proc != null);
         proc.run(conn);
         conn.commit();
