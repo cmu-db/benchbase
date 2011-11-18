@@ -35,25 +35,7 @@ import java.util.Random;
 
 public class TPCCUtil {
 
-	public static String getSysProp(String inSysProperty, String defaultValue) {
 
-		String outPropertyValue = null;
-
-		try {
-			outPropertyValue = System.getProperty(inSysProperty, defaultValue);
-			if (inSysProperty.equals("password")) {
-				System.out.println(inSysProperty + "=*****");
-			} else {
-				System.out.println(inSysProperty + "=" + outPropertyValue);
-			}
-		} catch (Exception e) {
-			System.out.println("Error Reading Required System Property '"
-					+ inSysProperty + "'");
-		}
-
-		return (outPropertyValue);
-
-	} // end getSysProp
 
 	public static String randomStr(long strLen) {
 

@@ -32,6 +32,8 @@ import org.apache.commons.lang.NotImplementedException;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrderTransaction;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 
@@ -44,7 +46,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 	@Override
 	protected Package getProcedurePackageImpl() {
-	    return null; // FIXME
+	    return NewOrderTransaction.class.getPackage();
 	}
 	
 	/**

@@ -57,7 +57,7 @@ public class EpinionsWorker extends Worker {
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
 
-		transactionTypes.getType("INVALID");
+		//transactionTypes.getType("INVALID");
 		TransactionType retTP = transactionTypes.getType("INVALID");
 		
 		if(phase!=null){

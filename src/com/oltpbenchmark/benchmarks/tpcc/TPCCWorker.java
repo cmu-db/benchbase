@@ -51,7 +51,9 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrderTransaction;
 import com.oltpbenchmark.util.SimplePrinter;
 
 
@@ -59,9 +61,10 @@ public class TPCCWorker extends Worker {
 	
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
-		TransactionType type = chooseTransaction(phase);
-		executeTransaction(type.getId());
-		return type;
+
+		int nextTrans = phase.chooseTransaction();
+		executeTransaction(nextTrans);
+		return transactionTypes.getType(nextTrans);
 	}
 	
 	//private TransactionTypes transactionTypes;
@@ -81,16 +84,7 @@ public class TPCCWorker extends Worker {
 	private int transactionCount = 1, numWarehouses;
 	private int result = 0;
 
-	// NewOrder Txn
-	private PreparedStatement stmtGetCustWhse = null;
-	private PreparedStatement stmtGetDist = null;
-	private PreparedStatement stmtInsertNewOrder = null;
-	private PreparedStatement stmtUpdateDist = null;
-	private PreparedStatement stmtInsertOOrder = null;
-	private PreparedStatement stmtGetItem = null;
-	private PreparedStatement stmtGetStock = null;
-	private PreparedStatement stmtUpdateStock = null;
-	private PreparedStatement stmtInsertOrderLine = null;
+
 
 	// Payment Txn
 	private PreparedStatement payUpdateWhse = null;
@@ -145,34 +139,12 @@ public class TPCCWorker extends Worker {
 				+ "].");
 	}
 
-//	public void run() {
-//		executeTransactions(numTransactions);
-//
-//		printMessage("Closing statement and connection...");
-//
-//		try {
-//			stmt.close();
-//			conn.close();
-//		} catch (SQLException e) {
-//			throw new RuntimeException(e);
-//		}
-//
-//		printMessage("Terminal \'" + terminalName + "\' finished after "
-//				+ (transactionCount - 1) + " transaction(s).");
-//
-//		parent.signalTerminalEnded(this, newOrderCounter);
-//
-//		if (deadlockLocations != null) {
-//			for (Map.Entry<Integer, Integer> e : deadlockLocations.entrySet()) {
-//				System.out.println("jTPCCTerminal.java:" + e.getKey() + ": "
-//						+ e.getValue() + " deadlocks");
-//			}
-//		}
-//	}
-
 
 	public TransactionType chooseTransaction(Phase phase) {
 
+		
+		int nextTrans = phase.chooseTransaction();
+		
 		if (phase != null) {
 
 			double count = 0;
@@ -221,53 +193,25 @@ public class TPCCWorker extends Worker {
 	 */
 	public int executeTransaction(int transaction) {
 
+		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
+		int customerID = TPCCUtil.getCustomerID(gen);
+
+		
 		int result = 0;
 
 		try {
 			switch (transaction) {
-			case NEW_ORDER:
-				int districtID = chooseRandomDistrict();
-				int customerID = TPCCUtil.getCustomerID(gen);
-
-				int numItems = (int) TPCCUtil.randomNumber(5, 15, gen);
-				int[] itemIDs = new int[numItems];
-				int[] supplierWarehouseIDs = new int[numItems];
-				int[] orderQuantities = new int[numItems];
-				int allLocal = 1;
-				for (int i = 0; i < numItems; i++) {
-					itemIDs[i] = TPCCUtil.getItemID(gen);
-					if (TPCCUtil.randomNumber(1, 100, gen) > 1) {
-						supplierWarehouseIDs[i] = terminalWarehouseID;
-					} else {
-						do {
-							supplierWarehouseIDs[i] = TPCCUtil.randomNumber(1,
-									numWarehouses, gen);
-						} while (supplierWarehouseIDs[i] == terminalWarehouseID
-								&& numWarehouses > 1);
-						allLocal = 0;
-					}
-					orderQuantities[i] = TPCCUtil.randomNumber(1, 10, gen);
-				}
-
-				// we need to cause 1% of the new orders to be rolled back.
-				if (TPCCUtil.randomNumber(1, 100, gen) == 1)
-					itemIDs[numItems - 1] = jTPCCConfig.INVALID_ITEM_ID;
-
-				terminalMessage("\nStarting transaction #" + transactionCount
-						+ " (New-Order)...");
-				while (true) {
-					try {
-						newOrderTransaction(terminalWarehouseID, districtID,
-								customerID, numItems, allLocal, itemIDs,
-								supplierWarehouseIDs, orderQuantities);
-						break;
-					} catch (SQLException e) {
-						rollbackAndHandleError(e);
-					}
-				}
+			case 0: //INVALID
+				System.err.println("We have been invoked with an INVALID transactionType?!");
+				break;
+				
+			case 1: //NEW_ORDER
+				NewOrderTransaction proc = (NewOrderTransaction) this.getProcedure("NewOrderTransaction");
+					NewOrderTransaction nt = new NewOrderTransaction(conn,gen,terminalWarehouseID,numWarehouses,terminalDistrictLowerID,terminalDistrictUpperID,this);
+					nt.run();
 				break;
 
-			case PAYMENT:
+			case 2: //PAYMENT
 				districtID = chooseRandomDistrict();
 
 				int x = TPCCUtil.randomNumber(1, 100, gen);
@@ -314,12 +258,12 @@ public class TPCCWorker extends Worker {
 								customerLastName, customerByName);
 						break;
 					} catch (SQLException e) {
-						rollbackAndHandleError(e);
+						rollbackAndHandleError(e,conn);
 					}
 				}
 				break;
 
-			case STOCK_LEVEL:
+			case 3: //STOCK_LEVEL
 				int threshold = TPCCUtil.randomNumber(10, 20, gen);
 
 				terminalMessage("\nStarting transaction #" + transactionCount
@@ -332,12 +276,12 @@ public class TPCCWorker extends Worker {
 								threshold);
 						break;
 					} catch (SQLException e) {
-						rollbackAndHandleError(e);
+						rollbackAndHandleError(e,conn);
 					}
 				}
 				break;
 
-			case ORDER_STATUS:
+			case 4: //ORDER_STATUS
 				districtID = chooseRandomDistrict();
 
 				y = TPCCUtil.randomNumber(1, 100, gen);
@@ -360,12 +304,12 @@ public class TPCCWorker extends Worker {
 								customerID, customerLastName, customerByName);
 						break;
 					} catch (SQLException e) {
-						rollbackAndHandleError(e);
+						rollbackAndHandleError(e,conn);
 					}
 				}
 				break;
 
-			case DELIVERY:
+			case 5://DELIVERY
 				int orderCarrierID = TPCCUtil.randomNumber(1, 10, gen);
 
 				terminalMessage("\nStarting transaction #" + transactionCount
@@ -376,7 +320,7 @@ public class TPCCWorker extends Worker {
 								orderCarrierID);
 						break;
 					} catch (SQLException e) {
-						rollbackAndHandleError(e);
+						rollbackAndHandleError(e,conn);
 					}
 				}
 				break;
@@ -407,7 +351,7 @@ public class TPCCWorker extends Worker {
 	// enable.
 	private final HashMap<Integer, Integer> deadlockLocations = null;
 
-	private void rollbackAndHandleError(SQLException e) throws SQLException {
+	public void rollbackAndHandleError(SQLException e, Connection conn) throws SQLException {
 		conn.rollback();
 
 		// Unfortunately, JDBC provides no standardized way to do this, so we
@@ -773,355 +717,6 @@ public class TPCCWorker extends Worker {
 		terminalMessage
 				.append("+-----------------------------------------------------------------+\n\n");
 		terminalMessage(terminalMessage.toString());
-	}
-
-	private static final class UserAbortException extends Exception {
-		private static final long serialVersionUID = -2275111122558728591L;
-
-		public UserAbortException(String message) {
-			super(message);
-		}
-	}
-
-	private void newOrderTransaction(int w_id, int d_id, int c_id,
-			int o_ol_cnt, int o_all_local, int[] itemIDs,
-			int[] supplierWarehouseIDs, int[] orderQuantities)
-			throws SQLException {
-		float c_discount, w_tax, d_tax = 0, i_price;
-		int d_next_o_id, o_id = -1, s_quantity;
-		String c_last = null, c_credit = null, i_name, i_data, s_data;
-		String s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05;
-		String s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10, ol_dist_info = null;
-		float[] itemPrices = new float[o_ol_cnt];
-		float[] orderLineAmounts = new float[o_ol_cnt];
-		String[] itemNames = new String[o_ol_cnt];
-		int[] stockQuantities = new int[o_ol_cnt];
-		char[] brandGeneric = new char[o_ol_cnt];
-		int ol_supply_w_id, ol_i_id, ol_quantity;
-		int s_remote_cnt_increment;
-		float ol_amount, total_amount = 0;
-
-		try {
-			if (stmtGetCustWhse == null) {
-				stmtGetCustWhse = conn
-						.prepareStatement("SELECT c_discount, c_last, c_credit, w_tax"
-								+ "  FROM customer, warehouse"
-								+ " WHERE w_id = ? AND c_w_id = ?"
-								+ " AND c_d_id = ? AND c_id = ?");
-			}
-			stmtGetCustWhse.setInt(1, w_id);
-			stmtGetCustWhse.setInt(2, w_id);
-			stmtGetCustWhse.setInt(3, d_id);
-			stmtGetCustWhse.setInt(4, c_id);
-			rs = stmtGetCustWhse.executeQuery();
-			if (!rs.next())
-				throw new RuntimeException("W_ID=" + w_id + " C_D_ID=" + d_id
-						+ " C_ID=" + c_id + " not found!");
-			c_discount = rs.getFloat("c_discount");
-			c_last = rs.getString("c_last");
-			c_credit = rs.getString("c_credit");
-			w_tax = rs.getFloat("w_tax");
-			rs.close();
-			rs = null;
-
-			if (stmtGetDist == null) {
-				stmtGetDist = conn
-						.prepareStatement("SELECT d_next_o_id, d_tax FROM district"
-								+ " WHERE d_w_id = ? AND d_id = ? FOR UPDATE");
-			}
-			stmtGetDist.setInt(1, w_id);
-			stmtGetDist.setInt(2, d_id);
-			rs = stmtGetDist.executeQuery();
-			if (!rs.next()) {
-				throw new RuntimeException("D_ID=" + d_id + " D_W_ID=" + w_id
-						+ " not found!");
-			}
-			d_next_o_id = rs.getInt("d_next_o_id");
-			d_tax = rs.getFloat("d_tax");
-			rs.close();
-			rs = null;
-			o_id = d_next_o_id;
-
-			if (stmtInsertNewOrder == null) {
-				stmtInsertNewOrder = conn
-						.prepareStatement("INSERT INTO new_order (no_o_id, no_d_id, no_w_id) "
-								+ "VALUES ( ?, ?, ?)");
-			}
-			stmtInsertNewOrder.setInt(1, o_id);
-			stmtInsertNewOrder.setInt(2, d_id);
-			stmtInsertNewOrder.setInt(3, w_id);
-			stmtInsertNewOrder.executeUpdate();
-
-			if (stmtUpdateDist == null) {
-				stmtUpdateDist = conn
-						.prepareStatement("UPDATE district SET d_next_o_id = d_next_o_id + 1 "
-								+ " WHERE d_w_id = ? AND d_id = ?");
-			}
-			stmtUpdateDist.setInt(1, w_id);
-			stmtUpdateDist.setInt(2, d_id);
-			result = stmtUpdateDist.executeUpdate();
-			if (result == 0)
-				throw new RuntimeException(
-						"Error!! Cannot update next_order_id on district for D_ID="
-								+ d_id + " D_W_ID=" + w_id);
-
-			if (stmtInsertOOrder == null) {
-				stmtInsertOOrder = conn
-						.prepareStatement("INSERT INTO oorder "
-								+ " (o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_ol_cnt, o_all_local)"
-								+ " VALUES (?, ?, ?, ?, ?, ?, ?)");
-			}
-			stmtInsertOOrder.setInt(1, o_id);
-			stmtInsertOOrder.setInt(2, d_id);
-			stmtInsertOOrder.setInt(3, w_id);
-			stmtInsertOOrder.setInt(4, c_id);
-			stmtInsertOOrder.setTimestamp(5,
-					new Timestamp(System.currentTimeMillis()));
-			stmtInsertOOrder.setInt(6, o_ol_cnt);
-			stmtInsertOOrder.setInt(7, o_all_local);
-			stmtInsertOOrder.executeUpdate();
-
-			for (int ol_number = 1; ol_number <= o_ol_cnt; ol_number++) {
-				ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
-				ol_i_id = itemIDs[ol_number - 1];
-				ol_quantity = orderQuantities[ol_number - 1];
-
-				if (stmtGetItem == null) {
-					stmtGetItem = conn
-							.prepareStatement("SELECT i_price, i_name , i_data FROM item WHERE i_id = ?");
-				}
-				stmtGetItem.setInt(1, ol_i_id);
-				rs = stmtGetItem.executeQuery();
-				if (!rs.next()) {
-					// This is (hopefully) an expected error: this is an
-					// expected new order rollback
-					assert ol_number == o_ol_cnt;
-					assert ol_i_id == jTPCCConfig.INVALID_ITEM_ID;
-					throw new UserAbortException(
-							"EXPECTED new order rollback: I_ID=" + ol_i_id
-									+ " not found!");
-				}
-
-				i_price = rs.getFloat("i_price");
-				i_name = rs.getString("i_name");
-				i_data = rs.getString("i_data");
-				rs.close();
-				rs = null;
-
-				itemPrices[ol_number - 1] = i_price;
-				itemNames[ol_number - 1] = i_name;
-
-				if (stmtGetStock == null) {
-					stmtGetStock = conn
-							.prepareStatement("SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
-									+ "       s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10"
-									+ " FROM stock WHERE s_i_id = ? AND s_w_id = ? FOR UPDATE");
-				}
-				stmtGetStock.setInt(1, ol_i_id);
-				stmtGetStock.setInt(2, ol_supply_w_id);
-				rs = stmtGetStock.executeQuery();
-				if (!rs.next())
-					throw new RuntimeException("I_ID=" + ol_i_id
-							+ " not found!");
-				s_quantity = rs.getInt("s_quantity");
-				s_data = rs.getString("s_data");
-				s_dist_01 = rs.getString("s_dist_01");
-				s_dist_02 = rs.getString("s_dist_02");
-				s_dist_03 = rs.getString("s_dist_03");
-				s_dist_04 = rs.getString("s_dist_04");
-				s_dist_05 = rs.getString("s_dist_05");
-				s_dist_06 = rs.getString("s_dist_06");
-				s_dist_07 = rs.getString("s_dist_07");
-				s_dist_08 = rs.getString("s_dist_08");
-				s_dist_09 = rs.getString("s_dist_09");
-				s_dist_10 = rs.getString("s_dist_10");
-				rs.close();
-				rs = null;
-
-				stockQuantities[ol_number - 1] = s_quantity;
-
-				if (s_quantity - ol_quantity >= 10) {
-					s_quantity -= ol_quantity;
-				} else {
-					s_quantity += -ol_quantity + 91;
-				}
-
-				if (ol_supply_w_id == w_id) {
-					s_remote_cnt_increment = 0;
-				} else {
-					s_remote_cnt_increment = 1;
-				}
-
-				if (stmtUpdateStock == null) {
-					stmtUpdateStock = conn
-							.prepareStatement("UPDATE stock SET s_quantity = ? , s_ytd = s_ytd + ?, s_remote_cnt = s_remote_cnt + ? "
-									+ " WHERE s_i_id = ? AND s_w_id = ?");
-				}
-				stmtUpdateStock.setInt(1, s_quantity);
-				stmtUpdateStock.setInt(2, ol_quantity);
-				stmtUpdateStock.setInt(3, s_remote_cnt_increment);
-				stmtUpdateStock.setInt(4, ol_i_id);
-				stmtUpdateStock.setInt(5, ol_supply_w_id);
-				stmtUpdateStock.addBatch();
-
-				ol_amount = ol_quantity * i_price;
-				orderLineAmounts[ol_number - 1] = ol_amount;
-				total_amount += ol_amount;
-
-				if (i_data.indexOf("GENERIC") != -1
-						&& s_data.indexOf("GENERIC") != -1) {
-					brandGeneric[ol_number - 1] = 'B';
-				} else {
-					brandGeneric[ol_number - 1] = 'G';
-				}
-
-				switch ((int) d_id) {
-				case 1:
-					ol_dist_info = s_dist_01;
-					break;
-				case 2:
-					ol_dist_info = s_dist_02;
-					break;
-				case 3:
-					ol_dist_info = s_dist_03;
-					break;
-				case 4:
-					ol_dist_info = s_dist_04;
-					break;
-				case 5:
-					ol_dist_info = s_dist_05;
-					break;
-				case 6:
-					ol_dist_info = s_dist_06;
-					break;
-				case 7:
-					ol_dist_info = s_dist_07;
-					break;
-				case 8:
-					ol_dist_info = s_dist_08;
-					break;
-				case 9:
-					ol_dist_info = s_dist_09;
-					break;
-				case 10:
-					ol_dist_info = s_dist_10;
-					break;
-				}
-
-				if (stmtInsertOrderLine == null) {
-					stmtInsertOrderLine = conn
-							.prepareStatement("INSERT INTO order_line (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
-									+ "  ol_quantity, ol_amount, ol_dist_info) VALUES (?,?,?,?,?,?,?,?,?)");
-				}
-				stmtInsertOrderLine.setInt(1, o_id);
-				stmtInsertOrderLine.setInt(2, d_id);
-				stmtInsertOrderLine.setInt(3, w_id);
-				stmtInsertOrderLine.setInt(4, ol_number);
-				stmtInsertOrderLine.setInt(5, ol_i_id);
-				stmtInsertOrderLine.setInt(6, ol_supply_w_id);
-				stmtInsertOrderLine.setInt(7, ol_quantity);
-				stmtInsertOrderLine.setFloat(8, ol_amount);
-				stmtInsertOrderLine.setString(9, ol_dist_info);
-				stmtInsertOrderLine.addBatch();
-
-			} // end-for
-
-			stmtInsertOrderLine.executeBatch();
-			stmtUpdateStock.executeBatch();
-			conn.commit();
-			stmtInsertOrderLine.clearBatch();
-			stmtUpdateStock.clearBatch();
-
-			total_amount *= (1 + w_tax + d_tax) * (1 - c_discount);
-
-			StringBuilder terminalMessage = new StringBuilder();
-			terminalMessage
-					.append("\n+--------------------------- NEW-ORDER ---------------------------+\n");
-			terminalMessage.append(" Date: ");
-			terminalMessage.append(TPCCUtil.getCurrentTime());
-			terminalMessage.append("\n\n Warehouse: ");
-			terminalMessage.append(w_id);
-			terminalMessage.append("\n   Tax:     ");
-			terminalMessage.append(w_tax);
-			terminalMessage.append("\n District:  ");
-			terminalMessage.append(d_id);
-			terminalMessage.append("\n   Tax:     ");
-			terminalMessage.append(d_tax);
-			terminalMessage.append("\n Order:     ");
-			terminalMessage.append(o_id);
-			terminalMessage.append("\n   Lines:   ");
-			terminalMessage.append(o_ol_cnt);
-			terminalMessage.append("\n\n Customer:  ");
-			terminalMessage.append(c_id);
-			terminalMessage.append("\n   Name:    ");
-			terminalMessage.append(c_last);
-			terminalMessage.append("\n   Credit:  ");
-			terminalMessage.append(c_credit);
-			terminalMessage.append("\n   %Disc:   ");
-			terminalMessage.append(c_discount);
-			terminalMessage
-					.append("\n\n Order-Line List [Supp_W - Item_ID - Item Name - Qty - Stock - B/G - Price - Amount]\n");
-			for (int i = 0; i < o_ol_cnt; i++) {
-				terminalMessage.append("                 [");
-				terminalMessage.append(supplierWarehouseIDs[i]);
-				terminalMessage.append(" - ");
-				terminalMessage.append(itemIDs[i]);
-				terminalMessage.append(" - ");
-				terminalMessage.append(itemNames[i]);
-				terminalMessage.append(" - ");
-				terminalMessage.append(orderQuantities[i]);
-				terminalMessage.append(" - ");
-				terminalMessage.append(stockQuantities[i]);
-				terminalMessage.append(" - ");
-				terminalMessage.append(brandGeneric[i]);
-				terminalMessage.append(" - ");
-				terminalMessage
-						.append(TPCCUtil.formattedDouble(itemPrices[i]));
-				terminalMessage.append(" - ");
-				terminalMessage.append(TPCCUtil
-						.formattedDouble(orderLineAmounts[i]));
-				terminalMessage.append("]\n");
-			}
-			terminalMessage.append("\n\n Total Amount: ");
-			terminalMessage.append(total_amount);
-			terminalMessage
-					.append("\n\n Execution Status: New order placed!\n");
-			terminalMessage
-					.append("+-----------------------------------------------------------------+\n\n");
-			terminalMessage(terminalMessage.toString());
-
-		} // // ugh :-), this is the end of the try block at the beginning of
-			// this
-			// method /////////
-		catch (UserAbortException e) {
-			StringBuilder terminalMessage = new StringBuilder();
-			terminalMessage
-					.append("\n+---- NEW-ORDER Rollback Txn expected to happen for 1% of Txn's -----+");
-			terminalMessage.append("\n Warehouse: ");
-			terminalMessage.append(w_id);
-			terminalMessage.append("\n District:  ");
-			terminalMessage.append(d_id);
-			terminalMessage.append("\n Order:     ");
-			terminalMessage.append(o_id);
-			terminalMessage.append("\n\n Customer:  ");
-			terminalMessage.append(c_id);
-			terminalMessage.append("\n   Name:    ");
-			terminalMessage.append(c_last);
-			terminalMessage.append("\n   Credit:  ");
-			terminalMessage.append(c_credit);
-			terminalMessage
-					.append("\n\n Execution Status: Item number is not valid!\n");
-			terminalMessage
-					.append("+-----------------------------------------------------------------+\n\n");
-			terminalMessage(terminalMessage.toString());
-
-			conn.rollback();
-		} finally {
-			if (stmtInsertOrderLine != null)
-				stmtInsertOrderLine.clearBatch();
-			if (stmtUpdateStock != null)
-				stmtUpdateStock.clearBatch();
-		}
 	}
 
 	private void stockLevelTransaction(int w_id, int d_id, int threshold)
@@ -1539,7 +1134,7 @@ public class TPCCWorker extends Worker {
 				+ type + "  COUNT=" + transactionCount);
 	}
 
-	private void terminalMessage(String message) {
+	public void terminalMessage(String message) {
 		if (TERMINAL_MESSAGES)
 			terminalOutputArea.println(message);
 	}

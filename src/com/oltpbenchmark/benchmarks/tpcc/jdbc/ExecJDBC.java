@@ -83,8 +83,7 @@ public class ExecJDBC {
 			stmt = conn.createStatement();
 
 			// Open inputFile
-			BufferedReader in = new BufferedReader(new FileReader(
-					TPCCUtil.getSysProp("commandFile", null)));
+			BufferedReader in = new BufferedReader(new FileReader(getSysProp("commandFile", null)));
 			System.out
 					.println("-------------------------------------------------\n");
 
@@ -141,6 +140,27 @@ public class ExecJDBC {
 
 	} // end main
 
+	
+	public static String getSysProp(String inSysProperty, String defaultValue) {
+
+		String outPropertyValue = null;
+
+		try {
+			outPropertyValue = System.getProperty(inSysProperty, defaultValue);
+			if (inSysProperty.equals("password")) {
+				System.out.println(inSysProperty + "=*****");
+			} else {
+				System.out.println(inSysProperty + "=" + outPropertyValue);
+			}
+		} catch (Exception e) {
+			System.out.println("Error Reading Required System Property '"
+					+ inSysProperty + "'");
+		}
+
+		return (outPropertyValue);
+
+	} // end getSysProp
+	
 	static void execJDBC(Statement stmt, StringBuffer sql) {
 
 		System.out.println("\n" + sql);
