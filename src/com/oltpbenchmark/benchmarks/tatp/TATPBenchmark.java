@@ -23,14 +23,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.catalog.Table;
@@ -42,8 +39,8 @@ public class TATPBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Map<TransactionType, Procedure> getProcedures(Collection<TransactionType> txns) {
-		return (this.getProcedures(txns, DeleteCallForwarding.class.getPackage()));
+	protected Package getProcedurePackageImpl() {
+		return (DeleteCallForwarding.class.getPackage());
 	}
 
 	@Override

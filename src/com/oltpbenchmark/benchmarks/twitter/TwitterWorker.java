@@ -20,9 +20,7 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Time;
-import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
@@ -50,13 +48,8 @@ public class TwitterWorker extends Worker {
 
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
-
-		
 		TransactionType retTP = transactionTypes.getType("INVALID");
 		TwitterOperation t= generator.nextTransaction();
-		
-		
-		
 		
 		//TODO FIXME THIS NEEDS TO BE FIXED.. checking with Aubrey how we generated ids before...
 		String text = "Blah blah new tweet..."; 

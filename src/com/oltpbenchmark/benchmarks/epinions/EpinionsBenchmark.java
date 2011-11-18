@@ -25,17 +25,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 
 public class EpinionsBenchmark extends BenchmarkModule {
 
@@ -44,10 +41,8 @@ public class EpinionsBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	protected Map<TransactionType, Procedure> getProcedures(
-			Collection<TransactionType> txns) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Package getProcedurePackageImpl() {
+	    return GetAverageRatingByTrustedUser.class.getPackage();
 	}
 	
 	@Override

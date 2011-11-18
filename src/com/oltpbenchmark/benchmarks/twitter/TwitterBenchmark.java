@@ -23,19 +23,16 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionGenerator;
-import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 
 public class TwitterBenchmark extends BenchmarkModule {
 
@@ -44,10 +41,8 @@ public class TwitterBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Map<TransactionType, Procedure> getProcedures(
-			Collection<TransactionType> txns) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Package getProcedurePackageImpl() {
+	    return GetFollowers.class.getPackage();
 	}
 
 	@Override

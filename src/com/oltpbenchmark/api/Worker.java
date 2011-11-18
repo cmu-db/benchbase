@@ -43,21 +43,11 @@ public abstract class Worker implements Runnable {
 		}
 		
 		// Generate all the Procedures that we're going to need
-		TransactionTypes txns = this.wrkld.getTransTypes();
-        if (txns != null && txns.isEmpty() == false) {
-            this.procedures.putAll(this.benchmarkModule.getProcedures(txns));
-            for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
-                this.name_procedures.put(e.getKey().getName(), e.getValue());
-    
-                // TODO: Load up the procedures so that we can get the database-specific
-                //       versions of the queries
-                
-                e.getValue().generateAllPreparedStatements(this.conn);
-            } // FOR
-        }
-        if (this.procedures.isEmpty()) {
-            LOG.warn("No procedures defined for " + this.benchmarkModule);
-        }
+		this.procedures.putAll(this.benchmarkModule.getProcedures());
+        for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
+            this.name_procedures.put(e.getKey().getName(), e.getValue());
+            e.getValue().generateAllPreparedStatements(this.conn);
+        } // FOR
 	}
 	
 	/**

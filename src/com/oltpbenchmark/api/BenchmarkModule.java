@@ -48,28 +48,12 @@ public abstract class BenchmarkModule {
 	
 	protected final String benchmarkName;
 	protected final WorkLoadConfiguration workConf;
-	protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
-	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
 	
 	public BenchmarkModule(String benchmarkName, WorkLoadConfiguration workConf) {
 		assert(workConf != null) : "The WorkloadConfiguration instance is null.";
 		
 		this.benchmarkName = benchmarkName;
 		this.workConf = workConf;
-		
-		TransactionTypes txns = this.workConf.getTransTypes();
-		if (txns != null && txns.isEmpty() == false && this.getProcedures(txns)!=null) {
-    		this.procedures.putAll(this.getProcedures(txns));
-    		for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
-    		    this.name_procedures.put(e.getKey().getName(), e.getValue());
-    
-    		    // TODO: Load up the procedures so that we can get the database-specific
-    		    //       versions of the queries
-    		} // FOR
-		}
-		if (this.procedures.isEmpty()) {
-		    LOG.warn("No procedures defined for " + this.benchmarkName);
-		}
 		
 	}
 	
@@ -96,7 +80,7 @@ public abstract class BenchmarkModule {
 	 * @param txns
 	 * @return
 	 */
-	protected abstract Map<TransactionType, Procedure> getProcedures(Collection<TransactionType> txns);
+	protected abstract Package getProcedurePackageImpl();
 	
 	// --------------------------------------------------------------------------
 	// PUBLIC INTERFACE
@@ -212,21 +196,33 @@ public abstract class BenchmarkModule {
 		}
 		return (ret);
 	}
-	
+
 	/**
-	 * Return a mapping from TransactionTypes to Procedure invocations
-	 * @param txns
-	 * @param pkg
-	 * @return
-	 */
-	protected final Map<TransactionType, Procedure> getProcedures(Collection<TransactionType> txns, Package pkg) {
-		Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
-		String pkgName = pkg.getName();
-		for (TransactionType txn : txns) {
-			String fullName = pkgName + "." + txn.getName();
-			Procedure proc = (Procedure)ClassUtil.newInstance(fullName, new Object[0], new Class<?>[0]);
-			proc_xref.put(txn, proc);
-		} // FOR
-		return (proc_xref);
+     * Return a mapping from TransactionTypes to Procedure invocations
+     * @param txns
+     * @param pkg
+     * @return
+     */
+	public Map<TransactionType, Procedure> getProcedures() {
+	    Package pkg = this.getProcedurePackageImpl();
+	    
+	    Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
+	    TransactionTypes txns = this.workConf.getTransTypes();
+	    if (txns != null) {
+    	    for (TransactionType txn : txns) {
+                String fullName = pkg.getName() + "." + txn.getName();
+                Procedure proc = (Procedure)ClassUtil.newInstance(fullName, new Object[0], new Class<?>[0]);
+                proc_xref.put(txn, proc);
+                
+                // TODO: Load up the procedures so that we can get the database-specific
+                //       versions of the queries
+            } // FOR
+	    }
+	    if (proc_xref.isEmpty()) {
+            LOG.warn("No procedures defined for " + this);
+        }
+        return (proc_xref);
+	    
+	    
 	}
 }
