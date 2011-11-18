@@ -59,25 +59,25 @@ public class TwitterWorker extends Worker {
 			int nextTrans = phase.chooseTransaction();
 			
 			try {
-				if(nextTrans == transactionTypes.getType("TWITTER_SELECT1_TWEET_BY_TWEETID").getId()){
+				if(nextTrans == transactionTypes.getType("GetTweet").getId()){
 					doSelect1Tweet(t.tweetid);
-					retTP = transactionTypes.getType("TWITTER_SELECT1_TWEET_BY_TWEETID");
+					retTP = transactionTypes.getType("GetTweet");
 				}else
-				if(nextTrans == transactionTypes.getType("TWITTER_SELECT_TWEETS_I_FOLLOW").getId()){
+				if(nextTrans == transactionTypes.getType("GetTweetsFromFollowing").getId()){
 					doSelectTweetsFromPplIFollow(t.uid);
-					retTP = transactionTypes.getType("TWITTER_SELECT_TWEETS_I_FOLLOW");
+					retTP = transactionTypes.getType("GetTweetsFromFollowing");
 				}else
-				if(nextTrans == transactionTypes.getType("TWITTER_SELECT_FOLLOWERS").getId()){
+				if(nextTrans == transactionTypes.getType("GetFollowers").getId()){
 					doSelectNamesOfPplThatFollowMe(t.uid);
-					retTP = transactionTypes.getType("TWITTER_SELECT_FOLLOWERS");
+					retTP = transactionTypes.getType("GetFollowers");
 				}else
-				if(nextTrans == transactionTypes.getType("TWITTER_SELECT_TWEETS_BY_USERID").getId()){
+				if(nextTrans == transactionTypes.getType("GetUserTweets").getId()){
 					doSelectTweetsForUid(t.uid);
-					retTP = transactionTypes.getType("TWITTER_SELECT_TWEETS_BY_USERID");
+					retTP = transactionTypes.getType("GetUserTweets");
 				}else
-				if(nextTrans == transactionTypes.getType("TWITTER_INSERT1_TWEET").getId()){
+				if(nextTrans == transactionTypes.getType("InsertTweet").getId()){
 					doInsertTweet(t.uid,text);
-					retTP = transactionTypes.getType("TWITTER_INSERT1_TWEET");
+					retTP = transactionTypes.getType("InsertTweet");
 				}
 				
 			} catch (MySQLTransactionRollbackException m){
@@ -91,35 +91,35 @@ public class TwitterWorker extends Worker {
 
 	
 	public void doSelect1Tweet(int tweet_id) throws SQLException {
-	    GetTweet proc = (GetTweet)this.getProcedure("GetTweet");
+	    GetTweet proc = this.getProcedure(GetTweet.class);
 	    assert(proc != null);
 	    proc.run(conn, tweet_id);
 	    conn.commit();
 	}
 
 	public void doSelectTweetsFromPplIFollow(int uid) throws SQLException{
-	    GetTweetsFromFollowing proc = (GetTweetsFromFollowing)this.getProcedure("GetTweetsFromFollowing");
+	    GetTweetsFromFollowing proc = this.getProcedure(GetTweetsFromFollowing.class);
 	    assert(proc != null);
         proc.run(conn, uid);
 	    conn.commit();
 	}
 	  
 	public void doSelectNamesOfPplThatFollowMe(int uid) throws SQLException{
-	    GetFollowers proc = (GetFollowers)this.getProcedure("GetFollowers");
+	    GetFollowers proc = this.getProcedure(GetFollowers.class);
         assert(proc != null);
         proc.run(conn, uid);
 	    conn.commit();
 	}
 	  
 	public void doSelectTweetsForUid(int uid) throws SQLException{
-	    GetUserTweets proc = (GetUserTweets)this.getProcedure("GetUserTweets");
+	    GetUserTweets proc = this.getProcedure(GetUserTweets.class);
         assert(proc != null);
         proc.run(conn, uid);
 	    conn.commit();
     }
 
 	public void doInsertTweet(int uid, String text) throws SQLException{
-	    InsertTweet proc = (InsertTweet)this.getProcedure("InsertTweet");
+	    InsertTweet proc = this.getProcedure(InsertTweet.class);
         assert(proc != null);
         Time time = new Time(System.currentTimeMillis());
         proc.run(conn, uid, text, time);

@@ -27,7 +27,7 @@ public abstract class Worker implements Runnable {
 	protected final TransactionTypes transactionTypes;
 	protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
 	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
-	
+	protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<Class<? extends Procedure>, Procedure>();
 	
 	public Worker(int id, BenchmarkModule benchmarkModule) {
 		this.id = id;
@@ -45,7 +45,9 @@ public abstract class Worker implements Runnable {
 		// Generate all the Procedures that we're going to need
 		this.procedures.putAll(this.benchmarkModule.getProcedures());
         for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
-            this.name_procedures.put(e.getKey().getName(), e.getValue());
+            Procedure proc = e.getValue();
+            this.name_procedures.put(e.getKey().getName(), proc);
+            this.class_procedures.put(proc.getClass(), proc);
             e.getValue().generateAllPreparedStatements(this.conn);
         } // FOR
 	}
@@ -63,6 +65,10 @@ public abstract class Worker implements Runnable {
     }
     public final Procedure getProcedure(String name) {
         return (this.name_procedures.get(name));
+    }
+    @SuppressWarnings("unchecked")
+    public final <T extends Procedure> T getProcedure(Class<T> procClass) {
+        return (T)(this.class_procedures.get(procClass));
     }
 
 	@Override

@@ -31,13 +31,13 @@ import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Lock1;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Lock2;
+import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1;
+import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2;
 
 public class ResourceStresserWorker extends Worker {
-	public static final int LOCK1_howManyKeys = 1;
-	public static final int LOCK1_howManyUpdates = 2;
-	public static final int LOCK1_sleepLength = 1;
+	public static final int CONTENTION1_howManyKeys = 1;
+	public static final int CONTENTION1_howManyUpdates = 2;
+	public static final int CONTENTION1_sleepLength = 1;
 	
 	public static final int IO1_howManyColsPerRow = 16;
 	public static final int IO1_howManyRowsPerUpdate = 10;
@@ -78,10 +78,10 @@ public class ResourceStresserWorker extends Worker {
 				io2Transaction(true, 50);
 				retTP = transactionTypes.getType("IO2");
 			} else if (nextTrans == transactionTypes.getType("CONTENTION1").getId()) {
-				lock1Transaction();
+				contention1Transaction();
 				retTP = transactionTypes.getType("CONTENTION1");
 			} else if (nextTrans == transactionTypes.getType("CONTENTION2").getId()) {
-				lock2Transaction(2, 5, 1);
+				contention2Transaction(2, 5, 1);
 				retTP = transactionTypes.getType("CONTENTION2");
 			}
 
@@ -94,44 +94,44 @@ public class ResourceStresserWorker extends Worker {
 	}
 
 
-    private void lock1Transaction() throws SQLException {
-        Lock1 proc = (Lock1) this.getProcedure("Lock1");
+    private void contention1Transaction() throws SQLException {
+        Contention1 proc = this.getProcedure(Contention1.class);
         assert (proc != null);
         proc.run(conn);
         conn.commit();
 
     }
 
-    private void lock2Transaction(int howManyUpdates, int howManyKeys, int sleepLength) throws SQLException {
-        Lock2 proc = (Lock2) this.getProcedure("Lock2");
+    private void contention2Transaction(int howManyUpdates, int howManyKeys, int sleepLength) throws SQLException {
+        Contention2 proc = this.getProcedure(Contention2.class);
         assert (proc != null);
         proc.run(conn);
         conn.commit();
     }
 
     private void io1Transaction(int howManyUpdatePerTransaction, int howManyRowsPerUpdate) throws SQLException {
-        IO1 proc = (IO1) this.getProcedure("IO1");
+        IO1 proc = this.getProcedure(IO1.class);
         assert (proc != null);
         proc.run(conn, this.getId());
         conn.commit();
     }
 
     private void io2Transaction(boolean makeSureWorketSetFitsInMemory, int howManyUpdatePerTransaction) throws SQLException {
-        IO2 proc = (IO2) this.getProcedure("IO2");
+        IO2 proc = this.getProcedure(IO2.class);
         assert (proc != null);
         proc.run(conn, this.getId());
         conn.commit();
     }
 
     private void cpu1Transaction(int howManyPerTrasaction, long sleepLength) throws SQLException {
-        CPU1 proc = (CPU1) this.getProcedure("CPU1");
+        CPU1 proc = this.getProcedure(CPU1.class);
         assert (proc != null);
         proc.run(conn);
         conn.commit();
     }
 
     private void cpu2Transaction(int howManyPerTrasaction, long sleepLength) throws SQLException {
-        CPU2 proc = (CPU2) this.getProcedure("CPU2");
+        CPU2 proc = this.getProcedure(CPU2.class);
         assert (proc != null);
         proc.run(conn);
         conn.commit();

@@ -15,10 +15,10 @@ import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
  * to recreate the PreparedStatement every time, which is undesired because of its memory leak. 
  * The best solution is perhaps to 
  */
-public class Lock1 extends Procedure {
+public class Contention1 extends Procedure {
 
     public final SQLStmt lockUpdate = new SQLStmt(
-        "UPDATE locktable SET salary = ? WHERE empid IN (??)", ResourceStresserWorker.LOCK1_howManyKeys
+        "UPDATE locktable SET salary = ? WHERE empid IN (??)", ResourceStresserWorker.CONTENTION1_howManyKeys
     );
 
     public final SQLStmt lockSleep = new SQLStmt(
@@ -26,9 +26,9 @@ public class Lock1 extends Procedure {
     );
 
     public void run(Connection conn) throws SQLException {
-        int howManyKeys = ResourceStresserWorker.LOCK1_howManyKeys;
-        int howManyUpdates = ResourceStresserWorker.LOCK1_howManyUpdates;
-        int sleepLength = ResourceStresserWorker.LOCK1_sleepLength;
+        int howManyKeys = ResourceStresserWorker.CONTENTION1_howManyKeys;
+        int howManyUpdates = ResourceStresserWorker.CONTENTION1_howManyUpdates;
+        int sleepLength = ResourceStresserWorker.CONTENTION1_sleepLength;
         
         assert howManyKeys > 0;
         assert howManyUpdates > 0;

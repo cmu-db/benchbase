@@ -3,6 +3,10 @@ package com.oltpbenchmark.api;
 
 public class TransactionType implements Comparable<TransactionType> {
 
+    public static final int INVALID_ID = 0;
+    public static final String INVALID_NAME = "INVALID";
+    public static final TransactionType INVALID = new TransactionType(INVALID_NAME, INVALID_ID);
+    
 	private final String name;
 	private final int id;
 
@@ -49,4 +53,5 @@ public class TransactionType implements Comparable<TransactionType> {
 	public String toString() {
 		return String.format("%s/%02d", this.name, this.id);
 	}
+	
 }

@@ -8,46 +8,42 @@
     <terminals>2</terminals>
     
     <transactiontypes>
-    	<transactiontype>
-    		<name>INVALID</name>
-    		<id>0</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>CPU1</name>
-    		<id>1</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>CPU2</name>
-    		<id>2</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>IO1</name>
-    		<id>3</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>IO2</name>
-    		<id>4</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>CONTENTION1</name>
-    		<id>5</id>
-    	</transactiontype>
-		<transactiontype>
-    		<name>CONTENTION2</name>
-    		<id>6</id>
-    	</transactiontype>
+        <transactiontype>
+            <name>CPU1</name>
+            <id>1</id>
+        </transactiontype>
+        <transactiontype>
+            <name>CPU2</name>
+            <id>2</id>
+        </transactiontype>
+        <transactiontype>
+            <name>IO1</name>
+            <id>3</id>
+        </transactiontype>
+        <transactiontype>
+            <name>IO2</name>
+            <id>4</id>
+        </transactiontype>
+        <transactiontype>
+            <name>CONTENTION1</name>
+            <id>5</id>
+        </transactiontype>
+        <transactiontype>
+            <name>CONTENTION2</name>
+            <id>6</id>
+        </transactiontype>
     </transactiontypes>
     
     <works>
         <work>
-          <time>10</time>
-          <rate>200</rate>
-          <weights>0,30,10,0,40,10,10</weights>
+            <time>10</time>
+            <rate>200</rate>
+            <weights>0,30,10,0,40,10,10</weights>
         </work>
-		<work>
-          <time>10</time>
-          <rate>200</rate>
-          <weights>0,16.66,16.66,16.66,16.66,16.66,16.7</weights>
+        <work>
+            <time>10</time>
+            <rate>200</rate>
+            <weights>0,16.66,16.66,16.66,16.66,16.66,16.7</weights>
         </work>
-	</works>
+    </works>
 </parameters>

@@ -149,11 +149,14 @@ public class DBWorkload {
 			
 				
 				ArrayList<TransactionType> ttypes = new ArrayList<TransactionType>();
+				
+				// Always add an INVALID type for Carlo
+				ttypes.add(TransactionType.INVALID);
+				
 				for (int i = 0; i < numTypes; i++)
 					ttypes.add(new TransactionType(
 							xmlConfig.getString("transactiontypes.transactiontype(" + i + ").name"),
 							xmlConfig.getInt("transactiontypes.transactiontype(" + i + ").id")));
-							
 				TransactionTypes tt =new TransactionTypes(ttypes);
 				wrkld.setTransTypes(tt);
 

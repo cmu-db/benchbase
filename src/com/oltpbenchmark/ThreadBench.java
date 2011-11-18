@@ -29,15 +29,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
-import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.BenchmarkState;
 
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler{

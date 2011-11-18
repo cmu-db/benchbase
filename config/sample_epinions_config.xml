@@ -6,54 +6,44 @@
     <username>root</username>
     <password></password>
     <terminals>2</terminals>
-    <numWarehouses>2</numWarehouses>
     
     <transactiontypes>
-    	<transactiontype>
-    		<name>INVALID</name>
-    		<id>0</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>ITEM_BY_ID</name>
-    		<id>1</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>ALL_REVIEWS_OF_A_USER</name>
-    		<id>2</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>AVG_RATING_BY_TRUSTED_REVIEWERS</name>
-    		<id>3</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>AVG_RATING_OF_ITEM</name>
-    		<id>4</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>REVIEWS_BY_TRUSTED_USERS</name>
-    		<id>5</id>
-    	</transactiontype>
-    	    	<transactiontype>
-    		<name>UPDATE_USER_NAME</name>
-    		<id>6</id>
-    	</transactiontype>
-    	    	<transactiontype>
-    		<name>UPDATE_ITEM_TITLE</name>
-    		<id>7</id>
-    	</transactiontype>
-    	    	<transactiontype>
-    		<name>UPDATE_REVIEW_RATING</name>
-    		<id>8</id>
-    	</transactiontype>
-    	    	    	<transactiontype>
-    		<name>UPDATE_TRUST_RATING</name>
-    		<id>9</id>
-    	</transactiontype>
-    	
-    	
-    	
-    	
-    	
+        <transactiontype>
+            <name>GetReviewItemById</name>
+            <id>1</id>
+        </transactiontype>
+        <transactiontype>
+            <name>GetReviewsByUser</name>
+            <id>2</id>
+        </transactiontype>
+        <transactiontype>
+            <name>GetAverageRatingByTrustedUser</name>
+            <id>3</id>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemAverageRating</name>
+            <id>4</id>
+        </transactiontype>
+        <transactiontype>
+            <name>GetItemReviewsByTrustedUser</name>
+            <id>5</id>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateUserName</name>
+            <id>6</id>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItemTitle</name>
+            <id>7</id>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateReviewRating</name>
+            <id>8</id>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateTrustRating</name>
+            <id>9</id>
+        </transactiontype>
     </transactiontypes>
     
     <works>
@@ -62,5 +52,5 @@
           <rate>20</rate>
           <weights>0,10,10,10,10,10,10,10,10,20</weights>
         </work>
-	</works>
+    </works>
 </parameters>

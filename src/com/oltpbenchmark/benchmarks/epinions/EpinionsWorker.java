@@ -55,70 +55,57 @@ public class EpinionsWorker extends Worker {
 	}
 
 	@Override
-	protected TransactionType doWork(boolean measure, Phase phase) {
+    protected TransactionType doWork(boolean measure, Phase phase) {
 
-		//transactionTypes.getType("INVALID");
-		TransactionType retTP = transactionTypes.getType("INVALID");
-		
-		if(phase!=null){
-			int nextTrans = phase.chooseTransaction();
-			
-			try {
-				
-				if(nextTrans == transactionTypes.getType("ITEM_BY_ID").getId()){
-					reviewItemByID();
-					retTP = transactionTypes.getType("ITEM_BY_ID");
-				}else
-				if(nextTrans == transactionTypes.getType("ALL_REVIEWS_OF_A_USER").getId()){
-					reviewsByUser();
-					retTP = transactionTypes.getType("ALL_REVIEWS_OF_A_USER");
-				}else
-				if(nextTrans == transactionTypes.getType("AVG_RATING_BY_TRUSTED_REVIEWERS").getId()){
-					averageRatingByTrustedUser();
-					retTP = transactionTypes.getType("AVG_RATING_BY_TRUSTED_REVIEWERS");
-				}else
-				if(nextTrans == transactionTypes.getType("AVG_RATING_OF_ITEM").getId()){
-					averageRatingOfItem();
-					retTP = transactionTypes.getType("AVG_RATING_OF_ITEM");
-				}else
-				if(nextTrans == transactionTypes.getType("REVIEWS_BY_TRUSTED_USERS").getId()){
-					itemReviewsByTrustedUser();
-					retTP = transactionTypes.getType("REVIEWS_BY_TRUSTED_USERS");
-				}else
-				if(nextTrans == transactionTypes.getType("UPDATE_USER_NAME").getId()){
-					updateUserName();
-					retTP = transactionTypes.getType("UPDATE_USER_NAME");
-				}else
-				if(nextTrans == transactionTypes.getType("UPDATE_ITEM_TITLE").getId()){
-					updateItemTitle();
-						retTP = transactionTypes.getType("UPDATE_ITEM_TITLE");
-				}else
-				if(nextTrans == transactionTypes.getType("UPDATE_REVIEW_RATING").getId()){
-					updateReviewRating();
-						retTP = transactionTypes.getType("UPDATE_REVIEW_RATING");
-				}
-				if(nextTrans == transactionTypes.getType("UPDATE_TRUST_RATING").getId()){
-					updateTrustRating();
-						retTP = transactionTypes.getType("UPDATE_TRUST_RATING");
-				}
-				
-				
-				
-				
-			} catch (MySQLTransactionRollbackException m){
-				System.err.println("Rollback:" + m.getMessage());
-			} catch (SQLException e) {
-				System.err.println("Timeout:" + e.getMessage());			
-			}
-		}
-		return retTP;
-	
-		
-	
-	}
+        // transactionTypes.getType("INVALID");
+        TransactionType retTP = transactionTypes.getType("INVALID");
+
+        if (phase != null) {
+            int nextTrans = phase.chooseTransaction();
+
+            try {
+
+                if (nextTrans == transactionTypes.getType("GetReviewItemById").getId()) {
+                    reviewItemByID();
+                    retTP = transactionTypes.getType("GetReviewItemById");
+                } else if (nextTrans == transactionTypes.getType("GetReviewsByUser").getId()) {
+                    reviewsByUser();
+                    retTP = transactionTypes.getType("GetReviewsByUser");
+                } else if (nextTrans == transactionTypes.getType("GetAverageRatingByTrustedUser").getId()) {
+                    averageRatingByTrustedUser();
+                    retTP = transactionTypes.getType("GetAverageRatingByTrustedUser");
+                } else if (nextTrans == transactionTypes.getType("GetItemAverageRating").getId()) {
+                    averageRatingOfItem();
+                    retTP = transactionTypes.getType("GetItemAverageRating");
+                } else if (nextTrans == transactionTypes.getType("GetItemReviewsByTrustedUser").getId()) {
+                    itemReviewsByTrustedUser();
+                    retTP = transactionTypes.getType("GetItemReviewsByTrustedUser");
+                } else if (nextTrans == transactionTypes.getType("UpdateUserName").getId()) {
+                    updateUserName();
+                    retTP = transactionTypes.getType("UpdateUserName");
+                } else if (nextTrans == transactionTypes.getType("UpdateItemTitle").getId()) {
+                    updateItemTitle();
+                    retTP = transactionTypes.getType("UpdateItemTitle");
+                } else if (nextTrans == transactionTypes.getType("UpdateReviewRating").getId()) {
+                    updateReviewRating();
+                    retTP = transactionTypes.getType("UpdateReviewRating");
+                }
+                if (nextTrans == transactionTypes.getType("UpdateTrustRating").getId()) {
+                    updateTrustRating();
+                    retTP = transactionTypes.getType("UpdateTrustRating");
+                }
+
+            } catch (MySQLTransactionRollbackException m) {
+                System.err.println("Rollback:" + m.getMessage());
+            } catch (SQLException e) {
+                System.err.println("Timeout:" + e.getMessage());
+            }
+        }
+        return retTP;
+    }
 
     public void reviewItemByID() throws SQLException {
-        GetReviewItemById proc = (GetReviewItemById) this.getProcedure("GetReviewItemById");
+        GetReviewItemById proc = this.getProcedure(GetReviewItemById.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
@@ -126,7 +113,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void reviewsByUser() throws SQLException {
-        GetReviewsByUser proc = (GetReviewsByUser) this.getProcedure("GetReviewsByUser");
+        GetReviewsByUser proc = this.getProcedure(GetReviewsByUser.class);
         assert (proc != null);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         proc.run(conn, uid);
@@ -134,7 +121,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void averageRatingByTrustedUser() throws SQLException {
-        GetAverageRatingByTrustedUser proc = (GetAverageRatingByTrustedUser) this.getProcedure("GetAverageRatingByTrustedUser");
+        GetAverageRatingByTrustedUser proc = this.getProcedure(GetAverageRatingByTrustedUser.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -143,7 +130,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void averageRatingOfItem() throws SQLException {
-        GetItemAverageRating proc = (GetItemAverageRating) this.getProcedure("GetItemAverageRating");
+        GetItemAverageRating proc = this.getProcedure(GetItemAverageRating.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
@@ -151,7 +138,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void itemReviewsByTrustedUser() throws SQLException {
-        GetItemReviewsByTrustedUser proc = (GetItemReviewsByTrustedUser) this.getProcedure("GetItemReviewsByTrustedUser");
+        GetItemReviewsByTrustedUser proc = this.getProcedure(GetItemReviewsByTrustedUser.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -163,7 +150,7 @@ public class EpinionsWorker extends Worker {
     // ===================================================
 
     public void updateUserName() throws SQLException {
-        UpdateUserName proc = (UpdateUserName) this.getProcedure("UpdateUserName");
+        UpdateUserName proc = this.getProcedure(UpdateUserName.class);
         assert (proc != null);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         String name = "XXXXXXXXXXX"; // FIXME
@@ -172,7 +159,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void updateItemTitle() throws SQLException {
-        UpdateItemTitle proc = (UpdateItemTitle) this.getProcedure("UpdateItemTitle");
+        UpdateItemTitle proc = this.getProcedure(UpdateItemTitle.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         String title = "XXXXXXXXXXX"; // FIXME
@@ -181,7 +168,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void updateReviewRating() throws SQLException {
-        UpdateReviewRating proc = (UpdateReviewRating) this.getProcedure("UpdateReviewRating");
+        UpdateReviewRating proc = this.getProcedure(UpdateReviewRating.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -191,7 +178,7 @@ public class EpinionsWorker extends Worker {
     }
 
     public void updateTrustRating() throws SQLException {
-        UpdateTrustRating proc = (UpdateTrustRating) this.getProcedure("UpdateTrustRating");
+        UpdateTrustRating proc = this.getProcedure(UpdateTrustRating.class);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         long uid2 = uid;
         while (uid2 == uid) {

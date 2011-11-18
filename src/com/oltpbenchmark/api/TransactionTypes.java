@@ -21,7 +21,8 @@ public class TransactionTypes implements Collection<TransactionType> {
 			}
 		});
 		for (TransactionType tt : transactiontypes) {
-			this.types.put(tt.getName().toUpperCase(), tt);
+			TransactionType existing = this.types.put(tt.getName().toUpperCase(), tt);
+			assert(existing != null) : "Duplicate TransactionType '" + tt + "'";
 		} // FOR
 	}
 	
