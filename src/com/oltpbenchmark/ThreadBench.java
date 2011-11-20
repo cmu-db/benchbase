@@ -40,7 +40,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 	private BenchmarkState testState;
 	private final List<? extends Worker> workers;
 	private File profileFile;
-	private static final WorkLoadConfiguration workConf = WorkLoadConfiguration.getInstance();
+	private static WorkLoadConfiguration workConf;
 	ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 	
 	private ThreadBench(List<? extends Worker> workers) {
@@ -429,11 +429,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 				requestsPerSecond);
 	}
 
+	/*
 	public static Results runRateLimitedBenchmark(List<Worker> workers,
 			File profileFile) throws QueueLimitException, IOException {
 		ThreadBench bench = new ThreadBench(workers, profileFile);
 		return bench.runRateLimitedFromFile();
 	}
+	*/
 
 	public static Results runRateLimitedBenchmark(List<Worker> workers)
 			throws QueueLimitException, IOException {
@@ -714,6 +716,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		 */
 		
 		
+	}
+
+	public static void setWorkConf(WorkLoadConfiguration workConfig) {
+		// TODO Auto-generated method stub
+		workConf= workConfig;
 	}	
 		
 	

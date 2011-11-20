@@ -46,6 +46,7 @@ public abstract class BenchmarkModule {
 	
 	protected final String benchmarkName;
 	protected final WorkLoadConfiguration workConf;
+	protected boolean verbose;
 	
 	public BenchmarkModule(String benchmarkName, WorkLoadConfiguration workConf) {
 		assert(workConf != null) : "The WorkloadConfiguration instance is null.";

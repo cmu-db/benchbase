@@ -70,23 +70,18 @@ public class DBWorkload {
 				"bench",
 				true,
 				"[required] Benchmark class. Currently supported: "+ pluginConfig.getList("/plugin//@name"));
-		options.addOption("c", "config", true,
+		
+		options.addOption(
+				"c", 
+				"config", 
+				true,
 				"[required] Workload configuration file");
+		
 		options.addOption("v", "verbose", false, "Display Messages");
 		options.addOption("h", "help", false, "Print this help");
 		options.addOption("s", "sample", true, "Sampling window");
-		options.addOption("o", "output", true,
-				"Output file (default System.out)");
-		// TODO decide what to support in CLI mode
-		// options.addOption("d","driver", true, "Driver");
-		// options.addOption("db", true, "Database url");
-		// options.addOption("i","instance", true, "Database url");
-		// options.addOption("u","username", true,
-		// "Specify the configuration file");
-		// options.addOption("p","password", true,
-		// "Specify the configuration file");
+		options.addOption("o", "output", true, "Output file (default System.out)");		
 
-		WorkLoadConfiguration wrkld = WorkLoadConfiguration.getInstance();
 		BenchmarkModule bench = null;
 		
 		// parse the command line arguments
@@ -95,35 +90,31 @@ public class DBWorkload {
 			printUsage(options);
 			return;
 		}
-
+		// Load the Benchmark Implementation
 		if (argsLine.hasOption("b")) {
 			String plugin = argsLine.getOptionValue("b");
 			String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
 			System.out.println(classname);
 			if(classname==null)
 					throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
-	        bench = ClassUtil.newInstance(classname,
-                    new Object[]{ wrkld },
-                    new Class<?>[]{ WorkLoadConfiguration.class });
+	        bench = ClassUtil.newInstance(classname,null,null);
 	        assert(bench != null);
 		}
 		else
 			throw new ParseException("Missing Benchmark Class to load");
 		
+		WorkLoadConfiguration wrkld= bench.getWorkloadConfiguration();
+		// Load the Workload Configuration from the Config file
 		if (argsLine.hasOption("c")) {
 			String configFile = argsLine.getOptionValue("c");
 			XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
+			wrkld.setXmlConfig(xmlConfig);
 			wrkld.setDBDriver(xmlConfig.getString("driver"));
 			wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
 			wrkld.setDBName(xmlConfig.getString("DBName"));
 			wrkld.setDBUsername(xmlConfig.getString("username"));
 			wrkld.setDBPassword(xmlConfig.getString("password"));
-			wrkld.setTerminals(xmlConfig.getInt("terminals"));
-			wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
-			wrkld.setTracefile(xmlConfig.getString("tracefile",null));
-			wrkld.setTracefile2(xmlConfig.getString("tracefile2",null));
-			wrkld.setBaseIP(xmlConfig.getString("baseip",null));
-			
+			wrkld.setTerminals(xmlConfig.getInt("terminals"));			
 			
 			int size = xmlConfig.configurationsAt("works.work").size();
 			for (int i = 0; i < size; i++){
@@ -190,6 +181,7 @@ public class DBWorkload {
 		List<Worker> workers = bench.makeWorkers(verbose);
 		LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
 		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().size()));
+		ThreadBench.setWorkConf(bench.getWorkloadConfiguration());
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
 		System.out.println("Rate limited reqs/s: " + r);
 		return r;

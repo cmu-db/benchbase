@@ -57,7 +57,8 @@ public class jdbcIO {
 			ordrPrepStmt.setTimestamp(8, entry_d);
 
 			ordrPrepStmt.addBatch();
-
+			//ordrPrepStmt.execute();
+			
 		} catch (SQLException se) {
 			throw new RuntimeException(se);
 		}

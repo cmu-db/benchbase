@@ -33,38 +33,42 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 
 public class WikipediaBenchmark extends BenchmarkModule {
 
-	public WikipediaBenchmark(WorkLoadConfiguration workConf) {
-		super("wikipedia", workConf);
+	private WikiConf wikiConf;
+	public WikipediaBenchmark() {		
+		super("wikipedia", new WikiConf());
+		wikiConf= (WikiConf) workConf;
 	}
 
 	@Override
 	protected Package getProcedurePackageImpl() {
-	    return (AddWatchList.class.getPackage());
+		return (AddWatchList.class.getPackage());
 	}
 	
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// System.out.println("Using trace:" +workConf.getTracefile());
 
-		TransactionSelector transSel = new TransactionSelector(workConf
-				.getTracefile(), workConf.getTransTypes());
+		TransactionSelector transSel = new TransactionSelector(
+				wikiConf.getTracefile(), 
+				wikiConf.getTransTypes());
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel
 				.readAll());
 		transSel.close();
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
+		for (int i = 0; i < wikiConf.getTerminals(); ++i) {
 			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
 					trace);
-			workers.add(new WikipediaWorker(i, this, generator, workConf
-					.getBaseIP()
-					+ (i % 256) + "." + rand.nextInt(256), workConf
-					.getTransTypes()));
+			workers.add(new WikipediaWorker(i, this, generator, 
+					wikiConf.getBaseIP()
+					+ (i % 256) + "." + rand.nextInt(256), 
+					wikiConf.getTransTypes()));
 		} // FOR
 		return workers;
 	}

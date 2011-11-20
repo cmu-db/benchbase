@@ -365,25 +365,33 @@ public class TPCCWorker extends Worker {
 		// resort to this ugly hack.
 		boolean isSerialization = false;
 		if (e.getErrorCode() == 1213 && e.getSQLState().equals("40001")) {
+			// MySQL serialization
 			isSerialization = true;
-			assert e.getMessage()
-					.equals("Deadlock found when trying to get lock; try restarting transaction");
-		} else if (e.getErrorCode() == 1205 && e.getSQLState().equals("41000")) {
-			// TODO: This probably shouldn't really happen?
+			assert e.getMessage().equals("Deadlock found when trying to get lock; try restarting transaction");
+		} else if (e.getErrorCode() == 1205 && e.getSQLState().equals("40001")) {
+			// SQL Server serialization
 			isSerialization = true;
-			assert e.getMessage().equals(
-					"Lock wait timeout exceeded; try restarting transaction");
+			assert e.getMessage().equals("Rerun the transaction.");		
+		} else if (e.getErrorCode() == 8177 && e.getSQLState().equals("72000")) {
+			// Oracle serialization
+			isSerialization = true;
+			assert e.getMessage().equals("Rerun the transaction.");		
 		} else if (e.getErrorCode() == 0 && e.getSQLState().equals("40001")) {
 			// Postgres serialization
 			isSerialization = true;
 			assert e.getMessage().equals("could not serialize access due to concurrent update");
+		}  else if (e.getErrorCode() == 1205 && e.getSQLState().equals("41000")) {
+			// TODO: This probably shouldn't really happen?
+			// FIXME: What is this?
+			isSerialization = true;
+			assert e.getMessage().equals("Lock wait timeout exceeded; try restarting transaction");	
 		}
-
+		
 		// Djellel
 		// This is to prevent other errors to kill the thread.
 		// Errors may include -- duplicate key
 		if (!isSerialization) {
-			error("SQLException code " + e.getErrorCode() + " state "
+			error("Oops SQLException code " + e.getErrorCode() + " state "
 					+ e.getSQLState() + " message: " + e.getMessage());
 			// throw e; //Otherwise the benchmark will keep going
 		}
@@ -423,8 +431,8 @@ public class TPCCWorker extends Worker {
 			if (delivGetOrderId == null) {
 				delivGetOrderId = conn
 						.prepareStatement("SELECT no_o_id FROM new_order WHERE no_d_id = ?"
-								+ " AND no_w_id = ?"
-								+ " ORDER BY no_o_id ASC LIMIT 1");
+								+ " AND no_w_id = ? AND ROWNUM = 1"
+								+ " ORDER BY no_o_id ASC");
 			}
 			delivGetOrderId.setInt(1, d_id);
 			delivGetOrderId.setInt(2, w_id);
@@ -618,8 +626,8 @@ public class TPCCWorker extends Worker {
 			ordStatGetNewestOrd = conn
 					.prepareStatement("SELECT o_id, o_carrier_id, o_entry_d FROM oorder"
 							+ " WHERE o_w_id = ?"
-							+ " AND o_d_id = ?"
-							+ " AND o_c_id = ? ORDER BY o_id DESC LIMIT 1");
+							+ " AND o_d_id = ? AND ROWNUM = 1"
+							+ " AND o_c_id = ? ORDER BY o_id DESC");
 		}
 		ordStatGetNewestOrd.setInt(1, w_id);
 		ordStatGetNewestOrd.setInt(2, d_id);

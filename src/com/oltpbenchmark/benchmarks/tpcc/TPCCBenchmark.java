@@ -29,24 +29,23 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 
 public class TPCCBenchmark extends BenchmarkModule {
 
-	boolean verbose;
-	public TPCCBenchmark(WorkLoadConfiguration wrkld) {
-		super("tpcc", wrkld);
+	private TPCCConf tpccConf;
+	public TPCCBenchmark() {
+		super("tpcc", new TPCCConf());
+		tpccConf= (TPCCConf) workConf;
 	}
 
 	@Override
 	protected Package getProcedurePackageImpl() {
-	    return NewOrder.class.getPackage();
+	    return (NewOrder.class.getPackage());
 	}
 	
 	/**
@@ -78,10 +77,10 @@ public class TPCCBenchmark extends BenchmarkModule {
 	
 	protected ArrayList<TPCCWorker> createTerminals() throws SQLException{
 		
-		TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
+		TPCCWorker[] terminals = new TPCCWorker[tpccConf.getTerminals()];
 
-		int numWarehouses = workConf.getNumWarehouses();
-		int numTerminals = workConf.getTerminals();
+		int numWarehouses = tpccConf.getNumWarehouses();
+		int numTerminals = tpccConf.getTerminals();
 		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses);
 		 
 		String[] terminalNames = new String[numTerminals];

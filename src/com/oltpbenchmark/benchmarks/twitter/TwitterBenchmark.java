@@ -35,9 +35,12 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 
 public class TwitterBenchmark extends BenchmarkModule {
+	
+	private TwitterConf twitterConf;
 
-	public TwitterBenchmark(WorkLoadConfiguration workConf) {
-		super("twitter", workConf);
+	public TwitterBenchmark() {
+		super("twitter", new TwitterConf());
+		twitterConf= (TwitterConf) workConf;
 	}
 	
 	@Override
@@ -47,14 +50,15 @@ public class TwitterBenchmark extends BenchmarkModule {
 
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		TransactionSelector transSel = new TransactionSelector(workConf
-				.getTracefile(), workConf.getTracefile2(), workConf
-				.getTransTypes());
+		TransactionSelector transSel = new TransactionSelector(
+				twitterConf.getTracefile(), 
+				twitterConf.getTracefile2(), 
+				twitterConf.getTransTypes());
 		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		try {
-			for (int i = 0; i < this.workConf.getTerminals(); ++i) {
+			for (int i = 0; i < twitterConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
 				TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(

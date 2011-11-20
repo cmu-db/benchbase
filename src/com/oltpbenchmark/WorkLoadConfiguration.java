@@ -23,32 +23,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.configuration.XMLConfiguration;
+
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
 
 public class WorkLoadConfiguration {
 
-	private static WorkLoadConfiguration instance = null; // ???
-	
-	private DatabaseType db_type;
-	
+	private DatabaseType db_type;	
 	private String db_connection;
-	private String db_host;
 	private String db_name;
 	private String db_username;
 	private String db_password;
-	private String db_driver;
-	
+	private String db_driver;	
 	private double scaleFactor = 1.0;
 	
 	private int terminals;
-	private int numWarehouses;
-	private String tracefile;
-	private String tracefile2;
+
+
 	private List<Phase> works = new ArrayList<Phase>();
 	private static Iterator<Phase> i;
 	private int workPhases = 0;
 	private TransactionTypes transTypes = null;
+
+	protected XMLConfiguration xmlConfig;
 
 	public void addWork(int time, int rate, List<String> weights) {
 		works.add(new Phase(time, rate, weights));
@@ -64,14 +62,15 @@ public class WorkLoadConfiguration {
 	public void setDBType(DatabaseType dbType) {
         db_type = dbType;
     }
+	
 	public DatabaseType getDBType() {
         return db_type;
     }
 	
-
 	public void setDBConnection(String database) {
 		this.db_connection = database;
 	}
+	
 	public String getDBConnection() {
 		return db_connection;
 	}
@@ -79,6 +78,7 @@ public class WorkLoadConfiguration {
 	public void setDBName(String dbname) {
 		this.db_name = dbname;
 	}
+	
 	public String getDBName() {
 		return db_name;
 	}
@@ -86,6 +86,7 @@ public class WorkLoadConfiguration {
 	public void setDBUsername(String username) {
 		this.db_username = username;
 	}
+	
 	public String getDBUsername() {
 		return db_username;
 	}
@@ -93,6 +94,7 @@ public class WorkLoadConfiguration {
 	public void setDBPassword(String password) {
 		this.db_password = password;
 	}
+	
 	public String getDBPassword() {
 		return this.db_password;
 	}
@@ -100,6 +102,7 @@ public class WorkLoadConfiguration {
 	public void setDBDriver(String driver) {
 		this.db_driver = driver;
 	}
+	
 	public String getDBDriver() {
 		return this.db_driver;
 	}
@@ -136,43 +139,12 @@ public class WorkLoadConfiguration {
 		i = works.iterator();
 	}
 
-	public static WorkLoadConfiguration getInstance() {
-		// TODO Auto-generated method stub
-		if (instance == null)
-			instance = new WorkLoadConfiguration();
-		return instance;
-	}
-
 	public void setTerminals(int terminals) {
 		this.terminals = terminals;
 	}
 
 	public int getTerminals() {
 		return terminals;
-	}
-
-	public void setNumWarehouses(int numWarehouses) {
-		this.numWarehouses = numWarehouses;
-	}
-
-	public int getNumWarehouses() {
-		return numWarehouses;
-	}
-
-	public void setTracefile(String tracefile) {
-		this.tracefile = tracefile;
-	}
-
-	public String getTracefile() {
-		return tracefile;
-	}
-
-	public void setBaseIP(String baseIP) {
-		this.db_host = baseIP;
-	}
-
-	public String getBaseIP() {
-		return db_host;
 	}
 	
 	public TransactionTypes getTransTypes() {
@@ -187,12 +159,11 @@ public class WorkLoadConfiguration {
 		return works;
 	}
 
-	public String getTracefile2() {
-		return tracefile2;
+	public void setXmlConfig(XMLConfiguration xmlConfig) {
+		this.xmlConfig = xmlConfig;
 	}
-	
-	public void setTracefile2(String string) {
-		tracefile2 =string;
-		
+
+	public XMLConfiguration getXmlConfig() {
+		return xmlConfig;
 	}
 }

@@ -36,8 +36,8 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTruste
 
 public class EpinionsBenchmark extends BenchmarkModule {
 
-	public EpinionsBenchmark(WorkLoadConfiguration workConf) {
-		super("epinions", workConf);
+	public EpinionsBenchmark() {
+		super("epinions", new WorkLoadConfiguration());
 	}
 
 	@Override

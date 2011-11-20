@@ -34,8 +34,8 @@ import com.oltpbenchmark.catalog.Table;
 
 public class TATPBenchmark extends BenchmarkModule {
 
-	public TATPBenchmark(WorkLoadConfiguration workConf) {
-		super("tatp", workConf);
+	public TATPBenchmark() {
+		super("tatp", new WorkLoadConfiguration());
 	}
 	
 	@Override
