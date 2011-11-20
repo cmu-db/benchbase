@@ -20,12 +20,21 @@
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
 
 public class TestWikipediaBenchmark extends AbstractTestBenchmarkModule<WikipediaBenchmark> {
 	
+    public static final Class<?> PROC_CLASSES[] = {
+        AddWatchList.class,
+        GetPageAnonymous.class,
+        GetPageAuthenticated.class,
+        RemoveWatchList.class,
+        UpdatePage.class,
+    };
+    
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(WikipediaBenchmark.class);
+		super.setUp(WikipediaBenchmark.class, PROC_CLASSES);
 	}
 
 }

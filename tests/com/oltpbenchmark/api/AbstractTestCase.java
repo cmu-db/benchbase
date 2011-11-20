@@ -15,7 +15,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     
     // HACK
   static {
-      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
+//      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
   }
     
     protected static final String DB_CONNECTION = "jdbc:sqlite:";

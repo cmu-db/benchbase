@@ -20,12 +20,21 @@
 package com.oltpbenchmark.benchmarks.tpcc;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.*;
 
 public class TestTPCCBenchmark extends AbstractTestBenchmarkModule<TPCCBenchmark> {
 	
+    public static final Class<?> PROC_CLASSES[] = {
+        Delivery.class,
+        NewOrder.class,
+        OrderStatus.class,
+        Payment.class,
+        StockLevel.class,
+    };
+    
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(TPCCBenchmark.class);
+		super.setUp(TPCCBenchmark.class, PROC_CLASSES);
 	}
 
 }

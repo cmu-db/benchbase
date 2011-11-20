@@ -20,14 +20,11 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
-import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
+import com.oltpbenchmark.benchmarks.twitter.procedures.*;
 
 public class TestTwitterBenchmark extends AbstractTestBenchmarkModule<TwitterBenchmark> {
 	
-    protected static final Class PROC_CLASSES[] = {
+    protected static final Class<?> PROC_CLASSES[] = {
         GetFollowers.class,
         GetTweet.class,
         GetTweetsFromFollowing.class,

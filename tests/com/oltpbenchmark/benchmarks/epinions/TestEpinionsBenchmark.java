@@ -20,12 +20,24 @@
 package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.benchmarks.epinions.procedures.*;
 
 public class TestEpinionsBenchmark extends AbstractTestBenchmarkModule<EpinionsBenchmark> {
 	
+    public static final Class<?> PROC_CLASSES[] = {
+        GetAverageRatingByTrustedUser.class,
+        GetItemAverageRating.class,
+        GetItemReviewsByTrustedUser.class,
+        GetReviewItemById.class,
+        GetReviewsByUser.class,
+        UpdateItemTitle.class,
+        UpdateTrustRating.class,
+        UpdateUserName.class
+    };
+    
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(EpinionsBenchmark.class);
+		super.setUp(EpinionsBenchmark.class, PROC_CLASSES);
 	}
 
 }

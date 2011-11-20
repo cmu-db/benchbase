@@ -168,6 +168,7 @@ public abstract class BenchmarkModule {
 	        String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
 	                      this.benchmarkName, procName, id, TransactionType.INVALID.getClass().getSimpleName());
 	    Package pkg = this.getProcedurePackageImpl();
+	    assert(pkg != null) : "Null Procedure package for " + this.benchmarkName;
 	    String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>)ClassUtil.getClass(fullName);
         assert(procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;

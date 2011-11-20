@@ -33,6 +33,7 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 
 public class WikipediaBenchmark extends BenchmarkModule {
 
@@ -42,7 +43,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 
 	@Override
 	protected Package getProcedurePackageImpl() {
-	    return null; // FIXME
+	    return (AddWatchList.class.getPackage());
 	}
 	
 	@Override
