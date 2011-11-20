@@ -26,8 +26,8 @@ public class TransactionTypes implements Collection<TransactionType> {
 		} // FOR
 	}
 	
-	public TransactionType getType(String name) {
-		return (this.types.get(name.toUpperCase()));
+	public TransactionType getType(Class<? extends Procedure> procClass) {
+		return (this.types.get(procClass));
 	}
 
 	public TransactionType getType(int id) {

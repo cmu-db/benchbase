@@ -34,6 +34,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.ThreadBench.Results;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -43,11 +44,9 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.QueueLimitException;
 
-
-
 public class DBWorkload {
-
-	private static String classname = null;
+    private static final Logger LOG = Logger.getLogger(DBWorkload.class);
+    
 
 	/**
 	 * @param args
@@ -87,115 +86,110 @@ public class DBWorkload {
 		// options.addOption("p","password", true,
 		// "Specify the configuration file");
 
-		try {
-			//
-			WorkLoadConfiguration wrkld = WorkLoadConfiguration.getInstance();
-			// parse the command line arguments
-			CommandLine argsLine = parser.parse(options, args);
-			if (argsLine.hasOption("h")) {
-				printUsage(options);
-				return;
-			}
-			if (argsLine.hasOption("b"))
-			{
-				String plugin = argsLine.getOptionValue("b");
-				classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
-				System.out.println(classname);
-				if(classname==null)
-						throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
-			}
-			else
-				throw new ParseException("Missing Benchmark Class to load");
-			if (argsLine.hasOption("c")) {
-				String configFile = argsLine.getOptionValue("c");
-				XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
-				wrkld.setDBDriver(xmlConfig.getString("driver"));
-				wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
-				wrkld.setDBName(xmlConfig.getString("DBName"));
-				wrkld.setDBUsername(xmlConfig.getString("username"));
-				wrkld.setDBPassword(xmlConfig.getString("password"));
-				wrkld.setTerminals(xmlConfig.getInt("terminals"));
-				wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
-				wrkld.setTracefile(xmlConfig.getString("tracefile",null));
-				wrkld.setTracefile2(xmlConfig.getString("tracefile2",null));
-				wrkld.setBaseIP(xmlConfig.getString("baseip",null));
-				
-				
-				int size = xmlConfig.configurationsAt("works.work").size();
-				for (int i = 0; i < size; i++){
-				
-					if((int) xmlConfig.getInt("works.work(" + i + ").rate")<1)
-						throw new Exception("You cannot use less than 1 TPS in a Phase of your expeirment");
-
-					wrkld.addWork(
-							xmlConfig.getInt("works.work(" + i + ").time"),
-							xmlConfig.getInt("works.work(" + i + ").rate"),
-							xmlConfig.getList("works.work(" + i + ").weights"));
-				}
-				
-				
-				int numTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
-				
-				
-				//CHECKING INPUT PHASES
-				int j =0;
-				for(Phase p:wrkld.getAllPhases()){
-					j++;
-					if(p.weights.size()!=numTypes){
-						System.err.println("Configuration files is inconsistent, phase " + j + " contains " +p.weights.size() + " weights while you defined "+ numTypes + " transaction types");
-						System.exit(-1);
-					}
-				}		
-			
-				
-				ArrayList<TransactionType> ttypes = new ArrayList<TransactionType>();
-				
-				// Always add an INVALID type for Carlo
-				ttypes.add(TransactionType.INVALID);
-				
-				for (int i = 0; i < numTypes; i++)
-					ttypes.add(new TransactionType(
-							xmlConfig.getString("transactiontypes.transactiontype(" + i + ").name"),
-							xmlConfig.getInt("transactiontypes.transactiontype(" + i + ").id")));
-				TransactionTypes tt =new TransactionTypes(ttypes);
-				wrkld.setTransTypes(tt);
-
-				System.out.println("Using the following transaction types: " +tt);
-
-				wrkld.init();
-				Results r = run(wrkld, argsLine.hasOption("v"));
-				PrintStream ps = System.out;
-				if (argsLine.hasOption("o"))
-					ps = new PrintStream(new File(argsLine.getOptionValue("o")));
-				if (argsLine.hasOption("s")) {
-					int windowSize = Integer.parseInt(argsLine
-							.getOptionValue("s"));
-					r.writeCSV(windowSize, ps);
-				} else
-					r.writeAllCSVAbsoluteTiming(ps);
-				ps.close();
-			} else
-				throw new ParseException("Missing Configuration file");
-		} catch (ParseException e) {
-			// Parsing error
-			System.err.println("Parsing failed.  Reason: " + e.getMessage());
+		WorkLoadConfiguration wrkld = WorkLoadConfiguration.getInstance();
+		BenchmarkModule bench = null;
+		
+		// parse the command line arguments
+		CommandLine argsLine = parser.parse(options, args);
+		if (argsLine.hasOption("h")) {
 			printUsage(options);
-		} catch (ConfigurationException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Configuration laod failed.  Reason: "
-					+ e.getMessage());
+			return;
 		}
+
+		if (argsLine.hasOption("b")) {
+			String plugin = argsLine.getOptionValue("b");
+			String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
+			System.out.println(classname);
+			if(classname==null)
+					throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
+	        bench = ClassUtil.newInstance(classname,
+                    new Object[]{ wrkld },
+                    new Class<?>[]{ WorkLoadConfiguration.class });
+	        assert(bench != null);
+		}
+		else
+			throw new ParseException("Missing Benchmark Class to load");
+		
+		if (argsLine.hasOption("c")) {
+			String configFile = argsLine.getOptionValue("c");
+			XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
+			wrkld.setDBDriver(xmlConfig.getString("driver"));
+			wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
+			wrkld.setDBName(xmlConfig.getString("DBName"));
+			wrkld.setDBUsername(xmlConfig.getString("username"));
+			wrkld.setDBPassword(xmlConfig.getString("password"));
+			wrkld.setTerminals(xmlConfig.getInt("terminals"));
+			wrkld.setNumWarehouses(xmlConfig.getInt("numWarehouses",0));
+			wrkld.setTracefile(xmlConfig.getString("tracefile",null));
+			wrkld.setTracefile2(xmlConfig.getString("tracefile2",null));
+			wrkld.setBaseIP(xmlConfig.getString("baseip",null));
+			
+			
+			int size = xmlConfig.configurationsAt("works.work").size();
+			for (int i = 0; i < size; i++){
+			
+				if((int) xmlConfig.getInt("works.work(" + i + ").rate")<1)
+					throw new Exception("You cannot use less than 1 TPS in a Phase of your expeirment");
+
+				wrkld.addWork(
+						xmlConfig.getInt("works.work(" + i + ").time"),
+						xmlConfig.getInt("works.work(" + i + ").rate"),
+						xmlConfig.getList("works.work(" + i + ").weights"));
+			}
+			
+			
+			int numTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
+			
+			
+			//CHECKING INPUT PHASES
+			int j =0;
+			for(Phase p:wrkld.getAllPhases()){
+				j++;
+				if(p.weights.size()!=numTypes){
+					System.err.println("Configuration files is inconsistent, phase " + j + " contains " +p.weights.size() + " weights while you defined "+ numTypes + " transaction types");
+					System.exit(-1);
+				}
+			}		
+		
+			
+			ArrayList<TransactionType> ttypes = new ArrayList<TransactionType>();
+			
+			// Always add an INVALID type for Carlo
+			ttypes.add(TransactionType.INVALID);
+			
+			for (int i = 0; i < numTypes; i++) {
+			    String txnName = xmlConfig.getString("transactiontypes.transactiontype(" + i + ").name");
+			    int txnId = xmlConfig.getInt("transactiontypes.transactiontype(" + i + ").id");
+			    ttypes.add(bench.getTransactionType(txnName, txnId));
+			} // FOR
+			TransactionTypes tt =new TransactionTypes(ttypes);
+			wrkld.setTransTypes(tt);
+
+			LOG.info("Using the following transaction types: " +tt);
+
+			wrkld.init();
+		} else
+			throw new ParseException("Missing Configuration file");
+
+		// Bombs away!
+        Results r = run(bench, argsLine.hasOption("v"));
+        PrintStream ps = System.out;
+        if (argsLine.hasOption("o"))
+            ps = new PrintStream(new File(argsLine.getOptionValue("o")));
+        if (argsLine.hasOption("s")) {
+            int windowSize = Integer.parseInt(argsLine
+                    .getOptionValue("s"));
+            r.writeCSV(windowSize, ps);
+        } else
+            r.writeAllCSVAbsoluteTiming(ps);
+        ps.close();
+
 	}
 
-	private static Results run(WorkLoadConfiguration wrkld, boolean verbose)
-			throws QueueLimitException, IOException {
-		
-		BenchmarkModule bench = ClassUtil.newInstance(classname,
-										   new Object[]{ wrkld },
-										   new Class<?>[]{ WorkLoadConfiguration.class });
+	private static Results run(BenchmarkModule bench, boolean verbose) throws QueueLimitException, IOException {
 		List<Worker> workers = bench.makeWorkers(verbose);
-		System.out.println("Launching the Benchmark with " + wrkld.size()
-				+ " Phases ...");
+		LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
+		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().size()));
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
 		System.out.println("Rate limited reqs/s: " + r);
 		return r;

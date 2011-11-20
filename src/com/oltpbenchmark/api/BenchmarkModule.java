@@ -26,11 +26,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -154,6 +152,27 @@ public abstract class BenchmarkModule {
 	// UTILITY METHODS
 	// --------------------------------------------------------------------------
 
+	public String getBenchmarkName() {
+        return benchmarkName;
+    }
+	
+	/**
+	 * Return a TransactionType handle for the get procedure name and id
+	 * @param procName
+	 * @param id
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+    public final TransactionType getTransactionType(String procName, int id) {
+	    Package pkg = this.getProcedurePackageImpl();
+	    String fullName = pkg.getName() + "." + procName;
+        Class<? extends Procedure> procClass = (Class<? extends Procedure>)ClassUtil.getClass(fullName);
+        assert(procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;
+        return new TransactionType(procClass, id);
+	    
+	    
+	}
+	
 	protected final Connection getConnection() throws SQLException {
 		return (DriverManager.getConnection(workConf.getDBConnection(),
 											workConf.getDBUsername(),
@@ -204,14 +223,11 @@ public abstract class BenchmarkModule {
      * @return
      */
 	public Map<TransactionType, Procedure> getProcedures() {
-	    Package pkg = this.getProcedurePackageImpl();
-	    
 	    Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
 	    TransactionTypes txns = this.workConf.getTransTypes();
 	    if (txns != null) {
     	    for (TransactionType txn : txns) {
-                String fullName = pkg.getName() + "." + txn.getName();
-                Procedure proc = (Procedure)ClassUtil.newInstance(fullName, new Object[0], new Class<?>[0]);
+                Procedure proc = (Procedure)ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
                 proc_xref.put(txn, proc);
                 
                 // TODO: Load up the procedures so that we can get the database-specific

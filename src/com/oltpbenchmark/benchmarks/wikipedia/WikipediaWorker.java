@@ -33,6 +33,11 @@ import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
 
 public class WikipediaWorker extends Worker {
 	private final TransactionGenerator<WikipediaOperation> generator;
@@ -53,53 +58,35 @@ public class WikipediaWorker extends Worker {
 		this.userIp = userIp;
 	}
 
-	@Override
-	protected TransactionType doWork(boolean measure, Phase phase) {
+    @Override
+    protected TransactionType doWork(boolean measure, Phase phase) {
+        // we should work using the LLR to drive wikipedia at different speeds!!
 
-		// we should work using the LLR to drive wikipedia at different speeds!!
+        WikipediaOperation t = generator.nextTransaction();
+        TransactionType retTP = TransactionType.INVALID;
+        TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
 
-		transactionTypes.getType("INVALID");
-		
-		WikipediaOperation t= generator.nextTransaction();
-		TransactionType retTP = transactionTypes.getType("INVALID");
-		
-		if(phase!=null){
-			int nextTrans = phase.chooseTransaction();
-			
-			try {
-				
-				if(nextTrans == transactionTypes.getType("WIKI_ADD_WATCHLIST").getId()){
-					addToWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = transactionTypes.getType("WIKI_ADD_WATCHLIST");
-				}else
-				if(nextTrans == transactionTypes.getType("WIKI_REMOVE_WATCHLIST").getId()){
-					removeFromWatchlist(t.userId,t.nameSpace,t.pageTitle);
-					retTP = transactionTypes.getType("WIKI_REMOVE_WATCHLIST");
-				}else
-				if(nextTrans == transactionTypes.getType("WIKI_UPDATE_PAGE").getId()){
-					updatePage(userIp, t.userId,t.nameSpace,t.pageTitle);
-					retTP = transactionTypes.getType("WIKI_UPDATE_PAGE");
-				}else
-				if(nextTrans == transactionTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS").getId()){
-					selectPage(true,userIp, 0,t.nameSpace,t.pageTitle);
-					retTP = transactionTypes.getType("WIKI_SELECT_PAGE_ANONYMOUS");
-				}else
-				if(nextTrans == transactionTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN").getId()){
-						selectPage(true,userIp, t.userId,t.nameSpace,t.pageTitle);
-						retTP = transactionTypes.getType("WIKI_SELECT_PAGE_LOGGED_IN");
-				}
-				
-			} catch (MySQLTransactionRollbackException m){
-				System.err.println("Rollback:" + m.getMessage());
-			} catch (SQLException e) {
-				System.err.println("Timeout:" + e.getMessage());
-			}
-		}
-		return retTP;
-	
-		
-	
-	}
+        try {
+            if (nextTrans.getProcedureClass().equals(AddWatchList.class)) {
+                addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
+            } else if (nextTrans.getProcedureClass().equals(RemoveWatchList.class)) {
+                removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
+            } else if (nextTrans.getProcedureClass().equals(UpdatePage.class)) {
+                updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
+            } else if (nextTrans.getProcedureClass().equals(GetPageAnonymous.class)) {
+                selectPage(true, userIp, 0, t.nameSpace, t.pageTitle);
+            } else if (nextTrans.getProcedureClass().equals(GetPageAuthenticated.class)) {
+                selectPage(true, userIp, t.userId, t.nameSpace, t.pageTitle);
+            }
+            retTP = nextTrans;
+
+        } catch (MySQLTransactionRollbackException m) {
+            System.err.println("Rollback:" + m.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Timeout:" + e.getMessage());
+        }
+        return retTP;
+    }
 
 	/**
 	 * Implements wikipedia selection of last version of an article (with and

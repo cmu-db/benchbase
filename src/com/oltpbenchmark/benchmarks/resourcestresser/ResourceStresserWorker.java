@@ -35,70 +35,65 @@ import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2;
 
 public class ResourceStresserWorker extends Worker {
-	public static final int CONTENTION1_howManyKeys = 1;
-	public static final int CONTENTION1_howManyUpdates = 2;
-	public static final int CONTENTION1_sleepLength = 1;
-	
-	public static final int IO1_howManyColsPerRow = 16;
-	public static final int IO1_howManyRowsPerUpdate = 10;
-	public static final int IO1_howManyUpdatePerTransaction = 10;
-	
-	public static final int IO2_howManyUpdatePerTransaction = 50;
-	public static final boolean IO2_makeSureWorketSetFitsInMemory = true;
-	
-	public static final int CPU1_howManyPerTrasaction = 10;
-	public static final int CPU1_sleep = 1;
-	public static final int CPU1_nestedLevel = 5;
-	
+    public static final int CONTENTION1_howManyKeys = 1;
+    public static final int CONTENTION1_howManyUpdates = 2;
+    public static final int CONTENTION1_sleepLength = 1;
+
+    public static final int IO1_howManyColsPerRow = 16;
+    public static final int IO1_howManyRowsPerUpdate = 10;
+    public static final int IO1_howManyUpdatePerTransaction = 10;
+
+    public static final int IO2_howManyUpdatePerTransaction = 50;
+    public static final boolean IO2_makeSureWorketSetFitsInMemory = true;
+
+    public static final int CPU1_howManyPerTrasaction = 10;
+    public static final int CPU1_sleep = 1;
+    public static final int CPU1_nestedLevel = 5;
+
     public static final int CPU2_howManyPerTrasaction = 5;
     public static final int CPU2_sleep = 2;
-	public static final int CPU2_nestedLevel = 5;
+    public static final int CPU2_nestedLevel = 5;
 
-	public static final Random gen = new Random(1); // I change the random seed every time!
-    
-	public ResourceStresserWorker(int id, ResourceStresserBenchmark benchmarkModule) {
-		super(id, benchmarkModule);
-	}
+    public static final Random gen = new Random(1); // I change the random seed
+                                                    // every time!
 
-	@Override
-	protected TransactionType doWork(boolean measure, Phase phase) {
-		TransactionType retTP = null;
-		int nextTrans = phase.chooseTransaction();
-		try {
-			if (nextTrans == transactionTypes.getType("CPU1").getId()) {
-				cpu1Transaction(10, 1);
-				retTP = transactionTypes.getType("CPU1");
-			} else if (nextTrans == transactionTypes.getType("CPU2").getId()) {
-				cpu2Transaction(5, 2);
-				retTP = transactionTypes.getType("CPU2");
-			} else if (nextTrans == transactionTypes.getType("IO1").getId()) {
-				io1Transaction(10, 10);
-				retTP = transactionTypes.getType("IO1");
-			} else if (nextTrans == transactionTypes.getType("IO2").getId()) {
-				io2Transaction(true, 50);
-				retTP = transactionTypes.getType("IO2");
-			} else if (nextTrans == transactionTypes.getType("CONTENTION1").getId()) {
-				contention1Transaction();
-				retTP = transactionTypes.getType("CONTENTION1");
-			} else if (nextTrans == transactionTypes.getType("CONTENTION2").getId()) {
-				contention2Transaction(2, 5, 1);
-				retTP = transactionTypes.getType("CONTENTION2");
-			}
+    public ResourceStresserWorker(int id, ResourceStresserBenchmark benchmarkModule) {
+        super(id, benchmarkModule);
+    }
 
-		} catch (MySQLTransactionRollbackException m) {
-			System.err.println("Rollback:" + m.getMessage());
-		} catch (SQLException e) {
-			System.err.println("Timeout:" + e.getMessage());
-		}
-		return retTP;
-	}
+    @Override
+    protected TransactionType doWork(boolean measure, Phase phase) {
+        TransactionType retTP = null;
+        TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
+        try {
+            if (nextTrans.getProcedureClass().equals(CPU1.class)) {
+                cpu1Transaction(10, 1);
+            } else if (nextTrans.getProcedureClass().equals(CPU2.class)) {
+                cpu2Transaction(5, 2);
+            } else if (nextTrans.getProcedureClass().equals(IO1.class)) {
+                io1Transaction(10, 10);
+            } else if (nextTrans.getProcedureClass().equals(IO2.class)) {
+                io2Transaction(true, 50);
+            } else if (nextTrans.getProcedureClass().equals(Contention1.class)) {
+                contention1Transaction();
+            } else if (nextTrans.getProcedureClass().equals(Contention2.class)) {
+                contention2Transaction(2, 5, 1);
+            }
+            conn.commit();
+            retTP = nextTrans;
 
+        } catch (MySQLTransactionRollbackException m) {
+            System.err.println("Rollback:" + m.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Timeout:" + e.getMessage());
+        }
+        return retTP;
+    }
 
     private void contention1Transaction() throws SQLException {
         Contention1 proc = this.getProcedure(Contention1.class);
         assert (proc != null);
         proc.run(conn);
-        conn.commit();
 
     }
 
@@ -106,7 +101,6 @@ public class ResourceStresserWorker extends Worker {
         Contention2 proc = this.getProcedure(Contention2.class);
         assert (proc != null);
         proc.run(conn);
-        conn.commit();
     }
 
     private void io1Transaction(int howManyUpdatePerTransaction, int howManyRowsPerUpdate) throws SQLException {
@@ -127,70 +121,70 @@ public class ResourceStresserWorker extends Worker {
         CPU1 proc = this.getProcedure(CPU1.class);
         assert (proc != null);
         proc.run(conn);
-        conn.commit();
     }
 
     private void cpu2Transaction(int howManyPerTrasaction, long sleepLength) throws SQLException {
         CPU2 proc = this.getProcedure(CPU2.class);
         assert (proc != null);
         proc.run(conn);
-        conn.commit();
     }
 
+    /**
+     * Rolls back the current transaction, then rethrows e if it is not a
+     * serialization error. Serialization errors are exceptions caused by
+     * deadlock detection, lock wait timeout, or similar.
+     * 
+     * @param e
+     *            Exception to check if it is a serialization error.
+     * @throws SQLException
+     */
+    // Lame deadlock profiling: set this to new HashMap<Integer, Integer>() to
+    // enable.
+    private final HashMap<Integer, Integer> deadlockLocations = null;
 
-	/** Rolls back the current transaction, then rethrows e if it is not a
-	   * serialization error. Serialization errors are exceptions caused by
-	   * deadlock detection, lock wait timeout, or similar.
-	   *  
-	   * @param e Exception to check if it is a serialization error.
-	   * @throws SQLException
-	   */
-	  // Lame deadlock profiling: set this to new HashMap<Integer, Integer>() to enable.
-	  private final HashMap<Integer, Integer> deadlockLocations = null;
-	  private void rollbackAndHandleError(SQLException e) throws SQLException {
-		    conn.rollback();
+    private void rollbackAndHandleError(SQLException e) throws SQLException {
+        conn.rollback();
 
-		    // Unfortunately, JDBC provides no standardized way to do this, so we
-		    // resort to this ugly hack.
-		    boolean isSerialization = false;
-		    if (e.getErrorCode() == 1213 && e.getSQLState().equals("40001")) {
-		      isSerialization = true;
-		      assert e.getMessage().equals("Deadlock found when trying to get lock; try restarting transaction");
-		    } else if (e.getErrorCode() == 1205 && e.getSQLState().equals("41000")) {
-		      // TODO: This probably shouldn't really happen?
-		      isSerialization = true;
-		      assert e.getMessage().equals("Lock wait timeout exceeded; try restarting transaction");
-		    }
-		      else if(e.getErrorCode() == 0 && e.getSQLState().equals("40001")) {
-		    	  // Postgres serialization
-		    	  isSerialization = true;
-		    	  assert e.getMessage().equals("could not serialize access due to concurrent update");
-		    }
+        // Unfortunately, JDBC provides no standardized way to do this, so we
+        // resort to this ugly hack.
+        boolean isSerialization = false;
+        if (e.getErrorCode() == 1213 && e.getSQLState().equals("40001")) {
+            isSerialization = true;
+            assert e.getMessage().equals("Deadlock found when trying to get lock; try restarting transaction");
+        } else if (e.getErrorCode() == 1205 && e.getSQLState().equals("41000")) {
+            // TODO: This probably shouldn't really happen?
+            isSerialization = true;
+            assert e.getMessage().equals("Lock wait timeout exceeded; try restarting transaction");
+        } else if (e.getErrorCode() == 0 && e.getSQLState().equals("40001")) {
+            // Postgres serialization
+            isSerialization = true;
+            assert e.getMessage().equals("could not serialize access due to concurrent update");
+        }
 
-		    // Djellel
-		    // This is to prevent other errors to kill the thread.
-		    // Errors may include -- duplicate key
-		    if (!isSerialization) {
-		        System.err.println("SQLException code " + e.getErrorCode() + " state " + e.getSQLState()+ " message: "+e.getMessage());
-		        //throw e; //Otherwise the benchmark will keep going
-		      }
+        // Djellel
+        // This is to prevent other errors to kill the thread.
+        // Errors may include -- duplicate key
+        if (!isSerialization) {
+            System.err.println("SQLException code " + e.getErrorCode() + " state " + e.getSQLState() + " message: " + e.getMessage());
+            // throw e; //Otherwise the benchmark will keep going
+        }
 
-		    if (deadlockLocations != null) {
-		      String className = this.getClass().getCanonicalName();
-		      for (StackTraceElement trace : e.getStackTrace()) {
-		        if (trace.getClassName().equals(className)) {
-		          int line = trace.getLineNumber();
-		          Integer count = deadlockLocations.get(line);
-		          if (count == null) count = 0;
-		  
-		          count += 1;
-		          deadlockLocations.put(line, count);
-		          return;
-		        }
-		      }
-		      assert false;
-		    }
-		}
+        if (deadlockLocations != null) {
+            String className = this.getClass().getCanonicalName();
+            for (StackTraceElement trace : e.getStackTrace()) {
+                if (trace.getClassName().equals(className)) {
+                    int line = trace.getLineNumber();
+                    Integer count = deadlockLocations.get(line);
+                    if (count == null)
+                        count = 0;
 
+                    count += 1;
+                    deadlockLocations.put(line, count);
+                    return;
+                }
+            }
+            assert false;
+        }
+    }
 
 }

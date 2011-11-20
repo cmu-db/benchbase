@@ -157,11 +157,11 @@ public class TPCCWorker extends Worker {
 						"Wrong transaction percentages in Configuration file.. they don't add up to 100%");
 
 			//weights of 0 is for the "INVALID" transaction
-			newOrderWeight = phase.weights.get(transactionTypes.getType("NEW_ORDER").getId());
-			paymentWeight = phase.weights.get(transactionTypes.getType("PAYMENT").getId());
-			orderStatusWeight = phase.weights.get(transactionTypes.getType("ORDER_STATUS").getId());
-			deliveryWeight = phase.weights.get(transactionTypes.getType("DELIVERY").getId());
-			stockLevelWeight = phase.weights.get(transactionTypes.getType("STOCK_LEVEL").getId());
+			newOrderWeight = phase.weights.get(transactionTypes.getType(NewOrderTransaction.class).getId());
+			paymentWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("PAYMENT").getId());
+			orderStatusWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("ORDER_STATUS").getId());
+			deliveryWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("DELIVERY").getId());
+			stockLevelWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("STOCK_LEVEL").getId());
 		}
 
 		// Generate an integer in the range [1, 100] (that means inclusive!)

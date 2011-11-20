@@ -85,7 +85,7 @@ public abstract class Worker implements Runnable {
 		boolean seenDone = false;
 		State state = testState.getState();
 		
-		TransactionType invalidTT = wrkld.getTransTypes().getType("INVALID");
+		TransactionType invalidTT = TransactionType.INVALID;
 		assert(invalidTT != null);
 		
 		while (state != State.EXIT) {

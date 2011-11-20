@@ -21,8 +21,10 @@ package com.oltpbenchmark.api;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import com.oltpbenchmark.WorkLoadConfiguration;
@@ -40,14 +42,19 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     protected WorkLoadConfiguration workConf;
     protected T benchmark;
     protected Connection conn;
+    protected Set<Class<? extends Procedure>> procClasses = new HashSet<Class<? extends Procedure>>();
     
     // HACK
 //    static {
 //        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
 //    }
 
-    protected final void setUp(Class<T> clazz) throws Exception {
+    @SuppressWarnings("unchecked")
+    protected final void setUp(Class<T> clazz, Class...procClasses) throws Exception {
         super.setUp();
+        
+        for (int i = 0; i < procClasses.length; i++)
+            this.procClasses.add(procClasses[i]);
         
         this.dbName = String.format("/tmp/%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
 

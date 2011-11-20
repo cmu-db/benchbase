@@ -20,12 +20,23 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
+import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
 
 public class TestTwitterBenchmark extends AbstractTestBenchmarkModule<TwitterBenchmark> {
 	
+    protected static final Class PROC_CLASSES[] = {
+        GetFollowers.class,
+        GetTweet.class,
+        GetTweetsFromFollowing.class,
+        InsertTweet.class
+    };
+    
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(TwitterBenchmark.class);
+		super.setUp(TwitterBenchmark.class, PROC_CLASSES);
 	}
 
 }

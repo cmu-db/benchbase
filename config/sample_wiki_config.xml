@@ -10,30 +10,26 @@
     <base_ip>10.1.</base_ip>
   
     <transactiontypes>
-    	<transactiontype>
-    		<name>INVALID</name>
-    		<id>0</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>WIKI_ADD_WATCHLIST</name>
-    		<id>1</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>WIKI_REMOVE_WATCHLIST</name>
-    		<id>2</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>WIKI_UPDATE_PAGE</name>
-    		<id>3</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>WIKI_SELECT_PAGE_ANONYMOUS</name>
-    		<id>4</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>WIKI_SELECT_PAGE_LOGGED_IN</name>
-    		<id>5</id>
-    	</transactiontype>
+        <transactiontype>
+                <name>AddWatchList</name>
+                <id>1</id>
+        </transactiontype>
+        <transactiontype>
+                <name>RemoveWatchList</name>
+                <id>2</id>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdatePage</name>
+                <id>3</id>
+        </transactiontype>
+        <transactiontype>
+                <name>GetPageAnonymous</name>
+                <id>4</id>
+        </transactiontype>
+        <transactiontype>
+                <name>GetPageAuthenticated</name>
+                <id>5</id>
+        </transactiontype>
     </transactiontypes>
     
     <works>
