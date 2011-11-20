@@ -34,6 +34,8 @@ public abstract class Worker implements Runnable {
 		this.benchmarkModule = benchmarkModule;
 		this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
 		this.transactionTypes = this.wrkld.getTransTypes();
+		assert(this.transactionTypes != null) :
+		    "The TransactionTypes from the WorkloadConfiguration is null!";
 		
 		try {
 		    this.conn = this.benchmarkModule.getConnection();
@@ -44,11 +46,16 @@ public abstract class Worker implements Runnable {
 		
 		// Generate all the Procedures that we're going to need
 		this.procedures.putAll(this.benchmarkModule.getProcedures());
+		assert(this.procedures.size() == this.transactionTypes.size()) :
+		    String.format("Failed to get all of the Procedures for %s [expected=%d, actual=%d]",
+		                 this.benchmarkModule.getBenchmarkName(),
+		                 this.transactionTypes.size(),
+		                 this.procedures.size());
         for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
             this.name_procedures.put(e.getKey().getName(), proc);
             this.class_procedures.put(proc.getClass(), proc);
-            e.getValue().generateAllPreparedStatements(this.conn);
+            // e.getValue().generateAllPreparedStatements(this.conn);
         } // FOR
 	}
 	
@@ -63,6 +70,7 @@ public abstract class Worker implements Runnable {
 	public final Procedure getProcedure(TransactionType type) {
         return (this.procedures.get(type));
     }
+	@Deprecated
     public final Procedure getProcedure(String name) {
         return (this.name_procedures.get(name));
     }
@@ -149,6 +157,12 @@ public abstract class Worker implements Runnable {
 	 */
 	protected abstract TransactionType doWork(boolean measure, Phase phase);
 
+    /**
+     * Invoke a single transaction for the given TransactionType
+     * @param txnType
+     */
+	protected abstract void executeWork(TransactionType txnType);
+	
 	/**
 	 * Called at the end of the test to do any clean up that may be
 	 * required.

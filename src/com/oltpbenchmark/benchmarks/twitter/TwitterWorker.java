@@ -48,15 +48,14 @@ public class TwitterWorker extends Worker {
 
     @Override
     protected TransactionType doWork(boolean measure, Phase phase) {
-        TwitterOperation t = generator.nextTransaction();
-
-        // TODO FIXME THIS NEEDS TO BE FIXED.. checking with Aubrey how we
-        // generated ids before...
-        String text = "Blah blah new tweet...";
-
-        TransactionType retTP = TransactionType.INVALID;
         TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
+        this.executeWork(nextTrans);
+        return nextTrans;
+    }
 
+    @Override
+    protected void executeWork(TransactionType nextTrans) {
+        TwitterOperation t = generator.nextTransaction();
         try {
             if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
                 doSelect1Tweet(t.tweetid);
@@ -67,17 +66,17 @@ public class TwitterWorker extends Worker {
             } else if (nextTrans.getProcedureClass().equals(GetUserTweets.class)) {
                 doSelectTweetsForUid(t.uid);
             } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
+                // TODO FIXME THIS NEEDS TO BE FIXED.. checking with Aubrey how we
+                // generated ids before...
+                String text = "Blah blah new tweet...";
                 doInsertTweet(t.uid, text);
             }
             conn.commit();
-            retTP = nextTrans;
-
         } catch (MySQLTransactionRollbackException m) {
             System.err.println("Rollback:" + m.getMessage());
         } catch (SQLException e) {
             System.err.println("Timeout:" + e.getMessage());
         }
-        return retTP;
     }
 
     public void doSelect1Tweet(int tweet_id) throws SQLException {

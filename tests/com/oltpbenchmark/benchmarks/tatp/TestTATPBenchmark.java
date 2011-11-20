@@ -20,13 +20,23 @@
 package com.oltpbenchmark.benchmarks.tatp;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
+import com.oltpbenchmark.benchmarks.tatp.procedures.*;
 
 public class TestTATPBenchmark extends AbstractTestBenchmarkModule<TATPBenchmark> {
 	
+    public static final Class<?> PROC_CLASSES[] = {
+        DeleteCallForwarding.class,
+        GetAccessData.class,
+        GetNewDestination.class,
+        GetSubscriberData.class,
+        InsertCallForwarding.class,
+        UpdateLocation.class,
+        UpdateSubscriberData.class,
+    };
+    
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(TATPBenchmark.class);
+		super.setUp(TATPBenchmark.class, PROC_CLASSES);
 		            
 	}
 	

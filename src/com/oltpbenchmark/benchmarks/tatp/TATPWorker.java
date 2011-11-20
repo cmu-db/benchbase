@@ -164,29 +164,35 @@ public class TATPWorker extends Worker {
         
     } // TRANSCTION ENUM
     
-    private final long subscriberSize = 10000; // FIXME
+    private final long subscriberSize;
 	
 	public TATPWorker(int id, TATPBenchmark benchmarkModule) {
 		super(id, benchmarkModule);
+		this.subscriberSize = Math.round(TATPConstants.DFAULT_NUM_SUBSCRIBERS / benchmarkModule.getWorkloadConfiguration().getScaleFactor());
 	}
 	
 	@Override
 	protected TransactionType doWork(boolean measure, Phase phase) {
 		TransactionType next = transactionTypes.getType(phase.chooseTransaction());
-		Transaction t = Transaction.get(next.getName());
-		assert(t != null) : "Unexpected " + next;
-		
-		// Get the Procedure handle
-		Procedure proc = this.getProcedure(next);
-		assert(proc != null);
-		
+		this.executeWork(next);
+		return (next);
+	}
+	
+	@Override
+	protected void executeWork(TransactionType txnType) {
+	    Transaction t = Transaction.get(txnType.getName());
+        assert(t != null) : "Unexpected " + txnType;
+        
+        // Get the Procedure handle
+        Procedure proc = this.getProcedure(txnType);
+        assert(proc != null) : String.format("Failed to get Procedure handle for %s.%s",
+                                             this.benchmarkModule.getBenchmarkName(), txnType);
+        
 		try {
 			t.invoke(this.conn, proc, subscriberSize);
 		} catch (SQLException ex) {
 			throw new RuntimeException("Unexpected error when executing " + proc, ex);
 		}
-		
-		return (next);
 	}
 
 }

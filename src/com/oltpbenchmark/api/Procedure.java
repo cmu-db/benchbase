@@ -5,14 +5,18 @@ import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class Procedure {
+import org.apache.log4j.Logger;
 
-    private final Map<String, SQLStmt> name_stmt_xref;
-    private final Map<SQLStmt, String> stmt_name_xref;
+public abstract class Procedure {
+    private static final Logger LOG = Logger.getLogger(Procedure.class);
+
+    private Map<String, SQLStmt> name_stmt_xref;
+    private final Map<SQLStmt, String> stmt_name_xref = new HashMap<SQLStmt, String>();
     private final Map<SQLStmt, PreparedStatement> prepardStatements = new HashMap<SQLStmt, PreparedStatement>();
     
     /**
@@ -20,19 +24,47 @@ public abstract class Procedure {
      */
     private final Map<SQLStmt, String> database_sql = new HashMap<SQLStmt, String>();
 
-    public Procedure() {
+    /**
+     * Constructor
+     */
+    protected Procedure() {
+        // Nothing we can do here
+    }
+    
+    /**
+     * Initialize all of the SQLStmt handles. This must be called separately from
+     * the constructor, otherwise we can't get access to all of our SQLStmts.
+     * @param <T>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    protected <T extends Procedure> T initialize() {
         this.name_stmt_xref = Procedure.getStatments(this);
-        this.stmt_name_xref = new HashMap<SQLStmt, String>();
         for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
             this.stmt_name_xref.put(e.getValue(), e.getKey());
         } // FOR
+        LOG.info(String.format("Initialized %s with %d SQLStmts: %s",
+                               this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));
+        return ((T)this);
     }
     
+    /**
+     * Return a PreparedStatement for the given SQLStmt handle
+     * The underlying Procedure API will make sure that the proper SQL
+     * for the target DBMS is used for this SQLStmt. 
+     * @param conn
+     * @param stmt
+     * @return
+     * @throws SQLException
+     */
     public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt) throws SQLException {
+        assert(this.name_stmt_xref != null) : "The Procedure " + this + " has not been initialized yet!";
         PreparedStatement pStmt = this.prepardStatements.get(stmt);
         if (pStmt == null) {
+            assert(this.stmt_name_xref.containsKey(stmt)) :
+                "Unexpected SQLStmt handle in " + this.getClass().getSimpleName() + "\n" + this.name_stmt_xref;
             String sql = this.database_sql.get(stmt);
-            assert(sql != null) : "Unexpected SQLStmt handle " + this.getClass().getSimpleName() + "." + this.stmt_name_xref.get(stmt);
+            if (sql == null) sql = stmt.getSQL();
             pStmt = conn.prepareStatement(sql);
             this.prepardStatements.put(stmt, pStmt);
         }
@@ -46,11 +78,12 @@ public abstract class Procedure {
      * @throws SQLException
      */
     protected final void generateAllPreparedStatements(Connection conn) {
-        for (SQLStmt stmt : this.stmt_name_xref.keySet()) {
+        for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) { 
+            SQLStmt stmt = e.getValue();
             try {
                 this.getPreparedStatement(conn, stmt);
-            } catch (SQLException ex) {
-                throw new RuntimeException(String.format("Failed to generate PreparedStatements for %s.%s", this, stmt), ex);
+            } catch (Throwable ex) {
+                throw new RuntimeException(String.format("Failed to generate PreparedStatements for %s.%s", this, e.getKey()), ex);
             }
         } // FOR
     }
@@ -59,6 +92,14 @@ public abstract class Procedure {
         SQLStmt stmt = this.name_stmt_xref.get(name);
         assert(stmt != null) : "Unexpected SQLStmt handle " + this.getClass().getSimpleName() + "." + name;
         this.database_sql.put(stmt, sql);
+    }
+    
+    /**
+     * Hook for testing
+     * @return
+     */
+    protected Map<String, SQLStmt> getStatments() {
+        return (Collections.unmodifiableMap(this.name_stmt_xref));
     }
     
     protected static Map<String, SQLStmt> getStatments(Procedure proc) {

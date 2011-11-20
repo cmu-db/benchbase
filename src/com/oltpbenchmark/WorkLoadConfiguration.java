@@ -39,6 +39,8 @@ public class WorkLoadConfiguration {
 	private String db_password;
 	private String db_driver;
 	
+	private double scaleFactor = 1.0;
+	
 	private int terminals;
 	private int numWarehouses;
 	private String tracefile;
@@ -101,7 +103,30 @@ public class WorkLoadConfiguration {
 	public String getDBDriver() {
 		return this.db_driver;
 	}
+	
 
+	/**
+	 * Set the scale factor for the database
+	 * A value of 1 means the default size.
+	 * A value less than 1 means the database is larger
+	 * A value greater than 1 means the database is smaller 
+	 * @param scaleFactor
+	 */
+	public void setScaleFactor(double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
+	/**
+	 * Return the scale factor of the database size
+	 * @return
+	 */
+	public double getScaleFactor() {
+        return this.scaleFactor;
+    }
+
+	/**
+	 * XXX: Size of what???
+	 * @return
+	 */
 	public int size() {
 		return this.workPhases;
 	}

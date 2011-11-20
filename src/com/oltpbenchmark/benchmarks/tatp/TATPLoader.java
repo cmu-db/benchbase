@@ -65,13 +65,15 @@ import com.oltpbenchmark.catalog.*;
 public class TATPLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TATPLoader.class);
     
-    private final long subscriberSize = 10000; // FIXME
+    private final long subscriberSize;
     private final int batchSize = 10000; // FIXME
     private final double scaleFactor = 1.0; // FIXME
     private final boolean blocking = true; // FIXME
     
     public TATPLoader(Connection c, WorkLoadConfiguration workConf, Map<String, Table> tables) {
     	super(c, workConf, tables);
+    	this.subscriberSize = Math.round(TATPConstants.DFAULT_NUM_SUBSCRIBERS / workConf.getScaleFactor());
+    	
         if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
 

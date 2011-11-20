@@ -63,8 +63,13 @@ public class ResourceStresserWorker extends Worker {
 
     @Override
     protected TransactionType doWork(boolean measure, Phase phase) {
-        TransactionType retTP = null;
         TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
+        this.executeWork(nextTrans);
+        return (nextTrans);
+    }
+    
+    @Override
+    protected void executeWork(TransactionType nextTrans) {
         try {
             if (nextTrans.getProcedureClass().equals(CPU1.class)) {
                 cpu1Transaction(10, 1);
@@ -80,14 +85,12 @@ public class ResourceStresserWorker extends Worker {
                 contention2Transaction(2, 5, 1);
             }
             conn.commit();
-            retTP = nextTrans;
-
         } catch (MySQLTransactionRollbackException m) {
             System.err.println("Rollback:" + m.getMessage());
         } catch (SQLException e) {
             System.err.println("Timeout:" + e.getMessage());
         }
-        return retTP;
+        return;
     }
 
     private void contention1Transaction() throws SQLException {

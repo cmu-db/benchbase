@@ -51,10 +51,13 @@ public class EpinionsWorker extends Worker {
 
     @Override
     protected TransactionType doWork(boolean measure, Phase phase) {
-
-        TransactionType retTP = TransactionType.INVALID;
         TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
-
+        this.executeWork(nextTrans);
+        return nextTrans;
+    }
+    
+    @Override
+    protected void executeWork(TransactionType nextTrans) {
         try {
             if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
                 reviewItemByID();
@@ -76,14 +79,13 @@ public class EpinionsWorker extends Worker {
                 updateTrustRating();
             }
             conn.commit();
-            retTP = nextTrans;
 
         } catch (MySQLTransactionRollbackException m) {
             System.err.println("Rollback:" + m.getMessage());
         } catch (SQLException e) {
             System.err.println("Timeout:" + e.getMessage());
         }
-        return retTP;
+        return;
     }
 
     public void reviewItemByID() throws SQLException {

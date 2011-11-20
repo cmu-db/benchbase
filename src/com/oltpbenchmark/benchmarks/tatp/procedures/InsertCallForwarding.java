@@ -43,9 +43,9 @@ import com.oltpbenchmark.benchmarks.tatp.TATPConstants;
 
 public class InsertCallForwarding extends Procedure {
 
-	public final SQLStmt getSubscriber = new SQLStmt(
-		"SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
-	);
+    public final SQLStmt getSubscriber = new SQLStmt(
+        "SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
+    );
 
     public final SQLStmt getSpecialFacility = new SQLStmt(
         "SELECT sf_type FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " WHERE s_id = ?"
@@ -56,22 +56,22 @@ public class InsertCallForwarding extends Procedure {
     );
      
     public long run(Connection conn, String sub_nbr, byte sf_type, byte start_time, byte end_time, String numberx) throws SQLException {
-    	PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
-    	stmt.setString(1, sub_nbr);
-    	ResultSet results = stmt.executeQuery();
-    	assert(results != null);
-    	boolean adv = results.next();
-    	assert(adv);
+        PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
+        stmt.setString(1, sub_nbr);
+        ResultSet results = stmt.executeQuery();
+        assert(results != null);
+        boolean adv = results.next();
+        assert(adv);
         long s_id = results.getLong(1);
-    	 
+         
         stmt = this.getPreparedStatement(conn, getSpecialFacility);
         stmt.setLong(1, s_id);
         results = stmt.executeQuery();
-    	assert(results != null);
-    	 
-    	// Inserting a new CALL_FORWARDING record only succeeds 30% of the time
-    	stmt = this.getPreparedStatement(conn, insertCallForwarding);
-    	stmt.setLong(1, s_id);
+        assert(results != null);
+         
+        // Inserting a new CALL_FORWARDING record only succeeds 30% of the time
+        stmt = this.getPreparedStatement(conn, insertCallForwarding);
+        stmt.setLong(1, s_id);
         stmt.setByte(2, sf_type);
         stmt.setByte(3, start_time);
         stmt.setByte(4, end_time);

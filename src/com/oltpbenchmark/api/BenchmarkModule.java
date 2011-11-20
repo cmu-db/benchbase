@@ -164,13 +164,14 @@ public abstract class BenchmarkModule {
 	 */
 	@SuppressWarnings("unchecked")
     public final TransactionType getTransactionType(String procName, int id) {
+	    assert(id != TransactionType.INVALID_ID) :
+	        String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
+	                      this.benchmarkName, procName, id, TransactionType.INVALID.getClass().getSimpleName());
 	    Package pkg = this.getProcedurePackageImpl();
 	    String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>)ClassUtil.getClass(fullName);
         assert(procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;
         return new TransactionType(procClass, id);
-	    
-	    
 	}
 	
 	protected final Connection getConnection() throws SQLException {
@@ -228,6 +229,7 @@ public abstract class BenchmarkModule {
 	    if (txns != null) {
     	    for (TransactionType txn : txns) {
                 Procedure proc = (Procedure)ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
+                proc.initialize();
                 proc_xref.put(txn, proc);
                 
                 // TODO: Load up the procedures so that we can get the database-specific

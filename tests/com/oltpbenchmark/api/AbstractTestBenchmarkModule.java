@@ -20,64 +20,16 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
-import java.sql.Connection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 import java.util.Map.Entry;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.ClassUtil;
 
-import junit.framework.TestCase;
+public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
-public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends TestCase {
-
-    private static final String DB_CONNECTION = "jdbc:sqlite:";
-
-    private String dbName;
-    protected WorkLoadConfiguration workConf;
-    protected T benchmark;
-    protected Connection conn;
-    protected Set<Class<? extends Procedure>> procClasses = new HashSet<Class<? extends Procedure>>();
+    protected static final int NUM_TERMINALS = 10;
     
-    // HACK
-//    static {
-//        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
-//    }
-
-    @SuppressWarnings("unchecked")
-    protected final void setUp(Class<T> clazz, Class...procClasses) throws Exception {
-        super.setUp();
-        
-        for (int i = 0; i < procClasses.length; i++)
-            this.procClasses.add(procClasses[i]);
-        
-        this.dbName = String.format("/tmp/%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
-
-        Class.forName("org.sqlite.JDBC");
-        this.workConf = new WorkLoadConfiguration();
-        this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
-        
-//        String benchmarkName = clazz.getSimpleName().toLowerCase().replace("Benchmark", "");
-        this.benchmark = (T) ClassUtil.newInstance(clazz,
-                                                   new Object[] { this.workConf },
-                                                   new Class<?>[] { WorkLoadConfiguration.class });
-        assertNotNull(this.benchmark);
-    }
-    
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        
-        File f = new File(this.dbName);
-        if (f.exists()) f.delete();
-    }
-    
-
     /**
      * testGetDatabaseDDL
      */
@@ -104,5 +56,46 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             System.err.println(e.getValue());
         } // FOR
     }
-
+    
+    /**
+     * testGetTransactionType
+     */
+    public void testGetTransactionType() throws Exception {
+        int id = 1;
+        for (Class<? extends Procedure> procClass: this.procClasses) {
+            assertNotNull(procClass);
+            String procName = procClass.getSimpleName();
+            TransactionType txnType = this.benchmark.getTransactionType(procName, id++);
+            assertNotNull(txnType);
+            assertEquals(procClass, txnType.getProcedureClass());
+            System.err.println(procClass + " -> " + txnType);
+        } // FOR
+    }
+    
+    /**
+     * testGetTransactionTypeInvalidId
+     */
+    public void testGetTransactionTypeInvalidId() throws Exception {
+        Class<? extends Procedure> procClass = this.procClasses.get(0);
+        assertNotNull(procClass);
+        String procName = procClass.getSimpleName();
+        TransactionType txnType = null;
+        try {
+            txnType = this.benchmark.getTransactionType(procName, TransactionType.INVALID_ID);
+        } catch (Throwable ex) {
+            // Ignore
+        }
+        assertNull(txnType);
+    }
+    
+    /**
+     * testMakeWorkers
+     */
+    public void testMakeWorkers() throws Exception {
+        this.workConf.setTerminals(NUM_TERMINALS);
+        List<Worker> workers = this.benchmark.makeWorkers(false);
+        assertNotNull(workers);
+        assertEquals(NUM_TERMINALS, workers.size());
+        assertNotNull(workers.get(0));
+    }
 }

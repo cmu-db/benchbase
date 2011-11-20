@@ -47,7 +47,7 @@ public class TransactionType implements Comparable<TransactionType> {
 	
 	@Override
 	public String toString() {
-		return String.format("%s/%02d", this.procClass, this.id);
+		return String.format("%s/%02d", this.procClass.getSimpleName(), this.id);
 	}
 	
 }

@@ -61,11 +61,14 @@ public class WikipediaWorker extends Worker {
     @Override
     protected TransactionType doWork(boolean measure, Phase phase) {
         // we should work using the LLR to drive wikipedia at different speeds!!
-
-        WikipediaOperation t = generator.nextTransaction();
-        TransactionType retTP = TransactionType.INVALID;
         TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
-
+        this.executeWork(nextTrans);
+        return (nextTrans);
+    }
+    
+    @Override
+    protected void executeWork(TransactionType nextTrans) {
+        WikipediaOperation t = generator.nextTransaction();
         try {
             if (nextTrans.getProcedureClass().equals(AddWatchList.class)) {
                 addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
@@ -78,16 +81,15 @@ public class WikipediaWorker extends Worker {
             } else if (nextTrans.getProcedureClass().equals(GetPageAuthenticated.class)) {
                 selectPage(true, userIp, t.userId, t.nameSpace, t.pageTitle);
             }
-            retTP = nextTrans;
 
         } catch (MySQLTransactionRollbackException m) {
             System.err.println("Rollback:" + m.getMessage());
         } catch (SQLException e) {
             System.err.println("Timeout:" + e.getMessage());
         }
-        return retTP;
+        return;
     }
-
+    
 	/**
 	 * Implements wikipedia selection of last version of an article (with and
 	 * without the user being logged in)

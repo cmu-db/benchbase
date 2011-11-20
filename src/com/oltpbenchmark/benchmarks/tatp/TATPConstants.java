@@ -53,6 +53,8 @@ package com.oltpbenchmark.benchmarks.tatp;
 
 public abstract class TATPConstants {
 
+    public static final long DFAULT_NUM_SUBSCRIBERS = 100000l; 
+    
     // ----------------------------------------------------------------
     // STORED PROCEDURE EXECUTION FREQUENCIES (0-100)
     // ----------------------------------------------------------------
@@ -72,8 +74,6 @@ public abstract class TATPConstants {
     public static final String TABLENAME_SPECIAL_FACILITY = "SPECIAL_FACILITY";
     public static final String TABLENAME_CALL_FORWARDING = "CALL_FORWARDING";
  
-    public static final int BATCH_SIZE = 5000;
-    
     public static final String TABLENAMES[] = {
         TABLENAME_SUBSCRIBER,
         TABLENAME_ACCESS_INFO,

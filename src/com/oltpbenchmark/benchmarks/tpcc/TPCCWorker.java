@@ -53,7 +53,11 @@ import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
-import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrderTransaction;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.Payment;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel;
 import com.oltpbenchmark.util.SimplePrinter;
 
 
@@ -141,8 +145,6 @@ public class TPCCWorker extends Worker {
 
 
 	public TransactionType chooseTransaction(Phase phase) {
-
-		
 		int nextTrans = phase.chooseTransaction();
 		
 		if (phase != null) {
@@ -157,11 +159,11 @@ public class TPCCWorker extends Worker {
 						"Wrong transaction percentages in Configuration file.. they don't add up to 100%");
 
 			//weights of 0 is for the "INVALID" transaction
-			newOrderWeight = phase.weights.get(transactionTypes.getType(NewOrderTransaction.class).getId());
-			paymentWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("PAYMENT").getId());
-			orderStatusWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("ORDER_STATUS").getId());
-			deliveryWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("DELIVERY").getId());
-			stockLevelWeight = -1; // FIXME phase.weights.get(transactionTypes.getType("STOCK_LEVEL").getId());
+			newOrderWeight = phase.weights.get(transactionTypes.getType(NewOrder.class).getId());
+			paymentWeight = phase.weights.get(transactionTypes.getType(Payment.class).getId());
+			orderStatusWeight = phase.weights.get(transactionTypes.getType(OrderStatus.class).getId());
+			deliveryWeight = phase.weights.get(transactionTypes.getType(Delivery.class).getId());
+			stockLevelWeight = phase.weights.get(transactionTypes.getType(StockLevel.class).getId());
 		}
 
 		// Generate an integer in the range [1, 100] (that means inclusive!)
@@ -206,8 +208,8 @@ public class TPCCWorker extends Worker {
 				break;
 				
 			case 1: //NEW_ORDER
-				NewOrderTransaction proc = (NewOrderTransaction) this.getProcedure("NewOrderTransaction");
-					NewOrderTransaction nt = new NewOrderTransaction(conn,gen,terminalWarehouseID,numWarehouses,terminalDistrictLowerID,terminalDistrictUpperID,this);
+				NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
+					NewOrder nt = new NewOrder(conn,gen,terminalWarehouseID,numWarehouses,terminalDistrictLowerID,terminalDistrictUpperID,this);
 					nt.run();
 				break;
 
@@ -336,6 +338,11 @@ public class TPCCWorker extends Worker {
 		}
 
 		return result;
+	}
+	
+	@Override
+	protected void executeWork(TransactionType txnType) {
+	    // TODO Auto-generated method stub
 	}
 
 	/**

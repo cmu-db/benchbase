@@ -14,7 +14,7 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.UserAbortException;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
-public class NewOrderTransaction extends Procedure {
+public class NewOrder extends Procedure {
 
     public final SQLStmt stmtGetCustWhseSQL = new SQLStmt(
     		"SELECT c_discount, c_last, c_credit, w_tax"
@@ -66,7 +66,7 @@ public class NewOrderTransaction extends Procedure {
 	private int numWarehouses, terminalDistrictLowerID, terminalDistrictUpperID; 
 	private TPCCWorker w;
     
-	public NewOrderTransaction(Connection conn, Random gen,
+	public NewOrder(Connection conn, Random gen,
 			int terminalWarehouseID, int numWarehouses,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
 			TPCCWorker w) throws SQLException {
