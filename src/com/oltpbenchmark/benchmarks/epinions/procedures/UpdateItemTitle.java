@@ -14,10 +14,10 @@ public class UpdateItemTitle extends Procedure {
         "UPDATE item SET title = ? WHERE i_id=?"
     );
     
-    public ResultSet run(Connection conn, long iid, String title) throws SQLException {
+    public void run(Connection conn, long iid, String title) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateItem);
         stmt.setString(1, title);
         stmt.setLong(2, iid);
-        return (stmt.executeQuery());
+        stmt.executeUpdate();
     }
 }

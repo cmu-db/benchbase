@@ -14,11 +14,11 @@ public class UpdateTrustRating extends Procedure {
         "UPDATE trust SET trust = ? WHERE source_u_id=? AND target_u_id=?"
     );
     
-    public ResultSet run(Connection conn, long source_uid, long target_uid, int trust) throws SQLException {
+    public void run(Connection conn, long source_uid, long target_uid, int trust) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateTrust);
         stmt.setInt(1, trust);
         stmt.setLong(2, source_uid);
         stmt.setLong(2, target_uid);
-        return (stmt.executeQuery());
+        stmt.executeUpdate();
     }
 }

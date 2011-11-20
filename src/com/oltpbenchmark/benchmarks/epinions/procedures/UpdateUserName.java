@@ -14,10 +14,10 @@ public class UpdateUserName extends Procedure {
         "UPDATE user SET name = ? WHERE u_id=?"
     );
     
-    public ResultSet run(Connection conn, long uid, String name) throws SQLException {
+    public void run(Connection conn, long uid, String name) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateUser);
         stmt.setString(1, name);
         stmt.setLong(2, uid);
-        return (stmt.executeQuery());
+        stmt.executeUpdate();
     }
 }

@@ -14,11 +14,11 @@ public class UpdateReviewRating extends Procedure {
         "UPDATE review SET rating = ? WHERE i_id=? AND u_id=?"
     );
     
-    public ResultSet run(Connection conn, long iid, long uid, int rating) throws SQLException {
+    public void run(Connection conn, long iid, long uid, int rating) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateReview);
         stmt.setInt(1, rating);
         stmt.setLong(2, iid);
-        stmt.setLong(2, uid);
-        return (stmt.executeQuery());
+        stmt.setLong(3, uid);
+        stmt.executeUpdate();
     }
 }
