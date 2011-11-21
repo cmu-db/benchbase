@@ -16,8 +16,7 @@ public class Delivery extends Procedure {
 
 	
 	private SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT no_o_id FROM new_order WHERE no_d_id = ?"
-			+ " AND no_w_id = ? AND ROWNUM = 1"
-			+ " ORDER BY no_o_id ASC");
+			+ " AND no_w_id = ? ORDER BY no_o_id ASC LIMIT 1");
 	private SQLStmt delivDeleteNewOrderSQL = new SQLStmt("DELETE FROM new_order"
 			+ " WHERE no_o_id = ? AND no_d_id = ?"
 			+ " AND no_w_id = ?");

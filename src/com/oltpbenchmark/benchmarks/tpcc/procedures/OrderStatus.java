@@ -20,8 +20,7 @@ public class OrderStatus extends Procedure {
 	
 	private SQLStmt ordStatGetNewestOrdSQL = new SQLStmt("SELECT o_id, o_carrier_id, o_entry_d FROM oorder"
 			+ " WHERE o_w_id = ?"
-			+ " AND o_d_id = ? AND ROWNUM = 1"
-			+ " AND o_c_id = ? ORDER BY o_id DESC");
+			+ " AND o_d_id = ? AND o_c_id = ? ORDER BY o_id DESC LIMIT 1");
 	
 	private SQLStmt ordStatGetOrderLinesSQL = new SQLStmt("SELECT ol_i_id, ol_supply_w_id, ol_quantity,"
 			+ " ol_amount, ol_delivery_d"
