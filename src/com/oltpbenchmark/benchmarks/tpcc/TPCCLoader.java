@@ -87,7 +87,6 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 
-
 public class TPCCLoader {
 
 	static boolean fastLoad;
@@ -1023,8 +1022,8 @@ public class TPCCLoader {
 			for (int i = 1; i <= itemKount; i++) {
 
 				item.i_id = i;
-				item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14,
-						24, gen));
+				item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14, 24,
+						gen));
 				item.i_price = (float) (TPCCUtil.randomNumber(100, 10000, gen) / 100.0);
 
 				// i_data
@@ -1138,17 +1137,16 @@ public class TPCCLoader {
 				warehouse.w_ytd = 300000;
 
 				// random within [0.0000 .. 0.2000]
-				warehouse.w_tax = (float) ((TPCCUtil
-						.randomNumber(0, 2000, gen)) / 10000.0);
+				warehouse.w_tax = (float) ((TPCCUtil.randomNumber(0, 2000, gen)) / 10000.0);
 
-				warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(
-						6, 10, gen));
+				warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6,
+						10, gen));
 				warehouse.w_street_1 = TPCCUtil.randomStr(TPCCUtil
 						.randomNumber(10, 20, gen));
 				warehouse.w_street_2 = TPCCUtil.randomStr(TPCCUtil
 						.randomNumber(10, 20, gen));
-				warehouse.w_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(
-						10, 20, gen));
+				warehouse.w_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(10,
+						20, gen));
 				warehouse.w_state = TPCCUtil.randomStr(3).toUpperCase();
 				warehouse.w_zip = "123456789";
 
@@ -1245,8 +1243,8 @@ public class TPCCLoader {
 					} else {
 						// 10% of time i_data has "ORIGINAL" crammed somewhere
 						// in middle
-						startORIGINAL = TPCCUtil.randomNumber(2, (len - 8),
-								gen);
+						startORIGINAL = TPCCUtil
+								.randomNumber(2, (len - 8), gen);
 						stock.s_data = TPCCUtil.randomStr(startORIGINAL - 1)
 								+ "ORIGINAL"
 								+ TPCCUtil.randomStr(len - startORIGINAL - 9);
@@ -1394,14 +1392,14 @@ public class TPCCLoader {
 							gen)) / 10000.0);
 
 					district.d_next_o_id = 3001;
-					district.d_name = TPCCUtil.randomStr(TPCCUtil
-							.randomNumber(6, 10, gen));
+					district.d_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(
+							6, 10, gen));
 					district.d_street_1 = TPCCUtil.randomStr(TPCCUtil
 							.randomNumber(10, 20, gen));
 					district.d_street_2 = TPCCUtil.randomStr(TPCCUtil
 							.randomNumber(10, 20, gen));
-					district.d_city = TPCCUtil.randomStr(TPCCUtil
-							.randomNumber(10, 20, gen));
+					district.d_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(
+							10, 20, gen));
 					district.d_state = TPCCUtil.randomStr(3).toUpperCase();
 					district.d_zip = "123456789";
 
@@ -1504,8 +1502,8 @@ public class TPCCLoader {
 						customer.c_w_id = w;
 
 						// discount is random between [0.0000 ... 0.5000]
-						customer.c_discount = (float) (TPCCUtil.randomNumber(
-								1, 5000, gen) / 10000.0);
+						customer.c_discount = (float) (TPCCUtil.randomNumber(1,
+								5000, gen) / 10000.0);
 
 						if (TPCCUtil.randomNumber(1, 100, gen) <= 10) {
 							customer.c_credit = "BC"; // 10% Bad Credit

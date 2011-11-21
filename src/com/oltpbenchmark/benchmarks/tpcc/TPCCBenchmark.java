@@ -34,20 +34,20 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
-
 public class TPCCBenchmark extends BenchmarkModule {
 
 	private TPCCConf tpccConf;
+
 	public TPCCBenchmark() {
 		super("tpcc", new TPCCConf());
-		tpccConf= (TPCCConf) workConf;
+		tpccConf = (TPCCConf) workConf;
 	}
 
 	@Override
 	protected Package getProcedurePackageImpl() {
-	    return (NewOrder.class.getPackage());
+		return (NewOrder.class.getPackage());
 	}
-	
+
 	/**
 	 * @param Bool
 	 */
@@ -57,7 +57,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 		this.verbose = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		
+
 		try {
 			List<TPCCWorker> terminals = createTerminals();
 			workers.addAll(terminals);
@@ -67,22 +67,21 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		return workers;
 	}
-	
+
 	@Override
 	protected void loadDatabaseImpl(Connection conn) throws SQLException {
 		// TODO TPCCLoader loader = new TPCCLoader();
 		throw new NotImplementedException();
 	}
-	
-	
-	protected ArrayList<TPCCWorker> createTerminals() throws SQLException{
-		
+
+	protected ArrayList<TPCCWorker> createTerminals() throws SQLException {
+
 		TPCCWorker[] terminals = new TPCCWorker[tpccConf.getTerminals()];
 
 		int numWarehouses = tpccConf.getNumWarehouses();
 		int numTerminals = tpccConf.getTerminals();
 		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses);
-		 
+
 		String[] terminalNames = new String[numTerminals];
 		// TODO: This is currenly broken: fix it!
 		int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
@@ -119,7 +118,8 @@ public class TPCCBenchmark extends BenchmarkModule {
 				}
 				lowerDistrictId += 1;
 
-				String terminalName = terminalPrefix + "w" + w_id + "d" + lowerDistrictId + "-" + upperDistrictId;
+				String terminalName = terminalPrefix + "w" + w_id + "d"
+						+ lowerDistrictId + "-" + upperDistrictId;
 
 				TPCCWorker terminal = new TPCCWorker(terminalName, w_id,
 						lowerDistrictId, upperDistrictId, this,
@@ -131,9 +131,9 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		}
 		assert terminals[terminals.length - 1] != null;
-		
+
 		ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
-		for(TPCCWorker w:terminals)
+		for (TPCCWorker w : terminals)
 			ret.add(w);
 		return ret;
 	}

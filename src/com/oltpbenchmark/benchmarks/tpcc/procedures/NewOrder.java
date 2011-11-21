@@ -60,24 +60,13 @@ public class NewOrder extends Procedure {
 	private PreparedStatement stmtUpdateStock = null;
 	private PreparedStatement stmtInsertOrderLine = null;
 	
-	private Connection conn; 
-	private Random gen; 
-	private int terminalWarehouseID; 
-	private int numWarehouses, terminalDistrictLowerID, terminalDistrictUpperID; 
-	private TPCCWorker w;
     
-	public NewOrder(Connection conn, Random gen,
+    public ResultSet run(Connection conn, Random gen,
 			int terminalWarehouseID, int numWarehouses,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
 			TPCCWorker w) throws SQLException {
-		super();
-		this.conn = conn;
-		this.gen = gen;
-		this.terminalWarehouseID = terminalWarehouseID;
-		this.numWarehouses = numWarehouses;
-		this.terminalDistrictLowerID = terminalDistrictLowerID;
-		this.terminalDistrictUpperID = terminalDistrictUpperID;
-		this.w = w;
+    
+    	
 		
 		//initializing all prepared statements
 		stmtGetCustWhse=this.getPreparedStatement(conn, stmtGetCustWhseSQL);
@@ -89,12 +78,7 @@ public class NewOrder extends Procedure {
 		stmtGetStock =this.getPreparedStatement(conn, stmtInsertOOrderSQL);
 		stmtUpdateStock =this.getPreparedStatement(conn, stmtUpdateStockSQL);
 		stmtInsertOrderLine =this.getPreparedStatement(conn, stmtInsertOrderLineSQL);
-
-	}
-
-    
-    public ResultSet run() throws SQLException {
-    
+    	
     	
 		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
 		int customerID = TPCCUtil.getCustomerID(gen);
@@ -128,7 +112,7 @@ public class NewOrder extends Procedure {
 			try {
 				newOrderTransaction(terminalWarehouseID, districtID,
 						customerID, numItems, allLocal, itemIDs,
-						supplierWarehouseIDs, orderQuantities, conn);
+						supplierWarehouseIDs, orderQuantities, conn, w);
 				break;
 			} catch (SQLException e) {
 				w.rollbackAndHandleError(e,conn);
@@ -143,7 +127,7 @@ public class NewOrder extends Procedure {
 
 	private void newOrderTransaction(int w_id, int d_id, int c_id,
 			int o_ol_cnt, int o_all_local, int[] itemIDs,
-			int[] supplierWarehouseIDs, int[] orderQuantities, Connection conn)
+			int[] supplierWarehouseIDs, int[] orderQuantities, Connection conn, TPCCWorker w)
 			throws SQLException {
 		float c_discount, w_tax, d_tax = 0, i_price;
 		int d_next_o_id, o_id = -1, s_quantity;

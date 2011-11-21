@@ -35,14 +35,10 @@ public final class jTPCCConfig {
 	public static boolean TERMINAL_MESSAGES = true;
 
 	public static enum TransactionType {
-		      INVALID, 		  // Exists so the order is the same as the constants below 
-		 	  NEW_ORDER, 
-		 	  PAYMENT, 
-		 	  ORDER_STATUS, 
-		 	  DELIVERY, 
-		 	  STOCK_LEVEL
+		INVALID, // Exists so the order is the same as the constants below
+		NEW_ORDER, PAYMENT, ORDER_STATUS, DELIVERY, STOCK_LEVEL
 	}
-	
+
 	// TODO: Remove these constants
 	public final static int NEW_ORDER = 1, PAYMENT = 2, ORDER_STATUS = 3,
 			DELIVERY = 4, STOCK_LEVEL = 5;
