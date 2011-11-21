@@ -38,9 +38,9 @@ public class TwitterBenchmark extends BenchmarkModule {
 	
 	private TwitterConf twitterConf;
 
-	public TwitterBenchmark() {
-		super("twitter", new TwitterConf());
-		twitterConf= (TwitterConf) workConf;
+	public TwitterBenchmark(WorkLoadConfiguration workConf) {
+		super("twitter", workConf);
+		this.twitterConf = new TwitterConf(workConf);
 	}
 	
 	@Override
@@ -53,12 +53,12 @@ public class TwitterBenchmark extends BenchmarkModule {
 		TransactionSelector transSel = new TransactionSelector(
 				twitterConf.getTracefile(), 
 				twitterConf.getTracefile2(), 
-				twitterConf.getTransTypes());
+				workConf.getTransTypes());
 		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		try {
-			for (int i = 0; i < twitterConf.getTerminals(); ++i) {
+			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
 				TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(

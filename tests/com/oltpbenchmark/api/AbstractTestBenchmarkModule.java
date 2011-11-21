@@ -91,11 +91,11 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testMakeWorkers
      */
-    public void testMakeWorkers() throws Exception {
-        this.workConf.setTerminals(NUM_TERMINALS);
-        List<Worker> workers = this.benchmark.makeWorkers(false);
-        assertNotNull(workers);
-        assertEquals(NUM_TERMINALS, workers.size());
-        assertNotNull(workers.get(0));
-    }
+//    public void testMakeWorkers() throws Exception {
+//        this.workConf.setTerminals(NUM_TERMINALS);
+//        List<Worker> workers = this.benchmark.makeWorkers(false);
+//        assertNotNull(workers);
+//        assertEquals(NUM_TERMINALS, workers.size());
+//        assertNotNull(workers.get(0));
+//    }
 }

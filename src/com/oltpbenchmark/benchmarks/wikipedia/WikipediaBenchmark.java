@@ -33,15 +33,15 @@ import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 
 public class WikipediaBenchmark extends BenchmarkModule {
 
-	private WikiConf wikiConf;
-	public WikipediaBenchmark() {		
-		super("wikipedia", new WikiConf());
-		wikiConf= (WikiConf) workConf;
+	private final WikiConf wikiConf;
+	
+	public WikipediaBenchmark(WorkLoadConfiguration workConf) {		
+		super("wikipedia", workConf);
+		this.wikiConf = new WikiConf(workConf);
 	}
 
 	@Override
@@ -55,20 +55,20 @@ public class WikipediaBenchmark extends BenchmarkModule {
 
 		TransactionSelector transSel = new TransactionSelector(
 				wikiConf.getTracefile(), 
-				wikiConf.getTransTypes());
+				workConf.getTransTypes());
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel
 				.readAll());
 		transSel.close();
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 
-		for (int i = 0; i < wikiConf.getTerminals(); ++i) {
+		for (int i = 0; i < workConf.getTerminals(); ++i) {
 			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
 					trace);
 			workers.add(new WikipediaWorker(i, this, generator, 
 					wikiConf.getBaseIP()
 					+ (i % 256) + "." + rand.nextInt(256), 
-					wikiConf.getTransTypes()));
+					workConf.getTransTypes()));
 		} // FOR
 		return workers;
 	}
