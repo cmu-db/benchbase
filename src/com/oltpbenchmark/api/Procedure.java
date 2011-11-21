@@ -54,6 +54,7 @@ public abstract class Procedure {
      * for the target DBMS is used for this SQLStmt. 
      * @param conn
      * @param stmt
+     * @param returnGeneratedKeys 
      * @return
      * @throws SQLException
      */
@@ -71,7 +72,30 @@ public abstract class Procedure {
         assert(pStmt != null) : "Unexpected null PreparedStatement for " + stmt;
         return (pStmt);
     }
-    
+    /**
+     * Return a PreparedStatement for the given SQLStmt handle
+     * The underlying Procedure API will make sure that the proper SQL
+     * for the target DBMS is used for this SQLStmt. 
+     * @param conn
+     * @param stmt
+     * @param returnGeneratedKeys 
+     * @return
+     * @throws SQLException
+     */
+    public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt, int returnGeneratedKeys) throws SQLException {
+        assert(this.name_stmt_xref != null) : "The Procedure " + this + " has not been initialized yet!";
+        PreparedStatement pStmt = this.prepardStatements.get(stmt);
+        if (pStmt == null) {
+            assert(this.stmt_name_xref.containsKey(stmt)) :
+                "Unexpected SQLStmt handle in " + this.getClass().getSimpleName() + "\n" + this.name_stmt_xref;
+            String sql = this.database_sql.get(stmt);
+            if (sql == null) sql = stmt.getSQL();
+            pStmt = conn.prepareStatement(sql, returnGeneratedKeys);
+            this.prepardStatements.put(stmt, pStmt);
+        }
+        assert(pStmt != null) : "Unexpected null PreparedStatement for " + stmt;
+        return (pStmt);
+    }
     /**
      * Initialize all the PreparedStatements needed by this Procedure
      * @param conn
