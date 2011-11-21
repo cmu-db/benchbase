@@ -46,11 +46,12 @@ public class Phase {
 		
 		int randomPercentage = gen.nextInt(100) + 1;
 		Double weight = 0.0;
-		
 		for(int i=0; i<weights.size();i++){
 			weight += weights.get(i);
 			if(randomPercentage <= weight)
-				return i;
+			{
+				return i+1;
+			}
 		}
 		
 		return -1;
