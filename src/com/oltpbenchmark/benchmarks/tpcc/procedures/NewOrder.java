@@ -74,8 +74,8 @@ public class NewOrder extends Procedure {
 		stmtInsertNewOrder=this.getPreparedStatement(conn, stmtInsertNewOrderSQL);
 		stmtUpdateDist =this.getPreparedStatement(conn, stmtUpdateDistSQL);
 		stmtInsertOOrder =this.getPreparedStatement(conn, stmtInsertOOrderSQL);
-		stmtGetItem =this.getPreparedStatement(conn, stmtInsertOOrderSQL);
-		stmtGetStock =this.getPreparedStatement(conn, stmtInsertOOrderSQL);
+		stmtGetItem =this.getPreparedStatement(conn, stmtGetItemSQL);
+		stmtGetStock =this.getPreparedStatement(conn, stmtGetStockSQL);
 		stmtUpdateStock =this.getPreparedStatement(conn, stmtUpdateStockSQL);
 		stmtInsertOrderLine =this.getPreparedStatement(conn, stmtInsertOrderLineSQL);
     	
