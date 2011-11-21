@@ -46,6 +46,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkLoadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
@@ -87,6 +89,7 @@ public class TPCCWorker extends Worker {
 	private int result = 0;
 
 	private static final AtomicInteger terminalId = new AtomicInteger(0);
+	private static final Logger LOG = Logger.getLogger(TPCCWorker.class);
 
 	public TPCCWorker(String terminalName, int terminalWarehouseID,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
@@ -94,6 +97,9 @@ public class TPCCWorker extends Worker {
 			SimplePrinter errorOutputArea, int numWarehouses)
 			throws SQLException {
 		super(terminalId.getAndIncrement(), benchmarkModule);
+		
+		
+
 		this.terminalName = terminalName;
 
 		this.terminalWarehouseID = terminalWarehouseID;
@@ -116,49 +122,35 @@ public class TPCCWorker extends Worker {
 	 */
 	public TransactionType executeTransaction(TransactionType nextTransaction) {
 
-		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,
-				terminalDistrictUpperID, gen);
+		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,	terminalDistrictUpperID, gen);
 		int customerID = TPCCUtil.getCustomerID(gen);
 
 		try {
-			switch (nextTransaction.getId()) { // eventually remove this switch
-												// and use types
-			case 0: // NEW_ORDER
-				NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
+			LOG.info("[Executing] "+ nextTransaction.getProcedureClass());
+            if (nextTransaction.getProcedureClass().equals(NewOrder.class)) {
+            	NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
 				proc.run(conn, gen, terminalWarehouseID, numWarehouses,
 						terminalDistrictLowerID, terminalDistrictUpperID, this);
-				break;
-
-			case 1: // PAYMENT
+            } else if (nextTransaction.getProcedureClass().equals(Payment.class)) {
 				Payment proc2 = (Payment) this.getProcedure(Payment.class);
 				proc2.run(conn, gen, terminalWarehouseID, numWarehouses,
 						terminalDistrictLowerID, terminalDistrictUpperID, this);
-				break;
-
-			case 2: // STOCK_LEVEL
-				StockLevel proc3 = (StockLevel) this
-						.getProcedure(StockLevel.class);
-				proc3.run(conn, gen, terminalWarehouseID, numWarehouses,
+            } else if (nextTransaction.getProcedureClass().equals(StockLevel.class)) {
+            	StockLevel proc3 = (StockLevel) this.getProcedure(StockLevel.class);
+            	proc3.run(conn, gen, terminalWarehouseID, numWarehouses, 
+            			terminalDistrictLowerID, terminalDistrictUpperID, this);
+            } else if (nextTransaction.getProcedureClass().equals(OrderStatus.class)) {
+            	OrderStatus proc4 = (OrderStatus) this.getProcedure(OrderStatus.class);
+            	proc4.run(conn, gen, terminalWarehouseID, numWarehouses, 
+            			terminalDistrictLowerID, terminalDistrictUpperID, this);
+            } else if (nextTransaction.getProcedureClass().equals(Delivery.class)) {
+            	Delivery proc5 = (Delivery) this.getProcedure(Delivery.class);
+				proc5.run(conn, gen, terminalWarehouseID, numWarehouses, 
 						terminalDistrictLowerID, terminalDistrictUpperID, this);
-				break;
-
-			case 3: // ORDER_STATUS
-				OrderStatus proc4 = (OrderStatus) this
-						.getProcedure(OrderStatus.class);
-				proc4.run(conn, gen, terminalWarehouseID, numWarehouses,
-						terminalDistrictLowerID, terminalDistrictUpperID, this);
-				break;
-
-			case 4:// DELIVERY
-				Delivery proc5 = (Delivery) this.getProcedure(Delivery.class);
-				proc5.run(conn, gen, terminalWarehouseID, numWarehouses,
-						terminalDistrictLowerID, terminalDistrictUpperID, this);
-				break;
-
-			default:
-				throw new RuntimeException("Bad transaction type = "
-						+ nextTransaction);
-			}
+            } else {
+            	System.err.println("We have been invoked with an INVALID transactionType?!");
+            	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
+            }
 			transactionCount++;
 
 		} catch (SQLException e) {
