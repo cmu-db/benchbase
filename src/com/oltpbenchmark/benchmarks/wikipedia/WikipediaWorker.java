@@ -68,18 +68,19 @@ public class WikipediaWorker extends Worker {
     }
     
     @Override
-    protected void executeWork(TransactionType nextTrans) {
+    protected void executeWork(TransactionType nextTransaction) {
         WikipediaOperation t = generator.nextTransaction();
+        //System.out.println("[Executing] "+nextTransaction.getProcedureClass());
         try {
-            if (nextTrans.getProcedureClass().equals(AddWatchList.class)) {
+            if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
                 addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
-            } else if (nextTrans.getProcedureClass().equals(RemoveWatchList.class)) {
+            } else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
                 removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
-            } else if (nextTrans.getProcedureClass().equals(UpdatePage.class)) {
+            } else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
                 updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
-            } else if (nextTrans.getProcedureClass().equals(GetPageAnonymous.class)) {
+            } else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
                 getPageAnonymous(true, userIp, 0, t.nameSpace, t.pageTitle);
-            } else if (nextTrans.getProcedureClass().equals(GetPageAuthenticated.class)) {
+            } else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
                 getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
             }
 

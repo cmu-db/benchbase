@@ -34,7 +34,7 @@ public class GetPageAuthenticated extends Procedure {
 		String userText = userIp;
 		if (userId >= 0) {
 			PreparedStatement st =this.getPreparedStatement(conn,selectUser);
-			st.setInt(userId, userId);
+			st.setInt(1, userId);
 			ResultSet rs = st.executeQuery();
 			if (rs.next()) {
 				userText = rs.getString("user_name");
@@ -118,6 +118,7 @@ public class GetPageAuthenticated extends Procedure {
 		// "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
 		// For now we run the original one, which works on the data we have
 		st=this.getPreparedStatement(conn, selectText);
+		st.setInt(1,textId);
 		rs = st.executeQuery();
 		if (!rs.next())
 			throw new RuntimeException("no such old_text");
