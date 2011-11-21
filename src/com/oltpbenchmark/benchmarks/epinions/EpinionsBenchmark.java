@@ -29,15 +29,15 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 
 public class EpinionsBenchmark extends BenchmarkModule {
 
-	public EpinionsBenchmark() {
-		super("epinions", new WorkLoadConfiguration());
+	public EpinionsBenchmark(WorkloadConfiguration workConf) {
+		super("epinions", workConf);
 	}
 
 	@Override

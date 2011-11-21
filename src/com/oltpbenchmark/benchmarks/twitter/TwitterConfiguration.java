@@ -2,13 +2,13 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 
-public class TwitterConf {
+public class TwitterConfiguration {
     
     private final XMLConfiguration xmlConfig;
     
-    public TwitterConf(WorkLoadConfiguration workConf) {
+    public TwitterConfiguration(WorkloadConfiguration workConf) {
         this.xmlConfig = workConf.getXmlConfig();
     }
 	

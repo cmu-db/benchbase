@@ -76,9 +76,13 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         Worker w = workers.get(0);
         assertNotNull(w);
         for (TransactionType txnType : this.workConf.getTransTypes()) {
-            // Bombs away!
-            System.err.println("Executing " + txnType);
-            w.executeWork(txnType);
+            try {
+                // Bombs away!
+                System.err.println("Executing " + txnType);
+                w.executeWork(txnType);
+            } catch (Throwable ex) {
+                // FIXME
+            }
         } // FOR
     }
 }

@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.types.State;
 
 public abstract class Worker implements Runnable {
@@ -23,7 +23,7 @@ public abstract class Worker implements Runnable {
 	protected final int id;
 	protected final BenchmarkModule benchmarkModule;
 	protected final Connection conn;
-	protected final WorkLoadConfiguration wrkld;
+	protected final WorkloadConfiguration wrkld;
 	protected final TransactionTypes transactionTypes;
 	protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
 	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();

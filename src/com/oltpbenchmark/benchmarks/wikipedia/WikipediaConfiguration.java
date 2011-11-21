@@ -2,13 +2,13 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 
-public class WikiConf {
+public class WikipediaConfiguration {
 
     private final XMLConfiguration xmlConfig;
     
-    public WikiConf(WorkLoadConfiguration workConf) {
+    public WikipediaConfiguration(WorkloadConfiguration workConf) {
         this.xmlConfig = workConf.getXmlConfig();
     }
     

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.util.ClassUtil;
 
 import junit.framework.TestCase;
@@ -22,7 +22,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected static final double DB_SCALE_FACTOR = 100;
 
     protected String dbName;
-    protected WorkLoadConfiguration workConf;
+    protected WorkloadConfiguration workConf;
     protected T benchmark;
     protected Connection conn;
     protected List<Class<? extends Procedure>> procClasses = new ArrayList<Class<? extends Procedure>>();
@@ -40,14 +40,14 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.dbName = String.format("/tmp/%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
 
         Class.forName("org.sqlite.JDBC");
-        this.workConf = new WorkLoadConfiguration();
+        this.workConf = new WorkloadConfiguration();
         this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
         
 //        String benchmarkName = clazz.getSimpleName().toLowerCase().replace("Benchmark", "");
         this.benchmark = (T) ClassUtil.newInstance(clazz,
                                                    new Object[] { this.workConf },
-                                                   new Class<?>[] { WorkLoadConfiguration.class });
+                                                   new Class<?>[] { WorkloadConfiguration.class });
         assertNotNull(this.benchmark);
     }
     

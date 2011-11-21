@@ -28,7 +28,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
 
-public class WorkLoadConfiguration {
+public class WorkloadConfiguration {
 
 	private DatabaseType db_type;	
 	private String db_connection;

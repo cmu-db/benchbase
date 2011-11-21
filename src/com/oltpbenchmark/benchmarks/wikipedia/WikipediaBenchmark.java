@@ -29,7 +29,7 @@ import java.util.Random;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
@@ -37,11 +37,11 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 
 public class WikipediaBenchmark extends BenchmarkModule {
 
-	private final WikiConf wikiConf;
+	private final WikipediaConfiguration wikiConf;
 	
-	public WikipediaBenchmark(WorkLoadConfiguration workConf) {		
+	public WikipediaBenchmark(WorkloadConfiguration workConf) {		
 		super("wikipedia", workConf);
-		this.wikiConf = new WikiConf(workConf);
+		this.wikiConf = new WikipediaConfiguration(workConf);
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
@@ -36,11 +37,11 @@ import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
 
-	private TPCCConf tpccConf;
+	private final TPCCConfiguration tpccConf;
 
-	public TPCCBenchmark() {
-		super("tpcc", new TPCCConf());
-		tpccConf = (TPCCConf) workConf;
+	public TPCCBenchmark(WorkloadConfiguration workConf) {
+		super("tpcc", workConf);
+		this.tpccConf = new TPCCConfiguration(workConf);
 	}
 
 	@Override
@@ -76,10 +77,10 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 	protected ArrayList<TPCCWorker> createTerminals() throws SQLException {
 
-		TPCCWorker[] terminals = new TPCCWorker[tpccConf.getTerminals()];
+		TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
 
 		int numWarehouses = tpccConf.getNumWarehouses();
-		int numTerminals = tpccConf.getTerminals();
+		int numTerminals = workConf.getTerminals();
 		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses);
 
 		String[] terminalNames = new String[numTerminals];

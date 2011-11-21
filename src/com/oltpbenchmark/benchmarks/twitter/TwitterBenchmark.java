@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
@@ -36,11 +36,11 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 
 public class TwitterBenchmark extends BenchmarkModule {
 	
-	private TwitterConf twitterConf;
+	private TwitterConfiguration twitterConf;
 
-	public TwitterBenchmark(WorkLoadConfiguration workConf) {
+	public TwitterBenchmark(WorkloadConfiguration workConf) {
 		super("twitter", workConf);
-		this.twitterConf = new TwitterConf(workConf);
+		this.twitterConf = new TwitterConfiguration(workConf);
 	}
 	
 	@Override

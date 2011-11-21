@@ -90,20 +90,8 @@ public class DBWorkload {
 			printUsage(options);
 			return;
 		}
-		// Load the Benchmark Implementation
-		if (argsLine.hasOption("b")) {
-			String plugin = argsLine.getOptionValue("b");
-			String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
-			System.out.println(classname);
-			if(classname==null)
-					throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
-	        bench = ClassUtil.newInstance(classname,null,null);
-	        assert(bench != null);
-		}
-		else
-			throw new ParseException("Missing Benchmark Class to load");
 		
-		WorkLoadConfiguration wrkld= bench.getWorkloadConfiguration();
+		WorkloadConfiguration wrkld = new WorkloadConfiguration();
 		// Load the Workload Configuration from the Config file
 		if (argsLine.hasOption("c")) {
 			String configFile = argsLine.getOptionValue("c");
@@ -128,10 +116,7 @@ public class DBWorkload {
 						xmlConfig.getList("works.work(" + i + ").weights"));
 			}
 			
-			
 			int numTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
-			
-			
 			//CHECKING INPUT PHASES
 			int j =0;
 			for(Phase p:wrkld.getAllPhases()){
@@ -162,6 +147,23 @@ public class DBWorkload {
 		} else
 			throw new ParseException("Missing Configuration file");
 
+	      // Load the Benchmark Implementation
+        if (argsLine.hasOption("b")) {
+            String plugin = argsLine.getOptionValue("b");
+            String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
+            System.out.println(classname);
+            if(classname==null)
+                    throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
+            bench = ClassUtil.newInstance(classname,
+                                          new Object[]{ wrkld },
+                                          new Class<?>[]{ WorkloadConfiguration.class });
+            bench = ClassUtil.newInstance(classname, null,null);
+            assert(bench != null);
+        }
+        else
+            throw new ParseException("Missing Benchmark Class to load");
+
+		
 		// Bombs away!
         Results r = run(bench, argsLine.hasOption("v"));
         PrintStream ps = System.out;

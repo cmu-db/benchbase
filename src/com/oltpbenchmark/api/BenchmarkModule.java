@@ -32,7 +32,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.ClassUtil;
@@ -45,15 +45,14 @@ public abstract class BenchmarkModule {
 	private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 	
 	protected final String benchmarkName;
-	protected final WorkLoadConfiguration workConf;
+	protected final WorkloadConfiguration workConf;
 	protected boolean verbose;
 	
-	public BenchmarkModule(String benchmarkName, WorkLoadConfiguration workConf) {
+	public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf) {
 		assert(workConf != null) : "The WorkloadConfiguration instance is null.";
 		
 		this.benchmarkName = benchmarkName;
 		this.workConf = workConf;
-		
 	}
 	
 	// --------------------------------------------------------------------------
@@ -182,7 +181,7 @@ public abstract class BenchmarkModule {
 											workConf.getDBPassword()));
 	}
 	
-	public final WorkLoadConfiguration getWorkloadConfiguration() {
+	public final WorkloadConfiguration getWorkloadConfiguration() {
 	    return (this.workConf);
 	}
 	

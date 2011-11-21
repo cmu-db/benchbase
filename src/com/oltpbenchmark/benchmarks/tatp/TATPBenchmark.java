@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
@@ -34,8 +34,8 @@ import com.oltpbenchmark.catalog.Table;
 
 public class TATPBenchmark extends BenchmarkModule {
 
-	public TATPBenchmark() {
-		super("tatp", new WorkLoadConfiguration());
+	public TATPBenchmark(WorkloadConfiguration workConf) {
+		super("tatp", workConf);
 	}
 	
 	@Override

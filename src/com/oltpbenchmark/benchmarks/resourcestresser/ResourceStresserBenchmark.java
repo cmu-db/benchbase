@@ -27,14 +27,14 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
 
-	public ResourceStresserBenchmark(WorkLoadConfiguration workConf) {
+	public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
 		super("resourcestresser", workConf);
 	}
 	

@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
@@ -98,8 +98,6 @@ public class TPCCWorker extends Worker {
 			throws SQLException {
 		super(terminalId.getAndIncrement(), benchmarkModule);
 		
-		
-
 		this.terminalName = terminalName;
 
 		this.terminalWarehouseID = terminalWarehouseID;

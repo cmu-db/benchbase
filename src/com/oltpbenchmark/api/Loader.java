@@ -22,16 +22,16 @@ package com.oltpbenchmark.api;
 import java.sql.Connection;
 import java.util.Map;
 
-import com.oltpbenchmark.WorkLoadConfiguration;
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Table;
 
 public abstract class Loader {
 
     protected final Connection conn;
-    protected final WorkLoadConfiguration workConf;
+    protected final WorkloadConfiguration workConf;
     protected final Map<String, Table> tables;
     
-    public Loader(Connection c, WorkLoadConfiguration workConf, Map<String, Table> tables) {
+    public Loader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
     	this.conn = c;
     	this.workConf = workConf;
     	this.tables = tables;
