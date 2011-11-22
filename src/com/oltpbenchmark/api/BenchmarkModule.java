@@ -142,6 +142,7 @@ public abstract class BenchmarkModule {
 			assert(tables != null);
 			
 			conn.setAutoCommit(false);
+			conn.setTransactionIsolation(workConf.getIsolationMode());
 			Statement st = conn.createStatement();
 			for (Table catalog_tbl : tables.values()) {
 				LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
@@ -245,16 +246,13 @@ public abstract class BenchmarkModule {
                 Procedure proc = (Procedure)ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
                 proc.initialize();
                 proc_xref.put(txn, proc);
-                
-                // TODO: Load up the procedures so that we can get the database-specific
-                //       versions of the queries
+                proc.loadSQLDialect(workConf.getDialectMap());
             } // FOR
 	    }
 	    if (proc_xref.isEmpty()) {
             LOG.warn("No procedures defined for " + this);
         }
-        return (proc_xref);
-	    
-	    
+        return (proc_xref);	    	    
 	}
+	
 }

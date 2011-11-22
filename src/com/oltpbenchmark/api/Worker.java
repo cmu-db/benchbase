@@ -15,8 +15,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.types.State;
 
 public abstract class Worker implements Runnable {
-    private static final Logger LOG = Logger.getLogger(Worker.class);
-            
+
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
 	
@@ -40,6 +39,7 @@ public abstract class Worker implements Runnable {
 		try {
 		    this.conn = this.benchmarkModule.getConnection();
 		    this.conn.setAutoCommit(false);
+		    conn.setTransactionIsolation(wrkld.getIsolationMode());
 		} catch (SQLException ex) {
 		    throw new RuntimeException("Failed to connect to database", ex);
 		}

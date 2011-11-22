@@ -113,6 +113,25 @@ public abstract class Procedure {
         } // FOR
     }
     
+    /**
+     * Fetch the SQL from the dialect map
+     * @param dialectMap 
+     */
+    protected final void loadSQLDialect(Map<String,String> dialectMap){ 	
+		for(String key:this.name_stmt_xref.keySet())
+		{
+			String sql = dialectMap.get(key);
+			assert(sql != null) : key + " Statement is not defined in the dialect";
+			setDatabaseSQL(key,sql);
+		}
+    }
+    
+    /**
+     * Set Statements with SQL specific
+     * @param name
+     * @param sql
+     */
+    
     protected final void setDatabaseSQL(String name, String sql) {
         SQLStmt stmt = this.name_stmt_xref.get(name);
         assert(stmt != null) : "Unexpected SQLStmt handle " + this.getClass().getSimpleName() + "." + name;

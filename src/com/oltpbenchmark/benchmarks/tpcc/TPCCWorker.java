@@ -89,7 +89,6 @@ public class TPCCWorker extends Worker {
 	private int result = 0;
 
 	private static final AtomicInteger terminalId = new AtomicInteger(0);
-	private static final Logger LOG = Logger.getLogger(TPCCWorker.class);
 
 	public TPCCWorker(String terminalName, int terminalWarehouseID,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
@@ -124,7 +123,7 @@ public class TPCCWorker extends Worker {
 		int customerID = TPCCUtil.getCustomerID(gen);
 
 		try {
-			LOG.info("[Executing] "+ nextTransaction.getProcedureClass());
+			//System.out.println("[Executing] "+ nextTransaction.getProcedureClass());
             if (nextTransaction.getProcedureClass().equals(NewOrder.class)) {
             	NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
 				proc.run(conn, gen, terminalWarehouseID, numWarehouses,

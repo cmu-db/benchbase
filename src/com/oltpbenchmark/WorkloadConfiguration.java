@@ -19,11 +19,17 @@
  ******************************************************************************/
 package com.oltpbenchmark;
 
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
@@ -45,8 +51,11 @@ public class WorkloadConfiguration {
 	private static Iterator<Phase> i;
 	private int workPhases = 0;
 	private TransactionTypes transTypes = null;
+	private int isolationMode;
 
-	protected XMLConfiguration xmlConfig;
+	protected XMLConfiguration xmlConfig = null;
+	
+	private final Map<String,String> dialectMap= new HashMap<String,String>();
 
 	public void addWork(int time, int rate, List<String> weights) {
 		works.add(new Phase(time, rate, weights));
@@ -55,7 +64,7 @@ public class WorkloadConfiguration {
 
 	public Phase getNextPhase() {
 		if (i.hasNext())
-			return (Phase) i.next();
+			return i.next();
 		return null;
 	}
 	
@@ -143,6 +152,41 @@ public class WorkloadConfiguration {
 	    
 		// TODO Auto-generated method stub
 		i = works.iterator();
+		
+		// Populate the map
+		setDialectMap();
+		
+		//Set the isolation mode
+		String mode= this.xmlConfig.getString("isolation");
+		if(mode.equals("TRANSACTION_SERIALIZABLE"))
+			this.isolationMode= Connection.TRANSACTION_SERIALIZABLE;
+		else 
+			this.isolationMode=0;
+		//TODO: List to be extended to all the modes
+	}
+
+	private void setDialectMap() {
+		String dialectFile = this.xmlConfig.getString("dialect");
+		try {
+			XMLConfiguration dialectConf=new XMLConfiguration(dialectFile);
+			dialectConf.setDelimiterParsingDisabled(true);
+			dialectConf.load();
+			dialectConf.setExpressionEngine(new XPathExpressionEngine());
+			System.out.println("[INIT] Loading the"+ this.getDBDriver()+" SQL file");
+			List stmts = dialectConf.configurationsAt("/dialect[@driver='"+this.getDBDriver()+"']/stmt");
+			for(Iterator it = stmts.iterator(); it.hasNext();)
+			{
+			    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
+			    String name = sub.getString("@name");
+			    String sql = sub.getString("");
+			    dialectMap.put(name,sql);
+			}
+			
+		} catch (ConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	public void setTerminals(int terminals) {
@@ -171,5 +215,14 @@ public class WorkloadConfiguration {
 
 	public XMLConfiguration getXmlConfig() {
 		return xmlConfig;
+	}
+
+	public Map<String,String> getDialectMap() {
+		return dialectMap;
+	}
+
+	public int getIsolationMode() {
+		// TODO Auto-generated method stub
+		return isolationMode;
 	}
 }

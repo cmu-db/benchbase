@@ -15,4 +15,5 @@ public class TPCCConfiguration {
 	public int getNumWarehouses() {
 		return xmlConfig.getInt("numWarehouses", 0);
 	}
+
 }

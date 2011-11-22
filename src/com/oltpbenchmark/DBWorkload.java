@@ -54,7 +54,7 @@ public class DBWorkload {
 	 */
 	public static void main(String[] args) throws Exception {
 	    // Initialize log4j
-	    org.apache.log4j.PropertyConfigurator.configure(System.getProperty("log4j.configuration"));
+	    //org.apache.log4j.PropertyConfigurator.configure(System.getProperty("log4j.configuration"));
 		
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -77,7 +77,7 @@ public class DBWorkload {
 				"config", 
 				true,
 				"[required] Workload configuration file");
-      options.addOption(
+		options.addOption(
                 null,
 	            "create",
                 true,
@@ -85,12 +85,12 @@ public class DBWorkload {
 		options.addOption(
 		        null,
 		        "load",
-		        true,
+		        false,
 		        "Load data using the benchmark's data loader");
         options.addOption(
                 null,
                 "execute",
-                true,
+                false,
                 "Execute the benchmark workload");
 		
 		options.addOption("v", "verbose", false, "Display Messages");
@@ -104,13 +104,18 @@ public class DBWorkload {
 			printUsage(options);
 			return;
 		}
-
+		
+		
 		// Load the Workload Configuration from the Config file
+		System.out.println("**********************************************************************************");
+		
 		WorkloadConfiguration wrkld = new WorkloadConfiguration();
 		XMLConfiguration xmlConfig = null;
 		int numTxnTypes = -1; 
+		
 		if (argsLine.hasOption("c")) {
 			String configFile = argsLine.getOptionValue("c");
+			System.out.println("[INIT] Configuration file: "+ configFile);
 			xmlConfig = new XMLConfiguration(configFile);
 			wrkld.setXmlConfig(xmlConfig);
 			wrkld.setDBDriver(xmlConfig.getString("driver"));
@@ -142,7 +147,9 @@ public class DBWorkload {
 					System.exit(-1);
 				}
 			}		
+			// Generate the dialect map
 			wrkld.init();
+
 		} else {
 		    LOG.error("Missing Configuration file");
 		    printUsage(options);
@@ -151,17 +158,19 @@ public class DBWorkload {
 		assert(numTxnTypes >= 0);
 		assert(xmlConfig != null);
 
-		// Load the Benchmark Implementation
+		//Load The benchmark implementation
 		BenchmarkModule bench = null;
-        if (argsLine.hasOption("b")) {
-            String plugin = argsLine.getOptionValue("b");
-            String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
-            LOG.info("Loading BenchmarkModule " + classname);
-            if(classname==null)
-                    throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
-            bench = ClassUtil.newInstance(classname,
-                                          new Object[]{ wrkld },
-                                          new Class<?>[]{ WorkloadConfiguration.class });
+		
+		// Load the Benchmark Implementation
+		if (argsLine.hasOption("b")) {
+			String plugin = argsLine.getOptionValue("b");
+			String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
+			System.out.println("[INIT] Benchmark: "+ plugin +" {Class: "+classname+"}");
+			if(classname==null)
+					throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
+	        bench = ClassUtil.newInstance(classname,
+	        								new Object[]{ wrkld },
+	        								new Class<?>[]{ WorkloadConfiguration.class });
             assert(bench != null);
         }
         else {
@@ -169,6 +178,7 @@ public class DBWorkload {
             printUsage(options);
             return;
         }
+		
 
         // Load TransactionTypes
         List<TransactionType> ttypes = new ArrayList<TransactionType>();
@@ -204,15 +214,31 @@ public class DBWorkload {
 		// Execute Workload
         if (argsLine.hasOption("execute") && Boolean.parseBoolean(argsLine.getOptionValue("execute"))) {
     		// Bombs away!
-            Results r = runWorkload(bench, verbose);
+        	       	
+    		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
+    		System.out.println("[INIT] DB = "+ wrkld.getDBConnection());
+    		System.out.println("[INIT] Isolation mode = "+ wrkld.xmlConfig.getString("isolation","**Not Specified**"));
+    		System.out.println("**********************************************************************************");
+    		
+    		// Bombs away!
+    		Results r = runWorkload(bench, verbose);
             PrintStream ps = System.out;
+            System.out.println("**********************************************************************************");
             if (argsLine.hasOption("o"))
+            {
                 ps = new PrintStream(new File(argsLine.getOptionValue("o")));
+                System.out.println("[Results] Output into file: " + argsLine.getOptionValue("o"));
+            }
             if (argsLine.hasOption("s")) {
-                int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
+                int windowSize = Integer.parseInt(argsLine
+                        .getOptionValue("s"));
+                System.out.println("[Results] Grouped into Buckets of "+ windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
             } else
+            {
+            	System.out.println("[Results] Raw");
                 r.writeAllCSVAbsoluteTiming(ps);
+            }
             ps.close();
 	    }
 	}
@@ -233,6 +259,7 @@ public class DBWorkload {
 		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().size()));
 		ThreadBench.setWorkConf(bench.getWorkloadConfiguration());
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
+		System.out.println("**********************************************************************************");
 		System.out.println("Rate limited reqs/s: " + r);
 		return r;
 	}
