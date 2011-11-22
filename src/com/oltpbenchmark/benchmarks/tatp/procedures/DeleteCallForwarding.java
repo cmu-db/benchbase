@@ -64,6 +64,10 @@ public class DeleteCallForwarding extends Procedure {
         stmt.setLong(1, s_id);
         stmt.setByte(2, sf_type);
         stmt.setByte(3, start_time);
-        return (stmt.executeUpdate());
+        int rows_updated = stmt.executeUpdate();
+        if (rows_updated == 0) {
+            throw new UserAbortException("Failed to delete a row in " + TATPConstants.TABLENAME_CALL_FORWARDING);
+        }
+        return (rows_updated);
     }
 }

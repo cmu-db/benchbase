@@ -152,4 +152,34 @@ public abstract class Procedure {
         return (this.getClass().getSimpleName());
     }
     
+    /**
+     * Thrown from a Procedure to indicate to the Worker
+     * that the procedure should be aborted and rolled back.
+     */
+    public static class UserAbortException extends RuntimeException {
+        private static final long serialVersionUID = -1L;
+        private final String message;
+
+        /**
+         * Constructs a new UserAbortException
+         */
+        public UserAbortException() {
+            this("No message specified.");
+        }
+        /**
+         * Constructs a new UserAbortException
+         * with the specified detail message.
+         */
+        public UserAbortException(String msg) {
+            message = msg;
+        }
+        /**
+         * Returns the detail message string of this AbortException
+         * @return The detail message.
+         */
+        @Override
+        public String getMessage() {
+            return message;
+        }
+    }    
 }

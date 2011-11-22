@@ -76,6 +76,10 @@ public class InsertCallForwarding extends Procedure {
         stmt.setByte(3, start_time);
         stmt.setByte(4, end_time);
         stmt.setString(5, numberx);
-        return (stmt.executeUpdate());
+        int rows_updated = stmt.executeUpdate();
+        if (rows_updated == 0) {
+            throw new UserAbortException("Failed to insert a row in " + TATPConstants.TABLENAME_CALL_FORWARDING);
+        }
+        return (rows_updated);
     }
 }

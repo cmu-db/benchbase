@@ -22,6 +22,8 @@ package com.oltpbenchmark.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.oltpbenchmark.api.Procedure.UserAbortException;
+
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
     
     protected static final int NUM_TERMINALS = 1;
@@ -80,8 +82,9 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
                 // Bombs away!
                 System.err.println("Executing " + txnType);
                 w.executeWork(txnType);
-            } catch (Throwable ex) {
-                // FIXME
+            } catch (UserAbortException ex) {
+                // These are expected, so they can be ignored
+                // Anything else is a serious error
             }
         } // FOR
     }

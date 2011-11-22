@@ -11,7 +11,6 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import com.oltpbenchmark.benchmarks.tpcc.UserAbortException;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class NewOrder extends Procedure {

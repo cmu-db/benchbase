@@ -62,8 +62,9 @@ public class UpdateSubscriberData extends Procedure {
     	stmt.setLong(2, s_id);
     	stmt.setByte(3, sf_type);
     	updated = stmt.executeUpdate();
-    	assert(updated == 1);
-    	
-    	return (2);
+    	if (updated != 0) {
+    	    throw new UserAbortException("Failed to update a row in " + TATPConstants.TABLENAME_SPECIAL_FACILITY);
+    	}
+    	return (updated);
     }
 }
