@@ -14,10 +14,10 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 public class StockLevel extends Procedure {
 
 	
-	private SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT d_next_o_id"
+	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT d_next_o_id"
 			+ " FROM district" + " WHERE d_w_id = ?" + " AND d_id = ?");
 	
-	private SQLStmt stockGetCountStockSQL = new SQLStmt("SELECT COUNT(DISTINCT (s_i_id)) AS stock_count"
+	public SQLStmt stockGetCountStockSQL = new SQLStmt("SELECT COUNT(DISTINCT (s_i_id)) AS stock_count"
 			+ " FROM order_line, stock"
 			+ " WHERE ol_w_id = ?"
 			+ " AND ol_d_id = ?"

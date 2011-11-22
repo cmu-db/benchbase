@@ -26,25 +26,25 @@ public class NewOrder extends Procedure {
 					+ " WHERE d_w_id = ? AND d_id = ? FOR UPDATE"
     				);
     
-	private final SQLStmt  stmtInsertNewOrderSQL = new SQLStmt("INSERT INTO new_order (no_o_id, no_d_id, no_w_id) VALUES ( ?, ?, ?)");
+	public final SQLStmt  stmtInsertNewOrderSQL = new SQLStmt("INSERT INTO new_order (no_o_id, no_d_id, no_w_id) VALUES ( ?, ?, ?)");
 	
-	private final SQLStmt  stmtUpdateDistSQL = new SQLStmt("UPDATE district SET d_next_o_id = d_next_o_id + 1 "
+	public final SQLStmt  stmtUpdateDistSQL = new SQLStmt("UPDATE district SET d_next_o_id = d_next_o_id + 1 "
 			+ " WHERE d_w_id = ? AND d_id = ?");
 	
-	private final SQLStmt  stmtInsertOOrderSQL = new SQLStmt("INSERT INTO oorder "
+	public final SQLStmt  stmtInsertOOrderSQL = new SQLStmt("INSERT INTO oorder "
 			+ " (o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_ol_cnt, o_all_local)"
 			+ " VALUES (?, ?, ?, ?, ?, ?, ?)");
 	
-	private final SQLStmt  stmtGetItemSQL = new SQLStmt("SELECT i_price, i_name , i_data FROM item WHERE i_id = ?");
+	public final SQLStmt  stmtGetItemSQL = new SQLStmt("SELECT i_price, i_name , i_data FROM item WHERE i_id = ?");
 
-	private final SQLStmt  stmtGetStockSQL = new SQLStmt("SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
+	public final SQLStmt  stmtGetStockSQL = new SQLStmt("SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
 			+ "       s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10"
 			+ " FROM stock WHERE s_i_id = ? AND s_w_id = ? FOR UPDATE");
 	
-	private final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE stock SET s_quantity = ? , s_ytd = s_ytd + ?, s_remote_cnt = s_remote_cnt + ? "
+	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE stock SET s_quantity = ? , s_ytd = s_ytd + ?, s_remote_cnt = s_remote_cnt + ? "
 			+ " WHERE s_i_id = ? AND s_w_id = ?");
 	
-	private final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO order_line (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
+	public final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO order_line (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
 			+ "  ol_quantity, ol_amount, ol_dist_info) VALUES (?,?,?,?,?,?,?,?,?)");
     
 

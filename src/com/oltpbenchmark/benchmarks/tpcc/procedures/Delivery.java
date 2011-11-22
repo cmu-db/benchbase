@@ -15,25 +15,25 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 public class Delivery extends Procedure {
 
 	
-	private SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT no_o_id FROM new_order WHERE no_d_id = ?"
+	public SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT no_o_id FROM new_order WHERE no_d_id = ?"
 			+ " AND no_w_id = ? ORDER BY no_o_id ASC LIMIT 1");
-	private SQLStmt delivDeleteNewOrderSQL = new SQLStmt("DELETE FROM new_order"
+	public SQLStmt delivDeleteNewOrderSQL = new SQLStmt("DELETE FROM new_order"
 			+ " WHERE no_o_id = ? AND no_d_id = ?"
 			+ " AND no_w_id = ?");
-	private SQLStmt delivGetCustIdSQL = new SQLStmt("SELECT o_c_id"
+	public SQLStmt delivGetCustIdSQL = new SQLStmt("SELECT o_c_id"
 			+ " FROM oorder" + " WHERE o_id = ?"
 			+ " AND o_d_id = ?" + " AND o_w_id = ?");
-	private SQLStmt delivUpdateCarrierIdSQL = new SQLStmt("UPDATE oorder SET o_carrier_id = ?"
+	public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt("UPDATE oorder SET o_carrier_id = ?"
 			+ " WHERE o_id = ?" + " AND o_d_id = ?"
 			+ " AND o_w_id = ?");
-	private SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt("UPDATE order_line SET ol_delivery_d = ?"
+	public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt("UPDATE order_line SET ol_delivery_d = ?"
 			+ " WHERE ol_o_id = ?"
 			+ " AND ol_d_id = ?"
 			+ " AND ol_w_id = ?");
-	private SQLStmt delivSumOrderAmountSQL = new SQLStmt("SELECT SUM(ol_amount) AS ol_total"
+	public SQLStmt delivSumOrderAmountSQL = new SQLStmt("SELECT SUM(ol_amount) AS ol_total"
 			+ " FROM order_line" + " WHERE ol_o_id = ?"
 			+ " AND ol_d_id = ?" + " AND ol_w_id = ?");
-	private SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt("UPDATE customer SET c_balance = c_balance + ?"
+	public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt("UPDATE customer SET c_balance = c_balance + ?"
 			+ ", c_delivery_cnt = c_delivery_cnt + 1"
 			+ " WHERE c_w_id = ?"
 			+ " AND c_d_id = ?"
