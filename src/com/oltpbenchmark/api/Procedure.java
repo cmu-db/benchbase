@@ -121,7 +121,8 @@ public abstract class Procedure {
 		for(String key:this.name_stmt_xref.keySet())
 		{
 			String sql = dialectMap.get(key);
-			assert(sql != null) : key + " Statement is not defined in the dialect";
+			// FIXME: Let's not inforce this for now (May be not needed at all)
+			// assert(sql != null) : key + " Statement is not defined in the dialect";
 			setDatabaseSQL(key,sql);
 		}
     }
