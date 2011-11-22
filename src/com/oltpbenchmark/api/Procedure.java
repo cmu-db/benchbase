@@ -43,8 +43,9 @@ public abstract class Procedure {
         for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
             this.stmt_name_xref.put(e.getValue(), e.getKey());
         } // FOR
-        LOG.info(String.format("Initialized %s with %d SQLStmts: %s",
-                               this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Initialized %s with %d SQLStmts: %s",
+                                    this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));
         return ((T)this);
     }
     
@@ -158,28 +159,22 @@ public abstract class Procedure {
      */
     public static class UserAbortException extends RuntimeException {
         private static final long serialVersionUID = -1L;
-        private final String message;
 
         /**
-         * Constructs a new UserAbortException
+         * Default Constructor
+         * @param msg
+         * @param ex
          */
-        public UserAbortException() {
-            this("No message specified.");
+        public UserAbortException(String msg, Throwable ex) {
+            super(msg, ex);
         }
+        
         /**
          * Constructs a new UserAbortException
          * with the specified detail message.
          */
         public UserAbortException(String msg) {
-            message = msg;
+            this(msg, null);
         }
-        /**
-         * Returns the detail message string of this AbortException
-         * @return The detail message.
-         */
-        @Override
-        public String getMessage() {
-            return message;
-        }
-    }    
+    } // END CLASS    
 }

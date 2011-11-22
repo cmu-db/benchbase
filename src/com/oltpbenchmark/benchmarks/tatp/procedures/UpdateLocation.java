@@ -51,10 +51,6 @@ public class UpdateLocation extends Procedure {
         "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET vlr_location = ? WHERE s_id = ?"
     );
     
-//    public final String updateSubscriber = new String(
-//        "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET vlr_location = ? WHERE sub_nbr = ?"
-//    );
-
     public long run(Connection conn, int location, String sub_nbr) throws SQLException {
     	PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
     	stmt.setString(1, sub_nbr);

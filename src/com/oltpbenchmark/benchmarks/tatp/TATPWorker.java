@@ -29,6 +29,7 @@ import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 import com.oltpbenchmark.benchmarks.tatp.procedures.GetAccessData;
 import com.oltpbenchmark.benchmarks.tatp.procedures.GetNewDestination;
@@ -189,7 +190,18 @@ public class TATPWorker extends Worker {
                                              this.benchmarkModule.getBenchmarkName(), txnType);
         
 		try {
-			t.invoke(this.conn, proc, subscriberSize);
+		    UserAbortException error = null;
+		    try {
+		        System.err.print("Executing " + proc + " ");
+		        t.invoke(this.conn, proc, subscriberSize);
+		        this.conn.commit();
+		    } catch (UserAbortException ex) {
+		        System.err.print("--ABORT-- ");
+		        error = ex;
+		        // FIXME this.conn.rollback();
+		    } finally {
+		        System.err.println(error == null ? "OK" : error);
+		    }
 		} catch (SQLException ex) {
 			throw new RuntimeException("Unexpected error when executing " + proc, ex);
 		}

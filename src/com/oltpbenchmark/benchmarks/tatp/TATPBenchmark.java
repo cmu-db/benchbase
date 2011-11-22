@@ -57,10 +57,7 @@ public class TATPBenchmark extends BenchmarkModule {
 		Map<String, Table> tables = this.getTables(conn);
 		assert(tables != null);
 		
-		conn.setAutoCommit(false);
 		TATPLoader loader = new TATPLoader(conn, this.workConf, tables);
 		loader.load(); // Blocking...
-		conn.commit();
-		
 	}
 }

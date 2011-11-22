@@ -135,6 +135,12 @@ public class WorkloadConfiguration {
 	}
 
 	public void init() {
+	    try {
+	        Class.forName(this.db_driver);
+	    } catch (ClassNotFoundException ex) {
+	        throw new RuntimeException("Failed to initialize JDBC driver '" + this.db_driver + "'", ex);
+	    }
+	    
 		// TODO Auto-generated method stub
 		i = works.iterator();
 	}

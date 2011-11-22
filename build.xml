@@ -62,7 +62,40 @@
         <delete dir="${build.dir}"/>
     </target>
 
-   <!-- *************************************** TESTING *************************************** -->
+    <!-- *************************************** EXECUTING *************************************** -->
+    
+    <target name="execute" description="Execute a benchmark">
+        <condition property="benchmark" value="">
+            <not><isset property="benchmark"/></not>
+        </condition>
+        <condition property="config" value="">
+            <not><isset property="config"/></not>
+        </condition>
+        <condition property="create" value="false">
+            <not><isset property="create"/></not>
+        </condition>
+        <condition property="load" value="false">
+            <not><isset property="load"/></not>
+        </condition>
+        <condition property="execute" value="true">
+            <not><isset property="execute"/></not>
+        </condition>
+        
+        <java fork="yes" failonerror="true" classname="com.oltpbenchmark.DBWorkload">
+            <jvmarg value="-Xmx1024m" />
+            <jvmarg value="-Dlog4j.configuration=${basedir}/log4j.properties"/>
+            <jvmarg value="-client" />
+            <arg line="-b ${benchmark}" />
+            <arg line="-c ${config}" />
+            <arg line="--create ${create}" />
+            <arg line="--load ${load}" />
+            <arg line="--execute ${execute}" />
+            <classpath refid='project.classpath' />
+            <assertions><enable/></assertions>
+        </java>
+    </target>
+    
+    <!-- *************************************** TESTING *************************************** -->
     
     <!-- common junit parameters go here -->
     <macrodef name='run_junit'>
@@ -117,31 +150,6 @@
             </tests>
         </run_junit>
 
-        <!-- Generate unit test reports. -->
-<!--        <mkdir dir='${build.testoutput.dir}/report' />
-        <junitreport todir="${build.testoutput.dir}">
-            <fileset dir='${build.testoutput.dir}'>
-                <include name="*.xml" />
-                <exclude name='TESTS-TestSuites.xml' />
-            </fileset>
-            <report format="noframes" todir="${build.testoutput.dir}/report"/>
-            <report
-                styledir="tools"
-                format="noframes"
-                todir="${build.testoutput.dir}"
-            />
-        </junitreport>
-
-        <exec dir="${build.testoutput.dir}" executable='cat'>
-            <arg line="junit-noframes.html"/>
-        </exec>
-        <delete
-            dir='${build.testoutput.dir}'
-            includes='*.xml'
-            excludes='TESTS-TestSuites.xml'
-        />-->
-        <!-- Fail the build if there were any problems.
-            This runs all the tests before failing. -->
         <fail
             if="junit.failures"
             unless="emma.enabled"

@@ -1,1 +1,1 @@
-java -cp `./classpath.sh` -Dprop=$1 client.jTPCCHeadless
+java -cp `./classpath.sh` -Dprop=$1 client.jTPCCHeadless  --execute true

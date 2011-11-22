@@ -66,8 +66,8 @@ public class InsertCallForwarding extends Procedure {
          
         stmt = this.getPreparedStatement(conn, getSpecialFacility);
         stmt.setLong(1, s_id);
-        results = stmt.executeQuery();
-        assert(results != null);
+        ResultSet results2 = stmt.executeQuery();
+        assert(results2 != null);
          
         // Inserting a new CALL_FORWARDING record only succeeds 30% of the time
         stmt = this.getPreparedStatement(conn, insertCallForwarding);
@@ -76,8 +76,11 @@ public class InsertCallForwarding extends Procedure {
         stmt.setByte(3, start_time);
         stmt.setByte(4, end_time);
         stmt.setString(5, numberx);
-        int rows_updated = stmt.executeUpdate();
-        if (rows_updated == 0) {
+        int rows_updated = -1;
+        
+        try {
+            rows_updated = stmt.executeUpdate();
+        } catch (SQLException ex) {
             throw new UserAbortException("Failed to insert a row in " + TATPConstants.TABLENAME_CALL_FORWARDING);
         }
         return (rows_updated);

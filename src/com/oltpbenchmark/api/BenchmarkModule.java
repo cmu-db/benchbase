@@ -67,9 +67,12 @@ public abstract class BenchmarkModule {
 	protected abstract List<Worker> makeWorkersImpl(boolean verbose) throws IOException;
 	
 	/**
+	 * Each BenchmarkModule needs to implement this method to
+	 * load a sample dataset into the database.
+	 * The Connection handle will already be configured for you,
+	 * and the base class will commit+close it once this method returns
 	 * @param conn TODO
 	 * @throws SQLException TODO
-	 * 
 	 */
 	protected abstract void loadDatabaseImpl(Connection conn) throws SQLException;
 	
@@ -106,6 +109,7 @@ public abstract class BenchmarkModule {
 			Connection conn = this.getConnection();
 			ScriptRunner runner = new ScriptRunner(conn, true, true);
             runner.runScript(ddl);
+            conn.close();
 		} catch (Exception ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to create the %s database",
 												     this.benchmarkName), ex);
@@ -113,9 +117,13 @@ public abstract class BenchmarkModule {
 	}
 	
 	public final void loadDatabase() {
+	    Connection conn = null; 
 		try {
-			Connection conn = this.getConnection();
+			conn = this.getConnection();
+			conn.setAutoCommit(false);
 			this.loadDatabaseImpl(conn);
+            conn.commit();
+            conn.close();
 		} catch (SQLException ex) {
 			throw new RuntimeException(String.format("Unexpected error when trying to load the %s database",
 												     this.benchmarkName), ex);
@@ -155,6 +163,11 @@ public abstract class BenchmarkModule {
 	public String getBenchmarkName() {
         return benchmarkName;
     }
+	
+	@Override
+	public String toString() {
+	    return benchmarkName.toUpperCase();
+	}
 	
 	/**
 	 * Return a TransactionType handle for the get procedure name and id
