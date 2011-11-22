@@ -51,7 +51,7 @@ public class WorkloadConfiguration {
 	private static Iterator<Phase> i;
 	private int workPhases = 0;
 	private TransactionTypes transTypes = null;
-	private int isolationMode;
+	private int isolationMode= Connection.TRANSACTION_SERIALIZABLE;
 
 	protected XMLConfiguration xmlConfig = null;
 	
@@ -160,9 +160,14 @@ public class WorkloadConfiguration {
 		String mode= this.xmlConfig.getString("isolation");
 		if(mode.equals("TRANSACTION_SERIALIZABLE"))
 			this.isolationMode= Connection.TRANSACTION_SERIALIZABLE;
-		else 
-			this.isolationMode=0;
-		//TODO: List to be extended to all the modes
+		else if(mode.equals("TRANSACTION_READ_COMMITTED"))
+			this.isolationMode=Connection.TRANSACTION_READ_COMMITTED;
+		else if(mode.equals("TRANSACTION_REPEATABLE_READ"))
+			this.isolationMode=Connection.TRANSACTION_REPEATABLE_READ;
+		else if(mode.equals("TRANSACTION_READ_UNCOMMITTED"))
+			this.isolationMode=Connection.TRANSACTION_READ_UNCOMMITTED;
+		else if(!mode.equals(""))
+			System.out.println("Indefined isolation mode, set to default [TRANSACTION_SERIALIZABLE]");
 	}
 
 	private void setDialectMap() {

@@ -202,17 +202,17 @@ public class DBWorkload {
 		boolean verbose = argsLine.hasOption("v");
 		
 		// Create the Benchmark's Database
-        if (argsLine.hasOption("create") && Boolean.parseBoolean(argsLine.getOptionValue("create"))) {
+        if (argsLine.hasOption("create")) {
             runCreator(bench, verbose);
         }
 		
 		// Execute Loader
-        if (argsLine.hasOption("load") && Boolean.parseBoolean(argsLine.getOptionValue("load"))) {
+        if (argsLine.hasOption("load")) {
 		    runLoader(bench, verbose);
 		}
 		
 		// Execute Workload
-        if (argsLine.hasOption("execute") && Boolean.parseBoolean(argsLine.getOptionValue("execute"))) {
+        if (argsLine.hasOption("execute")) {
     		// Bombs away!
         	       	
     		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
