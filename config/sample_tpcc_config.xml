@@ -1,43 +1,46 @@
 <?xml version="1.0"?>
 <parameters>
+	
+	<!-- General Workload configuration -->
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4.csail.mit.edu:3400/tpcc</DBUrl>
-    <DBName>tpcc</DBName>
+    <DBUrl>jdbc:mysql://localhost:3306/tpcc2</DBUrl>
+    <DBName>tpcc2</DBName>
     <username>root</username>
-    <password></password>
+    <password>hello</password>
     <terminals>10</terminals>
     
-   	<numWarehouses>2</numWarehouses>
-   	
+    <works>
+        <work>
+          <time>10</time>
+          <rate>10</rate>
+          <weights>45,43,4,4,4</weights>
+        </work>
+	</works>
+	
+	<!-- TPCC specific -->  
+   	<numWarehouses>10</numWarehouses>
+   	<dialect>config/dialects/tpcc_dialects.xml</dialect>
+   	<isolation>TRANSACTION_SERIALIZABLE</isolation>
    	<transactiontypes>
     	<transactiontype>
     		<name>NewOrder</name>
-    		<id>0</id>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Payment</name>
     		<id>1</id>
     	</transactiontype>
     	<transactiontype>
-    		<name>OrderStatus</name>
+    		<name>Payment</name>
     		<id>2</id>
     	</transactiontype>
     	<transactiontype>
-    		<name>Delivery</name>
+    		<name>OrderStatus</name>
     		<id>3</id>
     	</transactiontype>
     	<transactiontype>
-    		<name>StockLevel</name>
+    		<name>Delivery</name>
     		<id>4</id>
     	</transactiontype>
-   	</transactiontypes>
-   	
-    <works>
-        <work>
-          <time>20</time>
-          <rate>10</rate>
-          <weights>20,20,20,20,20</weights>
-        </work>
-	</works>
-		
+    	<transactiontype>
+    		<name>StockLevel</name>
+    		<id>5</id>
+    	</transactiontype>
+   	</transactiontypes>	
 </parameters>

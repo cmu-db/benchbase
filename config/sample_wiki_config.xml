@@ -1,15 +1,31 @@
 <?xml version="1.0"?>
 <parameters>
+
+	<!-- General Workload configuration -->
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4:3400/wiki1k</DBUrl>
-    <DBName>wiki1k</DBName>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/wiki</DBUrl>
+    <DBName>wiki</DBName>
     <username>root</username>
-    <password></password>
+    <password>hello</password>
     <terminals>10</terminals>
+
+    <works>
+        <work>
+          <time>10</time>
+          <rate>200</rate>
+          <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+        <work>
+          <time>5</time>
+          <rate>200</rate>
+          <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+    </works>
+    
+    <!-- Wikipedia specific -->
     <tracefile>config/traces/longtrace_1k.txt</tracefile>
     <base_ip>10.1.</base_ip>
-  
-    <transactiontypes>
+	<transactiontypes>
         <transactiontype>
                 <name>AddWatchList</name>
                 <id>1</id>
@@ -31,19 +47,6 @@
                 <id>5</id>
         </transactiontype>
     </transactiontypes>
-    
-    <works>
-        <work>
-          <time>10</time>
-          <rate>200</rate>
-          <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
-        </work>
-        <work>
-          <time>5</time>
-          <rate>200</rate>
-          <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
-        </work>
-    </works>
 </parameters>
 
 <?READ_OVER_WRITE_RATIO 11.8   WATCHLIST UPDATE 0.14%  LOGGED IN SELECT 1% ?>

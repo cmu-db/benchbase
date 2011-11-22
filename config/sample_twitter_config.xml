@@ -1,15 +1,29 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3400/twitter</DBUrl>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/twitter</DBUrl>
     <DBName>twitter</DBName>
     <username>root</username>
-    <password></password>
-    <terminals>10</terminals>
+    <password>hello</password>
+    <terminals>3</terminals>
+      
+    <works>
+        <work>
+            <time>10</time>
+            <rate>100</rate>
+            <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+        <work>
+            <time>5</time>
+            <rate>200</rate>
+            <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+    </works>
+    
+    <!-- Twitter Specific -->
     <tracefile>config/traces/twitter_tweetids.txt</tracefile>
     <tracefile2>config/traces/twitter_user_ids.txt</tracefile2>
     <base_ip>10.1.</base_ip>
-  
     <transactiontypes>
         <transactiontype>
                 <name>GetTweet</name>
@@ -32,19 +46,6 @@
                 <id>5</id>
         </transactiontype>
     </transactiontypes>
-    
-    <works>
-        <work>
-            <time>10</time>
-            <rate>200</rate>
-            <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
-        </work>
-        <work>
-            <time>5</time>
-            <rate>200</rate>
-            <weights>0,0.07,0.07,7.6725,91.2656,0.9219</weights>
-        </work>
-    </works>
 </parameters>
 
 <?READ_OVER_WRITE_RATIO 11.8   WATCHLIST UPDATE 0.14%  LOGGED IN SELECT 1% ?>

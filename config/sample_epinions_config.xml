@@ -1,12 +1,21 @@
 <?xml version="1.0"?>
 <parameters>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4:3400/epinions</DBUrl>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/epinions</DBUrl>
     <DBName>epinions</DBName>
     <username>root</username>
-    <password></password>
+    <password>hello</password>
     <terminals>2</terminals>
+        
+    <works>
+        <work>
+          <time>10</time>
+          <rate>20</rate>
+          <weights>10,10,10,10,10,10,10,10,20</weights>
+        </work>
+    </works>
     
+    <!-- Epinions Specific -->
     <transactiontypes>
         <transactiontype>
             <name>GetReviewItemById</name>
@@ -45,12 +54,4 @@
             <id>9</id>
         </transactiontype>
     </transactiontypes>
-    
-    <works>
-        <work>
-          <time>10</time>
-          <rate>20</rate>
-          <weights>0,10,10,10,10,10,10,10,10,20</weights>
-        </work>
-    </works>
 </parameters>

@@ -5,7 +5,7 @@
 		<stmt name="delivGetOrderIdSQL">
 		SELECT no_o_id 
 				FROM new_order 
-				WHERE no_d_id = ? AND no_w_id = ? ORDER BY no_o_id ASC
+				WHERE no_d_id = ? AND no_w_id = ? ORDER BY no_o_id ASC LIMIT 1
 		</stmt>
 		<stmt name="delivDeleteNewOrderSQL">
 		DELETE FROM new_order 
@@ -174,7 +174,7 @@
 	
 	
 	
-	<dialect engine="oracle.jdbc.driver.OracleDriver">
+	<dialect driver="oracle.jdbc.driver.OracleDriver">
 		<!-- Delivery Statements -->
 		<stmt name="delivGetOrderIdSQL">
 		SELECT no_o_id 
@@ -347,7 +347,7 @@
 		
 	<!-- MS SQL -->	
 	</dialect>
-		<dialect engine="com.microsoft.sqlserver.jdbc.SQLServerDriver">
+		<dialect driver="com.microsoft.sqlserver.jdbc.SQLServerDriver">
 		<!-- Delivery Statements -->
 		<stmt name="delivGetOrderIdSQL">
 		SELECT TOP 1 no_o_id 
