@@ -2,22 +2,20 @@ package com.oltpbenchmark.benchmarks.wikipedia.procedures;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Calendar;
 
+import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
 public class AddWatchList extends Procedure {
 
     public SQLStmt insertWatchList = new SQLStmt(
-            "INSERT IGNORE INTO `watchlist` (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) " +
+            "INSERT IGNORE INTO `watchlist` (wl_usr,wl_namespace,wl_title,wl_notificationtimestamp) " +
             "VALUES (?,?,?,NULL)");
    
-    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `user` SET user_touched = '" + getTimeStamp14char()
-					+ "' WHERE user_id =  ? ;");    
+    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `usr` SET usr_touched = '" + LoaderUtil.getCurrentTime14()
+					+ "' WHERE usr_id =  ? ;");    
 	
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
         
@@ -46,10 +44,4 @@ public class AddWatchList extends Procedure {
 		}
 	}
     
-	private String getTimeStamp14char() {
-		// TODO Auto-generated method stub
-		java.util.Date d = Calendar.getInstance().getTime();
-		return "" + d.getYear() + d.getMonth() + d.getDay() + d.getHours()
-				+ d.getMinutes() + d.getSeconds();
-	}
 }

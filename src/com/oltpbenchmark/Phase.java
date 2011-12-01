@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.TransactionType;
-
 public class Phase {
 	
 	private final Random gen = new Random();

@@ -20,12 +20,7 @@
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import java.net.UnknownHostException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Calendar;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
@@ -33,7 +28,6 @@ import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated;
@@ -42,20 +36,13 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
 
 public class WikipediaWorker extends Worker {
 	private final TransactionGenerator<WikipediaOperation> generator;
-	private final Statement st;
 	private final String userIp;
-//	private final Random r;
 
 	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule, TransactionGenerator<WikipediaOperation> generator,
 			String userIp,TransactionTypes transTypes) {
 		super(id, benchmarkModule);
 
 		this.generator = generator;
-		try {
-			st = conn.createStatement();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
 		this.userIp = userIp;
 	}
 
@@ -148,18 +135,6 @@ public class WikipediaWorker extends Worker {
         assert (proc != null);
         proc.run(conn, a, userIp, userId, nameSpace, pageTitle);
 
-	}
-
-	private String getMyIp() {
-		// TODO Auto-generated method stub
-		return "0.0.0.0";
-	}
-
-	private String getTimeStamp14char() {
-		// TODO Auto-generated method stub
-		java.util.Date d = Calendar.getInstance().getTime();
-		return "" + d.getYear() + d.getMonth() + d.getDay() + d.getHours()
-				+ d.getMinutes() + d.getSeconds();
 	}
 
 }

@@ -43,28 +43,24 @@ public class WorkloadConfiguration {
 	private String db_password;
 	private String db_driver;	
 	private double scaleFactor = 1.0;
-	
 	private int terminals;
-
+	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
-	private static Iterator<Phase> i;
-	private int workPhases = 0;
+	private static Iterator<Phase> phaseIterator;
+	private int numberOfPhases = 0;
 	private TransactionTypes transTypes = null;
 	private int isolationMode= Connection.TRANSACTION_SERIALIZABLE;
-
-	protected XMLConfiguration xmlConfig = null;
-	
 	private final Map<String,String> dialectMap= new HashMap<String,String>();
 
 	public void addWork(int time, int rate, List<String> weights) {
 		works.add(new Phase(time, rate, weights));
-		workPhases++;
+		numberOfPhases++;
 	}
 
 	public Phase getNextPhase() {
-		if (i.hasNext())
-			return i.next();
+		if (phaseIterator.hasNext())
+			return phaseIterator.next();
 		return null;
 	}
 	
@@ -136,13 +132,16 @@ public class WorkloadConfiguration {
     }
 
 	/**
-	 * XXX: Size of what???
+	 * Return the number of phases specified in the config file
 	 * @return
 	 */
-	public int size() {
-		return this.workPhases;
+	public int getNumberOfPhases() {
+		return this.numberOfPhases;
 	}
 
+	/**
+	 * A utility method that init the phaseIterator and dialectMap
+	 */
 	public void init() {
 	    try {
 	        Class.forName(this.db_driver);
@@ -150,35 +149,36 @@ public class WorkloadConfiguration {
 	        throw new RuntimeException("Failed to initialize JDBC driver '" + this.db_driver + "'", ex);
 	    }
 	    
-		// TODO Auto-generated method stub
-		i = works.iterator();
-		
+		// initialize the phase iterator
+		phaseIterator = works.iterator();
+	
 		// Populate the map
 		setDialectMap();
-		
-		//Set the isolation mode
-		String mode= this.xmlConfig.getString("isolation");
-		if(mode.equals("TRANSACTION_SERIALIZABLE"))
-			this.isolationMode= Connection.TRANSACTION_SERIALIZABLE;
-		else if(mode.equals("TRANSACTION_READ_COMMITTED"))
-			this.isolationMode=Connection.TRANSACTION_READ_COMMITTED;
-		else if(mode.equals("TRANSACTION_REPEATABLE_READ"))
-			this.isolationMode=Connection.TRANSACTION_REPEATABLE_READ;
-		else if(mode.equals("TRANSACTION_READ_UNCOMMITTED"))
-			this.isolationMode=Connection.TRANSACTION_READ_UNCOMMITTED;
-		else if(!mode.equals(""))
-			System.out.println("Indefined isolation mode, set to default [TRANSACTION_SERIALIZABLE]");
 	}
-
+	
+	/**
+	 * Reads the dialect map for the current driver
+	 * Loads the corresponding statement-sql into 
+	 * dialectMap 
+	 */
 	private void setDialectMap() {
-		String dialectFile = this.xmlConfig.getString("dialect");
+		String dialectFile = this.xmlConfig.getString("dialect","NULL");
+		if(dialectFile.equals("NULL"))
+		{
+			System.out.println("[INIT] No dialect provided");
+			return;
+		}
 		try {
 			XMLConfiguration dialectConf=new XMLConfiguration(dialectFile);
 			dialectConf.setDelimiterParsingDisabled(true);
 			dialectConf.load();
 			dialectConf.setExpressionEngine(new XPathExpressionEngine());
-			System.out.println("[INIT] Loading the"+ this.getDBDriver()+" SQL file");
+			System.out.println("[INIT] Loading the dialect file: "+ dialectFile);
 			List stmts = dialectConf.configurationsAt("/dialect[@driver='"+this.getDBDriver()+"']/stmt");
+			if(stmts.size()==0)
+			{
+				System.out.println("[INIT] No SQL dialect provided for "+this.db_driver+" Using default (MYSQL)");
+			}
 			for(Iterator it = stmts.iterator(); it.hasNext();)
 			{
 			    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
@@ -186,12 +186,10 @@ public class WorkloadConfiguration {
 			    String sql = sub.getString("");
 			    dialectMap.put(name,sql);
 			}
-			
 		} catch (ConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 	public void setTerminals(int terminals) {
@@ -227,7 +225,19 @@ public class WorkloadConfiguration {
 	}
 
 	public int getIsolationMode() {
-		// TODO Auto-generated method stub
 		return isolationMode;
+	}
+
+	public void setIsolationMode(String mode) {
+		if(mode.equals("TRANSACTION_SERIALIZABLE"))
+			this.isolationMode= Connection.TRANSACTION_SERIALIZABLE;
+		else if(mode.equals("TRANSACTION_READ_COMMITTED"))
+			this.isolationMode=Connection.TRANSACTION_READ_COMMITTED;
+		else if(mode.equals("TRANSACTION_REPEATABLE_READ"))
+			this.isolationMode=Connection.TRANSACTION_REPEATABLE_READ;
+		else if(mode.equals("TRANSACTION_READ_UNCOMMITTED"))
+			this.isolationMode=Connection.TRANSACTION_READ_UNCOMMITTED;
+		else if(!mode.equals(""))
+			System.out.println("Indefined isolation mode, set to default [TRANSACTION_SERIALIZABLE]");
 	}
 }

@@ -92,12 +92,19 @@ public abstract class BenchmarkModule {
 	 * benchmark's database schema.
 	 */
 	public File getDatabaseDDL() {
-		String ddlName = this.benchmarkName + "-ddl.sql";
+		String ddlName = this.benchmarkName + this.getDBMS()+ "-ddl.sql";
 		URL ddlURL = this.getClass().getResource(ddlName);
 		assert(ddlURL != null) : "Unable to find '" + ddlName + "'";
 		return new File(ddlURL.getPath());
 	}
 	
+	private String getDBMS() {
+		// TODO Auto-generated method stub
+		if(this.getWorkloadConfiguration().getDBDriver().contains("oracle"))
+			return "-oracle";
+		else return "";
+	}
+
 	public final List<Worker> makeWorkers(boolean verbose) throws IOException {
 		return (this.makeWorkersImpl(verbose));
 	}

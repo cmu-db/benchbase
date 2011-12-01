@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
@@ -75,6 +73,8 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected void loadDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
+		
+		WikipediaLoader loader = new WikipediaLoader(conn, this.workConf, null);
+		loader.load();
 	}
 }

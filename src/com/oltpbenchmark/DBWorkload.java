@@ -80,7 +80,7 @@ public class DBWorkload {
 		options.addOption(
                 null,
 	            "create",
-                true,
+                false,
                 "Initialize the database for this benchmark");
 		options.addOption(
 		        null,
@@ -123,8 +123,12 @@ public class DBWorkload {
 			wrkld.setDBName(xmlConfig.getString("DBName"));
 			wrkld.setDBUsername(xmlConfig.getString("username"));
 			wrkld.setDBPassword(xmlConfig.getString("password"));
-			wrkld.setTerminals(xmlConfig.getInt("terminals"));			
+			wrkld.setTerminals(xmlConfig.getInt("terminals"));	
+			wrkld.setIsolationMode(xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE"));
 			
+    		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
+    		System.out.println("[INIT] DB = "+ wrkld.getDBConnection());
+    		System.out.println("[INIT] Isolation mode = "+ xmlConfig.getString("isolation","**Not Specified**"));		
 			int size = xmlConfig.configurationsAt("works.work").size();
 			for (int i = 0; i < size; i++){
 			
@@ -203,23 +207,22 @@ public class DBWorkload {
 		
 		// Create the Benchmark's Database
         if (argsLine.hasOption("create")) {
+        	System.out.print("[Create] ...");
             runCreator(bench, verbose);
+            System.out.println(" Done");
         }
 		
 		// Execute Loader
         if (argsLine.hasOption("load")) {
+        	System.out.print("[Load] ...");
 		    runLoader(bench, verbose);
+            System.out.println(" Done");
 		}
 		
 		// Execute Workload
         if (argsLine.hasOption("execute")) {
-    		// Bombs away!
-        	       	
-    		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
-    		System.out.println("[INIT] DB = "+ wrkld.getDBConnection());
-    		System.out.println("[INIT] Isolation mode = "+ wrkld.xmlConfig.getString("isolation","**Not Specified**"));
     		System.out.println("**********************************************************************************");
-    		
+
     		// Bombs away!
     		Results r = runWorkload(bench, verbose);
             PrintStream ps = System.out;
@@ -256,7 +259,7 @@ public class DBWorkload {
 	private static Results runWorkload(BenchmarkModule bench, boolean verbose) throws QueueLimitException, IOException {
 		List<Worker> workers = bench.makeWorkers(verbose);
 		LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
-		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().size()));
+		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
 		ThreadBench.setWorkConf(bench.getWorkloadConfiguration());
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
 		System.out.println("**********************************************************************************");

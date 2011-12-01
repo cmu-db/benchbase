@@ -1,7 +1,6 @@
--- TODO: ipb_id AUTO_INCREMENT
 DROP TABLE IF EXISTS ipblocks;
 CREATE TABLE ipblocks (
-  ipb_id int(11) NOT NULL,
+  ipb_id int(11) NOT NULL AUTO_INCREMENT,
   ipb_address tinyblob NOT NULL,
   ipb_user int(10) NOT NULL DEFAULT '0',
   ipb_by int(10) NOT NULL DEFAULT '0',
@@ -19,19 +18,17 @@ CREATE TABLE ipblocks (
   ipb_block_email tinyint(1) NOT NULL DEFAULT '0',
   ipb_allow_usertalk tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (ipb_id),
-  UNIQUE (ipb_address,ipb_user,ipb_auto,ipb_anon_only)
+  UNIQUE (ipb_address(255),ipb_user,ipb_auto,ipb_anon_only)
 );
--- UNIQUE ipb_address (ipb_address(255),ipb_user,ipb_auto,ipb_anon_only)
+
 CREATE INDEX IDX_IPB_USER ON ipblocks (ipb_user);
-CREATE INDEX IDX_IPB_RANGE ON ipblocks (ipb_range_start,ipb_range_end);
--- CREATE INDEX IDX_IPB_RANGE ON ipblocks (ipb_range_start(8),ipb_range_end(8));
+CREATE INDEX IDX_IPB_RANGE ON ipblocks (ipb_range_start(8),ipb_range_end(8));
 CREATE INDEX IDX_IPB_TIMESTAMP ON ipblocks (ipb_timestamp);
 CREATE INDEX IDX_IPB_EXPIRY ON ipblocks (ipb_expiry);
 
--- TODO: log_id AUTO_INCREMENT
 DROP TABLE IF EXISTS logging;
 CREATE TABLE logging (
-  log_id int(10) NOT NULL,
+  log_id int(10) NOT NULL AUTO_INCREMENT,
   log_type varbinary(32) NOT NULL,
   log_action varbinary(32) NOT NULL,
   log_timestamp binary(14) NOT NULL DEFAULT '19700101000000',
@@ -52,10 +49,9 @@ CREATE INDEX IDX_LOG_TIMES ON logging (log_timestamp);
 CREATE INDEX IDX_LOG_USER_TYPE_TIME ON logging (log_user,log_type,log_timestamp);
 CREATE INDEX IDX_LOG_PAGE_ID_TIME ON logging (log_page,log_timestamp);
 
--- TODO: page_id AUTO_INCREMENT
 DROP TABLE IF EXISTS page;
 CREATE TABLE page (
-  page_id int(10) NOT NULL,
+  page_id int(10) NOT NULL AUTO_INCREMENT,
   page_namespace int(11) NOT NULL,
   page_title varbinary(255) NOT NULL,
   page_restrictions tinyblob NOT NULL,
@@ -72,10 +68,9 @@ CREATE TABLE page (
 CREATE INDEX IDX_PAGE_RANDOM ON page (page_random);
 CREATE INDEX IDX_PAGE_LEN ON page (page_len);
 
--- TODO: page_id AUTO_INCREMENT
 DROP TABLE IF EXISTS page_backup;
 CREATE TABLE page_backup (
-  page_id int(10) NOT NULL,
+  page_id int(10) NOT NULL AUTO_INCREMENT,
   page_namespace int(11) NOT NULL,
   page_title varbinary(255) NOT NULL,
   page_restrictions tinyblob NOT NULL,
@@ -92,10 +87,9 @@ CREATE TABLE page_backup (
 CREATE INDEX IDX_PAGE_BACKUP_RANDOM ON page_backup (page_random);
 CREATE INDEX IDX_PAGE_BACKUP_LEN ON page_backup (page_len);
 
--- TODO: pr_id AUTO_INCREMENT
 DROP TABLE IF EXISTS page_restrictions;
 CREATE TABLE page_restrictions (
-  pr_page int(11) NOT NULL,
+  pr_page int(11) NOT NULL AUTO_INCREMENT,
   pr_type varbinary(60) NOT NULL,
   pr_level varbinary(60) NOT NULL,
   pr_cascade tinyint(4) NOT NULL,
@@ -109,10 +103,9 @@ CREATE INDEX IDX_PR_TYPELEVEL ON page_restrictions (pr_type,pr_level);
 CREATE INDEX IDX_PR_LEVEL ON page_restrictions (pr_level);
 CREATE INDEX IDX_PR_CASCADE ON page_restrictions (pr_cascade);
 
--- TODO: rc_id AUTO_INCREMENT
 DROP TABLE IF EXISTS recentchanges;
 CREATE TABLE recentchanges (
-  rc_id int(11) NOT NULL,
+  rc_id int(11) NOT NULL AUTO_INCREMENT,
   rc_timestamp varbinary(14) NOT NULL DEFAULT '',
   rc_cur_time varbinary(14) NOT NULL DEFAULT '',
   rc_user int(10) NOT NULL DEFAULT '0',
@@ -148,10 +141,9 @@ CREATE INDEX IDX_RC_IP ON recentchanges (rc_ip);
 CREATE INDEX IDX_RC_NS_USERTEXT ON recentchanges (rc_namespace,rc_user_text);
 CREATE INDEX IDX_RC_USER_TEXT ON recentchanges (rc_user_text,rc_timestamp);
 
--- TODO: rev_id AUTO_INCREMENT
 DROP TABLE IF EXISTS revision;
 CREATE TABLE revision (
-  rev_id int(10) NOT NULL,
+  rev_id int(10) NOT NULL AUTO_INCREMENT,
   rev_page int(10) NOT NULL,
   rev_text_id int(10) NOT NULL,
   rev_comment tinyblob NOT NULL,
@@ -170,20 +162,18 @@ CREATE INDEX IDX_PAGE_TIMESTAMP ON revision (rev_page,rev_timestamp);
 CREATE INDEX IDX_USER_TIMESTAMP ON revision (rev_user,rev_timestamp);
 CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 
--- TODO: old_id AUTO_INCREMENT
 DROP TABLE IF EXISTS text;
 CREATE TABLE text (
-  old_id int(10) NOT NULL,
+  old_id int(10) NOT NULL AUTO_INCREMENT,
   old_text mediumblob NOT NULL,
   old_flags tinyblob NOT NULL,
   old_page int(11) DEFAULT NULL,
   PRIMARY KEY (old_id)
 );
 
--- TODO: user_id AUTO_INCREMENT
 DROP TABLE IF EXISTS user;
 CREATE TABLE user (
-  user_id int(10) NOT NULL,
+  user_id int(10) NOT NULL AUTO_INCREMENT,
   user_name varbinary(255) NOT NULL DEFAULT '',
   user_real_name varbinary(255) NOT NULL DEFAULT '',
   user_password tinyblob NOT NULL,

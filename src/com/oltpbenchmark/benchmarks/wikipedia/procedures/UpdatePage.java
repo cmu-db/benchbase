@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.Article;
@@ -16,40 +17,40 @@ public class UpdatePage extends Procedure {
 	
 	// pretend we are changing something in the text
 	public SQLStmt insertText = new SQLStmt("INSERT INTO `text` (old_id,old_page,old_text,old_flags) VALUES (NULL,?,?,'utf-8') "); 
-	public SQLStmt insertRevision = new SQLStmt("INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
-		+ "VALUES (NULL, ?, ?,'','0',?, ?,\""+ getTimeStamp14char()+ "\",'0',?,?)");
-	public SQLStmt updatePage = new SQLStmt("UPDATE `page` SET page_latest = ? , page_touched = '" + getTimeStamp14char()
+	public SQLStmt insertRevision = new SQLStmt("INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_usr,rev_usr_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
+		+ "VALUES (NULL, ?, ?,'','0',?, ?,\""+ LoaderUtil.getCurrentTime14()+ "\",'0',?,?)");
+	public SQLStmt updatePage = new SQLStmt("UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
 	+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?");
 	public SQLStmt insertRecentChanges = new SQLStmt("INSERT INTO `recentchanges` (rc_timestamp," + "rc_cur_time,"
 	+ "rc_namespace," + "rc_title," + "rc_type," + "rc_minor,"
-	+ "rc_cur_id," + "rc_user," + "rc_user_text," + "rc_comment,"
+	+ "rc_cur_id," + "rc_usr," + "rc_usr_text," + "rc_comment,"
 	+ "rc_this_oldid," + "rc_last_oldid," + "rc_bot,"
 	+ "rc_moved_to_ns," + "rc_moved_to_title," + "rc_ip,"
 	+ "rc_patrolled," + "rc_new," + "rc_old_len," + "rc_new_len,"
 	+ "rc_deleted," + "rc_logid," + "rc_log_type,"
 	+ "rc_log_action," + "rc_params," + "rc_id) " +
 	"VALUES ('"
-	+ getTimeStamp14char()
+	+ LoaderUtil.getCurrentTime14()
 	+ "','"
-	+ getTimeStamp14char()
+	+ LoaderUtil.getCurrentTime14()
 	+ "', ? , ? ,"
 	+ "'0','0', ? , ? , ? ,'', ? , ? ,'0','0','','"
 	+ getMyIp()
 	+ "','1','0', ? , ? ,'0','0',NULL,'','',NULL)");
 	
-	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_user  FROM `watchlist`  WHERE wl_title = ? AND wl_namespace = ? " +
-			"AND (wl_user != ?) AND (wl_notificationtimestamp IS NULL)");
+	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_usr  FROM `watchlist`  WHERE wl_title = ? AND wl_namespace = ? " +
+			"AND (wl_usr != ?) AND (wl_notificationtimestamp IS NULL)");
 	
 	public SQLStmt updateWatchList = new SQLStmt("UPDATE `watchlist` SET wl_notificationtimestamp = '"
-		+ getTimeStamp14char() + "' WHERE wl_title = ? AND wl_namespace = ? AND wl_user = ?");
+		+ LoaderUtil.getCurrentTime14() + "' WHERE wl_title = ? AND wl_namespace = ? AND wl_usr = ?");
 	
-	public SQLStmt selectUser = new SQLStmt("SELECT   *  FROM `user`  WHERE user_id = ?");
+	public SQLStmt selectUser = new SQLStmt("SELECT   *  FROM `usr`  WHERE usr_id = ?");
 	
-	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO `logging` (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params) "
-		+ "VALUES (NULL,'patrol','patrol','"+ getTimeStamp14char()+ "',?,?,?,?,?,'',?)");
+	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO `logging` (log_id,log_type,log_action,log_timestamp,log_usr,log_usr_text,log_namespace,log_title,log_page,log_comment,log_params) "
+		+ "VALUES (NULL,'patrol','patrol','"+ LoaderUtil.getCurrentTime14()+ "',?,?,?,?,?,'',?)");
 	
-	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `user` SET user_editcount=user_editcount+1 WHERE user_id = ? ");
-	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `user` SET user_touched = '" + getTimeStamp14char()+ "' WHERE user_id = ? ");
+	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `usr` SET usr_editcount=usr_editcount+1 WHERE usr_id = ? ");
+	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `usr` SET usr_touched = '" + LoaderUtil.getCurrentTime14()+ "' WHERE usr_id = ? ");
 	
 	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace,
 			String pageTitle) throws SQLException {
@@ -163,7 +164,7 @@ public class UpdatePage extends Procedure {
 
 		ArrayList<String> wlUser = new ArrayList<String>();
 		while (rs.next()) {
-			wlUser.add(rs.getString("wl_user"));
+			wlUser.add(rs.getString("wl_usr"));
 		}
 		//ps.close();
 
@@ -230,12 +231,7 @@ public class UpdatePage extends Procedure {
 		
 		conn.commit();
 	}
-	private String getTimeStamp14char() {
-		// TODO Auto-generated method stub
-		java.util.Date d = Calendar.getInstance().getTime();
-		return "" + d.getYear() + d.getMonth() + d.getDay() + d.getHours()
-				+ d.getMinutes() + d.getSeconds();
-	}
+
 	private String getMyIp() {
 		// TODO Auto-generated method stub
 		return "0.0.0.0";
