@@ -20,6 +20,7 @@
 package com.oltpbenchmark.api;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -38,8 +39,9 @@ public abstract class Loader {
     }
 	
     /**
+     * @throws SQLException 
      * 
      */
-    public abstract void load();
+    public abstract void load() throws SQLException;
     
 }

@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
@@ -74,6 +72,7 @@ public class TwitterBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected void loadDatabaseImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
+		TwitterLoader loader = new TwitterLoader(conn, this.workConf, null);
+		loader.load();
 	}
 }

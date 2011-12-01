@@ -1,4 +1,3 @@
--- TODO: id AUTO_INCREMENT
 DROP TABLE IF EXISTS added_tweets;
 CREATE TABLE added_tweets (
   id bigint(20) NOT NULL,
@@ -23,18 +22,17 @@ CREATE TABLE follows (
   PRIMARY KEY (f1,f2)
 );
 
--- TODO: id AUTO_INCREMENT
 DROP TABLE IF EXISTS tweets;
 CREATE TABLE tweets (
   id bigint(20) NOT NULL,
-  uid int(11) NOT NULL REFERENCES userid (uid),
+  uid int(11) NOT NULL REFERENCES usr (uid),
   text char(140) NOT NULL,
   createdate datetime DEFAULT NULL,
   PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS user;
-CREATE TABLE user (
+DROP TABLE IF EXISTS usr;
+CREATE TABLE usr (
   uid int(11) NOT NULL DEFAULT '0',
   name varchar(255) DEFAULT NULL,
   email varchar(255) DEFAULT NULL,
@@ -43,5 +41,6 @@ CREATE TABLE user (
   followers int(11) DEFAULT NULL,
   PRIMARY KEY (uid)
 );
-CREATE INDEX IDX_USER_FOLLOWERS ON user (followers);
-CREATE INDEX IDX_USER_PARTITION ON user (partitionid);
+
+CREATE INDEX IDX_USR_FOLLOWERS ON usr (followers);
+CREATE INDEX IDX_USR_PARTITION ON usr (partitionid);

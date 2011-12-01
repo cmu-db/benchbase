@@ -125,6 +125,7 @@ public class DBWorkload {
 			wrkld.setDBPassword(xmlConfig.getString("password"));
 			wrkld.setTerminals(xmlConfig.getInt("terminals"));	
 			wrkld.setIsolationMode(xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE"));
+			wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor",1.0));
 			
     		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
     		System.out.println("[INIT] DB = "+ wrkld.getDBConnection());
@@ -207,16 +208,16 @@ public class DBWorkload {
 		
 		// Create the Benchmark's Database
         if (argsLine.hasOption("create")) {
-        	System.out.print("[Create] ...");
+        	System.out.println("[Create] ...");
             runCreator(bench, verbose);
-            System.out.println(" Done");
+            System.out.println("\t Done");
         }
 		
 		// Execute Loader
         if (argsLine.hasOption("load")) {
-        	System.out.print("[Load] ...");
+        	System.out.println("[Load] ...");
 		    runLoader(bench, verbose);
-            System.out.println(" Done");
+            System.out.println("\t Done");
 		}
 		
 		// Execute Workload

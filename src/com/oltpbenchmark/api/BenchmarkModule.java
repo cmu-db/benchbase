@@ -100,9 +100,19 @@ public abstract class BenchmarkModule {
 	
 	private String getDBMS() {
 		// TODO Auto-generated method stub
-		if(this.getWorkloadConfiguration().getDBDriver().contains("oracle"))
-			return "-oracle";
-		else return "";
+		try
+		{
+			if(this.getWorkloadConfiguration().getDBDriver().contains("oracle"))
+				return "-oracle";
+		}
+		catch(Exception e)
+		{ 
+			System.out.println("No driver Loaded, is this a test?");
+		}
+		finally
+		{
+			return "";
+		}
 	}
 
 	public final List<Worker> makeWorkers(boolean verbose) throws IOException {

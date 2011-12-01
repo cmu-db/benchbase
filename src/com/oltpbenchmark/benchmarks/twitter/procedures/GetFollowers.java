@@ -5,12 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.twitter.TwitterWorker;
 
 public class GetFollowers extends Procedure {
-    
+	
+	private static final Logger LOG = Logger.getLogger(GetFollowers.class);
+	
     public final SQLStmt getFollowers = new SQLStmt(
         "SELECT f2 FROM followers WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
     );
@@ -38,7 +42,7 @@ public class GetFollowers extends Procedure {
             } // WHILE
             return stmt.executeQuery();
         }
-        System.out.println("doesnt have followers");
+        LOG.info("No followers for user: "+uid);
         return (null);
     }
 

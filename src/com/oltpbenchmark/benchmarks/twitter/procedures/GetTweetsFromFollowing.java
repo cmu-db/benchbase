@@ -24,11 +24,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tatp.TATPLoader;
 import com.oltpbenchmark.benchmarks.twitter.TwitterWorker;
 
 public class GetTweetsFromFollowing extends Procedure {
+	private static final Logger LOG = Logger.getLogger(GetTweetsFromFollowing.class);
 
     public final SQLStmt getFollowing = new SQLStmt(
         "SELECT f2 FROM follows WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
@@ -57,7 +61,7 @@ public class GetTweetsFromFollowing extends Procedure {
             } // WHILE
             return stmt.executeQuery();
         }
-        System.out.println("doesnt follow anyone");
+        LOG.info("No followers for user: "+uid);
         return (null);
     }
     
