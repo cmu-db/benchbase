@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
@@ -84,6 +82,8 @@ public class EpinionsBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
-		throw new NotImplementedException();
+		EpinionsLoader loader = new EpinionsLoader(conn, this.workConf, null);
+		loader.load();
 	}
+
 }

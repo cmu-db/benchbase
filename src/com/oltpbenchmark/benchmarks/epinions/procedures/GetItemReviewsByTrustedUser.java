@@ -10,6 +10,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class GetItemReviewsByTrustedUser extends Procedure {
 
+	//FIXME: CARLE, does this make sense?
     public final SQLStmt getReview = new SQLStmt(
         "SELECT * FROM review r WHERE r.i_id=?"
     );
