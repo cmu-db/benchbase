@@ -37,7 +37,6 @@ public class TestTATPBenchmark extends AbstractTestBenchmarkModule<TATPBenchmark
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp(TATPBenchmark.class, PROC_CLASSES);
-		            
 	}
 	
 }

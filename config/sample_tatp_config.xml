@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<parameters>
+    <driver>org.sqlite.JDBC</driver>
+    <DBUrl>jdbc:sqlite:/tmp/tatp.db</DBUrl>
+    <DBName>tatp</DBName>
+    <terminals>1</terminals>
+  
+    <transactiontypes>
+        <transactiontype>
+                <name>DeleteCallForwarding</name>
+        </transactiontype>
+        <transactiontype>
+                <name>GetAccessData</name>
+        </transactiontype>
+        <transactiontype>
+                <name>GetNewDestination</name>
+        </transactiontype>
+        <transactiontype>
+                <name>GetSubscriberData</name>
+        </transactiontype>
+        <transactiontype>
+                <name>InsertCallForwarding</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdateLocation</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdateSubscriberData</name>
+        </transactiontype>
+    </transactiontypes>
+    
+    <works>
+        <work>
+            <time>10</time>
+            <rate>200</rate>
+<!--             <weights>0, 0, 0, 0, 100, 0, 0</weights> -->
+            <weights>2, 35, 10, 35, 2, 14, 2</weights>
+        </work>
+    </works>
+</parameters>

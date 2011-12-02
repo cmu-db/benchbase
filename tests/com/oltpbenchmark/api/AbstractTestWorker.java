@@ -30,7 +30,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     
     protected List<Worker> workers;
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
         super.setUp(clazz, procClasses);
         

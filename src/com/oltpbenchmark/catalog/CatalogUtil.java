@@ -42,6 +42,7 @@ public abstract class CatalogUtil {
      * @throws SQLException
      */
     public static Map<String, Table> getTables(Connection c) throws SQLException {
+        assert(c != null) : "Null Connection!";
         Map<String, Table> tables = new HashMap<String, Table>();
         
         DatabaseMetaData md = c.getMetaData();
@@ -78,7 +79,7 @@ public abstract class CatalogUtil {
                 LOG.debug(String.format("Adding %s.%s", table_name, col_name));
                 table_catalog.addColumn(col_catalog);
             } // FOR
-            tables.put(table_name, table_catalog);
+            tables.put(table_name.toUpperCase(), table_catalog);
         } // WHILE
         
         return (tables);

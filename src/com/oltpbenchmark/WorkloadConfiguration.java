@@ -116,8 +116,8 @@ public class WorkloadConfiguration {
 	/**
 	 * Set the scale factor for the database
 	 * A value of 1 means the default size.
-	 * A value less than 1 means the database is larger
-	 * A value greater than 1 means the database is smaller 
+	 * A value greater than 1 means the database is larger
+	 * A value less than 1 means the database is smaller 
 	 * @param scaleFactor
 	 */
 	public void setScaleFactor(double scaleFactor) {

@@ -146,6 +146,7 @@
             <tests>
                 <fileset dir='${build.tests.dir}'>
                     <include name="**/Test*.class"/>
+                    <exclude name="**/TestWikipediaBenchmark.class"/>
                 </fileset>
             </tests>
         </run_junit>

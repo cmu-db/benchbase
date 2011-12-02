@@ -169,7 +169,7 @@ public class TATPWorker extends Worker {
 	
 	public TATPWorker(int id, TATPBenchmark benchmarkModule) {
 		super(id, benchmarkModule);
-		this.subscriberSize = Math.round(TATPConstants.DFAULT_NUM_SUBSCRIBERS / benchmarkModule.getWorkloadConfiguration().getScaleFactor());
+		this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * benchmarkModule.getWorkloadConfiguration().getScaleFactor());
 	}
 	
 	@Override

@@ -8,130 +8,145 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.ZipFianDistribution;
 import com.oltpbenchmark.catalog.Table;
 
-public class TwitterLoader extends Loader{
-	
-	private static final int USERS = 500; //Number of user baseline
-	private static final int TWEETS = 20000;//Number of tweets baseline
-	private static final int FOLLOW= 100;//Max follow per user
-	
-	private static final int NAME = 5;//Name length
-	private static final int EXP_U = 1;//Exponent in the Zipfian distribution of users tweeting/followup.
-	
-	public final static int configCommitCount = 1000;
+public class TwitterLoader extends Loader {
+    private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
 
-	private String insertUserSql="INSERT INTO usr (uid,name,email,followers) VALUES (?, ?, ?, 0)";
-	
-	private String insertTweetSql="INSERT INTO tweets VALUES (?, ?, ?, '"+LoaderUtil.getCurrentTime()+"')";
-	
-	private String insertFollowsSql="INSERT INTO follows VALUES (?, ?)";
-	private String insertFollowersSql="INSERT INTO followers VALUES (?, ?)";
+    private static final int USERS = 500; // Number of user baseline
+    private static final int TWEETS = 20000;// Number of tweets baseline
+    private static final int FOLLOW = 100;// Max follow per user
 
-	private int scale=1;
+    private static final int NAME = 5;// Name length
+    private static final int EXP_U = 1;// Exponent in the Zipfian distribution
+                                       // of users tweeting/followup.
 
-	public TwitterLoader(Connection c, WorkloadConfiguration workConf,
-			Map<String, Table> tables) {
-		super(c, workConf, tables);
-    	this.scale = (int) workConf.getScaleFactor();
-    	this.scale=10;
-	}
+    public final static int configCommitCount = 1000;
 
-	@Override
-	public void load() throws SQLException {
-		// TODO Auto-generated method stub
-		PreparedStatement userInsert = this.conn.prepareStatement(insertUserSql);
-		int k=1;
-		for(int i=0;i<USERS*scale;i++)
-		{
-			String name= LoaderUtil.randomStr(NAME);
-			userInsert.setInt(1, i);
-			userInsert.setString(2, name);
-			userInsert.setString(3,name+"@tweeter.com");
-			userInsert.addBatch();
-			if ((k % configCommitCount) == 0) {
-				userInsert.executeBatch();
-				conn.commit();
-				userInsert.clearBatch();
-				System.out.println("Users %"+k);
-			}
-			k++;
-		}
-		conn.commit();
-		System.out.println("\t Users Loaded");
-		
-		///////
-		PreparedStatement tweetInsert = this.conn.prepareStatement(insertTweetSql);
-		k=1;
-		ZipFianDistribution zipf = new ZipFianDistribution(USERS*scale,1);
-		for(int i=0;i<TWEETS*scale;i++)
-		{
-			int uid = zipf.next();
-			tweetInsert.setInt(1, i);
-			tweetInsert.setInt(2, uid);
-			tweetInsert.setString(3,"some random text from tweeter"+uid);
-			tweetInsert.addBatch();
-			if ((k % configCommitCount) == 0) {
-				tweetInsert.executeBatch();
-				conn.commit();
-				tweetInsert.clearBatch();
-				System.out.println("tweet % "+k);
-			}
-			k++;
-		}
-		tweetInsert.executeBatch();
-		conn.commit();
-		tweetInsert.clearBatch();
-		System.out.println("\t Tweets Loaded");
-		
-		
-		//////
-		PreparedStatement followsInsert = this.conn.prepareStatement(insertFollowsSql);
-		PreparedStatement followersInsert = this.conn.prepareStatement(insertFollowersSql);
-		k=1;
-		Random random = new Random();
-		ZipFianDistribution zipfFollowee = new ZipFianDistribution(USERS*scale,EXP_U);
-		for(int follower=0;follower<USERS*scale;follower++)
-		{
-			List<Integer> followees=new ArrayList<Integer>();
-			int time= random.nextInt(FOLLOW);
-			for(int f=0;f<time;f++)
-			{
-				int followee = zipfFollowee.next();			
-				if(follower!=followee && !followees.contains(followee))
-				{
-					followsInsert.setInt(1, follower);
-					followsInsert.setInt(2, followee);
-					followsInsert.addBatch();
+    private final int num_users;
+    private final long num_tweets;
 
-					followersInsert.setInt(1, followee);
-					followersInsert.setInt(2, follower);
-					followersInsert.addBatch();
-					
-					followees.add(followee);
-					
-					if ((k % configCommitCount) == 0) {
-						followsInsert.executeBatch();
-						followersInsert.executeBatch();
-						conn.commit();
-						followsInsert.clearBatch();
-						followersInsert.clearBatch();
-						System.out.println("Follows  % "+k);
-					}
-					k++;
-				}
-			}
-		}
-		followsInsert.executeBatch();
-		followersInsert.executeBatch();
-		followsInsert.clearBatch();
-		followersInsert.clearBatch();
-		conn.commit();
-		System.out.println("\t Follows Loaded");
-	}
+    public TwitterLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
+        super(c, workConf, tables);
+        this.num_users = (int)Math.round(USERS * this.scaleFactor);
+        this.num_tweets = (int)Math.round(TWEETS * this.scaleFactor);
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("# of USERS:  " + this.num_users);
+            LOG.debug("# of TWEETS: " + this.num_tweets);
+        }
+    }
+    
+    protected void loadUsers() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("usr");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement userInsert = this.conn.prepareStatement(sql);
+        
+        long total = 0;
+        for (int i = 0; i < num_users; i++) {
+            String name = LoaderUtil.randomStr(NAME);
+            userInsert.setInt(1, i); // ID
+            userInsert.setString(2, name); // NAME
+            userInsert.setString(3, name + "@tweeter.com"); // EMAIL
+            userInsert.addBatch();
+            if ((++total % configCommitCount) == 0) {
+                int result[] = userInsert.executeBatch();
+                assert(result != null);
+                conn.commit();
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Users %d / %d", total, num_users));
+            }
+        } // FOR
+        userInsert.executeBatch();
+        conn.commit();
+        if (LOG.isDebugEnabled()) LOG.debug(String.format("Users Loaded [%d]", total));
+    }
+    
+    protected void loadTweets() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("tweets");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
+        
+        int total = 0;
+        ZipFianDistribution zipf = new ZipFianDistribution(this.num_users, 1);
+        for (long i = 0; i < this.num_tweets; i++) {
+            int uid = zipf.next();
+            tweetInsert.setLong(1, i);
+            tweetInsert.setInt(2, uid);
+            tweetInsert.setString(3, "some random text from tweeter" + uid);
+            tweetInsert.addBatch();
+            if ((++total % configCommitCount) == 0) {
+                tweetInsert.executeBatch();
+                conn.commit();
+                tweetInsert.clearBatch();
+                if (LOG.isDebugEnabled()) LOG.debug("tweet % " + total);
+            }
+        }
+        tweetInsert.executeBatch();
+        conn.commit();
+        if (LOG.isDebugEnabled()) LOG.debug("Tweets Loaded");
+    }
+    
+    protected void loadFollowData() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("follows");
+        assert(catalog_tbl != null);
+        final PreparedStatement followsInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
+
+        catalog_tbl = this.getTableCatalog("followers");
+        assert(catalog_tbl != null);
+        final PreparedStatement followersInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
+        
+        int k = 1;
+        Random random = new Random();
+        ZipFianDistribution zipfFollowee = new ZipFianDistribution(this.num_users, EXP_U);
+        List<Integer> followees = new ArrayList<Integer>();
+        for (int follower = 0; follower < this.num_users; follower++) {
+            followees.clear();
+            int time = random.nextInt(FOLLOW);
+            for (int f = 0; f < time; f++) {
+                int followee = zipfFollowee.next();
+                if (follower != followee && !followees.contains(followee)) {
+                    followsInsert.setInt(1, follower);
+                    followsInsert.setInt(2, followee);
+                    followsInsert.addBatch();
+
+                    followersInsert.setInt(1, followee);
+                    followersInsert.setInt(2, follower);
+                    followersInsert.addBatch();
+
+                    followees.add(followee);
+
+                    if ((k % configCommitCount) == 0) {
+                        followsInsert.executeBatch();
+                        followersInsert.executeBatch();
+                        conn.commit();
+                        followsInsert.clearBatch();
+                        followersInsert.clearBatch();
+                        if (LOG.isDebugEnabled()) LOG.debug("Follows  % " + k);
+                    }
+                    k++;
+                }
+            }
+        }
+        followsInsert.executeBatch();
+        followersInsert.executeBatch();
+        conn.commit();
+        if (LOG.isDebugEnabled()) LOG.debug("Follows Loaded");
+    }
+
+    @Override
+    public void load() throws SQLException {
+        this.loadUsers();
+        this.loadTweets();
+        this.loadFollowData();
+    }
 
 }

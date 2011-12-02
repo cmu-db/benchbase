@@ -67,13 +67,11 @@ public class TATPLoader extends Loader {
     
     private final long subscriberSize;
     private final int batchSize = 10000; // FIXME
-    private final double scaleFactor = 1.0; // FIXME
     private final boolean blocking = true; // FIXME
     
     public TATPLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
     	super(c, workConf, tables);
-    	this.subscriberSize = Math.round(TATPConstants.DFAULT_NUM_SUBSCRIBERS / workConf.getScaleFactor());
-    	
+    	this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * workConf.getScaleFactor());
         if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
 
@@ -85,7 +83,7 @@ public class TATPLoader extends Loader {
             new Thread() {
                 public void run() {
                     if (LOG.isDebugEnabled()) LOG.debug("Start loading " + TATPConstants.TABLENAME_SUBSCRIBER);
-                    Table catalog_tbl = tables.get(TATPConstants.TABLENAME_SUBSCRIBER);
+                    Table catalog_tbl = getTableCatalog(TATPConstants.TABLENAME_SUBSCRIBER);
                     try {
                     	genSubscriber(catalog_tbl);
                     } catch (SQLException ex) {
@@ -98,7 +96,7 @@ public class TATPLoader extends Loader {
             new Thread() {
                 public void run() {
                     if (LOG.isDebugEnabled()) LOG.debug("Start loading " + TATPConstants.TABLENAME_ACCESS_INFO);
-                    Table catalog_tbl = tables.get(TATPConstants.TABLENAME_ACCESS_INFO);
+                    Table catalog_tbl = getTableCatalog(TATPConstants.TABLENAME_ACCESS_INFO);
                     try {
                     	genAccessInfo(catalog_tbl);
                     } catch (SQLException ex) {
@@ -111,8 +109,8 @@ public class TATPLoader extends Loader {
             new Thread() {
                 public void run() {
                     if (LOG.isDebugEnabled()) LOG.debug("Start loading " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " and " + TATPConstants.TABLENAME_CALL_FORWARDING);
-                    Table catalog_spe = tables.get(TATPConstants.TABLENAME_SPECIAL_FACILITY);
-                    Table catalog_cal = tables.get(TATPConstants.TABLENAME_CALL_FORWARDING);
+                    Table catalog_spe = getTableCatalog(TATPConstants.TABLENAME_SPECIAL_FACILITY);
+                    Table catalog_cal = getTableCatalog(TATPConstants.TABLENAME_CALL_FORWARDING);
                     try {
                     	genSpeAndCal(catalog_spe, catalog_cal);
                     } catch (SQLException ex) {
@@ -221,6 +219,7 @@ public class TATPLoader extends Loader {
                 if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
                 int results[] = pstmt.executeBatch();
                 assert(results != null);
+                conn.commit();
                 batch = 0;
             }
         } // WHILE
@@ -228,6 +227,7 @@ public class TATPLoader extends Loader {
         	if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
             int results[] = pstmt.executeBatch();
             assert(results != null);
+            conn.commit();
         }
     }
 
@@ -249,6 +249,8 @@ public class TATPLoader extends Loader {
         int s_id = 0;
         int[] spe_arr = { 1, 2, 3, 4 };
         int[] cal_arr = { 0, 8, 6 };
+        if (LOG.isDebugEnabled()) LOG.debug("subscriberSize = " + subscriberSize);
+        if (LOG.isDebugEnabled()) LOG.debug("batchSize = " + this.batchSize);
         while (s_id++ < subscriberSize) {
             int[] sf_types = TATPUtil.subArr(spe_arr, 1, 4);
             for (int sf_type : sf_types) {
@@ -282,14 +284,17 @@ public class TATPLoader extends Loader {
                 int results[] = spe_pstmt.executeBatch();
                 assert(results != null);
                 
+                
                 if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
                 results = cal_pstmt.executeBatch();
                 assert(results != null);
                 
                 spe_batch = 0;
+                conn.commit();
             }
         } // WHILE
-        if (spe_batch > this.batchSize) {
+        LOG.debug("spe_batch = " + spe_batch);
+        if (spe_batch > 0) {
             if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));
             int results[] = spe_pstmt.executeBatch();
             assert(results != null);
@@ -297,6 +302,8 @@ public class TATPLoader extends Loader {
             if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
             results = cal_pstmt.executeBatch();
             assert(results != null);
+            
+            conn.commit();
         }
     }
 }

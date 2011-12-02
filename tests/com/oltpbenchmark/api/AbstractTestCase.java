@@ -15,11 +15,11 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     
     // HACK
   static {
-//      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
+      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
   }
     
     protected static final String DB_CONNECTION = "jdbc:sqlite:";
-    protected static final double DB_SCALE_FACTOR = 100;
+    protected static final double DB_SCALE_FACTOR = 0.01;
 
     protected String dbName;
     protected WorkloadConfiguration workConf;
@@ -27,7 +27,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected Connection conn;
     protected List<Class<? extends Procedure>> procClasses = new ArrayList<Class<? extends Procedure>>();
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
         super.setUp();
         
@@ -49,6 +49,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
                                                    new Object[] { this.workConf },
                                                    new Class<?>[] { WorkloadConfiguration.class });
         assertNotNull(this.benchmark);
+        
+        this.conn = this.benchmark.getConnection();
+        assertNotNull(this.conn);
     }
     
     @Override

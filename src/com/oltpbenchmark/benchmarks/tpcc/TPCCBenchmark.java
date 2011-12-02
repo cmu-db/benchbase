@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
@@ -33,6 +34,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
+import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
@@ -70,7 +72,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	protected void loadDatabaseImpl(Connection conn) throws SQLException {
+	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
 		// TODO TPCCLoader loader = new TPCCLoader();
 		throw new NotImplementedException();
 	}

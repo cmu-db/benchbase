@@ -30,14 +30,27 @@ public abstract class Loader {
 
     protected final Connection conn;
     protected final WorkloadConfiguration workConf;
-    protected final Map<String, Table> tables;
+    private final Map<String, Table> tables;
+    protected final double scaleFactor;
     
     public Loader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
     	this.conn = c;
     	this.workConf = workConf;
     	this.tables = tables;
+    	this.scaleFactor = workConf.getScaleFactor();
     }
 	
+    /**
+     * Get the catalog object for the given table name
+     * @param tableName
+     * @return
+     */
+    public Table getTableCatalog(String tableName) {
+        Table catalog_tbl = this.tables.get(tableName.toUpperCase());
+        assert(catalog_tbl != null) : "Invalid table name '" + tableName + "' " + this.tables.keySet();
+        return (catalog_tbl);
+    }
+    
     /**
      * @throws SQLException 
      * 

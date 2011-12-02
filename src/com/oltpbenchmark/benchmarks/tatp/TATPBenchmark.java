@@ -53,10 +53,7 @@ public class TATPBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected void loadDatabaseImpl(Connection conn) throws SQLException {
-		Map<String, Table> tables = this.getTables(conn);
-		assert(tables != null);
-		
+	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
 		TATPLoader loader = new TATPLoader(conn, this.workConf, tables);
 		loader.load(); // Blocking...
 	}

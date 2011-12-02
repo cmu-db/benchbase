@@ -53,7 +53,7 @@ package com.oltpbenchmark.benchmarks.tatp;
 
 public abstract class TATPConstants {
 
-    public static final long DFAULT_NUM_SUBSCRIBERS = 100000l; 
+    public static final long DEFAULT_NUM_SUBSCRIBERS = 100000l; 
     
     // ----------------------------------------------------------------
     // STORED PROCEDURE EXECUTION FREQUENCIES (0-100)

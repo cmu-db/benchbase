@@ -25,12 +25,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
+import com.oltpbenchmark.catalog.Table;
 
 public class TwitterBenchmark extends BenchmarkModule {
 	
@@ -71,8 +73,8 @@ public class TwitterBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected void loadDatabaseImpl(Connection conn) throws SQLException {
-		TwitterLoader loader = new TwitterLoader(conn, this.workConf, null);
+	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
+		TwitterLoader loader = new TwitterLoader(conn, this.workConf, tables);
 		loader.load();
 	}
 }
