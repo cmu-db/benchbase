@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<parameters>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/ycsb</DBUrl>
+    <DBName>ycsb</DBName>
+    <username>root</username>
+    <password>hello</password>
+    <terminals>1</terminals>
+    <scalefactor>1</scalefactor>
+      
+    <works>
+        <work>
+            <time>10</time>
+            <rate>100</rate>
+            <weights>50,50,0,0,0,0</weights>
+        </work>
+        <work>
+            <time>5</time>
+            <rate>200</rate>
+            <weights>0,0,0,0,0,100</weights>
+        </work>
+    </works>
+    
+    <!-- YCSB Specific -->
+    <transactiontypes>
+        <transactiontype>
+                <name>ReadRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>InsertRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ScanRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdateRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>DeleteRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ReadModifyWriteRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
