@@ -1,4 +1,4 @@
-package utils;
+package com.yahoo.ycsb.generator;
 /**                                                                                                                                                                                
  * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
  *                                                                                                                                                                                 

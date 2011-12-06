@@ -54,7 +54,7 @@ public class DBWorkload {
 	 */
 	public static void main(String[] args) throws Exception {
 	    // Initialize log4j
-	    //org.apache.log4j.PropertyConfigurator.configure(System.getProperty("log4j.configuration"));
+	    org.apache.log4j.PropertyConfigurator.configure(System.getProperty("log4j"));
 		
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();

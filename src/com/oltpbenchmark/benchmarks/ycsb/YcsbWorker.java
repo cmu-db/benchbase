@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 
-import utils.CounterGenerator;
-import utils.ZipfianGenerator;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
@@ -20,6 +18,8 @@ import com.oltpbenchmark.benchmarks.ycsb.procedures.ReadModifyWriteRecord;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.ReadRecord;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.ScanRecord;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.UpdateRecord;
+import com.yahoo.ycsb.generator.CounterGenerator;
+import com.yahoo.ycsb.generator.ZipfianGenerator;
 
 public class YcsbWorker extends Worker{
 	

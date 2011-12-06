@@ -6,40 +6,39 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.api.ZipFianDistribution;
 import com.oltpbenchmark.catalog.Table;
+import com.yahoo.ycsb.generator.ZipfianGenerator;
 
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
 
     private static final int USERS = 500; // Number of user baseline
     private static final int TWEETS = 20000;// Number of tweets baseline
-    private static final int FOLLOW = 100;// Max follow per user
+    private static final int FOLLOW = 100;// Max follow per user baseline
 
     private static final int NAME = 5;// Name length
-    private static final int EXP_U = 1;// Exponent in the Zipfian distribution
-                                       // of users tweeting/followup.
 
     public final static int configCommitCount = 1000;
 
     private final int num_users;
     private final long num_tweets;
+    private final int num_follows;
 
     public TwitterLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
         super(c, workConf, tables);
         this.num_users = (int)Math.round(USERS * this.scaleFactor);
         this.num_tweets = (int)Math.round(TWEETS * this.scaleFactor);
-        
+        this.num_follows= (int)Math.round(FOLLOW * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
             LOG.debug("# of TWEETS: " + this.num_tweets);
+            LOG.debug("# of FOLLOWS: " + this.num_follows);
         }
     }
     
@@ -55,6 +54,9 @@ public class TwitterLoader extends Loader {
             userInsert.setInt(1, i); // ID
             userInsert.setString(2, name); // NAME
             userInsert.setString(3, name + "@tweeter.com"); // EMAIL
+            userInsert.setNull(4, java.sql.Types.INTEGER);
+            userInsert.setNull(5, java.sql.Types.INTEGER);
+            userInsert.setNull(6, java.sql.Types.INTEGER);
             userInsert.addBatch();
             if ((++total % configCommitCount) == 0) {
                 int result[] = userInsert.executeBatch();
@@ -76,12 +78,14 @@ public class TwitterLoader extends Loader {
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
         
         int total = 0;
-        ZipFianDistribution zipf = new ZipFianDistribution(this.num_users, 1);
+        //ZipFianDistribution zipf = new ZipFianDistribution(this.num_users, 1);
+        com.yahoo.ycsb.generator.ZipfianGenerator zy=new com.yahoo.ycsb.generator.ZipfianGenerator(this.num_users);
         for (long i = 0; i < this.num_tweets; i++) {
-            int uid = zipf.next();
+            int uid = zy.nextInt();
             tweetInsert.setLong(1, i);
             tweetInsert.setInt(2, uid);
             tweetInsert.setString(3, "some random text from tweeter" + uid);
+            tweetInsert.setNull(4, java.sql.Types.DATE);
             tweetInsert.addBatch();
             if ((++total % configCommitCount) == 0) {
                 tweetInsert.executeBatch();
@@ -105,14 +109,14 @@ public class TwitterLoader extends Loader {
         final PreparedStatement followersInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
         
         int k = 1;
-        Random random = new Random();
-        ZipFianDistribution zipfFollowee = new ZipFianDistribution(this.num_users, EXP_U);
+        ZipfianGenerator zipfFollowee = new ZipfianGenerator(this.num_users);
+        ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows);
         List<Integer> followees = new ArrayList<Integer>();
         for (int follower = 0; follower < this.num_users; follower++) {
             followees.clear();
-            int time = random.nextInt(FOLLOW);
+            int time = zipfFollows.nextInt();
             for (int f = 0; f < time; f++) {
-                int followee = zipfFollowee.next();
+                int followee = zipfFollowee.nextInt();
                 if (follower != followee && !followees.contains(followee)) {
                     followsInsert.setInt(1, follower);
                     followsInsert.setInt(2, followee);

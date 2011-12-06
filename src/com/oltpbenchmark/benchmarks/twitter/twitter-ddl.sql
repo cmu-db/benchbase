@@ -6,7 +6,7 @@ CREATE TABLE added_tweets (
   createdate datetime DEFAULT NULL,
   PRIMARY KEY (id)
 );
-CREATE INDEX IDX_ADDED_TWEETS_UID ON added_tweets (uid);
+--CREATE INDEX IDX_ADDED_TWEETS_UID ON added_tweets (uid);
 
 DROP TABLE IF EXISTS followers;
 CREATE TABLE followers (
@@ -42,5 +42,5 @@ CREATE TABLE usr (
   PRIMARY KEY (uid)
 );
 
-CREATE INDEX IDX_USR_FOLLOWERS ON usr (followers);
-CREATE INDEX IDX_USR_PARTITION ON usr (partitionid);
+--CREATE INDEX IDX_USR_FOLLOWERS ON usr (followers);
+--CREATE INDEX IDX_USR_PARTITION ON usr (partitionid);

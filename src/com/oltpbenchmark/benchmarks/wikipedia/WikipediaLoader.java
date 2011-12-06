@@ -14,9 +14,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
-
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.random.RandomDataImpl; 
+import com.yahoo.ycsb.generator.ZipfianGenerator;
 
 public class WikipediaLoader extends Loader{
 	
@@ -72,7 +70,6 @@ public class WikipediaLoader extends Loader{
 	@Override
 	public void load() {
 		System.out.println(LoaderUtil.getCurrentTime14());
-		RandomDataImpl rand=new RandomDataImpl();
 		try 
 		{
 			
@@ -98,9 +95,10 @@ public class WikipediaLoader extends Loader{
 			
 			PreparedStatement pageInsert = this.conn.prepareStatement(insertPageSql);
 			k=0;
+			ZipfianGenerator ns=new ZipfianGenerator(NAMESPACES);
 			for(int i=0;i<PAGES*scale;i++)
 			{
-				int namespace=rand.nextZipf(NAMESPACES, EXP_NS);
+				int namespace=ns.nextInt();
 				String title=LoaderUtil.randomStr(TITLE);
 				pageInsert.setInt(1, namespace);
 				pageInsert.setString(2,title);
@@ -119,11 +117,13 @@ public class WikipediaLoader extends Loader{
 			
 			List<String> wl=new ArrayList<String>();
 			k=0;
+			ZipfianGenerator pages=new ZipfianGenerator(PAGES);
+			ZipfianGenerator users=new ZipfianGenerator(USERS);
 			for(int rev=1;rev<REVISIONS*PAGES*scale;rev++)
 			{
 				/// load revisions
-				int page_id=rand.nextZipf(PAGES, EXP_P);
-				int user_id=rand.nextZipf(USERS, EXP_U);
+				int page_id=pages.nextInt();
+				int user_id=users.nextInt();
 				String new_text= LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
 				
 				//
@@ -216,9 +216,6 @@ public class WikipediaLoader extends Loader{
 			}
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MathException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

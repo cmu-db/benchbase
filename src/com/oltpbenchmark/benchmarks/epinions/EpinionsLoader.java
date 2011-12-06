@@ -2,21 +2,16 @@ package com.oltpbenchmark.benchmarks.epinions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
-
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.random.RandomDataImpl; 
+import com.yahoo.ycsb.generator.ZipfianGenerator;
 
 public class EpinionsLoader extends Loader{
 	
@@ -29,11 +24,9 @@ public class EpinionsLoader extends Loader{
 	public String insertTrustSql = "INSERT INTO trust VALUES (?,?,?,now())";
 	
 	private final int ITEMS=1000; // Number of baseline pages
-	private final int EXP_I=1; // Exponent in the page revision Zipfian distribution
 	private static final long TITLE = 20;
 	
 	private final int USERS=2000; // Number of baseline Users
-	private final int EXP_U=1; // Exponent in the user revision Zipfian distribution
 	private final int NAME=5; // Length of user's name
 	
 	private int scale=1; //Scale factor
@@ -52,7 +45,6 @@ public class EpinionsLoader extends Loader{
 	@Override
 	public void load() {
 		System.out.println(LoaderUtil.getCurrentTime14());
-		RandomDataImpl rand=new RandomDataImpl();
 		try 
 		{
 			
@@ -99,14 +91,16 @@ public class EpinionsLoader extends Loader{
 			System.out.println("\t Items Loaded");
 			
 			PreparedStatement reviewInsert = this.conn.prepareStatement(insertReviewSql);
+			ZipfianGenerator numReviews=new ZipfianGenerator(REVIEW*scale);
+			ZipfianGenerator reviewer=new ZipfianGenerator(USERS*scale);
 			k=1;
 			for(int i=0;i<ITEMS*scale;i++)
 			{
 				List<Integer> reviewers=new ArrayList<Integer>();
-				int time= rand.nextZipf(REVIEW,EXP_I);
+				int time= numReviews.nextInt();
 				for(int f=0;f<time;f++)
 				{
-					int u_id= rand.nextZipf(USERS*scale, EXP_U);
+					int u_id= reviewer.nextInt();
 					if(!reviewers.contains(u_id))
 					{
 						reviewInsert.setInt(1, k);
@@ -131,13 +125,14 @@ public class EpinionsLoader extends Loader{
 			
 			PreparedStatement trustInsert = this.conn.prepareStatement(insertTrustSql);
 			k=1;
+			ZipfianGenerator numTrust=new ZipfianGenerator(TRUST*scale);
 			for(int i=0;i<USERS*scale;i++)
 			{
 				List<Integer> trustee=new ArrayList<Integer>();
-				int time= rand.nextZipf(TRUST,EXP_U);
+				int time= numTrust.nextInt();
 				for(int f=0;f<time;f++)
 				{
-					int u_id= rand.nextZipf(USERS*scale, EXP_U);
+					int u_id= reviewer.nextInt();
 					if(!trustee.contains(u_id))
 					{
 						trustInsert.setInt(1, i);
@@ -163,10 +158,6 @@ public class EpinionsLoader extends Loader{
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (MathException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		} 		
 	}
 }
