@@ -18,6 +18,10 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections15-4.01.jar"/>
 	<classpathentry kind="lib" path="lib/jtds-1.2.5.jar"/>
-	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/Hibernate/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/Hibernate/hibernate3.jar"/>
+	<classpathentry kind="lib" path="lib/jpa2.jar"/>
+	<classpathentry kind="lib" path="lib/openjpa-index-annotation.jar"/>
+	<classpathentry kind="lib" path="lib/jdo2-index.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
