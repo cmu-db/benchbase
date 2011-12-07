@@ -13,7 +13,7 @@
     <property name="lib.dir"                    location="lib" />
     <property name="build.dir"                  location="build" />
     <property name="build.src.dir"              location="${build.dir}/src" />
-    <property name="build.tests.dir"            location="${build.dir}/tests" />
+    <property name="build.tests.dir"            location="tests" />
     <property name='build.testoutput.dir'       location='${build.dir}/testoutput' />
 
     <path id='project.classpath'>
@@ -33,6 +33,8 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         
         <mkdir dir="${build.src.dir}"/>
+        <mkdir dir="${build.dir}/META-INF"/>
+        <copy file="${src.dir}/META-INF/persistence.xml" todir="${build.dir}/META-INF"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false"
                destdir="${build.src.dir}"
                source="${javac.source}"

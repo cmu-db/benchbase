@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<parameters>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/hibernate</DBUrl>
+    <DBName>hibernate</DBName>
+    <username>root</username>
+    <password>hello</password>
+    <terminals>1</terminals>
+    <scalefactor>1</scalefactor>
+      
+    <works>
+        <work>
+            <time>10</time>
+            <rate>100</rate>
+            <weights>20,20,20,20,20</weights>
+        </work>
+        <work>
+            <time>10</time>
+            <rate>200</rate>
+            <weights>20,20,20,20,20</weights>
+        </work>
+        <work>
+            <time>10</time>
+            <rate>400</rate>
+            <weights>20,20,20,20,20</weights>
+        </work>
+        <work>
+            <time>10</time>
+            <rate>800</rate>
+            <weights>20,20,20,20,20</weights>
+        </work>
+        <work>
+            <time>10</time>
+            <rate>1600</rate>
+            <weights>20,20,20,20,20</weights>
+        </work>
+    </works>
+    
+    <!-- JPAB Specific -->
+    <transactiontypes>
+        <transactiontype>
+                <name>BasicTest</name>
+        </transactiontype>
+		<transactiontype>
+                <name>CollectionTest</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ExtTest</name>
+        </transactiontype>
+        <transactiontype>
+                <name>IndexTest</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NodeTest</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
