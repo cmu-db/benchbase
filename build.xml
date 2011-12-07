@@ -21,6 +21,7 @@
         <pathelement location='${build.tests.dir}' />
         <fileset dir='${lib.dir}'>
             <include name='*.jar' />
+            <include name='hibernate/*.jar' />
             <exclude name='ant.jar' />
         </fileset>
         <pathelement path="${java.class.path}"/>
