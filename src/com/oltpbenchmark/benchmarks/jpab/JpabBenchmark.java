@@ -39,8 +39,7 @@ public class JpabBenchmark extends BenchmarkModule{
 	@Override
 	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables)
 			throws SQLException {
-		// TODO Auto-generated method stub
-		
+		System.out.println("No loading phase needed in this Benchmark");
 	}
 
 	@Override

@@ -97,7 +97,12 @@ public abstract class BenchmarkModule {
         String ddlName = this.benchmarkName + this.getDBMS() + "-ddl.sql";
         URL ddlURL = this.getClass().getResource(ddlName);
         assert (ddlURL != null) : "Unable to find '" + ddlName + "'";
-        return new File(ddlURL.getPath());
+        if(ddlURL != null)
+        	return new File(ddlURL.getPath());
+        else{
+        	System.out.println("No load file provided .. Skip?");
+        	return null;
+        }
     }
 
     private String getDBMS() {
@@ -117,12 +122,15 @@ public abstract class BenchmarkModule {
 
     public final void createDatabase() {
         File ddl = this.getDatabaseDDL();
-        assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
+        //assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
         try {
-            Connection conn = this.getConnection();
-            ScriptRunner runner = new ScriptRunner(conn, true, true);
-            runner.runScript(ddl);
-            conn.close();
+        	if(ddl != null)
+        	{
+	            Connection conn = this.getConnection();
+	            ScriptRunner runner = new ScriptRunner(conn, true, true);
+	            runner.runScript(ddl);
+	            conn.close();
+        	}
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
         }
