@@ -27,34 +27,19 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.DELIVERY;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.NEW_ORDER;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.ORDER_STATUS;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.PAYMENT;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.STOCK_LEVEL;
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.TERMINAL_MESSAGES;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.TransactionType;
-import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus;
@@ -74,19 +59,16 @@ public class TPCCWorker extends Worker {
 	// private TransactionTypes transactionTypes;
 
 	private String terminalName;
-	private ResultSet rs = null;
+
 	private final int terminalWarehouseID;
 	/** Forms a range [lower, upper] (inclusive). */
 	private final int terminalDistrictLowerID;
 	private final int terminalDistrictUpperID;
-	private double paymentWeight, orderStatusWeight, deliveryWeight,
-			stockLevelWeight, newOrderWeight;
 	private SimplePrinter terminalOutputArea, errorOutputArea;
 	// private boolean debugMessages;
 	private final Random gen = new Random();
 
 	private int transactionCount = 1, numWarehouses;
-	private int result = 0;
 
 	private static final AtomicInteger terminalId = new AtomicInteger(0);
 
@@ -118,9 +100,6 @@ public class TPCCWorker extends Worker {
 	 * Executes a single TPCC transaction of type transactionType.
 	 */
 	public TransactionType executeTransaction(TransactionType nextTransaction) {
-
-		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,	terminalDistrictUpperID, gen);
-		int customerID = TPCCUtil.getCustomerID(gen);
 
 		try {
 			//System.out.println("[Executing] "+ nextTransaction.getProcedureClass());

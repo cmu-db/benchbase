@@ -122,12 +122,13 @@ public abstract class BenchmarkModule {
 
     public final void createDatabase() {
         File ddl = this.getDatabaseDDL();
-        //assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
+        assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
         try {
         	if(ddl != null)
         	{
 	            Connection conn = this.getConnection();
 	            ScriptRunner runner = new ScriptRunner(conn, true, true);
+	            LOG.info("Executing script '" + ddl.getName() + "'");
 	            runner.runScript(ddl);
 	            conn.close();
         	}
