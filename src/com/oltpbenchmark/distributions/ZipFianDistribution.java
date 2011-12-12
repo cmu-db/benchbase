@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.generator;
+package com.oltpbenchmark.distributions;
 
 
 import java.util.Random;

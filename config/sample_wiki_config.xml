@@ -24,29 +24,23 @@
     
     <!-- Wikipedia specific -->
     <tracefile>config/traces/longtrace_1k.txt</tracefile>
+    <traceOut>0</traceOut>
     <base_ip>10.1.</base_ip>
 	<transactiontypes>
         <transactiontype>
                 <name>AddWatchList</name>
-                <id>1</id>
         </transactiontype>
         <transactiontype>
                 <name>RemoveWatchList</name>
-                <id>2</id>
         </transactiontype>
         <transactiontype>
                 <name>UpdatePage</name>
-                <id>3</id>
         </transactiontype>
         <transactiontype>
                 <name>GetPageAnonymous</name>
-                <id>4</id>
         </transactiontype>
         <transactiontype>
                 <name>GetPageAuthenticated</name>
-                <id>5</id>
         </transactiontype>
     </transactiontypes>
 </parameters>
-
-<?READ_OVER_WRITE_RATIO 11.8   WATCHLIST UPDATE 0.14%  LOGGED IN SELECT 1% ?>

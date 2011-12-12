@@ -18,8 +18,8 @@ import com.oltpbenchmark.benchmarks.ycsb.procedures.ReadModifyWriteRecord;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.ReadRecord;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.ScanRecord;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.UpdateRecord;
-import com.yahoo.ycsb.generator.CounterGenerator;
-import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.oltpbenchmark.distributions.CounterGenerator;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class YcsbWorker extends Worker{
 	

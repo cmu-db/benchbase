@@ -11,7 +11,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
-import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class EpinionsLoader extends Loader{
 	

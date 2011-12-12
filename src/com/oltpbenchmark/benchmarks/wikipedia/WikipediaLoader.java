@@ -1,5 +1,8 @@
 package com.oltpbenchmark.benchmarks.wikipedia;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +20,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.benchmarks.twitter.TwitterLoader;
 import com.oltpbenchmark.catalog.Table;
-import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class WikipediaLoader extends Loader{
 	
@@ -48,7 +51,6 @@ public class WikipediaLoader extends Loader{
 	public String insertWatchListSql = "INSERT INTO watchlist VALUES (?,?,?,NULL)";
 	
 	private final int NAMESPACES=10; // Number of namespaces
-	private final int EXP_NS=2; // Exponent in the namespace Zipfian distribution
 	
 	private final int NAME=10; // Length of user's name
 	private final int TOKEN=32; // Length of the tokens
@@ -68,6 +70,8 @@ public class WikipediaLoader extends Loader{
 	private final int num_revisions;
 	
 	public final static int configCommitCount = 1000;
+	
+	public List<String> titles=new ArrayList<String>();
 	
 	public WikipediaLoader(Connection c, WorkloadConfiguration workConf,
 			Map<String, Table> tables) {
@@ -89,6 +93,7 @@ public class WikipediaLoader extends Loader{
 			
 			LoadUsers();
 			LoadPages();
+			genTrace(this.workConf.getXmlConfig().getInt("traceOut",0));
 			LoadRevision();
 			
 		} catch (SQLException e) {
@@ -96,6 +101,33 @@ public class WikipediaLoader extends Loader{
 			e.printStackTrace();
 		}
 		
+	}
+
+	private void genTrace(int trace) {
+		if(trace == 0)
+			return;
+		assert(num_pages==titles.size());
+		ZipfianGenerator pages=new ZipfianGenerator(num_pages);
+		Random users=new Random();
+		
+		try 
+		{
+			LOG.debug("Generating a "+trace+"K trace into > wikipedia-"+trace+"k.trace");
+			PrintStream ps = new PrintStream(new File("wikipedia-"+trace+"k.trace"));
+			for(int i=0; i<trace * 1000;i++)
+			{
+				int user_id= users.nextInt(num_users);
+				// let's 10% be unauthenticated users
+				if(user_id % 10 == 0)
+					user_id= -1;
+				String title= titles.get(pages.nextInt());
+				ps.println(user_id+" "+title);
+			}
+			ps.close();
+		} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				LOG.info("Generating the trace failed - "+ e.getMessage());
+		} 
 	}
 
 	private void LoadRevision() throws SQLException {
@@ -206,7 +238,8 @@ public class WikipediaLoader extends Loader{
 			pageInsert.setInt(2, namespace);
 			pageInsert.setString(3,title);
 			pageInsert.setDouble(4,new Random().nextDouble());
-			pageInsert.addBatch();				
+			pageInsert.addBatch();
+			titles.add(namespace+" "+title);
 			if ((k % 100) == 0) {
 				pageInsert.executeBatch();
 				conn.commit();

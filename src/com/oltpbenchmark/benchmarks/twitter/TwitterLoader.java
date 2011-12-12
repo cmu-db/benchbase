@@ -13,7 +13,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
-import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
@@ -79,7 +79,7 @@ public class TwitterLoader extends Loader {
         
         int total = 0;
         //ZipFianDistribution zipf = new ZipFianDistribution(this.num_users, 1);
-        com.yahoo.ycsb.generator.ZipfianGenerator zy=new com.yahoo.ycsb.generator.ZipfianGenerator(this.num_users);
+        com.oltpbenchmark.distributions.ZipfianGenerator zy=new com.oltpbenchmark.distributions.ZipfianGenerator(this.num_users);
         for (long i = 0; i < this.num_tweets; i++) {
             int uid = zy.nextInt();
             tweetInsert.setLong(1, i);
