@@ -27,7 +27,7 @@ public class WikipediaLoader extends Loader{
 	private static final Logger LOG = Logger.getLogger(WikipediaLoader.class);
 
 	
-    public String insertUserSql = "INSERT INTO USR (usr_id, usr_name,usr_real_name," +
+    public String insertUserSql = "INSERT INTO usr (usr_id, usr_name,usr_real_name," +
     "usr_password,usr_newpassword,usr_newpass_time, usr_email, usr_options,usr_touched,usr_token,"+
     "usr_email_authenticated,usr_email_token,usr_email_token_expires,usr_registration,usr_editcount) " +
     "VALUES (?,?,?,'XXX','XXX','"+ LoaderUtil.getCurrentTime14()+ "','fake_something@something.com'," +
