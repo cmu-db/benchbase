@@ -12,7 +12,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.Article;
 public class GetPageAuthenticated extends Procedure {
 	
 	
-	public SQLStmt selectUser = new SQLStmt("SELECT * FROM `usr` WHERE usr_id = ? LIMIT 1");
+	public SQLStmt selectUser = new SQLStmt("SELECT * FROM `user` WHERE usr_id = ? LIMIT 1");
 	public SQLStmt selectGroup = new SQLStmt("SELECT ug_group FROM `usr_groups` WHERE ug_usr = ? ");
 	public SQLStmt selectPage = new SQLStmt("SELECT * FROM `page` WHERE page_namespace = ? AND page_title = ? LIMIT 1 ");
 	public SQLStmt selectPageRestriction = new SQLStmt("SELECT * FROM `page_restrictions` WHERE pr_page = ? ");

@@ -14,7 +14,7 @@ public class AddWatchList extends Procedure {
             "INSERT IGNORE INTO `watchlist` (wl_usr,wl_namespace,wl_title,wl_notificationtimestamp) " +
             "VALUES (?,?,?,NULL)");
    
-    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `usr` SET usr_touched = '" + LoaderUtil.getCurrentTime14()
+    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `user` SET usr_touched = '" + LoaderUtil.getCurrentTime14()
 					+ "' WHERE usr_id =  ? ;");    
 	
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {

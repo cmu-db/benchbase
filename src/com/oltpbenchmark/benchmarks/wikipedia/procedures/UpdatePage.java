@@ -49,8 +49,8 @@ public class UpdatePage extends Procedure {
 	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO `logging` (log_id,log_type,log_action,log_timestamp,log_usr,log_usr_text,log_namespace,log_title,log_page,log_comment,log_params) "
 		+ "VALUES (NULL,'patrol','patrol','"+ LoaderUtil.getCurrentTime14()+ "',?,?,?,?,?,'',?)");
 	
-	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `usr` SET usr_editcount=usr_editcount+1 WHERE usr_id = ? ");
-	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `usr` SET usr_touched = '" + LoaderUtil.getCurrentTime14()+ "' WHERE usr_id = ? ");
+	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `user` SET usr_editcount=usr_editcount+1 WHERE usr_id = ? ");
+	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `user` SET usr_touched = '" + LoaderUtil.getCurrentTime14()+ "' WHERE usr_id = ? ");
 	
 	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace,
 			String pageTitle) throws SQLException {

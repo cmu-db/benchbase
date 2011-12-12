@@ -12,7 +12,7 @@ public class RemoveWatchList extends Procedure {
 	
 	public SQLStmt removeWatchList = new SQLStmt("DELETE FROM `watchlist` WHERE " +
 			"wl_usr = ? AND wl_namespace = ? AND wl_title = ?");
-    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `usr` SET usr_touched = '" + LoaderUtil.getCurrentTime14()
+    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `user` SET usr_touched = '" + LoaderUtil.getCurrentTime14()
 			+ "' WHERE usr_id =  ? "); 
 
 	public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {	        
