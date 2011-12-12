@@ -12,7 +12,7 @@
     <property name="tests.dir"                  location="tests" />
     <property name="lib.dir"                    location="lib" />
     <property name="build.dir"                  location="build" />
-    <property name="build.tests.dir"            location="tests" />
+    <property name="build.tests.dir"            location="${build.dir}/tests" />
     <property name='build.testoutput.dir'       location='${build.dir}/testoutput' />
 
     <path id='project.classpath'>

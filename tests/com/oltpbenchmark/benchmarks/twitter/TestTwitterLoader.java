@@ -11,6 +11,7 @@ public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
     @Override
     protected void setUp() throws Exception {
         super.setUp(TwitterBenchmark.class, IGNORED_TABLES, TestTwitterBenchmark.PROC_CLASSES);
+        this.workConf.setScaleFactor(0.1);
     }
 
 }
