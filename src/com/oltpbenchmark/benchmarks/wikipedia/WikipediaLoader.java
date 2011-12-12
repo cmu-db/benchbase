@@ -27,22 +27,22 @@ public class WikipediaLoader extends Loader{
 	private static final Logger LOG = Logger.getLogger(WikipediaLoader.class);
 
 	
-    public String insertUserSql = "INSERT INTO user (user_id, user_name,user_real_name," +
+    public String insertUserSql = "INSERT INTO `user` (user_id, user_name,user_real_name," +
     "user_password,user_newpassword,user_newpass_time, user_email, user_options,user_touched,user_token,"+
     "user_email_authenticated,user_email_token,user_email_token_expires,user_registration,user_editcount) " +
     "VALUES (?,?,?,'XXX','XXX','"+ LoaderUtil.getCurrentTime14()+ "','fake_something@something.com'," +
     		"'fake_longoptionslist','"+ LoaderUtil.getCurrentTime14()+ "',?,NULL,NULL,NULL,NULL,0)";
 
-    public String insertPageSql = "INSERT INTO page (page_id, page_namespace,page_title," +
+    public String insertPageSql = "INSERT INTO `page` (page_id, page_namespace,page_title," +
             "page_restrictions,page_counter," +
             "page_is_redirect, page_is_new, " +
             "page_random, page_touched, page_latest,page_len) " +
             "VALUES (?,?,?,'xxxx',0,0,0,?,'"+ LoaderUtil.getCurrentTime14()+ "',0,0)";
     
-	public String insertTextSql = "INSERT INTO text (old_id,old_page,old_text,old_flags) VALUES (?,?,?,'utf-8') "; 
-	public String insertRevisionSql = "INSERT INTO revision (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
+	public String insertTextSql = "INSERT INTO `text` (old_id,old_page,old_text,old_flags) VALUES (?,?,?,'utf-8') "; 
+	public String insertRevisionSql = "INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
 		+ "VALUES (?, ?, ?,'','0',?, ?,'"+ LoaderUtil.getCurrentTime14()+ "','0',?,?)";
-	public String updatePageSql = "UPDATE page SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
+	public String updatePageSql = "UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
 			+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
 	public String updateUserSql = "UPDATE  `user` SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14()+ 
 			"' WHERE user_id = ? ";
@@ -119,7 +119,7 @@ public class WikipediaLoader extends Loader{
 				int user_id= users.nextInt(num_users);
 				// let's 10% be unauthenticated users
 				if(user_id % 10 == 0)
-					user_id= -1;
+					user_id= 0;
 				String title= titles.get(pages.nextInt());
 				ps.println(user_id+" "+title);
 			}
@@ -258,7 +258,7 @@ public class WikipediaLoader extends Loader{
 	private void LoadUsers() throws SQLException {
 		PreparedStatement userInsert = this.conn.prepareStatement(insertUserSql);
 		int k=1;
-		for(int i=0;i<num_users;i++)
+		for(int i=1;i<=num_users;i++)
 		{
 			String name= LoaderUtil.randomStr(NAME);
 			userInsert.setInt(1, i);
