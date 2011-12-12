@@ -23,7 +23,7 @@ public class UpdatePage extends Procedure {
 	+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?");
 	public SQLStmt insertRecentChanges = new SQLStmt("INSERT INTO `recentchanges` (rc_timestamp," + "rc_cur_time,"
 	+ "rc_namespace," + "rc_title," + "rc_type," + "rc_minor,"
-	+ "rc_cur_id," + "rc_usr," + "rc_usr_text," + "rc_comment,"
+	+ "rc_cur_id," + "rc_user," + "rc_user_text," + "rc_comment,"
 	+ "rc_this_oldid," + "rc_last_oldid," + "rc_bot,"
 	+ "rc_moved_to_ns," + "rc_moved_to_title," + "rc_ip,"
 	+ "rc_patrolled," + "rc_new," + "rc_old_len," + "rc_new_len,"
@@ -38,19 +38,19 @@ public class UpdatePage extends Procedure {
 	+ getMyIp()
 	+ "','1','0', ? , ? ,'0','0',NULL,'','',NULL)");
 	
-	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_usr  FROM `watchlist`  WHERE wl_title = ? AND wl_namespace = ? " +
-			"AND (wl_usr != ?) AND (wl_notificationtimestamp IS NULL)");
+	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_user  FROM `watchlist`  WHERE wl_title = ? AND wl_namespace = ? " +
+			"AND (wl_user != ?) AND (wl_notificationtimestamp IS NULL)");
 	
 	public SQLStmt updateWatchList = new SQLStmt("UPDATE `watchlist` SET wl_notificationtimestamp = '"
-		+ LoaderUtil.getCurrentTime14() + "' WHERE wl_title = ? AND wl_namespace = ? AND wl_usr = ?");
+		+ LoaderUtil.getCurrentTime14() + "' WHERE wl_title = ? AND wl_namespace = ? AND wl_user = ?");
 	
-	public SQLStmt selectUser = new SQLStmt("SELECT   *  FROM `usr`  WHERE usr_id = ?");
+	public SQLStmt selectUser = new SQLStmt("SELECT   *  FROM `user`  WHERE user_id = ?");
 	
-	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO `logging` (log_id,log_type,log_action,log_timestamp,log_usr,log_usr_text,log_namespace,log_title,log_page,log_comment,log_params) "
+	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO `logging` (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params) "
 		+ "VALUES (NULL,'patrol','patrol','"+ LoaderUtil.getCurrentTime14()+ "',?,?,?,?,?,'',?)");
 	
-	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `user` SET usr_editcount=usr_editcount+1 WHERE usr_id = ? ");
-	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `user` SET usr_touched = '" + LoaderUtil.getCurrentTime14()+ "' WHERE usr_id = ? ");
+	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `user` SET usr_editcount=usr_editcount+1 WHERE user_id = ? ");
+	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `user` SET usr_touched = '" + LoaderUtil.getCurrentTime14()+ "' WHERE user_id = ? ");
 	
 	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace,
 			String pageTitle) throws SQLException {

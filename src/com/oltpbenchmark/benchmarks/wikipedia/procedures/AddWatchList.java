@@ -11,11 +11,11 @@ import com.oltpbenchmark.api.SQLStmt;
 public class AddWatchList extends Procedure {
 
     public SQLStmt insertWatchList = new SQLStmt(
-            "INSERT IGNORE INTO `watchlist` (wl_usr,wl_namespace,wl_title,wl_notificationtimestamp) " +
+            "INSERT IGNORE INTO `watchlist` (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) " +
             "VALUES (?,?,?,NULL)");
    
-    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `user` SET usr_touched = '" + LoaderUtil.getCurrentTime14()
-					+ "' WHERE usr_id =  ? ;");    
+    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `user` SET user_touched = '" + LoaderUtil.getCurrentTime14()
+					+ "' WHERE user_id =  ? ;");    
 	
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
         
