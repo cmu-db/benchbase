@@ -27,9 +27,9 @@ public class WikipediaLoader extends Loader{
 	private static final Logger LOG = Logger.getLogger(WikipediaLoader.class);
 
 	
-    public String insertUserSql = "INSERT INTO usr (usr_id, usr_name,usr_real_name," +
-    "usr_password,usr_newpassword,usr_newpass_time, usr_email, usr_options,usr_touched,usr_token,"+
-    "usr_email_authenticated,usr_email_token,usr_email_token_expires,usr_registration,usr_editcount) " +
+    public String insertUserSql = "INSERT INTO user (user_id, user_name,user_real_name," +
+    "user_password,user_newpassword,user_newpass_time, user_email, user_options,user_touched,user_token,"+
+    "user_email_authenticated,user_email_token,user_email_token_expires,user_registration,user_editcount) " +
     "VALUES (?,?,?,'XXX','XXX','"+ LoaderUtil.getCurrentTime14()+ "','fake_something@something.com'," +
     		"'fake_longoptionslist','"+ LoaderUtil.getCurrentTime14()+ "',?,NULL,NULL,NULL,NULL,0)";
 
@@ -40,12 +40,12 @@ public class WikipediaLoader extends Loader{
             "VALUES (?,?,?,'xxxx',0,0,0,?,'"+ LoaderUtil.getCurrentTime14()+ "',0,0)";
     
 	public String insertTextSql = "INSERT INTO text (old_id,old_page,old_text,old_flags) VALUES (?,?,?,'utf-8') "; 
-	public String insertRevisionSql = "INSERT INTO revision (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_usr,rev_usr_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
+	public String insertRevisionSql = "INSERT INTO revision (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
 		+ "VALUES (?, ?, ?,'','0',?, ?,'"+ LoaderUtil.getCurrentTime14()+ "','0',?,?)";
 	public String updatePageSql = "UPDATE page SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
 			+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
-	public String updateUserSql = "UPDATE  `usr` SET usr_editcount=usr_editcount+1, usr_touched = '" + LoaderUtil.getCurrentTime14()+ 
-			"' WHERE usr_id = ? ";
+	public String updateUserSql = "UPDATE  `user` SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14()+ 
+			"' WHERE user_id = ? ";
 	public String selectPageSql = "Select page_title, page_namespace from page WHERE page_id = ?";
 
 	public String insertWatchListSql = "INSERT INTO watchlist VALUES (?,?,?,NULL)";
