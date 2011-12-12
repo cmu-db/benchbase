@@ -37,7 +37,7 @@ public class GetPageAuthenticated extends Procedure {
 			st.setInt(1, userId);
 			ResultSet rs = st.executeQuery();
 			if (rs.next()) {
-				userText = rs.getString("usr_name");
+				userText = rs.getString("user_name");
 			}
 	
 			// else {

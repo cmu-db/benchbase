@@ -17,7 +17,7 @@ public class UpdatePage extends Procedure {
 	
 	// pretend we are changing something in the text
 	public SQLStmt insertText = new SQLStmt("INSERT INTO `text` (old_id,old_page,old_text,old_flags) VALUES (NULL,?,?,'utf-8') "); 
-	public SQLStmt insertRevision = new SQLStmt("INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_usr,rev_usr_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
+	public SQLStmt insertRevision = new SQLStmt("INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
 		+ "VALUES (NULL, ?, ?,'','0',?, ?,\""+ LoaderUtil.getCurrentTime14()+ "\",'0',?,?)");
 	public SQLStmt updatePage = new SQLStmt("UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
 	+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?");
