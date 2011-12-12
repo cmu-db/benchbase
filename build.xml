@@ -12,12 +12,10 @@
     <property name="tests.dir"                  location="tests" />
     <property name="lib.dir"                    location="lib" />
     <property name="build.dir"                  location="build" />
-    <property name="build.src.dir"              location="${build.dir}/src" />
     <property name="build.tests.dir"            location="tests" />
     <property name='build.testoutput.dir'       location='${build.dir}/testoutput' />
 
     <path id='project.classpath'>
-        <pathelement location='${build.src.dir}' />
         <pathelement location='${build.tests.dir}' />
         <fileset dir='${lib.dir}'>
             <include name='*.jar' />
@@ -33,11 +31,10 @@
         <fileset dir="${src.dir}" excludes="**/*.launch, **/*.java"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
         
-        <mkdir dir="${build.src.dir}"/>
         <mkdir dir="${build.dir}/META-INF"/>
         <copy file="${src.dir}/META-INF/persistence.xml" todir="${build.dir}/META-INF"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false"
-               destdir="${build.src.dir}"
+               destdir="${build.dir}"
                source="${javac.source}"
                target="${javac.target}">
             <src path="${src.dir}"/>
@@ -45,7 +42,7 @@
         </javac>
         
         <!-- Copy SQL DDL Files -->
-        <copy todir="${build.src.dir}">
+        <copy todir="${build.dir}">
             <fileset dir="${src.dir}">
                 <include name="**/*-ddl.sql"/>
             </fileset>
