@@ -270,6 +270,6 @@ public class DBWorkload {
 
 	private static void printUsage(Options options) {
 		HelpFormatter hlpfrmt = new HelpFormatter();
-		hlpfrmt.printHelp("dbworkload", options);
+		hlpfrmt.printHelp("oltpbenchmark", options);
 	}
 }
