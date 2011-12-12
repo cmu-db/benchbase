@@ -5,7 +5,7 @@ import com.oltpbenchmark.api.AbstractTestLoader;
 public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
 
     private final String IGNORED_TABLES[] = {
-        "added_tweets"    
+        "added_tweets",
     };
     
     @Override

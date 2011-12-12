@@ -15,7 +15,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     
     // HACK
   static {
-      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbenchmark/log4j.properties");
+//      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
   }
     
     protected static final String DB_CONNECTION = "jdbc:sqlite:";
@@ -44,7 +44,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
         
-//        String benchmarkName = clazz.getSimpleName().toLowerCase().replace("Benchmark", "");
         this.benchmark = (T) ClassUtil.newInstance(clazz,
                                                    new Object[] { this.workConf },
                                                    new Class<?>[] { WorkloadConfiguration.class });
