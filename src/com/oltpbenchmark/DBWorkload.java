@@ -129,7 +129,7 @@ public class DBWorkload {
 			
     		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
     		System.out.println("[INIT] DB = "+ wrkld.getDBConnection());
-    		System.out.println("[INIT] Isolation mode = "+ xmlConfig.getString("isolation","**Not Specified**"));		
+    		System.out.println("[INIT] Isolation mode = "+ xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE [DEFAULT]"));		
 			int size = xmlConfig.configurationsAt("works.work").size();
 			for (int i = 0; i < size; i++){
 			

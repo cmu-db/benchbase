@@ -71,11 +71,14 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.tpcc.jdbc.jdbcIO;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.District;
@@ -86,10 +89,20 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
+import com.oltpbenchmark.catalog.Table;
 
-public class TPCCLoader {
+public class TPCCLoader extends Loader{
+
+	public TPCCLoader(Connection c, WorkloadConfiguration workConf,
+			Map<String, Table> tables) {
+		super(c, workConf, tables);
+		conn = c;
+        numWarehouses = (int)Math.round(configWhseCount * this.scaleFactor);
+        outputFiles= false;
+	}
 
 	static boolean fastLoad;
+	static String fastLoaderBaseDir;
 
 	/**
 	 * slow load: 1m38.463s
@@ -729,73 +742,34 @@ public class TPCCLoader {
 				outputFiles = true;
 			}
 		}
-
-		if (outputFiles == false) {
-			initJDBC();
-
-			// Clearout the tables
-			truncateTable("item");
-			truncateTable("warehouse");
-			truncateTable("stock");
-			truncateTable("district");
-			truncateTable("customer");
-			truncateTable("history");
-			truncateTable("oorder");
-			truncateTable("order_line");
-			truncateTable("new_order");
+		//load(numWarehouses, outputFiles);
+		// load the ini file
+		String propsPath = System.getProperty("prop", "");
+		Properties ini;
+		if (propsPath.equals("")) {
+			ini = System.getProperties();
+		} else {
+			ini = new Properties();
+			ini.load(new FileInputStream(System.getProperty("prop")));
 		}
 
-		// seed the random number generator
-		gen = new Random(System.currentTimeMillis());
+		// display the values we need
+		System.out.println("driver=" + ini.getProperty("driver"));
+		System.out.println("conn=" + ini.getProperty("conn"));
+		System.out.println("user=" + ini.getProperty("user"));
+		System.out.println("password=******");
 
-		// ######################### MAINLINE
-		// ######################################
-		startDate = new java.util.Date();
-		System.out.println("------------- LoadData Start Date = " + startDate
-				+ "-------------");
+		// Register jdbcDriver
+		Class.forName(ini.getProperty("driver"));
 
-		long startTimeMS = new java.util.Date().getTime();
-		lastTimeMS = startTimeMS;
-
-		long totalRows = loadWhse(numWarehouses);
-		totalRows += loadItem(configItemCount);
-		totalRows += loadStock(numWarehouses, configItemCount);
-		totalRows += loadDist(numWarehouses, configDistPerWhse);
-		totalRows += loadCust(numWarehouses, configDistPerWhse,
-				configCustPerDist);
-		totalRows += loadOrder(numWarehouses, configDistPerWhse,
-				configCustPerDist);
-
-		if (fastLoad) {
-			PreparedStatement[] pss = new PreparedStatement[] { custPrepStmt,
-					distPrepStmt, histPrepStmt, itemPrepStmt, nworPrepStmt,
-					ordrPrepStmt, orlnPrepStmt, stckPrepStmt, whsePrepStmt };
-			for (PreparedStatement ps : pss) {
-				FastPreparedStatement fps = (FastPreparedStatement) ps;
-				fps.close();
-				System.out.println("load data infile '" + fps.path
-						+ "' into table " + fps.table + " " + fps.fieldNames);
-				stmt.execute("load data infile '" + fps.path + "' into table "
-						+ fps.table + " " + fps.fieldNames);
-				transCommit();
-			}
-		}
-
-		long runTimeMS = (new java.util.Date().getTime()) + 1 - startTimeMS;
-		endDate = new java.util.Date();
-		System.out.println("");
-		System.out
-				.println("------------- LoadJDBC Statistics --------------------");
-		System.out.println("     Start Time = " + startDate);
-		System.out.println("       End Time = " + endDate);
-		System.out.println("       Run Time = " + (int) runTimeMS / 1000
-				+ " Seconds");
-		System.out.println("    Rows Loaded = " + totalRows + " Rows");
-		System.out.println("Rows Per Second = "
-				+ (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
-		System.out
-				.println("------------------------------------------------------");
-
+		// make connection
+		conn = DriverManager.getConnection(ini.getProperty("conn"),
+				ini.getProperty("user"), ini.getProperty("password"));
+		conn.setAutoCommit(false);
+		fastLoad = ini.getProperty("fastLoad", "").equals("true");
+		fastLoaderBaseDir= ini.getProperty("fastLoaderBaseDir", "");
+		TPCCLoader l=new TPCCLoader(null, null, null);
+		l.load();
 		// exit Cleanly
 		try {
 			if (outputFiles == false) {
@@ -805,7 +779,6 @@ public class TPCCLoader {
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} // end try
-
 	} // end main
 
 	static void transRollback() {
@@ -850,37 +823,11 @@ public class TPCCLoader {
 
 		try {
 
-			// load the ini file
-			String propsPath = System.getProperty("prop", "");
-			Properties ini;
-			if (propsPath.equals("")) {
-				ini = System.getProperties();
-			} else {
-				ini = new Properties();
-				ini.load(new FileInputStream(System.getProperty("prop")));
-			}
-
-			// display the values we need
-			System.out.println("driver=" + ini.getProperty("driver"));
-			System.out.println("conn=" + ini.getProperty("conn"));
-			System.out.println("user=" + ini.getProperty("user"));
-			System.out.println("password=******");
-
-			// Register jdbcDriver
-			Class.forName(ini.getProperty("driver"));
-
-			// make connection
-			conn = DriverManager.getConnection(ini.getProperty("conn"),
-					ini.getProperty("user"), ini.getProperty("password"));
-			conn.setAutoCommit(false);
-
 			// Create Statement
 			stmt = conn.createStatement();
-
-			fastLoad = ini.getProperty("fastLoad", "").equals("true");
+			
 			if (fastLoad) {
-				FastPreparedStatementConn conn = new FastPreparedStatementConn(
-						ini.getProperty("fastLoaderBaseDir", ""));
+				FastPreparedStatementConn conn = new FastPreparedStatementConn(fastLoaderBaseDir);
 				distPrepStmt = conn
 						.prepareStatement("INSERT INTO district "
 								+ " (d_id, d_w_id, d_ytd, d_tax, d_next_o_id, d_name, d_street_1, d_street_2, d_city, d_state, d_zip) "
@@ -1911,5 +1858,76 @@ public class TPCCLoader {
 	// but I don't get why...
 	public static final class NotImplementedException extends
 			UnsupportedOperationException {
+	}
+
+	@Override
+	public void load() throws SQLException {
+
+		if (outputFiles == false) {
+			initJDBC();
+
+			// Clearout the tables
+			truncateTable("item");
+			truncateTable("warehouse");
+			truncateTable("stock");
+			truncateTable("district");
+			truncateTable("customer");
+			truncateTable("history");
+			truncateTable("oorder");
+			truncateTable("order_line");
+			truncateTable("new_order");
+		}
+
+		// seed the random number generator
+		gen = new Random(System.currentTimeMillis());
+
+		// ######################### MAINLINE
+		// ######################################
+		startDate = new java.util.Date();
+		System.out.println("------------- LoadData Start Date = " + startDate
+				+ "-------------");
+
+		long startTimeMS = new java.util.Date().getTime();
+		lastTimeMS = startTimeMS;
+
+		long totalRows = loadWhse(numWarehouses);
+		totalRows += loadItem(configItemCount);
+		totalRows += loadStock(numWarehouses, configItemCount);
+		totalRows += loadDist(numWarehouses, configDistPerWhse);
+		totalRows += loadCust(numWarehouses, configDistPerWhse,
+				configCustPerDist);
+		totalRows += loadOrder(numWarehouses, configDistPerWhse,
+				configCustPerDist);
+
+		if (fastLoad) {
+			PreparedStatement[] pss = new PreparedStatement[] { custPrepStmt,
+					distPrepStmt, histPrepStmt, itemPrepStmt, nworPrepStmt,
+					ordrPrepStmt, orlnPrepStmt, stckPrepStmt, whsePrepStmt };
+			for (PreparedStatement ps : pss) {
+				FastPreparedStatement fps = (FastPreparedStatement) ps;
+				fps.close();
+				System.out.println("load data infile '" + fps.path
+						+ "' into table " + fps.table + " " + fps.fieldNames);
+				stmt.execute("load data infile '" + fps.path + "' into table "
+						+ fps.table + " " + fps.fieldNames);
+				transCommit();
+			}
+		}
+
+		long runTimeMS = (new java.util.Date().getTime()) + 1 - startTimeMS;
+		endDate = new java.util.Date();
+		System.out.println("");
+		System.out
+				.println("------------- LoadJDBC Statistics --------------------");
+		System.out.println("     Start Time = " + startDate);
+		System.out.println("       End Time = " + endDate);
+		System.out.println("       Run Time = " + (int) runTimeMS / 1000
+				+ " Seconds");
+		System.out.println("    Rows Loaded = " + totalRows + " Rows");
+		System.out.println("Rows Per Second = "
+				+ (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
+		System.out
+				.println("------------------------------------------------------");
+	
 	}
 } // end LoadData Class

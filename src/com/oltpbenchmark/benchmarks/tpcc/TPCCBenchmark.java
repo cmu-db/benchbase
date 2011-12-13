@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -73,8 +72,8 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 	@Override
 	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
-		// TODO TPCCLoader loader = new TPCCLoader();
-		throw new NotImplementedException();
+		TPCCLoader loader = new TPCCLoader(conn, this.workConf, tables);
+		loader.load();
 	}
 
 	protected ArrayList<TPCCWorker> createTerminals() throws SQLException {

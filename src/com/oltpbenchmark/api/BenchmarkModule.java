@@ -145,8 +145,9 @@ public abstract class BenchmarkModule {
             
             Map<String, Table> tables = this.getTables(conn);
             assert(tables != null);
-            
+           
             this.loadDatabaseImpl(conn, tables);
+
             conn.commit();
             conn.close();
         } catch (SQLException ex) {
