@@ -26,29 +26,11 @@ public class WikipediaLoader extends Loader{
 	
 	private static final Logger LOG = Logger.getLogger(WikipediaLoader.class);
 
-	
-    public String insertUserSql = "INSERT INTO `user` (user_id, user_name,user_real_name," +
-    "user_password,user_newpassword,user_newpass_time, user_email, user_options,user_touched,user_token,"+
-    "user_email_authenticated,user_email_token,user_email_token_expires,user_registration,user_editcount) " +
-    "VALUES (?,?,?,'XXX','XXX','"+ LoaderUtil.getCurrentTime14()+ "','fake_something@something.com'," +
-    		"'fake_longoptionslist','"+ LoaderUtil.getCurrentTime14()+ "',?,NULL,NULL,NULL,NULL,0)";
-
-    public String insertPageSql = "INSERT INTO `page` (page_id, page_namespace,page_title," +
-            "page_restrictions,page_counter," +
-            "page_is_redirect, page_is_new, " +
-            "page_random, page_touched, page_latest,page_len) " +
-            "VALUES (?,?,?,'xxxx',0,0,0,?,'"+ LoaderUtil.getCurrentTime14()+ "',0,0)";
-    
-	public String insertTextSql = "INSERT INTO `text` (old_id,old_page,old_text,old_flags) VALUES (?,?,?,'utf-8') "; 
-	public String insertRevisionSql = "INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
-		+ "VALUES (?, ?, ?,'','0',?, ?,'"+ LoaderUtil.getCurrentTime14()+ "','0',?,?)";
 	public String updatePageSql = "UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
 			+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
 	public String updateUserSql = "UPDATE  `user` SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14()+ 
 			"' WHERE user_id = ? ";
 	public String selectPageSql = "Select page_title, page_namespace from page WHERE page_id = ?";
-
-	public String insertWatchListSql = "INSERT INTO watchlist VALUES (?,?,?,NULL)";
 	
 	private final int NAMESPACES=10; // Number of namespaces
 	
@@ -112,12 +94,12 @@ public class WikipediaLoader extends Loader{
 		
 		try 
 		{
-			LOG.debug("Generating a "+trace+"K trace into > wikipedia-"+trace+"k.trace");
+			LOG.info("Generating a "+trace+"K trace into > wikipedia-"+trace+"k.trace");
 			PrintStream ps = new PrintStream(new File("wikipedia-"+trace+"k.trace"));
 			for(int i=0; i<trace * 1000;i++)
 			{
 				int user_id= users.nextInt(num_users);
-				// let's 10% be unauthenticated users
+				// lets 10% be unauthenticated users
 				if(user_id % 10 == 0)
 					user_id= 0;
 				String title= titles.get(pages.nextInt());
@@ -132,12 +114,25 @@ public class WikipediaLoader extends Loader{
 
 	private void LoadRevision() throws SQLException {
 		// Loading revisions
-		PreparedStatement textInsert = this.conn.prepareStatement(insertTextSql);
-		PreparedStatement revisionInsert = this.conn.prepareStatement(insertRevisionSql);
+		Table catalog_tbl = this.getTableCatalog("text");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement textInsert = this.conn.prepareStatement(sql);
+		
+		catalog_tbl = this.getTableCatalog("revision");
+        assert(catalog_tbl != null);
+        sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement revisionInsert = this.conn.prepareStatement(sql);
+		
 		PreparedStatement pageUpdate= this.conn.prepareStatement(updatePageSql);
 		PreparedStatement userUpdate=this.conn.prepareStatement(updateUserSql);
+		
 		PreparedStatement pageSelect = this.conn.prepareStatement(selectPageSql);
-		PreparedStatement watchInsert = this.conn.prepareStatement(insertWatchListSql);
+		
+        catalog_tbl = this.getTableCatalog("watchlist");
+        assert(catalog_tbl != null);
+        sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement watchInsert = this.conn.prepareStatement(sql);		
 		
 		List<String> wl=new ArrayList<String>();
 		int k=1;
@@ -145,25 +140,32 @@ public class WikipediaLoader extends Loader{
 		ZipfianGenerator users=new ZipfianGenerator(num_users);
 		for(int rev=1;rev<num_revisions;rev++)
 		{
-			/// load revisions
+			// Generate the User who's doing the revision and the Page revised
 			int page_id=pages.nextInt();
 			int user_id=users.nextInt();
 			String new_text= LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
+			String rev_comment= LoaderUtil.randomStr(LoaderUtil.randomNumber(0, 255, new Random()));
 
-			//
-			textInsert.setInt(1, rev);
-			textInsert.setInt(2, page_id);
-			textInsert.setString(3, LoaderUtil.randomStr(LoaderUtil.randomNumber(100, 1000, new Random())));
+			//Insert the text
+			textInsert.setInt(1, rev); // old_id
+			textInsert.setString(2, LoaderUtil.randomStr(LoaderUtil.randomNumber(100, 1000, new Random()))); // old_text
+			textInsert.setString(3, "utf-8"); // old_flags
+			textInsert.setInt(4, page_id); //old_page
 			textInsert.execute();
 			int nextTextId = rev;
-
-			revisionInsert.setInt(1, rev);
-			revisionInsert.setInt(2, page_id);
-			revisionInsert.setInt(3, nextTextId);
-			revisionInsert.setInt(4, user_id);
-			revisionInsert.setString(5, new_text);
-			revisionInsert.setInt(6, 0);
-			revisionInsert.setInt(7, 0);
+			
+			//Insert the revision
+			revisionInsert.setInt(1, rev); //rev_id
+			revisionInsert.setInt(2, page_id); //rev_page
+			revisionInsert.setInt(3, nextTextId); //rev_text_id
+			revisionInsert.setString(4,rev_comment); //rev_comment
+			revisionInsert.setInt(5, user_id); //rev_user
+			revisionInsert.setString(6, new_text); //rev_user_text
+			revisionInsert.setString(7, LoaderUtil.getCurrentTime14()); //rev_timestamp
+			revisionInsert.setInt(8, 0); //rev_minor_edit
+			revisionInsert.setInt(9, 0); //rev_deleted
+			revisionInsert.setInt(10, 0); //rev_len
+			revisionInsert.setInt(11, 0); //rev_parent_id
 			revisionInsert.addBatch();
 			
 			int nextRevID = rev;
@@ -193,9 +195,10 @@ public class WikipediaLoader extends Loader{
 			String watched=Integer.toString(page_id)+user_id;
 			if(wl.contains(watched))
 			{					
-				watchInsert.setInt(1, user_id);
-				watchInsert.setInt(2, namespace);
-				watchInsert.setString(3, title);
+				watchInsert.setInt(1, user_id); //wl_user
+				watchInsert.setInt(2, namespace); //wl_namespace
+				watchInsert.setString(3, title); //wl_title
+				watchInsert.setNull(4, java.sql.Types.VARBINARY); //wl_notificationtimestamp
 				watchInsert.addBatch();
 				wl.add(watched);
 			}	
@@ -227,17 +230,29 @@ public class WikipediaLoader extends Loader{
 	}
 
 	private void LoadPages() throws SQLException {
-		PreparedStatement pageInsert = this.conn.prepareStatement(insertPageSql);
+		
+        Table catalog_tbl = this.getTableCatalog("page");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement pageInsert = this.conn.prepareStatement(sql);
+
 		int k=1;
 		ZipfianGenerator ns=new ZipfianGenerator(NAMESPACES);
 		for(int i=0;i<num_pages;i++)
 		{
 			int namespace=ns.nextInt();
 			String title=LoaderUtil.randomStr(TITLE);
-			pageInsert.setInt(1, i);
-			pageInsert.setInt(2, namespace);
-			pageInsert.setString(3,title);
-			pageInsert.setDouble(4,new Random().nextDouble());
+			pageInsert.setInt(1, i); //page_id
+			pageInsert.setInt(2, namespace); //page_namespace
+			pageInsert.setString(3,title); //page_title
+			pageInsert.setString(4,"xxx"); //page_restrictions
+			pageInsert.setInt(5,0); //page_counter
+			pageInsert.setInt(6,0); //page_is_redirect
+			pageInsert.setInt(7,0); //page_is_new
+			pageInsert.setDouble(8,new Random().nextDouble()); //page_random
+			pageInsert.setString(9, LoaderUtil.getCurrentTime14()); //page_touched
+			pageInsert.setInt(10, 0); //page_latest
+			pageInsert.setInt(11, 0); //page_len
 			pageInsert.addBatch();
 			titles.add(namespace+" "+title);
 			if ((k % 100) == 0) {
@@ -256,15 +271,31 @@ public class WikipediaLoader extends Loader{
 	}
 
 	private void LoadUsers() throws SQLException {
-		PreparedStatement userInsert = this.conn.prepareStatement(insertUserSql);
+		
+        Table catalog_tbl = this.getTableCatalog("user");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement userInsert = this.conn.prepareStatement(sql);
+        
 		int k=1;
 		for(int i=1;i<=num_users;i++)
 		{
 			String name= LoaderUtil.randomStr(NAME);
-			userInsert.setInt(1, i);
-			userInsert.setString(2, name);
-			userInsert.setString(3, name);
-			userInsert.setString(4,LoaderUtil.randomStr(TOKEN));
+			userInsert.setInt(1, i); // id
+			userInsert.setString(2, name); // nickname
+			userInsert.setString(3, name); // real_name
+			userInsert.setString(4, "XXX"); // password
+			userInsert.setString(5, "XXX"); // password2
+			userInsert.setString(6, LoaderUtil.getCurrentTime14()); //new_pass time
+			userInsert.setString(7,"fake_email@something.com"); //user_email
+			userInsert.setString(8,"fake_longoptionslist"); //user_options
+			userInsert.setString(9,LoaderUtil.getCurrentTime14()); //user_touched
+			userInsert.setString(10,LoaderUtil.randomStr(TOKEN)); //user_token
+			userInsert.setNull(11,java.sql.Types.BINARY); //user_email_authenticated
+			userInsert.setNull(12,java.sql.Types.BINARY); //user_email_token
+			userInsert.setNull(13,java.sql.Types.BINARY); //user_email_token_expires
+			userInsert.setNull(14,java.sql.Types.BINARY); //user_registration
+			userInsert.setInt(15,0); //user_editcount
 			userInsert.addBatch();
 			if ((k % 100) == 0) {
 				userInsert.executeBatch();
