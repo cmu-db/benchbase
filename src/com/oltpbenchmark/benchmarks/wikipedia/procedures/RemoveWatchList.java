@@ -36,9 +36,9 @@ public class RemoveWatchList extends Procedure {
 				ps.executeUpdate();
 			}
 			
-			PreparedStatement stmt = this.getPreparedStatement(conn, setUserTouched);
-			stmt.setInt(1, userId);
-			stmt.executeUpdate();
+			ps= this.getPreparedStatement(conn, setUserTouched);
+			ps.setInt(1, userId);
+			ps.executeUpdate();
 			conn.commit();
 		}
 	 }

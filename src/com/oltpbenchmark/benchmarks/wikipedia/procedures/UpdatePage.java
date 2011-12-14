@@ -228,6 +228,7 @@ public class UpdatePage extends Procedure {
 		ps=this.getPreparedStatement(conn, updateUserTouched);
 		ps.setInt(1, userId);
 		ps.executeUpdate();
+		rs.close();		
 		
 		conn.commit();
 	}

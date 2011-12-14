@@ -32,8 +32,8 @@ public class GetPageAnonymous extends Procedure {
 	
 		// FIXME TOO FREQUENTLY SELECTING BY USER_ID
 		String userText = userIp;
+		PreparedStatement st =this.getPreparedStatement(conn,selectUser);
 		if (userId >= 0) {
-			PreparedStatement st =this.getPreparedStatement(conn,selectUser);
 			st.setInt(1, userId);
 			ResultSet rs = st.executeQuery();
 			if (rs.next()) {
@@ -55,10 +55,11 @@ public class GetPageAnonymous extends Procedure {
 				String userGroupName = rs.getString(1);
 				groupCount += 1;
 			}
+			rs.close();
 		}
 	
 		
-		PreparedStatement st =this.getPreparedStatement(conn,selectPage);
+		st =this.getPreparedStatement(conn,selectPage);
 		st.setInt(1, nameSpace);
 		st.setString(2, pageTitle);
 		ResultSet rs = st.executeQuery();
@@ -127,7 +128,6 @@ public class GetPageAnonymous extends Procedure {
 					revisionId);
 		assert !rs.next();
 		rs.close();
-	
 		conn.commit();
 		return a;
 	}
