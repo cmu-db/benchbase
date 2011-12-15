@@ -71,7 +71,7 @@ public abstract class CatalogUtil {
                 boolean col_nullable = col_rs.getString(18).toUpperCase().equals("YES");
                 boolean col_autoinc = false; // FIXME col_rs.getString(22).toUpperCase().equals("YES");
 
-                Column col_catalog = new Column(col_name, col_type, col_typename, col_size);
+                Column col_catalog = new Column(table_catalog, col_name, col_type, col_typename, col_size);
                 col_catalog.setAutoincrement(col_autoinc);
                 col_catalog.setNullable(col_nullable);
                 // FIXME col_catalog.setSigned();
@@ -83,6 +83,11 @@ public abstract class CatalogUtil {
         } // WHILE
         
         return (tables);
+    }
+    
+    public static Column getForeignKeyParentColumn(Connection c, Column catalog_col) {
+        
+        return (null);
     }
     
 }

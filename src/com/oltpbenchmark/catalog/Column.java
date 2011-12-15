@@ -25,6 +25,7 @@ package com.oltpbenchmark.catalog;
  */
 public class Column implements Cloneable {
 
+    private final Table catalog_tbl;
     private final String name;
     private final int type;
     private final String typename;
@@ -34,7 +35,8 @@ public class Column implements Cloneable {
     private boolean autoincrement = false;
     private boolean signed = false;
     
-    public Column(String name, int type, String typename, Integer size) {
+    public Column(Table catalog_tbl, String name, int type, String typename, Integer size) {
+        this.catalog_tbl = catalog_tbl;
         this.name = name;
         this.type = type;
         this.typename = typename;
@@ -50,6 +52,10 @@ public class Column implements Cloneable {
         }
     }
 
+    public Table getTable() {
+        return (this.catalog_tbl);
+    }
+    
     /**
      * @return the name
      */
@@ -57,6 +63,10 @@ public class Column implements Cloneable {
         return name;
     }
 
+    public String fullName() {
+        return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
+    }
+    
     /**
      * @return the type
      */
@@ -98,7 +108,7 @@ public class Column implements Cloneable {
     public boolean isSigned() {
         return signed;
     }
-
+    
     /**
      * @param nullable the nullable to set
      */
