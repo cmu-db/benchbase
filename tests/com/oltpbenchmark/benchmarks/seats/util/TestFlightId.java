@@ -49,7 +49,7 @@ public class TestFlightId extends TestCase {
         this.start_date = new Date(Calendar.getInstance().getTime().getTime());
         for (int i = 0; i < this.flight_dates.length; i++) {
             int day = this.flight_offset_days[i];
-            this.flight_dates[i] = new Date(this.start_date.getTime() + (day * SEATSConstants.MILISECONDS_PER_DAY));
+            this.flight_dates[i] = new Date(this.start_date.getTime() + (day * SEATSConstants.MILLISECONDS_PER_DAY));
         } // FOR
     }
     

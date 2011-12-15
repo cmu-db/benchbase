@@ -184,10 +184,10 @@ public abstract class SEATSConstants {
     // ----------------------------------------------------------------
     
     /** Number of microseconds in a day */
-    public static final long MICROSECONDS_PER_MINUTE = 60000000l;
+    public static final long MILLISECONDS_PER_MINUTE = 60000l; // 60sec * 1,000
     
     /** Number of microseconds in a day */
-    public static final long MILISECONDS_PER_DAY = 86400000l; // 60sec * 60min * 24hr * 1,000 
+    public static final long MILLISECONDS_PER_DAY = 86400000l; // 60sec * 60min * 24hr * 1,000 
     
     // ----------------------------------------------------------------
     // CACHE SIZES

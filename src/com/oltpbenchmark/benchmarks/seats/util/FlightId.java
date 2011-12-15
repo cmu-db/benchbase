@@ -122,12 +122,12 @@ public class FlightId {
      * @return the flight departure date
      */
     public Date getDepartDate(Date benchmark_start) {
-        return (new Date(benchmark_start.getTime() + (this.depart_date * SEATSConstants.MICROSECONDS_PER_MINUTE * 60)));
+        return (new Date(benchmark_start.getTime() + (this.depart_date * SEATSConstants.MILLISECONDS_PER_MINUTE * 60)));
     }
     
     public boolean isUpcoming(Date benchmark_start, long past_days) {
         Date depart_date = this.getDepartDate(benchmark_start);
-        return ((depart_date.getTime() - benchmark_start.getTime()) >= (past_days * SEATSConstants.MILISECONDS_PER_DAY)); 
+        return ((depart_date.getTime() - benchmark_start.getTime()) >= (past_days * SEATSConstants.MILLISECONDS_PER_DAY)); 
     }
     
     public long encode() {

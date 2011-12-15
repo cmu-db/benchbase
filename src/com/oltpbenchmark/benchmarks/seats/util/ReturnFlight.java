@@ -54,7 +54,7 @@ public class ReturnFlight implements Comparable<ReturnFlight> {
         assert(return_days >= 0);
         // Round this to the start of the day
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(flight_date.getTime() + (return_days * SEATSConstants.MILISECONDS_PER_DAY));
+        cal.setTimeInMillis(flight_date.getTime() + (return_days * SEATSConstants.MILLISECONDS_PER_DAY));
         
         int year = cal.get(Calendar.YEAR);
         int month= cal.get(Calendar.MONTH);
