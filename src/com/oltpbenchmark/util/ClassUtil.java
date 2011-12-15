@@ -60,7 +60,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.log4j.Logger;
 
 /**
  * 
@@ -68,6 +70,7 @@ import org.apache.commons.lang.ClassUtils;
  *
  */
 public abstract class ClassUtil {
+    private static final Logger LOG = Logger.getLogger(ClassUtil.class);
     
     private static final Map<Class<?>, List<Class<?>>> CACHE_getSuperClasses = new HashMap<Class<?>, List<Class<?>>>(); 
     private static final Map<Class<?>, Set<Class<?>>> CACHE_getInterfaceClasses = new HashMap<Class<?>, Set<Class<?>>>();
@@ -112,9 +115,8 @@ public abstract class ClassUtil {
      * @param field
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public static List<Class> getGenericTypes(Field field) {
-        ArrayList<Class> generic_classes = new ArrayList<Class>();
+    public static List<Class<?>> getGenericTypes(Field field) {
+        ArrayList<Class<?>> generic_classes = new ArrayList<Class<?>>();
         Type gtype = field.getGenericType();
         if (gtype instanceof ParameterizedType) {
             ParameterizedType ptype = (ParameterizedType)gtype;
@@ -123,17 +125,16 @@ public abstract class ClassUtil {
         return (generic_classes);
     }
         
-    @SuppressWarnings("unchecked")
-    private static void getGenericTypesImpl(ParameterizedType ptype, List<Class> classes) {
+    private static void getGenericTypesImpl(ParameterizedType ptype, List<Class<?>> classes) {
         // list the actual type arguments
         for (Type t : ptype.getActualTypeArguments()) {
             if (t instanceof Class) {
 //                System.err.println("C: " + t);
-                classes.add((Class)t);
+                classes.add((Class<?>)t);
             } else if (t instanceof ParameterizedType) {
                 ParameterizedType next = (ParameterizedType)t;
 //                System.err.println("PT: " + next);
-                classes.add((Class)next.getRawType());
+                classes.add((Class<?>)next.getRawType());
                 getGenericTypesImpl(next, classes);
             }
         } // FOR
@@ -217,30 +218,46 @@ public abstract class ClassUtil {
      * @param params
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static <T> Constructor<T> getConstructor(Class<T> target_class, Class<?>...params) {
-        Constructor<T> constructor = null;
+        NoSuchMethodException error = null;
         try {
-//            System.err.println("Looking for constructor: " + target_class);
-//            System.err.print("Parameters: ");
-//            String add = "";
-//            for (Class<?> p_class : params) {
-//                System.err.print(add + p_class.getSimpleName());
-//                add = ", ";
-//            }
-//            System.err.println();
-            
-            constructor = target_class.getConstructor(params); 
-        } catch (Exception ex) {
-            System.err.println("TARGET_CLASS: " + target_class);
-            System.err.println("PARAMS: " + Arrays.toString(params));
-            System.err.println("------");
-            for (Constructor<?> c : target_class.getConstructors()) {
-                System.err.println(c);
-            }
-            
-            throw new RuntimeException("Failed to retrieve constructor for " + target_class.getSimpleName(), ex);
+            return (target_class.getConstructor(params));
+        } catch (NoSuchMethodException ex) {
+            // The first time we get this it can be ignored
+            // We'll try to be nice and find a match for them
+            error = ex;
         }
-        return (constructor);
+        assert(error != null);
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("TARGET CLASS:  " + target_class);
+            LOG.debug("TARGET PARAMS: " + Arrays.toString(params));
+        }
+        
+        List<Class<?>> paramSuper[] = (List<Class<?>>[])new List[params.length]; 
+        for (int i = 0; i < params.length; i++) {
+            paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
+            if (LOG.isDebugEnabled()) LOG.debug("  SUPER[" + params[i].getSimpleName() + "] => " + paramSuper[i]);
+        } // FOR
+        
+        for (Constructor<?> c : target_class.getConstructors()) {
+            Class<?> cTypes[] = c.getParameterTypes();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("CANDIDATE: " + c);
+                LOG.debug("CANDIDATE PARAMS: " + Arrays.toString(cTypes));
+            }
+            if (params.length != cTypes.length) continue;
+            
+            for (int i = 0; i < params.length; i++) {
+                List<Class<?>> cSuper = ClassUtil.getSuperClasses(cTypes[i]);
+                if (LOG.isDebugEnabled()) LOG.debug("  SUPER[" + cTypes[i].getSimpleName() + "] => " + cSuper);
+                if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
+                    return ((Constructor<T>)c);
+                }
+            } // FOR (param)
+        } // FOR (constructors)
+        throw new RuntimeException("Failed to retrieve constructor for " + target_class.getSimpleName(), error);
     }
     
     /**
