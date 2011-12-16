@@ -76,6 +76,7 @@ public class GetPageAuthenticated extends Procedure {
 		int pageId = rs.getInt("page_id");
 		assert !rs.next();
 		//st.close();
+		rs.close();
 	
 		st =this.getPreparedStatement(conn,selectPageRestriction);
 		st.setInt(1, pageId);
@@ -85,7 +86,7 @@ public class GetPageAuthenticated extends Procedure {
 			// byte[] pr_type = rs.getBytes(1);
 			restrictionsCount += 1;
 		}
-	
+		rs.close();
 		// check using blocking of a user by either the IP address or the
 		// user_name
 	
@@ -97,6 +98,7 @@ public class GetPageAuthenticated extends Procedure {
 			// byte[] ipb_expiry = rs.getBytes(11);
 			blockCount += 1;
 		}
+		rs.close();
 		//st.close();
 	
 		st= this.getPreparedStatement(conn, selectPageRevision);
@@ -111,6 +113,7 @@ public class GetPageAuthenticated extends Procedure {
 		int revisionId = rs.getInt("rev_id");
 		int textId = rs.getInt("rev_text_id");
 		assert !rs.next();
+		rs.close();
 	
 		Article a = null;
 		// NOTE: the following is our variation of wikipedia... the original did

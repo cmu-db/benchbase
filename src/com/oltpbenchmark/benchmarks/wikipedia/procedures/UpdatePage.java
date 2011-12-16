@@ -94,6 +94,7 @@ public class UpdatePage extends Procedure {
 			throw new RuntimeException(
 					"Problem inserting new tupels in table text");
 		}
+		rs.close();
 		//ps.close();
 
 		if (nextTextId < 0)
@@ -119,7 +120,7 @@ public class UpdatePage extends Procedure {
 			throw new RuntimeException(
 					"Problem inserting new tupels in table revision");
 		}
-
+		rs.close();
 		// I'm removing AND page_latest = "+a.revisionId+" from the query, since
 		// it creates sometimes problem with the data, and page_id is a PK
 		// anyway
@@ -166,6 +167,7 @@ public class UpdatePage extends Procedure {
 		while (rs.next()) {
 			wlUser.add(rs.getString("wl_user"));
 		}
+		rs.close();
 		//ps.close();
 
 		// ============================================================================================================================================
@@ -201,10 +203,11 @@ public class UpdatePage extends Procedure {
 			// This seems to be executed only if the page is watched, and once
 			// for each "watcher"
 			for (String t : wlUser) {
-				ps=this.getPreparedStatement(conn, selectUser);
+				ps= this.getPreparedStatement(conn, selectUser);
 				ps.setString(1,t);
-				rs = ps.executeQuery();
+				rs= ps.executeQuery();
 				rs.next();
+				rs.close();
 			}
 		}
 
@@ -228,7 +231,7 @@ public class UpdatePage extends Procedure {
 		ps=this.getPreparedStatement(conn, updateUserTouched);
 		ps.setInt(1, userId);
 		ps.executeUpdate();
-		rs.close();		
+		//rs.close();		
 		
 		conn.commit();
 	}
