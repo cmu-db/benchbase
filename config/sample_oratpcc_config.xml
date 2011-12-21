@@ -18,7 +18,7 @@
 	</works>
 	
 	<!-- TPCC specific -->  
-   	<numWarehouses>1</numWarehouses>
+   	<scalefactor>1</scalefactor>
    	<dialect>config/dialects/tpcc_dialects.xml</dialect>
    	<isolation>TRANSACTION_SERIALIZABLE</isolation>
    	<transactiontypes>

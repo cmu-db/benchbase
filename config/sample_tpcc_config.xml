@@ -3,10 +3,10 @@
 	
 	<!-- General Workload configuration -->
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://localhost:3306/tpcc2</DBUrl>
-    <DBName>tpcc2</DBName>
+    <DBUrl>jdbc:mysql://vise4:3500/tpcc</DBUrl>
+    <DBName>tpcc</DBName>
     <username>root</username>
-    <password>hello</password>
+    <password></password>
     <terminals>10</terminals>
     
     <works>
@@ -18,7 +18,7 @@
 	</works>
 	
 	<!-- TPCC specific -->  
-   	<numWarehouses>10</numWarehouses>
+        <scalefactor>10</scalefactor>
    	<dialect>config/dialects/tpcc_dialects.xml</dialect>
    	<isolation>TRANSACTION_SERIALIZABLE</isolation>
    	<transactiontypes>
