@@ -1,0 +1,15 @@
+This monitoring solutions is based on a slightly extended version of "dstat", 
+and a few bash scripts. All the code is interpreted python and bash.
+
+
+INSTALL:
+- There is no need to install this program, it can be run locally.
+- It is designed to run on linux, with python installed 
+- for mysql monitoring assumes python-mysql (mysqldb) package, and a non-privileged 
+  access to the mysql server.
+
+RUN:
+- configure the variable in "setenv" following inline instructions
+- launch . ./setenv   (sets few variables)
+- launch ./monitor.sh 
+

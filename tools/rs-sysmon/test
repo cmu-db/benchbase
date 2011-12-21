@@ -1,0 +1,13 @@
+"Dstat 0.7.1svn CSV output"
+"Author:","Dag Wieers <dag@wieers.com>",,,,"URL:","http://dag.wieers.com/home-made/dstat/"
+"Host:","vise",,,,"User:","curino"
+"Cmdline:","dstat -r --output test",,,,"Date:","28 Jul 2011 16:23:09 EST"
+
+"io/total",
+"read","writ"
+21.176,58.248
+0.0,1.0
+0.0,9.0
+0.0,1.0
+0.0,1.0
+0.0,0.0
