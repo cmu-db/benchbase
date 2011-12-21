@@ -185,7 +185,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		}
 
 		public void writeCSV(int windowSizeSeconds, PrintStream out) {
-			out.println("time (seconds),throughput (requests/s),average,min,25th,median,75th,90th,95th,99th,max");
+			out.println("time(sec), throughput(req/sec), avg_lat(ms), min_lat(ms), 25th_lat(ms), median_lat(ms), 75th_lat(ms), 90th_lat(ms), 95th_lat(ms), 99th_lat(ms), max_lat(ms)");
 			int i = 0;
 			for (DistributionStatistics s : new TimeBucketIterable(
 					latencySamples, windowSizeSeconds)) {
@@ -236,91 +236,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 
 	}
 
-	public Results runRateLimited(int warmUpSeconds, int measureSeconds,
-			int requestsPerSecond) throws QueueLimitException {
-		assert requestsPerSecond > 0;
-
-		ArrayList<Thread> workerThreads = createWorkerThreads(true);
-
-		final long intervalNs = (long) (1000000000. / (double) requestsPerSecond + 0.5);
-
-		testState.blockForStart();
-
-		long start = System.nanoTime();
-		long measureStart = start + warmUpSeconds * 1000000000L;
-		long measureEnd = -1;
-
-		long nextInterval = start + intervalNs;
-		int nextToAdd = 1;
-		while (true) {
-			testState.addWork(nextToAdd);
-
-			// Wait until the interval expires, which may be "don't wait"
-			long now = System.nanoTime();
-			long diff = nextInterval - now;
-			while (diff > 0) { // this can wake early: sleep multiple times to
-								// avoid that
-				long ms = diff / 1000000;
-				diff = diff % 1000000;
-				try {
-					Thread.sleep(ms, (int) diff);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-				now = System.nanoTime();
-				diff = nextInterval - now;
-			}
-			assert diff <= 0;
-
-			// Compute how many messages to deliver
-			nextToAdd = (int) (-diff / intervalNs + 1);
-			assert nextToAdd > 0;
-			nextInterval += intervalNs * nextToAdd;
-
-			// Update the test state appropriately
-			State state = testState.getState();
-			if (state == State.WARMUP && now >= measureStart) {
-				testState.startMeasure();
-				measureStart = now;
-				measureEnd = measureStart + measureSeconds * 1000000000L;
-			} else if (state == State.MEASURE && now >= measureEnd) {
-				testState.startCoolDown();
-				measureEnd = now;
-			} else if (state == State.EXIT) {
-				// All threads have noticed the done, meaning all measured
-				// requests have definitely finished.
-				// Time to quit.
-				break;
-			}
-		}
-
-		try {
-			int requests = waitForThreadExit(workerThreads);
-
-			// Combine all the latencies together in the most disgusting way
-			// possible: sorting!
-			ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
-			for (Worker w : workers) {
-				for (LatencyRecord.Sample sample : w.getLatencyRecords()) {
-					samples.add(sample);
-				}
-			}
-			Collections.sort(samples);
-
-			// Compute stats on all the latencies
-			int[] latencies = new int[samples.size()];
-			for (int i = 0; i < samples.size(); ++i) {
-				latencies[i] = samples.get(i).latencyUs;
-			}
-			DistributionStatistics stats = DistributionStatistics
-					.computeStatistics(latencies);
-
-			return new Results(measureEnd - measureStart, requests, stats,
-					samples);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	private ArrayList<Thread> createWorkerThreads(boolean isRateLimited) {
 		assert testState == null;
@@ -338,52 +253,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 
 	private static final int RATE_QUEUE_LIMIT = 10000;
 
-	public Results run(int warmUpSeconds, int measureSeconds) {
-		ArrayList<Thread> workerThreads = createWorkerThreads(false);
-
-		try {
-			testState.blockForStart();
-			Thread.sleep(warmUpSeconds * 1000);
-			long startNanos = System.nanoTime();
-
-			// Carlo's Version (doesn't work at the moment)
-
-			// testState.startMeasure(startNanos);
-			//
-			// //output continuously
-			// long starttimer = System.currentTimeMillis();
-			//
-			// while((starttimer + measureSeconds * 1000) >
-			// System.currentTimeMillis()){
-			// long st = System.currentTimeMillis();
-			// Thread.sleep(1000);
-			// int currenttps = 0;
-			// for(Worker w:workers)
-			// currenttps+=w.getRequestsSinceLastCall();
-			// long en = System.currentTimeMillis();
-			//
-			//
-			// System.out.println((en-starttimer) +
-			// " "+(double)currenttps*(double)1000/(double)(en-st));
-			//
-			// }
-			//
-			//
-			// Alternative Evan version
-			testState.startMeasure();
-			Thread.sleep(measureSeconds * 1000);
-
-			testState.startCoolDown();
-			long endNanos = System.nanoTime();
-
-			int requests = waitForThreadExit(workerThreads);
-
-			long ns = endNanos - startNanos;
-			return new Results(ns, requests, null, null);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	private int waitForThreadExit(ArrayList<Thread> workerThreads)
 			throws InterruptedException {
@@ -414,20 +283,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		return requests;
 	}
 
-	public static Results runBenchmark(List<? extends Worker> workers,
-			int warmUpSeconds, int measureSeconds) {
-		ThreadBench bench = new ThreadBench(workers);
-		return bench.run(warmUpSeconds, measureSeconds);
-	}
 
-	public static Results runRateLimitedBenchmark(
-			List<? extends Worker> workers, int warmUpSeconds,
-			int measureSeconds, int requestsPerSecond)
-			throws QueueLimitException {
-		ThreadBench bench = new ThreadBench(workers);
-		return bench.runRateLimited(warmUpSeconds, measureSeconds,
-				requestsPerSecond);
-	}
 
 	/*
 	public static Results runRateLimitedBenchmark(List<Worker> workers,
@@ -443,140 +299,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		return bench.runRateLimitedMultiPhase();
 	}
 
-	public Results runRateLimitedFromFile() throws QueueLimitException,
-			IOException {
-
-		BufferedReader br = new BufferedReader(new FileReader(profileFile));
-		ArrayList<Thread> workerThreads = createWorkerThreads(true);
-		testState.blockForStart();
-
-		// long measureStart = start;
-
-		long start = System.nanoTime();
-		long measureEnd = -1;
-
-		String fileLine = br.readLine();
-		LoadLineReader llr = new LoadLineReader(fileLine);
-		// System.out.println("Time:" +System.nanoTime()/1000000000+ " Reading:"
-		// + fileLine);
-
-		long intervalNs = (long) (1000000000. / (double) llr
-				.requestsPerSecond() + 0.5);
-
-		long nextInterval = start + intervalNs;
-		int nextToAdd = 1;
-
-		boolean resetQueues = true;
-		long delta = llr.timeInSec * 1000000000L;
-		boolean lastEntry = false;
-
-		while (true) {
-
-			// posting new work... and reseting the queue in case we have new
-			// portion of the workload...
-			testState.addWork(nextToAdd, resetQueues, llr);
-			resetQueues = false;
-
-			// Wait until the interval expires, which may be "don't wait"
-			long now = System.nanoTime();
-			long diff = nextInterval - now;
-			while (diff > 0) { // this can wake early: sleep multiple times to
-								// avoid that
-				long ms = diff / 1000000;
-				diff = diff % 1000000;
-				try {
-					Thread.sleep(ms, (int) diff);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-				now = System.nanoTime();
-				diff = nextInterval - now;
-			}
-			assert diff <= 0;
-
-			if (start + delta < System.nanoTime() && !lastEntry) { // enters
-																	// here
-																	// after
-																	// each
-																	// phase of
-																	// the test
-				resetQueues = true; // reset the queues so that the new phase is
-									// not affected by the queue of the previous
-									// one
-				// intervalNs = (long) (1000000000. / (double)
-				// llr.requestsPerSecond() + 0.5); //update frequency in which
-				// we check according to wakeup speed
-				fileLine = br.readLine(); // read the next line
-				if (fileLine == null || fileLine.equals("")) { // if it is null
-																// or empty we
-																// are at the
-																// end of the
-																// file, do not
-																// update llr
-																// anymore, but
-																// set lastEntry
-																// to true...
-					lastEntry = true;
-				} else {
-					llr = new LoadLineReader(fileLine);
-					delta += llr.timeInSec * 1000000000L;
-				}
-				intervalNs = (long) (1000000000. / (double) llr
-						.requestsPerSecond() + 0.5); // update frequency in
-														// which we check
-														// according to wakeup
-														// speed
-			}
-
-			// Compute how many messages to deliver
-			nextToAdd = (int) (-diff / intervalNs + 1);
-			assert nextToAdd > 0;
-			nextInterval += intervalNs * nextToAdd;
-
-			// Update the test state appropriately
-			State state = testState.getState();
-			if (state == State.WARMUP && now >= start) {
-				testState.startMeasure();
-				start = now;
-				// measureEnd = measureStart + measureSeconds * 1000000000L;
-			} else if (state == State.MEASURE && lastEntry
-					&& now >= start + delta) {
-				testState.startCoolDown();
-				measureEnd = now;
-			} else if (state == State.EXIT) {
-				// All threads have noticed the done, meaning all measured
-				// requests have definitely finished.
-				// Time to quit.
-				break;
-			}
-		}
-
-		try {
-			int requests = waitForThreadExit(workerThreads);
-
-			// Combine all the latencies together in the most disgusting way
-			// possible: sorting!
-			ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
-			for (Worker w : workers) {
-				for (LatencyRecord.Sample sample : w.getLatencyRecords()) {
-					samples.add(sample);
-				}
-			}
-			Collections.sort(samples);
-
-			// Compute stats on all the latencies
-			int[] latencies = new int[samples.size()];
-			for (int i = 0; i < samples.size(); ++i) {
-				latencies[i] = samples.get(i).latencyUs;
-			}
-			DistributionStatistics stats = DistributionStatistics
-					.computeStatistics(latencies);
-
-			return new Results(measureEnd - start, requests, stats, samples);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	public Results runRateLimitedMultiPhase() throws QueueLimitException,
 			IOException {
