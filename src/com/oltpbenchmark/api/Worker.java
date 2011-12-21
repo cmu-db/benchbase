@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
@@ -167,7 +165,13 @@ public abstract class Worker implements Runnable {
 	 * Called at the end of the test to do any clean up that may be
 	 * required.
 	 */
-	protected void tearDown() {
+	public void tearDown() {
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("No connection to close");
+		}
 	}
 
 	public void setBenchmark(BenchmarkState testState) {

@@ -109,11 +109,12 @@ public abstract class BenchmarkModule {
         try {
             if (this.getWorkloadConfiguration().getDBDriver().contains("oracle"))
                 return "-oracle";
+            else if (this.getWorkloadConfiguration().getDBDriver().contains("postgresql"))
+                return "-pg";
         } catch (Exception e) {
             LOG.warn("No driver Loaded, is this a test?");
-        } finally {
-            return "";
         }
+        return "";
     }
 
     public final List<Worker> makeWorkers(boolean verbose) throws IOException {

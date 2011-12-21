@@ -254,7 +254,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 	private static final int RATE_QUEUE_LIMIT = 10000;
 
 
-	private int waitForThreadExit(ArrayList<Thread> workerThreads)
+	private int finalizeWorkers(ArrayList<Thread> workerThreads)
 			throws InterruptedException {
 		assert testState.getState() == State.DONE
 				|| testState.getState() == State.EXIT;
@@ -278,6 +278,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			
 			
 			requests += workers.get(i).getRequests();
+			workers.get(i).tearDown();
 		}
 		testState = null;
 		return requests;
@@ -400,7 +401,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		}
 
 		try {
-			int requests = waitForThreadExit(workerThreads);
+			int requests = finalizeWorkers(workerThreads);
 
 			// Combine all the latencies together in the most disgusting way
 			// possible: sorting!
