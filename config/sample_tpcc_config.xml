@@ -3,10 +3,10 @@
 	
 	<!-- General Workload configuration -->
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4:3500/tpcc</DBUrl>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/tpcc</DBUrl>
     <DBName>tpcc</DBName>
     <username>root</username>
-    <password></password>
+    <password>mypass</password>
     <terminals>10</terminals>
     
     <works>

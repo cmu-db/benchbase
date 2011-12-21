@@ -3,10 +3,10 @@
 
 	<!-- General Workload configuration -->
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://vise4:3500/wiki_new</DBUrl>
-    <DBName>wiki_new</DBName>
+    <DBUrl>jdbc:mysql://127.0.0.1:3306/wiki</DBUrl>
+    <DBName>wiki</DBName>
     <username>root</username>
-    <password></password>
+    <password>mypass</password>
     <terminals>10</terminals>
 
     <works>
