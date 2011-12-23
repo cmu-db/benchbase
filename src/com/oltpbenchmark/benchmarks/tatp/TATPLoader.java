@@ -71,13 +71,13 @@ public class TATPLoader extends Loader {
     
     public TATPLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
     	super(c, workConf, tables);
-    	this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * workConf.getScaleFactor());
+    	this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * this.scaleFactor);
         if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
 
     @Override
     public void load() {
-        if (LOG.isDebugEnabled()) LOG.debug("Starting TM1Loader [subscriberSize=" + subscriberSize + ",scaleFactor=" + scaleFactor + "]");
+        if (LOG.isDebugEnabled()) LOG.debug("Starting TATPLoader [subscriberSize=" + subscriberSize + ",scaleFactor=" + scaleFactor + "]");
         
         Thread threads[] = new Thread[] {
             new Thread() {
