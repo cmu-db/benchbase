@@ -13,7 +13,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
@@ -42,6 +42,11 @@ public class TwitterLoader extends Loader {
         }
     }
     
+    /**
+     * @author Djellel
+     * Load num_users users.
+     * @throws SQLException
+     */
     protected void loadUsers() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("user");
         assert(catalog_tbl != null);
@@ -71,15 +76,21 @@ public class TwitterLoader extends Loader {
         if (LOG.isDebugEnabled()) LOG.debug(String.format("Users Loaded [%d]", total));
     }
     
+    /**
+     * @author Djellel
+     * What's going on here?: 
+     * The number of tweets is fixed to num_tweets
+     * We simply select using the distribution who issued the tweet
+     * @throws SQLException
+     */
     protected void loadTweets() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("tweets");
         assert(catalog_tbl != null);
         String sql = catalog_tbl.getInsertSQL(1);
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
-        
+        //
         int total = 0;
-        //ZipFianDistribution zipf = new ZipFianDistribution(this.num_users, 1);
-        com.oltpbenchmark.distributions.ZipfianGenerator zy=new com.oltpbenchmark.distributions.ZipfianGenerator(this.num_users);
+        ScrambledZipfianGenerator zy=new ScrambledZipfianGenerator(this.num_users);
         for (long i = 0; i < this.num_tweets; i++) {
             int uid = zy.nextInt();
             tweetInsert.setLong(1, i);
@@ -99,6 +110,14 @@ public class TwitterLoader extends Loader {
         if (LOG.isDebugEnabled()) LOG.debug("Tweets Loaded");
     }
     
+    /**
+     * @author Djellel
+     * What's going on here?: 
+     * For each user (follower) we select how many users he is following (followees List)
+     * then select users to fill up that list.
+     * Selecting is based on the distribution.
+     * @throws SQLException
+     */
     protected void loadFollowData() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("follows");
         assert(catalog_tbl != null);
@@ -107,10 +126,10 @@ public class TwitterLoader extends Loader {
         catalog_tbl = this.getTableCatalog("followers");
         assert(catalog_tbl != null);
         final PreparedStatement followersInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
-        
-        int k = 1;
-        ZipfianGenerator zipfFollowee = new ZipfianGenerator(this.num_users);
-        ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows);
+        //
+        int total = 1;
+        ScrambledZipfianGenerator zipfFollowee = new ScrambledZipfianGenerator(this.num_users);
+        ScrambledZipfianGenerator zipfFollows = new ScrambledZipfianGenerator(this.num_follows);
         List<Integer> followees = new ArrayList<Integer>();
         for (int follower = 0; follower < this.num_users; follower++) {
             followees.clear();
@@ -128,15 +147,14 @@ public class TwitterLoader extends Loader {
 
                     followees.add(followee);
 
-                    if ((k % configCommitCount) == 0) {
+                    if ((++total % configCommitCount) == 0) {
                         followsInsert.executeBatch();
                         followersInsert.executeBatch();
                         conn.commit();
                         followsInsert.clearBatch();
                         followersInsert.clearBatch();
-                        if (LOG.isDebugEnabled()) LOG.debug("Follows  % " + k);
+                        if (LOG.isDebugEnabled()) LOG.debug("Follows  % " + total);
                     }
-                    k++;
                 }
             }
         }
