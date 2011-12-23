@@ -14,6 +14,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
@@ -51,7 +52,6 @@ public class TwitterLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog("user");
         assert(catalog_tbl != null);
         String sql = catalog_tbl.getInsertSQL(1);
-        System.out.println("Executing: "+sql);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
         long total = 0;
         for (int i = 0; i < num_users; i++) {
@@ -116,6 +116,9 @@ public class TwitterLoader extends Loader {
      * For each user (follower) we select how many users he is following (followees List)
      * then select users to fill up that list.
      * Selecting is based on the distribution.
+     * NOTE: We are using two different distribution to avoid correlation:
+     * ZipfianGenerator (describes the followed most) 
+     * ScrambledZipfianGenerator (describes the heavy tweeters)
      * @throws SQLException
      */
     protected void loadFollowData() throws SQLException {
@@ -128,8 +131,8 @@ public class TwitterLoader extends Loader {
         final PreparedStatement followersInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
         //
         int total = 1;
-        ScrambledZipfianGenerator zipfFollowee = new ScrambledZipfianGenerator(this.num_users);
-        ScrambledZipfianGenerator zipfFollows = new ScrambledZipfianGenerator(this.num_follows);
+        ZipfianGenerator zipfFollowee = new ZipfianGenerator(this.num_users);
+        ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows);
         List<Integer> followees = new ArrayList<Integer>();
         for (int follower = 0; follower < this.num_users; follower++) {
             followees.clear();
@@ -168,7 +171,13 @@ public class TwitterLoader extends Loader {
     public void load() throws SQLException {
         this.loadUsers();
         this.loadTweets();
+        genTrace(this.workConf.getXmlConfig().getInt("traceOut",0));
         this.loadFollowData();
     }
+
+	private void genTrace(int trace) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
