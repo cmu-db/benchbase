@@ -171,7 +171,6 @@ public class TwitterLoader extends Loader {
     public void load() throws SQLException {
         this.loadUsers();
         this.loadTweets();
-        genTrace(this.workConf.getXmlConfig().getInt("traceOut",0));
         this.loadFollowData();
     }
 
