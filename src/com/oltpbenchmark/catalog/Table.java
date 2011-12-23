@@ -66,7 +66,7 @@ public class Table implements Serializable {
     
     public String getInsertSQL(int batchSize) {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("INSERT INTO ").append(this.tableName).append(" (");
+    	sb.append("INSERT INTO ").append(this.getName()).append(" (");
     	
     	StringBuilder inner = new StringBuilder();
     	boolean first = true;
@@ -91,11 +91,13 @@ public class Table implements Serializable {
     }
     
     /**
+     * @author Djellel
      * @return the tableName
      */
     public String getName() {
-        return tableName;
+        return CatalogUtil.getSeparator()+tableName+CatalogUtil.getSeparator();
     }
+    
     public int getColumnCount() {
         return this.columns.size();
     }

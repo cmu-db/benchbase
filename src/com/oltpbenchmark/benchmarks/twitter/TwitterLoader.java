@@ -43,11 +43,11 @@ public class TwitterLoader extends Loader {
     }
     
     protected void loadUsers() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("usr");
+        Table catalog_tbl = this.getTableCatalog("user");
         assert(catalog_tbl != null);
         String sql = catalog_tbl.getInsertSQL(1);
+        System.out.println("Executing: "+sql);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
-        
         long total = 0;
         for (int i = 0; i < num_users; i++) {
             String name = LoaderUtil.randomStr(NAME);

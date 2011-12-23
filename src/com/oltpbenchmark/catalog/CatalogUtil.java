@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class CatalogUtil {
     private static final Logger LOG = Logger.getLogger(CatalogUtil.class);
-
+    private static char separator;
     /**
      * Construct the set of Table objects from a given Connection handle
      * @param c
@@ -82,12 +82,28 @@ public abstract class CatalogUtil {
             tables.put(table_name.toUpperCase(), table_catalog);
         } // WHILE
         
+        // @Djellel 
+        // Setting the separator
+        setSeparator(c);
+        //
         return (tables);
     }
     
     public static Column getForeignKeyParentColumn(Connection c, Column catalog_col) {
-        
+      
         return (null);
     }
-    
+
+	public static void setSeparator(Connection c) throws SQLException {
+		System.out.println(" ---- "+c.getMetaData().getDatabaseProductName());
+		if(c.getMetaData().getDatabaseProductName().contains("MySQL"))
+			CatalogUtil.separator = '`';
+		else
+			CatalogUtil.separator = '"';
+	}
+
+	public static char getSeparator() {
+		return separator;
+	}
+     
 }
