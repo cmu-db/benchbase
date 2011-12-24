@@ -208,6 +208,7 @@ public class DBWorkload {
 		
 		// Create the Benchmark's Database
         if (argsLine.hasOption("create")) {
+    		System.out.println("**********************************************************************************");
         	System.out.println("[Create] ...");
             runCreator(bench, verbose);
             System.out.println("\t Done");
@@ -215,6 +216,8 @@ public class DBWorkload {
 		
 		// Execute Loader
         if (argsLine.hasOption("load")) {
+    		System.out.println("**********************************************************************************");
+
         	System.out.println("[Load] ...");
 		    runLoader(bench, verbose);
             System.out.println("\t Done");
@@ -222,8 +225,6 @@ public class DBWorkload {
 		
 		// Execute Workload
         if (argsLine.hasOption("execute")) {
-    		System.out.println("**********************************************************************************");
-
     		// Bombs away!
     		Results r = runWorkload(bench, verbose);
             PrintStream ps = System.out;
@@ -258,7 +259,9 @@ public class DBWorkload {
 	}
 	
 	private static Results runWorkload(BenchmarkModule bench, boolean verbose) throws QueueLimitException, IOException {
+		System.out.print("[INIT] Creating "+ bench.getWorkloadConfiguration().getTerminals()+" virtual terminals .. ");
 		List<Worker> workers = bench.makeWorkers(verbose);
+		System.out.println("done.");
 		LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
 		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
 		ThreadBench.setWorkConf(bench.getWorkloadConfiguration());

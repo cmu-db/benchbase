@@ -107,12 +107,12 @@ public abstract class BenchmarkModule {
 
     private String getDBMS() {
         try {
-        	System.out.println("[Grep] "+this.getWorkloadConfiguration().getDBDriver());
-            if (this.getWorkloadConfiguration().getDBDriver().contains("oracle"))
+        	String vendor=this.getConnection().getMetaData().getDatabaseProductName();
+            if (vendor.equals("Oracle"))
                 return "-oracle";
-            else if (this.getWorkloadConfiguration().getDBDriver().contains("postgresql"))
+            else if (vendor.equals("PostgreSQL"))
                 return "-pg";
-            else if (this.getWorkloadConfiguration().getDBDriver().contains("SQLServer"))
+            else if (vendor.equals("Microsoft SQL Server"))
                 return "-ms";
         } catch (Exception e) {
             LOG.warn("No driver Loaded, is this a test?");

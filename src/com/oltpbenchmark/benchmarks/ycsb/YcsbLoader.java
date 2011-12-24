@@ -23,7 +23,7 @@ public class YcsbLoader extends Loader{
 	
 	private static final int RECORD_COUNT = 1000;
 	private static final int NUN_FIELDS = 10;
-	private static final int configCommitCount = 1000;
+	private static final int configCommitCount = 10;
 
 	public YcsbLoader(Connection c, WorkloadConfiguration workConf,
 			Map<String, Table> tables) {
@@ -38,7 +38,7 @@ public class YcsbLoader extends Loader{
 	        assert(catalog_tbl != null);
 	        String sql = catalog_tbl.getInsertSQL(1);
 	        PreparedStatement stmt = this.conn.prepareStatement(sql);
-	        
+	        System.out.println(sql);
 	        long total = 0;
 	        for (int i = 0; i < RECORD_COUNT; i++) {
 	            stmt.setInt(1, i);

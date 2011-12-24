@@ -26,7 +26,7 @@ public class YcsbWorker extends Worker{
 	private static final int RECORD_COUNT = 1000;
 	private static final int MAX_SCAN=1000;
 	private ZipfianGenerator keysequence;
-	private CounterGenerator newRec;
+	private static CounterGenerator newRec;
 	private Random rand;
 
 	public YcsbWorker(int id, BenchmarkModule benchmarkModule) {
@@ -62,9 +62,9 @@ public class YcsbWorker extends Worker{
             conn.commit();
 
         } catch (MySQLTransactionRollbackException m) {
-            System.err.println("Rollback:" + m.getMessage());
+            System.err.println("Rollback of thread: "+ this.id+" "+ m.getMessage());
         } catch (SQLException e) {
-            System.err.println("Timeout:" + e.getMessage());
+            System.err.println("Timeout of thread: "+ this.id+" "+ e.getMessage());
         }
         return;
 	}
@@ -96,6 +96,7 @@ public class YcsbWorker extends Worker{
 		ReadModifyWriteRecord proc = this.getProcedure(ReadModifyWriteRecord.class);
         assert (proc != null);
         int keyname = keysequence.nextInt();
+        //System.out.println("[Thread " + this.id+"] RMW this:  "+ keyname);
         proc.run(conn, keyname, new HashMap<Integer,String>());	
 	}
 
@@ -103,6 +104,7 @@ public class YcsbWorker extends Worker{
 		InsertRecord proc = this.getProcedure(InsertRecord.class);
         assert (proc != null);
         int keyname = newRec.nextInt();
+        //System.out.println("[Thread " + this.id+"] insert this:  "+ keyname);
         HashMap<Integer, String> values = buildValues(10);
         proc.run(conn, keyname, values);
 	}

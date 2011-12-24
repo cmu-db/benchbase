@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class CatalogUtil {
     private static final Logger LOG = Logger.getLogger(CatalogUtil.class);
-    private static char separator;
+    private static String separator;
     /**
      * Construct the set of Table objects from a given Connection handle
      * @param c
@@ -46,7 +46,7 @@ public abstract class CatalogUtil {
         Map<String, Table> tables = new HashMap<String, Table>();
         
         DatabaseMetaData md = c.getMetaData();
-        ResultSet table_rs = md.getTables(null, null, null, null);
+        ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
             String table_name = table_rs.getString(3);
             String table_type = table_rs.getString(4);
@@ -62,7 +62,8 @@ public abstract class CatalogUtil {
             // Do a simple query against the table so that we can get back 
             // its schema. There is probably a better way of doing this, but oh well...
             // http://download.oracle.com/javase/6/docs/api/java/sql/DatabaseMetaData.html#getColumns%28java.lang.String,%20java.lang.String,%20java.lang.String,%20java.lang.String%29
-            ResultSet col_rs = md.getColumns(null, null, table_name, null);
+
+            ResultSet col_rs = md.getColumns(null,null, table_name, null);
             while (col_rs.next()) {
                 final String col_name = col_rs.getString(4);
                 int col_type = col_rs.getInt(5);
@@ -95,14 +96,10 @@ public abstract class CatalogUtil {
     }
 
 	public static void setSeparator(Connection c) throws SQLException {
-		System.out.println(" ---- "+c.getMetaData().getDatabaseProductName());
-		if(c.getMetaData().getDatabaseProductName().contains("MySQL"))
-			CatalogUtil.separator = '`';
-		else
-			CatalogUtil.separator = '"';
+		CatalogUtil.separator = c.getMetaData().getIdentifierQuoteString();
 	}
 
-	public static char getSeparator() {
+	public static String getSeparator() {
 		return separator;
 	}
      

@@ -11,10 +11,10 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class ReadModifyWriteRecord extends Procedure{
     public final SQLStmt selectStmt = new SQLStmt(
-            "Select * from usertable where YCSB_KEY=?"
+            "Select * from usertable where YCSB_KEY=? for update"
         );
     public final SQLStmt updateAllStmt = new SQLStmt(
-            "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
+            "UPDATE usertable SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
             "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
         );
     	//FIXME: The value in ysqb is a byteiterator
