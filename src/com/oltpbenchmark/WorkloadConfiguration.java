@@ -162,34 +162,35 @@ public class WorkloadConfiguration {
 	 * dialectMap 
 	 */
 	private void setDialectMap() {
-		String dialectFile = this.xmlConfig.getString("dialect","NULL");
-		if(dialectFile.equals("NULL"))
-		{
-			System.out.println("[INIT] No dialect provided");
-			return;
-		}
-		try {
-			XMLConfiguration dialectConf=new XMLConfiguration(dialectFile);
-			dialectConf.setDelimiterParsingDisabled(true);
-			dialectConf.load();
-			dialectConf.setExpressionEngine(new XPathExpressionEngine());
-			System.out.println("[INIT] Loading the dialect file: "+ dialectFile);
-			List stmts = dialectConf.configurationsAt("/dialect[@driver='"+this.getDBDriver()+"']/stmt");
-			if(stmts.size()==0)
-			{
-				System.out.println("[INIT] No SQL dialect provided for "+this.db_driver+" Using default (MYSQL)");
-			}
-			for(Iterator it = stmts.iterator(); it.hasNext();)
-			{
-			    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
-			    String name = sub.getString("@name");
-			    String sql = sub.getString("");
-			    dialectMap.put(name,sql);
-			}
-		} catch (ConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        String dialectFile = this.xmlConfig.getString("dialect","NULL");
+        if(dialectFile.equals("NULL"))
+        {
+                System.out.println("[INIT] No dialect provided");
+                return;
+        }
+        try {
+                XMLConfiguration dialectConf=new XMLConfiguration();
+                dialectConf.setDelimiterParsingDisabled(true);
+                dialectConf.setFileName(dialectFile);
+                dialectConf.load();
+                dialectConf.setExpressionEngine(new XPathExpressionEngine());
+                System.out.println("[INIT] Loading the dialect file: "+ dialectFile);
+                List stmts = dialectConf.configurationsAt("/dialect[@driver='"+this.getDBDriver()+"']/stmt");
+                if(stmts.size()==0)
+                {
+                        System.out.println("[INIT] No SQL dialect provided for "+this.db_driver+" Using default (MYSQL)");
+                }
+                for(Iterator it = stmts.iterator(); it.hasNext();)
+                {
+                    HierarchicalConfiguration sub = (HierarchicalConfiguration) it.next();
+                    String name = sub.getString("@name");
+                    String sql = sub.getString("");
+                    dialectMap.put(name,sql);
+                }
+        } catch (ConfigurationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+        }
 	}
 
 	public void setTerminals(int terminals) {

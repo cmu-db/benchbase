@@ -391,6 +391,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			} else if (state == State.MEASURE && lastEntry
 					&& now >= start + delta) {
 				testState.startCoolDown();
+				System.out.println("[Terminate] Waiting for all terminals to finish ..");
 				measureEnd = now;
 			} else if (state == State.EXIT) {
 				// All threads have noticed the done, meaning all measured
