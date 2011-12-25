@@ -63,6 +63,19 @@ public class Table implements Serializable {
         this.columns.add(col);
     }
 
+    /**
+     * @author Djellel
+     * Calculate the number of records
+     * Takes column name or "*"
+     * @param col
+     * @return SQL for select count execution
+     */
+    public String getCountSQL(String col) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select count( ").append(col).append(")");	
+    	sb.append("from ").append(this.getName()).append(";");    	
+    	return (sb.toString());
+    }
     
     public String getInsertSQL(int batchSize) {
     	StringBuilder sb = new StringBuilder();
@@ -162,5 +175,5 @@ public class Table implements Serializable {
                 this.columns.equals(table2.columns) &&
                 this.constraints.equals(table2.constraints));
     }
-
+   
 }

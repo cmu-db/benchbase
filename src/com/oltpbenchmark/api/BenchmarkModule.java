@@ -92,9 +92,11 @@ public abstract class BenchmarkModule {
     /**
      * Return the File handle to the DDL used to load the benchmark's database
      * schema.
+     * @param conn 
+     * @throws SQLException 
      */
-    public File getDatabaseDDL() {
-        String ddlName = this.benchmarkName + this.getDBMS() + "-ddl.sql";
+    public File getDatabaseDDL(Connection conn){
+        String ddlName = this.benchmarkName + this.getDBMS(conn) + "-ddl.sql";
         URL ddlURL = this.getClass().getResource(ddlName);
         assert (ddlURL != null) : "Unable to find '" + ddlName + "'";
         if(ddlURL != null)
@@ -105,9 +107,11 @@ public abstract class BenchmarkModule {
         }
     }
 
-    private String getDBMS() {
+    private String getDBMS(Connection conn) {
         try {
-        	String vendor=this.getConnection().getMetaData().getDatabaseProductName();
+        	String vendor="";
+        	if(conn != null)
+        		vendor= conn.getMetaData().getDatabaseProductName();
             if (vendor.equals("Oracle"))
                 return "-oracle";
             else if (vendor.equals("PostgreSQL"))
@@ -124,18 +128,15 @@ public abstract class BenchmarkModule {
         return (this.makeWorkersImpl(verbose));
     }
 
-    public final void createDatabase() {
-        File ddl = this.getDatabaseDDL();
-        assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
+    public final void createDatabase(){
         try {
-        	if(ddl != null)
-        	{
 	            Connection conn = this.getConnection();
+	            File ddl = this.getDatabaseDDL(conn);
+	            assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
 	            ScriptRunner runner = new ScriptRunner(conn, true, true);
 	            LOG.info("Executing script '" + ddl.getName() + "'");
 	            runner.runScript(ddl);
 	            conn.close();
-        	}
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
         }

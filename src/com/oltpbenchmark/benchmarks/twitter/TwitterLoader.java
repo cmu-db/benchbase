@@ -53,7 +53,8 @@ public class TwitterLoader extends Loader {
         assert(catalog_tbl != null);
         String sql = catalog_tbl.getInsertSQL(1);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
-        long total = 0;
+        //
+        int total = 0;
         for (int i = 0; i < num_users; i++) {
             String name = LoaderUtil.randomStr(NAME);
             userInsert.setInt(1, i); // ID
