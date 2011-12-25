@@ -51,25 +51,35 @@ public class EpinionsBenchmark extends BenchmarkModule {
 
 		try {
 			Connection metaConn = this.getConnection();
-
-			// LOADING FROM THE DATABASE IMPORTANT INFORMATION LIST OF ITEMS AND
+			Map<String,Table> tables=this.getTables(metaConn);
+			
+			// LOADING FROM THE DATABASE IMPORTANT INFORMATION
 			// LIST OF USERS
 
+			Table t=tables.get("USER");
+	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();
+	        
+			String userCount= t.getCountSQL("u_id");
 			Statement stmt = metaConn.createStatement();
+			ResultSet res = stmt.executeQuery(userCount);
 			ArrayList<String> user_ids = new ArrayList<String>();
-			ResultSet res = stmt.executeQuery("SELECT u_id from user");
-
 			while (res.next()) {
 				user_ids.add(res.getString(1));
 			}
-
+			res.close();
+			
+			// LIST OF ITEMS AND
+			t=tables.get("ITEM");
+	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();			
+			String itemCount= t.getCountSQL("i_id");
+			res = stmt.executeQuery(itemCount);
 			ArrayList<String> item_ids = new ArrayList<String>();
-			res = stmt.executeQuery("SELECT i_id from item");
-
 			while (res.next()) {
 				item_ids.add(res.getString(1));
 			}
-
+			res.close();
+			
+			// Now create the workers.			
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				workers.add(new EpinionsWorker(i, this, user_ids, item_ids));
 			}
@@ -82,7 +92,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
-		EpinionsLoader loader = new EpinionsLoader(conn, this.workConf, null);
+		EpinionsLoader loader = new EpinionsLoader(conn, this.workConf, tables);
 		loader.load();
 	}
 

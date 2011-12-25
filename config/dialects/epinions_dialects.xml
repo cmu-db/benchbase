@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<dialects>
+	<dialect driver="org.postgresql.Driver">
+		<stmt name="getReviewUser">
+        	SELECT * FROM review r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? 
+        	ORDER BY rating LIMIT 10;
+		</stmt>
+		<stmt name="updateUser">
+        	UPDATE "user" SET name = ? WHERE u_id=?;
+		</stmt>
+	</dialect>
+	<dialect driver="oracle.jdbc.driver.OracleDriver">
+		<stmt name="getReviewItem">
+       		SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM = 10
+        	ORDER BY rating;
+		</stmt>
+		<stmt name="getReviewUser">
+        	SELECT * FROM review r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM = 10
+        	ORDER BY rating;
+		</stmt>
+		<stmt name="updateUser">
+        	UPDATE "user" SET name = ? WHERE u_id=?;
+		</stmt>
+	</dialect>
+	<dialect driver="net.sourceforge.jtds.jdbc.Driver">
+		<stmt name="getReviewItem">
+       		SELECT TOP 10 * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=?
+        	ORDER BY rating;
+		</stmt>
+		<stmt name="getReviewUser">
+        	SELECT TOP 10 * FROM review r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? 
+        	ORDER BY rating;
+		</stmt>
+		<stmt name="updateUser">
+        	UPDATE "user" SET name = ? WHERE u_id=?;
+		</stmt>
+	</dialect>
+</dialects>

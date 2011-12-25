@@ -10,9 +10,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class UpdateUserName extends Procedure {
 
-    public final SQLStmt updateUser = new SQLStmt(
-        "UPDATE user SET name = ? WHERE u_id=?"
-    );
+    public final SQLStmt updateUser = new SQLStmt("UPDATE user SET name = ? WHERE u_id=?");
     
     public void run(Connection conn, long uid, String name) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateUser);

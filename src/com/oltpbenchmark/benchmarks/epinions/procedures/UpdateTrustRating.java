@@ -18,7 +18,7 @@ public class UpdateTrustRating extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateTrust);
         stmt.setInt(1, trust);
         stmt.setLong(2, source_uid);
-        stmt.setLong(2, target_uid);
+        stmt.setLong(3, target_uid);
         stmt.executeUpdate();
     }
 }

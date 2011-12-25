@@ -6,158 +6,229 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class EpinionsLoader extends Loader{
 	
-    public String insertUserSql = "INSERT INTO usr VALUES (?,?)";
-
-	public String insertItemSql = "INSERT INTO item VALUES (?,?)";
+    private static final Logger LOG = Logger.getLogger(EpinionsLoader.class);
 	
-	public String insertReviewSql = "INSERT INTO review VALUES (?,?,?,NULL,NULL)";
-	
-	public String insertTrustSql = "INSERT INTO trust VALUES (?,?,?,now())";
+	// Constants
+	private final int USERS=2000; // Number of baseline Users
+	private final int NAME=5; // Length of user's name
 	
 	private final int ITEMS=1000; // Number of baseline pages
 	private static final long TITLE = 20;
 	
-	private final int USERS=2000; // Number of baseline Users
-	private final int NAME=5; // Length of user's name
-	
-	private int scale=1; //Scale factor
-	public final static int configCommitCount = 1000;
-
 	private static final int REVIEW = 20; // this is the average .. expand to max
-
 	private static final int TRUST = 10; // this is the average .. expand to max
+	
+	public final static int configCommitCount = 10;
+	/// 
+
+	private final int num_users;
+    private final int num_items;
+    private final long num_reviews;
+    private final int num_trust;
 
 	public EpinionsLoader(Connection c, WorkloadConfiguration workConf,
 			Map<String, Table> tables) {
 		super(c, workConf, tables);
-    	this.scale = (int) workConf.getScaleFactor();
+        this.num_users = (int)Math.round(USERS * this.scaleFactor);
+        this.num_items = (int)Math.round(ITEMS * this.scaleFactor);
+        this.num_reviews = (int)Math.round(REVIEW * this.scaleFactor);
+        this.num_trust= (int)Math.round(TRUST * this.scaleFactor);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("# of USERS:  " + this.num_users);
+            LOG.debug("# of ITEMS: " + this.num_trust);
+            LOG.debug("# of REVIEWS: " + this.num_reviews);
+            LOG.debug("# of TRUSTS: " + this.num_trust);
+        }
 	}
 
-	@Override
-	public void load() {
-		System.out.println(LoaderUtil.getCurrentTime14());
-		try 
+	
+    @Override
+    public void load() throws SQLException {
+        this.loadUsers();
+        this.loadItems();
+        this.loadReviews();
+        this.loadTrust();
+    }
+
+    /**
+     * @author Djellel
+     * Load num_users users.
+     * @throws SQLException
+     */
+	private void loadUsers() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("user");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement userInsert = this.conn.prepareStatement(sql);
+       
+		//
+		int total=0;
+		for(int i=0;i<num_users;i++)
 		{
-			
-			PreparedStatement userInsert = this.conn.prepareStatement(insertUserSql);
-			int k=1;
-			for(int i=0;i<USERS*scale;i++)
-			{
-				String name= LoaderUtil.randomStr(NAME);
-				userInsert.setInt(1, i);
-				userInsert.setString(2,name);
-				userInsert.addBatch();
-				if ((k % configCommitCount) == 0) {
-					userInsert.executeBatch();
-					conn.commit();
-					userInsert.clearBatch();
-					System.out.println("users"+k);
-				}
-				k++;
+			String name= LoaderUtil.randomStr(NAME);
+			userInsert.setInt(1, i);
+			userInsert.setString(2,name);
+			userInsert.addBatch();
+			if ((++total % configCommitCount) == 0) {
+				userInsert.executeBatch();
+				conn.commit();
+				userInsert.clearBatch();
+				if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Users %d / %d", total, num_users));
 			}
-			userInsert.executeBatch();
-			conn.commit();
-			userInsert.clearBatch();
-			System.out.println("\t Users Loaded");
-			
-			PreparedStatement itemInsert = this.conn.prepareStatement(insertItemSql);
-			k=1;
-			for(int i=0;i<ITEMS*scale;i++)
-			{
-				String title=LoaderUtil.randomStr(TITLE);
-				itemInsert.setInt(1, i);
-				itemInsert.setString(2,title);
-				itemInsert.addBatch();				
-				if ((k % configCommitCount) == 0) {
-					itemInsert.executeBatch();
-					conn.commit();
-					itemInsert.clearBatch();
-					System.out.println("page "+k);
-				}
-				k++;
+		}
+		userInsert.executeBatch();
+		conn.commit();
+		userInsert.clearBatch();
+		if (LOG.isDebugEnabled()) LOG.debug(String.format("Users Loaded [%d]", total));
+	}
+	
+    /**
+     * @author Djellel
+     * Load num_items items.
+     * @throws SQLException
+     */
+	private void loadItems() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("item");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement itemInsert = this.conn.prepareStatement(sql);
+		//
+		int total=0;
+		for(int i=0;i<num_items;i++)
+		{
+			String title=LoaderUtil.randomStr(TITLE);
+			itemInsert.setInt(1, i);
+			itemInsert.setString(2,title);
+			itemInsert.addBatch();				
+			if ((++total % configCommitCount) == 0) {
+				itemInsert.executeBatch();
+				conn.commit();
+				itemInsert.clearBatch();
+				if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Items %d / %d", total, num_items));
 			}
-			itemInsert.executeBatch();
-			conn.commit();
-			itemInsert.clearBatch();
-			System.out.println("\t Items Loaded");
-			
-			PreparedStatement reviewInsert = this.conn.prepareStatement(insertReviewSql);
-			ZipfianGenerator numReviews=new ZipfianGenerator(REVIEW*scale);
-			ZipfianGenerator reviewer=new ZipfianGenerator(USERS*scale);
-			k=1;
-			for(int i=0;i<ITEMS*scale;i++)
+		}
+		itemInsert.executeBatch();
+		conn.commit();
+		itemInsert.clearBatch();
+		if (LOG.isDebugEnabled()) LOG.debug(String.format("Items Loaded [%d]", total));
+	}
+	
+    /**
+     * @author Djellel
+     * What's going on here?: 
+     * For each item we Loaded, we are going to generate reviews
+     * The number of reviews per Item selected from num_reviews.
+     * Who gives the reviews is selected from num_users and added to reviewers list.
+     * Note: the selection is based on Zipfian distribution.
+     * @throws SQLException
+     */
+	private void loadReviews() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("review");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
+		//
+		ZipfianGenerator numReviews=new ZipfianGenerator(num_reviews);
+		ZipfianGenerator reviewer=new ZipfianGenerator(num_users);
+		int total=0;
+		for(int i=0;i<num_items;i++)
+		{
+			List<Integer> reviewers=new ArrayList<Integer>();
+			int review_count= numReviews.nextInt();
+			for(int rc=0;rc<review_count;)
 			{
-				List<Integer> reviewers=new ArrayList<Integer>();
-				int time= numReviews.nextInt();
-				for(int f=0;f<time;f++)
+				int u_id= reviewer.nextInt();
+				if(!reviewers.contains(u_id))
 				{
-					int u_id= reviewer.nextInt();
-					if(!reviewers.contains(u_id))
-					{
-						reviewInsert.setInt(1, k);
-						reviewInsert.setInt(2, u_id);
-						reviewInsert.setInt(3, i);
-						reviewInsert.addBatch();
-						reviewers.add(u_id);
-						if ((k % configCommitCount) == 0) {
-							reviewInsert.executeBatch();
-							conn.commit();
-							reviewInsert.clearBatch();
-							System.out.println("review "+k);
-						}
-						k++;
+					rc++;
+					reviewInsert.setInt(1, total);
+					reviewInsert.setInt(2, u_id);
+					reviewInsert.setInt(3, i);
+					reviewInsert.setNull(4, java.sql.Types.INTEGER);
+					reviewInsert.setNull(5, java.sql.Types.INTEGER);
+					reviewInsert.addBatch();
+					reviewers.add(u_id);
+					if ((++total % configCommitCount) == 0) {
+						reviewInsert.executeBatch();
+						conn.commit();
+						reviewInsert.clearBatch();
+						if (LOG.isDebugEnabled())
+		                    LOG.debug(String.format("Reviews %d / %d[Max]", total, (num_reviews*num_items)));
 					}
 				}
 			}
-			reviewInsert.executeBatch();
-			conn.commit();
-			reviewInsert.clearBatch();
-			System.out.println("\t Reviews Loaded");
-			
-			PreparedStatement trustInsert = this.conn.prepareStatement(insertTrustSql);
-			k=1;
-			ZipfianGenerator numTrust=new ZipfianGenerator(TRUST*scale);
-			for(int i=0;i<USERS*scale;i++)
+		}
+		reviewInsert.executeBatch();
+		conn.commit();
+		reviewInsert.clearBatch();
+		if (LOG.isDebugEnabled()) LOG.debug(String.format("Reviews Loaded [%d]", total));
+	}
+	
+
+    /**
+     * @author Djellel
+     * What's going on here?: 
+     * For each user, select a number num_trust of trust-feedbacks (given by others users).
+     * Then we select the users who are part of that list. 
+     * The actual feedback can be 1/0 with uniform distribution.
+     * Note: Select is based on Zipfian distribution
+     * Trusted users are not correlated to heavy reviewers (drawn using a scrambled distribution)
+     * @throws SQLException
+     */
+	public void loadTrust() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog("trust");
+        assert(catalog_tbl != null);
+        String sql = catalog_tbl.getInsertSQL(1);
+        PreparedStatement trustInsert = this.conn.prepareStatement(sql);
+		//
+		int total=0;
+		ZipfianGenerator numTrust=new ZipfianGenerator(num_trust);
+		ScrambledZipfianGenerator reviewer=new ScrambledZipfianGenerator(num_users);
+		Random isTrusted= new Random(System.currentTimeMillis());
+		for(int i=0;i<num_users;i++)
+		{
+			List<Integer> trusted=new ArrayList<Integer>();
+			int trust_count= numTrust.nextInt();
+			for(int tc=0;tc<trust_count;)
 			{
-				List<Integer> trustee=new ArrayList<Integer>();
-				int time= numTrust.nextInt();
-				for(int f=0;f<time;f++)
+				int u_id= reviewer.nextInt();
+				if(!trusted.contains(u_id))
 				{
-					int u_id= reviewer.nextInt();
-					if(!trustee.contains(u_id))
-					{
-						trustInsert.setInt(1, i);
-						trustInsert.setInt(2, u_id);
-						trustInsert.setInt(3, 1);
-						trustInsert.addBatch();
-						trustee.add(u_id);
-						if ((k % configCommitCount) == 0) {
-							trustInsert.executeBatch();
-							conn.commit();
-							trustInsert.clearBatch();
-							System.out.println("trust "+k);
-						}
-						k++;
+					tc++;
+					trustInsert.setInt(1, i);
+					trustInsert.setInt(2, u_id);
+					trustInsert.setInt(3, isTrusted.nextInt(2));
+					trustInsert.setDate(4,new java.sql.Date(System.currentTimeMillis()));
+					trustInsert.addBatch();
+					trusted.add(u_id);
+					if ((++total % configCommitCount) == 0) {
+						trustInsert.executeBatch();
+						conn.commit();
+						trustInsert.clearBatch();
+						if (LOG.isDebugEnabled())
+		                    LOG.debug(String.format("Trust %d / %d[MAX]", total, (num_trust*num_users)));
 					}
 				}
 			}
-			trustInsert.executeBatch();
-			conn.commit();
-			trustInsert.clearBatch();
-			System.out.println("\t Trust Loaded");
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 		
+		}
+		trustInsert.executeBatch();
+		conn.commit();
+		trustInsert.clearBatch();
+		if (LOG.isDebugEnabled()) LOG.debug(String.format("Trust Loaded [%d]", total));
 	}
 }
