@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 
 import junit.framework.TestCase;
@@ -41,6 +42,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
         Class.forName("org.sqlite.JDBC");
         this.workConf = new WorkloadConfiguration();
+        this.workConf.setDBType(DatabaseType.SQLITE);
         this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
         

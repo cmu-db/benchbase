@@ -45,6 +45,7 @@
         <copy todir="${build.dir}">
             <fileset dir="${src.dir}">
                 <include name="**/*-ddl.sql"/>
+                <include name="**/*-dialects.xml"/>
             </fileset>
         </copy>
         

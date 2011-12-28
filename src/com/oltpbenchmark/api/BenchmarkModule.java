@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 
@@ -95,48 +96,52 @@ public abstract class BenchmarkModule {
      * @param conn 
      * @throws SQLException 
      */
-    public File getDatabaseDDL(Connection conn){
-        String ddlName = this.benchmarkName + this.getDBMS(conn) + "-ddl.sql";
-        URL ddlURL = this.getClass().getResource(ddlName);
-        assert (ddlURL != null) : "Unable to find '" + ddlName + "'";
-        if(ddlURL != null)
-        	return new File(ddlURL.getPath());
-        else{
-        	System.out.println("No load file provided .. Skip?");
-        	return null;
-        }
+    public File getDatabaseDDL(Connection conn) {
+    	DatabaseType db_type = this.workConf.getDBType();
+    	String ddlNames[] = {
+			this.benchmarkName + "-" + db_type.name() + "-ddl.sql",
+			this.benchmarkName + "-ddl.sql",
+    	};
+    	
+    	for (String ddlName : ddlNames) {     	
+	        URL ddlURL = this.getClass().getResource(ddlName);
+	        if (ddlURL != null) return new File(ddlURL.getPath());
+    	} // FOR
+    	LOG.error("Failed to find DDL file for " + this.benchmarkName);
+    	return null;
     }
 
-    private String getDBMS(Connection conn) {
-        try {
-        	String vendor="";
-        	if(conn != null)
-        		vendor= conn.getMetaData().getDatabaseProductName();
-            if (vendor.equals("Oracle"))
-                return "-oracle";
-            else if (vendor.equals("PostgreSQL"))
-                return "-pg";
-            else if (vendor.equals("Microsoft SQL Server"))
-                return "-ms";
-        } catch (Exception e) {
-            LOG.warn("No driver Loaded, is this a test?");
-        }
-        return "";
+    /**
+     * Return the File handle to the SQL Dialect XML file
+     * used for this benchmark 
+     * @return
+     */
+    public File getSQLDialect() {
+    	String xmlName = this.benchmarkName + "-dialects.xml";
+    	URL ddlURL = this.getClass().getResource(xmlName);
+    	if (ddlURL != null) return new File(ddlURL.getPath());
+    	LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
+    	return (null);
     }
 
     public final List<Worker> makeWorkers(boolean verbose) throws IOException {
         return (this.makeWorkersImpl(verbose));
     }
 
+    /**
+     * Create the Benchmark Database
+     * This is the main method used to create all the database 
+     * objects (e.g., table, indexes, etc) needed for this benchmark 
+     */
     public final void createDatabase(){
         try {
-	            Connection conn = this.getConnection();
-	            File ddl = this.getDatabaseDDL(conn);
-	            assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
-	            ScriptRunner runner = new ScriptRunner(conn, true, true);
-	            LOG.info("Executing script '" + ddl.getName() + "'");
-	            runner.runScript(ddl);
-	            conn.close();
+            Connection conn = this.getConnection();
+            File ddl = this.getDatabaseDDL(conn);
+            assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
+            LOG.info("Executing script '" + ddl.getName() + "'");
+            runner.runScript(ddl);
+            conn.close();
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
         }

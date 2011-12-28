@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -86,6 +87,34 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             // Ignore
         }
         assertNull(txnType);
+    }
+    
+    /**
+     * testGetSQLDialect
+     */
+    public void testGetSQLDialect() throws Exception {
+        File xmlFile = this.benchmark.getSQLDialect();
+        if (xmlFile != null) {
+            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+        }
+    }
+    
+    /**
+     * testGetSQLDialect
+     */
+    public void testLoadSQLDialect() throws Exception {
+        File xmlFile = this.benchmark.getSQLDialect();
+        if (xmlFile == null) return;
+        
+        for (DatabaseType dbType : DatabaseType.values()) {
+            this.workConf.setDBType(dbType);
+            
+            // Just make sure that we can load it
+            StatementDialects dialects = new StatementDialects(dbType, xmlFile);
+            boolean ret = dialects.load();
+            
+            // TODO: We should XSD to validate the SQL
+        } // FOR (dbtype)
     }
     
     /**
