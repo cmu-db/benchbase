@@ -100,7 +100,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     }
     
     /**
-     * testGetSQLDialect
+     * testLoadSQLDialect
      */
     public void testLoadSQLDialect() throws Exception {
         File xmlFile = this.benchmark.getSQLDialect();

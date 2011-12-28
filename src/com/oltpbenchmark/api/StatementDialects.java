@@ -1,17 +1,28 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
+import com.oltpbenchmark.api.dialects.DialectsType;
 import com.oltpbenchmark.types.DatabaseType;
 
 /**
@@ -23,6 +34,9 @@ public class StatementDialects {
 
     private static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.MYSQL;
 
+    private final String xmlContext;
+    private final URL xmlSchemaURL;
+    
     private final DatabaseType dbType;
     private final File xmlFile;
     
@@ -39,6 +53,9 @@ public class StatementDialects {
     public StatementDialects(DatabaseType dbType, File xmlFile) {
         this.dbType = dbType;
         this.xmlFile = xmlFile;
+        
+        this.xmlContext = this.getClass().getPackage().getName() + ".dialects";
+        this.xmlSchemaURL = this.getClass().getResource("dialects.xsd");
     }
 
     protected boolean load() {
@@ -46,6 +63,35 @@ public class StatementDialects {
             LOG.warn(String.format("The SQL dialect file '%s' does not exist", this.xmlFile));
             return (false);
         }
+        
+        // COPIED FROM VoltDB's VoltCompiler.java
+//        DialectsType dialects = null;
+//        try {
+//            JAXBContext jc = JAXBContext.newInstance(this.xmlContext);
+//            // This schema shot the sheriff.
+//            SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
+//            Schema schema = sf.newSchema(this.xmlSchemaURL);
+//            Unmarshaller unmarshaller = jc.createUnmarshaller();
+//            // But did not shoot unmarshaller!
+//            unmarshaller.setSchema(schema);
+//            @SuppressWarnings("unchecked")
+//            JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(this.xmlFile);
+//            dialects = result.getValue();
+//        }
+//        catch (JAXBException ex) {
+//            // Convert some linked exceptions to more friendly errors.
+//            if (ex.getLinkedException() instanceof org.xml.sax.SAXParseException) {
+//                throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getLinkedException().getMessage()), ex);
+//            }
+//            throw new RuntimeException(ex);
+//        }
+//        catch (SAXException ex) {
+//            throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
+//        }
+//        
+//        System.err.println(dialects);
+//        System.exit(1);
+        
         
         XMLConfiguration dialectConf = new XMLConfiguration();
         dialectConf.setDelimiterParsingDisabled(true);
