@@ -280,12 +280,16 @@ public class TATPLoader extends Loader {
             } // FOR
             
             if (spe_batch > this.batchSize) {
-                if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));
+                if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d (%s %d / %d)",
+													TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total,
+													TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 int results[] = spe_pstmt.executeBatch();
                 assert(results != null);
                 
                 
-                if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
+                if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d (%s %d / %d)",
+                									TATPConstants.TABLENAME_CALL_FORWARDING, cal_total,
+                									TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 results = cal_pstmt.executeBatch();
                 assert(results != null);
                 

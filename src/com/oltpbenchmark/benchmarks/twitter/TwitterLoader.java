@@ -19,12 +19,6 @@ import com.oltpbenchmark.distributions.ZipfianGenerator;
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
 
-    private static final int USERS = 500; // Number of user baseline
-    private static final int TWEETS = 20000;// Number of tweets baseline
-    private static final int FOLLOW = 100;// Max follow per user baseline
-
-    private static final int NAME = 5;// Name length
-
     public final static int configCommitCount = 1000;
 
     private final int num_users;
@@ -33,9 +27,9 @@ public class TwitterLoader extends Loader {
 
     public TwitterLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
         super(c, workConf, tables);
-        this.num_users = (int)Math.round(USERS * this.scaleFactor);
-        this.num_tweets = (int)Math.round(TWEETS * this.scaleFactor);
-        this.num_follows= (int)Math.round(FOLLOW * this.scaleFactor);
+        this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
+        this.num_tweets = (int)Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
+        this.num_follows = (int)Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
             LOG.debug("# of TWEETS: " + this.num_tweets);
@@ -53,10 +47,15 @@ public class TwitterLoader extends Loader {
         assert(catalog_tbl != null);
         String sql = catalog_tbl.getInsertSQL(1);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
-        //
+        
         int total = 0;
-        for (int i = 0; i < num_users; i++) {
-            String name = LoaderUtil.randomStr(NAME);
+        for (int i = 0; i < this.num_users; i++) {
+        	// Generate a random username for this user
+        	int name_length = LoaderUtil.randomNumber(TwitterConstants.MIN_NAME_LENGTH,
+        											  TwitterConstants.MAX_NAME_LENGTH,
+        											  this.rng());
+            String name = LoaderUtil.randomStr(name_length);
+            
             userInsert.setInt(1, i); // ID
             userInsert.setString(2, name); // NAME
             userInsert.setString(3, name + "@tweeter.com"); // EMAIL

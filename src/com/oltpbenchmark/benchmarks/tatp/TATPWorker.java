@@ -25,6 +25,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
@@ -39,6 +41,7 @@ import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation;
 import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData;
 
 public class TATPWorker extends Worker {
+	private static final Logger LOG = Logger.getLogger(TATPWorker.class);
 	
     /**
      * Each Transaction element provides an TransactionInvoker to create the proper
@@ -188,19 +191,15 @@ public class TATPWorker extends Worker {
         Procedure proc = this.getProcedure(txnType);
         assert(proc != null) : String.format("Failed to get Procedure handle for %s.%s",
                                              this.benchmarkModule.getBenchmarkName(), txnType);
+        if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
         
 		try {
-		    UserAbortException error = null;
 		    try {
-		        System.err.print("Executing " + proc + " ");
 		        t.invoke(this.conn, proc, subscriberSize);
 		        this.conn.commit();
 		    } catch (UserAbortException ex) {
-		        System.err.print("--ABORT-- ");
-		        error = ex;
+		        LOG.debug(proc + " Aborted", ex);
 		        // FIXME this.conn.rollback();
-		    } finally {
-		        System.err.println(error == null ? "OK" : error);
 		    }
 		} catch (SQLException ex) {
 			throw new RuntimeException("Unexpected error when executing " + proc, ex);

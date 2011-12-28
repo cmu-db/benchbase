@@ -32,19 +32,6 @@ public class WikipediaLoader extends Loader{
 			"' WHERE user_id = ? ";
 	public String selectPageSql = "Select page_title, page_namespace from page WHERE page_id = ?";
 	
-	private final int NAMESPACES=10; // Number of namespaces
-	
-	private final int NAME=10; // Length of user's name
-	private final int TOKEN=32; // Length of the tokens
-	
-	private final int PAGES=1000; // Number of baseline pages
-
-	private final int USERS=3000; // Number of baseline Users
-	
-	private final int REVISIONS=15; // Average revision per page
-	
-	private final int TITLE=10; // Title length
-
 	private final int num_users;
 
 	private final int num_pages;
@@ -58,9 +45,9 @@ public class WikipediaLoader extends Loader{
 	public WikipediaLoader(Connection c, WorkloadConfiguration workConf,
 			Map<String, Table> tables) {
 		super(c, workConf, tables);
-        this.num_users = (int)Math.round(USERS * this.scaleFactor);
-        this.num_pages = (int)Math.round(PAGES * this.scaleFactor);
-        this.num_revisions= (int)Math.round(REVISIONS * PAGES * this.scaleFactor);
+        this.num_users = (int)Math.round(WikipediaConstants.USERS * this.scaleFactor);
+        this.num_pages = (int)Math.round(WikipediaConstants.PAGES * this.scaleFactor);
+        this.num_revisions= (int)Math.round(WikipediaConstants.REVISIONS * WikipediaConstants.PAGES * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
             LOG.debug("# of Pages: " + this.num_pages);
@@ -237,11 +224,11 @@ public class WikipediaLoader extends Loader{
         PreparedStatement pageInsert = this.conn.prepareStatement(sql);
 
 		int k=1;
-		ZipfianGenerator ns=new ZipfianGenerator(NAMESPACES);
+		ZipfianGenerator ns=new ZipfianGenerator(WikipediaConstants.NAMESPACES);
 		for(int i=0;i<num_pages;i++)
 		{
 			int namespace=ns.nextInt();
-			String title=LoaderUtil.randomStr(TITLE);
+			String title=LoaderUtil.randomStr(WikipediaConstants.TITLE);
 			pageInsert.setInt(1, i); //page_id
 			pageInsert.setInt(2, namespace); //page_namespace
 			pageInsert.setString(3,title); //page_title
@@ -280,7 +267,7 @@ public class WikipediaLoader extends Loader{
 		int k=1;
 		for(int i=1;i<=num_users;i++)
 		{
-			String name= LoaderUtil.randomStr(NAME);
+			String name= LoaderUtil.randomStr(WikipediaConstants.NAME);
 			userInsert.setInt(1, i); // id
 			userInsert.setString(2, name); // nickname
 			userInsert.setString(3, name); // real_name
@@ -290,7 +277,7 @@ public class WikipediaLoader extends Loader{
 			userInsert.setString(7,"fake_email@something.com"); //user_email
 			userInsert.setString(8,"fake_longoptionslist"); //user_options
 			userInsert.setString(9,LoaderUtil.getCurrentTime14()); //user_touched
-			userInsert.setString(10,LoaderUtil.randomStr(TOKEN)); //user_token
+			userInsert.setString(10,LoaderUtil.randomStr(WikipediaConstants.TOKEN)); //user_token
 			userInsert.setNull(11,java.sql.Types.BINARY); //user_email_authenticated
 			userInsert.setNull(12,java.sql.Types.BINARY); //user_email_token
 			userInsert.setNull(13,java.sql.Types.BINARY); //user_email_token_expires

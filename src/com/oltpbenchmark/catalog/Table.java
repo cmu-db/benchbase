@@ -19,26 +19,24 @@
  ******************************************************************************/
 package com.oltpbenchmark.catalog;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * This class represent a relational table.
- * 
+ * Table Catalog Object
  * @author Carlo A. Curino (carlo@curino.us)
  * @author pavlo
+ * @author Djellel
  */
-public class Table implements Serializable {
-    static final long serialVersionUID = 0;
-    
-    private final String tableName;
-    private final List<Column> columns = new ArrayList<Column>();
+public class Table extends AbstractCatalogObject {
+	private static final long serialVersionUID = 1L;
+	
+	private final List<Column> columns = new ArrayList<Column>();
     private final List<IntegrityConstraint> constraints = new ArrayList<IntegrityConstraint>();
 
     public Table(String tableName) {
-        this.tableName = tableName;
+    	super(tableName);
     }
     
     public Table(Table srcTable) {
@@ -64,7 +62,6 @@ public class Table implements Serializable {
     }
 
     /**
-     * @author Djellel
      * Calculate the number of records
      * Takes column name or "*"
      * @param col
@@ -77,9 +74,27 @@ public class Table implements Serializable {
     	return (sb.toString());
     }
     
+    /**
+     * Automatically generate the 'INSERT' SQL string to insert
+     * one record into this table
+     * @return
+     */
+    public String getInsertSQL() {
+    	return this.getInsertSQL(1);
+    }
+
+    /**
+     * Automatically generate the 'INSERT' SQL string for this table
+     * The batchSize parameter specifies the number of sets of parameters
+     * that should be included in the insert 
+     * @param batchSize
+     * @return
+     */
     public String getInsertSQL(int batchSize) {
     	StringBuilder sb = new StringBuilder();
-    	sb.append("INSERT INTO ").append(this.getName()).append(" (");
+    	sb.append("INSERT INTO ")
+    	  .append(this.getEscapedName())
+    	  .append(" (");
     	
     	StringBuilder inner = new StringBuilder();
     	boolean first = true;
@@ -101,14 +116,6 @@ public class Table implements Serializable {
     	sb.append(";");
     	
     	return (sb.toString());
-    }
-    
-    /**
-     * @author Djellel
-     * @return the tableName
-     */
-    public String getName() {
-        return CatalogUtil.getSeparator()+tableName+CatalogUtil.getSeparator();
     }
     
     public int getColumnCount() {
@@ -171,7 +178,7 @@ public class Table implements Serializable {
         if ((object instanceof Table) == false) return (false);
 
         Table table2 = (Table)object;
-        return (this.tableName.equals(table2.tableName) &&
+        return (this.name.equals(table2.name) &&
                 this.columns.equals(table2.columns) &&
                 this.constraints.equals(table2.constraints));
     }

@@ -22,6 +22,7 @@ package com.oltpbenchmark.api;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Table;
@@ -32,6 +33,13 @@ public abstract class Loader {
     protected final WorkloadConfiguration workConf;
     private final Map<String, Table> tables;
     protected final double scaleFactor;
+    
+    /**
+     * TODO: We need a way to set the seed value so that it is
+     * 		 uniform throughout the entire benchmark. We should probably
+     * 		 stick this in the BenchmarkModule base class.
+     */
+    private final Random rand = new Random();
     
     public Loader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
     	this.conn = c;
@@ -49,6 +57,14 @@ public abstract class Loader {
         Table catalog_tbl = this.tables.get(tableName.toUpperCase());
         assert(catalog_tbl != null) : "Invalid table name '" + tableName + "' " + this.tables.keySet();
         return (catalog_tbl);
+    }
+
+    /**
+     * Get the pre-seeded Random generator for this Loader invocation
+     * @return
+     */
+    public Random rng() {
+    	return (this.rand);
     }
     
     /**

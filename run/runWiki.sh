@@ -1,2 +1,8 @@
-java -Xmx1024m -cp `run/classpath.sh` com.oltpbenchmark.DBWorkload -b wikipedia -c config/sample_wiki_config.xml  --execute true
+#!/bin/sh -x
 
+ant execute \
+    -Dbenchmark=wikipedia \
+    -Dconfig=config/sample_wiki_config.xml \
+    -Dcreate=false \
+    -Dload=false \
+    -Dexecute=true

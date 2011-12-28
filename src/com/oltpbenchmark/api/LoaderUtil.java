@@ -20,7 +20,6 @@
 package com.oltpbenchmark.api;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Random;
 
 public class LoaderUtil {
@@ -28,8 +27,11 @@ public class LoaderUtil {
 	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public final static SimpleDateFormat stringFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 	
-	public final static String[] nameTokens = { "BAR", "OUGHT", "ABLE", "PRI",
-		"PRES", "ESE", "ANTI", "CALLY", "ATION", "EING" };
+	private final static String[] nameTokens = {
+		"BAR", "OUGHT", "ABLE", "PRI",
+		"PRES", "ESE", "ANTI", "CALLY",
+		"ATION", "EING"
+	};
 	
 	public static String randomStr(long strLen) {
 

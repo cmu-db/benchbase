@@ -20,13 +20,13 @@
 package com.oltpbenchmark.catalog;
 
 /**
- * 
+ * Column Catalog Object
  * @author pavlo
  */
-public class Column implements Cloneable {
-
-    private final Table catalog_tbl;
-    private final String name;
+public class Column extends AbstractCatalogObject implements Cloneable {
+	private static final long serialVersionUID = 1L;
+	
+	private final Table catalog_tbl;
     private final int type;
     private final String typename;
     private final Integer size;
@@ -36,8 +36,8 @@ public class Column implements Cloneable {
     private boolean signed = false;
     
     public Column(Table catalog_tbl, String name, int type, String typename, Integer size) {
+    	super(name);
         this.catalog_tbl = catalog_tbl;
-        this.name = name;
         this.type = type;
         this.typename = typename;
         this.size = size;
@@ -56,13 +56,6 @@ public class Column implements Cloneable {
         return (this.catalog_tbl);
     }
     
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
     public String fullName() {
         return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
     }

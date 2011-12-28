@@ -46,15 +46,25 @@ import com.oltpbenchmark.util.QueueLimitException;
 
 public class DBWorkload {
     private static final Logger LOG = Logger.getLogger(DBWorkload.class);
+    private static final Logger INIT_LOG = Logger.getLogger(DBWorkload.class);
+    private static final Logger CREATE_LOG = Logger.getLogger(DBWorkload.class);
+    private static final Logger LOAD_LOG = Logger.getLogger(DBWorkload.class);
+    private static final Logger EXEC_LOG = Logger.getLogger(DBWorkload.class);
     
-
+    private static final String SINGLE_LINE = "**********************************************************************************";
+    
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
 	    // Initialize log4j
-	    org.apache.log4j.PropertyConfigurator.configure(System.getProperty("log4j.properties"));
+		String log4jPath = System.getProperty("log4j.configuration");
+		if (log4jPath != null) {
+			org.apache.log4j.PropertyConfigurator.configure(log4jPath);
+		} else {
+			throw new RuntimeException("Missing log4j.properties file");
+		}
 		
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -62,7 +72,7 @@ public class DBWorkload {
 		try {
 			pluginConfig = new XMLConfiguration("config/plugin.xml");
 		} catch (ConfigurationException e1) {
-			System.out.println("Plugin configuration file config/plugin.xml is missing");
+			LOG.info("Plugin configuration file config/plugin.xml is missing");
 			e1.printStackTrace();
 		}
 		pluginConfig.setExpressionEngine(new XPathExpressionEngine());
@@ -80,17 +90,17 @@ public class DBWorkload {
 		options.addOption(
                 null,
 	            "create",
-                false,
+                true,
                 "Initialize the database for this benchmark");
 		options.addOption(
 		        null,
 		        "load",
-		        false,
+		        true,
 		        "Load data using the benchmark's data loader");
         options.addOption(
                 null,
                 "execute",
-                false,
+                true,
                 "Execute the benchmark workload");
 		
 		options.addOption("v", "verbose", false, "Display Messages");
@@ -105,9 +115,8 @@ public class DBWorkload {
 			return;
 		}
 		
-		
 		// Load the Workload Configuration from the Config file
-		System.out.println("**********************************************************************************");
+		LOG.info(SINGLE_LINE);
 		
 		WorkloadConfiguration wrkld = new WorkloadConfiguration();
 		XMLConfiguration xmlConfig = null;
@@ -115,7 +124,7 @@ public class DBWorkload {
 		
 		if (argsLine.hasOption("c")) {
 			String configFile = argsLine.getOptionValue("c");
-			System.out.println("[INIT] Configuration file: "+ configFile);
+			INIT_LOG.info("Configuration file: "+ configFile);
 			xmlConfig = new XMLConfiguration(configFile);
 			wrkld.setXmlConfig(xmlConfig);
 			wrkld.setDBDriver(xmlConfig.getString("driver"));
@@ -127,9 +136,9 @@ public class DBWorkload {
 			wrkld.setIsolationMode(xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE"));
 			wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor",1.0));
 			
-    		System.out.println("[INIT] Driver = "+ wrkld.getDBDriver());
-    		System.out.println("[INIT] DB = "+ wrkld.getDBConnection());
-    		System.out.println("[INIT] Isolation mode = "+ xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE [DEFAULT]"));		
+    		INIT_LOG.info("Driver = "+ wrkld.getDBDriver());
+    		INIT_LOG.info("DB = "+ wrkld.getDBConnection());
+    		INIT_LOG.info("Isolation mode = "+ xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE [DEFAULT]"));		
 			int size = xmlConfig.configurationsAt("works.work").size();
 			for (int i = 0; i < size; i++){
 			
@@ -170,7 +179,7 @@ public class DBWorkload {
 		if (argsLine.hasOption("b")) {
 			String plugin = argsLine.getOptionValue("b");
 			String classname=pluginConfig.getString("/plugin[@name='"+plugin+"']");
-			System.out.println("[INIT] Benchmark: "+ plugin +" {Class: "+classname+"}");
+			INIT_LOG.info("Benchmark: "+ plugin +" {Class: "+classname+"}");
 			if(classname==null)
 					throw new ParseException("Plugin "+ plugin + " is undefined in config/plugin.xml");
 	        bench = ClassUtil.newInstance(classname,
@@ -207,72 +216,96 @@ public class DBWorkload {
 		boolean verbose = argsLine.hasOption("v");
 		
 		// Create the Benchmark's Database
-        if (argsLine.hasOption("create")) {
-    		System.out.println("**********************************************************************************");
-        	System.out.println("[Create] ...");
+        if (isBooleanOptionSet(argsLine, "create")) {
+    		CREATE_LOG.info(SINGLE_LINE);
+        	CREATE_LOG.info("Creating new " + bench.getBenchmarkName().toUpperCase() + " database...");
             runCreator(bench, verbose);
-            System.out.println("\t Done");
+            CREATE_LOG.info("Finished!");
+        }
+        else if (CREATE_LOG.isDebugEnabled()) {
+        	CREATE_LOG.debug("Skipping creating benchmark database tables");
         }
 		
 		// Execute Loader
-        if (argsLine.hasOption("load")) {
-    		System.out.println("**********************************************************************************");
-
-        	System.out.println("[Load] ...");
+        if (isBooleanOptionSet(argsLine, "load")) {
+    		LOAD_LOG.info(SINGLE_LINE);
+    		LOAD_LOG.info("Loading data into " + bench.getBenchmarkName().toUpperCase() + " database...");
 		    runLoader(bench, verbose);
-            System.out.println("\t Done");
-		}
+		    LOAD_LOG.info("Finished!");
+        }
+        else if (LOAD_LOG.isDebugEnabled()) {
+        	LOAD_LOG.debug("Skipping loading benchmark database records");
+        }
 		
 		// Execute Workload
-        if (argsLine.hasOption("execute")) {
+        if (isBooleanOptionSet(argsLine, "execute")) {
     		// Bombs away!
     		Results r = runWorkload(bench, verbose);
             PrintStream ps = System.out;
-            System.out.println("**********************************************************************************");
+            EXEC_LOG.info(SINGLE_LINE);
             if (argsLine.hasOption("o"))
             {
                 ps = new PrintStream(new File(argsLine.getOptionValue("o")));
-                System.out.println("[Results] Output into file: " + argsLine.getOptionValue("o"));
+                EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o"));
             }
             if (argsLine.hasOption("s")) {
                 int windowSize = Integer.parseInt(argsLine
                         .getOptionValue("s"));
-                System.out.println("[Results] Grouped into Buckets of "+ windowSize + " seconds");
+                EXEC_LOG.info("Grouped into Buckets of "+ windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
             } else
             {
-            	System.out.println("[Results] Raw");
+            	EXEC_LOG.info("Raw");
                 r.writeAllCSVAbsoluteTiming(ps);
             }
             ps.close();
+	    } else {
+	    	EXEC_LOG.info("Skipping benchmark workload execution");
 	    }
 	}
 	
 	private static void runCreator(BenchmarkModule bench, boolean verbose) {
-        LOG.info(String.format("Creating %s Database", bench.toString()));
+        CREATE_LOG.debug(String.format("Creating %s Database", bench));
         bench.createDatabase();
     }
 	
 	private static void runLoader(BenchmarkModule bench, boolean verbose) {
-	    LOG.info(String.format("Loading %s Database", bench));
+	    LOAD_LOG.debug(String.format("Loading %s Database", bench));
 	    bench.loadDatabase();
 	}
 	
 	private static Results runWorkload(BenchmarkModule bench, boolean verbose) throws QueueLimitException, IOException {
-		System.out.print("[INIT] Creating "+ bench.getWorkloadConfiguration().getTerminals()+" virtual terminals .. ");
+		EXEC_LOG.info("Creating "+ bench.getWorkloadConfiguration().getTerminals()+" virtual terminals .. ");
 		List<Worker> workers = bench.makeWorkers(verbose);
-		System.out.println("done.");
-		LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
+//		EXEC_LOG.info("done.");
+		EXEC_LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
 		                       bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
 		ThreadBench.setWorkConf(bench.getWorkloadConfiguration());
 		ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
-		System.out.println("**********************************************************************************");
-		System.out.println("Rate limited reqs/s: " + r);
+		EXEC_LOG.info(SINGLE_LINE);
+		EXEC_LOG.info("Rate limited reqs/s: " + r);
 		return r;
 	}
 
 	private static void printUsage(Options options) {
 		HelpFormatter hlpfrmt = new HelpFormatter();
 		hlpfrmt.printHelp("oltpbenchmark", options);
+	}
+	
+	/**
+	 * Returns true if the given key is in the CommandLine object and
+	 * is set to true.
+	 * @param argsLine
+	 * @param key
+	 * @return
+	 */
+	private static boolean isBooleanOptionSet(CommandLine argsLine, String key) {
+		if (argsLine.hasOption(key)) {
+			LOG.debug("CommandLine has option '" + key + "'. Checking whether set to true");
+			String val = argsLine.getOptionValue(key);
+			LOG.debug(String.format("CommandLine %s => %s", key, val));
+			return (val != null ? val.equalsIgnoreCase("true") : false);
+		}
+		return (false);
 	}
 }
