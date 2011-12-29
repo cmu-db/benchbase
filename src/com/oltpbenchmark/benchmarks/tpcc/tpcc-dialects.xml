@@ -1,47 +1,48 @@
 <?xml version="1.0"?>
 <dialects>
-	<dialect driver="oracle.jdbc.driver.OracleDriver">
-		<!-- Delivery Statements -->
-		<stmt name="delivGetOrderIdSQL">
-		SELECT no_o_id 
-				FROM new_order 
-				WHERE no_d_id = ? AND no_w_id = ? AND ROWNUM = 1 ORDER BY no_o_id ASC
-		</stmt>
-		<!-- OrderStatus Statements -->
-		<stmt name="ordStatGetNewestOrdSQL">
-		SELECT o_id, o_carrier_id, o_entry_d 
-				FROM oorder
-				WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? AND ROWNUM =1 ORDER BY o_id DESC
-		</stmt>
-	<!-- MS SQL -->	
-	</dialect>
-		<dialect driver="com.microsoft.sqlserver.jdbc.SQLServerDriver">
-		<!-- Delivery Statements -->
-		<stmt name="delivGetOrderIdSQL">
-		SELECT TOP 1 no_o_id 
-				FROM new_order 
-				WHERE no_d_id = ? AND no_w_id = ? ORDER BY no_o_id ASC
-		</stmt>
-			
-		<!-- New Order Statements -->
-	    
-	    <stmt name="stmtGetDistSQL">
-	    SELECT d_next_o_id,d_tax 
-	    		FROM district
-				WHERE d_w_id = ? AND d_id = ?
-		</stmt>  
-	    
-		<stmt name="stmtGetStockSQL">
-		SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, 
-			   s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10 
-			   FROM stock 
-			   WHERE s_i_id = ? AND s_w_id = ?
-		</stmt>
-		<!-- OrderStatus Statements -->
-		<stmt name="ordStatGetNewestOrdSQL">
-		SELECT TOP 1 o_id, o_carrier_id, o_entry_d 
-				FROM oorder
-				WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? ORDER BY o_id DESC
-		</stmt>
-	</dialect>
+    <dialect type="ORACLE">
+        <procedure name="Delivery">
+            <statement name="delivGetOrderIdSQL">
+                SELECT no_o_id 
+                    FROM new_order 
+                    WHERE no_d_id = ? AND no_w_id = ? AND ROWNUM = 1 ORDER BY no_o_id ASC
+            </statement>
+        </procedure>
+        <procedure name="OrderStatus">
+            <statement name="ordStatGetNewestOrdSQL">
+                SELECT o_id, o_carrier_id, o_entry_d 
+                        FROM oorder
+                        WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? AND ROWNUM =1 ORDER BY o_id DESC
+            </statement>
+        </procedure>
+    </dialect>
+    <dialect type="MSSQL">
+        <procedure name="Delivery">
+            <statement name="delivGetOrderIdSQL">
+                SELECT TOP 1 no_o_id 
+                        FROM new_order 
+                        WHERE no_d_id = ? AND no_w_id = ? ORDER BY no_o_id ASC
+            </statement>
+        </procedure>
+        <procedure name="NewOrder">
+            <statement name="stmtGetDistSQL">
+                SELECT d_next_o_id,d_tax 
+                        FROM district
+                        WHERE d_w_id = ? AND d_id = ?
+            </statement>  
+            <statement name="stmtGetStockSQL">
+                SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, 
+                    s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10 
+                    FROM stock 
+                    WHERE s_i_id = ? AND s_w_id = ?
+            </statement>
+        </procedure>
+        <procedure name="OrderStatus">
+            <statement name="ordStatGetNewestOrdSQL">
+                SELECT TOP 1 o_id, o_carrier_id, o_entry_d 
+                        FROM oorder
+                        WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? ORDER BY o_id DESC
+            </statement>
+        </procedure>
+    </dialect>
 </dialects>

@@ -1,11 +1,9 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
@@ -15,14 +13,13 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
+import com.oltpbenchmark.api.dialects.DialectType;
 import com.oltpbenchmark.api.dialects.DialectsType;
+import com.oltpbenchmark.api.dialects.ProcedureType;
+import com.oltpbenchmark.api.dialects.StatementType;
 import com.oltpbenchmark.types.DatabaseType;
 
 /**
@@ -65,87 +62,67 @@ public class StatementDialects {
         }
         
         // COPIED FROM VoltDB's VoltCompiler.java
-//        DialectsType dialects = null;
-//        try {
-//            JAXBContext jc = JAXBContext.newInstance(this.xmlContext);
-//            // This schema shot the sheriff.
-//            SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-//            Schema schema = sf.newSchema(this.xmlSchemaURL);
-//            Unmarshaller unmarshaller = jc.createUnmarshaller();
-//            // But did not shoot unmarshaller!
-//            unmarshaller.setSchema(schema);
-//            @SuppressWarnings("unchecked")
-//            JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(this.xmlFile);
-//            dialects = result.getValue();
-//        }
-//        catch (JAXBException ex) {
-//            // Convert some linked exceptions to more friendly errors.
-//            if (ex.getLinkedException() instanceof org.xml.sax.SAXParseException) {
-//                throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getLinkedException().getMessage()), ex);
-//            }
-//            throw new RuntimeException(ex);
-//        }
-//        catch (SAXException ex) {
-//            throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
-//        }
-//        
-//        System.err.println(dialects);
-//        System.exit(1);
-        
-        
-        XMLConfiguration dialectConf = new XMLConfiguration();
-        dialectConf.setDelimiterParsingDisabled(true);
-        dialectConf.setExpressionEngine(new XPathExpressionEngine());
-        dialectConf.setFile(this.xmlFile);
+        DialectsType dialects = null;
         try {
-            dialectConf.load();
-        } catch (ConfigurationException ex) {
-            
+            JAXBContext jc = JAXBContext.newInstance(this.xmlContext);
+            // This schema shot the sheriff.
+            SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = sf.newSchema(this.xmlSchemaURL);
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            // But did not shoot unmarshaller!
+            unmarshaller.setSchema(schema);
+            @SuppressWarnings("unchecked")
+            JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(this.xmlFile);
+            dialects = result.getValue();
+        }
+        catch (JAXBException ex) {
+            // Convert some linked exceptions to more friendly errors.
+            if (ex.getLinkedException() instanceof org.xml.sax.SAXParseException) {
+                throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getLinkedException().getMessage()), ex);
+            }
+            throw new RuntimeException(ex);
+        }
+        catch (SAXException ex) {
+            throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
         }
         
         LOG.info(String.format("Loading the SQL dialect file '%s' for %s", this.xmlFile, this.dbType));
 
-        String procQuery = String.format("/dialect[@type='%s']/procedure", this.dbType);
-        String stmtQuery = "statement";
-        
-        @SuppressWarnings("unchecked")
-        List<HierarchicalConfiguration> procedures = (List<HierarchicalConfiguration>) dialectConf.configurationsAt(procQuery);
-        if (procedures.isEmpty()) {
+        for (DialectType dialect : dialects.getDialect()) {
+            if (dialect.getType().equalsIgnoreCase(this.dbType.name()) == false)
+                continue;
+
+            // For each Procedure in the XML file, go through its list of Statements
+            // and populate our dialects map with the mapped SQL
+            for (ProcedureType procedure : dialect.getProcedure()) {
+                String procName = procedure.getName();
+
+                // Loop through all of the Statements listed for this Procedure
+                Map<String, String> procDialects = this.dialects.get(procName);
+                for (StatementType statement : procedure.getStatement()) {
+                    String stmtName = statement.getName();
+                    assert(stmtName.isEmpty() == false) :
+                        String.format("Invalid Statement for %s.%s", this.dbType, procName);
+                    String stmtSQL = statement.getValue();
+                    assert(stmtSQL.isEmpty() == false) :
+                        String.format("Invalid SQL for %s.%s.%s", this.dbType, procName, stmtName);
+                    
+                    if (procDialects == null) {
+                        procDialects = new HashMap<String, String>();
+                        this.dialects.put(procName, procDialects);
+                    }
+                    procDialects.put(stmtName, stmtSQL);
+                    LOG.debug(String.format("%s.%s.%s\n%s\n", this.dbType, procName, stmtName, stmtSQL));
+                } // FOR (stmt)
+            } // FOR (proc)
+        } // FOR (dbtype)
+        if (this.dialects.isEmpty()) {
             if (LOG.isDebugEnabled())
                 LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
                                        this.dbType, DEFAULT_DB_TYPE));
             return (false);
         }
         
-        // For each Procedure in the XML file, go through its list of Statements
-        // and populate our dialects map with the mapped SQL
-        for (HierarchicalConfiguration procHC : procedures) {
-            String procName = procHC.getString("@name");
-            
-            @SuppressWarnings("unchecked")
-            List<HierarchicalConfiguration> statements = (List<HierarchicalConfiguration>) procHC.configurationsAt(stmtQuery);
-            LOG.debug(procName + " => " + statements.size() + " statements");
-            
-            // Loop through all of the Statements listed for this Procedure
-            Map<String, String> procDialects = this.dialects.get(procName);
-            for (HierarchicalConfiguration stmtHC : statements) {
-                if (procDialects == null) {
-                    procDialects = new HashMap<String, String>();
-                    this.dialects.put(procName, procDialects);
-                }
-                
-                String stmtName = stmtHC.getString("@name");
-                assert(stmtName.isEmpty() == false) :
-                    String.format("Invalid Statement for %s.%s", this.dbType, procName);
-                String stmtSQL = stmtHC.getString("");
-                assert(stmtName.isEmpty() == false) :
-                    String.format("Invalid SQL for %s.%s.%s", this.dbType, procName, stmtName);
-
-                procDialects.put(stmtName, stmtSQL);
-                LOG.debug(String.format("%s.%s.%s\n%s\n", this.dbType, procName, stmtName, stmtSQL));
-            } // FOR
-//            dialectMap.put(name, sql);
-        }
         return (true);
     }
     
