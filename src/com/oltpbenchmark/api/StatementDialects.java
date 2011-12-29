@@ -40,7 +40,7 @@ public class StatementDialects {
     /**
      * ProcName -> StmtName -> SQL
      */
-    private final Map<String, Map<String, String>> dialects = new HashMap<String, Map<String,String>>(); 
+    private final Map<String, Map<String, String>> dialectsMap = new HashMap<String, Map<String,String>>(); 
 
     /**
      * Constructor
@@ -98,7 +98,7 @@ public class StatementDialects {
                 String procName = procedure.getName();
 
                 // Loop through all of the Statements listed for this Procedure
-                Map<String, String> procDialects = this.dialects.get(procName);
+                Map<String, String> procDialects = this.dialectsMap.get(procName);
                 for (StatementType statement : procedure.getStatement()) {
                     String stmtName = statement.getName();
                     assert(stmtName.isEmpty() == false) :
@@ -109,14 +109,14 @@ public class StatementDialects {
                     
                     if (procDialects == null) {
                         procDialects = new HashMap<String, String>();
-                        this.dialects.put(procName, procDialects);
+                        this.dialectsMap.put(procName, procDialects);
                     }
                     procDialects.put(stmtName, stmtSQL);
                     LOG.debug(String.format("%s.%s.%s\n%s\n", this.dbType, procName, stmtName, stmtSQL));
                 } // FOR (stmt)
             } // FOR (proc)
         } // FOR (dbtype)
-        if (this.dialects.isEmpty()) {
+        if (this.dialectsMap.isEmpty()) {
             if (LOG.isDebugEnabled())
                 LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
                                        this.dbType, DEFAULT_DB_TYPE));
@@ -131,7 +131,7 @@ public class StatementDialects {
      * @return
      */
     protected Collection<String> getProcedureNames() {
-        return (this.dialects.keySet());
+        return (this.dialectsMap.keySet());
     }
     
     /**
@@ -142,7 +142,7 @@ public class StatementDialects {
      * @return
      */
     protected Collection<String> getStatementNames(String procName) {
-        Map<String, String> procDialects = this.dialects.get(procName);
+        Map<String, String> procDialects = this.dialectsMap.get(procName);
         return (procDialects != null ? procDialects.keySet() : null);
     }
     
@@ -153,7 +153,7 @@ public class StatementDialects {
      * @return
      */
     public String getSQL(String procName, String stmtName) {
-        Map<String, String> procDialects = this.dialects.get(procName);
+        Map<String, String> procDialects = this.dialectsMap.get(procName);
         if (procDialects != null) {
             return (procDialects.get(stmtName));
         }

@@ -11,9 +11,9 @@ import junit.framework.TestCase;
 
 public class TestStatementDialects extends TestCase {
     
-    static {
-      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
-    }
+//    static {
+//      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
+//    }
     
     private EpinionsBenchmark benchmark;
     private WorkloadConfiguration workConf;
