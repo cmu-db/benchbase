@@ -53,6 +53,8 @@ public class StatementDialects {
         
         this.xmlContext = this.getClass().getPackage().getName() + ".dialects";
         this.xmlSchemaURL = this.getClass().getResource("dialects.xsd");
+        assert(this.xmlSchemaURL != null) :
+            "Failed to find 'dialects.xml' for " + this.getClass().getName();
     }
 
     protected boolean load() {

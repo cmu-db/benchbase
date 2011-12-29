@@ -46,6 +46,7 @@
             <fileset dir="${src.dir}">
                 <include name="**/*-ddl.sql"/>
                 <include name="**/*-dialects.xml"/>
+                <include name="**/*.xsd"/>
             </fileset>
         </copy>
         
