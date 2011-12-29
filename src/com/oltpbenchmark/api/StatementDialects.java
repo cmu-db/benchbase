@@ -55,8 +55,9 @@ public class StatementDialects {
         this.xmlSchemaURL = this.getClass().getResource("dialects.xsd");
         assert(this.xmlSchemaURL != null) :
             "Failed to find 'dialects.xml' for " + this.getClass().getName();
+        
     }
-
+    
     protected boolean load() {
         if (this.xmlFile.exists() == false) {
             LOG.warn(String.format("The SQL dialect file '%s' does not exist", this.xmlFile));
@@ -88,7 +89,9 @@ public class StatementDialects {
             throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
         }
         
-        LOG.info(String.format("Loading the SQL dialect file '%s' for %s", this.xmlFile, this.dbType));
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loading the SQL dialect file '%s' for %s",
+                                   this.xmlFile.getName(), this.dbType));
 
         for (DialectType dialect : dialects.getDialect()) {
             if (dialect.getType().equalsIgnoreCase(this.dbType.name()) == false)
@@ -126,6 +129,14 @@ public class StatementDialects {
         }
         
         return (true);
+    }
+
+    /**
+     * Return the DatabaseType loaded from the XML file
+     * @return
+     */
+    public DatabaseType getDatabaseType() {
+        return (this.dbType);
     }
     
     /**

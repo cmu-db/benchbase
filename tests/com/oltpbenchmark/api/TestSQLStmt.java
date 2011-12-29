@@ -35,9 +35,26 @@ public class TestSQLStmt extends TestCase {
         String sql = stmt.getSQL();
         assertFalse(sql.isEmpty());
         assertFalse(sql.contains("\\?\\?"));
+    }
+    
+    /**
+     * testSetSQL
+     */
+    public void testSetSQL() throws Exception {
+        int expected = 99;
+        SQLStmt stmt = new SQLStmt("SELECT * FROM tweets", expected);
+        stmt.setSQL("SELECT * FROM tweets WHERE uid IN (??)");
         
-        System.err.println(stmt);
+        String sql = stmt.getSQL();
+        assertFalse(sql.isEmpty());
+        assertFalse(sql.contains("\\?\\?"));
         
+        // Count the number of times '?' appears
+        int actual = 0;
+        for (int i = 0; i < sql.length(); i++) {
+            if (sql.charAt(i) == '?') actual++;
+        } // FOR
+        assertEquals(expected, actual);
     }
     
 }

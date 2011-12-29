@@ -21,21 +21,19 @@ package com.oltpbenchmark;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
 
 public class WorkloadConfiguration {
 
+    // XXX: Why is this static?
+    private static Iterator<Phase> phaseIterator;
+    
 	private DatabaseType db_type;	
 	private String db_connection;
 	private String db_name;
@@ -47,11 +45,9 @@ public class WorkloadConfiguration {
 	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
-	private static Iterator<Phase> phaseIterator;
 	private int numberOfPhases = 0;
 	private TransactionTypes transTypes = null;
-	private int isolationMode= Connection.TRANSACTION_SERIALIZABLE;
-	private final Map<String,String> dialectMap= new HashMap<String,String>();
+	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 
 	public void addWork(int time, int rate, List<String> weights) {
 		works.add(new Phase(time, rate, weights));
@@ -151,29 +147,6 @@ public class WorkloadConfiguration {
 	    
 		// initialize the phase iterator
 		phaseIterator = works.iterator();
-	
-		// Populate the map
-		setDialectMap();
-	}
-	
-	/**
-	 * Reads the dialect map for the current driver
-	 * Loads the corresponding statement-sql into 
-	 * dialectMap 
-	 */
-	private void setDialectMap() {
-        String dialectFile = this.xmlConfig.getString("dialect","NULL");
-        if(dialectFile.equals("NULL"))
-        {
-                System.out.println("[INIT] No dialect provided");
-                return;
-        }
-//        try {
-//                
-//        } catch (ConfigurationException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//        }
 	}
 
 	public void setTerminals(int terminals) {
@@ -202,10 +175,6 @@ public class WorkloadConfiguration {
 
 	public XMLConfiguration getXmlConfig() {
 		return xmlConfig;
-	}
-
-	public Map<String,String> getDialectMap() {
-		return dialectMap;
 	}
 
 	public int getIsolationMode() {

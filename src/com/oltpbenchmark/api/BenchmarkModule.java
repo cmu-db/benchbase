@@ -46,7 +46,21 @@ public abstract class BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 
     protected final String benchmarkName;
+    
+    /**
+     * The workload configuration for this benchmark invocation
+     */
     protected final WorkloadConfiguration workConf;
+    
+    /**
+     * These are the variations of the Procedure's Statment SQL
+     */
+    protected final StatementDialects dialects;
+    
+    /**
+     * Whether to use verbose output messages
+     * @deprecated
+     */
     protected boolean verbose;
 
     public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf) {
@@ -54,6 +68,9 @@ public abstract class BenchmarkModule {
 
         this.benchmarkName = benchmarkName;
         this.workConf = workConf;
+        
+        File xmlFile = this.getSQLDialect();
+        this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
     }
 
     // --------------------------------------------------------------------------
@@ -147,6 +164,9 @@ public abstract class BenchmarkModule {
         }
     }
 
+    /**
+     * Invoke this benchmark's database loader
+     */
     public final void loadDatabase() {
         Connection conn = null;
         try {
@@ -194,12 +214,24 @@ public abstract class BenchmarkModule {
     // UTILITY METHODS
     // --------------------------------------------------------------------------
 
-    public String getBenchmarkName() {
+    /**
+     * Return the unique identifier for this benchmark
+     * @return
+     */
+    public final String getBenchmarkName() {
         return benchmarkName;
+    }
+    
+    /**
+     * Return the StatementDialects loaded for this benchmark
+     * @return
+     */
+    public final StatementDialects getStatementDialects() {
+        return (this.dialects);
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return benchmarkName.toUpperCase();
     }
 
@@ -232,7 +264,6 @@ public abstract class BenchmarkModule {
 
     /**
      * Execute a SQL file using the ScriptRunner
-     * 
      * @param c
      * @param path
      * @return
@@ -251,7 +282,6 @@ public abstract class BenchmarkModule {
 
     /**
      * Return a mapping from table names to Table catalog handles
-     * 
      * @param c
      * @return
      */
@@ -280,7 +310,7 @@ public abstract class BenchmarkModule {
                 Procedure proc = (Procedure) ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
                 proc.initialize();
                 proc_xref.put(txn, proc);
-                proc.loadSQLDialect(workConf.getDialectMap());
+                proc.loadSQLDialect(this.dialects);
             } // FOR
         }
         if (proc_xref.isEmpty()) {
