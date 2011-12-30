@@ -61,6 +61,7 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.*;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class TATPLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TATPLoader.class);
@@ -143,7 +144,7 @@ public class TATPLoader extends Loader {
      */
     void genSubscriber(Table catalog_tbl) throws SQLException {
         // Create a prepared statement
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement pstmt = this.conn.prepareStatement(sql);
 
         long s_id = 0;
@@ -193,7 +194,7 @@ public class TATPLoader extends Loader {
      */
     void genAccessInfo(Table catalog_tbl) throws SQLException {
     	// Create a prepared statement
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement pstmt = this.conn.prepareStatement(sql);
     	
         int s_id = 0;
@@ -237,12 +238,12 @@ public class TATPLoader extends Loader {
      */
     void genSpeAndCal(Table catalog_spe, Table catalog_cal) throws SQLException {
     	// Create a prepared statement
-        String spe_sql = catalog_spe.getInsertSQL(1);
+        String spe_sql = SQLUtil.getInsertSQL(catalog_spe);
         PreparedStatement spe_pstmt = this.conn.prepareStatement(spe_sql);
         int spe_batch = 0;
         long spe_total = 0;
         
-        String cal_sql = catalog_cal.getInsertSQL(1);
+        String cal_sql = SQLUtil.getInsertSQL(catalog_cal);
         PreparedStatement cal_pstmt = this.conn.prepareStatement(cal_sql);
         long cal_total = 0;
         

@@ -21,19 +21,17 @@ import com.oltpbenchmark.benchmarks.ycsb.procedures.UpdateRecord;
 import com.oltpbenchmark.distributions.CounterGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 
-public class YcsbWorker extends Worker{
+public class YCSBWorker extends Worker{
 	
-	private static final int RECORD_COUNT = 1000;
-	private static final int MAX_SCAN=1000;
 	private ZipfianGenerator keysequence;
 	private static CounterGenerator newRec;
 	private Random rand;
 
-	public YcsbWorker(int id, BenchmarkModule benchmarkModule) {
+	public YCSBWorker(int id, BenchmarkModule benchmarkModule) {
 		super(id, benchmarkModule);
-		keysequence= new ZipfianGenerator(RECORD_COUNT);
-		rand=new Random(MAX_SCAN);
-		newRec= new CounterGenerator(RECORD_COUNT);
+		keysequence= new ZipfianGenerator(YCSBConstants.RECORD_COUNT);
+		rand=new Random(YCSBConstants.MAX_SCAN);
+		newRec= new CounterGenerator(YCSBConstants.RECORD_COUNT);
 	}
 
 	@Override

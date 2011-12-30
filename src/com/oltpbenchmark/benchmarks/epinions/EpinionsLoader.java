@@ -16,6 +16,7 @@ import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class EpinionsLoader extends Loader{
 	
@@ -71,7 +72,7 @@ public class EpinionsLoader extends Loader{
 	private void loadUsers() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("user");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
        
 		//
@@ -104,7 +105,7 @@ public class EpinionsLoader extends Loader{
 	private void loadItems() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("item");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement itemInsert = this.conn.prepareStatement(sql);
 		//
 		int total=0;
@@ -140,7 +141,7 @@ public class EpinionsLoader extends Loader{
 	private void loadReviews() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("review");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
 		//
 		ZipfianGenerator numReviews=new ZipfianGenerator(num_reviews);
@@ -193,7 +194,7 @@ public class EpinionsLoader extends Loader{
 	public void loadTrust() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("trust");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement trustInsert = this.conn.prepareStatement(sql);
 		//
 		int total=0;

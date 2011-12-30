@@ -15,7 +15,8 @@ public enum DatabaseType {
     AMAZONRDS,
     HSTORE,
     SQLAZURE,
-    ASSCLOWN
+    ASSCLOWN,
+    HSQLDB,
     ;
     
     protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<Integer, DatabaseType>();

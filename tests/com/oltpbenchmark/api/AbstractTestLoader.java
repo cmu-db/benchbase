@@ -66,6 +66,8 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             Statement stmt = conn.createStatement();
             ResultSet result = stmt.executeQuery(sql);
             assertNotNull(result);
+            boolean adv = result.next();
+            assertTrue(adv);
             int count = result.getInt(1);
             System.err.println(tableName + " => " + count + "\n");
             assert(count > 0) : "No tuples were inserted for table " + tableName;

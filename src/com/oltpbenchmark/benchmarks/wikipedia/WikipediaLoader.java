@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +17,9 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.benchmarks.twitter.TwitterLoader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class WikipediaLoader extends Loader{
 	
@@ -103,12 +102,12 @@ public class WikipediaLoader extends Loader{
 		// Loading revisions
 		Table catalog_tbl = this.getTableCatalog("text");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement textInsert = this.conn.prepareStatement(sql);
 		
 		catalog_tbl = this.getTableCatalog("revision");
         assert(catalog_tbl != null);
-        sql = catalog_tbl.getInsertSQL(1);
+        sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement revisionInsert = this.conn.prepareStatement(sql);
 		
 		PreparedStatement pageUpdate= this.conn.prepareStatement(updatePageSql);
@@ -118,7 +117,7 @@ public class WikipediaLoader extends Loader{
 		
         catalog_tbl = this.getTableCatalog("watchlist");
         assert(catalog_tbl != null);
-        sql = catalog_tbl.getInsertSQL(1);
+        sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement watchInsert = this.conn.prepareStatement(sql);		
 		
 		List<String> wl=new ArrayList<String>();
@@ -220,7 +219,7 @@ public class WikipediaLoader extends Loader{
 		
         Table catalog_tbl = this.getTableCatalog("page");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement pageInsert = this.conn.prepareStatement(sql);
 
 		int k=1;
@@ -261,7 +260,7 @@ public class WikipediaLoader extends Loader{
 		
         Table catalog_tbl = this.getTableCatalog("user");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
         
 		int k=1;

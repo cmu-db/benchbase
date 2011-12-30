@@ -15,6 +15,7 @@ import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
@@ -45,7 +46,7 @@ public class TwitterLoader extends Loader {
     protected void loadUsers() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("user");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
         
         int total = 0;
@@ -86,10 +87,11 @@ public class TwitterLoader extends Loader {
     protected void loadTweets() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("tweets");
         assert(catalog_tbl != null);
-        String sql = catalog_tbl.getInsertSQL(1);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
         //
         int total = 0;
+        int batchSize = 0;
         ScrambledZipfianGenerator zy=new ScrambledZipfianGenerator(this.num_users);
         for (long i = 0; i < this.num_tweets; i++) {
             int uid = zy.nextInt();
@@ -98,15 +100,21 @@ public class TwitterLoader extends Loader {
             tweetInsert.setString(3, "some random text from tweeter" + uid);
             tweetInsert.setNull(4, java.sql.Types.DATE);
             tweetInsert.addBatch();
-            if ((++total % configCommitCount) == 0) {
+            batchSize++;
+            total++;
+            
+            if ((batchSize % configCommitCount) == 0) {
                 tweetInsert.executeBatch();
                 conn.commit();
                 tweetInsert.clearBatch();
+                batchSize = 0;
                 if (LOG.isDebugEnabled()) LOG.debug("tweet % " + total);
             }
         }
-        tweetInsert.executeBatch();
-        conn.commit();
+        if (batchSize > 0) {
+            tweetInsert.executeBatch();
+            conn.commit();
+        }
         if (LOG.isDebugEnabled()) LOG.debug("Tweets Loaded");
     }
     
@@ -124,13 +132,15 @@ public class TwitterLoader extends Loader {
     protected void loadFollowData() throws SQLException {
         Table catalog_tbl = this.getTableCatalog("follows");
         assert(catalog_tbl != null);
-        final PreparedStatement followsInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
+        final PreparedStatement followsInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
 
         catalog_tbl = this.getTableCatalog("followers");
         assert(catalog_tbl != null);
-        final PreparedStatement followersInsert = this.conn.prepareStatement(catalog_tbl.getInsertSQL(1));
-        //
+        final PreparedStatement followersInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+
         int total = 1;
+        int batchSize = 0;
+        
         ZipfianGenerator zipfFollowee = new ZipfianGenerator(this.num_users);
         ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows);
         List<Integer> followees = new ArrayList<Integer>();
@@ -149,21 +159,27 @@ public class TwitterLoader extends Loader {
                     followersInsert.addBatch();
 
                     followees.add(followee);
+                    
+                    total++;
+                    batchSize++;
 
-                    if ((++total % configCommitCount) == 0) {
+                    if ((batchSize % configCommitCount) == 0) {
                         followsInsert.executeBatch();
                         followersInsert.executeBatch();
                         conn.commit();
                         followsInsert.clearBatch();
                         followersInsert.clearBatch();
+                        batchSize = 0;
                         if (LOG.isDebugEnabled()) LOG.debug("Follows  % " + total);
                     }
                 }
-            }
+            } // FOR
+        } // FOR
+        if (batchSize > 0) {
+            followsInsert.executeBatch();
+            followersInsert.executeBatch();
+            conn.commit();
         }
-        followsInsert.executeBatch();
-        followersInsert.executeBatch();
-        conn.commit();
         if (LOG.isDebugEnabled()) LOG.debug("Follows Loaded");
     }
 

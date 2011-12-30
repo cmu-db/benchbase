@@ -26,7 +26,13 @@ public final class SQLStmt {
 
     private static final Pattern SUBSTITUTION_PATTERN = Pattern.compile("\\?\\?"); 
     
+    private String orig_sql;
     private String sql;
+    
+    /**
+     * For each unique '??' that we encounter in the SQL for this Statement,
+     * we will substitute it with the number of '?' specified in this array. 
+     */
     private final int substitutions[];
     
     /**
@@ -48,6 +54,7 @@ public final class SQLStmt {
      * @param substitutions
      */
     protected final void setSQL(String sql) {
+        this.orig_sql = sql;
         for (int ctr : this.substitutions) {
             assert(ctr > 0);
             String replace = "";
@@ -62,6 +69,10 @@ public final class SQLStmt {
     
     public final String getSQL() {
         return (this.sql);
+    }
+    
+    protected final String getOriginalSQL() {
+        return (this.orig_sql);
     }
 
     @Override

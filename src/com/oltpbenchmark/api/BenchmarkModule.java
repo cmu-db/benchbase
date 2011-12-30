@@ -186,7 +186,7 @@ public abstract class BenchmarkModule {
     }
 
     /**
-     * @param conn
+     * @param DB_CONN
      * @throws SQLException
      */
     public final void clearDatabase() {

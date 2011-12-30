@@ -25,8 +25,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+
+import com.oltpbenchmark.types.SortDirectionType;
+import com.oltpbenchmark.util.SQLUtil;
 
 /**
  * 
@@ -35,11 +40,13 @@ import org.apache.log4j.Logger;
 public abstract class CatalogUtil {
     private static final Logger LOG = Logger.getLogger(CatalogUtil.class);
     private static String separator;
+
     /**
      * Construct the set of Table objects from a given Connection handle
      * @param c
      * @return
      * @throws SQLException
+     * @see http://docs.oracle.com/javase/6/docs/api/java/sql/DatabaseMetaData.html
      */
     public static Map<String, Table> getTables(Connection c) throws SQLException {
         assert(c != null) : "Null Connection!";
@@ -51,36 +58,75 @@ public abstract class CatalogUtil {
             String table_name = table_rs.getString(3);
             String table_type = table_rs.getString(4);
             if (table_type.equalsIgnoreCase("TABLE") == false) continue;
-            Table table_catalog = new Table(table_name);
+            Table catalog_tbl = new Table(table_name);
             
+            // COLUMNS
             LOG.debug("Retrieving column information for " + table_name);
-//            ResultSetMetaData meta = table_rs.getMetaData();
-//            for (int i = 1, cnt = meta.getColumnCount(); i <= cnt; i++) {
-//                System.err.println(String.format("[%02d] %s -> %s", i, meta.getColumnName(i), table_rs.getString(i)));    
-//            }
-            
-            // Do a simple query against the table so that we can get back 
-            // its schema. There is probably a better way of doing this, but oh well...
-            // http://download.oracle.com/javase/6/docs/api/java/sql/DatabaseMetaData.html#getColumns%28java.lang.String,%20java.lang.String,%20java.lang.String,%20java.lang.String%29
-
             ResultSet col_rs = md.getColumns(null,null, table_name, null);
             while (col_rs.next()) {
-                final String col_name = col_rs.getString(4);
+                if (LOG.isTraceEnabled()) LOG.trace(SQLUtil.debug(col_rs));
+                String col_name = col_rs.getString(4);
                 int col_type = col_rs.getInt(5);
                 String col_typename = col_rs.getString(6);
                 Integer col_size = col_rs.getInt(7);
-                boolean col_nullable = col_rs.getString(18).toUpperCase().equals("YES");
+                String col_defaultValue = col_rs.getString(13);
+                boolean col_nullable = col_rs.getString(18).equalsIgnoreCase("YES");
                 boolean col_autoinc = false; // FIXME col_rs.getString(22).toUpperCase().equals("YES");
 
-                Column col_catalog = new Column(table_catalog, col_name, col_type, col_typename, col_size);
-                col_catalog.setAutoincrement(col_autoinc);
-                col_catalog.setNullable(col_nullable);
+                Column catalog_col = new Column(catalog_tbl, col_name, col_type, col_typename, col_size);
+                catalog_col.setDefaultValue(col_defaultValue);
+                catalog_col.setAutoincrement(col_autoinc);
+                catalog_col.setNullable(col_nullable);
                 // FIXME col_catalog.setSigned();
                 
-                LOG.debug(String.format("Adding %s.%s", table_name, col_name));
-                table_catalog.addColumn(col_catalog);
-            } // FOR
-            tables.put(table_name.toUpperCase(), table_catalog);
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Adding %s.%s [%s / %d]",
+                                            table_name, col_name, col_typename, col_type));
+                catalog_tbl.addColumn(catalog_col);
+            } // WHILE
+            
+            // PRIMARY KEYS
+            LOG.debug("Retrieving PRIMARY KEY information for " + table_name);
+            ResultSet pkey_rs = md.getPrimaryKeys(null, null, table_name);
+            SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
+            while (pkey_rs.next()) {
+                String col_name = pkey_rs.getString(4);
+                assert(catalog_tbl.getColumnByName(col_name) != null) :
+                    String.format("Unexpected primary key column %s.%s", table_name, col_name);
+                int col_idx = pkey_rs.getShort(5);
+                // HACK: SQLite doesn't return the KEY_SEQ, so if we get back
+                //       a zero for this value, then we'll just length of the pkey_cols map
+                if (col_idx == 0) col_idx = pkey_cols.size();
+                LOG.debug(String.format("PKEY[%02d]: %s.%s", col_idx, table_name, col_name));
+                assert(pkey_cols.containsKey(col_idx) == false);
+                pkey_cols.put(col_idx, col_name);
+            } // WHILE
+            catalog_tbl.setPrimaryKeyColumns(pkey_cols.values());
+            
+            // INDEXES
+            LOG.debug("Retrieving INDEX information for " + table_name);
+            ResultSet idx_rs = md.getIndexInfo(null, null, table_name, false, false);
+            while (idx_rs.next()) {
+                LOG.info(SQLUtil.debug(idx_rs));
+                boolean idx_unique = (idx_rs.getBoolean(4) == false);
+                String idx_name = idx_rs.getString(6);
+                int idx_type = idx_rs.getShort(7);
+                int idx_col_pos = idx_rs.getInt(8) - 1;
+                String idx_col_name = idx_rs.getString(9);
+                SortDirectionType idx_direction = (idx_rs.getString(10).equalsIgnoreCase("A") ?
+                                                        SortDirectionType.ASC : SortDirectionType.DESC);
+                
+                Index catalog_idx = catalog_tbl.getIndex(idx_name);
+                if (catalog_idx == null) {
+                    catalog_idx = new Index(catalog_tbl, idx_name, idx_type, idx_unique);
+                    catalog_tbl.addIndex(catalog_idx);
+                }
+                assert(catalog_idx != null);
+                catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
+            } // WHILE
+            
+
+            tables.put(table_name.toUpperCase(), catalog_tbl);
         } // WHILE
         
         // @Djellel 

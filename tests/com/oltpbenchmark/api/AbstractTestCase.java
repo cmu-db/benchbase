@@ -19,7 +19,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 //      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
   }
     
-    protected static final String DB_CONNECTION = "jdbc:sqlite:";
+    public static final String DB_CONNECTION = "jdbc:hsqldb:mem:"; // "jdbc:sqlite:";
+    public static final String DB_JDBC = "org.hsqldb.jdbcDriver";
+    public static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
     protected static final double DB_SCALE_FACTOR = 0.01;
 
     protected String dbName;
@@ -38,11 +40,11 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
             this.procClasses.add(procClasses[i]);
         } // FOR
         
-        this.dbName = String.format("/tmp/%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
+        this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
 
-        Class.forName("org.sqlite.JDBC");
+        Class.forName(DB_JDBC);
         this.workConf = new WorkloadConfiguration();
-        this.workConf.setDBType(DatabaseType.SQLITE);
+        this.workConf.setDBType(DB_TYPE);
         this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
         

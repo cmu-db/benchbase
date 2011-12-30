@@ -30,7 +30,8 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     private final int type;
     private final String typename;
     private final Integer size;
-    
+
+    private String defaultValue;
     private boolean nullable = false;
     private boolean autoincrement = false;
     private boolean signed = false;
@@ -80,6 +81,13 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     public Integer getSize() {
         return size;
     }
+    
+    /**
+     * @return the defaultValue
+     */
+    public String getDefaultValue() {
+        return defaultValue;
+    }
 
     /**
      * @return the nullable
@@ -100,6 +108,13 @@ public class Column extends AbstractCatalogObject implements Cloneable {
      */
     public boolean isSigned() {
         return signed;
+    }
+    
+    /**
+     * @param defaultValue the defaultValue to set
+     */
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
     
     /**

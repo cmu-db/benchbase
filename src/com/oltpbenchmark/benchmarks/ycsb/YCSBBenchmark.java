@@ -13,9 +13,9 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord;
 import com.oltpbenchmark.catalog.Table;
 
-public class YcsbBenchmark extends BenchmarkModule{
+public class YCSBBenchmark extends BenchmarkModule{
 
-	public YcsbBenchmark(WorkloadConfiguration workConf) {
+	public YCSBBenchmark(WorkloadConfiguration workConf) {
 		super("ycsb", workConf);
 		// TODO Auto-generated constructor stub
 	}
@@ -28,7 +28,7 @@ public class YcsbBenchmark extends BenchmarkModule{
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				workers.add(new YcsbWorker(i, this));
+				workers.add(new YCSBWorker(i, this));
 			} // FOR
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -40,7 +40,7 @@ public class YcsbBenchmark extends BenchmarkModule{
 	@Override
 	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables)
 			throws SQLException {
-		YcsbLoader loader = new YcsbLoader(conn, this.workConf, tables);
+		YCSBLoader loader = new YCSBLoader(conn, this.workConf, tables);
 		loader.load();	
 	}
 

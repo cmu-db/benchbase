@@ -139,6 +139,15 @@
         <condition property="timeoutLength" value="${timeoutLength}" else='600000'>
             <isset property="timeoutLength"/>
         </condition>
+        
+        <!-- Copy Test Files Files -->
+        <copy todir="${build.dir}">
+            <fileset dir="${tests.dir}">
+                <include name="**/*-ddl.sql"/>
+                <include name="**/*-dialects.xml"/>
+                <include name="**/*.xsd"/>
+            </fileset>
+        </copy>
 
         <run_junit timeout="${timeoutLength}" printsummary="yes">
             <formatters>

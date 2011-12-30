@@ -20,8 +20,10 @@
 package com.oltpbenchmark.catalog;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 
 /**
  * Table Catalog Object
@@ -34,7 +36,10 @@ public class Table extends AbstractCatalogObject {
 	
 	private final List<Column> columns = new ArrayList<Column>();
     private final List<IntegrityConstraint> constraints = new ArrayList<IntegrityConstraint>();
-
+    private final List<String> primaryKeys = new ArrayList<String>();
+    private final List<Index> indexes = new ArrayList<Index>();
+    
+    
     public Table(String tableName) {
     	super(tableName);
     }
@@ -55,67 +60,14 @@ public class Table extends AbstractCatalogObject {
     public Table clone() {
         return new Table(this);
     }
-
-    public void addColumn(Column col) {
-        assert(this.columns.contains(col) == false) : "Duplicate column name '" + col + "'";
-        this.columns.add(col);
-    }
-
-    /**
-     * Calculate the number of records
-     * Takes column name or "*"
-     * @param col
-     * @return SQL for select count execution
-     */
-    public String getCountSQL(String col) {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select count( ").append(col).append(")");	
-    	sb.append("from ").append(this.getName()).append(";");    	
-    	return (sb.toString());
-    }
     
-    /**
-     * Automatically generate the 'INSERT' SQL string to insert
-     * one record into this table
-     * @return
-     */
-    public String getInsertSQL() {
-    	return this.getInsertSQL(1);
-    }
-
-    /**
-     * Automatically generate the 'INSERT' SQL string for this table
-     * The batchSize parameter specifies the number of sets of parameters
-     * that should be included in the insert 
-     * @param batchSize
-     * @return
-     */
-    public String getInsertSQL(int batchSize) {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("INSERT INTO ")
-    	  .append(this.getEscapedName())
-    	  .append(" (");
-    	
-    	StringBuilder inner = new StringBuilder();
-    	boolean first = true;
-    	for (Column catalog_col : this.columns) {
-    		if (first == false) {
-    			sb.append(", ");
-    			inner.append(", ");
-    		}
-    		sb.append(catalog_col.getName());
-    		inner.append("?");
-    		first = false;
-    	} // FOR
-    	sb.append(") VALUES ");
-    	first = true;
-    	for (int i = 0; i < batchSize; i++) {
-    		if (first == false) sb.append(", ");
-    		sb.append("(").append(inner.toString()).append(")");
-    	} // FOR
-    	sb.append(";");
-    	
-    	return (sb.toString());
+    // ----------------------------------------------------------
+    // COLUMNS
+    // ----------------------------------------------------------
+    
+    public void addColumn(Column col) {
+        assert(this.columns.contains(col) == false) : "Duplicate column '" + col + "'";
+        this.columns.add(col);
     }
     
     public int getColumnCount() {
@@ -127,12 +79,10 @@ public class Table extends AbstractCatalogObject {
     public Column getColumn(int index) {
         return this.columns.get(index);
     }
-
     public String getColumnName(int index) {
         return this.columns.get(index).getName();
     }
-
-    public int indexOf(String columnName) {
+    public int getColumnIndex(String columnName) {
         for (int i = 0, cnt = getColumnCount(); i < cnt; i++) {
             if (this.columns.get(i).getName().equalsIgnoreCase(columnName)) {
                 return (i);
@@ -142,21 +92,65 @@ public class Table extends AbstractCatalogObject {
     }
 
     public Column getColumnByName(String colname) {
-        int idx = indexOf(colname);
+        int idx = getColumnIndex(colname);
         return (idx >= 0 ? this.columns.get(idx) : null);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(getName()).append(" (\n");
-        for (int i = 0, cnt = this.columns.size(); i < cnt; i++) {
-            sb.append("  ").append(this.columns.get(i)).append("\n");
+    // ----------------------------------------------------------
+    // INDEXES
+    // ----------------------------------------------------------
+    
+    /**
+     * Add a new Index for this table
+     * @param index
+     */
+    public void addIndex(Index index) {
+        assert(this.indexes.contains(index) == false) : "Duplicate index '" + index + "'";
+        this.indexes.add(index);
+    }
+    
+    public Collection<Index> getIndexes() {
+        return (this.indexes);
+    }
+    
+    /**
+     * Return the number of indexes for this table
+     * @return
+     */
+    public int getIndexCount() {
+        return this.indexes.size();
+    }
+    
+    /**
+     * Return a particular index based on its name
+     * @param indexName
+     * @return
+     */
+    public Index getIndex(String indexName) {
+        for (Index catalog_idx : this.indexes) {
+            if (catalog_idx.getName().equalsIgnoreCase(indexName)) {
+                return (catalog_idx); 
+            }
         } // FOR
-        sb.append(")");
-
-        return (sb.toString());
+        return (null);
+    }
+    
+    // ----------------------------------------------------------
+    // PRIMARY KEY INDEX
+    // ----------------------------------------------------------
+    
+    
+    public void setPrimaryKeyColumns(Collection<String> colNames) {
+        this.primaryKeys.clear();
+        this.primaryKeys.addAll(colNames);
+    }
+    
+    /**
+     * Get the list of column names that are the primary keys for this table
+     * @return
+     */
+    public List<String> getPrimaryKeyColumns() {
+        return Collections.unmodifiableList(this.primaryKeys);
     }
 
     public void addConstraint(List<IntegrityConstraint> iclist) throws IntegrityConstraintsExistsException {
@@ -182,5 +176,16 @@ public class Table extends AbstractCatalogObject {
                 this.columns.equals(table2.columns) &&
                 this.constraints.equals(table2.constraints));
     }
-   
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(getName()).append(" (\n");
+        for (int i = 0, cnt = this.columns.size(); i < cnt; i++) {
+            sb.append("  ").append(this.columns.get(i)).append("\n");
+        } // FOR
+        sb.append(")");
+
+        return (sb.toString());
+    }
 }

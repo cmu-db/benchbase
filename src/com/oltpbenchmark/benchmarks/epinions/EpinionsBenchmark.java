@@ -33,6 +33,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class EpinionsBenchmark extends BenchmarkModule {
 
@@ -59,7 +60,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			Table t=tables.get("USER");
 	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();
 	        
-			String userCount= t.getCountSQL("u_id");
+			String userCount= SQLUtil.getCountSQL(t, "u_id");
 			Statement stmt = metaConn.createStatement();
 			ResultSet res = stmt.executeQuery(userCount);
 			ArrayList<String> user_ids = new ArrayList<String>();
@@ -71,7 +72,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			// LIST OF ITEMS AND
 			t=tables.get("ITEM");
 	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();			
-			String itemCount= t.getCountSQL("i_id");
+			String itemCount= SQLUtil.getCountSQL(t, "i_id");
 			res = stmt.executeQuery(itemCount);
 			ArrayList<String> item_ids = new ArrayList<String>();
 			while (res.next()) {
