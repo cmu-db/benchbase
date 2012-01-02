@@ -75,7 +75,7 @@ public class UpdatePage extends Procedure {
 		// Attention the original wikipedia does not include page_id
 		
 
-		PreparedStatement ps = this.getPreparedStatement(conn, insertText, Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement ps = this.getPreparedStatementReturnKeys(conn, insertText, Statement.RETURN_GENERATED_KEYS);
 		//conn.prepareStatement(sql, );
 		
 		ps.setInt(1, a.pageId);
@@ -101,7 +101,7 @@ public class UpdatePage extends Procedure {
 			throw new RuntimeException(
 					"Problem inserting new tupels in table text... 2");
 
-		ps = this.getPreparedStatement(conn, insertRevision, Statement.RETURN_GENERATED_KEYS);
+		ps = this.getPreparedStatementReturnKeys(conn, insertRevision, Statement.RETURN_GENERATED_KEYS);
 		ps.setInt(1, a.pageId);
 		ps.setInt(2, nextTextId);
 		ps.setInt(3, userId);

@@ -1,0 +1,156 @@
+/***************************************************************************
+ *  Copyright (C) 2011 by H-Store Project                                  *
+ *  Brown University                                                       *
+ *  Massachusetts Institute of Technology                                  *
+ *  Yale University                                                        *
+ *                                                                         *
+ *  http://hstore.cs.brown.edu/                                            *
+ *                                                                         *
+ *  Permission is hereby granted, free of charge, to any person obtaining  *
+ *  a copy of this software and associated documentation files (the        *
+ *  "Software"), to deal in the Software without restriction, including    *
+ *  without limitation the rights to use, copy, modify, merge, publish,    *
+ *  distribute, sublicense, and/or sell copies of the Software, and to     *
+ *  permit persons to whom the Software is furnished to do so, subject to  *
+ *  the following conditions:                                              *
+ *                                                                         *
+ *  The above copyright notice and this permission notice shall be         *
+ *  included in all copies or substantial portions of the Software.        *
+ *                                                                         *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        *
+ *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     *
+ *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. *
+ *  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR      *
+ *  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,  *
+ *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR  *
+ *  OTHER DEALINGS IN THE SOFTWARE.                                        *
+ ***************************************************************************/
+package com.oltpbenchmark.benchmarks.seats.procedures;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.apache.log4j.Logger;
+
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+
+public class DeleteReservation extends Procedure {
+    private static final Logger LOG = Logger.getLogger(DeleteReservation.class);
+    
+    public final SQLStmt GetCustomerByIdStr = new SQLStmt(
+            "SELECT C_ID " + 
+            "  FROM " + SEATSConstants.TABLENAME_CUSTOMER + 
+            " WHERE C_ID_STR = ?");
+    
+    public final SQLStmt GetCustomerByFFNumber = new SQLStmt(
+            "SELECT C_ID " +
+            "  FROM " + SEATSConstants.TABLENAME_CUSTOMER + ", " + 
+                        SEATSConstants.TABLENAME_FREQUENT_FLYER + 
+            " WHERE FF_C_ID_STR = ? AND FF_AL_ID = ? AND FF_C_ID = C_ID");
+    
+    public final SQLStmt GetCustomerReservation = new SQLStmt(
+            "SELECT C_SATTR00, C_SATTR02, C_SATTR04, " +
+            "       C_IATTR00, C_IATTR02, C_IATTR04, C_IATTR06, " +
+            "       F_SEATS_LEFT, " +
+            "       R_ID, R_SEAT, R_PRICE, R_IATTR00 " +
+            "  FROM " + SEATSConstants.TABLENAME_CUSTOMER + ", " +
+                        SEATSConstants.TABLENAME_FLIGHT + ", " +
+                        SEATSConstants.TABLENAME_RESERVATION +
+            " WHERE C_ID = ? AND C_ID = R_C_ID " +
+            "   AND F_ID = ? AND F_ID = R_F_ID "
+    );
+    
+    public final SQLStmt DeleteReservation = new SQLStmt(
+            "DELETE FROM " + SEATSConstants.TABLENAME_RESERVATION +
+            " WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?");
+
+    public final SQLStmt UpdateFlight = new SQLStmt(
+            "UPDATE " + SEATSConstants.TABLENAME_FLIGHT +
+            "   SET F_SEATS_LEFT = F_SEATS_LEFT + 1 " + 
+            " WHERE F_ID = ? ");
+    
+    public final SQLStmt UpdateCustomer = new SQLStmt(
+            "UPDATE " + SEATSConstants.TABLENAME_CUSTOMER +
+            "   SET C_BALANCE = C_BALANCE + ?, " +
+            "       C_IATTR00 = ?, " +
+            "       C_IATTR10 = C_IATTR10 - 1, " + 
+            "       C_IATTR11 = C_IATTR10 - 1 " +
+            " WHERE C_ID = ? ");
+    
+    public final SQLStmt UpdateFrequentFlyer = new SQLStmt(
+            "UPDATE " + SEATSConstants.TABLENAME_FREQUENT_FLYER +
+            "   SET FF_IATTR10 = FF_IATTR10 - 1 " + 
+            " WHERE FF_C_ID_STR = ? " +
+            "   AND FF_AL_ID = ?");
+    
+    public ResultSet[] run(Connection conn, long f_id, Long c_id, String c_id_str, String ff_c_id_str, Long ff_al_id) throws SQLException {
+        final boolean debug = LOG.isDebugEnabled();
+        
+        // If we weren't given the customer id, then look it up
+        if (c_id == null) {
+            PreparedStatement c_stmt = null; 
+            
+            // Use the customer's id as a string
+            if (c_id_str != null && c_id_str.length() > 0) {
+                c_stmt = this.getPreparedStatement(conn, GetCustomerByIdStr, c_id_str);
+            // Otherwise use their FrequentFlyer information
+            } else {
+                assert(ff_c_id_str.isEmpty() == false);
+                assert(ff_al_id != null);
+                c_stmt = this.getPreparedStatement(conn, GetCustomerByFFNumber, ff_c_id_str, ff_al_id);
+            }
+            ResultSet c_rs = c_stmt.executeQuery();
+            if (c_rs.next()) {
+                c_id = c_rs.getLong(1);
+            } else {
+                throw new UserAbortException(String.format("No Customer information record found for string '%s'", c_id_str));
+            }
+        }
+
+        // Now get the result of the information that we need
+        // If there is no valid customer record, then throw an abort
+        // This should happen 5% of the time
+        PreparedStatement cr_stmt = this.getPreparedStatement(conn, GetCustomerReservation);
+        cr_stmt.setLong(1, c_id);
+        cr_stmt.setLong(2, f_id);
+        ResultSet cr_rs = cr_stmt.executeQuery();
+        if (cr_rs.next() == false) {
+            throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
+        }
+        long c_iattr00 = cr_rs.getLong(4) + 1;
+        long seats_left = cr_rs.getLong(8); 
+        long r_id = cr_rs.getLong(9);
+        double r_price = cr_rs.getDouble(11);
+        
+        ResultSet results[] = new ResultSet[4];
+        int results_idx = 0;
+        
+        // Now delete all of the flights that they have on this flight
+        PreparedStatement dr_stmt = this.getPreparedStatement(conn, DeleteReservation, r_id, c_id, f_id);
+        results[results_idx++] = dr_stmt.executeQuery();
+        
+        // Update Available Seats on Flight
+        PreparedStatement uf_stmt = this.getPreparedStatement(conn, UpdateFlight, f_id);
+        results[results_idx++] = uf_stmt.executeQuery();
+        
+        // Update Customer's Balance
+        PreparedStatement uc_stmt = this.getPreparedStatement(conn, UpdateCustomer, -1*r_price, c_iattr00, c_id);
+        results[results_idx++] = uc_stmt.executeQuery();
+        
+        // Update Customer's Frequent Flyer Information (Optional)
+        PreparedStatement uff_stmt = null;
+        if (ff_al_id != null) {
+            uff_stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id);
+            results[results_idx++] = uff_stmt.executeQuery();
+        }
+        
+        if (debug)
+            LOG.debug(String.format("Deleted reservation on flight %d for customer %d [seatsLeft=%d]", f_id, c_id, seats_left+1));        
+        return (results);
+    }
+
+}

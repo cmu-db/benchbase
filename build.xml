@@ -140,7 +140,7 @@
             <isset property="timeoutLength"/>
         </condition>
         
-        <!-- Copy Test Files Files -->
+        <!-- Copy Test Files -->
         <copy todir="${build.dir}">
             <fileset dir="${tests.dir}">
                 <include name="**/*-ddl.sql"/>

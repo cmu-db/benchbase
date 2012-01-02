@@ -64,8 +64,12 @@ public abstract class Procedure {
      * @return
      * @throws SQLException
      */
-    public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt) throws SQLException {
-        return (this.getPreparedStatement(conn, stmt, null));
+    public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt, Object...params) throws SQLException {
+        PreparedStatement pStmt = this.getPreparedStatementReturnKeys(conn, stmt, null);
+        for (int i = 0; i < params.length; i++) {
+            pStmt.setObject(i+1, params);
+        } // FOR
+        return (pStmt);
     }
     
     /**
@@ -78,7 +82,7 @@ public abstract class Procedure {
      * @return
      * @throws SQLException
      */
-    public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt, Integer returnGeneratedKeys) throws SQLException {
+    public final PreparedStatement getPreparedStatementReturnKeys(Connection conn, SQLStmt stmt, Integer returnGeneratedKeys) throws SQLException {
         assert(this.name_stmt_xref != null) : "The Procedure " + this + " has not been initialized yet!";
         PreparedStatement pStmt = this.prepardStatements.get(stmt);
         if (pStmt == null) {

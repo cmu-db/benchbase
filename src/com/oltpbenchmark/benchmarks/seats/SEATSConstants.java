@@ -60,10 +60,11 @@ public abstract class SEATSConstants {
         NO_MORE_SEATS,
         SEAT_ALREADY_RESERVED,
         CUSTOMER_ALREADY_HAS_SEAT,
+        VALIDITY_ERROR,
         UNKNOWN;
         
         private final String errorCode;
-        private final static Pattern p = Pattern.compile("^E([\\d]{4})");
+        private final static Pattern p = Pattern.compile("^(USER ABORT:[\\s]+)?E([\\d]{4})");
         
         private ErrorType() {
             this.errorCode = String.format("E%04d", this.ordinal());
@@ -72,7 +73,7 @@ public abstract class SEATSConstants {
         public static ErrorType getErrorType(String msg) {
             Matcher m = p.matcher(msg);
             if (m.find()) {
-                int idx = Integer.parseInt(m.group(1));
+                int idx = Integer.parseInt(m.group(2));
                 return ErrorType.values()[idx];
             }
             return (ErrorType.UNKNOWN);
@@ -82,7 +83,6 @@ public abstract class SEATSConstants {
             return this.errorCode;
         }
     }
-    
     
     // ----------------------------------------------------------------
     // CONSTANTS

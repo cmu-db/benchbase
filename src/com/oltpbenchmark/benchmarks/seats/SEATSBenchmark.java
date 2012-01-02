@@ -37,7 +37,7 @@ import java.util.Map;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
+import com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation;
 import com.oltpbenchmark.catalog.Table;
 
 public class SEATSBenchmark extends BenchmarkModule {
@@ -48,7 +48,7 @@ public class SEATSBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected Package getProcedurePackageImpl() {
-		return (DeleteCallForwarding.class.getPackage());
+		return (DeleteReservation.class.getPackage());
 	}
 
 	@Override
