@@ -47,6 +47,14 @@ public abstract class Loader {
     	this.tables = tables;
     	this.scaleFactor = workConf.getScaleFactor();
     }
+    
+    /**
+     * Get the number of tables loaded from the catalog
+     * @return
+     */
+    public int getTableCount() {
+        return (this.tables.size());
+    }
 	
     /**
      * Get the catalog object for the given table name

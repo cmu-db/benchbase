@@ -57,6 +57,10 @@ public class Column extends AbstractCatalogObject implements Cloneable {
         return (this.catalog_tbl);
     }
     
+    public int getIndex() {
+        return (this.catalog_tbl.getColumnIndex(this));
+    }
+    
     public String fullName() {
         return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
     }

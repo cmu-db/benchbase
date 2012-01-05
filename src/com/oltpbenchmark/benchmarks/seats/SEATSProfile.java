@@ -30,6 +30,7 @@ package com.oltpbenchmark.benchmarks.seats;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -37,6 +38,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Column;
@@ -374,6 +376,55 @@ public class SEATSProfile {
 //            LOG.debug(String.format("Loaded %d cached FlightIds", this.cached_flight_ids.size()));
 //    }
     
+    // ----------------------------------------------------------------
+    // DATA ACCESS METHODS
+    // ----------------------------------------------------------------
+    
+    public File getSEATSDataDir() {
+        return this.airline_data_dir;
+    }
+    
+    private Map<String, Long> getCodeXref(String col_name) {
+        Map<String, Long> m = this.code_id_xref.get(col_name);
+        assert(m != null) : "Invalid code xref mapping column '" + col_name + "'";
+        assert(m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'";
+        return (m);
+    }
+    
+    /**
+     * The number of reservations preloaded for this benchmark run
+     * @return
+     */
+    public Long getRecordCount(String table_name) {
+        return (this.num_records.get(table_name));
+    }
+    
+    /**
+     * Set the number of preloaded reservations
+     * @param numReservations
+     */
+    public void setRecordCount(String table_name, long count) {
+        this.num_records.set(table_name, count);
+    }
+
+    /**
+     * The offset of when upcoming reservation ids begin
+     * @return
+     */
+    public Long getReservationUpcomingOffset() {
+        return (this.reservation_upcoming_offset);
+    }
+    
+    /**
+     * Set the number of upcoming reservation offset
+     * @param numReservations
+     */
+    public void setReservationUpcomingOffset(long offset) {
+        this.reservation_upcoming_offset = offset;
+    }
+
+    
+    
     // -----------------------------------------------------------------
     // FLIGHTS
     // -----------------------------------------------------------------
@@ -405,4 +456,291 @@ public class SEATSProfile {
     public long getFlightIdCount() {
         return (this.cached_flight_ids.size());
     }
+    
+    // ----------------------------------------------------------------
+    // HISTOGRAM METHODS
+    // ----------------------------------------------------------------
+    
+    /**
+     * Return the histogram for the given name
+     * @param name
+     * @return
+     */
+    public Histogram<String> getHistogram(String name) {
+        Histogram<String> h = this.histograms.get(name);
+        assert(h != null) : "Invalid histogram '" + name + "'";
+        return (h);
+    }
+    
+    /**
+     * 
+     * @param airport_code
+     * @return
+     */
+    public Histogram<String> getFightsPerAirportHistogram(String airport_code) {
+        return (this.airport_histograms.get(airport_code));
+    }
+    
+    /**
+     * Returns the number of histograms that we have loaded
+     * Does not include the airport_histograms
+     * @return
+     */
+    public int getHistogramCount() {
+        return (this.histograms.size());
+    }
+
+    // ----------------------------------------------------------------
+    // RANDOM GENERATION METHODS
+    // ----------------------------------------------------------------
+    
+    /**
+     * Return a random airport id
+     * @return
+     */
+    public long getRandomAirportId() {
+        return (rng.number(1, (int)this.getAirportCount()));
+    }
+    
+    public long getRandomOtherAirport(long airport_id) {
+        String code = this.getAirportCode(airport_id);
+        FlatHistogram<String> f = this.airport_distributions.get(code);
+        if (f == null) {
+            synchronized (this.airport_distributions) {
+                f = this.airport_distributions.get(code);
+                if (f == null) {
+                    Histogram<String> h = this.airport_histograms.get(code);
+                    assert(h != null);
+                    f = new FlatHistogram<String>(rng, h);
+                    this.airport_distributions.put(code, f);
+                }
+            } // SYCH
+        }
+        assert(f != null);
+        String other = f.nextValue();
+        return this.getAirportId(other);
+    }
+    
+    /**
+     * Return a random customer id based at the given airport_id 
+     * @param airport_id
+     * @return
+     */
+    public CustomerId getRandomCustomerId(long airport_id) {
+        Long cnt = this.getCustomerIdCount(airport_id);
+        if (cnt != null) {
+            int max_id = cnt.intValue();
+            int base_id = rng.nextInt(max_id);
+            return (new CustomerId(base_id, airport_id));
+        }
+        return (null);
+    }
+    
+    /**
+     * Return a random customer id based out of any airport 
+     * @return
+     */
+    public CustomerId getRandomCustomerId() {
+        Long airport_id = null;
+        int num_airports = this.airport_max_customer_id.getValueCount();
+        if (LOG.isTraceEnabled()) LOG.trace(String.format("Selecting a random airport with customers [numAirports=%d]", num_airports));
+        while (airport_id == null) {
+            airport_id = (long)this.rng.number(1, num_airports);
+            Long cnt = this.getCustomerIdCount(airport_id); 
+            if (cnt != null) {
+                if (LOG.isTraceEnabled()) LOG.trace(String.format("Selected airport '%s' [numCustomers=%d]", this.getAirportCode(airport_id), cnt));
+                break;
+            }
+            airport_id = null;
+        } // WHILE
+        return (this.getRandomCustomerId(airport_id));
+    }
+    
+    /**
+     * Return a random airline id
+     * @return
+     */
+    public long getRandomSEATSId() {
+        return (rng.nextInt(this.getRecordCount(SEATSConstants.TABLENAME_AIRLINE).intValue()));
+    }
+
+    /**
+     * Return a random date in the future (after the start of upcoming flights)
+     * @return
+     */
+    public Date getRandomUpcomingDate() {
+        Date upcoming_start_date = this.flight_upcoming_date;
+        int offset = rng.nextInt((int)this.getFlightFutureDays());
+        return (new Date(upcoming_start_date.getTime() + (offset * SEATSConstants.MILLISECONDS_PER_DAY)));
+    }
+    
+    /**
+     * Return a random FlightId from our set of cached ids
+     * @return
+     */
+    public FlightId getRandomFlightId() {
+        assert(this.cached_flight_ids.isEmpty() == false);
+        if (LOG.isTraceEnabled()) LOG.trace("Attempting to get a random FlightId");
+        int idx = rng.nextInt(this.cached_flight_ids.size());
+        FlightId flight_id = this.cached_flight_ids.get(idx);
+        if (LOG.isTraceEnabled()) LOG.trace("Got random " + flight_id);
+        return (flight_id);
+    }
+    // ----------------------------------------------------------------
+    // AIRLINE METHODS
+    // ----------------------------------------------------------------
+    
+    public Collection<Long> getAirlineIds() {
+        Map<String, Long> m = this.getCodeXref("AL_ID");
+        return (m.values());
+    }
+    
+    public Collection<String> getAirlineCodes() {
+        Map<String, Long> m = this.getCodeXref("AL_ID");
+        return (m.keySet());
+    }
+    
+    public Long getAirlineId(String airline_code) {
+        Map<String, Long> m = this.getCodeXref("AL_ID");
+        return (m.get(airline_code));
+    }
+    
+    public synchronized long incrementAirportCustomerCount(long airport_id) {
+        long next_id = this.airport_max_customer_id.get(airport_id, 0); 
+        this.airport_max_customer_id.put(airport_id);
+        return (next_id);
+    }
+    public Long getCustomerIdCount(long airport_id) {
+        return (this.airport_max_customer_id.get(airport_id));
+    }
+    public long getCustomerIdCount() {
+        return (this.airport_max_customer_id.getSampleCount());
+    }
+    
+    
+    // ----------------------------------------------------------------
+    // AIRPORT METHODS
+    // ----------------------------------------------------------------
+    
+    /**
+     * Return all the airport ids that we know about
+     * @return
+     */
+    public Collection<Long> getAirportIds() {
+        Map<String, Long> m = this.getCodeXref("AP_ID");
+        return (m.values());
+    }
+    
+    public Long getAirportId(String airport_code) {
+        Map<String, Long> m = this.getCodeXref("AP_ID");
+        return (m.get(airport_code));
+    }
+    
+    public String getAirportCode(long airport_id) {
+        Map<String, Long> m = this.getCodeXref("AP_ID");
+        for (Entry<String, Long> e : m.entrySet()) {
+            if (e.getValue() == airport_id) return (e.getKey());
+        }
+        return (null);
+    }
+    
+    public Collection<String> getAirportCodes() {
+        return (this.getCodeXref("AP_ID").keySet());
+    }
+    
+    /**
+     * Return the number of airports that are part of this profile
+     * @return
+     */
+    public int getAirportCount() {
+        return (this.getAirportCodes().size());
+    }
+    
+    public Histogram<String> getAirportCustomerHistogram() {
+        Histogram<String> h = new Histogram<String>();
+        if (LOG.isDebugEnabled()) LOG.debug("Generating Airport-CustomerCount histogram [numAirports=" + this.getAirportCount() + "]");
+        for (Long airport_id : this.airport_max_customer_id.values()) {
+            String airport_code = this.getAirportCode(airport_id);
+            long count = this.airport_max_customer_id.get(airport_id);
+            h.put(airport_code, count);
+        } // FOR
+        return (h);
+    }
+    
+    public Collection<String> getAirportsWithFlights() {
+        return this.airport_histograms.keySet();
+    }
+    
+    public boolean hasFlights(String airport_code) {
+        Histogram<String> h = this.getFightsPerAirportHistogram(airport_code);
+        if (h != null) {
+            return (h.getSampleCount() > 0);
+        }
+        return (false);
+    }
+    
+    // -----------------------------------------------------------------
+    // FLIGHT DATES
+    // -----------------------------------------------------------------
+
+    /**
+     * The date in which the flight data set begins
+     * @return
+     */
+    public Date getFlightStartDate() {
+        return this.flight_start_date;
+    }
+    /**
+     * 
+     * @param start_date
+     */
+    public void setFlightStartDate(Date start_date) {
+        this.flight_start_date = start_date;
+    }
+
+    /**
+     * The date in which the flight data set begins
+     * @return
+     */
+    public Date getFlightUpcomingDate() {
+        return (this.flight_upcoming_date);
+    }
+    /**
+     * 
+     * @param startDate
+     */
+    public void setFlightUpcomingDate(Date upcoming_date) {
+        this.flight_upcoming_date = upcoming_date;
+    }
+    
+    /**
+     * The date in which upcoming flights begin
+     * @return
+     */
+    public long getFlightPastDays() {
+        return (this.flight_past_days);
+    }
+    /**
+     * 
+     * @param flight_start_date
+     */
+    public void setFlightPastDays(long flight_past_days) {
+        this.flight_past_days = flight_past_days;
+    }
+    
+    /**
+     * The date in which upcoming flights begin
+     * @return
+     */
+    public long getFlightFutureDays() {
+        return (this.flight_future_days);
+    }
+    /**
+     * 
+     * @param flight_start_date
+     */
+    public void setFlightFutureDays(long flight_future_days) {
+        this.flight_future_days = flight_future_days;
+    }
+    
 }
