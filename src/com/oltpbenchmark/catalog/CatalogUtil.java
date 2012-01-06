@@ -107,7 +107,7 @@ public abstract class CatalogUtil {
             LOG.debug("Retrieving INDEX information for " + table_name);
             ResultSet idx_rs = md.getIndexInfo(null, null, table_name, false, false);
             while (idx_rs.next()) {
-                LOG.info(SQLUtil.debug(idx_rs));
+                if (LOG.isDebugEnabled()) LOG.debug(SQLUtil.debug(idx_rs));
                 boolean idx_unique = (idx_rs.getBoolean(4) == false);
                 String idx_name = idx_rs.getString(6);
                 int idx_type = idx_rs.getShort(7);

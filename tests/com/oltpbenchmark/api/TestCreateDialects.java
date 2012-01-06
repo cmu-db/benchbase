@@ -16,9 +16,9 @@ import junit.framework.TestCase;
 
 public class TestCreateDialects extends TestCase {
     
-    static {
-        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
-    }
+//    static {
+//        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
+//    }
     
     private static final String DB_CONNECTION = "jdbc:hsqldb:mem:aname";
     private static Connection DB_CONN;
