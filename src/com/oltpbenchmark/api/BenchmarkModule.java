@@ -92,10 +92,11 @@ public abstract class BenchmarkModule {
      * 
      * @param conn
      *            TODO
+     * @return TODO
      * @throws SQLException
      *             TODO
      */
-    protected abstract void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException;
+    protected abstract Loader makeLoaderImpl(Connection conn) throws SQLException;
 
     /**
      * @param txns
@@ -173,10 +174,8 @@ public abstract class BenchmarkModule {
             conn = this.getConnection();
             conn.setAutoCommit(false);
             
-            Map<String, Table> tables = this.getTables(conn);
-            assert(tables != null);
-           
-            this.loadDatabaseImpl(conn, tables);
+            Loader loader = this.makeLoaderImpl(conn);
+            if (loader != null) loader.load();
 
             conn.commit();
             conn.close();

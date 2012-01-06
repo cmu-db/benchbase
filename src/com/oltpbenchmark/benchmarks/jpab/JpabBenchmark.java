@@ -5,19 +5,21 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.jpab.procedures.BasicTest;
-import com.oltpbenchmark.catalog.Table;
 
 public class JpabBenchmark extends BenchmarkModule{
-	
+    private static final Logger LOG = Logger.getLogger(JpabBenchmark.class);
+    
 	private EntityManagerFactory emf;
 	
 	public JpabBenchmark(WorkloadConfiguration workConf) {
@@ -37,9 +39,9 @@ public class JpabBenchmark extends BenchmarkModule{
 	}
 
 	@Override
-	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables)
-			throws SQLException {
-		System.out.println("No loading phase needed in this Benchmark");
+	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+		LOG.warn("No loading phase needed in this Benchmark");
+		return (null);
 	}
 
 	@Override

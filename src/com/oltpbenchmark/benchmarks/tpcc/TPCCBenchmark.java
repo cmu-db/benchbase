@@ -26,14 +26,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
-import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
@@ -71,9 +70,8 @@ public class TPCCBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
-		TPCCLoader loader = new TPCCLoader(conn, this.workConf, tables);
-		loader.load();
+	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+		return new TPCCLoader(this, conn);
 	}
 
 	protected ArrayList<TPCCWorker> createTerminals() throws SQLException {

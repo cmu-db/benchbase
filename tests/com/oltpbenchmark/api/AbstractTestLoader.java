@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
 
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
@@ -60,9 +61,9 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         
         for (String tableName : this.tables.keySet()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
+            Table catalog_tbl = this.tables.get(tableName);
             
-            String sql = String.format("SELECT COUNT(*) FROM %s", tableName);
-            System.err.println(sql);
+            String sql = SQLUtil.getCountSQL(catalog_tbl);
             Statement stmt = conn.createStatement();
             ResultSet result = stmt.executeQuery(sql);
             assertNotNull(result);

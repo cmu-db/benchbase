@@ -24,15 +24,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
-import com.oltpbenchmark.catalog.Table;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
 
@@ -57,7 +56,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
+	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
 		throw new NotImplementedException();
 	}
 }

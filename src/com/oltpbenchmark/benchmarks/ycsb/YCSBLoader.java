@@ -3,11 +3,9 @@ package com.oltpbenchmark.benchmarks.ycsb;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
@@ -17,9 +15,8 @@ public class YCSBLoader extends Loader{
 
 	private static final Logger LOG = Logger.getLogger(YCSBLoader.class);
 
-	public YCSBLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
-		super(c, workConf, tables);
-		// TODO Auto-generated constructor stub
+	public YCSBLoader(YCSBBenchmark benchmark, Connection c) {
+		super(benchmark, c);
 	}
 
 	@Override

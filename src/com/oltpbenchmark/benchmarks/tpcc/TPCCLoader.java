@@ -93,9 +93,8 @@ import com.oltpbenchmark.catalog.Table;
 
 public class TPCCLoader extends Loader{
 
-	public TPCCLoader(Connection c, WorkloadConfiguration workConf,
-			Map<String, Table> tables) {
-		super(c, workConf, tables);
+	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
+		super(benchmark, c);
 		conn = c;
         numWarehouses = (int)Math.round(configWhseCount * this.scaleFactor);
         outputFiles= false;
@@ -715,71 +714,6 @@ public class TPCCLoader extends Loader{
 	private static long lastTimeMS = 0;
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
-
-	public static void main(String[] args) throws Exception {
-
-		// #################### INITIALIZATION
-		// #####################################
-
-		System.out
-				.println("----------------- Initialization -------------------");
-
-		numWarehouses = configWhseCount;
-		for (int i = 0; i < args.length; i++) {
-			System.out.println(args[i]);
-			String str = args[i];
-			if (str.toLowerCase().startsWith("numwarehouses")) {
-				String val = args[i + 1];
-				System.out.println("Setting the number of warehouses to: "
-						+ val);
-				numWarehouses = Integer.parseInt(val);
-			}
-
-			if (str.toLowerCase().startsWith("filelocation")) {
-				fileLocation = args[i + 1];
-				System.out.println("Setting the output file location to: "
-						+ fileLocation);
-				outputFiles = true;
-			}
-		}
-		//load(numWarehouses, outputFiles);
-		// load the ini file
-		String propsPath = System.getProperty("prop", "");
-		Properties ini;
-		if (propsPath.equals("")) {
-			ini = System.getProperties();
-		} else {
-			ini = new Properties();
-			ini.load(new FileInputStream(System.getProperty("prop")));
-		}
-
-		// display the values we need
-		System.out.println("driver=" + ini.getProperty("driver"));
-		System.out.println("conn=" + ini.getProperty("conn"));
-		System.out.println("user=" + ini.getProperty("user"));
-		System.out.println("password=******");
-
-		// Register jdbcDriver
-		Class.forName(ini.getProperty("driver"));
-
-		// make connection
-		conn = DriverManager.getConnection(ini.getProperty("conn"),
-				ini.getProperty("user"), ini.getProperty("password"));
-		conn.setAutoCommit(false);
-		fastLoad = ini.getProperty("fastLoad", "").equals("true");
-		fastLoaderBaseDir= ini.getProperty("fastLoaderBaseDir", "");
-		TPCCLoader l=new TPCCLoader(null, null, null);
-		l.load();
-		// exit Cleanly
-		try {
-			if (outputFiles == false) {
-				if (conn != null)
-					conn.close();
-			}
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} // end try
-	} // end main
 
 	static void transRollback() {
 		if (outputFiles == false) {

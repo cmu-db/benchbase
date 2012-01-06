@@ -75,7 +75,6 @@ import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerIdIterable;
@@ -138,13 +137,13 @@ public class SEATSLoader extends Loader {
     // INITIALIZATION
     // -----------------------------------------------------------------
     
-    public SEATSLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
-    	super(c, workConf, tables);
+    public SEATSLoader(SEATSBenchmark benchmark, Connection c) {
+    	super(benchmark, c);
     	
     	// The path to the SEATS data directory must be in the workConf
-    	File data_dir = new File(workConf.getXmlConfig().getString("datadir",null));
+    	File data_dir = new File(workConf.getXmlConfig().getString("datadir", null));
     	RandomGenerator rand = new RandomGenerator(0); // TODO: We should put this in the BenchmarkModule
-    	this.profile = new SEATSProfile(c, data_dir, rand, tables);
+    	this.profile = new SEATSProfile(c, data_dir, rand, this.tables);
 
     	this.airline_data_dir = null; // TODO
     	this.rng = new RandomGenerator(0); // TODO: Sync with the base class rng
@@ -158,6 +157,8 @@ public class SEATSLoader extends Loader {
     
     @Override
     public void load() {
+        System.err.println("???");
+        
         if (LOG.isDebugEnabled()) LOG.debug("Begin to load tables...");
         
         // Load Histograms

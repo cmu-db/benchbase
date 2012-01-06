@@ -5,11 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
@@ -26,8 +24,8 @@ public class TwitterLoader extends Loader {
     private final long num_tweets;
     private final int num_follows;
 
-    public TwitterLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
-        super(c, workConf, tables);
+    public TwitterLoader(TwitterBenchmark benchmark, Connection c) {
+        super(benchmark, c);
         this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
         this.num_tweets = (int)Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
         this.num_follows = (int)Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);

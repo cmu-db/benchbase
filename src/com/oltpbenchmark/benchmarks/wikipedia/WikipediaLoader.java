@@ -9,12 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
@@ -41,9 +39,8 @@ public class WikipediaLoader extends Loader{
 	
 	public List<String> titles=new ArrayList<String>();
 	
-	public WikipediaLoader(Connection c, WorkloadConfiguration workConf,
-			Map<String, Table> tables) {
-		super(c, workConf, tables);
+	public WikipediaLoader(WikipediaBenchmark benchmark, Connection c) {
+		super(benchmark, c);
         this.num_users = (int)Math.round(WikipediaConstants.USERS * this.scaleFactor);
         this.num_pages = (int)Math.round(WikipediaConstants.PAGES * this.scaleFactor);
         this.num_revisions= (int)Math.round(WikipediaConstants.REVISIONS * WikipediaConstants.PAGES * this.scaleFactor);

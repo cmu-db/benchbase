@@ -30,6 +30,7 @@ import java.util.Map;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 import com.oltpbenchmark.catalog.Table;
@@ -92,9 +93,8 @@ public class EpinionsBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected void loadDatabaseImpl(Connection conn, Map<String, Table> tables) throws SQLException {
-		EpinionsLoader loader = new EpinionsLoader(conn, this.workConf, tables);
-		loader.load();
+	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+		return new EpinionsLoader(this, conn);
 	}
 
 }

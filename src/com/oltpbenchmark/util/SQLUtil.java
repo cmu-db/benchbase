@@ -77,20 +77,38 @@ public abstract class SQLUtil {
     public static boolean needsColumnSize(int sqlType) {
         return isStringType(sqlType);
     }
+    
+    /**
+     * Return the COUNT(*) SQL to calculate the number of records
+     * @param table
+     * @return SQL for select count execution
+     */
+    public static String getCountSQL(Table catalog_tbl) {
+        return SQLUtil.getCountSQL(catalog_tbl, "*");
+    }
 
     /**
-     * Calculate the number of records
-     * Takes column name or "*"
+     * Return the COUNT() SQL to calculate the number of records.
+     * Will use the col parameter as the column that is counted
+     * @param table
      * @param col
      * @return SQL for select count execution
      */
     public static String getCountSQL(Table catalog_tbl, String col) {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select count( ").append(col).append(")");	
-    	sb.append("from ").append(catalog_tbl.getName()).append(";");    	
-    	return (sb.toString());
+        return String.format("SELECT COUNT(%s) FROM %s",
+                             col, catalog_tbl.getEscapedName());
     }
 
+
+    /**
+     * Automatically generate the 'INSERT' SQL string to insert
+     * one record into this table
+     * @return
+     */
+    public static String getInsertSQL(Table catalog_tbl) {
+        return getInsertSQL(catalog_tbl, 1);
+    }
+    
     /**
      * Automatically generate the 'INSERT' SQL string for this table
      * The batchSize parameter specifies the number of sets of parameters
@@ -125,14 +143,4 @@ public abstract class SQLUtil {
     	
     	return (sb.toString());
     }
-
-    /**
-     * Automatically generate the 'INSERT' SQL string to insert
-     * one record into this table
-     * @return
-     */
-    public static String getInsertSQL(Table catalog_tbl) {
-    	return getInsertSQL(catalog_tbl, 1);
-    }
-    
 }

@@ -29,9 +29,10 @@ import com.oltpbenchmark.catalog.Table;
 
 public abstract class Loader {
 
+    protected final BenchmarkModule benchmark;
     protected final Connection conn;
     protected final WorkloadConfiguration workConf;
-    private final Map<String, Table> tables;
+    protected final Map<String, Table> tables;
     protected final double scaleFactor;
     
     /**
@@ -41,10 +42,11 @@ public abstract class Loader {
      */
     private final Random rand = new Random();
     
-    public Loader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
-    	this.conn = c;
-    	this.workConf = workConf;
-    	this.tables = tables;
+    public Loader(BenchmarkModule benchmark, Connection conn) {
+        this.benchmark = benchmark;
+    	this.conn = conn;
+    	this.workConf = benchmark.getWorkloadConfiguration();
+    	this.tables = benchmark.getTables(this.conn);
     	this.scaleFactor = workConf.getScaleFactor();
     }
     

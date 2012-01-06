@@ -54,11 +54,9 @@ package com.oltpbenchmark.benchmarks.tatp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.*;
 import com.oltpbenchmark.util.SQLUtil;
@@ -70,8 +68,8 @@ public class TATPLoader extends Loader {
     private final int batchSize = 10000; // FIXME
     private final boolean blocking = true; // FIXME
     
-    public TATPLoader(Connection c, WorkloadConfiguration workConf, Map<String, Table> tables) {
-    	super(c, workConf, tables);
+    public TATPLoader(TATPBenchmark benchmark, Connection c) {
+    	super(benchmark, c);
     	this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * this.scaleFactor);
         if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
     }
