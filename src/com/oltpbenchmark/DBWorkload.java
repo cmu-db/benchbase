@@ -22,6 +22,7 @@ package com.oltpbenchmark;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -256,11 +257,11 @@ public class DBWorkload {
                         .getOptionValue("s"));
                 EXEC_LOG.info("Grouped into Buckets of "+ windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
-            } else
-            {
-            	EXEC_LOG.info("Raw");
-                r.writeAllCSVAbsoluteTiming(ps);
             }
+            
+            EXEC_LOG.info("Raw");
+            PrintStream rs = new PrintStream(new File("raw_"+getFileNameSuffix()+".txt"));
+            r.writeAllCSVAbsoluteTiming(rs);
             ps.close();
 	    } else {
 	    	EXEC_LOG.info("Skipping benchmark workload execution");
@@ -310,5 +311,10 @@ public class DBWorkload {
 			return (val != null ? val.equalsIgnoreCase("true") : false);
 		}
 		return (false);
+	}
+	
+	private static String getFileNameSuffix() {
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+	    return dateFormat.format(new java.util.Date());
 	}
 }
