@@ -28,6 +28,10 @@
 package com.oltpbenchmark.util;
 
 import org.junit.Test;
+
+import com.oltpbenchmark.util.json.JSONObject;
+
+import java.lang.reflect.Field;
 import java.util.*;
 
 import junit.framework.TestCase;
@@ -43,17 +47,17 @@ public class TestHistogram extends TestCase {
     public static final int RANGE = 20;
     public static final double SKEW_FACTOR = 4.0;
     
-    private Histogram<Long> h = new Histogram<Long>();
+    private Histogram<Integer> h = new Histogram<Integer>();
     private Random rand = new Random(1);
     
     protected void setUp() throws Exception {
         // Cluster a bunch in the center
         int min = RANGE / 3;
         for (int i = 0; i < NUM_SAMPLES; i++) {
-            h.put((long)(rand.nextInt(min) + min));
+            h.put((rand.nextInt(min) + min));
         }
         for (int i = 0; i < NUM_SAMPLES; i++) {
-            h.put((long)(rand.nextInt(RANGE)));
+            h.put((rand.nextInt(RANGE)));
         }
     }
     
@@ -115,21 +119,21 @@ public class TestHistogram extends TestCase {
      * testMaxCountValues
      */
     public void testMaxCountValues() throws Exception {
-        long expected = -1981;
+        int expected = -1981;
         int count = 1000;
         for (int i = 0; i < count; i++) {
             h.put(expected);
         } // FOR
-        Set<Long> max_values = h.getMaxCountValues();
+        Set<Integer> max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(1, max_values.size());
         
-        Long max_value = CollectionUtil.first(max_values);
+        Integer max_value = CollectionUtil.first(max_values);
         assertNotNull(max_value);
-        assertEquals(expected, max_value.longValue());
+        assertEquals(expected, max_value.intValue());
         
         // Test whether we can get both in a set
-        long expected2 = -99999;
+        int expected2 = -99999;
         for (int i = 0; i < count; i++) {
             h.put(expected2);
         } // FOR
@@ -155,8 +159,8 @@ public class TestHistogram extends TestCase {
         assertEquals(keys.size(), h.values().size());
         assertEquals(0, h.getSampleCount());
         for (Object o : keys) {
-            Long k = (Long)o;
-            assertEquals(new Long(0), h.get(k));
+            Integer k = (Integer)o;
+            assertEquals(0, h.get(k).intValue());
         } // FOR
 
         // Now make sure they get wiped out
@@ -166,7 +170,7 @@ public class TestHistogram extends TestCase {
         assertEquals(0, h.values().size());
         assertEquals(0, h.getSampleCount());
         for (Object o : keys) {
-            Long k = (Long)o;
+            Integer k = (Integer)o;
             assertNull(h.get(k));
         } // FOR
     }
@@ -176,21 +180,21 @@ public class TestHistogram extends TestCase {
      */
     @Test
     public void testZeroEntries() {
-        Set<Long> attempted = new HashSet<Long>();
+        Set<Integer> attempted = new HashSet<Integer>();
         
         // First try to add a bunch of zero entries and make sure that they aren't included
         // in the list of values stored in the histogram
         h.setKeepZeroEntries(false);
         assertFalse(h.isZeroEntriesEnabled());
         for (int i = 0; i < NUM_SAMPLES; i++) {
-            long key = 0;
+            int key = 0;
             do {
                 key = rand.nextInt();
             } while (h.contains(key) || attempted.contains(key));
             h.put(key, 0);
             attempted.add(key);
         } // FOR
-        for (Long key : attempted) {
+        for (Integer key : attempted) {
             assertFalse(h.contains(key));
             assertNull(h.get(key));
         } // FOR
@@ -198,7 +202,7 @@ public class TestHistogram extends TestCase {
         // Now enable zero entries and make sure that our entries make it in there
         h.setKeepZeroEntries(true);
         assert(h.isZeroEntriesEnabled());
-        for (Long key : attempted) {
+        for (Integer key : attempted) {
             h.put(key, 0);
             assert(h.contains(key));
             assertEquals(0, h.get(key).longValue());
@@ -207,7 +211,7 @@ public class TestHistogram extends TestCase {
         // Disable zero entries again and make sure that our entries from the last step are removed
         h.setKeepZeroEntries(false);
         assertFalse(h.isZeroEntriesEnabled());
-        for (Long key : attempted) {
+        for (Integer key : attempted) {
             assertFalse(h.contains(key));
             assertNull(h.get(key));
         } // FOR
@@ -237,4 +241,46 @@ public class TestHistogram extends TestCase {
             assertEquals(expected, cnt);
         } // FOR
     }
+    
+    /**
+     * testToJSONString
+     */
+    public void testToJSONString() throws Exception {
+        String json = h.toJSONString();
+        assertNotNull(json);
+        for (Histogram.Members element : Histogram.Members.values()) {
+            if (element == Histogram.Members.KEEP_ZERO_ENTRIES) continue;
+            assertTrue(json.indexOf(element.name()) != -1);
+        } // FOR
+    }
+    
+    /**
+     * testFromJSON
+     */
+//    public void testFromJSON() throws Exception {
+//        String json = h.toJSONString();
+//        assertNotNull(json);
+//        JSONObject jsonObject = new JSONObject(json);
+//        
+//        Histogram<Integer> copy = new Histogram<Integer>();
+//        copy.fromJSON(jsonObject);
+//        assertEquals(h.getValueCount(), copy.getValueCount());
+//        for (Histogram.Members element : Histogram.Members.values()) {
+//            String field_name = element.toString().toLowerCase();
+//            Field field = Histogram.class.getDeclaredField(field_name);
+//            assertNotNull(field);
+//            
+//            Object orig_value = field.get(h);
+//            Object copy_value = field.get(copy);
+//            
+//            if (element == Histogram.Members.HISTOGRAM) {
+//                for (Integer value : h.values()) {
+//                    assertNotNull(value);
+//                    assertEquals(h.get(value), copy.get(value));
+//                } // FOR
+//            } else {
+//                assertEquals(orig_value.toString(), copy_value.toString());
+//            }
+//        } // FOR
+//    }
 }

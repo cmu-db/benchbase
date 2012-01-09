@@ -46,6 +46,7 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.RandomGenerator;
+import com.oltpbenchmark.util.StringUtil;
 
 public class SEATSProfile {
     private static final Logger LOG = Logger.getLogger(SEATSProfile.class);
@@ -135,7 +136,7 @@ public class SEATSProfile {
     /**
      * Data Directory
      */
-    private transient final File airline_data_dir;
+    protected transient final File airline_data_dir;
     
     /**
      * Specialized random number generator
@@ -387,7 +388,7 @@ public class SEATSProfile {
     private Map<String, Long> getCodeXref(String col_name) {
         Map<String, Long> m = this.code_id_xref.get(col_name);
         assert(m != null) : "Invalid code xref mapping column '" + col_name + "'";
-        assert(m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'";
+        assert(m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'\n" + StringUtil.formatMaps(this.code_id_xref); 
         return (m);
     }
     

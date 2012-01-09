@@ -126,11 +126,6 @@ public class SEATSLoader extends Loader {
      */
     private final transient AtomicInteger finished = new AtomicInteger(0);
 
-    /**
-     * Data Directory
-     * */
-    private transient final File airline_data_dir;
-    
     private final RandomGenerator rng;
     
     // -----------------------------------------------------------------
@@ -140,12 +135,9 @@ public class SEATSLoader extends Loader {
     public SEATSLoader(SEATSBenchmark benchmark, Connection c) {
     	super(benchmark, c);
     	
-    	// The path to the SEATS data directory must be in the workConf
-    	File data_dir = new File(workConf.getXmlConfig().getString("datadir", null));
+    	File data_dir = benchmark.getDataDir();
     	RandomGenerator rand = new RandomGenerator(0); // TODO: We should put this in the BenchmarkModule
     	this.profile = new SEATSProfile(c, data_dir, rand, this.tables);
-
-    	this.airline_data_dir = null; // TODO
     	this.rng = new RandomGenerator(0); // TODO: Sync with the base class rng
     	
     	if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + SEATSLoader.class.getName());
@@ -185,7 +177,7 @@ public class SEATSLoader extends Loader {
      */
     protected void loadHistograms() {
         if (LOG.isDebugEnabled()) LOG.debug(String.format("Loading in %d histograms from files stored in '%s'",
-                                                 SEATSConstants.HISTOGRAM_DATA_FILES.length, this.airline_data_dir));
+                                                 SEATSConstants.HISTOGRAM_DATA_FILES.length, profile.airline_data_dir));
         
         // Now load in the histograms that we will need for generating the flight data
         for (String histogramName : SEATSConstants.HISTOGRAM_DATA_FILES) {
@@ -200,7 +192,7 @@ public class SEATSLoader extends Loader {
                 // The Flights_Per_Airport histogram is actually a serialized map that has a histogram
                 // of the departing flights from each airport to all the others
                 if (histogramName.equals(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT)) {
-                    Map<String, Histogram<String>> m = SEATSHistogramUtil.loadAirportFlights(airline_data_dir);
+                    Map<String, Histogram<String>> m = SEATSHistogramUtil.loadAirportFlights(profile.airline_data_dir);
                     assert(m != null);
                     if (LOG.isDebugEnabled()) LOG.debug(String.format("Loaded %d airport flight histograms", m.size()));
                     
@@ -217,7 +209,7 @@ public class SEATSLoader extends Loader {
                     
                 // All other histograms are just serialized and can be loaded directly
                 } else {
-                    hist = SEATSHistogramUtil.loadHistogram(histogramName, this.airline_data_dir, true);
+                    hist = SEATSHistogramUtil.loadHistogram(histogramName, profile.airline_data_dir, true);
                 }
             } catch (Exception ex) {
                 throw new RuntimeException("Failed to load histogram '" + histogramName + "'", ex);
@@ -237,6 +229,7 @@ public class SEATSLoader extends Loader {
      */
     protected void loadFixedTables() {
         for (String table_name : SEATSConstants.TABLE_DATA_FILES) {
+            LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
             try {    
                 Table catalog_tbl = this.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
@@ -407,7 +400,7 @@ public class SEATSLoader extends Loader {
      * @throws Exception
      */
     protected Iterable<Object[]> getFixedIterable(Table catalog_tbl) throws Exception {
-        File f = new File(this.airline_data_dir.getAbsolutePath() + File.separator + "table." + catalog_tbl.getName().toLowerCase() + ".csv");
+        File f = new File(profile.airline_data_dir.getAbsolutePath() + File.separator + "table." + catalog_tbl.getName().toLowerCase() + ".csv");
         if (f.exists() == false) f = new File(f.getAbsolutePath() + ".gz");
         TableDataIterable iterable = new FixedDataIterable(catalog_tbl, f);
         return (iterable);

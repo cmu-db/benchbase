@@ -27,7 +27,9 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.seats;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,6 +45,14 @@ public class SEATSBenchmark extends BenchmarkModule {
 
 	public SEATSBenchmark(WorkloadConfiguration workConf) {
 		super("seats", workConf);
+	}
+	
+	public File getDataDir() {
+	    URL url = SEATSBenchmark.class.getResource("data");
+	    if (url != null) {
+	        return new File(url.getPath());
+	    }
+	    return (null);
 	}
 	
 	@Override

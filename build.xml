@@ -41,12 +41,14 @@
             <classpath refid="project.classpath" />
         </javac>
         
-        <!-- Copy SQL DDL Files -->
+        <!-- Copy Files -->
         <copy todir="${build.dir}">
             <fileset dir="${src.dir}">
                 <include name="**/*-ddl.sql"/>
                 <include name="**/*-dialects.xml"/>
                 <include name="**/*.xsd"/>
+                <include name="**/histogram.*.gz"/>
+                <include name="**/table.*.gz"/>
             </fileset>
         </copy>
         

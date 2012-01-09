@@ -19,6 +19,8 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.seats;
 
+import java.io.File;
+
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.seats.procedures.*;
 
@@ -37,6 +39,16 @@ public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchma
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp(SEATSBenchmark.class, PROC_CLASSES);
+	}
+	
+	/**
+	 * testGetDataDir
+	 */
+	public void testGetDataDir() throws Exception {
+	    File data_dir = this.benchmark.getDataDir();
+	    System.err.println("Data Dir: " + data_dir);
+	    assertNotNull(data_dir);
+	    assertTrue(data_dir.exists());
 	}
 
 }

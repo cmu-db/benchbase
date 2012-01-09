@@ -28,24 +28,33 @@
 package com.oltpbenchmark.util;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+
+import com.oltpbenchmark.util.json.*;
 
 /**
  * A very nice and simple generic Histogram
  * @author svelagap
  * @author pavlo
  */
-public class Histogram<X> { // implements JSONSerializable {
+public class Histogram<X> implements JSONSerializable {
     private static final Logger LOG = Logger.getLogger(Histogram.class);
     
     private static final String MARKER = "*";
     private static final Integer MAX_CHARS = 80;
     private static final Integer MAX_VALUE_LENGTH = 20;
 
-    protected final SortedMap<X, Long> histogram = new TreeMap<X, Long>();
+    public enum Members {
+        HISTOGRAM,
+        NUM_SAMPLES,
+        KEEP_ZERO_ENTRIES,
+    }
+    
+    public final SortedMap<X, Long> histogram = new TreeMap<X, Long>();
     protected long num_samples = 0;
     
     /**
@@ -216,6 +225,21 @@ public class Histogram<X> { // implements JSONSerializable {
         } // FOR
     }
     
+    /**
+     * Recalculate the min/max values
+     */
+    @SuppressWarnings("unchecked")
+    private synchronized void calculateInternalMinMaxKeys() {
+        this.min_value = null;
+        this.max_value = null;
+        for (X value : this.histogram.keySet()) {
+            if (this.min_value == null || this.min_value.compareTo(value) > 0) {
+                this.min_value = (Comparable<X>)value;
+            } else if (this.max_value == null || this.max_value.compareTo(value) < 0) {
+                this.max_value = (Comparable<X>)value;
+            }
+        } // FOR
+    }
     
     /**
      * Get the number of samples entered into the histogram using the put methods
@@ -633,98 +657,84 @@ public class Histogram<X> { // implements JSONSerializable {
     // SERIALIZATION METHODS
     // ----------------------------------------------------------------------------
 
-//    @Override
+    @Override
     public void load(String input_path) throws IOException {
-        // JSONUtil.load(this, catalog_db, input_path);
+         JSONUtil.load(this, input_path);
     }
-//    
-//    @Override
-//    public void save(String output_path) throws IOException {
-//        JSONUtil.save(this, output_path);
-//    }
-//    
-//    @Override
-//    public String toJSONString() {
-//        return (JSONUtil.toJSONString(this));
-//    }
-//    
-//    @Override
-//    public void toJSON(JSONStringer stringer) throws JSONException {
-//        for (Members element : Histogram.Members.values()) {
-//            try {
-//                Field field = Histogram.class.getDeclaredField(element.toString().toLowerCase());
-//                if (element == Members.HISTOGRAM) {
-//                    stringer.key(Members.HISTOGRAM.name()).object();
-//                    for (Object value : this.histogram.keySet()) {
-//                        stringer.key(value.toString()).value(this.histogram.get(value));
-//                    } // FOR
-//                    stringer.endObject();
-//                } else if (element == Members.KEEP_ZERO_ENTRIES) {
-//                    if (this.keep_zero_entries) stringer.key(element.name()).value(this.keep_zero_entries);
-////                } else if (element == Members.MAX_COUNT_VALUE || element == Members.MIN_COUNT_VALUE) {
-////                    stringer.key(element.name()).array();
-////                    for (Object o : (Set<Object>)field.get(this)) {
-////                        stringer.value(o);
-////                    } // FOR
-////                    stringer.endArray();
-//                } else {
-//                    stringer.key(element.name()).value(field.get(this));
-//                }
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//                System.exit(1);
-//            }
-//        } // FOR
-//    }
-//    
-//    @SuppressWarnings("unchecked")
-//    @Override
-//    public void fromJSON(JSONObject object, Database catalog_db) throws JSONException {
-//        this.value_type = VoltType.typeFromString(object.get(Members.VALUE_TYPE.name()).toString());
-//        assert(this.value_type != null);
-//        
-//        if (object.has(Members.KEEP_ZERO_ENTRIES.name())) {
-//            this.setKeepZeroEntries(object.getBoolean(Members.KEEP_ZERO_ENTRIES.name()));
-//        }
-//
-//        // This code sucks ass...
-//        for (Members element : Histogram.Members.values()) {
-//            if (element == Members.VALUE_TYPE || element == Members.KEEP_ZERO_ENTRIES) continue;
-//            try {
-//                String field_name = element.toString().toLowerCase();
-//                Field field = Histogram.class.getDeclaredField(field_name);
-//                if (element == Members.HISTOGRAM) {
-//                    JSONObject jsonObject = object.getJSONObject(Members.HISTOGRAM.name());
-//                    Iterator<String> keys = jsonObject.keys();
-//                    while (keys.hasNext()) {
-//                        String key_name = keys.next();
-//                        Object key_value = VoltTypeUtil.getObjectFromString(this.value_type, key_name);
-//                        Long count = jsonObject.getLong(key_name);
-//                        this.histogram.put((X)key_value, count);
-//                    } // WHILE
-//                } else if (field_name.endsWith("_count_value")) {
-//                    Set<Object> set = (Set<Object>)field.get(this);
-//                    JSONArray arr = object.getJSONArray(element.name());
-//                    for (int i = 0, cnt = arr.length(); i < cnt; i++) {
-//                        Object val = VoltTypeUtil.getObjectFromString(this.value_type, arr.getString(i));
-//                        set.add(val);
-//                    } // FOR
-//                } else if (field_name.endsWith("_value")) {
-//                    if (object.isNull(element.name())) {
-//                        field.set(this, null);
-//                    } else {
-//                        Object value = object.get(element.name());
-//                        field.set(this, VoltTypeUtil.getObjectFromString(this.value_type, value.toString()));
-//                    }
-//                } else {
-//                    field.set(this, object.getLong(element.name()));
-//                }
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//                System.exit(1);
-//            }
-//        } // FOR
-//        
-//        this.calculateInternalValues();
-//    }
+    
+    @Override
+    public void save(String output_path) throws IOException {
+        JSONUtil.save(this, output_path);
+    }
+    
+    @Override
+    public String toJSONString() {
+        return (JSONUtil.toJSONString(this));
+    }
+    
+    @Override
+    public void toJSON(JSONStringer stringer) throws JSONException {
+        for (Members element : Histogram.Members.values()) {
+            try {
+                Field field = Histogram.class.getDeclaredField(element.toString().toLowerCase());
+                if (element == Members.HISTOGRAM) {
+                    stringer.key(Members.HISTOGRAM.name()).object();
+                    for (Object value : this.histogram.keySet()) {
+                        stringer.key(value.toString()).value(this.histogram.get(value));
+                    } // FOR
+                    stringer.endObject();
+                } else if (element == Members.KEEP_ZERO_ENTRIES) {
+                    if (this.keep_zero_entries) stringer.key(element.name()).value(this.keep_zero_entries);
+                } else {
+                    stringer.key(element.name()).value(field.get(this));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.exit(1);
+            }
+        } // FOR
+    }
+    
+    @Override
+    public void fromJSON(JSONObject object) throws JSONException {
+        if (object.has(Members.KEEP_ZERO_ENTRIES.name())) {
+            this.setKeepZeroEntries(object.getBoolean(Members.KEEP_ZERO_ENTRIES.name()));
+        }
+        
+        // This code sucks ass...
+        for (Members element : Histogram.Members.values()) {
+            if (element == Members.KEEP_ZERO_ENTRIES) continue;
+            try {
+                String field_name = element.toString().toLowerCase();
+                Field field = Histogram.class.getDeclaredField(field_name);
+                if (element == Members.HISTOGRAM) {
+                    JSONObject jsonObject = object.getJSONObject(Members.HISTOGRAM.name());
+                    Iterator<String> keys = jsonObject.keys();
+                    Class<?> key_class = null;
+                    while (keys.hasNext()) {
+                        String key_name = keys.next();
+                        
+                        // HACK: If this is the first key in this hack job,
+                        //       hackishly try to figure out what key it is..,
+                        if (key_class == null) {
+                            key_class = JSONUtil.getPrimitiveType(key_name);
+                        }
+                        
+                        @SuppressWarnings("unchecked")
+                        X key_value = (X)JSONUtil.getPrimitiveValue(key_name, key_class);
+                        Long count = jsonObject.getLong(key_name);
+                        this.histogram.put(key_value, count);
+                    } // WHILE
+                } else {
+                    field.set(this, object.getLong(element.name()));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.exit(1);
+            }
+        } // FOR
+        
+        this.calculateInternalMinMaxKeys();
+        this.calculateInternalValues();
+    }
 }

@@ -19,9 +19,7 @@
  ******************************************************************************/
 package com.oltpbenchmark.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -75,8 +73,7 @@ public class TableDataIterable implements Iterable<Object[]> {
             this.nullable[i] = catalog_col.isNullable();
         } // FOR
         
-        BufferedReader in = new BufferedReader(new FileReader(this.table_file));
-        this.reader = new CSVReader(in);
+        this.reader = new CSVReader(FileUtil.getReader(this.table_file));
         
         // Throw away the first row if there is a header
         if (has_header) {

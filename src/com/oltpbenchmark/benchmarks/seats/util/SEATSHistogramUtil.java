@@ -112,34 +112,8 @@ public abstract class SEATSHistogramUtil {
             histogram.load(file.getAbsolutePath());
             cached_Histograms.put(file, histogram);
         }
-        
-//        BufferedReader reader = FileUtil.getReader(file);
-//        boolean first = true;
-//        int ctr = -1;
-//        while (reader.ready()) {
-//            ctr++;
-//            String line = reader.readLine();
-//            if (first && has_header) {
-//                first = false;
-//                continue;
-//            }
-//            if (line.isEmpty()) continue;
-//            
-//            String data[] = p.split(line);
-//            if (data.length != 2) {
-//                LOG.warn("Unexpected data on line " + ctr + " in '" + name + "'");
-//            } else {
-//                try {
-//                    String key = data[0];
-//                    Integer value = Integer.valueOf(data[1].trim());
-//                    histogram.put(key, value);
-//                } catch (Exception ex) {
-//                    throw new Exception(String.format("Failed to parse data on line %d in '%s'", ctr, name), ex);
-//                }
-//            }
-//        } // WHILE
-        
-        if (LOG.isDebugEnabled()) LOG.debug(String.format("Histogram %s\n%s", name, histogram.toString()));
+//        if (LOG.isDebugEnabled()) 
+            LOG.info(String.format("Histogram %s\n%s", name, histogram.toString()));
         
         return (histogram);
     }
