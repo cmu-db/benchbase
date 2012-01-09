@@ -41,6 +41,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.QueueLimitException;
 
@@ -127,6 +128,7 @@ public class DBWorkload {
 			INIT_LOG.info("Configuration file: "+ configFile);
 			xmlConfig = new XMLConfiguration(configFile);
 			wrkld.setXmlConfig(xmlConfig);
+			wrkld.setDBType(DatabaseType.get(xmlConfig.getString("dbtype")));
 			wrkld.setDBDriver(xmlConfig.getString("driver"));
 			wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
 			wrkld.setDBName(xmlConfig.getString("DBName"));
@@ -136,9 +138,10 @@ public class DBWorkload {
 			wrkld.setIsolationMode(xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE"));
 			wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor",1.0));
 			
+			INIT_LOG.info("DB Type = "+ wrkld.getDBType());   
     		INIT_LOG.info("Driver = "+ wrkld.getDBDriver());
-    		INIT_LOG.info("DB = "+ wrkld.getDBConnection());
-    		INIT_LOG.info("Isolation mode = "+ xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE [DEFAULT]"));		
+    		INIT_LOG.info("URL = "+ wrkld.getDBConnection());
+    		INIT_LOG.info("Isolation mode = "+ xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE [DEFAULT]"));
 			int size = xmlConfig.configurationsAt("works.work").size();
 			for (int i = 0; i < size; i++){
 			
