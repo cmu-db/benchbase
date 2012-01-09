@@ -37,11 +37,8 @@ import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
 
-	private final TPCCConfiguration tpccConf;
-
 	public TPCCBenchmark(WorkloadConfiguration workConf) {
 		super("tpcc", workConf);
-		this.tpccConf = new TPCCConfiguration(workConf);
 	}
 
 	@Override
@@ -78,7 +75,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
 
-		int numWarehouses = tpccConf.getNumWarehouses();
+		int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
 		int numTerminals = workConf.getTerminals();
 		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses);
 
