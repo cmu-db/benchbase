@@ -257,30 +257,32 @@ public class TestHistogram extends TestCase {
     /**
      * testFromJSON
      */
-//    public void testFromJSON() throws Exception {
-//        String json = h.toJSONString();
-//        assertNotNull(json);
-//        JSONObject jsonObject = new JSONObject(json);
-//        
-//        Histogram<Integer> copy = new Histogram<Integer>();
-//        copy.fromJSON(jsonObject);
-//        assertEquals(h.getValueCount(), copy.getValueCount());
-//        for (Histogram.Members element : Histogram.Members.values()) {
-//            String field_name = element.toString().toLowerCase();
-//            Field field = Histogram.class.getDeclaredField(field_name);
-//            assertNotNull(field);
-//            
-//            Object orig_value = field.get(h);
-//            Object copy_value = field.get(copy);
-//            
-//            if (element == Histogram.Members.HISTOGRAM) {
-//                for (Integer value : h.values()) {
-//                    assertNotNull(value);
-//                    assertEquals(h.get(value), copy.get(value));
-//                } // FOR
-//            } else {
-//                assertEquals(orig_value.toString(), copy_value.toString());
-//            }
-//        } // FOR
-//    }
+    public void testFromJSON() throws Exception {
+        String json = h.toJSONString();
+        assertNotNull(json);
+        JSONObject jsonObject = new JSONObject(json);
+        System.err.println(jsonObject.toString(1));
+        
+        Histogram<Integer> copy = new Histogram<Integer>();
+        copy.fromJSON(jsonObject);
+        assertEquals(h.getValueCount(), copy.getValueCount());
+        for (Histogram.Members element : Histogram.Members.values()) {
+            if (element == Histogram.Members.VALUE_TYPE) continue;
+            String field_name = element.toString().toLowerCase();
+            Field field = Histogram.class.getDeclaredField(field_name);
+            assertNotNull(field);
+            
+            Object orig_value = field.get(h);
+            Object copy_value = field.get(copy);
+            
+            if (element == Histogram.Members.HISTOGRAM) {
+                for (Integer value : h.values()) {
+                    assertNotNull(value);
+                    assertEquals(h.get(value), copy.get(value));
+                } // FOR
+            } else {
+                assertEquals(orig_value.toString(), copy_value.toString());
+            }
+        } // FOR
+    }
 }

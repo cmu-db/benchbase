@@ -49,6 +49,7 @@ public class Histogram<X> implements JSONSerializable {
     private static final Integer MAX_VALUE_LENGTH = 20;
 
     public enum Members {
+        VALUE_TYPE,
         HISTOGRAM,
         NUM_SAMPLES,
         KEEP_ZERO_ENTRIES,
@@ -674,12 +675,15 @@ public class Histogram<X> implements JSONSerializable {
     
     @Override
     public void toJSON(JSONStringer stringer) throws JSONException {
+        Class<?> value_type = null;
         for (Members element : Histogram.Members.values()) {
+            if (element == Histogram.Members.VALUE_TYPE) continue;
             try {
                 Field field = Histogram.class.getDeclaredField(element.toString().toLowerCase());
                 if (element == Members.HISTOGRAM) {
                     stringer.key(Members.HISTOGRAM.name()).object();
                     for (Object value : this.histogram.keySet()) {
+                        if (value != null && value_type == null) value_type = value.getClass();
                         stringer.key(value.toString()).value(this.histogram.get(value));
                     } // FOR
                     stringer.endObject();
@@ -693,6 +697,9 @@ public class Histogram<X> implements JSONSerializable {
                 System.exit(1);
             }
         } // FOR
+        if (value_type != null) {
+            stringer.key(Histogram.Members.VALUE_TYPE.name()).value(value_type.getCanonicalName());
+        }
     }
     
     @Override
@@ -700,28 +707,26 @@ public class Histogram<X> implements JSONSerializable {
         if (object.has(Members.KEEP_ZERO_ENTRIES.name())) {
             this.setKeepZeroEntries(object.getBoolean(Members.KEEP_ZERO_ENTRIES.name()));
         }
+        Class<?> value_type = null;
+        if (object.has(Members.VALUE_TYPE.name())) {
+            String className = object.getString(Members.VALUE_TYPE.name());
+            value_type = ClassUtil.getClass(className);
+            assert(value_type != null) : "Invalid VALUE_TYPE '" + className + "'";
+        }
         
         // This code sucks ass...
         for (Members element : Histogram.Members.values()) {
-            if (element == Members.KEEP_ZERO_ENTRIES) continue;
+            if (element == Members.KEEP_ZERO_ENTRIES || element == Members.VALUE_TYPE) continue;
             try {
                 String field_name = element.toString().toLowerCase();
                 Field field = Histogram.class.getDeclaredField(field_name);
                 if (element == Members.HISTOGRAM) {
                     JSONObject jsonObject = object.getJSONObject(Members.HISTOGRAM.name());
                     Iterator<String> keys = jsonObject.keys();
-                    Class<?> key_class = null;
                     while (keys.hasNext()) {
                         String key_name = keys.next();
-                        
-                        // HACK: If this is the first key in this hack job,
-                        //       hackishly try to figure out what key it is..,
-                        if (key_class == null) {
-                            key_class = JSONUtil.getPrimitiveType(key_name);
-                        }
-                        
                         @SuppressWarnings("unchecked")
-                        X key_value = (X)JSONUtil.getPrimitiveValue(key_name, key_class);
+                        X key_value = (X)JSONUtil.getPrimitiveValue(key_name, value_type);
                         Long count = jsonObject.getLong(key_name);
                         this.histogram.put(key_value, count);
                     } // WHILE
