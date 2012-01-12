@@ -113,8 +113,13 @@ public abstract class CatalogUtil {
                 int idx_type = idx_rs.getShort(7);
                 int idx_col_pos = idx_rs.getInt(8) - 1;
                 String idx_col_name = idx_rs.getString(9);
-                SortDirectionType idx_direction = (idx_rs.getString(10).equalsIgnoreCase("A") ?
-                                                        SortDirectionType.ASC : SortDirectionType.DESC);
+                String sort=idx_rs.getString(10);
+                SortDirectionType idx_direction;
+                if(sort != null )
+                {
+                    idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
+                }
+                else idx_direction = null;
                 
                 Index catalog_idx = catalog_tbl.getIndex(idx_name);
                 if (catalog_idx == null) {

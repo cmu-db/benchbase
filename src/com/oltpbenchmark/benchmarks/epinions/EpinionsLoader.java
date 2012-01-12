@@ -46,7 +46,7 @@ public class EpinionsLoader extends Loader{
         this.num_trust= (int)Math.round(TRUST * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
-            LOG.debug("# of ITEMS: " + this.num_trust);
+            LOG.debug("# of ITEMS: " + this.num_items);
             LOG.debug("# of REVIEWS: " + this.num_reviews);
             LOG.debug("# of TRUSTS: " + this.num_trust);
         }
@@ -166,7 +166,7 @@ public class EpinionsLoader extends Loader{
 						conn.commit();
 						reviewInsert.clearBatch();
 						if (LOG.isDebugEnabled())
-		                    LOG.debug(String.format("Reviews %d / %d[Max]", total, (num_reviews*num_items)));
+						    if (LOG.isDebugEnabled()) LOG.debug("Reviewed items  % " + (int)(((double)i/(double)this.num_items)*100));
 					}
 				}
 			}
@@ -218,8 +218,8 @@ public class EpinionsLoader extends Loader{
 						trustInsert.executeBatch();
 						conn.commit();
 						trustInsert.clearBatch();
-						if (LOG.isDebugEnabled())
-		                    LOG.debug(String.format("Trust %d / %d[MAX]", total, (num_trust*num_users)));
+						if (LOG.isDebugEnabled()) LOG.debug("Rated users  % " + (int)(((double)i/(double)this.num_users)*100));
+	                    
 					}
 				}
 			}

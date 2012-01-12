@@ -106,14 +106,16 @@ public class TwitterLoader extends Loader {
                 conn.commit();
                 tweetInsert.clearBatch();
                 batchSize = 0;
-                if (LOG.isDebugEnabled()) LOG.debug("tweet % " + total);
+                if (LOG.isDebugEnabled()) 
+                    LOG.debug("tweet % " + total);
             }
         }
         if (batchSize > 0) {
             tweetInsert.executeBatch();
             conn.commit();
         }
-        if (LOG.isDebugEnabled()) LOG.debug("Tweets Loaded");
+        if (LOG.isDebugEnabled()) 
+            LOG.debug("Tweets Loaded");
     }
     
     /**
@@ -168,7 +170,8 @@ public class TwitterLoader extends Loader {
                         followsInsert.clearBatch();
                         followersInsert.clearBatch();
                         batchSize = 0;
-                        if (LOG.isDebugEnabled()) LOG.debug("Follows  % " + total);
+                        if (LOG.isDebugEnabled()) 
+                            LOG.debug("Users and whom they follow  % " + (int)(((double)follower/(double)this.num_users)*100));
                     }
                 }
             } // FOR
