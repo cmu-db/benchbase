@@ -135,7 +135,7 @@ public class DBWorkload {
 			wrkld.setDBName(xmlConfig.getString("DBName"));
 			wrkld.setDBUsername(xmlConfig.getString("username"));
 			wrkld.setDBPassword(xmlConfig.getString("password"));
-			wrkld.setTerminals(xmlConfig.getInt("terminals"));	
+			wrkld.setTerminals(xmlConfig.getInt("terminals"));  	
 			wrkld.setIsolationMode(xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE"));
 			wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor",1.0));
 			
@@ -246,11 +246,15 @@ public class DBWorkload {
     		// Bombs away!
     		Results r = runWorkload(bench, verbose);
             PrintStream ps = System.out;
+            PrintStream rs = System.out;
             EXEC_LOG.info(SINGLE_LINE);
             if (argsLine.hasOption("o"))
             {
-                ps = new PrintStream(new File(argsLine.getOptionValue("o")));
-                EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o"));
+                ps = new PrintStream(new File(argsLine.getOptionValue("o")+".res"));
+                EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o")+".res");
+                
+                rs = new PrintStream(new File(argsLine.getOptionValue("o")+".raw"));
+                EXEC_LOG.info("Output Raw data into file: " + argsLine.getOptionValue("o")+".raw");
             }
             if (argsLine.hasOption("s")) {
                 int windowSize = Integer.parseInt(argsLine
@@ -259,10 +263,10 @@ public class DBWorkload {
                 r.writeCSV(windowSize, ps);
             }
             
-            EXEC_LOG.info("Raw");
-            PrintStream rs = new PrintStream(new File("raw_"+getFileNameSuffix()+".txt"));
             r.writeAllCSVAbsoluteTiming(rs);
             ps.close();
+            rs.close();
+            
 	    } else {
 	    	EXEC_LOG.info("Skipping benchmark workload execution");
 	    }
@@ -313,8 +317,4 @@ public class DBWorkload {
 		return (false);
 	}
 	
-	private static String getFileNameSuffix() {
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-	    return dateFormat.format(new java.util.Date());
-	}
 }
