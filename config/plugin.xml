@@ -6,6 +6,6 @@
     <plugin name="resourcestresser">com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark</plugin>
     <plugin name="twitter">com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark</plugin>
     <plugin name="epinions">com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark</plugin>
-    <plugin name="ycsb">com.oltpbenchmark.benchmarks.ycsb.YcsbBenchmark</plugin>
+    <plugin name="ycsb">com.oltpbenchmark.benchmarks.ycsb.YCSBBenchmark</plugin>
     <plugin name="jpab">com.oltpbenchmark.benchmarks.jpab.JpabBenchmark</plugin>
 </plugins>
