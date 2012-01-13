@@ -44,7 +44,7 @@ public class WikipediaLoader extends Loader{
 		System.out.println("coucou " +  this.scaleFactor);
         this.num_users = (int)Math.round(WikipediaConstants.USERS * this.scaleFactor);
         this.num_pages = (int)Math.round(WikipediaConstants.PAGES * this.scaleFactor);
-        this.num_revisions= (int)Math.round(WikipediaConstants.REVISIONS * WikipediaConstants.PAGES * this.scaleFactor);
+        this.num_revisions= (int)Math.round(WikipediaConstants.REVISIONS * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
             LOG.debug("# of PAGES: " + this.num_pages);
@@ -115,74 +115,79 @@ public class WikipediaLoader extends Loader{
 		PreparedStatement pageSelect = this.conn.prepareStatement(selectPageSql);	
 		
 		List<String> wl=new ArrayList<String>();
+		
+		//
 		int k=1;
-		ZipfianGenerator pages=new ZipfianGenerator(num_pages);
+
 		ZipfianGenerator users=new ZipfianGenerator(num_users);
-		for(int rev=1;rev<num_revisions;rev++)
+		ZipfianGenerator revisions=new ZipfianGenerator(num_revisions);
+		for(int page_id=1;page_id<num_pages;page_id++)
 		{
-			// Generate the User who's doing the revision and the Page revised
-			int page_id=pages.nextInt();
-			int user_id=users.nextInt();
-			String new_text= LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
-			String rev_comment= LoaderUtil.randomStr(LoaderUtil.randomNumber(0, 255, new Random()));
-
-			//Insert the text
-			textInsert.setInt(1, rev); // old_id
-			textInsert.setString(2, LoaderUtil.randomStr(LoaderUtil.randomNumber(100, 1000, new Random()))); // old_text
-			textInsert.setString(3, "utf-8"); // old_flags
-			textInsert.setInt(4, page_id); //old_page
-			textInsert.execute();
-			int nextTextId = rev;
-			
-			//Insert the revision
-			revisionInsert.setInt(1, rev); //rev_id
-			revisionInsert.setInt(2, page_id); //rev_page
-			revisionInsert.setInt(3, nextTextId); //rev_text_id
-			revisionInsert.setString(4,rev_comment); //rev_comment
-			revisionInsert.setInt(5, user_id); //rev_user
-			revisionInsert.setString(6, new_text); //rev_user_text
-			revisionInsert.setString(7, LoaderUtil.getCurrentTime14()); //rev_timestamp
-			revisionInsert.setInt(8, 0); //rev_minor_edit
-			revisionInsert.setInt(9, 0); //rev_deleted
-			revisionInsert.setInt(10, 0); //rev_len
-			revisionInsert.setInt(11, 0); //rev_parent_id
-			revisionInsert.addBatch();
-			
-			int nextRevID = rev;
-			
-			pageUpdate.setInt(1, nextRevID);
-			pageUpdate.setInt(2, new_text.length());
-			pageUpdate.setInt(3, page_id);
-			pageUpdate.addBatch();
-
-			userUpdate.setInt(1, user_id);
-			userUpdate.addBatch();
-			
-			pageSelect.setInt(1, page_id);
-			ResultSet rs = pageSelect.executeQuery();
-			
-			String title;
-			int namespace;
-			if (rs.next()) {
-				title = rs.getString(1);
-				namespace= rs.getInt(2);
-			} else {
-				conn.rollback();
-				throw new RuntimeException(
-						"Problem fetching the page");
-			}
-			
-			if ((k % configCommitCount) == 0) {
-				textInsert.executeBatch();
-				revisionInsert.executeBatch();
-				pageUpdate.executeBatch();
-				conn.commit();
-				textInsert.clearBatch();
-				revisionInsert.clearBatch();
-				pageUpdate.clearBatch();
-				if (LOG.isDebugEnabled()) LOG.debug("Revision  % " + k);
-			}
-			k++;
+			int revised= revisions.nextInt();
+		    for(int i=1;i<revised;i++)
+		    {
+		        // Generate the User who's doing the revision and the Page revised
+    			int user_id=users.nextInt();
+    			String new_text= LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
+    			String rev_comment= LoaderUtil.randomStr(LoaderUtil.randomNumber(0, 255, new Random()));
+    
+    			//Insert the text
+    			textInsert.setInt(1, k); // old_id
+    			textInsert.setString(2, LoaderUtil.randomStr(LoaderUtil.randomNumber(100, 1000, new Random()))); // old_text
+    			textInsert.setString(3, "utf-8"); // old_flags
+    			textInsert.setInt(4, page_id); //old_page
+    			textInsert.execute();
+    			int nextTextId = k;
+    			
+    			//Insert the revision
+    			revisionInsert.setInt(1, k); //rev_id
+    			revisionInsert.setInt(2, page_id); //rev_page
+    			revisionInsert.setInt(3, nextTextId); //rev_text_id
+    			revisionInsert.setString(4,rev_comment); //rev_comment
+    			revisionInsert.setInt(5, user_id); //rev_user
+    			revisionInsert.setString(6, new_text); //rev_user_text
+    			revisionInsert.setString(7, LoaderUtil.getCurrentTime14()); //rev_timestamp
+    			revisionInsert.setInt(8, 0); //rev_minor_edit
+    			revisionInsert.setInt(9, 0); //rev_deleted
+    			revisionInsert.setInt(10, 0); //rev_len
+    			revisionInsert.setInt(11, 0); //rev_parent_id
+    			revisionInsert.addBatch();
+    			
+    			int nextRevID = k;
+    			
+    			pageUpdate.setInt(1, nextRevID);
+    			pageUpdate.setInt(2, new_text.length());
+    			pageUpdate.setInt(3, page_id);
+    			pageUpdate.addBatch();
+    
+    			userUpdate.setInt(1, user_id);
+    			userUpdate.addBatch();
+    			
+    			pageSelect.setInt(1, page_id);
+    			ResultSet rs = pageSelect.executeQuery();
+    			
+    			String title;
+    			int namespace;
+    			if (rs.next()) {
+    				title = rs.getString(1);
+    				namespace= rs.getInt(2);
+    			} else {
+    				conn.rollback();
+    				throw new RuntimeException("Problem fetching the page");
+    			}
+    			
+    			if ((k % configCommitCount) == 0) {
+    				textInsert.executeBatch();
+    				revisionInsert.executeBatch();
+    				pageUpdate.executeBatch();
+    				conn.commit();
+    				textInsert.clearBatch();
+    				revisionInsert.clearBatch();
+    				pageUpdate.clearBatch();
+    				if (LOG.isDebugEnabled()) LOG.debug("Revision  % " + k + " - Pages revised %" + page_id + " Pages - ");
+    			}
+    			k++;
+		    }
 		}
 		textInsert.executeBatch();
 		revisionInsert.executeBatch();
