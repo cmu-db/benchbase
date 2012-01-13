@@ -41,13 +41,14 @@ public class WikipediaLoader extends Loader{
 	
 	public WikipediaLoader(WikipediaBenchmark benchmark, Connection c) {
 		super(benchmark, c);
+		System.out.println("coucou " +  this.scaleFactor);
         this.num_users = (int)Math.round(WikipediaConstants.USERS * this.scaleFactor);
         this.num_pages = (int)Math.round(WikipediaConstants.PAGES * this.scaleFactor);
         this.num_revisions= (int)Math.round(WikipediaConstants.REVISIONS * WikipediaConstants.PAGES * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
-            LOG.debug("# of Pages: " + this.num_pages);
-            LOG.debug("# of Revisions: " + this.num_revisions);
+            LOG.debug("# of PAGES: " + this.num_pages);
+            LOG.debug("# of REVISIONS: " + this.num_revisions);
         }
 	}
 
@@ -58,6 +59,7 @@ public class WikipediaLoader extends Loader{
 			
 			LoadUsers();
 			LoadPages();
+			LoadWatchlist();
 			genTrace(this.workConf.getXmlConfig().getInt("traceOut",0));
 			LoadRevision();
 			
@@ -110,12 +112,7 @@ public class WikipediaLoader extends Loader{
 		PreparedStatement pageUpdate= this.conn.prepareStatement(updatePageSql);
 		PreparedStatement userUpdate=this.conn.prepareStatement(updateUserSql);
 		
-		PreparedStatement pageSelect = this.conn.prepareStatement(selectPageSql);
-		
-        catalog_tbl = this.getTableCatalog("watchlist");
-        assert(catalog_tbl != null);
-        sql = SQLUtil.getInsertSQL(catalog_tbl);
-        PreparedStatement watchInsert = this.conn.prepareStatement(sql);		
+		PreparedStatement pageSelect = this.conn.prepareStatement(selectPageSql);	
 		
 		List<String> wl=new ArrayList<String>();
 		int k=1;
@@ -175,26 +172,13 @@ public class WikipediaLoader extends Loader{
 						"Problem fetching the page");
 			}
 			
-			String watched=Integer.toString(page_id)+user_id;
-			if(wl.contains(watched))
-			{					
-				watchInsert.setInt(1, user_id); //wl_user
-				watchInsert.setInt(2, namespace); //wl_namespace
-				watchInsert.setString(3, title); //wl_title
-				watchInsert.setNull(4, java.sql.Types.VARBINARY); //wl_notificationtimestamp
-				watchInsert.addBatch();
-				wl.add(watched);
-			}	
-			
 			if ((k % configCommitCount) == 0) {
 				textInsert.executeBatch();
 				revisionInsert.executeBatch();
 				pageUpdate.executeBatch();
-				watchInsert.executeBatch();
 				conn.commit();
 				textInsert.clearBatch();
 				revisionInsert.clearBatch();
-				watchInsert.clearBatch();
 				pageUpdate.clearBatch();
 				if (LOG.isDebugEnabled()) LOG.debug("Revision  % " + k);
 			}
@@ -203,11 +187,9 @@ public class WikipediaLoader extends Loader{
 		textInsert.executeBatch();
 		revisionInsert.executeBatch();
 		pageUpdate.executeBatch();
-		watchInsert.executeBatch();
 		if (LOG.isDebugEnabled()) LOG.debug("Revision  % " + k);
 		textInsert.clearBatch();
 		revisionInsert.clearBatch();
-		watchInsert.clearBatch();
 		pageUpdate.clearBatch();
 		if (LOG.isDebugEnabled()) LOG.debug("Revision loaded");
 	}
@@ -294,4 +276,45 @@ public class WikipediaLoader extends Loader{
 		if (LOG.isDebugEnabled()) LOG.debug("Users  % " + k);
 		if (LOG.isDebugEnabled()) LOG.debug("Users loaded");
 	}
+	
+	   private void LoadWatchlist() throws SQLException {
+	        Table catalog_tbl = this.getTableCatalog("watchlist");
+	        assert(catalog_tbl != null);
+	        final PreparedStatement watchInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+
+	        int total = 1;
+	        int batchSize = 0;
+	        
+	        ZipfianGenerator zipPages = new ZipfianGenerator(this.num_pages);
+	        
+	        for (int user_id = 0; user_id < this.num_users; user_id++) {
+	                int page = zipPages.nextInt();
+	                String url[]= titles.get(page).split(" ");
+	                
+	                watchInsert.setInt(1, user_id); //wl_user
+	                watchInsert.setInt(2, Integer.parseInt(url[0])); //wl_namespace
+	                watchInsert.setString(3, url[1]); //wl_title
+	                watchInsert.setNull(4, java.sql.Types.VARBINARY); //wl_notificationtimestamp
+	                watchInsert.addBatch();
+	                    
+                    total++;
+                    batchSize++;
+
+                    if ((batchSize % configCommitCount) == 0) {
+                        watchInsert.executeBatch();
+                        conn.commit();
+                        watchInsert.clearBatch();
+                        watchInsert.clearBatch();
+                        batchSize = 0;
+                        if (LOG.isDebugEnabled()) 
+                            LOG.debug("Watchlist  % " + (int)(((double)user_id/(double)this.num_users)*100));
+                    }
+	        } // FOR
+	        if (batchSize > 0) {
+	            watchInsert.executeBatch();
+	            watchInsert.executeBatch();
+	            conn.commit();
+	        }
+	        if (LOG.isDebugEnabled()) LOG.debug("Follows Loaded");
+	    }
 }

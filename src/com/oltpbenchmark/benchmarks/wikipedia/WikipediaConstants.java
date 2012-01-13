@@ -25,7 +25,7 @@ public abstract class WikipediaConstants {
 	/**
 	 * Number of baseline Users
 	 */
-	public static final int USERS = 3000;
+	public static final int USERS = 2000;
 
 	/**
 	 * Average revision per page
