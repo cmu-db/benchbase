@@ -61,7 +61,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			Table t=tables.get("USER");
 	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();
 	        
-			String userCount= SQLUtil.getCountSQL(t, "u_id");
+			String userCount= SQLUtil.selectColValues(t, "u_id");
 			Statement stmt = metaConn.createStatement();
 			ResultSet res = stmt.executeQuery(userCount);
 			ArrayList<String> user_ids = new ArrayList<String>();
@@ -73,7 +73,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 			// LIST OF ITEMS AND
 			t=tables.get("ITEM");
 	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();			
-			String itemCount= SQLUtil.getCountSQL(t, "i_id");
+			String itemCount= SQLUtil.selectColValues(t, "i_id");
 			res = stmt.executeQuery(itemCount);
 			ArrayList<String> item_ids = new ArrayList<String>();
 			while (res.next()) {

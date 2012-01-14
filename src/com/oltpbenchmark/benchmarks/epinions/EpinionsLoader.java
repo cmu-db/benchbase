@@ -30,7 +30,7 @@ public class EpinionsLoader extends Loader{
 	private static final int REVIEW = 20; // this is the average .. expand to max
 	private static final int TRUST = 10; // this is the average .. expand to max
 	
-	public final static int configCommitCount = 10;
+	public final static int configCommitCount = 1000;
 	/// 
 
 	private final int num_users;

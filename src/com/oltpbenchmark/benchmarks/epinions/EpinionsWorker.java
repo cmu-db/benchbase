@@ -41,7 +41,7 @@ public class EpinionsWorker extends Worker {
 
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
-    private final Random rand = new Random();
+    private final Random rand = new Random(System.currentTimeMillis());
 
     public EpinionsWorker(int id, EpinionsBenchmark benchmarkModule, ArrayList<String> user_ids, ArrayList<String> item_ids) {
         super(id, benchmarkModule);
@@ -152,11 +152,10 @@ public class EpinionsWorker extends Worker {
 
     public void updateTrustRating() throws SQLException {
         UpdateTrustRating proc = this.getProcedure(UpdateTrustRating.class);
-        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
-        long uid2 = uid;
-        while (uid2 == uid) {
-            uid2 = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
-        } // WHILE
+        int uix= rand.nextInt(user_ids.size());
+        int uix2= rand.nextInt(user_ids.size());
+        long uid = Long.valueOf(user_ids.get(uix));
+        long uid2 = Long.valueOf(user_ids.get(uix2));
         int trust = rand.nextInt(100); // ???
         proc.run(conn, uid, uid2, trust);
     }
