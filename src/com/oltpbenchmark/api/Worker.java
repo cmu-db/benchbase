@@ -94,13 +94,14 @@ public abstract class Worker implements Runnable {
 		TransactionType invalidTT = TransactionType.INVALID;
 		assert(invalidTT != null);
 		
-		while (state != State.EXIT) {
+		while (true) {
 			if (state == State.DONE && !seenDone) {
 				// This is the first time we have observed that the test is
 				// done
 				// notify the global test state, then continue applying load
 				seenDone = true;
 				testState.signalDone();
+				break;
 			}
 			Phase phase = null;
 			// apply load
