@@ -148,4 +148,9 @@ public abstract class SQLUtil {
         return String.format("SELECT MAX(%s) FROM %s",
                 col, catalog_tbl.getEscapedName());
     }
+
+    public static String selectColValues(Table catalog_tbl, String col) {
+        return String.format("SELECT %s FROM %s",
+                col, catalog_tbl.getEscapedName());
+    }
 }
