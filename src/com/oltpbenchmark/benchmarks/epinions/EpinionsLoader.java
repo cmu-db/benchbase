@@ -157,7 +157,7 @@ public class EpinionsLoader extends Loader{
 					reviewInsert.setInt(1, total);
 					reviewInsert.setInt(2, u_id);
 					reviewInsert.setInt(3, i);
-					reviewInsert.setNull(4, java.sql.Types.INTEGER);
+					reviewInsert.setInt(4, new Random().nextInt(5));// rating
 					reviewInsert.setNull(5, java.sql.Types.INTEGER);
 					reviewInsert.addBatch();
 					reviewers.add(u_id);

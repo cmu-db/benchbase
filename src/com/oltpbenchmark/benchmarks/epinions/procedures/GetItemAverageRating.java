@@ -14,9 +14,13 @@ public class GetItemAverageRating extends Procedure {
         "SELECT avg(rating) FROM review r WHERE r.i_id=?"
     );
     
-    public ResultSet run(Connection conn, long iid) throws SQLException {
+    public void run(Connection conn, long iid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getAverageRating);
         stmt.setLong(1, iid);
-        return (stmt.executeQuery());
+        ResultSet r= stmt.executeQuery();
+        while (r.next()) {
+            continue;
+        }
+        r.close();
     }
 }

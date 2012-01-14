@@ -156,7 +156,7 @@ public class EpinionsWorker extends Worker {
         int uix2= rand.nextInt(user_ids.size());
         long uid = Long.valueOf(user_ids.get(uix));
         long uid2 = Long.valueOf(user_ids.get(uix2));
-        int trust = rand.nextInt(100); // ???
+        int trust = rand.nextInt(2);
         proc.run(conn, uid, uid2, trust);
     }
 

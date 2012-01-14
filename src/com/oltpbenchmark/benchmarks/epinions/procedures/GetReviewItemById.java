@@ -15,10 +15,14 @@ public class GetReviewItemById extends Procedure {
         "ORDER BY rating LIMIT 10;"
     );
     
-    public ResultSet run(Connection conn, long iid) throws SQLException {
+    public void run(Connection conn, long iid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getReviewItem);
         stmt.setLong(1, iid);
-        return (stmt.executeQuery());
+        ResultSet r= stmt.executeQuery();
+        while (r.next()) {
+            continue;
+        }
+        r.close();
     }
     
 }

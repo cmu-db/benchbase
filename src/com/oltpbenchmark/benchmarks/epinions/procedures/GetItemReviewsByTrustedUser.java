@@ -19,14 +19,21 @@ public class GetItemReviewsByTrustedUser extends Procedure {
         "SELECT * FROM trust t WHERE t.source_u_id=?"
     );
     
-    public ResultSet run(Connection conn, long iid, long uid) throws SQLException {
+    public void run(Connection conn, long iid, long uid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getReview);
         stmt.setLong(1, iid);
-        stmt.executeQuery();
-        
+        ResultSet r= stmt.executeQuery();
+        while (r.next()) {
+            continue;
+        }
+        r.close();
         stmt = this.getPreparedStatement(conn, getTrust);
         stmt.setLong(1, uid);
-        return (stmt.executeQuery());
+        r= stmt.executeQuery();
+        while (r.next()) {
+            continue;
+        }
+        r.close();
     }
     
 }

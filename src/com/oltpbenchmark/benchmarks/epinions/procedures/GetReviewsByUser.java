@@ -15,9 +15,13 @@ public class GetReviewsByUser extends Procedure {
         "ORDER BY rating LIMIT 10;"
     );
 
-    public ResultSet run(Connection conn, long uid) throws SQLException {
+    public void run(Connection conn, long uid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getReviewUser);
         stmt.setLong(1, uid);
-        return (stmt.executeQuery());
+        ResultSet r= stmt.executeQuery();
+        while (r.next()) {
+            continue;
+        }
+        r.close();
     }
 }
