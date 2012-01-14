@@ -19,7 +19,7 @@ public class ReadRecord extends Procedure{
             PreparedStatement stmt = this.getPreparedStatement(conn, readStmt);
             stmt.setInt(1, keyname);          
             ResultSet r=stmt.executeQuery();
-            while(!r.next())
+            while(r.next())
             {
             	for(int i=1;i<11;i++)
             		results.put(i, r.getString(i));

@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS ipblocks;
 CREATE TABLE ipblocks (
-  ipb_id int NOT NULL auto_increment,
+  ipb_id int(11) NOT NULL,
   ipb_address tinyblob NOT NULL,
-  ipb_user int NOT NULL DEFAULT '0',
-  ipb_by int NOT NULL DEFAULT '0',
+  ipb_user int(10) NOT NULL DEFAULT '0',
+  ipb_by int(10) NOT NULL DEFAULT '0',
   ipb_by_text varbinary(255) NOT NULL DEFAULT '',
   ipb_reason tinyblob NOT NULL,
   ipb_timestamp binary(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
@@ -28,18 +28,18 @@ CREATE INDEX IDX_IPB_EXPIRY ON ipblocks (ipb_expiry);
 
 DROP TABLE IF EXISTS logging;
 CREATE TABLE logging (
-  log_id int NOT NULL auto_increment,
+  log_id int(10) NOT NULL,
   log_type varbinary(32) NOT NULL,
   log_action varbinary(32) NOT NULL,
   log_timestamp binary(14) NOT NULL DEFAULT '19700101000000',
-  log_user int NOT NULL DEFAULT '0',
-  log_namespace int NOT NULL DEFAULT '0',
+  log_user int(10) NOT NULL DEFAULT '0',
+  log_namespace int(11) NOT NULL DEFAULT '0',
   log_title varbinary(255) NOT NULL DEFAULT '',
   log_comment varbinary(255) NOT NULL DEFAULT '',
   log_params blob NOT NULL,
   log_deleted tinyint(3) NOT NULL DEFAULT '0',
   log_user_text varbinary(255) NOT NULL DEFAULT '',
-  log_page int DEFAULT NULL,
+  log_page int(10) DEFAULT NULL,
   PRIMARY KEY (log_id)
 );
 CREATE INDEX IDX_LOG_TYPE_TIME ON logging (log_type,log_timestamp);
@@ -51,8 +51,8 @@ CREATE INDEX IDX_LOG_PAGE_ID_TIME ON logging (log_page,log_timestamp);
 
 DROP TABLE IF EXISTS page;
 CREATE TABLE page (
-  page_id int NOT NULL auto_increment,
-  page_namespace int NOT NULL,
+  page_id int(10) NOT NULL,
+  page_namespace int(11) NOT NULL,
   page_title varbinary(255) NOT NULL,
   page_restrictions tinyblob NOT NULL,
   page_counter bigint(20) NOT NULL DEFAULT '0',
@@ -60,8 +60,8 @@ CREATE TABLE page (
   page_is_new tinyint(3) NOT NULL DEFAULT '0',
   page_random double NOT NULL,
   page_touched binary(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-  page_latest int NOT NULL,
-  page_len int NOT NULL,
+  page_latest int(10) NOT NULL,
+  page_len int(10) NOT NULL,
   PRIMARY KEY (page_id),
   UNIQUE (page_namespace,page_title)
 );
@@ -70,8 +70,8 @@ CREATE INDEX IDX_PAGE_LEN ON page (page_len);
 
 DROP TABLE IF EXISTS page_backup;
 CREATE TABLE page_backup (
-  page_id int NOT NULL auto_increment,
-  page_namespace int NOT NULL,
+  page_id int(10) NOT NULL,
+  page_namespace int(11) NOT NULL,
   page_title varbinary(255) NOT NULL,
   page_restrictions tinyblob NOT NULL,
   page_counter bigint(20) NOT NULL DEFAULT '0',
@@ -79,8 +79,8 @@ CREATE TABLE page_backup (
   page_is_new tinyint(3) NOT NULL DEFAULT '0',
   page_random double NOT NULL,
   page_touched binary(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-  page_latest int NOT NULL,
-  page_len int NOT NULL,
+  page_latest int(10) NOT NULL,
+  page_len int(10) NOT NULL,
   PRIMARY KEY (page_id),
   UNIQUE (page_namespace,page_title)
 );
@@ -89,13 +89,13 @@ CREATE INDEX IDX_PAGE_BACKUP_LEN ON page_backup (page_len);
 
 DROP TABLE IF EXISTS page_restrictions;
 CREATE TABLE page_restrictions (
-  pr_page int NOT NULL,
+  pr_page int(11) NOT NULL,
   pr_type varbinary(60) NOT NULL,
   pr_level varbinary(60) NOT NULL,
   pr_cascade tinyint(4) NOT NULL,
-  pr_user int DEFAULT NULL,
+  pr_user int(11) DEFAULT NULL,
   pr_expiry varbinary(14) DEFAULT NULL,
-  pr_id int NOT NULL,
+  pr_id int(10) NOT NULL,
   PRIMARY KEY (pr_id),
   UNIQUE (pr_page,pr_type)
 );
@@ -105,29 +105,29 @@ CREATE INDEX IDX_PR_CASCADE ON page_restrictions (pr_cascade);
 
 DROP TABLE IF EXISTS recentchanges;
 CREATE TABLE recentchanges (
-  rc_id int NOT NULL auto_increment,
+  rc_id int(11) NOT NULL,
   rc_timestamp varbinary(14) NOT NULL DEFAULT '',
   rc_cur_time varbinary(14) NOT NULL DEFAULT '',
-  rc_user int NOT NULL DEFAULT '0',
+  rc_user int(10) NOT NULL DEFAULT '0',
   rc_user_text varbinary(255) NOT NULL,
-  rc_namespace int NOT NULL DEFAULT '0',
+  rc_namespace int(11) NOT NULL DEFAULT '0',
   rc_title varbinary(255) NOT NULL DEFAULT '',
   rc_comment varbinary(255) NOT NULL DEFAULT '',
   rc_minor tinyint(3) NOT NULL DEFAULT '0',
   rc_bot tinyint(3) NOT NULL DEFAULT '0',
   rc_new tinyint(3) NOT NULL DEFAULT '0',
-  rc_cur_id int NOT NULL DEFAULT '0',
-  rc_this_oldid int NOT NULL DEFAULT '0',
-  rc_last_oldid int NOT NULL DEFAULT '0',
+  rc_cur_id int(10) NOT NULL DEFAULT '0',
+  rc_this_oldid int(10) NOT NULL DEFAULT '0',
+  rc_last_oldid int(10) NOT NULL DEFAULT '0',
   rc_type tinyint(3) NOT NULL DEFAULT '0',
   rc_moved_to_ns tinyint(3) NOT NULL DEFAULT '0',
   rc_moved_to_title varbinary(255) NOT NULL DEFAULT '',
   rc_patrolled tinyint(3) NOT NULL DEFAULT '0',
   rc_ip varbinary(40) NOT NULL DEFAULT '',
-  rc_old_len int DEFAULT NULL,
-  rc_new_len int DEFAULT NULL,
+  rc_old_len int(11) DEFAULT NULL,
+  rc_new_len int(11) DEFAULT NULL,
   rc_deleted tinyint(3) NOT NULL DEFAULT '0',
-  rc_logid int NOT NULL DEFAULT '0',
+  rc_logid int(10) NOT NULL DEFAULT '0',
   rc_log_type varbinary(255) DEFAULT NULL,
   rc_log_action varbinary(255) DEFAULT NULL,
   rc_params blob,
@@ -143,17 +143,17 @@ CREATE INDEX IDX_RC_USER_TEXT ON recentchanges (rc_user_text,rc_timestamp);
 
 DROP TABLE IF EXISTS revision;
 CREATE TABLE revision (
-  rev_id int NOT NULL auto_increment,
-  rev_page int NOT NULL,
-  rev_text_id int NOT NULL,
+  rev_id int(10) NOT NULL,
+  rev_page int(10) NOT NULL,
+  rev_text_id int(10) NOT NULL,
   rev_comment tinyblob NOT NULL,
-  rev_user int NOT NULL DEFAULT '0',
+  rev_user int(10) NOT NULL DEFAULT '0',
   rev_user_text varbinary(255) NOT NULL DEFAULT '',
   rev_timestamp binary(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
   rev_minor_edit tinyint(3) NOT NULL DEFAULT '0',
   rev_deleted tinyint(3) NOT NULL DEFAULT '0',
-  rev_len int DEFAULT NULL,
-  rev_parent_id int DEFAULT NULL,
+  rev_len int(10) DEFAULT NULL,
+  rev_parent_id int(10) DEFAULT NULL,
   PRIMARY KEY (rev_id),
   UNIQUE (rev_page,rev_id)
 );
@@ -164,16 +164,16 @@ CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 
 DROP TABLE IF EXISTS text;
 CREATE TABLE text (
-  old_id int NOT NULL auto_increment,
+  old_id int(10) NOT NULL,
   old_text mediumblob NOT NULL,
   old_flags tinyblob NOT NULL,
-  old_page int DEFAULT NULL,
+  old_page int(11) DEFAULT NULL,
   PRIMARY KEY (old_id)
 );
 
 DROP TABLE IF EXISTS user;
 CREATE TABLE user (
-  user_id int NOT NULL auto_increment,
+  user_id int(10) NOT NULL,
   user_name varbinary(255) NOT NULL DEFAULT '',
   user_real_name varbinary(255) NOT NULL DEFAULT '',
   user_password tinyblob NOT NULL,
@@ -187,7 +187,7 @@ CREATE TABLE user (
   user_email_token binary(32) DEFAULT NULL,
   user_email_token_expires binary(14) DEFAULT NULL,
   user_registration binary(14) DEFAULT NULL,
-  user_editcount int DEFAULT NULL,
+  user_editcount int(11) DEFAULT NULL,
   PRIMARY KEY (user_id),
   UNIQUE (user_name)
 );
@@ -195,7 +195,7 @@ CREATE INDEX IDX_USER_EMAIL_TOKEN ON user (user_email_token);
 
 DROP TABLE IF EXISTS user_groups;
 CREATE TABLE user_groups (
-  ug_user int NOT NULL DEFAULT '0',
+  ug_user int(10) NOT NULL DEFAULT '0',
   ug_group varbinary(16) NOT NULL DEFAULT '',
   UNIQUE (ug_user,ug_group)
 );
@@ -204,13 +204,13 @@ CREATE INDEX IDX_UG_GROUP ON user_groups (ug_group);
 DROP TABLE IF EXISTS value_backup;
 CREATE TABLE value_backup (
   table_name varchar(255) DEFAULT NULL,
-  maxid int DEFAULT NULL
+  maxid int(11) DEFAULT NULL
 );
 
 DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
-  wl_user int NOT NULL,
-  wl_namespace int NOT NULL DEFAULT '0',
+  wl_user int(10) NOT NULL,
+  wl_namespace int(11) NOT NULL DEFAULT '0',
   wl_title varbinary(255) NOT NULL DEFAULT '',
   wl_notificationtimestamp varbinary(14) DEFAULT NULL,
   UNIQUE (wl_user,wl_namespace,wl_title)

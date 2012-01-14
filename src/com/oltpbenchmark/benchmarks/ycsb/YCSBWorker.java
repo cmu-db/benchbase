@@ -23,15 +23,15 @@ import com.oltpbenchmark.distributions.ZipfianGenerator;
 
 public class YCSBWorker extends Worker{
 	
-	private ZipfianGenerator keysequence;
-	private static CounterGenerator newRec;
-	private Random rand;
+	private ZipfianGenerator readRecord;
+	private static CounterGenerator insertRecord;
+	private ZipfianGenerator randScan;
 
-	public YCSBWorker(int id, BenchmarkModule benchmarkModule) {
+	public YCSBWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
 		super(id, benchmarkModule);
-		keysequence= new ZipfianGenerator(YCSBConstants.RECORD_COUNT);
-		rand=new Random(YCSBConstants.MAX_SCAN);
-		newRec= new CounterGenerator(YCSBConstants.RECORD_COUNT);
+		readRecord= new ZipfianGenerator(init_record_count);// pool for read keys
+	    insertRecord= new CounterGenerator(init_record_count);// we must know where to start inserting
+		randScan= new ZipfianGenerator(YCSBConstants.MAX_SCAN);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class YCSBWorker extends Worker{
         } catch (MySQLTransactionRollbackException m) {
             System.err.println("Rollback of thread: "+ this.id+" "+ m.getMessage());
         } catch (SQLException e) {
-            System.err.println("Timeout of thread: "+ this.id+" "+ e.getMessage());
+            System.err.println("Timeout of thread: "+ this.id+" Doing: "+ nextTrans +" Message:"+ e.getMessage());
         }
         return;
 	}
@@ -70,7 +70,7 @@ public class YCSBWorker extends Worker{
 	private void updateRecord() throws SQLException {
         UpdateRecord proc = this.getProcedure(UpdateRecord.class);
         assert (proc != null);
-        int keyname = keysequence.nextInt();
+        int keyname = readRecord.nextInt();
         HashMap<Integer, String> values = buildValues(10);
         proc.run(conn, keyname, values);
 	}
@@ -78,22 +78,22 @@ public class YCSBWorker extends Worker{
 	private void scanRecord() throws SQLException {
         ScanRecord proc = this.getProcedure(ScanRecord.class);
         assert (proc != null);
-        int keyname = keysequence.nextInt();
-        int count=rand.nextInt();
+        int keyname = readRecord.nextInt();
+        int count=randScan.nextInt();
         proc.run(conn, keyname, count, new Vector<HashMap<Integer,String>>());
 	}
 
 	private void readRecord() throws SQLException {
         ReadRecord proc = this.getProcedure(ReadRecord.class);
         assert (proc != null);
-        int keyname = keysequence.nextInt();
+        int keyname = readRecord.nextInt();
         proc.run(conn, keyname, new HashMap<Integer,String>());
 	}
 
 	private void readModifyWriteRecord() throws SQLException {
 		ReadModifyWriteRecord proc = this.getProcedure(ReadModifyWriteRecord.class);
         assert (proc != null);
-        int keyname = keysequence.nextInt();
+        int keyname = readRecord.nextInt();
         //System.out.println("[Thread " + this.id+"] RMW this:  "+ keyname);
         proc.run(conn, keyname, new HashMap<Integer,String>());	
 	}
@@ -101,7 +101,7 @@ public class YCSBWorker extends Worker{
 	private void insertRecord() throws SQLException {
 		InsertRecord proc = this.getProcedure(InsertRecord.class);
         assert (proc != null);
-        int keyname = newRec.nextInt();
+        int keyname = insertRecord.nextInt();
         //System.out.println("[Thread " + this.id+"] insert this:  "+ keyname);
         HashMap<Integer, String> values = buildValues(10);
         proc.run(conn, keyname, values);
@@ -110,7 +110,7 @@ public class YCSBWorker extends Worker{
 	private void deleteRecord() throws SQLException {
 		DeleteRecord proc = this.getProcedure(DeleteRecord.class);
         assert (proc != null);
-        int keyname = keysequence.nextInt();
+        int keyname = readRecord.nextInt();
         proc.run(conn, keyname);
 	}
 	

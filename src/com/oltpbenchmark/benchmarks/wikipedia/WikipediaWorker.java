@@ -72,9 +72,9 @@ public class WikipediaWorker extends Worker {
             }
 
         } catch (MySQLTransactionRollbackException m) {
-            System.err.println("Rollback:" + m.getMessage());
+            System.err.println("Rollback of thread: "+ this.id+" "+ m.getMessage());
         } catch (SQLException e) {
-            System.err.println("Timeout:" + e.getMessage());
+            System.err.println("Timeout of thread: "+ this.id+" Doing: "+ nextTransaction.getProcedureClass() +" Message:"+ e.getMessage());
         }
         return;
     }

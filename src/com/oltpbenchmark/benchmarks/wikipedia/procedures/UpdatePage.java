@@ -16,7 +16,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.Article;
 public class UpdatePage extends Procedure {
 	
 	// pretend we are changing something in the text
-	public SQLStmt insertText = new SQLStmt("INSERT INTO `text` (old_id,old_page,old_text,old_flags) VALUES (NULL,?,?,'utf-8') "); 
+	public SQLStmt insertText = new SQLStmt("INSERT INTO `text` (old_page,old_text,old_flags) VALUES (?,?,'utf-8') "); 
 	public SQLStmt insertRevision = new SQLStmt("INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
 		+ "VALUES (NULL, ?, ?,'','0',?, ?,\""+ LoaderUtil.getCurrentTime14()+ "\",'0',?,?)");
 	public SQLStmt updatePage = new SQLStmt("UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
@@ -28,7 +28,7 @@ public class UpdatePage extends Procedure {
 	+ "rc_moved_to_ns," + "rc_moved_to_title," + "rc_ip,"
 	+ "rc_patrolled," + "rc_new," + "rc_old_len," + "rc_new_len,"
 	+ "rc_deleted," + "rc_logid," + "rc_log_type,"
-	+ "rc_log_action," + "rc_params," + "rc_id) " +
+	+ "rc_log_action," + "rc_params) " +
 	"VALUES ('"
 	+ LoaderUtil.getCurrentTime14()
 	+ "','"
@@ -36,7 +36,7 @@ public class UpdatePage extends Procedure {
 	+ "', ? , ? ,"
 	+ "'0','0', ? , ? , ? ,'', ? , ? ,'0','0','','"
 	+ getMyIp()
-	+ "','1','0', ? , ? ,'0','0',NULL,'','',NULL)");
+	+ "','1','0', ? , ? ,'0','0',NULL,'','')");
 	
 	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_user  FROM `watchlist`  WHERE wl_title = ? AND wl_namespace = ? " +
 			"AND (wl_user != ?) AND (wl_notificationtimestamp IS NULL)");

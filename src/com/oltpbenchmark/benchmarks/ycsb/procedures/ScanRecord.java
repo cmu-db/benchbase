@@ -23,7 +23,7 @@ public class ScanRecord extends Procedure{
             stmt.setInt(1, start); 
             stmt.setInt(2, start+count); 
             ResultSet r=stmt.executeQuery();
-            while(!r.next())
+            while(r.next())
             {
             	HashMap<Integer,String> m=new HashMap<Integer,String>();
             	for(int i=1;i<11;i++)

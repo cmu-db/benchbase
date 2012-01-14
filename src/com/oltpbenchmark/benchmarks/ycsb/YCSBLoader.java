@@ -21,7 +21,7 @@ public class YCSBLoader extends Loader{
 		super(benchmark, c);
         this.num_record = (int)Math.round(YCSBConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of USERS:  " + this.num_record);
+            LOG.debug("# of RECORDS:  " + this.num_record);
         }
 	}
 
@@ -45,7 +45,7 @@ public class YCSBLoader extends Loader{
 	                assert(result != null);
 	                conn.commit();
 	                if (LOG.isDebugEnabled())
-	                    LOG.debug(String.format("Users %d / %d", total, this.num_record));
+	                    LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
 	            }
 	        } // FOR
 	        stmt.executeBatch();

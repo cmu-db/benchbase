@@ -2,15 +2,20 @@ package com.oltpbenchmark.benchmarks.ycsb;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class YCSBBenchmark extends BenchmarkModule{
 
@@ -21,14 +26,32 @@ public class YCSBBenchmark extends BenchmarkModule{
 
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		// TODO Auto-generated method stub
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		try {
+            Connection metaConn = this.getConnection();
+            Map<String,Table> tables=this.getTables(metaConn);
+            
+            // LOADING FROM THE DATABASE IMPORTANT INFORMATION
+            // LIST OF USERS
+
+            Table t=tables.get("USERTABLE");
+            assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();           
+            String userCount= SQLUtil.getMaxColSQL(t, "ycsb_key");
+            Statement stmt = metaConn.createStatement();
+            ResultSet res = stmt.executeQuery(userCount);
+            int init_record_count=0;
+            while (res.next()) {
+                init_record_count= res.getInt(1);
+            }
+            assert init_record_count > 0;
+            res.close();
+            //
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				workers.add(new YCSBWorker(i, this));
+				workers.add(new YCSBWorker(i, this, init_record_count+1));
 			} // FOR
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

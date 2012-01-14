@@ -143,4 +143,9 @@ public abstract class SQLUtil {
     	
     	return (sb.toString());
     }
+
+    public static String getMaxColSQL(Table catalog_tbl, String col) {
+        return String.format("SELECT MAX(%s) FROM %s",
+                col, catalog_tbl.getEscapedName());
+    }
 }

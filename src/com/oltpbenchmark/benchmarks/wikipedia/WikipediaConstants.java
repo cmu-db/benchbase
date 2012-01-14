@@ -36,4 +36,9 @@ public abstract class WikipediaConstants {
 	 * Title length
 	 */
 	public static final int TITLE = 10;
+	
+	/**
+     * Commit count
+     */
+	public static final int configCommitCount = 1000;
 }
