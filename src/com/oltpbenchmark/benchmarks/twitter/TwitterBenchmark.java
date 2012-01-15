@@ -50,9 +50,9 @@ public class TwitterBenchmark extends BenchmarkModule {
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		TransactionSelector transSel = new TransactionSelector(
-				twitterConf.getTracefile(), 
-				twitterConf.getTracefile2(), 
-				workConf.getTransTypes());
+		twitterConf.getTracefile(), 
+		twitterConf.getTracefile2(), 
+		workConf.getTransTypes());
 		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
@@ -60,7 +60,8 @@ public class TwitterBenchmark extends BenchmarkModule {
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				Connection conn = this.getConnection();
 				conn.setAutoCommit(false);
-				TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(
+				TransactionGenerator<TwitterOperation> generator = 
+				    new TraceTransactionGenerator(
 						trace);
 				workers.add(new TwitterWorker(i, this, generator));
 			} // FOR

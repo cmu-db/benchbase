@@ -91,7 +91,7 @@ public class TwitterLoader extends Loader {
         int total = 0;
         int batchSize = 0;
         ScrambledZipfianGenerator zy=new ScrambledZipfianGenerator(this.num_users);
-        for (long i = 0; i < this.num_tweets; i++) {
+        for (long i = 0; i < this.num_tweets; i++) {           
             int uid = zy.nextInt();
             tweetInsert.setLong(1, i);
             tweetInsert.setInt(2, uid);
@@ -100,14 +100,14 @@ public class TwitterLoader extends Loader {
             tweetInsert.addBatch();
             batchSize++;
             total++;
-            
+
             if ((batchSize % configCommitCount) == 0) {
                 tweetInsert.executeBatch();
                 conn.commit();
-                tweetInsert.clearBatch();
+                tweetInsert.clearBatch();            
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) 
-                    LOG.debug("tweet % " + total);
+                    LOG.debug("tweet % " + total + "/"+this.num_tweets);
             }
         }
         if (batchSize > 0) {
@@ -115,7 +115,7 @@ public class TwitterLoader extends Loader {
             conn.commit();
         }
         if (LOG.isDebugEnabled()) 
-            LOG.debug("Tweets Loaded");
+            LOG.debug("[Tweets Loaded] "+ this.num_tweets);
     }
     
     /**
@@ -141,21 +141,22 @@ public class TwitterLoader extends Loader {
         int total = 1;
         int batchSize = 0;
         
-        ZipfianGenerator zipfFollowee = new ZipfianGenerator(this.num_users);
-        ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows);
+        ZipfianGenerator zipfFollowee = new ZipfianGenerator(this.num_users,1.75);
+        ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows,1.75);
         List<Integer> followees = new ArrayList<Integer>();
         for (int follower = 0; follower < this.num_users; follower++) {
             followees.clear();
             int time = zipfFollows.nextInt();
+            if(time==0) time=1; // At least this follower will follow 1 user 
             for (int f = 0; f < time; f++) {
                 int followee = zipfFollowee.nextInt();
                 if (follower != followee && !followees.contains(followee)) {
-                    followsInsert.setInt(1, follower);
-                    followsInsert.setInt(2, followee);
+                    followsInsert.setInt(1, followee);
+                    followsInsert.setInt(2, follower);
                     followsInsert.addBatch();
 
-                    followersInsert.setInt(1, followee);
-                    followersInsert.setInt(2, follower);
+                    followersInsert.setInt(1, follower);
+                    followersInsert.setInt(2, followee);
                     followersInsert.addBatch();
 
                     followees.add(followee);
@@ -171,7 +172,7 @@ public class TwitterLoader extends Loader {
                         followersInsert.clearBatch();
                         batchSize = 0;
                         if (LOG.isDebugEnabled()) 
-                            LOG.debug("Users and whom they follow  % " + (int)(((double)follower/(double)this.num_users)*100));
+                            LOG.debug("Follows  % " + (int)(((double)follower/(double)this.num_users)*100));
                     }
                 }
             } // FOR
@@ -181,7 +182,7 @@ public class TwitterLoader extends Loader {
             followersInsert.executeBatch();
             conn.commit();
         }
-        if (LOG.isDebugEnabled()) LOG.debug("Follows Loaded");
+        if (LOG.isDebugEnabled()) LOG.debug("[Follows Loaded] "+total);
     }
 
     @Override

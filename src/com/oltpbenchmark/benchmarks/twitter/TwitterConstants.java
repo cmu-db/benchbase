@@ -15,7 +15,7 @@ public abstract class TwitterConstants {
     /**
      * Max follow per user baseline
      */
-    public static final int MAX_FOLLOW_PER_USER = 10;
+    public static final int MAX_FOLLOW_PER_USER = 50;
 
     /**
      * Name length (inclusive)

@@ -92,7 +92,7 @@ public class TransactionSelector {
 
 		String line2 = dis2.readLine();
 		String[] sa2 = Tokenizer.parseTokens(line2, ' ');
-		int uid = Integer.parseInt(sa[0]);
+		int uid = Integer.parseInt(sa2[0]);
 		
 		return new TwitterOperation(tweetid,uid);
 	}
