@@ -27,8 +27,8 @@ public class EpinionsLoader extends Loader{
 	private final int ITEMS=1000; // Number of baseline pages
 	private static final long TITLE = 20;
 	
-	private static final int REVIEW = 20; // this is the average .. expand to max
-	private static final int TRUST = 10; // this is the average .. expand to max
+	private static final int REVIEW = 5000; // this is the average .. expand to max
+	private static final int TRUST = 2000; // this is the average .. expand to max
 	
 	public final static int configCommitCount = 1000;
 	/// 
@@ -45,10 +45,10 @@ public class EpinionsLoader extends Loader{
         this.num_reviews = (int)Math.round(REVIEW * this.scaleFactor);
         this.num_trust= (int)Math.round(TRUST * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of USERS:  " + this.num_users);
-            LOG.debug("# of ITEMS: " + this.num_items);
-            LOG.debug("# of REVIEWS: " + this.num_reviews);
-            LOG.debug("# of TRUSTS: " + this.num_trust);
+            LOG.debug("# USERS:  " + this.num_users);
+            LOG.debug("# ITEMS: " + this.num_items);
+            LOG.debug("# Max of REVIEWS per item: " + this.num_reviews);
+            LOG.debug("# Max of TRUSTS per user: " + this.num_trust);
         }
 	}
 
@@ -141,13 +141,14 @@ public class EpinionsLoader extends Loader{
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
 		//
-		ZipfianGenerator numReviews=new ZipfianGenerator(num_reviews);
+		ZipfianGenerator numReviews=new ZipfianGenerator(num_reviews,1.9);
 		ZipfianGenerator reviewer=new ZipfianGenerator(num_users);
 		int total=0;
 		for(int i=0;i<num_items;i++)
 		{
 			List<Integer> reviewers=new ArrayList<Integer>();
 			int review_count= numReviews.nextInt();
+			if(review_count==0) review_count=1; // make sure at least each item has a review
 			for(int rc=0;rc<review_count;)
 			{
 				int u_id= reviewer.nextInt();
@@ -195,7 +196,7 @@ public class EpinionsLoader extends Loader{
         PreparedStatement trustInsert = this.conn.prepareStatement(sql);
 		//
 		int total=0;
-		ZipfianGenerator numTrust=new ZipfianGenerator(num_trust);
+		ZipfianGenerator numTrust=new ZipfianGenerator(num_trust,1.95);
 		ScrambledZipfianGenerator reviewer=new ScrambledZipfianGenerator(num_users);
 		Random isTrusted= new Random(System.currentTimeMillis());
 		for(int i=0;i<num_users;i++)
