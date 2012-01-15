@@ -32,17 +32,17 @@ public class GetFollowers extends Procedure {
         stmt = this.getPreparedStatement(conn, getFollowerNames);
         int ctr = 0;
         long last = -1;
-        while (rs.next()) {
+        while (rs.next() && ctr++ < TwitterWorker.LIMIT_FOLLOWERS) {
             last = rs.getLong(1);
-            stmt.setLong(ctr+1, last);
+            stmt.setLong(ctr, last);
         } // WHILE
         if (ctr > 0) {
             while (ctr++ < TwitterWorker.LIMIT_FOLLOWERS) {
-                stmt.setLong(ctr+1, last);
+                stmt.setLong(ctr, last);
             } // WHILE
             return stmt.executeQuery();
         }
-        LOG.info("No followers for user: "+uid);
+        // LOG.warn("No followers for user : "+uid); //... so what ? 
         return (null);
     }
 

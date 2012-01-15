@@ -27,8 +27,8 @@ public class EpinionsLoader extends Loader{
 	private final int ITEMS=1000; // Number of baseline pages
 	private static final long TITLE = 20;
 	
-	private static final int REVIEW = 5000; // this is the average .. expand to max
-	private static final int TRUST = 2000; // this is the average .. expand to max
+	private static final int REVIEW = 500; // this is the average .. expand to max
+	private static final int TRUST = 200; // this is the average .. expand to max
 	
 	public final static int configCommitCount = 1000;
 	/// 
@@ -141,7 +141,7 @@ public class EpinionsLoader extends Loader{
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
 		//
-		ZipfianGenerator numReviews=new ZipfianGenerator(num_reviews,1.9);
+		ZipfianGenerator numReviews=new ZipfianGenerator(num_reviews,1.8);
 		ZipfianGenerator reviewer=new ZipfianGenerator(num_users);
 		int total=0;
 		for(int i=0;i<num_items;i++)
