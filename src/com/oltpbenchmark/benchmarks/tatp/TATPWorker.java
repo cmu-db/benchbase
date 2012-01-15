@@ -198,8 +198,8 @@ public class TATPWorker extends Worker {
 		        t.invoke(this.conn, proc, subscriberSize);
 		        this.conn.commit();
 		    } catch (UserAbortException ex) {
-		        LOG.debug(proc + " Aborted", ex);
-		        // FIXME this.conn.rollback();
+		        if (LOG.isDebugEnabled()) LOG.debug(proc + " Aborted", ex);
+		        this.conn.rollback();
 		    }
 		} catch (SQLException ex) {
 			throw new RuntimeException("Unexpected error when executing " + proc, ex);
