@@ -5,7 +5,7 @@
 experimentid=1
 
 # directory to save monitoring results
-expmonitoring_homedir=.
+expmonitoring_homedir=/home/ubuntu/oltpbenchmark/tools/rs-sysmon
 
 # do you want to monitor mysql? 
 monitor_mysql=true
@@ -16,10 +16,10 @@ monitor_mysql=true
 # it should not require any privileges for the user, other than
 # being able to connect to the machine
 
-mysql_user=root
-mysql_pass=
-mysql_host="127.0.0.1"
-mysql_port=3500
+mysql_user=oltp
+mysql_pass=oltpmy1ch
+mysql_host="ec2-50-16-99-183.compute-1.amazonaws.com"
+mysql_port=3600
 
 # How often do you want to sample system stats? (in seconds) 
 # The program has minimal performance impact and records about 2.5 KB of data per sample 
@@ -27,7 +27,7 @@ mysql_port=3500
 monitoring_frequency=1
 
 # once you are done configuring set the variable below to true
-is_configured=false
+is_configured=true
 
 ############################################################
 ### EVERYTHING BELOW THIS POINT SHOULDN'T BE TOUCHED #######
