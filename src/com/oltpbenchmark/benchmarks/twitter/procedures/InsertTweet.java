@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Time;
 
+import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
@@ -19,7 +20,7 @@ public class InsertTweet extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, insertTweet);
         stmt.setLong(1, uid);
         stmt.setString(2, text);
-        stmt.setTime(3, time);
+        stmt.setDate(3,new java.sql.Date(System.currentTimeMillis()));
         return (stmt.execute());
     }
 }

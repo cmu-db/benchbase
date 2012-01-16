@@ -48,21 +48,25 @@ public class GetTweetsFromFollowing extends Procedure {
         stmt.setLong(1, uid);
         ResultSet rs = stmt.executeQuery();
         
-        stmt = this.getPreparedStatement(conn, getFollowing);
+        stmt = this.getPreparedStatement(conn, getTweets);
         int ctr = 0;
         long last = -1;
-        while (rs.next()) {
+        while (rs.next() && ctr++ < TwitterWorker.LIMIT_FOLLOWERS) {
             last = rs.getLong(1);
-            stmt.setLong(ctr+1, last);
+            stmt.setLong(ctr, last);
+            
         } // WHILE
         if (ctr > 0) {
             while (ctr++ < TwitterWorker.LIMIT_FOLLOWERS) {
-                stmt.setLong(ctr+1, last);
-            } // WHILE
+                stmt.setLong(ctr, last);
+            } // WHILE     
             return stmt.executeQuery();
         }
-        LOG.info("No followers for user: "+uid);
-        return (null);
+        else 
+        {
+            // LOG.debug("No followers for user: "+uid); // so what .. ?
+            return (null);
+        }
     }
     
 }

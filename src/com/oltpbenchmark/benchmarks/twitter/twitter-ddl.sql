@@ -37,10 +37,9 @@ CREATE TABLE tweets (
   PRIMARY KEY (id)
 );
 
--- TODO: id AUTO_INCREMENT
 DROP TABLE IF EXISTS added_tweets;
 CREATE TABLE added_tweets (
-  id bigint NOT NULL,
+  id bigint NOT NULL auto_increment,
   uid int NOT NULL REFERENCES user (uid),
   text char(140) NOT NULL,
   createdate datetime DEFAULT NULL,
