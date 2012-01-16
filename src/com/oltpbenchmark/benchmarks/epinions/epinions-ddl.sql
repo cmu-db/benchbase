@@ -44,5 +44,7 @@ CREATE TABLE trust (
   trust int NOT NULL,
   creation_date datetime DEFAULT NULL
 );
+CREATE INDEX IDX_REVIEW_RATING_UID ON trust (source_u_id);
+CREATE INDEX IDX_REVIEW_RATING_AID ON trust (target_u_id);
 
 

@@ -36,6 +36,7 @@ CREATE TABLE tweets (
   createdate datetime DEFAULT NULL,
   PRIMARY KEY (id)
 );
+CREATE INDEX IDX_TWEETS_UID ON tweets (uid);
 
 DROP TABLE IF EXISTS added_tweets;
 CREATE TABLE added_tweets (
