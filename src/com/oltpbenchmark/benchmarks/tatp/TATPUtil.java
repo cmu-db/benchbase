@@ -100,12 +100,12 @@ public abstract class TATPUtil {
         return value;
     }
     
-    public static String padWithZero(Long n) {
-        String meat = n.toString();
-        char[] zeros = new char[15 - meat.length()];
+    public static String padWithZero(long n) {
+        String str = Long.toString(n);
+        char[] zeros = new char[TATPConstants.SUB_NBR_PADDING_SIZE - str.length()];
         for (int i = 0; i < zeros.length; i++)
             zeros[i] = '0';
-        return (new String(zeros) + meat);
+        return (new String(zeros) + str);
     }
 
     /**

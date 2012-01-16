@@ -31,7 +31,9 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.types.SortDirectionType;
+import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.StringUtil;
 
 /**
  * 
@@ -52,6 +54,9 @@ public abstract class CatalogUtil {
         assert(c != null) : "Null Connection!";
         Map<String, Table> tables = new HashMap<String, Table>();
         
+        // TableName -> ColumnName -> <FkeyTable, FKeyColumn>
+        Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<String, Map<String,Pair<String,String>>>();
+        
         DatabaseMetaData md = c.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
@@ -61,7 +66,8 @@ public abstract class CatalogUtil {
             Table catalog_tbl = new Table(table_name);
             
             // COLUMNS
-            LOG.debug("Retrieving column information for " + table_name);
+            if (LOG.isDebugEnabled())
+                LOG.debug("Retrieving column information for " + table_name);
             ResultSet col_rs = md.getColumns(null,null, table_name, null);
             while (col_rs.next()) {
                 if (LOG.isTraceEnabled()) LOG.trace(SQLUtil.debug(col_rs));
@@ -86,7 +92,8 @@ public abstract class CatalogUtil {
             } // WHILE
             
             // PRIMARY KEYS
-            LOG.debug("Retrieving PRIMARY KEY information for " + table_name);
+            if (LOG.isDebugEnabled())
+                LOG.debug("Retrieving PRIMARY KEY information for " + table_name);
             ResultSet pkey_rs = md.getPrimaryKeys(null, null, table_name);
             SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
             while (pkey_rs.next()) {
@@ -104,35 +111,79 @@ public abstract class CatalogUtil {
             catalog_tbl.setPrimaryKeyColumns(pkey_cols.values());
             
             // INDEXES
-            LOG.debug("Retrieving INDEX information for " + table_name);
+            if (LOG.isDebugEnabled())
+                LOG.debug("Retrieving INDEX information for " + table_name);
             ResultSet idx_rs = md.getIndexInfo(null, null, table_name, false, false);
             while (idx_rs.next()) {
-                if (LOG.isDebugEnabled()) LOG.debug(SQLUtil.debug(idx_rs));
+                if (LOG.isDebugEnabled())
+                    LOG.debug(SQLUtil.debug(idx_rs));
                 boolean idx_unique = (idx_rs.getBoolean(4) == false);
                 String idx_name = idx_rs.getString(6);
                 int idx_type = idx_rs.getShort(7);
                 int idx_col_pos = idx_rs.getInt(8) - 1;
                 String idx_col_name = idx_rs.getString(9);
-                String sort=idx_rs.getString(10);
+                String sort = idx_rs.getString(10);
                 SortDirectionType idx_direction;
-                if(sort != null )
-                {
+                if (sort != null) {
                     idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
-                }
-                else idx_direction = null;
-                
+                } else
+                    idx_direction = null;
+
                 Index catalog_idx = catalog_tbl.getIndex(idx_name);
                 if (catalog_idx == null) {
                     catalog_idx = new Index(catalog_tbl, idx_name, idx_type, idx_unique);
                     catalog_tbl.addIndex(catalog_idx);
                 }
-                assert(catalog_idx != null);
+                assert (catalog_idx != null);
                 catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
             } // WHILE
             
-
+            // FOREIGN KEYS
+            if (LOG.isDebugEnabled())
+                LOG.debug("Retrieving FOREIGN KEY information for " + table_name);
+            ResultSet fk_rs = md.getImportedKeys(null, null, table_name);
+            foreignKeys.put(table_name, new HashMap<String, Pair<String,String>>());
+            while (fk_rs.next()) {
+                if (LOG.isDebugEnabled())
+                    LOG.debug(table_name + " => " + SQLUtil.debug(fk_rs));
+                assert(fk_rs.getString(7).equalsIgnoreCase(table_name));
+                
+                String colName = fk_rs.getString(8);
+                String fk_tableName = fk_rs.getString(3);
+                String fk_colName = fk_rs.getString(4);
+                
+                foreignKeys.get(table_name).put(colName, Pair.of(fk_tableName, fk_colName));
+            } // WHILE
+            
             tables.put(table_name.toUpperCase(), catalog_tbl);
         } // WHILE
+        
+        // FOREIGN KEYS
+        if (LOG.isDebugEnabled())
+            LOG.debug("Foreign Key Mappings:\n" + StringUtil.formatMaps(foreignKeys));
+        for (Table catalog_tbl : tables.values()) {
+            Map<String, Pair<String, String>> fk = foreignKeys.get(catalog_tbl.getName());
+            for (String colName : fk.keySet()) {
+                Column catalog_col = catalog_tbl.getColumnByName(colName);
+                assert(catalog_col != null);
+                
+                Pair<String, String> fkey = fk.get(colName);
+                assert(fkey != null);
+                
+                Table fkey_tbl = tables.get(fkey.getFirst());
+                if (fkey_tbl == null) {
+                    throw new RuntimeException("Unexpected foreign key parent table " + fkey); 
+                }
+                Column fkey_col = fkey_tbl.getColumnByName(fkey.getSecond());
+                if (fkey_col == null) {
+                    throw new RuntimeException("Unexpected foreign key parent column " + fkey); 
+                }
+                
+                if (LOG.isDebugEnabled())
+                    LOG.debug(catalog_col.fullName() + " -> " + fkey_col.fullName());
+                catalog_col.setForeignKey(fkey_col);
+            } // FOR
+        } // FOR
         
         // @Djellel 
         // Setting the separator
@@ -141,11 +192,6 @@ public abstract class CatalogUtil {
         return (tables);
     }
     
-    public static Column getForeignKeyParentColumn(Connection c, Column catalog_col) {
-      
-        return (null);
-    }
-
 	public static void setSeparator(Connection c) throws SQLException {
 		CatalogUtil.separator = c.getMetaData().getIdentifierQuoteString();
 	}

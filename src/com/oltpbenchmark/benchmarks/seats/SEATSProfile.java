@@ -186,7 +186,7 @@ public class SEATSProfile {
         // Long winded and kind of screwy, but hey what else are you going to do?
         for (Table catalog_tbl : this.tables.values()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
-                Column catalog_fkey_col = CatalogUtil.getForeignKeyParentColumn(c, catalog_col);
+                Column catalog_fkey_col = catalog_col.getForeignKey();
                 if (catalog_fkey_col != null && this.code_id_xref.containsKey(catalog_fkey_col.getName())) {
                     this.fkey_value_xref.put(catalog_col.getName(), catalog_fkey_col.getName());
                     if (LOG.isDebugEnabled()) LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.fullName(), catalog_fkey_col.fullName()));

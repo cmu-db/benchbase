@@ -348,10 +348,8 @@ public class SEATSLoader extends Loader {
                     if (tuple[col_code_idx] != null) {
                         String code = tuple[col_code_idx].toString();
                         tuple[col_code_idx] = mapping_columns.get(col_code_idx).get(code);
-                        if (LOG.isTraceEnabled()) {
-                            Column catalog_fkey_col = CatalogUtil.getForeignKeyParentColumn(this.conn, catalog_col);
-                            LOG.trace(String.format("Mapped %s '%s' -> %s '%s'", catalog_col.fullName(), code, catalog_fkey_col.fullName(), tuple[col_code_idx]));
-                        }
+                        if (LOG.isTraceEnabled())
+                            LOG.trace(String.format("Mapped %s '%s' -> %s '%s'", catalog_col.fullName(), code, catalog_col.getForeignKey().fullName(), tuple[col_code_idx]));
                     }
                 } // FOR
                

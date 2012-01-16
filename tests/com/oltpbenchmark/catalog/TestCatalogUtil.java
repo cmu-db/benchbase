@@ -103,6 +103,25 @@ public class TestCatalogUtil extends TestCase {
     }
     
     /**
+     * testForeignKeys
+     */
+    public void testForeignKeys() throws Exception {
+        // The C table should have two foreign keys
+        Table catalog_tbl = this.tables.get("C");
+        int found = 0;
+        assert(catalog_tbl != null) : this.tables.keySet();
+        for (Column catalog_col : catalog_tbl.getColumns()) {
+            assertNotNull(catalog_col);
+            Column fkey_col = catalog_col.getForeignKey();
+            if (fkey_col != null) {
+                assertFalse(fkey_col.getTable().equals(catalog_tbl));
+                found++;
+            }
+        } // FOR
+        assertEquals(2, found);
+    }
+    
+    /**
      * testIndexes
      */
     public void testIndexes() throws Exception {
