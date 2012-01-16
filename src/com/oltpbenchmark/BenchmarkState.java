@@ -25,7 +25,6 @@ public final class BenchmarkState {
 	// Protected by this
 	private int workAvailable = 0;
 	private int workersWaiting = 0;
-	//private LoadLineReader llr;
 	private volatile Phase currentPhase;
 
 	public Phase getCurrentPhase() {
@@ -122,13 +121,16 @@ public final class BenchmarkState {
 	 * 
 	 * @throws QueueLimitException
 	 */
-	public void addWork(int amount) throws QueueLimitException {
+	public void addWork(int amount, boolean resetQueues) throws QueueLimitException {
 		assert amount > 0;
 
 		synchronized (this) {
 			assert workAvailable >= 0;
 
-			workAvailable += amount;
+	        if (resetQueues)
+	            workAvailable = amount;
+	        else
+	            workAvailable += amount;
 
 			if (workAvailable > queueLimit) {
 				// TODO: Deal with this appropriately. For now, we are
@@ -187,40 +189,4 @@ public final class BenchmarkState {
 		}
 	}
 
-	public void addWork(int amount, boolean resetQueues, LoadLineReader llr)
-			throws QueueLimitException {
-		assert amount > 0;
-
-		synchronized (this) {
-			assert workAvailable >= 0;
-			//this.llr = new LoadLineReader(llr);
-			if (resetQueues)
-				workAvailable = amount;
-			else
-				workAvailable += amount;
-
-			if (workAvailable > queueLimit) {
-				// TODO: Deal with this appropriately. For now, we are
-				// ignoring it.
-				workAvailable = queueLimit;
-				// throw new QueueLimitException("Work queue limit ("
-				// + queueLimit
-				// + ") exceeded; Cannot keep up with desired rate");
-			}
-
-			if (workersWaiting <= amount) {
-				// Wake all waiters
-				this.notifyAll();
-			} else {
-				// Only wake the correct number of waiters
-				assert workersWaiting > amount;
-				for (int i = 0; i < amount; ++i) {
-					this.notify();
-				}
-			}
-			int wakeCount = (workersWaiting < amount) ? workersWaiting
-					: amount;
-			assert wakeCount <= workersWaiting;
-		}
-	}
 }

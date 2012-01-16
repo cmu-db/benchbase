@@ -333,9 +333,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			// posting new work... and reseting the queue in case we have new
 			// portion of the workload...
 
-			// testState.addWork(nextToAdd, resetQueues, llr);//FIXME ?
-
-			testState.addWork(nextToAdd);
+		    testState.addWork(nextToAdd, resetQueues);
 			resetQueues = false;
 
 			// Wait until the interval expires, which may be "don't wait"
