@@ -56,19 +56,11 @@ public class TwitterBenchmark extends BenchmarkModule {
 		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-		try {
-			for (int i = 0; i < workConf.getTerminals(); ++i) {
-				Connection conn = this.getConnection();
-				conn.setAutoCommit(false);
-				TransactionGenerator<TwitterOperation> generator = 
-				    new TraceTransactionGenerator(
-						trace);
-				workers.add(new TwitterWorker(i, this, generator));
-			} // FOR
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		for (int i = 0; i < workConf.getTerminals(); ++i) {
+			TransactionGenerator<TwitterOperation> generator = 
+			    new TraceTransactionGenerator(trace);
+			workers.add(new TwitterWorker(i, this, generator));
+		} // FOR
 		return workers;
 	}
 	
