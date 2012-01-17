@@ -4,11 +4,23 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 
 public abstract class SQLUtil {
+    private static final Logger LOG = Logger.getLogger(SQLUtil.class);
+    
+    private static final DateFormat timestamp_formats[] = new DateFormat[] {
+        new SimpleDateFormat("yyyy-MM-dd"),
+        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
+        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
+    };
 
     /**
      * Simple pretty-print debug method for the current row
@@ -27,6 +39,70 @@ public abstract class SQLUtil {
         
         return (String.format("ROW[%02d] -> [%s]",
                              rs.getRow(), StringUtil.join(",", data)));
+    }
+    
+    /**
+     * For the given string representation of a value, convert it to the proper
+     * object based on its sqlType 
+     * @param sqlType
+     * @param value
+     * @return
+     * @see java.sql.Types
+     */
+    public static Object castValue(int sqlType, String value) {
+        Object ret = null;
+        switch (sqlType) {
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.NCHAR:
+            case Types.NVARCHAR: {
+                ret = value;
+                break;
+            }
+            case Types.TINYINT:
+            case Types.SMALLINT: {
+                ret = Short.parseShort(value);
+                break;
+            }
+            case Types.INTEGER: {
+                ret = Integer.parseInt(value);
+                break;
+            }
+            case Types.BIGINT: {
+                ret = Long.parseLong(value);
+                break;
+            }
+            case Types.BOOLEAN: {
+                ret = Boolean.parseBoolean(value);
+                break;
+            }
+            case Types.DECIMAL:
+            case Types.DOUBLE: {
+                ret = Double.parseDouble(value);
+                break;
+            }
+            case Types.FLOAT: {
+                ret = Float.parseFloat(value);
+                break;
+            }
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP: {
+                for (DateFormat f : timestamp_formats) {
+                    try {
+                        ret = f.parse(value);
+                    } catch (ParseException ex) {
+                        // Ignore...
+                    }
+                    if (ret != null) break;
+                } // FOR
+                if (ret == null) throw new RuntimeException("Failed to parse timestamp '" + value + "'");
+                break;
+            }
+            default:
+                LOG.warn("Unexpected SQL Type '" + sqlType + "' for value '" + value + "'");
+        } // SWITCH
+        return (ret);
     }
 
     /**

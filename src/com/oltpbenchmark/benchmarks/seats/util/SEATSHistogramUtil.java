@@ -112,8 +112,8 @@ public abstract class SEATSHistogramUtil {
             histogram.load(file.getAbsolutePath());
             cached_Histograms.put(file, histogram);
         }
-//        if (LOG.isDebugEnabled()) 
-            LOG.info(String.format("Histogram %s\n%s", name, histogram.toString()));
+        if (LOG.isDebugEnabled()) 
+            LOG.debug(String.format("Histogram %s\n%s", name, histogram.toString()));
         
         return (histogram);
     }

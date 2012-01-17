@@ -20,16 +20,12 @@
 package com.oltpbenchmark.util;
 
 import java.io.File;
-import java.sql.Types;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Iterator;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * @author pavlo
@@ -43,12 +39,6 @@ public class TableDataIterable implements Iterable<Object[]> {
     private final int types[];
     private final boolean fkeys[];
     private final boolean nullable[];
-    
-    private final DateFormat timestamp_formats[] = new DateFormat[] {
-        new SimpleDateFormat("yyyy-MM-dd"),
-        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
-        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
-    };
     private int line_ctr = 0;
     
     /**
@@ -69,7 +59,7 @@ public class TableDataIterable implements Iterable<Object[]> {
         for (int i = 0; i < this.types.length; i++) {
             Column catalog_col = this.catalog_tbl.getColumn(i);
             this.types[i] = catalog_col.getType();
-            this.fkeys[i] = false; // TODO
+            this.fkeys[i] = (catalog_col.getForeignKey() != null);
             this.nullable[i] = catalog_col.isNullable();
         } // FOR
         
@@ -131,32 +121,17 @@ public class TableDataIterable implements Iterable<Object[]> {
                 else if (fkeys[col_idx]) {
                     tuple[col_idx] = row[row_idx++];
                 }
-                // Timestamps
-                else if (types[col_idx] == Types.TIMESTAMP) {
-                    for (DateFormat f : timestamp_formats) {
-                        try {
-                            tuple[col_idx] = f.parse(row[row_idx]);
-                        } catch (ParseException ex) {
-                            // Ignore...
-                        }
-                        if (tuple[col_idx] != null) break;
-                    } // FOR
-                    if (tuple[col_idx] == null) {
-                        throw new RuntimeException(String.format("Line %d: Invalid timestamp format '%s' for column #%d",
-                                                                 TableDataIterable.this.line_ctr, row[row_idx], col_idx));
-                    }
-                    row_idx++;
-                }
-                // Store string (truncate if necessary)
-                else if (types[col_idx] == Types.VARCHAR) {
-                    tuple[col_idx] = row[row_idx++];
-                }    
                 // Default: Cast the string into the proper type
                 else {
                     if (row[row_idx].isEmpty() && nullable[col_idx]) {
                         tuple[col_idx] = null;
                     } else {
-                        // TODO
+                        try {
+                            tuple[col_idx] = SQLUtil.castValue(types[col_idx], row[row_idx]);
+                        } catch (Throwable ex) {
+                            throw new RuntimeException(String.format("Line %d: Invalid data '%s' for column #%d",
+                                                       TableDataIterable.this.line_ctr, row[row_idx], col_idx));
+                        }
                     }
                     row_idx++;
                 }

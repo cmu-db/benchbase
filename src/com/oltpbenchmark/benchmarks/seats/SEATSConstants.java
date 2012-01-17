@@ -160,7 +160,7 @@ public abstract class SEATSConstants {
     public static final int PROB_DELETE_WITH_FREQUENTFLYER_ID_STR = 20;
     
     /** Probability that is a seat is initially occupied (0% - 100%) */
-    public static final int PROB_SEAT_OCCUPIED = 0; // 25;
+    public static final int PROB_SEAT_OCCUPIED = 1; // 25;
     
     /** Probability that UpdateCustomer should update FrequentFlyer records */
     public static final int PROB_UPDATE_FREQUENT_FLYER = 25;
@@ -227,19 +227,25 @@ public abstract class SEATSConstants {
     public static final String HISTOGRAM_FLIGHTS_PER_DEPART_TIMES = "flights_per_time";
     
     /** Tables that are loaded from data files */
-    public static final String TABLE_DATA_FILES[] = {
+    public static final String TABLES_DATAFILES[] = {
         SEATSConstants.TABLENAME_COUNTRY,
         SEATSConstants.TABLENAME_AIRPORT,
         SEATSConstants.TABLENAME_AIRLINE,
     };
     
     /** Tables generated from random data */
-    public static final String TABLE_SCALING[] = {
+    public static final String TABLES_SCALING[] = {
         SEATSConstants.TABLENAME_CUSTOMER,
         SEATSConstants.TABLENAME_FREQUENT_FLYER,
         SEATSConstants.TABLENAME_AIRPORT_DISTANCE,
         SEATSConstants.TABLENAME_FLIGHT,
         SEATSConstants.TABLENAME_RESERVATION,
+    };
+    
+    /** Configuration Tables */
+    public static final String TABLES_CONFIG[] = {
+        SEATSConstants.TABLENAME_CONFIG_PROFILE,
+        SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS,
     };
     
     /** Histograms generated from data files */

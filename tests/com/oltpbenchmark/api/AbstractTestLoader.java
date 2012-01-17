@@ -45,6 +45,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             } // FOR
         }
         
+        this.workConf.setScaleFactor(0.001);
         this.benchmark.createDatabase();
         this.tables = CatalogUtil.getTables(this.conn);
         assertNotNull(this.tables);

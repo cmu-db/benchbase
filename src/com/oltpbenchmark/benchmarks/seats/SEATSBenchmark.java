@@ -40,6 +40,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation;
+import com.oltpbenchmark.catalog.Table;
 
 public class SEATSBenchmark extends BenchmarkModule {
 
@@ -72,5 +73,19 @@ public class SEATSBenchmark extends BenchmarkModule {
 	@Override
 	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
 		return new SEATSLoader(this, conn);
+	}
+	
+	/**
+	 * Return the path of the CSV file that has data for the given Table catalog handle
+	 * @param data_dir
+	 * @param catalog_tbl
+	 * @return
+	 */
+	public static final File getTableDataFile(File data_dir, Table catalog_tbl) {
+	    File f = new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(),
+	                                                        File.separator,
+	                                                        catalog_tbl.getName().toLowerCase()));
+	    if (f.exists() == false) f = new File(f.getAbsolutePath() + ".gz");
+	    return (f);
 	}
 }

@@ -18,17 +18,12 @@
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
 /***************************************************************************
- *  Copyright (C) 2009 by H-Store Project                                  *
+ *  Copyright (C) 2011 by H-Store Project                                  *
  *  Brown University                                                       *
  *  Massachusetts Institute of Technology                                  *
  *  Yale University                                                        *
  *                                                                         *
- *  Original Version:                                                      *
- *  Zhe Zhang (zhe@cs.brown.edu)                                           *
- *                                                                         *
- *  Modifications by:                                                      *
- *  Andy Pavlo (pavlo@cs.brown.edu)                                        *
- *  http://www.cs.brown.edu/~pavlo/                                        *
+ *  http://hstore.cs.brown.edu/                                            *
  *                                                                         *
  *  Permission is hereby granted, free of charge, to any person obtaining  *
  *  a copy of this software and associated documentation files (the        *
@@ -55,6 +50,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.SQLDataException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -82,7 +78,6 @@ import com.oltpbenchmark.benchmarks.seats.util.DistanceUtil;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
 import com.oltpbenchmark.benchmarks.seats.util.ReturnFlight;
 import com.oltpbenchmark.benchmarks.seats.util.SEATSHistogramUtil;
-import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.CollectionUtil;
@@ -149,8 +144,6 @@ public class SEATSLoader extends Loader {
     
     @Override
     public void load() {
-        System.err.println("???");
-        
         if (LOG.isDebugEnabled()) LOG.debug("Begin to load tables...");
         
         // Load Histograms
@@ -228,7 +221,7 @@ public class SEATSLoader extends Loader {
      * @param catalog_db
      */
     protected void loadFixedTables() {
-        for (String table_name : SEATSConstants.TABLE_DATA_FILES) {
+        for (String table_name : SEATSConstants.TABLES_DATAFILES) {
             LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
             try {    
                 Table catalog_tbl = this.getTableCatalog(table_name);
@@ -247,12 +240,12 @@ public class SEATSLoader extends Loader {
      * @param catalog_db
      */
     protected void loadScalingTables() {
-        for (String table_name : SEATSConstants.TABLE_SCALING) {
+        for (String table_name : SEATSConstants.TABLES_SCALING) {
             try {
                 Table catalog_tbl = this.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
                 Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl); 
-                this.loadTable(catalog_tbl, iterable, 5000);
+                this.loadTable(catalog_tbl, iterable, 1);
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to load data files for scaling-sized table '" + table_name + "'", ex);
             }
@@ -312,23 +305,38 @@ public class SEATSLoader extends Loader {
                 // AIRPORT 
                 if (is_airport) {
                     // Skip any airport that does not have flights
-                    if (profile.hasFlights((String)tuple[catalog_tbl.getColumnByName("AP_CODE").getIndex()]) == false) continue;
+                    int col_code_idx = catalog_tbl.getColumnByName("AP_CODE").getIndex();
+                    if (profile.hasFlights((String)tuple[col_code_idx]) == false) {
+                        if (LOG.isTraceEnabled())
+                            LOG.trace(String.format("Skipping AIRPORT '%s' because it does not have any flights", tuple[col_code_idx]));
+                        continue;
+                    }
                     
                     // Update the row # so that it matches what we're actually loading
                     int col_id_idx = catalog_tbl.getColumnByName("AP_ID").getIndex();
                     tuple[col_id_idx] = (long)(row_idx + 1);
                     
                     // Store Locations
-                    int col_code_idx = catalog_tbl.getColumnByName("AP_CODE").getIndex();
                     int col_lat_idx = catalog_tbl.getColumnByName("AP_LATITUDE").getIndex();
                     int col_lon_idx = catalog_tbl.getColumnByName("AP_LONGITUDE").getIndex();
                     Pair<Double, Double> coords = Pair.of((Double)tuple[col_lat_idx], (Double)tuple[col_lon_idx]);
+                    if (coords.getFirst() == null || coords.getSecond() == null) {
+                        LOG.error(Arrays.toString(tuple));
+                    }
+                    assert(coords.getFirst() != null) :
+                        String.format("Unexpected null latitude for airport '%s' [%d]", tuple[col_code_idx], col_lat_idx);
+                    assert(coords.getSecond() != null) :
+                        String.format("Unexpected null longitude for airport '%s' [%d]", tuple[col_code_idx], col_lon_idx);
                     this.airport_locations.put(tuple[col_code_idx].toString(), coords);
+                    if (LOG.isTraceEnabled())
+                        LOG.trace(String.format("Storing location for '%s': %s", tuple[col_code_idx], coords));
                 }
                 
                 // Code Column -> Id Column
                 for (int col_code_idx : code_2_id.keySet()) {
-                    assert(tuple[col_code_idx] != null) : "The code column at '" + col_code_idx + "' is null for " + catalog_tbl + "\n" + Arrays.toString(tuple);
+                    assert(tuple[col_code_idx] != null) : 
+                        String.format("The value of the code column at '%d' is null for %s\n%s",
+                                      col_code_idx, catalog_tbl.getName(), Arrays.toString(tuple));
                     String code = tuple[col_code_idx].toString().trim();
                     if (code.length() > 0) {
                         Column from_column = columns.get(col_code_idx);
@@ -344,7 +352,9 @@ public class SEATSLoader extends Loader {
                 // Foreign Key Code -> Foreign Key Id
                 for (int col_code_idx : mapping_columns.keySet()) {
                     Column catalog_col = columns.get(col_code_idx);
-                    assert(tuple[col_code_idx] != null || catalog_col.isNullable()) : "The code column at '" + col_code_idx + "' is null for " + catalog_tbl.getName() + " id=" + tuple[0];
+                    assert(tuple[col_code_idx] != null || catalog_col.isNullable()) :
+                        String.format("The code %s column at '%d' is null for %s id=%s\n%s",
+                        catalog_col.fullName(), col_code_idx, catalog_tbl.getName(), tuple[0], Arrays.toString(tuple));
                     if (tuple[col_code_idx] != null) {
                         String code = tuple[col_code_idx].toString();
                         tuple[col_code_idx] = mapping_columns.get(col_code_idx).get(code);
@@ -354,10 +364,18 @@ public class SEATSLoader extends Loader {
                 } // FOR
                
                 for (int i = 0; i < tuple.length; i++) {
-                    insert_stmt.setObject(i+1, tuple[i]);
+                    try {
+                        insert_stmt.setObject(i+1, tuple[i]);
+                    } catch (SQLDataException ex) {
+                        LOG.error("INVALID " + catalog_tbl.getName() + " TUPLE: " + Arrays.toString(tuple));
+                        throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).fullName(), ex);
+                    }
                 } // FOR
                 insert_stmt.addBatch();
                 row_batch++;
+//                if (catalog_tbl.getName().equalsIgnoreCase("FREQUENT_FLYER")) {
+//                    LOG.info(String.format("[%05d] %s", row_idx, Arrays.toString(tuple)));
+//                }
                 
                 if (row_idx > 0 && (row_idx+1) % batch_size == 0) {
                     insert_stmt.executeBatch();
@@ -398,8 +416,7 @@ public class SEATSLoader extends Loader {
      * @throws Exception
      */
     protected Iterable<Object[]> getFixedIterable(Table catalog_tbl) throws Exception {
-        File f = new File(profile.airline_data_dir.getAbsolutePath() + File.separator + "table." + catalog_tbl.getName().toLowerCase() + ".csv");
-        if (f.exists() == false) f = new File(f.getAbsolutePath() + ".gz");
+        File f = SEATSBenchmark.getTableDataFile(profile.airline_data_dir, catalog_tbl);
         TableDataIterable iterable = new FixedDataIterable(catalog_tbl, f);
         return (iterable);
     }
@@ -476,7 +493,7 @@ public class SEATSLoader extends Loader {
         // FrequentFlyer
         } else if (name.equals(SEATSConstants.TABLENAME_FREQUENT_FLYER)) {
             long total = Math.round(SEATSConstants.NUM_CUSTOMERS * scaleFactor);
-            int per_customer = (int)Math.ceil(SEATSConstants.MAX_FREQUENTFLYER_PER_CUSTOMER / scaleFactor);
+            int per_customer = (int)Math.ceil(SEATSConstants.MAX_FREQUENTFLYER_PER_CUSTOMER * scaleFactor);
             it = new FrequentFlyerIterable(catalog_tbl, total, per_customer);
         // Airport Distance
         } else if (name.equals(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {
@@ -579,7 +596,7 @@ public class SEATSLoader extends Loader {
                 @Override
                 public Object[] next() {
                     for (int i = 0; i < data.length; i++) {
-                        Column catalog_col = catalog_tbl.getColumns().get(i);
+                        Column catalog_col = catalog_tbl.getColumn(i);
                         assert(catalog_col != null) : "The column at position " + i + " for " + catalog_tbl + " is null";
                         
                         // Special Value Column
@@ -597,7 +614,8 @@ public class SEATSLoader extends Loader {
                         
                         // Ints/Longs
                         } else {
-                            assert(SQLUtil.isIntegerType(types[i]));
+                            assert(SQLUtil.isIntegerType(types[i])) :
+                                "Unexpected column type " + catalog_tbl.getColumn(i).fullName();
                             data[i] = rng.number(0, 1<<30);
                         }
                     } // FOR
@@ -624,7 +642,7 @@ public class SEATSLoader extends Loader {
         private CustomerId last_id = null;
         
         public CustomerIterable(Table catalog_tbl, long total) {
-            super(catalog_tbl, total, new int[]{ 0, 1, 2 });
+            super(catalog_tbl, total, new int[]{ 0, 1, 2, 3 });
             
             // Use the flights per airport histogram to select where people are located
             Histogram<String> histogram = profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);  
@@ -702,7 +720,7 @@ public class SEATSLoader extends Loader {
         private final Collection<String> all_airlines;
         
         public FrequentFlyerIterable(Table catalog_tbl, long num_customers, int max_per_customer) {
-            super(catalog_tbl, num_customers, new int[]{ 0, 1 });
+            super(catalog_tbl, num_customers, new int[]{ 0, 1, 2 });
             
             this.customer_id_iterator = new CustomerIdIterable(profile.airport_max_customer_id).iterator();
             this.last_customer_id = this.customer_id_iterator.next();
@@ -711,6 +729,7 @@ public class SEATSLoader extends Loader {
             this.all_airlines = profile.getAirlineCodes();
             Histogram<String> histogram = new Histogram<String>();
             histogram.putAll(this.all_airlines);
+            
             // Embed a Gaussian distribution
             RandomDistribution.Gaussian gauss_rng = new RandomDistribution.Gaussian(rng, 0, this.all_airlines.size());
             this.airline_rand = new RandomDistribution.FlatHistogram<String>(gauss_rng, histogram);
@@ -741,7 +760,8 @@ public class SEATSLoader extends Loader {
                     while (this.customer_idx < this.ff_per_customer.length && this.ff_per_customer[this.customer_idx] <= 0) {
                         this.customer_idx++;
                         this.customer_airlines.clear();
-                        if (LOG.isTraceEnabled()) LOG.trace("CUSTOMER IDX: " + this.customer_idx);
+                        if (LOG.isTraceEnabled())
+                            LOG.trace(String.format("CUSTOMER IDX: %d / %d", this.customer_idx, profile.getCustomerIdCount()));
                         assert(this.customer_id_iterator.hasNext());
                         this.last_customer_id = this.customer_id_iterator.next();
                     } // WHILE
@@ -757,6 +777,11 @@ public class SEATSLoader extends Loader {
                     } while (this.customer_airlines.contains(value));
                     this.customer_airlines.add((String)value);
                     if (LOG.isTraceEnabled()) LOG.trace(this.last_customer_id + " => " + value);
+                    break;
+                }
+                // CUSTOMER_ID_STR
+                case (2): {
+                    value = Long.toString(this.last_customer_id.encode());
                     break;
                 }
                 // BAD MOJO!
@@ -1076,7 +1101,7 @@ public class SEATSLoader extends Loader {
                         SEATSLoader.this.decrementFlightSeat(this.flight_id);
                     } // FOR
                     value = new Long(SEATSLoader.this.getFlightRemainingSeats(this.flight_id));
-                    if (LOG.isDebugEnabled()) LOG.debug(this.flight_id.encode() + " SEATS REMAINING: " + value);
+                    if (LOG.isTraceEnabled()) LOG.trace(this.flight_id + " SEATS REMAINING: " + value);
                     break;
                 }
                 // BAD MOJO!
