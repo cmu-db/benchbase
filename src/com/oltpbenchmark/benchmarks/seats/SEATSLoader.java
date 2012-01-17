@@ -51,6 +51,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -131,9 +132,8 @@ public class SEATSLoader extends Loader {
     	super(benchmark, c);
     	
     	File data_dir = benchmark.getDataDir();
-    	RandomGenerator rand = new RandomGenerator(0); // TODO: We should put this in the BenchmarkModule
-    	this.profile = new SEATSProfile(c, data_dir, rand, this.tables);
     	this.rng = new RandomGenerator(0); // TODO: Sync with the base class rng
+    	this.profile = new SEATSProfile(c, data_dir, this.rng, this.tables);
     	
     	if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + SEATSLoader.class.getName());
     }
@@ -160,7 +160,11 @@ public class SEATSLoader extends Loader {
         
         // Save the benchmark profile out to disk so that we can send it
         // to all of the clients
-        this.profile.saveProfile(this.conn);
+        try {
+            this.profile.saveProfile(this.conn);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to save profile information in database", ex);
+        }
 
         if (LOG.isDebugEnabled()) LOG.debug("SEATS loader done.");
     }

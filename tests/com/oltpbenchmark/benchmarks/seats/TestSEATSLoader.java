@@ -10,7 +10,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
     
     @Override
     protected void setUp() throws Exception {
-        super.setUp(SEATSBenchmark.class, SEATSConstants.TABLES_CONFIG, TestSEATSBenchmark.PROC_CLASSES);
+        super.setUp(SEATSBenchmark.class, null, TestSEATSBenchmark.PROC_CLASSES);
         this.workConf.setScaleFactor(0.01);
     }
 
