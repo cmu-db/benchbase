@@ -19,11 +19,16 @@ public class JpabWorker extends Worker{
 
 	public EntityManager em;
 
-	public JpabWorker(int id, BenchmarkModule benchmarkModule) throws SQLException {
+	public JpabWorker(int id, BenchmarkModule benchmarkModule) {
 		super(id, benchmarkModule);
 		// Connections are managed by JPA .. 
 		// No need to keep this
-		this.conn.close();
+		try {
+            this.conn.close();
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.getMessage();
+        }
 	}
 
 	@Override
