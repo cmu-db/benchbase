@@ -80,7 +80,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 				item_ids.add(res.getString(1));
 			}
 			res.close();
-			
+			metaConn.close();
 			// Now create the workers.			
 			for (int i = 0; i < workConf.getTerminals(); ++i) {
 				workers.add(new EpinionsWorker(i, this, user_ids, item_ids));

@@ -19,9 +19,11 @@ public class JpabWorker extends Worker{
 
 	public EntityManager em;
 
-	public JpabWorker(int id, BenchmarkModule benchmarkModule) {
+	public JpabWorker(int id, BenchmarkModule benchmarkModule) throws SQLException {
 		super(id, benchmarkModule);
-		// TODO Auto-generated constructor stub
+		// Connections are managed by JPA .. 
+		// No need to keep this
+		this.conn.close();
 	}
 
 	@Override
