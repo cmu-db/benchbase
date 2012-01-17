@@ -752,4 +752,14 @@ public class SEATSProfile {
         this.flight_future_days = flight_future_days;
     }
     
+    public long getNextReservationId(int id) {
+        long base_id = -1;
+        synchronized (this.num_records) {
+            base_id = this.num_records.get(SEATSConstants.TABLENAME_RESERVATION);
+            this.num_records.set(SEATSConstants.TABLENAME_RESERVATION, base_id+1);
+        } // SYNCH
+        // Offset it by the client id so that we can ensure it's unique
+        return (id | base_id<<48);
+    }
+    
 }
