@@ -31,8 +31,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,7 +43,6 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
-import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
@@ -63,46 +62,46 @@ public class SEATSProfile {
     /**
      * Data Scale Factor
      */
-    public double scale_factor;
+    protected double scale_factor;
     /**
      * For each airport id, store the last id of the customer that uses this airport
      * as their local airport. The customer ids will be stored as follows in the dbms:
      * <16-bit AirportId><48-bit CustomerId>
      */
-    public final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
+    protected final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
     /**
      * The date when flights total data set begins
      */
-    public Date flight_start_date;
+    protected Date flight_start_date;
     /**
      * The date for when the flights are considered upcoming and are eligible for reservations
      */
-    public Date flight_upcoming_date;
+    protected Date flight_upcoming_date;
     /**
      * The number of days in the past that our flight data set includes.
      */
-    public long flight_past_days;
+    protected long flight_past_days;
     /**
      * The number of days in the future (from the flight_upcoming_date) that our flight data set includes
      */
-    public long flight_future_days;
+    protected long flight_future_days;
     /**
      * The offset of when upcoming flights begin in the seats_remaining list
      */
-    public Long flight_upcoming_offset = null;
+    protected Long flight_upcoming_offset = null;
     /**
      * The offset of when reservations for upcoming flights begin
      */
-    public Long reservation_upcoming_offset = null;
+    protected Long reservation_upcoming_offset = null;
     /**
      * The number of records loaded for each table
      */
-    public final Histogram<String> num_records = new Histogram<String>();
+    protected final Histogram<String> num_records = new Histogram<String>();
 
     /**
      * TODO
      **/
-    public final Map<String, Histogram<String>> histograms = new HashMap<String, Histogram<String>>();
+    protected final Map<String, Histogram<String>> histograms = new HashMap<String, Histogram<String>>();
     
     /**
      * Each AirportCode will have a histogram of the number of flights 
@@ -275,107 +274,116 @@ public class SEATSProfile {
      * Load the profile information stored in the database
      */
     private static SEATSProfile cachedProfile;
-    protected synchronized final void loadProfile(Connection c) {
-//        // Check whether we have a cached Profile we can copy from
-//        if (cachedProfile != null) {
-//            if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
-//            this.copy(cachedProfile);
-//            return;
-//        }
-//        
-//        if (LOG.isDebugEnabled()) LOG.debug("Loading SEATSProfile for the first time");
-//        
-//        // Otherwise we have to go fetch everything again
-//        Client client = baseClient.getClientHandle();
-//        
-//        ClientResponse response = null;
-//        try {
-//            response = client.callProcedure("LoadConfig");
-//        } catch (Exception ex) {
-//            throw new RuntimeException("Failed retrieve data from " + SEATSConstants.TABLENAME_CONFIG_PROFILE, ex);
-//        }
-//        assert(response != null);
-//        assert(response.getStatus() == Hstore.Status.OK) : "Unexpected " + response;
-//
-//        VoltTable results[] = response.getResults();
-//        int result_idx = 0;
-//        
-//        // CONFIG_PROFILE
-//        this.loadConfigProfile(results[result_idx++]); 
-//        
-//        // CONFIG_HISTOGRAMS
-//        this.loadConfigHistograms(results[result_idx++]);
-//        
-//        // CODE XREFS
-//        for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
-//            String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
-//            String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
-//            this.loadCodeXref(results[result_idx++], codeCol, idCol);
-//        } // FOR
-//        
-//        // CACHED FLIGHT IDS
-//        this.loadCachedFlights(results[result_idx++]);
-//
-//        if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
-//        cachedProfile = new SEATSProfile().copy(this);
+    protected synchronized final void loadProfile(Connection conn) throws SQLException {
+        // Check whether we have a cached Profile we can copy from
+        if (cachedProfile != null) {
+            if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
+            this.copy(cachedProfile);
+            return;
+        }
+        
+        if (LOG.isDebugEnabled()) LOG.debug("Loading SEATSProfile for the first time");
+        
+        // Otherwise we have to go fetch everything again
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        // CONFIG_PROFILE
+        stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        rs = stmt.executeQuery();
+        this.loadConfigProfile(rs); 
+        
+        // CONFIG_HISTOGRAMS
+        stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
+        rs = stmt.executeQuery();
+        this.loadConfigHistograms(rs);
+        
+        // CODE XREFS
+        String sql[] = {
+            "SELECT CO_ID, CO_CODE_3 FROM " + SEATSConstants.TABLENAME_COUNTRY,
+            "SELECT AP_ID, AP_CODE FROM " + SEATSConstants.TABLENAME_AIRPORT,
+            "SELECT AL_ID, AL_IATA_CODE FROM " + SEATSConstants.TABLENAME_AIRLINE + " WHERE AL_IATA_CODE != ''"      
+        };
+        assert(sql.length == SEATSConstants.CODE_TO_ID_COLUMNS.length);
+        for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
+            stmt = conn.prepareStatement(sql[i]);
+            rs = stmt.executeQuery();
+            String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
+            String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
+            this.loadCodeXref(rs, codeCol, idCol);
+        } // FOR
+        
+        // CACHED FLIGHT IDS
+        stmt = conn.prepareStatement(
+                "SELECT f_id FROM " + SEATSConstants.TABLENAME_FLIGHT +
+                " ORDER BY F_DEPART_TIME DESC " + 
+                " LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS);
+        rs = stmt.executeQuery();
+        this.loadCachedFlights(rs);
+
+        if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
+        cachedProfile = new SEATSProfile(conn, this.airline_data_dir, rng, this.tables).copy(this);
     }
     
-//    private final void loadConfigProfile(VoltTable vt) {
-//        boolean adv = vt.advanceRow();
-//        assert(adv);
-//        int col = 0;
-//        this.scale_factor = vt.getDouble(col++);
-//        JSONUtil.fromJSONString(this.airport_max_customer_id, vt.getString(col++));
-//        this.flight_start_date = vt.getTimestampAsTimestamp(col++);
-//        this.flight_upcoming_date = vt.getTimestampAsTimestamp(col++);
-//        this.flight_past_days = vt.getLong(col++);
-//        this.flight_future_days = vt.getLong(col++);
-//        this.flight_upcoming_offset = vt.getLong(col++);
-//        this.reservation_upcoming_offset = vt.getLong(col++);
-//        JSONUtil.fromJSONString(this.num_records, vt.getString(col++));
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_PROFILE));
-//    }
-//    
-//    private final void loadConfigHistograms(VoltTable vt) {
-//        while (vt.advanceRow()) {
-//            String name = vt.getString(0);
-//            Histogram<String> h = JSONUtil.fromJSONString(new Histogram<String>(), vt.getString(1));
-//            boolean is_airline = (vt.getLong(2) == 1);
-//            
-//            if (is_airline) {
-//                this.airport_histograms.put(name, h);
-//                if (LOG.isTraceEnabled()) 
-//                    LOG.trace(String.format("Loaded %d records for %s airport histogram", h.getValueCount(), name));
-//            } else {
-//                this.histograms.put(name, h);
-//                if (LOG.isTraceEnabled())
-//                    LOG.trace(String.format("Loaded %d records for %s histogram", h.getValueCount(), name));
-//            }
-//        } // WHILE
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS));
-//    }
-//    
-//    private final void loadCodeXref(VoltTable vt, String codeCol, String idCol) {
-//        Map<String, Long> m = this.code_id_xref.get(idCol);
-//        while (vt.advanceRow()) {
-//            long id = vt.getLong(0);
-//            String code = vt.getString(1);
-//            m.put(code, id);
-//        } // WHILE
-//        if (LOG.isDebugEnabled()) LOG.debug(String.format("Loaded %d xrefs for %s -> %s", m.size(), codeCol, idCol));
-//    }
-//    
-//    private final void loadCachedFlights(VoltTable vt) {
-//        while (vt.advanceRow()) {
-//            long f_id = vt.getLong(0);
-//            FlightId flight_id = new FlightId(f_id);
-//            this.cached_flight_ids.add(flight_id);
-//        } // WHILE
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %d cached FlightIds", this.cached_flight_ids.size()));
-//    }
+    private final void loadConfigProfile(ResultSet vt) throws SQLException {
+        boolean adv = vt.next();
+        assert(adv);
+        int col = 1;
+        this.scale_factor = vt.getDouble(col++);
+        JSONUtil.fromJSONString(this.airport_max_customer_id, vt.getString(col++));
+        this.flight_start_date = vt.getDate(col++);
+        this.flight_upcoming_date = vt.getDate(col++);
+        this.flight_past_days = vt.getLong(col++);
+        this.flight_future_days = vt.getLong(col++);
+        this.flight_upcoming_offset = vt.getLong(col++);
+        this.reservation_upcoming_offset = vt.getLong(col++);
+        JSONUtil.fromJSONString(this.num_records, vt.getString(col++));
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_PROFILE));
+    }
+    
+    private final void loadConfigHistograms(ResultSet vt) throws SQLException {
+        while (vt.next()) {
+            int col = 1;
+            String name = vt.getString(col++);
+            Histogram<String> h = JSONUtil.fromJSONString(new Histogram<String>(), vt.getString(col++));
+            boolean is_airline = (vt.getLong(col++) == 1);
+            
+            if (is_airline) {
+                this.airport_histograms.put(name, h);
+                if (LOG.isTraceEnabled()) 
+                    LOG.trace(String.format("Loaded %d records for %s airport histogram", h.getValueCount(), name));
+            } else {
+                this.histograms.put(name, h);
+                if (LOG.isTraceEnabled())
+                    LOG.trace(String.format("Loaded %d records for %s histogram", h.getValueCount(), name));
+            }
+        } // WHILE
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS));
+    }
+    
+    private final void loadCodeXref(ResultSet vt, String codeCol, String idCol) throws SQLException {
+        Map<String, Long> m = this.code_id_xref.get(idCol);
+        while (vt.next()) {
+            int col = 1;
+            long id = vt.getLong(col++);
+            String code = vt.getString(col++);
+            m.put(code, id);
+        } // WHILE
+        if (LOG.isDebugEnabled()) LOG.debug(String.format("Loaded %d xrefs for %s -> %s", m.size(), codeCol, idCol));
+    }
+    
+    private final void loadCachedFlights(ResultSet vt) throws SQLException {
+        while (vt.next()) {
+            int col = 1;
+            long f_id = vt.getLong(col++);
+            FlightId flight_id = new FlightId(f_id);
+            this.cached_flight_ids.add(flight_id);
+        } // WHILE
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %d cached FlightIds", this.cached_flight_ids.size()));
+    }
     
     // ----------------------------------------------------------------
     // DATA ACCESS METHODS

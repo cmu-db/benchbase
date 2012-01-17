@@ -97,7 +97,7 @@ public class SEATSLoader extends Loader {
     // INTERNAL DATA MEMBERS
     // -----------------------------------------------------------------
     
-    private final SEATSProfile profile;
+    protected final SEATSProfile profile;
     
     /**
      * Mapping from Airports to their geolocation coordinates
