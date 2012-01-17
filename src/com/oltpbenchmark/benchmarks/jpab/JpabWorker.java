@@ -24,7 +24,7 @@ public class JpabWorker extends Worker{
 		// Connections are managed by JPA .. 
 		// No need to keep this
 		try {
-            this.conn.close();
+          this.conn.close();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.getMessage();

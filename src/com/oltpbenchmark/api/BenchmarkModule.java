@@ -117,11 +117,12 @@ public abstract class BenchmarkModule {
     public File getDatabaseDDL(Connection conn) {
     	DatabaseType db_type = this.workConf.getDBType();
     	String ddlNames[] = {
-			this.benchmarkName + "-" + db_type.name() + "-ddl.sql",
+			this.benchmarkName + "-" + db_type.name().toLowerCase() + "-ddl.sql",
 			this.benchmarkName + "-ddl.sql",
     	};
     	
     	for (String ddlName : ddlNames) {     	
+    	    System.out.println(ddlName);
 	        URL ddlURL = this.getClass().getResource(ddlName);
 	        if (ddlURL != null) return new File(ddlURL.getPath());
     	} // FOR
