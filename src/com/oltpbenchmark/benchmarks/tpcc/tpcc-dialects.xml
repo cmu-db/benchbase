@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <dialects>
-    <dialect type="MYSQL">
+    <dialect type="ORACLE">
         <procedure name="Delivery">
             <statement name="delivGetOrderIdSQL">
                 SELECT no_o_id 
