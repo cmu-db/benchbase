@@ -172,16 +172,19 @@ public class SEATSLoader extends Loader {
      * Load all the histograms used in the benchmark
      */
     protected void loadHistograms() {
-        if (LOG.isDebugEnabled()) LOG.debug(String.format("Loading in %d histograms from files stored in '%s'",
-                                                 SEATSConstants.HISTOGRAM_DATA_FILES.length, profile.airline_data_dir));
+        if (LOG.isDebugEnabled()) 
+            LOG.debug(String.format("Loading in %d histograms from files stored in '%s'",
+                                    SEATSConstants.HISTOGRAM_DATA_FILES.length, profile.airline_data_dir));
         
         // Now load in the histograms that we will need for generating the flight data
         for (String histogramName : SEATSConstants.HISTOGRAM_DATA_FILES) {
             if (this.profile.histograms.containsKey(histogramName)) {
-                if (LOG.isDebugEnabled()) LOG.warn("Already loaded histogram '" + histogramName + "'. Skipping...");
+                if (LOG.isDebugEnabled()) 
+                    LOG.warn("Already loaded histogram '" + histogramName + "'. Skipping...");
                 continue;
             }
-            if (LOG.isDebugEnabled()) LOG.debug("Loading in histogram data file for '" + histogramName + "'");
+            if (LOG.isDebugEnabled()) 
+                LOG.debug("Loading in histogram data file for '" + histogramName + "'");
             Histogram<String> hist = null;
             
             try {
@@ -190,7 +193,8 @@ public class SEATSLoader extends Loader {
                 if (histogramName.equals(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT)) {
                     Map<String, Histogram<String>> m = SEATSHistogramUtil.loadAirportFlights(profile.airline_data_dir);
                     assert(m != null);
-                    if (LOG.isDebugEnabled()) LOG.debug(String.format("Loaded %d airport flight histograms", m.size()));
+                    if (LOG.isDebugEnabled()) 
+                        LOG.debug(String.format("Loaded %d airport flight histograms", m.size()));
                     
                     // Store the airport codes information
                     this.profile.airport_histograms.putAll(m);
@@ -248,7 +252,7 @@ public class SEATSLoader extends Loader {
                 Table catalog_tbl = this.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
                 Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl); 
-                this.loadTable(catalog_tbl, iterable, 1);
+                this.loadTable(catalog_tbl, iterable, 5000);
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to load data files for scaling-sized table '" + table_name + "'", ex);
             }
@@ -376,11 +380,9 @@ public class SEATSLoader extends Loader {
                 } // FOR
                 insert_stmt.addBatch();
                 row_batch++;
-//                if (catalog_tbl.getName().equalsIgnoreCase("FREQUENT_FLYER")) {
-//                    LOG.info(String.format("[%05d] %s", row_idx, Arrays.toString(tuple)));
-//                }
                 
                 if (row_idx > 0 && (row_idx+1) % batch_size == 0) {
+                    LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName(), row_idx));
                     insert_stmt.executeBatch();
                     conn.commit();
                     insert_stmt.clearBatch();

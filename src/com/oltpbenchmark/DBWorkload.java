@@ -61,7 +61,7 @@ public class DBWorkload {
 	 */
 	public static void main(String[] args) throws Exception {
 	    // Initialize log4j
-		String log4jPath = System.getProperty("log4j.properties");
+		String log4jPath = System.getProperty("log4j.configuration");
 		if (log4jPath != null) {
 			org.apache.log4j.PropertyConfigurator.configure(log4jPath);
 		} else {
@@ -94,6 +94,11 @@ public class DBWorkload {
 	            "create",
                 true,
                 "Initialize the database for this benchmark");
+      options.addOption(
+                null,
+                "clear",
+                true,
+                "Clear all records in the database for this benchmark");
 		options.addOption(
 		        null,
 		        "load",
@@ -228,6 +233,16 @@ public class DBWorkload {
         }
         else if (CREATE_LOG.isDebugEnabled()) {
         	CREATE_LOG.debug("Skipping creating benchmark database tables");
+        }
+        // Clear the Benchmark's Database
+        if (isBooleanOptionSet(argsLine, "clear")) {
+            CREATE_LOG.info(SINGLE_LINE);
+            CREATE_LOG.info("Resetting " + bench.getBenchmarkName().toUpperCase() + " database...");
+            bench.clearDatabase();
+            CREATE_LOG.info("Finished!");
+        }
+        else if (CREATE_LOG.isDebugEnabled()) {
+            CREATE_LOG.debug("Skipping creating benchmark database tables");
         }
 		
 		// Execute Loader
