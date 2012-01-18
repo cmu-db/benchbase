@@ -21,15 +21,19 @@ package com.oltpbenchmark.catalog;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.types.SortDirectionType;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
@@ -39,25 +43,88 @@ import com.oltpbenchmark.util.StringUtil;
  * 
  * @author pavlo
  */
-public abstract class CatalogUtil {
-    private static final Logger LOG = Logger.getLogger(CatalogUtil.class);
+public final class Catalog {
+    private static final Logger LOG = Logger.getLogger(Catalog.class);
+    
+    /**
+     * TODO
+     */
     private static String separator;
+    
+    private static final Random rand = new Random();
+
 
     /**
+     * Create an in-memory instance of HSQLDB so that we can 
+     * extract all of the catalog information that we need
+     */
+    private static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
+    private static final String DB_JDBC = "org.hsqldb.jdbcDriver";
+    
+    private final BenchmarkModule benchmark;
+    private final Map<String, Table> tables = new HashMap<String, Table>();
+    private final Connection conn;
+    
+    public Catalog(BenchmarkModule benchmark) {
+        this.benchmark = benchmark;
+        
+        // Create an internal HSQLDB connection and pull out the 
+        // catalog information that we're going to need
+        Connection conn;
+        String dbName = String.format("%s-%d.db", benchmark.getBenchmarkName(), rand.nextInt());
+        try {
+            Class.forName(DB_JDBC);
+            conn = DriverManager.getConnection(DB_CONNECTION + dbName, null, null);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        assert(conn != null) : "Null Connection!";
+        this.conn = conn;
+        
+        try {
+            this.init();
+        } catch (SQLException ex) {
+            throw new RuntimeException(String.format("Failed to initialize %s database catalog",
+                                       this.benchmark.getBenchmarkName()), ex);
+        }
+    }
+    
+    // --------------------------------------------------------------------------
+    // ACCESS METHODS
+    // --------------------------------------------------------------------------
+    
+    public int getTableCount() {
+        return (this.tables.size());
+    }
+    public Collection<String> getTableNames() {
+        return (this.tables.keySet());
+    }
+    public Collection<Table> getTables() {
+        return (this.tables.values());
+    }
+    public Table getTable(String tableName) {
+        return (this.tables.get(tableName));
+    }
+    
+    // --------------------------------------------------------------------------
+    // INITIALIZATION
+    // --------------------------------------------------------------------------
+    
+    /**
      * Construct the set of Table objects from a given Connection handle
-     * @param c
+     * @param conn
      * @return
      * @throws SQLException
      * @see http://docs.oracle.com/javase/6/docs/api/java/sql/DatabaseMetaData.html
      */
-    public static Map<String, Table> getTables(Connection c) throws SQLException {
-        assert(c != null) : "Null Connection!";
-        Map<String, Table> tables = new HashMap<String, Table>();
+    protected void init() throws SQLException {
+        // Load the database's DDL
+        this.benchmark.createDatabase(this.conn);
         
         // TableName -> ColumnName -> <FkeyTable, FKeyColumn>
         Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<String, Map<String,Pair<String,String>>>();
         
-        DatabaseMetaData md = c.getMetaData();
+        DatabaseMetaData md = conn.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
             String table_name = table_rs.getString(3);
@@ -187,17 +254,22 @@ public abstract class CatalogUtil {
         
         // @Djellel 
         // Setting the separator
-        setSeparator(c);
-        //
-        return (tables);
+        setSeparator(conn);
+        
+        return;
     }
     
 	public static void setSeparator(Connection c) throws SQLException {
-		CatalogUtil.separator = c.getMetaData().getIdentifierQuoteString();
+		Catalog.separator = c.getMetaData().getIdentifierQuoteString();
 	}
 
 	public static String getSeparator() {
 		return separator;
+	}
+	
+	@Override
+	public String toString() {
+	    return StringUtil.formatMaps(this.tables);
 	}
      
 }

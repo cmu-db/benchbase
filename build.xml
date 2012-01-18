@@ -160,7 +160,6 @@
                 <fileset dir='${build.tests.dir}'>
                     <include name="**/Test*.class"/>
                     <exclude name="**/Test*$*.class"/>
-                	<exclude name="**/TestEpinionsBenchmark.class"/>
                 	<exclude name="**/TestSEATSWorker.class"/>
                 	<exclude name="**/TestTwitterBenchmark.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>

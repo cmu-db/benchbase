@@ -20,10 +20,8 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 
@@ -35,26 +33,26 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      * testGetDatabaseDDL
      */
     public void testGetDatabaseDDL() throws Exception {
-        File ddl = this.benchmark.getDatabaseDDL(null);
+        File ddl = this.benchmark.getDatabaseDDL();
         assertNotNull(ddl);
         assert (ddl.exists());
     }
 
     /**
-     * testLoadDatabase
+     * testCreateDatabase
      */
     public void testCreateDatabase() throws Exception {
         this.benchmark.createDatabase();
 
         // Make sure that we get back some tables
-        Map<String, Table> tables = this.benchmark.getTables(this.benchmark.getConnection());
-        assertNotNull(tables);
-        assertFalse(tables.isEmpty());
+        Catalog catalog = this.benchmark.getCatalog();
+        assertNotNull(catalog);
+        assertFalse(catalog.getTables().isEmpty());
 
         // Just make sure that there are no empty tables
-        for (Entry<String, Table> e : tables.entrySet()) {
-            assert (e.getValue().getColumnCount() > 0) : "Missing columns for " + e.getValue();
-            System.err.println(e.getValue());
+        for (Table catalog_tbl : catalog.getTables()) {
+            assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
+            System.err.println(catalog_tbl);
         } // FOR
     }
     

@@ -26,9 +26,9 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         assertNotNull(orig);
         
         SEATSProfile copy = new SEATSProfile(this.conn,
-                                                    this.benchmark.getDataDir(),
-                                                    new RandomGenerator(0),
-                                                    this.tables);
+                                             this.benchmark.getDataDir(),
+                                             new RandomGenerator(0),
+                                             this.benchmark.getCatalog());
         assert(copy.airport_histograms.isEmpty());
         copy.loadProfile(this.conn);
         
