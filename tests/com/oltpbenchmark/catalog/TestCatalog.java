@@ -1,6 +1,8 @@
 package com.oltpbenchmark.catalog;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
@@ -29,9 +31,25 @@ public class TestCatalog extends TestCase {
     }
     
     /**
-     * testGetTables
+     * testGetOriginalTableNames
      */
-    public void testGetTables() throws Exception {
+    public void testGetOriginalTableNames() throws Exception {
+        // Make sure that the key and values in this map are not
+        // equal unless we ignore their case
+        Map<String, String> origTableNames = this.catalog.getOriginalTableNames();
+        assertNotNull(origTableNames);
+        assertFalse(origTableNames.isEmpty());
+        
+        for (Entry<String, String> e : origTableNames.entrySet()) {
+            assertFalse(e.toString(), e.getKey().equals(e.getValue()));
+            assertTrue(e.toString(), e.getKey().equalsIgnoreCase(e.getValue()));
+        } // FOR
+    }
+    
+    /**
+     * testInit
+     */
+    public void testInit() throws Exception {
         // Count the number of CREATE TABLEs in our test file
         String contents = FileUtil.readFile(this.benchmark.getDatabaseDDL());
         assertFalse(contents.isEmpty());

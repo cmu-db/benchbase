@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.oltpbenchmark.catalog;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -30,12 +31,15 @@ import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
+import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
@@ -64,6 +68,7 @@ public final class Catalog {
     
     private final BenchmarkModule benchmark;
     private final Map<String, Table> tables = new HashMap<String, Table>();
+    private final Map<String, String> origTableNames;
     private final Connection conn;
     
     public Catalog(BenchmarkModule benchmark) {
@@ -81,6 +86,10 @@ public final class Catalog {
         }
         assert(conn != null) : "Null Connection!";
         this.conn = conn;
+        
+        // HACK: HSQLDB always uppercase the table names. So we just need to
+        //       extract what the real names are from the DDL
+        this.origTableNames = this.getOriginalTableNames();
         
         try {
             this.init();
@@ -103,8 +112,12 @@ public final class Catalog {
     public Collection<Table> getTables() {
         return (this.tables.values());
     }
+    /**
+     * Get the table by the given name. This is case insensitive
+     */
     public Table getTable(String tableName) {
-        return (this.tables.get(tableName));
+        String name = this.origTableNames.get(tableName.toUpperCase());
+        return (this.tables.get(name));
     }
     
     // --------------------------------------------------------------------------
@@ -128,7 +141,10 @@ public final class Catalog {
         DatabaseMetaData md = conn.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
-            String table_name = table_rs.getString(3);
+            String internal_table_name = table_rs.getString(3);
+            String table_name = origTableNames.get(table_rs.getString(3).toUpperCase());
+            assert(table_name != null) : "Unexpected table '" + table_rs.getString(3) + "' from catalog"; 
+            
             String table_type = table_rs.getString(4);
             if (table_type.equalsIgnoreCase("TABLE") == false) continue;
             Table catalog_tbl = new Table(table_name);
@@ -136,7 +152,7 @@ public final class Catalog {
             // COLUMNS
             if (LOG.isDebugEnabled())
                 LOG.debug("Retrieving column information for " + table_name);
-            ResultSet col_rs = md.getColumns(null,null, table_name, null);
+            ResultSet col_rs = md.getColumns(null,null, internal_table_name, null);
             while (col_rs.next()) {
                 if (LOG.isTraceEnabled()) LOG.trace(SQLUtil.debug(col_rs));
                 String col_name = col_rs.getString(4);
@@ -162,7 +178,7 @@ public final class Catalog {
             // PRIMARY KEYS
             if (LOG.isDebugEnabled())
                 LOG.debug("Retrieving PRIMARY KEY information for " + table_name);
-            ResultSet pkey_rs = md.getPrimaryKeys(null, null, table_name);
+            ResultSet pkey_rs = md.getPrimaryKeys(null, null, internal_table_name);
             SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
             while (pkey_rs.next()) {
                 String col_name = pkey_rs.getString(4);
@@ -181,7 +197,7 @@ public final class Catalog {
             // INDEXES
             if (LOG.isDebugEnabled())
                 LOG.debug("Retrieving INDEX information for " + table_name);
-            ResultSet idx_rs = md.getIndexInfo(null, null, table_name, false, false);
+            ResultSet idx_rs = md.getIndexInfo(null, null, internal_table_name, false, false);
             while (idx_rs.next()) {
                 if (LOG.isDebugEnabled())
                     LOG.debug(SQLUtil.debug(idx_rs));
@@ -209,7 +225,7 @@ public final class Catalog {
             // FOREIGN KEYS
             if (LOG.isDebugEnabled())
                 LOG.debug("Retrieving FOREIGN KEY information for " + table_name);
-            ResultSet fk_rs = md.getImportedKeys(null, null, table_name);
+            ResultSet fk_rs = md.getImportedKeys(null, null, internal_table_name);
             foreignKeys.put(table_name, new HashMap<String, Pair<String,String>>());
             while (fk_rs.next()) {
                 if (LOG.isDebugEnabled())
@@ -217,13 +233,13 @@ public final class Catalog {
                 assert(fk_rs.getString(7).equalsIgnoreCase(table_name));
                 
                 String colName = fk_rs.getString(8);
-                String fk_tableName = fk_rs.getString(3);
+                String fk_tableName = origTableNames.get(fk_rs.getString(3).toUpperCase());
                 String fk_colName = fk_rs.getString(4);
                 
                 foreignKeys.get(table_name).put(colName, Pair.of(fk_tableName, fk_colName));
             } // WHILE
             
-            tables.put(table_name.toUpperCase(), catalog_tbl);
+            tables.put(table_name, catalog_tbl);
         } // WHILE
         
         // FOREIGN KEYS
@@ -253,11 +269,27 @@ public final class Catalog {
             } // FOR
         } // FOR
         
-        // @Djellel 
-        // Setting the separator
-        setSeparator(conn);
-        
         return;
+    }
+    
+    protected Map<String, String> getOriginalTableNames() {
+        Map<String, String> origTableNames = new HashMap<String, String>();
+        Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
+        File ddl = this.benchmark.getDatabaseDDL(DatabaseType.HSQLDB);
+        String ddlContents = FileUtil.readFile(ddl);
+        assert(ddlContents.isEmpty() == false);
+        Matcher m = p.matcher(ddlContents);
+        while (m.find()) {
+            String tableName = m.group(1).trim();
+            origTableNames.put(tableName.toUpperCase(), tableName);
+        } // WHILE
+        assert(origTableNames.isEmpty() == false) :
+            "Failed to extract original table names for " + this.benchmark.getBenchmarkName();
+        
+        if (LOG.isDebugEnabled())
+            LOG.debug("Original Table Names:\n" + StringUtil.formatMaps(origTableNames));
+        
+        return (origTableNames);
     }
     
 	public static void setSeparator(Connection c) throws SQLException {

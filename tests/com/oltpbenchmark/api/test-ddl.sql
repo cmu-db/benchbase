@@ -1,4 +1,7 @@
-CREATE TABLE A (
+-- NOTE: The table names are purposely left as lower case so that we
+--       can test where the Catalog loader can properly get the information
+
+CREATE TABLE a (
     A_ID           BIGINT NOT NULL,
     A_ID_STR       VARCHAR(64) UNIQUE NOT NULL,
     A_BALANCE      FLOAT NOT NULL,
@@ -12,7 +15,7 @@ CREATE TABLE A (
     PRIMARY KEY (A_ID)
 );
 
-CREATE TABLE B (
+CREATE TABLE b (
     B_ID            BIGINT NOT NULL,
     B_DEPART_TIME   TIMESTAMP NOT NULL,
     B_ARRIVE_TIME   TIMESTAMP NOT NULL,
@@ -21,7 +24,7 @@ CREATE TABLE B (
     PRIMARY KEY (B_ID)
 );
 
-CREATE TABLE C (
+CREATE TABLE c (
     C_ID            BIGINT NOT NULL,
     C_A_ID          BIGINT NOT NULL REFERENCES A (A_ID),
     C_B_ID          BIGINT NOT NULL REFERENCES B (B_ID),

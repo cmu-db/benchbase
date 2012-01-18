@@ -933,6 +933,7 @@ public class SEATSLoader extends Loader {
             Collection<String> all_airlines = profile.getAirlineCodes();
             Histogram<String> histogram = new Histogram<String>();
             histogram.putAll(all_airlines);
+            
             // Embed a Gaussian distribution
             RandomDistribution.Gaussian gauss_rng = new RandomDistribution.Gaussian(rng, 0, all_airlines.size());
             this.airlines = new RandomDistribution.FlatHistogram<String>(gauss_rng, histogram);
@@ -964,13 +965,14 @@ public class SEATSLoader extends Loader {
                 Date date = new Date(_date);
                 if (first) {
                     this.start_date = date;
-                    profile.setFlightStartDate(date);
                     first = false;
                 }
                 int num_flights = (int)Math.ceil(gaussian.nextInt() * workConf.getScaleFactor());
                 this.flights_per_day.put(date, num_flights);
                 this.total += num_flights;
             } // FOR
+            if (this.start_date == null) this.start_date = this.today;
+            profile.setFlightStartDate(this.start_date);
             
             // This is for upcoming flights that we want to be able to schedule
             // new reservations for in the benchmark
@@ -1034,6 +1036,8 @@ public class SEATSLoader extends Loader {
             return (rng.nextInt(100) < SEATSConstants.PROB_SEAT_OCCUPIED);
         }
         
+        Set<FlightId> _ids = new HashSet<FlightId>();
+        
         @Override
         protected Object specialValue(long id, int columnIdx) {
             Object value = null;
@@ -1048,6 +1052,7 @@ public class SEATSLoader extends Loader {
                         date = this.flights_per_day.get(this.day_idx);
                         remaining = this.flights_per_day.getValue(this.day_idx);
                     } while (remaining <= 0 && this.day_idx + 1 < this.flights_per_day.size());
+                    assert(date != null);
                     this.populate(date);
                     
                     // Generate a composite FlightId
@@ -1056,6 +1061,12 @@ public class SEATSLoader extends Loader {
                     this.flight_id = new FlightId(this.airline_id, depart_airport_id, arrive_airport_id, this.start_date, this.depart_time);
                     SEATSLoader.this.addFlightId(this.flight_id);
                     value = this.flight_id.encode();
+
+                    System.err.println(value + " " + this.flight_id +
+                            String.format(" [remaining=%d, dayIdx=%d]", remaining, day_idx)); 
+                    assert(_ids.contains(this.flight_id) == false) : value + " " + this.flight_id;
+                    _ids.add(this.flight_id);
+
                     break;
                 }
                 // AIRLINE ID

@@ -195,21 +195,28 @@ public abstract class SQLUtil {
     public static String getInsertSQL(Table catalog_tbl, int batchSize) {
     	StringBuilder sb = new StringBuilder();
     	sb.append("INSERT INTO ")
-    	  .append(catalog_tbl.getEscapedName())
-    	  .append(" (");
+    	  .append(catalog_tbl.getEscapedName());
     	
     	StringBuilder inner = new StringBuilder();
-    	boolean first = true;
+    	boolean first;
+    	
+    	// Column Names
+    	// XXX: Disabled because of case issues with HSQLDB
+//    	sb.append(" (");
+    	first = true;
     	for (Column catalog_col : catalog_tbl.getColumns()) {
     		if (first == false) {
-    			sb.append(", ");
+//    			sb.append(", ");
     			inner.append(", ");
     		}
-    		sb.append(catalog_col.getName());
+//    		sb.append(catalog_col.getName());
     		inner.append("?");
     		first = false;
     	} // FOR
-    	sb.append(") VALUES ");
+//    	sb.append(")");
+    	
+    	// Values
+    	sb.append(" VALUES ");
     	first = true;
     	for (int i = 0; i < batchSize; i++) {
     		if (first == false) sb.append(", ");

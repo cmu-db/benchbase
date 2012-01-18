@@ -282,7 +282,11 @@ public abstract class BenchmarkModule {
     }
 
     protected final Connection getConnection() throws SQLException {
-        return (DriverManager.getConnection(workConf.getDBConnection(), workConf.getDBUsername(), workConf.getDBPassword()));
+        Connection conn = DriverManager.getConnection(workConf.getDBConnection(),
+                                                      workConf.getDBUsername(),
+                                                      workConf.getDBPassword());
+        Catalog.setSeparator(conn);
+        return (conn);
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {

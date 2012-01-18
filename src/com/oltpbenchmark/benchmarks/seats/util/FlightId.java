@@ -94,6 +94,8 @@ public class FlightId {
      * @return
      */
     protected static final long calculateFlightDate(Date benchmark_start, Date flight_date) {
+        assert(benchmark_start != null);
+        assert(flight_date != null);
         return (flight_date.getTime() - benchmark_start.getTime()) / 3600000; // 60s * 60m * 1000
     }
     
