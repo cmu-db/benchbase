@@ -17,37 +17,25 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.seats;
-
-import java.io.File;
+package com.oltpbenchmark.benchmarks.ycsb;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.seats.procedures.*;
+import com.oltpbenchmark.benchmarks.ycsb.procedures.*;
 
-public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
+public class TestYCSBBenchmark extends AbstractTestBenchmarkModule<YCSBBenchmark> {
 	
     public static final Class<?> PROC_CLASSES[] = {
-        DeleteReservation.class,
-        FindFlights.class,
-        FindOpenSeats.class,
-        NewReservation.class,
-        UpdateCustomer.class,
-        UpdateReservation.class
+        DeleteRecord.class,
+        InsertRecord.class,
+        ReadModifyWriteRecord.class,
+        ReadRecord.class,
+        ScanRecord.class,
+        UpdateRecord.class,
     };
     
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(SEATSBenchmark.class, PROC_CLASSES);
+		super.setUp(YCSBBenchmark.class, PROC_CLASSES);
 	}
 	
-	/**
-	 * testGetDataDir
-	 */
-	public void testGetDataDir() throws Exception {
-	    File data_dir = this.benchmark.getDataDir();
-	    System.err.println("Data Dir: " + data_dir);
-	    assertNotNull(data_dir);
-	    assertTrue(data_dir.exists());
-	}
-
 }

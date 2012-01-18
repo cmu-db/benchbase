@@ -8,18 +8,17 @@ import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
 import com.oltpbenchmark.benchmarks.jpab.procedures.BasicTest;
 import com.oltpbenchmark.benchmarks.jpab.procedures.CollectionTest;
 import com.oltpbenchmark.benchmarks.jpab.procedures.ExtTest;
 import com.oltpbenchmark.benchmarks.jpab.procedures.IndexTest;
 import com.oltpbenchmark.benchmarks.jpab.procedures.NodeTest;
 
-public class JpabWorker extends Worker{
+public class JPABWorker extends Worker{
 
 	public EntityManager em;
 
-	public JpabWorker(int id, BenchmarkModule benchmarkModule) {
+	public JPABWorker(int id, BenchmarkModule benchmarkModule) {
 		super(id, benchmarkModule);
 		// Connections are managed by JPA .. 
 		// No need to keep this

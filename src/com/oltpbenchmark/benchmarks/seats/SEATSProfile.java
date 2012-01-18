@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
+import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
@@ -115,10 +116,12 @@ public class SEATSProfile {
     // TRANSIENT DATA MEMBERS
     // ----------------------------------------------------------------
 
+    protected final SEATSBenchmark benchmark;
+    
     /**
      * TableName -> TableCatalog
      */
-    protected transient final Map<String, Table> tables;
+    protected transient final Catalog catalog;
     
     /**
      * We want to maintain a small cache of FlightIds so that the SEATSClient
@@ -157,11 +160,11 @@ public class SEATSProfile {
     // CONSTRUCTOR
     // ----------------------------------------------------------------
     
-    public SEATSProfile(Connection c, File data_dir, RandomGenerator rng, Map<String, Table> tables) {
-        assert(data_dir != null);
-        this.tables = tables;
+    public SEATSProfile(SEATSBenchmark benchmark, RandomGenerator rng) {
+        this.benchmark = benchmark;
+        this.catalog = benchmark.getCatalog();
         this.rng = rng;
-        this.airline_data_dir = data_dir;
+        this.airline_data_dir = benchmark.getDataDir();
         if (this.airline_data_dir.exists() == false) {
             throw new RuntimeException("Unable to start benchmark. The data directory '" + this.airline_data_dir.getAbsolutePath() + "' does not exist");
         }
@@ -188,7 +191,7 @@ public class SEATSProfile {
         // key reference to COUNTRY.CO_ID, then the data file for AIRPORT will have a value
         // 'USA' in the AP_CO_ID column. We can use mapping to get the id number for 'USA'.
         // Long winded and kind of screwy, but hey what else are you going to do?
-        for (Table catalog_tbl : this.tables.values()) {
+        for (Table catalog_tbl : this.catalog.getTables()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 Column catalog_fkey_col = catalog_col.getForeignKey();
                 if (catalog_fkey_col != null && this.code_id_xref.containsKey(catalog_fkey_col.getName())) {
@@ -209,7 +212,7 @@ public class SEATSProfile {
      */
     protected final void saveProfile(Connection conn) throws SQLException {
         // CONFIG_PROFILE
-        Table catalog_tbl = this.tables.get(SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
         assert(catalog_tbl != null);
         PreparedStatement stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
         int param_idx = 1;
@@ -228,7 +231,7 @@ public class SEATSProfile {
         assert(result == 1);
         
         // CONFIG_HISTOGRAMS
-        catalog_tbl = this.tables.get(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
+        catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
         stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl)); 
         for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
             param_idx = 1;
@@ -322,7 +325,7 @@ public class SEATSProfile {
         this.loadCachedFlights(rs);
 
         if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
-        cachedProfile = new SEATSProfile(conn, this.airline_data_dir, rng, this.tables).copy(this);
+        cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
     }
     
     private final void loadConfigProfile(ResultSet vt) throws SQLException {

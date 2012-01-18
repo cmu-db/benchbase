@@ -78,6 +78,9 @@
         <condition property="create" value="false">
             <not><isset property="create"/></not>
         </condition>
+    	<condition property="clear" value="false">
+            <not><isset property="clear"/></not>
+        </condition>
         <condition property="load" value="false">
             <not><isset property="load"/></not>
         </condition>
@@ -92,6 +95,7 @@
             <arg line="-b ${benchmark}" />
             <arg line="-c ${config}" />
             <arg line="--create ${create}" />
+        	<arg line="--create ${clear}" />
             <arg line="--load ${load}" />
             <arg line="--execute ${execute}" />
             <classpath refid='project.classpath' />
@@ -160,7 +164,7 @@
                 <fileset dir='${build.tests.dir}'>
                     <include name="**/Test*.class"/>
                     <exclude name="**/Test*$*.class"/>
-                	<exclude name="**/TestEpinionsBenchmark.class"/>
+                	<exclude name="**/TestJPAB*.class"/>
                 	<exclude name="**/TestSEATSWorker.class"/>
                 	<exclude name="**/TestTwitterBenchmark.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>

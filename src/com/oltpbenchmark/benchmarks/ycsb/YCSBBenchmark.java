@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -17,57 +16,55 @@ import com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
-public class YCSBBenchmark extends BenchmarkModule{
+public class YCSBBenchmark extends BenchmarkModule {
 
-	public YCSBBenchmark(WorkloadConfiguration workConf) {
-		super("ycsb", workConf);
-		// TODO Auto-generated constructor stub
-	}
+    public YCSBBenchmark(WorkloadConfiguration workConf) {
+        super("ycsb", workConf);
+    }
 
-	@Override
-	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		ArrayList<Worker> workers = new ArrayList<Worker>();
-		try {
+    @Override
+    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+        ArrayList<Worker> workers = new ArrayList<Worker>();
+        try {
             Connection metaConn = this.getConnection();
-            Map<String,Table> tables=this.getTables(metaConn);
-            
+
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t=tables.get("USERTABLE");
-            assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();           
-            String userCount= SQLUtil.getMaxColSQL(t, "ycsb_key");
+            Table t = this.catalog.getTable("USERTABLE");
+            assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
+            String userCount = SQLUtil.getMaxColSQL(t, "ycsb_key");
             Statement stmt = metaConn.createStatement();
             ResultSet res = stmt.executeQuery(userCount);
-            int init_record_count=0;
+            int init_record_count = 0;
             while (res.next()) {
-                init_record_count= res.getInt(1);
+                init_record_count = res.getInt(1);
             }
             assert init_record_count > 0;
             res.close();
             //
-			for (int i = 0; i < workConf.getTerminals(); ++i) {
-				Connection conn = this.getConnection();
-				conn.setAutoCommit(false);
-				workers.add(new YCSBWorker(i, this, init_record_count+1));
-			} // FOR
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return workers;
-	}
+            for (int i = 0; i < workConf.getTerminals(); ++i) {
+                Connection conn = this.getConnection();
+                conn.setAutoCommit(false);
+                workers.add(new YCSBWorker(i, this, init_record_count + 1));
+            } // FOR
 
-	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
-		return new YCSBLoader(this, conn);
-	}
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return workers;
+    }
 
-	@Override
-	protected Package getProcedurePackageImpl() {
-		// TODO Auto-generated method stub
-		 return InsertRecord.class.getPackage();
-	}
+    @Override
+    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+        return new YCSBLoader(this, conn);
+    }
+
+    @Override
+    protected Package getProcedurePackageImpl() {
+        // TODO Auto-generated method stub
+        return InsertRecord.class.getPackage();
+    }
 
 }

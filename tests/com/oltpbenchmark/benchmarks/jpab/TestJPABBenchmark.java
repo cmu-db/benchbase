@@ -17,37 +17,24 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.seats;
-
-import java.io.File;
+package com.oltpbenchmark.benchmarks.jpab;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.seats.procedures.*;
+import com.oltpbenchmark.benchmarks.jpab.procedures.*;
 
-public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
+public class TestJPABBenchmark extends AbstractTestBenchmarkModule<JPABBenchmark> {
 	
     public static final Class<?> PROC_CLASSES[] = {
-        DeleteReservation.class,
-        FindFlights.class,
-        FindOpenSeats.class,
-        NewReservation.class,
-        UpdateCustomer.class,
-        UpdateReservation.class
+        BasicTest.class,
+        CollectionTest.class,
+        ExtTest.class,
+        IndexTest.class,
+        NodeTest.class
     };
     
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp(SEATSBenchmark.class, PROC_CLASSES);
-	}
-	
-	/**
-	 * testGetDataDir
-	 */
-	public void testGetDataDir() throws Exception {
-	    File data_dir = this.benchmark.getDataDir();
-	    System.err.println("Data Dir: " + data_dir);
-	    assertNotNull(data_dir);
-	    assertTrue(data_dir.exists());
+		super.setUp(JPABBenchmark.class, PROC_CLASSES);
 	}
 
 }

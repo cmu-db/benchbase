@@ -42,13 +42,6 @@ public abstract class SEATSConstants {
     public static final int FREQUENCY_NEW_RESERVATION           = 20;
     public static final int FREQUENCY_UPDATE_CUSTOMER           = 10;
     public static final int FREQUENCY_UPDATE_RESERVATION        = 15;
-    
-//    public static final int FREQUENCY_DELETE_RESERVATION        = 0;
-//    public static final int FREQUENCY_FIND_FLIGHTS              = 0;
-//    public static final int FREQUENCY_FIND_OPEN_SEATS           = 100;
-//    public static final int FREQUENCY_NEW_RESERVATION           = 0;
-//    public static final int FREQUENCY_UPDATE_CUSTOMER           = 0;
-//    public static final int FREQUENCY_UPDATE_RESERVATION        = 0;
 
     // ----------------------------------------------------------------
     // ERRORS

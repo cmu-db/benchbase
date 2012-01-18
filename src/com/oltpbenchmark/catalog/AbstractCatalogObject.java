@@ -29,7 +29,7 @@ public abstract class AbstractCatalogObject implements Serializable {
      * @return
      */
     public final String getEscapedName() {
-    	String s = CatalogUtil.getSeparator();
+    	String s = Catalog.getSeparator();
     	return s + this.name + s;
     }
 }

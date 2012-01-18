@@ -33,7 +33,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.catalog.CatalogUtil;
+import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
@@ -58,6 +58,12 @@ public abstract class BenchmarkModule {
     protected final StatementDialects dialects;
     
     /**
+     * Database Catalog
+     */
+    protected final Catalog catalog;
+    
+    
+    /**
      * Whether to use verbose output messages
      * @deprecated
      */
@@ -68,6 +74,7 @@ public abstract class BenchmarkModule {
 
         this.benchmarkName = benchmarkName;
         this.workConf = workConf;
+        this.catalog = new Catalog(this);
         
         File xmlFile = this.getSQLDialect();
         this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
@@ -109,20 +116,27 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
+     * 
+     * @return
+     */
+    public File getDatabaseDDL() {
+        return (this.getDatabaseDDL(this.workConf.getDBType()));
+    }
+    
+    /**
      * Return the File handle to the DDL used to load the benchmark's database
      * schema.
      * @param conn 
      * @throws SQLException 
      */
-    public File getDatabaseDDL(Connection conn) {
-    	DatabaseType db_type = this.workConf.getDBType();
+    public File getDatabaseDDL(DatabaseType db_type) {
     	String ddlNames[] = {
-			this.benchmarkName + "-" + db_type.name().toLowerCase() + "-ddl.sql",
+			this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
 			this.benchmarkName + "-ddl.sql",
     	};
     	
-    	for (String ddlName : ddlNames) {     	
-    	    System.out.println(ddlName);
+    	for (String ddlName : ddlNames) {
+    	    if (ddlName == null) continue;
 	        URL ddlURL = this.getClass().getResource(ddlName);
 	        if (ddlURL != null) return new File(ddlURL.getPath());
     	} // FOR
@@ -146,26 +160,40 @@ public abstract class BenchmarkModule {
     public final List<Worker> makeWorkers(boolean verbose) throws IOException {
         return (this.makeWorkersImpl(verbose));
     }
+    
+    /**
+     * Create the Benchmark Database
+     * This is the main method used to create all the database 
+     * objects (e.g., table, indexes, etc) needed for this benchmark 
+     */
+    public final void createDatabase() {
+        try {
+            Connection conn = this.getConnection();
+            this.createDatabase(this.workConf.getDBType(), conn);
+            conn.close();
+        } catch (SQLException ex) {
+            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
+        }
+    }
 
     /**
      * Create the Benchmark Database
      * This is the main method used to create all the database 
      * objects (e.g., table, indexes, etc) needed for this benchmark 
      */
-    public final void createDatabase(){
+    public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
-            Connection conn = this.getConnection();
-            File ddl = this.getDatabaseDDL(conn);
-            assert (ddl.exists()) : "The file '" + ddl + "' does not exist";
+            File ddl = this.getDatabaseDDL(dbType);
+            assert(ddl != null) : "Failed to get DDL for " + this;
+            assert(ddl.exists()) : "The file '" + ddl + "' does not exist";
             ScriptRunner runner = new ScriptRunner(conn, true, true);
-            LOG.info("Executing script '" + ddl.getName() + "'");
+            if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl.getName() + "'");
             runner.runScript(ddl);
-            conn.close();
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
         }
     }
-
+    
     /**
      * Invoke this benchmark's database loader
      */
@@ -192,13 +220,10 @@ public abstract class BenchmarkModule {
     public final void clearDatabase() {
         try {
             Connection conn = this.getConnection();
-            Map<String, Table> tables = this.getTables(conn);
-            assert (tables != null);
-
             conn.setAutoCommit(false);
             conn.setTransactionIsolation(workConf.getIsolationMode());
             Statement st = conn.createStatement();
-            for (Table catalog_tbl : tables.values()) {
+            for (Table catalog_tbl : this.catalog.getTables()) {
                 LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
                 String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
                 st.execute(sql);
@@ -216,20 +241,22 @@ public abstract class BenchmarkModule {
 
     /**
      * Return the unique identifier for this benchmark
-     * @return
      */
     public final String getBenchmarkName() {
-        return benchmarkName;
+        return (this.benchmarkName);
     }
-    
+    /**
+     * Return the database's catalog
+     */
+    public final Catalog getCatalog() {
+        return (this.catalog);
+    }
     /**
      * Return the StatementDialects loaded for this benchmark
-     * @return
      */
     public final StatementDialects getStatementDialects() {
         return (this.dialects);
     }
-
     @Override
     public final String toString() {
         return benchmarkName.toUpperCase();
@@ -278,21 +305,6 @@ public abstract class BenchmarkModule {
             return (false);
         }
         return (true);
-    }
-
-    /**
-     * Return a mapping from table names to Table catalog handles
-     * @param c
-     * @return
-     */
-    protected final Map<String, Table> getTables(Connection c) {
-        Map<String, Table> ret = null;
-        try {
-            ret = CatalogUtil.getTables(c);
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to retrieve table catalog information", ex);
-        }
-        return (ret);
     }
 
     /**
