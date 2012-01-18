@@ -46,5 +46,3 @@ CREATE TABLE trust (
 );
 CREATE INDEX IDX_TRUST_UID ON trust (source_u_id);
 CREATE INDEX IDX_TRUST_AID ON trust (target_u_id);
-
-
