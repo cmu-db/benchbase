@@ -116,6 +116,8 @@ public class SEATSProfile {
     // TRANSIENT DATA MEMBERS
     // ----------------------------------------------------------------
 
+    protected final SEATSBenchmark benchmark;
+    
     /**
      * TableName -> TableCatalog
      */
@@ -158,11 +160,11 @@ public class SEATSProfile {
     // CONSTRUCTOR
     // ----------------------------------------------------------------
     
-    public SEATSProfile(Connection c, File data_dir, RandomGenerator rng, Catalog tables) {
-        assert(data_dir != null);
-        this.catalog = tables;
+    public SEATSProfile(SEATSBenchmark benchmark, RandomGenerator rng) {
+        this.benchmark = benchmark;
+        this.catalog = benchmark.getCatalog();
         this.rng = rng;
-        this.airline_data_dir = data_dir;
+        this.airline_data_dir = benchmark.getDataDir();
         if (this.airline_data_dir.exists() == false) {
             throw new RuntimeException("Unable to start benchmark. The data directory '" + this.airline_data_dir.getAbsolutePath() + "' does not exist");
         }
@@ -323,7 +325,7 @@ public class SEATSProfile {
         this.loadCachedFlights(rs);
 
         if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
-        cachedProfile = new SEATSProfile(conn, this.airline_data_dir, rng, this.catalog).copy(this);
+        cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
     }
     
     private final void loadConfigProfile(ResultSet vt) throws SQLException {

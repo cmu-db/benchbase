@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
@@ -119,7 +120,7 @@ public final class Catalog {
      */
     protected void init() throws SQLException {
         // Load the database's DDL
-        this.benchmark.createDatabase(this.conn);
+        this.benchmark.createDatabase(DatabaseType.HSQLDB, this.conn);
         
         // TableName -> ColumnName -> <FkeyTable, FKeyColumn>
         Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<String, Map<String,Pair<String,String>>>();

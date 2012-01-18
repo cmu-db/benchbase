@@ -131,9 +131,8 @@ public class SEATSLoader extends Loader {
     public SEATSLoader(SEATSBenchmark benchmark, Connection c) {
     	super(benchmark, c);
     	
-    	File data_dir = benchmark.getDataDir();
-    	this.rng = new RandomGenerator(0); // TODO: Sync with the base class rng
-    	this.profile = new SEATSProfile(c, data_dir, this.rng, benchmark.getCatalog());
+    	this.rng = benchmark.getRandomGenerator(); // TODO: Sync with the base class rng
+    	this.profile = new SEATSProfile(benchmark, this.rng);
     	
     	if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + SEATSLoader.class.getName());
     }

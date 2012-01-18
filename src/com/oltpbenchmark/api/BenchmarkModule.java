@@ -116,13 +116,20 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
+     * 
+     * @return
+     */
+    public File getDatabaseDDL() {
+        return (this.getDatabaseDDL(this.workConf.getDBType()));
+    }
+    
+    /**
      * Return the File handle to the DDL used to load the benchmark's database
      * schema.
      * @param conn 
      * @throws SQLException 
      */
-    public File getDatabaseDDL() {
-    	DatabaseType db_type = this.workConf.getDBType();
+    public File getDatabaseDDL(DatabaseType db_type) {
     	String ddlNames[] = {
 			this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
 			this.benchmarkName + "-ddl.sql",
@@ -162,7 +169,7 @@ public abstract class BenchmarkModule {
     public final void createDatabase() {
         try {
             Connection conn = this.getConnection();
-            this.createDatabase(conn);
+            this.createDatabase(this.workConf.getDBType(), conn);
             conn.close();
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
@@ -174,9 +181,9 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database 
      * objects (e.g., table, indexes, etc) needed for this benchmark 
      */
-    public final void createDatabase(Connection conn) throws SQLException {
+    public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
-            File ddl = this.getDatabaseDDL();
+            File ddl = this.getDatabaseDDL(dbType);
             assert(ddl != null) : "Failed to get DDL for " + this;
             assert(ddl.exists()) : "The file '" + ddl + "' does not exist";
             ScriptRunner runner = new ScriptRunner(conn, true, true);

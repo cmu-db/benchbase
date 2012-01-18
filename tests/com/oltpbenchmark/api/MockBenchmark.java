@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.types.DatabaseType;
 
 public class MockBenchmark extends BenchmarkModule {
     public MockBenchmark() {
@@ -29,7 +30,7 @@ public class MockBenchmark extends BenchmarkModule {
         return null;
     }
     @Override
-    public File getDatabaseDDL() {
+    public File getDatabaseDDL(DatabaseType db_type) {
         // Get our sample DDL file
         URL testDDLURL = MockBenchmark.class.getResource("test-ddl.sql");
         assert(testDDLURL != null);

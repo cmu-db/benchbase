@@ -61,7 +61,7 @@ public class DBWorkload {
 	 */
 	public static void main(String[] args) throws Exception {
 	    // Initialize log4j
-		String log4jPath = System.getProperty("log4j.configuration");
+		String log4jPath = System.getProperty("log4j.properties");
 		if (log4jPath != null) {
 			org.apache.log4j.PropertyConfigurator.configure(log4jPath);
 		} else {

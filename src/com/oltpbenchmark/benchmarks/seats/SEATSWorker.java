@@ -67,6 +67,7 @@ import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants.ErrorType;
 import com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation;
@@ -77,6 +78,7 @@ import com.oltpbenchmark.benchmarks.seats.procedures.UpdateCustomer;
 import com.oltpbenchmark.benchmarks.seats.procedures.UpdateReservation;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
+import com.oltpbenchmark.benchmarks.tatp.TATPWorker.Transaction;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution;
@@ -354,7 +356,7 @@ public class SEATSWorker extends Worker {
             weights.put(t, t.getDefaultWeight());
         } // FOR
 
-        this.profile = null; // new SEATSProfile()
+        this.profile = new SEATSProfile(benchmark, benchmark.getRandomGenerator()); 
         try {
             this.profile.loadProfile(this.conn);
         } catch (SQLException ex) {
@@ -374,21 +376,45 @@ public class SEATSWorker extends Worker {
         if (error_msg != null) throw new RuntimeException(error_msg);
         
         // Create xact lookup array
-        this.rng = new RandomGenerator(0); // TODO: Sync with the base class rng
+        this.rng = benchmark.getRandomGenerator(); // TODO: Sync with the base class rng
         this.xacts = new RandomDistribution.FlatHistogram<Transaction>(rng, weights);
         assert(weights.getSampleCount() == 100) : "The total weight for the transactions is " + this.xacts.getSampleCount() + ". It needs to be 100";
         if (LOG.isDebugEnabled()) LOG.debug("Transaction Execution Distribution:\n" + weights);
-        
-        synchronized (SEATSWorker.class) {
-            if (callbackThread == null) {
-                callbackThread = new Thread(new CallbackProcessor());
-                callbackThread.setDaemon(true);
-                callbackThread.start();
-            }
-        } // SYNCH
     }
 
+    @Override
+    protected TransactionType doWork(boolean measure, Phase phase) {
+        TransactionType next = transactionTypes.getType(phase.chooseTransaction());
+        this.executeWork(next);
+        return (next);
+    }
 
+    @Override
+    protected void executeWork(TransactionType txnType) {
+        Transaction t = Transaction.get(txnType.getName());
+        assert(t != null) : "Unexpected " + txnType;
+        
+        // Get the Procedure handle
+        Procedure proc = this.getProcedure(txnType);
+        assert(proc != null) : String.format("Failed to get Procedure handle for %s.%s",
+                                             this.benchmarkModule.getBenchmarkName(), txnType);
+        if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
+        try {
+            try {
+//                t.invoke(this.conn, proc, subscriberSize);
+                this.conn.commit();
+            } catch (UserAbortException ex) {
+                if (LOG.isDebugEnabled()) LOG.debug(proc + " Aborted", ex);
+                this.conn.rollback();
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException("Unexpected error when executing " + proc, ex);
+        }
+        
+        
+    }
+    
+    
 //    protected boolean runOnce() throws IOException {
 //        if (this.first.compareAndSet(true, false)) {
 //            // Fire off a FindOpenSeats so that we can prime ourselves
@@ -1014,15 +1040,4 @@ public class SEATSWorker extends Worker {
         return (true);
     }
 
-    @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    protected void executeWork(TransactionType txnType) {
-        // TODO Auto-generated method stub
-        
-    }
 }
