@@ -166,10 +166,8 @@
                     <exclude name="**/Test*$*.class"/>
                 	<exclude name="**/TestJPAB*.class"/>
                 	<exclude name="**/TestSEATSWorker.class"/>
-                	<exclude name="**/TestTwitterBenchmark.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>
-                	<exclude name="**/TestTPCCBenchmark.class"/>
-                    <exclude name="**/TestWikipediaBenchmark.class"/>
+                    <exclude name="**/TestYCSBLoader.class"/>
                 </fileset>
             </tests>
         </run_junit>

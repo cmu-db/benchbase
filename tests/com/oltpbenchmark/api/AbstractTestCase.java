@@ -57,7 +57,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         
         this.catalog = this.benchmark.getCatalog();
         assertNotNull(this.catalog);
-        this.conn = this.benchmark.getConnection();
+        this.conn = this.benchmark.makeConnection();
         assertNotNull(this.conn);
     }
     

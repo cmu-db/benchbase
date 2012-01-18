@@ -62,7 +62,6 @@ public abstract class BenchmarkModule {
      */
     protected final Catalog catalog;
     
-    
     /**
      * Whether to use verbose output messages
      * @deprecated
@@ -78,6 +77,23 @@ public abstract class BenchmarkModule {
         
         File xmlFile = this.getSQLDialect();
         this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
+    }
+    
+    // --------------------------------------------------------------------------
+    // DATABASE CONNETION
+    // --------------------------------------------------------------------------
+
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    protected final Connection makeConnection() throws SQLException {
+        Connection conn = DriverManager.getConnection(workConf.getDBConnection(),
+                                                      workConf.getDBUsername(),
+                                                      workConf.getDBPassword());
+        Catalog.setSeparator(conn);
+        return (conn);
     }
 
     // --------------------------------------------------------------------------
@@ -168,7 +184,7 @@ public abstract class BenchmarkModule {
      */
     public final void createDatabase() {
         try {
-            Connection conn = this.getConnection();
+            Connection conn = this.makeConnection();
             this.createDatabase(this.workConf.getDBType(), conn);
             conn.close();
         } catch (SQLException ex) {
@@ -200,7 +216,7 @@ public abstract class BenchmarkModule {
     public final void loadDatabase() {
         Connection conn = null;
         try {
-            conn = this.getConnection();
+            conn = this.makeConnection();
             conn.setAutoCommit(false);
             
             Loader loader = this.makeLoaderImpl(conn);
@@ -219,7 +235,7 @@ public abstract class BenchmarkModule {
      */
     public final void clearDatabase() {
         try {
-            Connection conn = this.getConnection();
+            Connection conn = this.makeConnection();
             conn.setAutoCommit(false);
             conn.setTransactionIsolation(workConf.getIsolationMode());
             Statement st = conn.createStatement();
@@ -279,14 +295,6 @@ public abstract class BenchmarkModule {
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
         assert (procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;
         return new TransactionType(procClass, id);
-    }
-
-    protected final Connection getConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(workConf.getDBConnection(),
-                                                      workConf.getDBUsername(),
-                                                      workConf.getDBPassword());
-        Catalog.setSeparator(conn);
-        return (conn);
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {

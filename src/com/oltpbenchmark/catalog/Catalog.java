@@ -77,7 +77,7 @@ public final class Catalog {
         // Create an internal HSQLDB connection and pull out the 
         // catalog information that we're going to need
         Connection conn;
-        String dbName = String.format("%s-%d.db", benchmark.getBenchmarkName(), rand.nextInt());
+        String dbName = String.format("catalog-%s-%d.db", benchmark.getBenchmarkName(), rand.nextInt());
         try {
             Class.forName(DB_JDBC);
             conn = DriverManager.getConnection(DB_CONNECTION + dbName, null, null);

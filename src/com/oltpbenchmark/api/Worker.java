@@ -35,7 +35,7 @@ public abstract class Worker implements Runnable {
 		    "The TransactionTypes from the WorkloadConfiguration is null!";
 		
 		try {
-		    this.conn = this.benchmarkModule.getConnection();
+		    this.conn = this.benchmarkModule.makeConnection();
 		    this.conn.setAutoCommit(false);
 		    conn.setTransactionIsolation(wrkld.getIsolationMode());
 		} catch (SQLException ex) {

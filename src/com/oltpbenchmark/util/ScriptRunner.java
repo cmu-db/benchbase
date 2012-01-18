@@ -132,6 +132,7 @@ public class ScriptRunner {
 			LineNumberReader lineReader = new LineNumberReader(reader);
 			String line = null;
 			while ((line = lineReader.readLine()) != null) {
+			    if (LOG.isDebugEnabled()) LOG.debug(line);
 				if (command == null) {
 					command = new StringBuffer();
 				}

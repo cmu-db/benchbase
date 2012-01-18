@@ -53,6 +53,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         // and then check to make sure that our tables aren't empty
         this.benchmark.loadDatabase();
         
+        System.err.println("TABLES: " + this.catalog.getTableNames());
         for (String tableName : this.catalog.getTableNames()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);

@@ -51,7 +51,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
         ArrayList<Worker> workers = new ArrayList<Worker>();
 
         try {
-            Connection metaConn = this.getConnection();
+            Connection metaConn = this.makeConnection();
 
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS

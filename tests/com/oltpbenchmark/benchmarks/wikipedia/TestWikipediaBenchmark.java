@@ -23,7 +23,11 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
 
 public class TestWikipediaBenchmark extends AbstractTestBenchmarkModule<WikipediaBenchmark> {
-	
+
+    static {
+        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
+    }
+    
     public static final Class<?> PROC_CLASSES[] = {
         AddWatchList.class,
         GetPageAnonymous.class,
