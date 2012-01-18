@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -37,62 +38,63 @@ import com.oltpbenchmark.util.SQLUtil;
 
 public class EpinionsBenchmark extends BenchmarkModule {
 
-    public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super("epinions", workConf);
-    }
+	public EpinionsBenchmark(WorkloadConfiguration workConf) {
+		super("epinions", workConf);
+	}
 
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return GetAverageRatingByTrustedUser.class.getPackage();
-    }
+	@Override
+	protected Package getProcedurePackageImpl() {
+	    return GetAverageRatingByTrustedUser.class.getPackage();
+	}
+	
+	@Override
+	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+		ArrayList<Worker> workers = new ArrayList<Worker>();
 
-    @Override
-    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-        ArrayList<Worker> workers = new ArrayList<Worker>();
+		try {
+			Connection metaConn = this.getConnection();
+			Map<String,Table> tables=this.getTables(metaConn);
+			
+			// LOADING FROM THE DATABASE IMPORTANT INFORMATION
+			// LIST OF USERS
 
-        try {
-            Connection metaConn = this.getConnection();
+			Table t=tables.get("USER");
+	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();
+	        
+			String userCount= SQLUtil.selectColValues(t, "u_id");
+			Statement stmt = metaConn.createStatement();
+			ResultSet res = stmt.executeQuery(userCount);
+			ArrayList<String> user_ids = new ArrayList<String>();
+			while (res.next()) {
+				user_ids.add(res.getString(1));
+			}
+			res.close();
+			
+			// LIST OF ITEMS AND
+			t=tables.get("ITEM");
+	        assert(t != null) : "Invalid table name '" + t + "' " + tables.keySet();			
+			String itemCount= SQLUtil.selectColValues(t, "i_id");
+			res = stmt.executeQuery(itemCount);
+			ArrayList<String> item_ids = new ArrayList<String>();
+			while (res.next()) {
+				item_ids.add(res.getString(1));
+			}
+			res.close();
+			metaConn.close();
+			// Now create the workers.			
+			for (int i = 0; i < workConf.getTerminals(); ++i) {
+				workers.add(new EpinionsWorker(i, this, user_ids, item_ids));
+			}
 
-            // LOADING FROM THE DATABASE IMPORTANT INFORMATION
-            // LIST OF USERS
-
-            Table t = this.catalog.getTable("USER");
-            assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
-
-            String userCount = SQLUtil.selectColValues(t, "u_id");
-            Statement stmt = metaConn.createStatement();
-            ResultSet res = stmt.executeQuery(userCount);
-            ArrayList<String> user_ids = new ArrayList<String>();
-            while (res.next()) {
-                user_ids.add(res.getString(1));
-            }
-            res.close();
-
-            // LIST OF ITEMS AND
-            t = this.catalog.getTable("ITEM");
-            assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
-            String itemCount = SQLUtil.selectColValues(t, "i_id");
-            res = stmt.executeQuery(itemCount);
-            ArrayList<String> item_ids = new ArrayList<String>();
-            while (res.next()) {
-                item_ids.add(res.getString(1));
-            }
-            res.close();
-            metaConn.close();
-            // Now create the workers.
-            for (int i = 0; i < workConf.getTerminals(); ++i) {
-                workers.add(new EpinionsWorker(i, this, user_ids, item_ids));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return workers;
-    }
-
-    @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
-        return new EpinionsLoader(this, conn);
-    }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return workers;
+	}
+	
+	@Override
+	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+		return new EpinionsLoader(this, conn);
+	}
 
 }

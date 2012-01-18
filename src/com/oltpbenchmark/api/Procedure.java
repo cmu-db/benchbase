@@ -67,7 +67,7 @@ public abstract class Procedure {
     public final PreparedStatement getPreparedStatement(Connection conn, SQLStmt stmt, Object...params) throws SQLException {
         PreparedStatement pStmt = this.getPreparedStatementReturnKeys(conn, stmt, null);
         for (int i = 0; i < params.length; i++) {
-            pStmt.setObject(i+1, params[i]);
+            pStmt.setObject(i+1, params);
         } // FOR
         return (pStmt);
     }

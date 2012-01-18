@@ -21,20 +21,18 @@ package com.oltpbenchmark.api;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Table;
 
-/**
- * 
- * @author pavlo
- */
 public abstract class Loader {
 
     protected final BenchmarkModule benchmark;
     protected final Connection conn;
     protected final WorkloadConfiguration workConf;
+    protected final Map<String, Table> tables;
     protected final double scaleFactor;
     
     /**
@@ -48,6 +46,7 @@ public abstract class Loader {
         this.benchmark = benchmark;
     	this.conn = conn;
     	this.workConf = benchmark.getWorkloadConfiguration();
+    	this.tables = benchmark.getTables(this.conn);
     	this.scaleFactor = workConf.getScaleFactor();
     }
     
@@ -56,7 +55,7 @@ public abstract class Loader {
      * @return
      */
     public int getTableCount() {
-        return (this.benchmark.getCatalog().getTableCount());
+        return (this.tables.size());
     }
 	
     /**
@@ -65,8 +64,8 @@ public abstract class Loader {
      * @return
      */
     public Table getTableCatalog(String tableName) {
-        Table catalog_tbl = this.benchmark.getCatalog().getTable(tableName.toUpperCase());
-        assert(catalog_tbl != null) : "Invalid table name '" + tableName + "'";
+        Table catalog_tbl = this.tables.get(tableName.toUpperCase());
+        assert(catalog_tbl != null) : "Invalid table name '" + tableName + "' " + this.tables.keySet();
         return (catalog_tbl);
     }
 

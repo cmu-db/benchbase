@@ -94,11 +94,6 @@ public class DBWorkload {
 	            "create",
                 true,
                 "Initialize the database for this benchmark");
-      options.addOption(
-                null,
-                "clear",
-                true,
-                "Clear all records in the database for this benchmark");
 		options.addOption(
 		        null,
 		        "load",
@@ -233,16 +228,6 @@ public class DBWorkload {
         }
         else if (CREATE_LOG.isDebugEnabled()) {
         	CREATE_LOG.debug("Skipping creating benchmark database tables");
-        }
-        // Clear the Benchmark's Database
-        if (isBooleanOptionSet(argsLine, "clear")) {
-            CREATE_LOG.info(SINGLE_LINE);
-            CREATE_LOG.info("Resetting " + bench.getBenchmarkName().toUpperCase() + " database...");
-            bench.clearDatabase();
-            CREATE_LOG.info("Finished!");
-        }
-        else if (CREATE_LOG.isDebugEnabled()) {
-            CREATE_LOG.debug("Skipping creating benchmark database tables");
         }
 		
 		// Execute Loader

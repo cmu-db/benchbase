@@ -1,15 +1,21 @@
 package com.oltpbenchmark.api;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.StringUtil;
 
 /**
@@ -23,12 +29,12 @@ public class CreateDialects {
     private static final String SPACER = "   ";
     
     private final DatabaseType dbType;
-    private final Catalog catalog;
+    private Map<String, Table> tables;
     
 
-    public CreateDialects(DatabaseType dbType, Catalog catalog) {
+    public CreateDialects(DatabaseType dbType, Map<String, Table> tables) {
         this.dbType = dbType;
-        this.catalog = catalog;
+        this.tables = tables;
     }
     
     
@@ -118,18 +124,18 @@ public class CreateDialects {
         
     }
     
-//
-//    protected static Map<String, Table> getCatalogTables(File ddlFile) throws Exception {
-//        Class.forName("org.sqlite.JDBC");
-//        Connection conn = DriverManager.getConnection(DB_CONNECTION);
-//        
-//        ScriptRunner runner = new ScriptRunner(conn, true, false);
-//        runner.runScript(ddlFile);
-//        
-//        Map<String, Table> tables = Catalog.init(conn);
-//        assert(tables != null);
-//        
-//        return (tables);
-//    }
+
+    protected static Map<String, Table> getCatalogTables(File ddlFile) throws Exception {
+        Class.forName("org.sqlite.JDBC");
+        Connection conn = DriverManager.getConnection(DB_CONNECTION);
+        
+        ScriptRunner runner = new ScriptRunner(conn, true, false);
+        runner.runScript(ddlFile);
+        
+        Map<String, Table> tables = CatalogUtil.getTables(conn);
+        assert(tables != null);
+        
+        return (tables);
+    }
     
 }

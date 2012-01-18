@@ -41,12 +41,9 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.RandomGenerator;
 
 public class SEATSBenchmark extends BenchmarkModule {
 
-    private final RandomGenerator rng = new RandomGenerator((int)System.currentTimeMillis());
-    
 	public SEATSBenchmark(WorkloadConfiguration workConf) {
 		super("seats", workConf);
 	}
@@ -57,10 +54,6 @@ public class SEATSBenchmark extends BenchmarkModule {
 	        return new File(url.getPath());
 	    }
 	    return (null);
-	}
-	
-	public RandomGenerator getRandomGenerator() {
-	    return (this.rng);
 	}
 	
 	@Override
