@@ -2,18 +2,16 @@ package com.oltpbenchmark.util;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.junit.Test;
 
 import com.oltpbenchmark.api.AbstractTestCase;
 import com.oltpbenchmark.benchmarks.seats.SEATSBenchmark;
-import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
 
-/**
- * TestTableDataIterable
- * @author pavlo
- */
+
 public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
     
     Table catalog_tbl;
@@ -22,10 +20,11 @@ public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
     protected void setUp() throws Exception {
         super.setUp(SEATSBenchmark.class);
         
-        Catalog catalog = new Catalog(this.benchmark);
-        assertNotNull(catalog);
-        this.catalog_tbl = catalog.getTable("AIRLINE");
-        assertNotNull(catalog.toString(), this.catalog_tbl);
+        this.benchmark.createDatabase();
+        Map<String, Table> tables = CatalogUtil.getTables(this.conn);
+        assertNotNull(tables);
+        this.catalog_tbl = tables.get("AIRLINE");
+        assertNotNull(this.catalog_tbl);
         assertFalse(this.catalog_tbl.getColumnCount() == 0);
     }
     

@@ -22,13 +22,17 @@ package com.oltpbenchmark.api;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import com.oltpbenchmark.catalog.CatalogUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
+
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
     
+    protected Map<String, Table> tables;
     protected Set<String> ignoreTables = new HashSet<String>();
     
     @SuppressWarnings("rawtypes")
@@ -43,6 +47,9 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         
         this.workConf.setScaleFactor(0.001);
         this.benchmark.createDatabase();
+        this.tables = CatalogUtil.getTables(this.conn);
+        assertNotNull(this.tables);
+        assertFalse(this.tables.isEmpty());
     }
     
     /**
@@ -53,9 +60,9 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         // and then check to make sure that our tables aren't empty
         this.benchmark.loadDatabase();
         
-        for (String tableName : this.catalog.getTableNames()) {
+        for (String tableName : this.tables.keySet()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
-            Table catalog_tbl = this.catalog.getTable(tableName);
+            Table catalog_tbl = this.tables.get(tableName);
             
             String sql = SQLUtil.getCountSQL(catalog_tbl);
             Statement stmt = conn.createStatement();
@@ -68,4 +75,5 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             assert(count > 0) : "No tuples were inserted for table " + tableName;
         } // FOR
     }
+
 }

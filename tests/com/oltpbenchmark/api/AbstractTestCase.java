@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 
@@ -28,7 +27,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected String dbName;
     protected WorkloadConfiguration workConf;
     protected T benchmark;
-    protected Catalog catalog;
     protected Connection conn;
     protected List<Class<? extends Procedure>> procClasses = new ArrayList<Class<? extends Procedure>>();
 
@@ -55,8 +53,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
                                                    new Class<?>[] { WorkloadConfiguration.class });
         assertNotNull(this.benchmark);
         
-        this.catalog = this.benchmark.getCatalog();
-        assertNotNull(this.catalog);
         this.conn = this.benchmark.getConnection();
         assertNotNull(this.conn);
     }

@@ -30,6 +30,7 @@ public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchma
         DeleteReservation.class,
         FindFlights.class,
         FindOpenSeats.class,
+        LoadConfig.class,
         NewReservation.class,
         UpdateCustomer.class,
         UpdateReservation.class

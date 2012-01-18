@@ -1,31 +1,54 @@
 package com.oltpbenchmark.catalog;
 
+import java.io.File;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.List;
+import java.util.Map;
+
+import com.oltpbenchmark.util.FileUtil;
+import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.ScriptRunner;
 
 import junit.framework.TestCase;
 
-import com.oltpbenchmark.api.MockBenchmark;
-import com.oltpbenchmark.util.FileUtil;
-import com.oltpbenchmark.util.SQLUtil;
-
-public class TestCatalog extends TestCase {
+public class TestCatalogUtil extends TestCase {
 
     static {
         org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
     }
     
-    private MockBenchmark benchmark;
-    private Catalog catalog;
+    private static final String DB_CONNECTION = "jdbc:hsqldb:mem:aname";
+    private static Connection DB_CONN;
+    
+    private File testDDL;
+    private Map<String, Table> tables;
     
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         
-        this.benchmark = new MockBenchmark();
-        this.catalog = new Catalog(benchmark);
-        assertNotNull(this.catalog);
+        // Get our sample DDL file
+        URL testDDLURL = this.getClass().getResource("test-ddl.sql");
+        assertNotNull(testDDLURL);
+        this.testDDL = new File(testDDLURL.getPath());
+        assertTrue(testDDL.getAbsolutePath(), this.testDDL.exists());
         
-        System.err.println("CATALOG:\n" + catalog);
+        // Create a connection to a main memory database
+        if (DB_CONN == null) {
+            Class.forName("org.hsqldb.jdbcDriver");
+            DB_CONN = DriverManager.getConnection(DB_CONNECTION);
+            
+            // Load the DDL
+            ScriptRunner runner = new ScriptRunner(DB_CONN, true, true);
+            runner.runScript(this.testDDL);
+        }
+        assertFalse(DB_CONN.isClosed());
+        
+        // Get our catalog information
+        this.tables = CatalogUtil.getTables(DB_CONN);
+        assertNotNull(this.tables);
     }
     
     /**
@@ -33,7 +56,7 @@ public class TestCatalog extends TestCase {
      */
     public void testGetTables() throws Exception {
         // Count the number of CREATE TABLEs in our test file
-        String contents = FileUtil.readFile(this.benchmark.getDatabaseDDL());
+        String contents = FileUtil.readFile(this.testDDL);
         assertFalse(contents.isEmpty());
         int offset = 0;
         int num_tables = 0;
@@ -46,11 +69,11 @@ public class TestCatalog extends TestCase {
         assert(num_tables > 0);
         
         // Make sure that CatalogUtil returns the same number of tables
-        assertEquals(num_tables, this.catalog.getTableCount());
+        assertEquals(num_tables, this.tables.size());
         
         // Make sure that Map names match the Table names
-        for (String table_name : this.catalog.getTableNames()) {
-            Table catalog_tbl = this.catalog.getTable(table_name);
+        for (String table_name : this.tables.keySet()) {
+            Table catalog_tbl = this.tables.get(table_name);
             assertNotNull(catalog_tbl);
             assertEquals(table_name, catalog_tbl.getName());
         } // FOR
@@ -63,9 +86,9 @@ public class TestCatalog extends TestCase {
         // All but one of our tables should have a single column primary key
         // The remaining table should have a multi-attribute primary key
         // that references all of our tables
-        int num_tables = this.catalog.getTableCount();
+        int num_tables = this.tables.size();
         Table multicol_table = null;
-        for (Table catalog_tbl : this.catalog.getTables()) {
+        for (Table catalog_tbl : this.tables.values()) {
             List<String> pkeys = catalog_tbl.getPrimaryKeyColumns();
             assertNotNull(pkeys);
             assertFalse(catalog_tbl.getName(), pkeys.isEmpty());
@@ -84,9 +107,9 @@ public class TestCatalog extends TestCase {
      */
     public void testForeignKeys() throws Exception {
         // The C table should have two foreign keys
-        Table catalog_tbl = this.catalog.getTable("C");
+        Table catalog_tbl = this.tables.get("C");
         int found = 0;
-        assert(catalog_tbl != null) : this.catalog.getTableNames();
+        assert(catalog_tbl != null) : this.tables.keySet();
         for (Column catalog_col : catalog_tbl.getColumns()) {
             assertNotNull(catalog_col);
             Column fkey_col = catalog_col.getForeignKey();
@@ -103,7 +126,7 @@ public class TestCatalog extends TestCase {
      */
     public void testIndexes() throws Exception {
         // We should always have a PRIMARY KEY index
-        for (Table catalog_tbl : this.catalog.getTables()) {
+        for (Table catalog_tbl : this.tables.values()) {
             assertNotNull(catalog_tbl);
             
             for (Index catalog_idx : catalog_tbl.getIndexes()) {
@@ -126,7 +149,7 @@ public class TestCatalog extends TestCase {
     public void testIntegerColumns() throws Exception {
         // Any column that has a name with 'IATTR' in it is an integer
         // So we need to check to make sure that our little checker works
-        for (Table catalog_tbl : this.catalog.getTables()) {
+        for (Table catalog_tbl : this.tables.values()) {
             assertNotNull(catalog_tbl);
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 assertNotNull(catalog_col);
