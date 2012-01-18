@@ -19,7 +19,7 @@ CREATE TABLE customer (
   c_state char(2) NOT NULL,
   c_zip char(9) NOT NULL,
   c_phone char(16) NOT NULL,
-  c_since timestamp NOT NULL,
+  c_since timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   c_middle char(2) NOT NULL,
   c_data varchar(500) NOT NULL,
   PRIMARY KEY (c_w_id,c_d_id,c_id)
@@ -50,7 +50,7 @@ CREATE TABLE history (
   h_c_w_id int NOT NULL,
   h_d_id int NOT NULL,
   h_w_id int NOT NULL,
-  h_date timestamp NOT NULL,
+  h_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   h_amount decimal(6,2) NOT NULL,
   h_data varchar(24) NOT NULL
 );
@@ -83,7 +83,7 @@ CREATE TABLE oorder (
   o_carrier_id int DEFAULT NULL,
   o_ol_cnt decimal(2,0) NOT NULL,
   o_all_local decimal(1,0) NOT NULL,
-  o_entry_d timestamp NOT NULL,
+  o_entry_d timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (o_w_id,o_d_id,o_id),
   UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
 );
@@ -95,7 +95,7 @@ CREATE TABLE order_line (
   ol_o_id int NOT NULL,
   ol_number int NOT NULL,
   ol_i_id int NOT NULL,
-  ol_delivery_d timestamp,
+  ol_delivery_d timestamp NULL DEFAULT NULL,
   ol_amount decimal(6,2) NOT NULL,
   ol_supply_w_id int NOT NULL,
   ol_quantity decimal(2,0) NOT NULL,
