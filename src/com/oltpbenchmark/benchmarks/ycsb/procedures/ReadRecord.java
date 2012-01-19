@@ -11,7 +11,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class ReadRecord extends Procedure{
     public final SQLStmt readStmt = new SQLStmt(
-            "SELECT * FROM usertable WHERE YCSB_KEY=?"
+            "SELECT * FROM USERTABLE WHERE YCSB_KEY=?"
         );
         
     	//FIXME: The value in ysqb is a byteiterator

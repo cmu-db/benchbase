@@ -1,8 +1,8 @@
 -- YCSB DDL for Microsoft SQL Server
 
-IF OBJECT_ID('usertable') IS NOT NULL DROP table usertable;
+IF OBJECT_ID('USERABLE') IS NOT NULL DROP table usertable;
 
-CREATE TABLE usertable(
+CREATE TABLE USERTABLE(
   YCSB_KEY VARCHAR (255) PRIMARY KEY,
   FIELD1 TEXT, 
   FIELD2 TEXT,

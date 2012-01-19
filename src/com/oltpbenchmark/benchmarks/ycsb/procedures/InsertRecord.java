@@ -10,7 +10,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class InsertRecord extends Procedure{
     public final SQLStmt insertStmt = new SQLStmt(
-            "INSERT INTO usertable VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+            "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
         );
         
     	//FIXME: The value in ysqb is a byteiterator

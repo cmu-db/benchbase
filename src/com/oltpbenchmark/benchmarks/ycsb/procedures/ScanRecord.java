@@ -14,7 +14,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class ScanRecord extends Procedure{
     public final SQLStmt scanStmt = new SQLStmt(
-            "SELECT * FROM usertable WHERE YCSB_KEY>? AND YCSB_KEY<?"
+            "SELECT * FROM USERTABLE WHERE YCSB_KEY>? AND YCSB_KEY<?"
         );
         
     	//FIXME: The value in ysqb is a byteiterator

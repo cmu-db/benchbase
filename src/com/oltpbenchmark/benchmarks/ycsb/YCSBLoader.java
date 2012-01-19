@@ -25,11 +25,10 @@ public class YCSBLoader extends Loader {
 
     @Override
     public void load() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("usertable");
+        Table catalog_tbl = this.getTableCatalog("USERTABLE");
         assert (catalog_tbl != null);
         
-        String sql = SQLUtil.getInsertSQL(catalog_tbl).toUpperCase();
-        System.err.println(sql);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         long total = 0;
         int batch = 0;
