@@ -45,8 +45,8 @@ public class GetNewDestination extends Procedure {
 
      public final SQLStmt getNewDestination = new SQLStmt(
          "SELECT cf.numberx " +
-         "  FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " AS sf, " +
-         "       " + TATPConstants.TABLENAME_CALL_FORWARDING + " AS cf " +
+         "  FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " sf, " +
+         "       " + TATPConstants.TABLENAME_CALL_FORWARDING + " cf " +
          " WHERE sf.s_id = ? " +
          "   AND sf.sf_type = ? " +
          "   AND sf.is_active = 1 " +
