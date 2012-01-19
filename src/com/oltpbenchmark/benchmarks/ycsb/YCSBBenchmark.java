@@ -26,7 +26,7 @@ public class YCSBBenchmark extends BenchmarkModule {
     protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
         ArrayList<Worker> workers = new ArrayList<Worker>();
         try {
-            Connection metaConn = this.makeConnection();
+            Connection metaConn = this.getConnection();
 
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
@@ -44,11 +44,11 @@ public class YCSBBenchmark extends BenchmarkModule {
             res.close();
             //
             for (int i = 0; i < workConf.getTerminals(); ++i) {
-                Connection conn = this.makeConnection();
+                Connection conn = this.getConnection();
                 conn.setAutoCommit(false);
                 workers.add(new YCSBWorker(i, this, init_record_count + 1));
             } // FOR
-
+            metaConn.close();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -63,6 +63,7 @@ public class YCSBBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
+        // TODO Auto-generated method stub
         return InsertRecord.class.getPackage();
     }
 
