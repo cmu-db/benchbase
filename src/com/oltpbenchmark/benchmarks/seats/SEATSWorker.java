@@ -505,8 +505,7 @@ public class SEATSWorker extends Worker {
         }
         
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
-        ResultSet result[] = proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
-        assert(result != null);
+        proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
         
         // We can remove this from our set of full flights because know that there is now a free seat
         BitSet seats = SEATSWorker.getSeatsBitSet(r.flight_id);

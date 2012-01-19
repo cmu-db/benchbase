@@ -129,9 +129,9 @@ public class FindOpenSeats extends Procedure {
         while (s_results.next() && ctr++ < max) {
             long r_id = s_results.getLong(1);
             int seatnum = s_results.getInt(3);
-            if (debug) LOG.debug(String.format("ROW fid %d rid %d seat %d", f_id, r_id, seatnum));
+            if (debug) LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
             assert(seatmap[seatnum] == -1) : "Duplicate seat reservation: R_ID=" + r_id;
-            seatmap[seatnum] = 1; // results[1].getLong(1);
+            seatmap[seatnum] = 1;
         } // WHILE
         
         List<Object[]> returnResults = new ArrayList<Object[]>();

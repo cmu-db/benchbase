@@ -379,16 +379,16 @@ public class SEATSLoader extends Loader {
                     }
                 } // FOR
                 insert_stmt.addBatch();
-                row_batch++;
+                row_idx++;
                 
-                if (row_idx > 0 && (row_idx+1) % batch_size == 0) {
+                if (++row_batch >= batch_size) {
                     LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName(), row_idx));
                     insert_stmt.executeBatch();
                     conn.commit();
                     insert_stmt.clearBatch();
                     row_batch = 0;
                 }
-                row_idx++;
+                
             } // FOR
             
             if (row_batch > 0) {
@@ -907,6 +907,8 @@ public class SEATSLoader extends Loader {
         private final RandomDistribution.FlatHistogram<String> flight_times;
         private final RandomDistribution.Flat prices = new RandomDistribution.Flat(rng, SEATSConstants.MIN_RESERVATION_PRICE, SEATSConstants.MAX_RESERVATION_PRICE);
         
+        private final Set<FlightId> todays_flights = new HashSet<FlightId>();
+        
         private final Pattern time_pattern = Pattern.compile("([\\d]{2,2}):([\\d]{2,2})");
         private final ListOrderedMap<Date, Integer> flights_per_day = new ListOrderedMap<Date, Integer>();
 //        private final Map<Long, AtomicInteger> airport_flight_ids = new HashMap<Long, AtomicInteger>();
@@ -1015,7 +1017,7 @@ public class SEATSLoader extends Loader {
             this.arrive_airport = this.flights_per_airport.get(this.depart_airport).nextValue();
 
             // Depart/Arrive Times
-            this.depart_time = this.convertTimeString(date, this.flight_times.nextValue().toString());
+            this.depart_time = this.convertTimeString(date, this.flight_times.nextValue());
             this.arrive_time = SEATSLoader.this.calculateArrivalTime(this.depart_airport, this.arrive_airport, this.depart_time);
 
             // Airline
@@ -1036,8 +1038,6 @@ public class SEATSLoader extends Loader {
             return (rng.nextInt(100) < SEATSConstants.PROB_SEAT_OCCUPIED);
         }
         
-        Set<FlightId> _ids = new HashSet<FlightId>();
-        
         @Override
         protected Object specialValue(long id, int columnIdx) {
             Object value = null;
@@ -1048,25 +1048,35 @@ public class SEATSLoader extends Loader {
                     Integer remaining = null;
                     Date date; 
                     do {
-                        if (remaining != null) this.day_idx++;
+                        // Move to the next day.
+                        // Make sure that we reset the set of FlightIds that we've used for today
+                        if (remaining != null) {
+                            this.todays_flights.clear();
+                            this.day_idx++;
+                        }
                         date = this.flights_per_day.get(this.day_idx);
                         remaining = this.flights_per_day.getValue(this.day_idx);
                     } while (remaining <= 0 && this.day_idx + 1 < this.flights_per_day.size());
                     assert(date != null);
-                    this.populate(date);
                     
-                    // Generate a composite FlightId
-                    long depart_airport_id = profile.getAirportId(this.depart_airport);
-                    long arrive_airport_id = profile.getAirportId(this.arrive_airport);
-                    this.flight_id = new FlightId(this.airline_id, depart_airport_id, arrive_airport_id, this.start_date, this.depart_time);
+                    // Keep looping until we get a FlightId that we haven't seen yet for this date
+                    while (true) {
+                        this.populate(date);
+                        
+                        // Generate a composite FlightId
+                        this.flight_id = new FlightId(this.airline_id,
+                                                      profile.getAirportId(this.depart_airport),
+                                                      profile.getAirportId(this.arrive_airport),
+                                                      this.start_date, this.depart_time);
+                        if (this.todays_flights.contains(this.flight_id) == false) break;
+                    } // WHILE
+                    if (LOG.isTraceEnabled())
+                        LOG.trace(String.format("%s [remaining=%d, dayIdx=%d]", this.flight_id, remaining, day_idx)); 
+                    assert(todays_flights.contains(this.flight_id) == false) : this.flight_id;
+                    
+                    this.todays_flights.add(this.flight_id);
                     SEATSLoader.this.addFlightId(this.flight_id);
                     value = this.flight_id.encode();
-
-                    System.err.println(value + " " + this.flight_id +
-                            String.format(" [remaining=%d, dayIdx=%d]", remaining, day_idx)); 
-                    assert(_ids.contains(this.flight_id) == false) : value + " " + this.flight_id;
-                    _ids.add(this.flight_id);
-
                     break;
                 }
                 // AIRLINE ID

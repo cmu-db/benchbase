@@ -127,53 +127,50 @@ public class NewReservation extends Procedure {
         final boolean debug = LOG.isDebugEnabled();
         
         // Flight Information
-        PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight, f_id);
-        ResultSet f_results = f_stmt.executeQuery();
-        if (f_results.next() == false) {
+        PreparedStatement stmt = this.getPreparedStatement(conn, GetFlight, f_id);
+        ResultSet results = stmt.executeQuery();
+        if (results.next() == false) {
             throw new UserAbortException(ErrorType.INVALID_FLIGHT_ID +
                                          String.format(" Invalid flight #%d", f_id));
         }
-        long airline_id = f_results.getLong(1);
-        long seats_left = f_results.getLong(2);
+        long airline_id = results.getLong(1);
+        long seats_left = results.getLong(2);
         if (seats_left <= 0) {
             throw new UserAbortException(ErrorType.NO_MORE_SEATS +
                                          String.format(" No more seats available for flight #%d", f_id));
         }
-
         // Check if Seat is Available
-        PreparedStatement cs_stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
-        ResultSet cs_results = cs_stmt.executeQuery();
-        if (cs_results.next() == false) {
+        stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
+        results = stmt.executeQuery();
+        if (results.next()) {
             throw new UserAbortException(ErrorType.SEAT_ALREADY_RESERVED +
                                          String.format(" Seat %d is already reserved on flight #%d", seatnum, f_id));
         }
-        
         // Check if the Customer already has a seat on this flight
-        PreparedStatement cc_stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
-        ResultSet cc_results = cc_stmt.executeQuery();
-        if (cc_results.next()) {
+        stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
+        results = stmt.executeQuery();
+        if (results.next()) {
             throw new UserAbortException(ErrorType.CUSTOMER_ALREADY_HAS_SEAT +
                                          String.format(" Customer %d already owns on a reservations on flight #%d", c_id, f_id));
         }
-        
         // Get Customer Information
-        PreparedStatement c_stmt = this.getPreparedStatement(conn, GetCustomer, c_id);
-        ResultSet c_results = c_stmt.executeQuery();
-        if (c_results.next() == false) {
+        stmt = this.getPreparedStatement(conn, GetCustomer, c_id);
+        results = stmt.executeQuery();
+        if (results.next() == false) {
             throw new UserAbortException(ErrorType.INVALID_CUSTOMER_ID + 
                                          String.format(" Invalid customer id: %d / %s", c_id, new CustomerId(c_id)));
         }
         
-        PreparedStatement ir_stmt = this.getPreparedStatement(conn, InsertReservation);
-        ir_stmt.setLong(1, r_id);
-        ir_stmt.setLong(2, c_id);
-        ir_stmt.setLong(3, f_id);
-        ir_stmt.setLong(4, seatnum);
-        ir_stmt.setDouble(5, price);
+        stmt = this.getPreparedStatement(conn, InsertReservation);
+        stmt.setLong(1, r_id);
+        stmt.setLong(2, c_id);
+        stmt.setLong(3, f_id);
+        stmt.setLong(4, seatnum);
+        stmt.setDouble(5, price);
         for (int i = 0; i < attrs.length; i++) {
-            ir_stmt.setLong(6 + i, attrs[i]);
+            stmt.setLong(6 + i, attrs[i]);
         } // FOR
-        int updated = ir_stmt.executeUpdate();
+        int updated = stmt.executeUpdate();
         if (updated != 1) {
             String msg = String.format("Failed to add reservation for flight #%d - Inserted %d records for InsertReservation", f_id, updated);
             if (debug) LOG.warn(msg);

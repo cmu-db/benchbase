@@ -241,7 +241,7 @@ public class SEATSProfile {
             result = stmt.executeUpdate();
             assert(result == 1);
         } // FOR
-        if (LOG.isDebugEnabled()) LOG.debug("Saved airport histogram information into " + catalog_tbl);
+        if (LOG.isDebugEnabled()) LOG.debug("Saved airport histogram information into " + catalog_tbl.getName());
         
         for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
             param_idx = 1;
@@ -251,7 +251,7 @@ public class SEATSProfile {
             result = stmt.executeUpdate();
             assert(result == 1);
         } // FOR
-        if (LOG.isDebugEnabled()) LOG.debug("Saved benchmark histogram information into " + catalog_tbl);
+        if (LOG.isDebugEnabled()) LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
 
         return;
     }

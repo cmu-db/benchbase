@@ -185,7 +185,9 @@ public class FindFlights extends Procedure {
                                             row[0], row[2], row[4], row[9], row[03]));
             } // WHILE
         }
-        if (debug && finalResults.size() > 0) LOG.debug("Flight Information:\n" + finalResults);
+        if (debug) {
+            LOG.debug("Flight Information:\n" + finalResults);
+        }
         return (finalResults);
     }
 }

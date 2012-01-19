@@ -47,10 +47,10 @@ public class DeleteReservation extends Procedure {
             " WHERE C_ID_STR = ?");
     
     public final SQLStmt GetCustomerByFFNumber = new SQLStmt(
-            "SELECT C_ID " +
+            "SELECT C_ID, FF_AL_ID " +
             "  FROM " + SEATSConstants.TABLENAME_CUSTOMER + ", " + 
                         SEATSConstants.TABLENAME_FREQUENT_FLYER + 
-            " WHERE FF_C_ID_STR = ? AND FF_AL_ID = ? AND FF_C_ID = C_ID");
+            " WHERE FF_C_ID_STR = ? AND FF_C_ID = C_ID");
     
     public final SQLStmt GetCustomerReservation = new SQLStmt(
             "SELECT C_SATTR00, C_SATTR02, C_SATTR04, " +
@@ -84,73 +84,78 @@ public class DeleteReservation extends Procedure {
     public final SQLStmt UpdateFrequentFlyer = new SQLStmt(
             "UPDATE " + SEATSConstants.TABLENAME_FREQUENT_FLYER +
             "   SET FF_IATTR10 = FF_IATTR10 - 1 " + 
-            " WHERE FF_C_ID_STR = ? " +
+            " WHERE FF_C_ID = ? " +
             "   AND FF_AL_ID = ?");
     
-    public ResultSet[] run(Connection conn, long f_id, Long c_id, String c_id_str, String ff_c_id_str, Long ff_al_id) throws SQLException {
+    public void run(Connection conn, long f_id, Long c_id, String c_id_str, String ff_c_id_str, Long ff_al_id) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
+        PreparedStatement stmt = null; 
         
         // If we weren't given the customer id, then look it up
         if (c_id == null) {
-            PreparedStatement c_stmt = null; 
+            boolean has_al_id = false;
             
             // Use the customer's id as a string
             if (c_id_str != null && c_id_str.length() > 0) {
-                c_stmt = this.getPreparedStatement(conn, GetCustomerByIdStr, c_id_str);
+                stmt = this.getPreparedStatement(conn, GetCustomerByIdStr, c_id_str);
+            }
             // Otherwise use their FrequentFlyer information
-            } else {
+            else {
                 assert(ff_c_id_str.isEmpty() == false);
                 assert(ff_al_id != null);
-                c_stmt = this.getPreparedStatement(conn, GetCustomerByFFNumber, ff_c_id_str, ff_al_id);
+                stmt = this.getPreparedStatement(conn, GetCustomerByFFNumber, ff_c_id_str);
+                has_al_id = true;
             }
-            ResultSet c_rs = c_stmt.executeQuery();
-            if (c_rs.next()) {
-                c_id = c_rs.getLong(1);
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                c_id = results.getLong(1);
+                if (has_al_id) ff_al_id = results.getLong(2);
             } else {
-                throw new UserAbortException(String.format("No Customer information record found for string '%s'", c_id_str));
+                throw new UserAbortException(String.format("No Customer record was found [c_id_str=%s, ff_c_id_str=%s, ff_al_id=%s]",
+                                                           c_id_str, ff_c_id_str, ff_al_id));
             }
         }
 
         // Now get the result of the information that we need
         // If there is no valid customer record, then throw an abort
         // This should happen 5% of the time
-        PreparedStatement cr_stmt = this.getPreparedStatement(conn, GetCustomerReservation);
-        cr_stmt.setLong(1, c_id);
-        cr_stmt.setLong(2, f_id);
-        ResultSet cr_rs = cr_stmt.executeQuery();
-        if (cr_rs.next() == false) {
+        stmt = this.getPreparedStatement(conn, GetCustomerReservation);
+        stmt.setLong(1, c_id);
+        stmt.setLong(2, f_id);
+        ResultSet results = stmt.executeQuery();
+        if (results.next() == false) {
             throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
         }
-        long c_iattr00 = cr_rs.getLong(4) + 1;
-        long seats_left = cr_rs.getLong(8); 
-        long r_id = cr_rs.getLong(9);
-        double r_price = cr_rs.getDouble(11);
-        
-        ResultSet results[] = new ResultSet[4];
-        int results_idx = 0;
+        long c_iattr00 = results.getLong(4) + 1;
+        long seats_left = results.getLong(8); 
+        long r_id = results.getLong(9);
+        double r_price = results.getDouble(11);
+        int updated = 0;
         
         // Now delete all of the flights that they have on this flight
-        PreparedStatement dr_stmt = this.getPreparedStatement(conn, DeleteReservation, r_id, c_id, f_id);
-        results[results_idx++] = dr_stmt.executeQuery();
+        stmt = this.getPreparedStatement(conn, DeleteReservation, r_id, c_id, f_id);
+        updated = stmt.executeUpdate();
+        assert(updated == 1);
         
         // Update Available Seats on Flight
-        PreparedStatement uf_stmt = this.getPreparedStatement(conn, UpdateFlight, f_id);
-        results[results_idx++] = uf_stmt.executeQuery();
+        stmt = this.getPreparedStatement(conn, UpdateFlight, f_id);
+        updated = stmt.executeUpdate();
         
         // Update Customer's Balance
-        PreparedStatement uc_stmt = this.getPreparedStatement(conn, UpdateCustomer, -1*r_price, c_iattr00, c_id);
-        results[results_idx++] = uc_stmt.executeQuery();
+        stmt = this.getPreparedStatement(conn, UpdateCustomer, -1*r_price, c_iattr00, c_id);
+        updated = stmt.executeUpdate();
+        assert(updated == 1);
         
         // Update Customer's Frequent Flyer Information (Optional)
-        PreparedStatement uff_stmt = null;
         if (ff_al_id != null) {
-            uff_stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id);
-            results[results_idx++] = uff_stmt.executeQuery();
+            stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id);
+            updated = stmt.executeUpdate();
+            assert(updated == 1) :
+                String.format("Failed to update FrequentFlyer info [c_id=%d, ff_al_id=%d]", c_id, ff_al_id);
         }
         
         if (debug)
             LOG.debug(String.format("Deleted reservation on flight %d for customer %d [seatsLeft=%d]", f_id, c_id, seats_left+1));        
-        return (results);
     }
 
 }

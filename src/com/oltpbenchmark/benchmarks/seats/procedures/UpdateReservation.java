@@ -96,27 +96,29 @@ public class UpdateReservation extends Procedure {
         assert(attr_idx >= 0);
         assert(attr_idx < ReserveSeats.length);
         
+        PreparedStatement stmt = null;
+        ResultSet results = null;
+        
         // Check if Seat is Available
-        PreparedStatement cs_stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
-        ResultSet cs_results = cs_stmt.executeQuery();
-        if (cs_results.next() == false) {
+        stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
+        results = stmt.executeQuery();
+        if (results.next()) {
             throw new UserAbortException(ErrorType.SEAT_ALREADY_RESERVED +
                                          String.format(" Seat %d is already reserved on flight #%d", seatnum, f_id));
         }
-        
         // Check if the Customer already has a seat on this flight
-        PreparedStatement cc_stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
-        ResultSet cc_results = cc_stmt.executeQuery();
-        if (cc_results.next()) {
+        stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
+        results = stmt.executeQuery();
+        if (results.next() == false) {
             throw new UserAbortException(ErrorType.CUSTOMER_ALREADY_HAS_SEAT +
-                                         String.format(" Customer %d already owns on a reservations on flight #%d", c_id, f_id));
+                                         String.format(" Customer %d does not have an existing reservation on flight #%d", c_id, f_id));
         }
         
-        // update the seat reservation for the customer
-        PreparedStatement rs_stmt = this.getPreparedStatement(conn, ReserveSeats[(int)attr_idx], seatnum, attr_val, r_id, c_id, f_id);
-        int updated = rs_stmt.executeUpdate();
+        // Update the seat reservation for the customer
+        stmt = this.getPreparedStatement(conn, ReserveSeats[(int)attr_idx], seatnum, attr_val, r_id, c_id, f_id);
+        int updated = stmt.executeUpdate();
         if (updated != 1) {
-            String msg = String.format("Failed to update rerervation on flight %d for customer #%d - Updated %d records", f_id, c_id, updated);
+            String msg = String.format("Failed to update reservation on flight %d for customer #%d - Updated %d records", f_id, c_id, updated);
             if (debug) LOG.warn(msg);
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
