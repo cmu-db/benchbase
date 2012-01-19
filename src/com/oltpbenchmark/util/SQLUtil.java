@@ -222,7 +222,7 @@ public abstract class SQLUtil {
     		if (first == false) sb.append(", ");
     		sb.append("(").append(inner.toString()).append(")");
     	} // FOR
-    	sb.append(";");
+//    	sb.append(";");
     	
     	return (sb.toString());
     }
