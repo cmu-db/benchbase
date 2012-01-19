@@ -17,6 +17,7 @@ public enum DatabaseType {
     SQLAZURE,
     ASSCLOWN,
     HSQLDB,
+    H2,
     ;
     
     protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<Integer, DatabaseType>();

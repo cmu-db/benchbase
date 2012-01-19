@@ -65,6 +65,11 @@ public final class Catalog {
      */
     private static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
     private static final String DB_JDBC = "org.hsqldb.jdbcDriver";
+    private static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
+    
+//    private static final String DB_CONNECTION = "jdbc:h2:mem:";
+//    private static final String DB_JDBC = "org.h2.Driver";
+//    private static final DatabaseType DB_TYPE = DatabaseType.H2;
     
     private final BenchmarkModule benchmark;
     private final Map<String, Table> tables = new HashMap<String, Table>();
@@ -133,7 +138,7 @@ public final class Catalog {
      */
     protected void init() throws SQLException {
         // Load the database's DDL
-        this.benchmark.createDatabase(DatabaseType.HSQLDB, this.conn);
+        this.benchmark.createDatabase(DB_TYPE, this.conn);
         
         // TableName -> ColumnName -> <FkeyTable, FKeyColumn>
         Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<String, Map<String,Pair<String,String>>>();
@@ -141,9 +146,11 @@ public final class Catalog {
         DatabaseMetaData md = conn.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
+            if (LOG.isDebugEnabled()) LOG.debug(SQLUtil.debug(table_rs));
             String internal_table_name = table_rs.getString(3);
             String table_name = origTableNames.get(table_rs.getString(3).toUpperCase());
             assert(table_name != null) : "Unexpected table '" + table_rs.getString(3) + "' from catalog"; 
+            LOG.debug(String.format("ORIG:%s -> CATALOG:%s", internal_table_name, table_name));
             
             String table_type = table_rs.getString(4);
             if (table_type.equalsIgnoreCase("TABLE") == false) continue;
@@ -151,7 +158,7 @@ public final class Catalog {
             
             // COLUMNS
             if (LOG.isDebugEnabled())
-                LOG.debug("Retrieving column information for " + table_name);
+                LOG.debug("Retrieving COLUMN information for " + table_name);
             ResultSet col_rs = md.getColumns(null,null, internal_table_name, null);
             while (col_rs.next()) {
                 if (LOG.isTraceEnabled()) LOG.trace(SQLUtil.debug(col_rs));
@@ -282,6 +289,7 @@ public final class Catalog {
         while (m.find()) {
             String tableName = m.group(1).trim();
             origTableNames.put(tableName.toUpperCase(), tableName);
+//            origTableNames.put(tableName, tableName);
         } // WHILE
         assert(origTableNames.isEmpty() == false) :
             "Failed to extract original table names for " + this.benchmark.getBenchmarkName();

@@ -16,13 +16,24 @@ import junit.framework.TestCase;
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
     
     // HACK
-  static {
+    static {
 //      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
-  }
+    }
     
-    public static final String DB_CONNECTION = "jdbc:hsqldb:mem:"; // "jdbc:sqlite:";
+    // -----------------------------------------------------------------
+    
+    // HSQLDB
+    public static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
     public static final String DB_JDBC = "org.hsqldb.jdbcDriver";
     public static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
+    
+    // H2
+//    public static final String DB_CONNECTION = "jdbc:h2:mem:";
+//    public static final String DB_JDBC = "org.h2.Driver";
+//    public static final DatabaseType DB_TYPE = DatabaseType.H2;
+    
+    // -----------------------------------------------------------------
+    
     protected static final double DB_SCALE_FACTOR = 0.01;
 
     protected String dbName;
