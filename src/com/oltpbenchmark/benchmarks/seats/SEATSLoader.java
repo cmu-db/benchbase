@@ -66,7 +66,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.collections15.set.ListOrderedSet;
@@ -909,7 +908,6 @@ public class SEATSLoader extends Loader {
         
         private final Set<FlightId> todays_flights = new HashSet<FlightId>();
         
-        private final Pattern time_pattern = Pattern.compile("([\\d]{2,2}):([\\d]{2,2})");
         private final ListOrderedMap<Date, Integer> flights_per_day = new ListOrderedMap<Date, Integer>();
 //        private final Map<Long, AtomicInteger> airport_flight_ids = new HashMap<Long, AtomicInteger>();
         
@@ -999,8 +997,9 @@ public class SEATSLoader extends Loader {
          * @return
          */
         private Date convertTimeString(Date base_date, String code) {
-            Matcher m = this.time_pattern.matcher(code);
-            assert(m.find()) : "Invalid time code '" + code + "'";
+            Matcher m = SEATSConstants.TIMECODE_PATTERN.matcher(code);
+            boolean result = m.find();
+            assert(result) : "Invalid time code '" + code + "'";
             
             int hour = -1;
             try {

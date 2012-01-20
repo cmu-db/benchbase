@@ -182,6 +182,11 @@ public abstract class SEATSConstants {
     /** Number of microseconds in a day */
     public static final long MILLISECONDS_PER_DAY = 86400000l; // 60sec * 60min * 24hr * 1,000 
     
+    /**
+     * The format of the time codes used in HISTOGRAM_FLIGHTS_PER_DEPART_TIMES
+     */
+    public static final Pattern TIMECODE_PATTERN = Pattern.compile("([\\d]{2,2}):([\\d]{2,2})");
+    
     // ----------------------------------------------------------------
     // CACHE SIZES
     // ----------------------------------------------------------------
