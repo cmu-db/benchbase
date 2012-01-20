@@ -1005,7 +1005,7 @@ public class SEATSLoader extends Loader {
             int hour = -1;
             try {
                 hour = Integer.valueOf(m.group(1));
-            } catch (NumberFormatException ex) {
+            } catch (Throwable ex) {
                 throw new RuntimeException("Invalid HOUR in time code '" + code + "'", ex);
             }
             assert(hour != -1);
@@ -1013,7 +1013,7 @@ public class SEATSLoader extends Loader {
             int minute = -1;
             try {
                 minute = Integer.valueOf(m.group(2));
-            } catch (NumberFormatException ex) {
+            } catch (Throwable ex) {
                 throw new RuntimeException("Invalid MINUTE in time code '" + code + "'", ex);
             }
             assert(minute != -1);
