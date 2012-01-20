@@ -1,14 +1,11 @@
 <?xml version="1.0"?>
 <parameters>
-    <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/seats</DBUrl>
+    <driver>org.sqlite.JDBC</driver>
+    <DBUrl>jdbc:sqlite:/tmp/seats.db</DBUrl>
     <DBName>seats</DBName>
-    <dbtype>mysql</dbtype>
-    <username>root</username>
-    <password>wren321</password>
-    <terminals>1</terminals>
+    <dbtype>sqlite</dbtype>
     <scalefactor>0.1</scalefactor>
-    
+    <terminals>1</terminals>
   
     <transactiontypes>
         <transactiontype>
