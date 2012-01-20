@@ -20,21 +20,6 @@ public class EpinionsLoader extends Loader {
 
     private static final Logger LOG = Logger.getLogger(EpinionsLoader.class);
 
-    // Constants
-    private final int USERS = 2000; // Number of baseline Users
-    private final int NAME = 5; // Length of user's name
-
-    private final int ITEMS = 1000; // Number of baseline pages
-    private static final long TITLE = 20;
-
-    private static final int REVIEW = 500; // this is the average .. expand to
-                                           // max
-    private static final int TRUST = 200; // this is the average .. expand to
-                                          // max
-
-    public final static int configCommitCount = 1000;
-    // /
-
     private final int num_users;
     private final int num_items;
     private final long num_reviews;
@@ -42,10 +27,10 @@ public class EpinionsLoader extends Loader {
 
     public EpinionsLoader(EpinionsBenchmark benchmark, Connection c) {
         super(benchmark, c);
-        this.num_users = (int) Math.round(USERS * this.scaleFactor);
-        this.num_items = (int) Math.round(ITEMS * this.scaleFactor);
-        this.num_reviews = (int) Math.round(REVIEW * this.scaleFactor);
-        this.num_trust = (int) Math.round(TRUST * this.scaleFactor);
+        this.num_users = (int) Math.round(EpinionsConstants.USERS * this.scaleFactor);
+        this.num_items = (int) Math.round(EpinionsConstants.ITEMS * this.scaleFactor);
+        this.num_reviews = (int) Math.round(EpinionsConstants.REVIEW * this.scaleFactor);
+        this.num_trust = (int) Math.round(EpinionsConstants.TRUST * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# USERS:  " + this.num_users);
             LOG.debug("# ITEMS: " + this.num_items);
@@ -76,13 +61,13 @@ public class EpinionsLoader extends Loader {
         int total = 0;
         int batch = 0;
         for (int i = 0; i < num_users; i++) {
-            String name = LoaderUtil.randomStr(NAME);
+            String name = LoaderUtil.randomStr(EpinionsConstants.NAME);
             userInsert.setInt(1, i);
             userInsert.setString(2, name);
             userInsert.addBatch();
             total++;
 
-            if ((++batch % configCommitCount) == 0) {
+            if ((++batch % EpinionsConstants.configCommitCount) == 0) {
                 userInsert.executeBatch();
                 conn.commit();
                 batch = 0;
@@ -114,13 +99,13 @@ public class EpinionsLoader extends Loader {
         int total = 0;
         int batch = 0;
         for (int i = 0; i < num_items; i++) {
-            String title = LoaderUtil.randomStr(TITLE);
+            String title = LoaderUtil.randomStr(EpinionsConstants.TITLE);
             itemInsert.setInt(1, i);
             itemInsert.setString(2, title);
             itemInsert.addBatch();
             total++;
             
-            if ((++batch % configCommitCount) == 0) {
+            if ((++batch % EpinionsConstants.configCommitCount) == 0) {
                 itemInsert.executeBatch();
                 conn.commit();
                 batch = 0;
@@ -175,7 +160,7 @@ public class EpinionsLoader extends Loader {
                     reviewers.add(u_id);
                     total++;
                     
-                    if ((++batch % configCommitCount) == 0) {
+                    if ((++batch % EpinionsConstants.configCommitCount) == 0) {
                         reviewInsert.executeBatch();
                         conn.commit();
                         batch = 0;
@@ -232,7 +217,7 @@ public class EpinionsLoader extends Loader {
                     trusted.add(u_id);
                     total++;
                     
-                    if ((++batch % configCommitCount) == 0) {
+                    if ((++batch % EpinionsConstants.configCommitCount) == 0) {
                         trustInsert.executeBatch();
                         conn.commit();
                         batch = 0;

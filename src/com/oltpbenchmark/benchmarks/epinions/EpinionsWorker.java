@@ -25,6 +25,7 @@ import java.util.Random;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
 import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
@@ -129,7 +130,7 @@ public class EpinionsWorker extends Worker {
         UpdateUserName proc = this.getProcedure(UpdateUserName.class);
         assert (proc != null);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
-        String name = "XXXXXXXXXXX"; // FIXME
+        String name = LoaderUtil.randomStr(EpinionsConstants.NAME); // FIXME
         proc.run(conn, uid, name);
     }
 
@@ -137,7 +138,7 @@ public class EpinionsWorker extends Worker {
         UpdateItemTitle proc = this.getProcedure(UpdateItemTitle.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
-        String title = "XXXXXXXXXXX"; // FIXME
+        String title = LoaderUtil.randomStr(EpinionsConstants.TITLE); // FIXME
         proc.run(conn, iid, title);
     }
 
