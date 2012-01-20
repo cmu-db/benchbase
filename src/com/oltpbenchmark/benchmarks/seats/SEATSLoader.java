@@ -1001,8 +1001,23 @@ public class SEATSLoader extends Loader {
         private Date convertTimeString(Date base_date, String code) {
             Matcher m = this.time_pattern.matcher(code);
             assert(m.find()) : "Invalid time code '" + code + "'";
-            int hour = Integer.valueOf(m.group(1));
-            int minute = Integer.valueOf(m.group(2));
+            
+            int hour = -1;
+            try {
+                hour = Integer.valueOf(m.group(1));
+            } catch (NumberFormatException ex) {
+                throw new RuntimeException("Invalid HOUR in time code '" + code + "'", ex);
+            }
+            assert(hour != -1);
+            
+            int minute = -1;
+            try {
+                minute = Integer.valueOf(m.group(2));
+            } catch (NumberFormatException ex) {
+                throw new RuntimeException("Invalid MINUTE in time code '" + code + "'", ex);
+            }
+            assert(minute != -1);
+            
             long offset = (hour * 60 * SEATSConstants.MILLISECONDS_PER_MINUTE) + (minute * SEATSConstants.MILLISECONDS_PER_MINUTE);
             return (new Date(base_date.getTime() + offset));
         }
