@@ -42,12 +42,6 @@ public class ItemId extends CompositeId {
         16, // ITEM_CTR
     };
     
-    private static final long ITEM_ID_MASK = 0x0FFFFFFFFFFFFFFFl; 
-    
-    public static long getUniqueElementId(long item_id, int idx) {
-        return ((long) idx << 60) | (item_id & ITEM_ID_MASK);
-    }
-    
     private UserId seller_id;
     private int item_ctr;
     

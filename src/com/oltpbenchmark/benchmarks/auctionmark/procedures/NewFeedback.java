@@ -37,8 +37,8 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkProfile;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 
 public class NewFeedback extends Procedure {
     private static final Logger LOG = Logger.getLogger(NewFeedback.class);
@@ -86,8 +86,9 @@ public class NewFeedback extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public long run(Connection conn, Date benchmarkTimes[], long i_id, long seller_id, long buyer_id, long rating, String comment) throws SQLException {
-        final Date currentTime = AuctionMarkProfile.getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Date(System.currentTimeMillis()));
+    public long run(Connection conn, Date benchmarkTimes[],
+                    long i_id, long seller_id, long buyer_id, long rating, String comment) throws SQLException {
+        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
         if (debug) LOG.debug("NewFeedback::: selecting max feedback");
 

@@ -66,7 +66,8 @@ public class GetItem extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public ResultSet[] run(Connection conn, Date benchmarkTimes[], long item_id, long seller_id) throws SQLException {
+    public ResultSet[] run(Connection conn, Date benchmarkTimes[],
+                           long item_id, long seller_id) throws SQLException {
         PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
         ResultSet item_results = item_stmt.executeQuery();
         

@@ -33,8 +33,8 @@ import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkProfile;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 
 /**
  * NewCommentResponse
@@ -65,8 +65,9 @@ public class NewCommentResponse extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public void run(Connection conn, Date benchmarkTimes[], long item_id, long seller_id, long comment_id, String response) throws SQLException {
-        final Date currentTime = AuctionMarkProfile.getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Date(System.currentTimeMillis()));
+    public void run(Connection conn, Date benchmarkTimes[],
+                    long item_id, long seller_id, long comment_id, String response) throws SQLException {
+        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         this.getPreparedStatement(conn, updateComment, response, currentTime, comment_id, item_id, seller_id).executeUpdate();
         this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
         return;

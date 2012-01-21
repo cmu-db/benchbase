@@ -34,6 +34,8 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,19 +50,24 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
+import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
+import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.JSONUtil;
 import com.oltpbenchmark.util.RandomDistribution.DiscreteRNG;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import com.oltpbenchmark.util.RandomGenerator;
+import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
 
 
@@ -223,19 +230,17 @@ public class AuctionMarkProfile {
     // -----------------------------------------------------------------
 
     protected final void saveProfile(Connection conn) throws SQLException {
-     // CONFIG_PROFILE
+        // CONFIG_PROFILE
         Table catalog_tbl = this.catalog.getTable(AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
-//        VoltTable vt = CatalogUtil.getVoltTable(catalog_tbl);
-//        assert(vt != null);
-//        vt.addRow(
-//            this.scale_factor,                  // CFP_SCALE_FACTOR
-//            this.benchmarkStartTime,            // CFP_BENCHMARK_START
-//            this.users_per_item_count.toJSONString() // CFP_USER_ITEM_HISTOGRAM
-//        );
-//        if (LOG.isDebugEnabled())
-//            LOG.debug("Saving profile information into " + catalog_tbl);
-//        baseClient.loadVoltTable(catalog_tbl.getName(), vt);
-        
+        assert(catalog_tbl != null);
+        PreparedStatement stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+        int param_idx = 1;
+        stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
+        stmt.setObject(param_idx++, this.benchmarkStartTime); // CFP_BENCHMARK_START
+        stmt.setObject(param_idx++, this.users_per_item_count.toJSONString()); // CFP_USER_ITEM_HISTOGRAM
+
+        if (LOG.isDebugEnabled())
+            LOG.debug("Saving profile information into " + catalog_tbl);
         return;
     }
     
@@ -277,127 +282,112 @@ public class AuctionMarkProfile {
         if (LOG.isDebugEnabled())
             LOG.debug("Loading AuctionMarkProfile for the first time");
         
-//        Client client = baseClient.getClientHandle();
-//        ClientResponse response = null;
-//        try {
-//            response = client.callProcedure(LoadConfig.class.getSimpleName());
-//        } catch (Exception ex) {
-//            throw new RuntimeException("Failed retrieve data from " + AuctionMarkConstants.TABLENAME_CONFIG_PROFILE, ex);
-//        }
-//        assert(response != null);
-//        assert(response.getStatus() == Hstore.Status.OK) : "Unexpected " + response;
-//
-//        VoltTable results[] = response.getResults();
-//        int result_idx = 0;
-//        
-//        // CONFIG_PROFILE
-//        this.loadConfigProfile(results[result_idx++]); 
-//        
-//        // IMPORTANT: We need to set these timestamps here. It must be done
-//        // after we have loaded benchmarkStartTime
-//        this.setAndGetClientStartTime();
-//        this.updateAndGetCurrentTime();
-//        
-//        // ITEM CATEGORY COUNTS
-//        this.loadItemCategoryCounts(results[result_idx++]);
-//        
-//        // ITEMS
-//        for (ItemStatus status : ItemStatus.values()) {
-//            if (status.isInternal()) continue;
-//            this.loadItems(results[result_idx++], status);
-//        } // FOR
-//        
-//        // GLOBAL_ATTRIBUTE_GROUPS
-//        this.loadGlobalAttributeGroups(results[result_idx++]);
+        
+        // Otherwise we have to go fetch everything again
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        // CONFIG_PROFILE
+        stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        rs = stmt.executeQuery();
+        this.loadConfigProfile(rs);
+        
+        // IMPORTANT: We need to set these timestamps here. It must be done
+        // after we have loaded benchmarkStartTime
+        this.setAndGetClientStartTime();
+        this.updateAndGetCurrentTime();
+        
+        // ITEM CATEGORY COUNTS
+        stmt = conn.prepareStatement("SELECT i_c_id, COUNT(i_id) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " GROUP BY i_c_id");
+        rs = stmt.executeQuery();
+        this.loadItemCategoryCounts(rs);
+
+        // ITEMS
+        stmt = conn.prepareStatement("SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
+                                     "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
+                                     " WHERE i_status = ? " +
+                                     " ORDER BY i_iattr0 " +
+                                     " LIMIT " + AuctionMarkConstants.ITEM_ID_CACHE_SIZE);
+        for (ItemStatus status : ItemStatus.values()) {
+            if (status.isInternal()) continue;
+            int param = 1;
+            stmt.setInt(param++, status.ordinal());
+            rs = stmt.executeQuery();
+            this.loadItems(rs, status);
+        } // FOR
+        
+        // GLOBAL_ATTRIBUTE_GROUPS
+        stmt = conn.prepareStatement("SELECT gag_id FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
+        rs = stmt.executeQuery();
+        this.loadGlobalAttributeGroups(rs);
         
         cachedProfile = this;
     }
     
-//    private final void loadConfigProfile(VoltTable vt) {
-//        boolean adv = vt.advanceRow();
-//        assert(adv);
-//        int col = 0;
-//        this.scale_factor = vt.getDouble(col++);
-//        this.benchmarkStartTime = vt.getTimestampAsTimestamp(col++);
-//        JSONUtil.fromJSONString(this.users_per_item_count, vt.getString(col++));
-//        
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
-//    }
-//    
-//    private final void loadItemCategoryCounts(VoltTable vt) {
-//        while (vt.advanceRow()) {
-//            int col = 0;
-//            long i_c_id = vt.getLong(col++);
-//            long count = vt.getLong(col++);
-//            this.item_category_histogram.put(i_c_id, count);
-//        } // WHILE
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %d item category records from %s",
-//                                    this.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
-//    }
-//    
-//    private final void loadItems(VoltTable vt, ItemStatus status) {
-//        int ctr = 0;
-//        while (vt.advanceRow()) {
-//            int col = 0;
-//            ItemId i_id = new ItemId(vt.getLong(col++));
-//            double i_current_price = vt.getDouble(col++);
-//            Date i_end_date = vt.getTimestampAsTimestamp(col++);
-//            int i_num_bids = (int)vt.getLong(col++);
-//            ItemStatus i_status = ItemStatus.get(vt.getLong(col++));
-//            assert(i_status == status);
-//            
-//            ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
-//            this.addItemToProperQueue(itemInfo, false);
-//            ctr++;
-//        } // WHILE
-//        
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %d records from %s",
-//                                    ctr, AuctionMarkConstants.TABLENAME_ITEM));
-//    }
-//    
-//    private final void loadGlobalAttributeGroups(VoltTable vt) {
-//        while (vt.advanceRow()) {
-//            long gag_id = vt.getLong(0);
-//            assert(gag_id != VoltType.NULL_BIGINT);
-//            this.gag_ids.add(new GlobalAttributeGroupId(gag_id));
-//        } // WHILE
-//        if (LOG.isDebugEnabled())
-//            LOG.debug(String.format("Loaded %d records from %s",
-//                                    this.gag_ids.size(), AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP));
-//    }
+    private final void loadConfigProfile(ResultSet vt) throws SQLException {
+        boolean adv = vt.next();
+        assert(adv);
+        int col = 1;
+        this.scale_factor = vt.getDouble(col++);
+        this.benchmarkStartTime = vt.getDate(col++);
+        JSONUtil.fromJSONString(this.users_per_item_count, vt.getString(col++));
+        
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
+    }
+    
+    private final void loadItemCategoryCounts(ResultSet vt) throws SQLException {
+        while (vt.next()) {
+            int col = 1;
+            long i_c_id = vt.getLong(col++);
+            long count = vt.getLong(col++);
+            this.item_category_histogram.put(i_c_id, count);
+        } // WHILE
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %d item category records from %s",
+                                    this.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
+    }
+    
+    private final void loadItems(ResultSet vt, ItemStatus status) throws SQLException {
+        int ctr = 0;
+        while (vt.next()) {
+            int col = 1;
+            ItemId i_id = new ItemId(vt.getLong(col++));
+            double i_current_price = vt.getDouble(col++);
+            Date i_end_date = vt.getDate(col++);
+            int i_num_bids = (int)vt.getLong(col++);
+            ItemStatus i_status = ItemStatus.get(vt.getLong(col++));
+            assert(i_status == status);
+            
+            ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
+            this.addItemToProperQueue(itemInfo, false);
+            ctr++;
+        } // WHILE
+        
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %d records from %s",
+                                    ctr, AuctionMarkConstants.TABLENAME_ITEM));
+    }
+    
+    private final void loadGlobalAttributeGroups(ResultSet vt) throws SQLException {
+        while (vt.next()) {
+            int col = 1;
+            long gag_id = vt.getLong(col++);
+            this.gag_ids.add(new GlobalAttributeGroupId(gag_id));
+        } // WHILE
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %d records from %s",
+                                    this.gag_ids.size(), AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP));
+    }
     
     // -----------------------------------------------------------------
     // TIME METHODS
     // -----------------------------------------------------------------
 
-    /**
-     * 
-     * @param benchmarkStart
-     * @param clientStart
-     * @param current
-     * @return
-     */
-    public static Date getScaledTimestamp(Date benchmarkStart, Date clientStart, Date current) {
-//        if (benchmarkStart == null || clientStart == null || current == null) return (null);
-        
-        // First get the offset between the benchmarkStart and the clientStart
-        // We then subtract that value from the current time. This gives us the total elapsed 
-        // time from the current time to the time that the benchmark start (with the gap 
-        // from when the benchmark was loading data cut out) 
-        long base = benchmarkStart.getTime();
-        long offset = current.getTime() - (clientStart.getTime() - base);
-        long elapsed = (offset - base) * AuctionMarkConstants.TIME_SCALE_FACTOR;
-        return (new Date(base + elapsed));
-    }
-
-    
     private Date getScaledCurrentTimestamp() {
         assert(this.clientStartTime != null);
         Date now = new Date(System.currentTimeMillis());
-        Date time = AuctionMarkProfile.getScaledTimestamp(this.benchmarkStartTime, this.clientStartTime, now);
+        Date time = AuctionMarkUtil.getScaledTimestamp(this.benchmarkStartTime, this.clientStartTime, now);
         if (LOG.isTraceEnabled())
             LOG.trace(String.format("Scaled:%d / Now:%d / BenchmarkStart:%d / ClientStart:%d",
                                    time.getTime(), now.getTime(), this.benchmarkStartTime.getTime(), this.clientStartTime.getTime()));

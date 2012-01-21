@@ -136,6 +136,16 @@ public abstract class AuctionMarkConstants {
      */
     public static final int ITEM_ID_CACHE_SIZE  = 1000;
     
+    /**
+     * The number of update rounds in each invocation of CloseAuctions
+     */
+    public static final int CLOSE_AUCTIONS_ROUNDS = 10;
+    
+    /**
+     * The number of items to pull in for each update round in CloseAuctions
+     */
+    public static final int CLOSE_AUCTIONS_ITEMS_PER_ROUND = 100;
+    
     // ----------------------------------------------------------------
     // DEFAULT BATCH SIZES
     // ----------------------------------------------------------------

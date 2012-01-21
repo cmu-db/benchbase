@@ -38,8 +38,8 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkProfile;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 
@@ -147,8 +147,9 @@ public class NewBid extends Procedure {
         ")"
     );
 
-    public Object[] run(Connection conn, Date benchmarkTimes[], long item_id, long seller_id, long buyer_id, double newBid, Date estimatedEndDate) throws SQLException {
-        final Date currentTime = AuctionMarkProfile.getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Date(System.currentTimeMillis()));
+    public Object[] run(Connection conn, Date benchmarkTimes[],
+                        long item_id, long seller_id, long buyer_id, double newBid, Date estimatedEndDate) throws SQLException {
+        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
         if (debug) LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]", item_id, buyer_id, newBid));
 

@@ -120,7 +120,26 @@ public class GetUserInfo extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public ResultSet[] run(Connection conn, Date benchmarkTimes[], long user_id, boolean get_feedback, boolean get_comments, boolean get_seller_items, boolean get_buyer_items, boolean get_watched_items) throws SQLException {
+    /**
+     * 
+     * @param conn
+     * @param benchmarkTimes
+     * @param user_id
+     * @param get_feedback
+     * @param get_comments
+     * @param get_seller_items
+     * @param get_buyer_items
+     * @param get_watched_items
+     * @return
+     * @throws SQLException
+     */
+    public ResultSet[] run(Connection conn, Date benchmarkTimes[],
+                           long user_id,
+                           boolean get_feedback,
+                           boolean get_comments,
+                           boolean get_seller_items,
+                           boolean get_buyer_items,
+                           boolean get_watched_items) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
         
         // The first VoltTable in the output will always be the user's information
