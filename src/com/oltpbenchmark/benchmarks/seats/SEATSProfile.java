@@ -319,8 +319,8 @@ public class SEATSProfile {
         // CACHED FLIGHT IDS
         stmt = conn.prepareStatement(
                 "SELECT f_id FROM " + SEATSConstants.TABLENAME_FLIGHT +
-                " ORDER BY F_DEPART_TIME DESC " + 
-                " LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS);
+                " ORDER BY F_DEPART_TIME DESC ");// + 
+                //" LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS);
         rs = stmt.executeQuery();
         this.loadCachedFlights(rs);
 
@@ -378,7 +378,8 @@ public class SEATSProfile {
     }
     
     private final void loadCachedFlights(ResultSet vt) throws SQLException {
-        while (vt.next()) {
+        int limit=1;
+        while (vt.next() && limit++<SEATSConstants.CACHE_LIMIT_FLIGHT_IDS) {
             int col = 1;
             long f_id = vt.getLong(col++);
             FlightId flight_id = new FlightId(f_id);
