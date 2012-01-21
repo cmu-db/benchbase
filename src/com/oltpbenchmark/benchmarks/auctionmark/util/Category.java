@@ -1,5 +1,5 @@
 /***************************************************************************
- *  Copyright (C) 2011 by H-Store Project                                  *
+ *  Copyright (C) 2012 by H-Store Project                                  *
  *  Brown University                                                       *
  *  Massachusetts Institute of Technology                                  *
  *  Yale University                                                        *
@@ -25,26 +25,40 @@
  *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR  *
  *  OTHER DEALINGS IN THE SOFTWARE.                                        *
  ***************************************************************************/
-package com.oltpbenchmark.benchmarks.seats;
+package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import java.io.File;
-import java.util.Random;
+public class Category {
+    private int categoryID;
+    private int parentCategoryID;
+    private int itemCount;
+    private String name;
+    private boolean isLeaf;
 
-import junit.framework.TestCase;
-
-public abstract class SEATSBaseTestCase extends TestCase {
-
-    // HACK
-    protected static File AIRLINE_DATA_DIR; //  = System.getenv(SEATSConstants.AIRLINE_DATA_PARAM.toUpperCase());
-//    protected static SEATSLoader loader;
-    
-    protected Random rand = new Random();
-    
-    @Override
-    protected void setUp() throws Exception {
-        if (AIRLINE_DATA_DIR == null) {
-            // TODO: Figure out how we can get the data directory from inside our tests
-        }
+    public Category(int categoryID, String name, int parentCategoryID, int itemCount, boolean isLeaf) {
+        this.categoryID = categoryID;
+        this.name = name;
+        this.parentCategoryID = parentCategoryID;
+        this.itemCount = itemCount;
+        this.isLeaf = isLeaf;
     }
-    
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getCategoryID() {
+        return this.categoryID;
+    }
+
+    public int getParentCategoryID() {
+        return this.parentCategoryID;
+    }
+
+    public int getItemCount() {
+        return this.itemCount;
+    }
+
+    public boolean isLeaf() {
+        return this.isLeaf;
+    }
 }
