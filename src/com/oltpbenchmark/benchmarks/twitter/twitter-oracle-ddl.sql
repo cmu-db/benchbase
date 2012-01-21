@@ -47,5 +47,8 @@ CREATE TABLE "added_tweets" (
   CONSTRAINT new_tweet_id PRIMARY KEY (id)
 );
 CREATE INDEX IDX_ADDED_TWEETS_uuid ON "added_tweets" (uuid);
-BEGIN EXECUTE IMMEDIATE 'DROP sequence tweet_idseq'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+
+
+-- sequence
+DECLARE cnt NUMBER; BEGIN SELECT count(*) INTO cnt FROM all_sequences WHERE sequence_name = 'TWEET_IDSEQ'; IF cnt > 0 THEN EXECUTE IMMEDIATE 'DROP SEQUENCE TWEET_IDSEQ'; END IF; END;;
 create sequence tweet_idseq start with 1 increment by 1 nomaxvalue; 
