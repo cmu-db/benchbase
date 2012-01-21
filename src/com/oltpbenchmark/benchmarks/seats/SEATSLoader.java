@@ -497,7 +497,7 @@ public class SEATSLoader extends Loader {
         // FrequentFlyer
         } else if (name.equals(SEATSConstants.TABLENAME_FREQUENT_FLYER)) {
             long total = Math.round(SEATSConstants.NUM_CUSTOMERS * scaleFactor);
-            int per_customer = (int)Math.ceil(SEATSConstants.MAX_FREQUENTFLYER_PER_CUSTOMER * scaleFactor);
+            int per_customer = (int)Math.ceil(SEATSConstants.MAX_FREQUENTFLYER_PER_CUSTOMER);
             it = new FrequentFlyerIterable(catalog_tbl, total, per_customer);
         // Airport Distance
         } else if (name.equals(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {

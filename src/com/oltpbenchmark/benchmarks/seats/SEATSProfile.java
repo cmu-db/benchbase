@@ -211,10 +211,12 @@ public class SEATSProfile {
      * Save the profile information into the database 
      */
     protected final void saveProfile(Connection conn) throws SQLException {
+        PreparedStatement stmt = null;
+        
         // CONFIG_PROFILE
         Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
         assert(catalog_tbl != null);
-        PreparedStatement stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+        stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
         int param_idx = 1;
         stmt.setObject(param_idx++, this.scale_factor);                  // CFP_SCALE_FACTOR
         stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
