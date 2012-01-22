@@ -32,6 +32,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -59,8 +61,7 @@ public class GetUserInfo extends Procedure {
                                                "i_current_price, " +
                                                "i_num_bids, " +
                                                "i_end_date, " +
-                                               "i_status, " +
-                                               "i_iattr0";
+                                               "i_status ";
     
     // -----------------------------------------------------------------
     // STATEMENTS
@@ -133,46 +134,48 @@ public class GetUserInfo extends Procedure {
      * @return
      * @throws SQLException
      */
-    public ResultSet[] run(Connection conn, Date benchmarkTimes[],
-                           long user_id,
-                           boolean get_feedback,
-                           boolean get_comments,
-                           boolean get_seller_items,
-                           boolean get_buyer_items,
-                           boolean get_watched_items) throws SQLException {
+    public List<Object[]>[] run(Connection conn, Date benchmarkTimes[],
+                          long user_id,
+                          boolean get_feedback,
+                          boolean get_comments,
+                          boolean get_seller_items,
+                          boolean get_buyer_items,
+                          boolean get_watched_items) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
+        
+        ResultSet results[] = new ResultSet[6];
+        int result_idx = 0;
         
         // The first VoltTable in the output will always be the user's information
         if (debug) LOG.debug("Grabbing USER record: " + user_id);
         PreparedStatement stmt = this.getPreparedStatement(conn, getUser, user_id);
-        ResultSet user_result = stmt.executeQuery();
+        results[result_idx++] = stmt.executeQuery();
 
         // They can also get their USER_FEEDBACK records if they want as well
-        ResultSet feedback_result = null;
         if (get_feedback) {
             if (debug) LOG.debug("Grabbing USER_FEEDBACK records: " + user_id);
             stmt = this.getPreparedStatement(conn, getUserFeedback, user_id);
-            feedback_result = stmt.executeQuery(); 
+            results[result_idx] = stmt.executeQuery(); 
         }
+        result_idx++;
         
         // And any pending ITEM_COMMENTS that need a response
-        ResultSet comments_result = null;
         if (get_comments) {
             if (debug) LOG.debug("Grabbing ITEM_COMMENT records: " + user_id);
             stmt = this.getPreparedStatement(conn, getItemComments, user_id, null);
-            comments_result = stmt.executeQuery();
+            results[result_idx] = stmt.executeQuery();
         }
+        result_idx++;
         
         // The seller's items
-        ResultSet seller_result = null;
         if (get_seller_items) {
             if (debug) LOG.debug("Grabbing seller's ITEM records: " + user_id);
             stmt = this.getPreparedStatement(conn, getSellerItems, user_id);
-            seller_result = stmt.executeQuery();
+            results[result_idx] = stmt.executeQuery();
         }
+        result_idx++;
 
         // The buyer's purchased items
-        ResultSet buyer_items = null;
         if (get_buyer_items) {
             // 2010-11-15: The distributed query planner chokes on this one and makes a plan
             // that basically sends the entire user table to all nodes. So for now we'll just execute
@@ -180,24 +183,33 @@ public class GetUserInfo extends Procedure {
             // this.getPreparedStatement(conn, select_seller_feedback, u_id);
             if (debug) LOG.debug("Grabbing buyer's USER_ITEM records: " + user_id);
             stmt = this.getPreparedStatement(conn, getBuyerItems, user_id);
-            buyer_items = stmt.executeQuery();
+            results[result_idx] = stmt.executeQuery();
         }
+        result_idx++;
         
         // The buyer's watched items
-        ResultSet watched_result = null;
         if (get_watched_items) {
             if (debug) LOG.debug("Grabbing buyer's USER_WATCH records: " + user_id);
             stmt = this.getPreparedStatement(conn, getWatchedItems, user_id);
-            watched_result = stmt.executeQuery();
+            results[result_idx] = stmt.executeQuery();
         }
+        result_idx++;
 
-        return new ResultSet[] {
-                user_result,
-                feedback_result,
-                comments_result,
-                seller_result,
-                buyer_items,
-                watched_result
-        };
+        @SuppressWarnings("unchecked")
+        List<Object[]> final_results[] = new List[results.length];
+        for (result_idx = 0; result_idx < results.length; result_idx++) {
+            List<Object[]> inner = new ArrayList<Object[]>();
+            int num_cols = results[result_idx].getMetaData().getColumnCount();
+            while (results[result_idx].next()) {
+                Object row[] = new Object[num_cols];
+                for (int i = 0; i < num_cols; i++) {
+                    row[i] = results[result_idx].getObject(i+1);
+                } // FOR
+                inner.add(row);
+            } // WHILE
+            final_results[result_idx] = inner;
+        } // FOR
+        
+        return (final_results);
     }
 }

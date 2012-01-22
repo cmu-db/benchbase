@@ -93,7 +93,9 @@ public class NewComment extends Procedure {
         this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
 
         // Return new ic_id
-        return new Object[]{ ic_id, item_id, seller_id };
+        return new Object[]{ ic_id,
+                             item_id,
+                             seller_id } ;
     }	
 	
 }

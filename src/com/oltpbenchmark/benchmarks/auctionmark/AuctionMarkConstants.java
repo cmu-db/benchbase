@@ -116,6 +116,9 @@ public abstract class AuctionMarkConstants {
     public static final int ITEM_MIN_GLOBAL_ATTRS = 1;
     public static final int ITEM_MAX_GLOBAL_ATTRS = 10;
     
+    public static final int ITEM_COMMENT_LENGTH_MIN = 10;
+    public static final int ITEM_COMMENT_LENGTH_MAX = 128;
+    
     /** When an item receives a bid we will increase its price by this amount */
     public static final float ITEM_BID_PERCENT_STEP = 0.025f;
     

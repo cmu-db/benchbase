@@ -124,7 +124,7 @@ public class NewPurchase extends Procedure {
         long i_num_bids = results.getLong(col++);
         double i_current_price = results.getDouble(col++);
         Date i_end_date = results.getDate(col++);
-        ItemStatus i_status = ItemStatus.WAITING_FOR_PURCHASE;
+        ItemStatus i_status = ItemStatus.CLOSED;
         long ib_id = results.getLong(col++);
         long ib_buyer_id = results.getLong(col++);
         double u_balance = results.getDouble(col++);
@@ -167,10 +167,10 @@ public class NewPurchase extends Procedure {
             item_id,
             // SELLER ID
             seller_id, 
-            // NUM BIDS
-            i_num_bids,
             // CURRENT PRICE
             i_current_price,
+            // NUM BIDS
+            i_num_bids,
             // END DATE
             i_end_date,
             // STATUS

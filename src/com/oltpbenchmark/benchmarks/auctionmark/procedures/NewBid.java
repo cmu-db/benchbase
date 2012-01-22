@@ -267,12 +267,14 @@ public class NewBid extends Procedure {
             item_id,
             // SELLER_ID
             seller_id,
-            // NUM BIDS
-            i_num_bids + 1,
             // CURRENT PRICE
             i_current_price,
+            // NUM BIDS
+            i_num_bids + 1,
             // END DATE
             i_end_date,
+            // STATUS
+            i_status.ordinal(),
             // MAX BID ID
             newBidId,
             // MAX BID BUYER_ID

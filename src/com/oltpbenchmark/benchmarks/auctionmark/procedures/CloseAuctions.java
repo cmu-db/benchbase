@@ -182,8 +182,8 @@ public class CloseAuctions extends Procedure {
                 Object row[] = new Object[] {
                         itemId,               // i_id
                         sellerId,             // i_u_id
-                        numBids,              // i_num_bids
                         currentPrice,         // i_current_price
+                        numBids,              // i_num_bids
                         endDate,              // i_end_date
                         itemStatus.ordinal(), // i_status
                         bidId,                // imb_ib_id
