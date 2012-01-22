@@ -107,7 +107,7 @@ public class UpdateItem extends Procedure {
             updated = stmt.executeUpdate();
         }
         // ADD ITEM_ATTRIBUTE
-        if (add_attribute.length > 0) {
+        if (add_attribute.length > 0 && add_attribute[0] != -1) {
             assert(add_attribute.length == 2);
             long gag_id = add_attribute[0];
             long gav_id = add_attribute[1];
