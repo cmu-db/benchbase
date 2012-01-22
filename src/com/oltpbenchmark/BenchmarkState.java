@@ -3,10 +3,14 @@ package com.oltpbenchmark;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
 
 public final class BenchmarkState {
+    
+    private static final Logger LOG = Logger.getLogger(BenchmarkState.class);
 	private final int queueLimit;
 
 	private volatile State state = State.WARMUP;
@@ -97,7 +101,7 @@ public final class BenchmarkState {
 		assert state == State.DONE;
 		int current = notDoneCount.decrementAndGet();
 		assert current >= 0;
-
+		if(LOG.isDebugEnabled()) LOG.debug(".");
 		if (current == 0) {
 			// We are the last thread to notice that we are done: wake any
 			// blocked workers
