@@ -10,10 +10,14 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class RemoveWatchList extends Procedure {
 	
-	public SQLStmt removeWatchList = new SQLStmt("DELETE FROM `watchlist` WHERE " +
-			"wl_user = ? AND wl_namespace = ? AND wl_title = ?");
-    public SQLStmt setUserTouched = new SQLStmt("UPDATE  `user` SET user_touched = '" + LoaderUtil.getCurrentTime14()
-			+ "' WHERE user_id =  ? "); 
+	public SQLStmt removeWatchList = new SQLStmt(
+        "DELETE FROM `watchlist` WHERE " +
+		"wl_user = ? AND wl_namespace = ? AND wl_title = ?"
+    );
+    public SQLStmt setUserTouched = new SQLStmt(
+        "UPDATE  `user` SET user_touched = '" + LoaderUtil.getCurrentTime14() +
+	    "' WHERE user_id =  ? "
+    ); 
 
 	public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {	        
 		

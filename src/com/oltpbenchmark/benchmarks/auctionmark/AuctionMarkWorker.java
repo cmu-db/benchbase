@@ -26,6 +26,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
+import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.CompositeId;
 import com.oltpbenchmark.util.StringUtil;
 
@@ -494,54 +495,56 @@ public class AuctionMarkWorker extends Worker {
         }
     }
     
-    @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        // We need to subtract the different between this and the profile's start time,
-        // since that accounts for the time gap between when the loader started and when the client start.
-        // Otherwise, all of our cache date will be out dated if it took a really long time
-        // to load everything up. Again, in order to keep things in synch, we only want to
-        // set this on the first call to runOnce(). This will account for start a bunch of
-        // clients on multiple nodes but then having to wait until they're all up and running
-        // before starting the actual benchmark run.
-        if (profile.hasClientStartTime() == false) profile.setAndGetClientStartTime();
-        
-        // Always update the current timestamp
-        profile.updateAndGetCurrentTime();
-        
-        TransactionType next = null;
-        
-        // Always check if we need to want to run CLOSE_AUCTIONS
-        // We only do this from the first client
-        if (Transaction.CLOSE_AUCTIONS.canExecute(this)) {
-            next = transactionTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);
-            assert(next != null);
-        }
-        // Find the next txn that we can run.
-        // Example: NewBid can only be executed if there are item_ids retrieved by an earlier call by GetItem
-        else {
-            int safety = 1000;
-            while (safety-- > 0) {
-                TransactionType tempTxn = transactionTypes.getType(phase.chooseTransaction());
-                Transaction txn = Transaction.get(tempTxn.getProcedureClass());
-                if (txn.canExecute(this)) {
-                    next = tempTxn;
-                    break;
-                }
-            } // WHILE
-            assert(next != null);
-        }
-        
-        this.executeWork(next);
-        return (next);
-    }
+//    @Override
+//    protected TransactionType doWork(boolean measure, Phase phase) {
+//        // We need to subtract the different between this and the profile's start time,
+//        // since that accounts for the time gap between when the loader started and when the client start.
+//        // Otherwise, all of our cache date will be out dated if it took a really long time
+//        // to load everything up. Again, in order to keep things in synch, we only want to
+//        // set this on the first call to runOnce(). This will account for start a bunch of
+//        // clients on multiple nodes but then having to wait until they're all up and running
+//        // before starting the actual benchmark run.
+//        if (profile.hasClientStartTime() == false) profile.setAndGetClientStartTime();
+//        
+//        // Always update the current timestamp
+//        profile.updateAndGetCurrentTime();
+//        
+//        TransactionType next = null;
+//        
+//        // Always check if we need to want to run CLOSE_AUCTIONS
+//        // We only do this from the first client
+//        if (Transaction.CLOSE_AUCTIONS.canExecute(this)) {
+//            next = transactionTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);
+//            assert(next != null);
+//        }
+//        // Find the next txn that we can run.
+//        // Example: NewBid can only be executed if there are item_ids retrieved by an earlier call by GetItem
+//        else {
+//            int safety = 1000;
+//            while (safety-- > 0) {
+//                TransactionType tempTxn = transactionTypes.getType(phase.chooseTransaction());
+//                Transaction txn = Transaction.get(tempTxn.getProcedureClass());
+//                if (txn.canExecute(this)) {
+//                    next = tempTxn;
+//                    break;
+//                }
+//            } // WHILE
+//            assert(next != null);
+//        }
+//        
+//        this.executeWork(next);
+//        return (next);
+//    }
     
     @Override
-    protected void executeWork(TransactionType txnType) {
+    protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         Transaction txn = Transaction.get(txnType.getProcedureClass());
         Object[] params = txn.generateParams(this);
         
         if (params == null) {
-            throw new RuntimeException("Unable to execute " + txn + " because the parameters were null?");
+            if (LOG.isTraceEnabled())
+                LOG.warn("Unable to execute " + txn + " because the parameters were null?");
+            return (TransactionStatus.RETRY);
         } else if (LOG.isDebugEnabled()) {
             LOG.info("Executing new invocation of transaction " + txn);
         }
@@ -549,9 +552,7 @@ public class AuctionMarkWorker extends Worker {
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
         boolean ret = false;
-        try {
-            try {
-                switch (txn) {
+        switch (txn) {
 //                    case CLOSE_AUCTIONS:
 //                        ret = executeCloseAuctions((CloseAuctions)proc);
 //                        break;
@@ -570,20 +571,12 @@ public class AuctionMarkWorker extends Worker {
 //                    case NEW_PURCHASE:
 //                        callback = new NewPurchaseCallback(params);
 //                        break;
-                    default:
-                        assert(false) : "Unexpected transaction: " + txn; 
-                } // SWITCH
-                this.conn.commit();
-            } catch (UserAbortException ex) {
-                if (LOG.isDebugEnabled()) LOG.debug(proc + " Aborted", ex);
-                this.conn.rollback();
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException("Unexpected error when executing " + proc, ex);
-        }
-        if (ret && LOG.isDebugEnabled()) LOG.debug("Executed a new invocation of " + txn);
+            default:
+                assert(false) : "Unexpected transaction: " + txn; 
+        } // SWITCH
 
-        return;
+        conn.commit();
+        return (TransactionStatus.SUCCESS);
     }
     
     /**********************************************************************************************

@@ -101,7 +101,8 @@ public final class BenchmarkState {
 		assert state == State.DONE;
 		int current = notDoneCount.decrementAndGet();
 		assert current >= 0;
-		if(LOG.isDebugEnabled()) LOG.debug(".");
+		if (LOG.isDebugEnabled())
+		    LOG.debug(String.format("%d workers are not done. Waiting until they finish", current));
 		if (current == 0) {
 			// We are the last thread to notice that we are done: wake any
 			// blocked workers

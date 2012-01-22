@@ -22,8 +22,7 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
-import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
@@ -33,6 +32,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
+import com.oltpbenchmark.types.TransactionStatus;
 
 public class WikipediaWorker extends Worker {
 	private final TransactionGenerator<WikipediaOperation> generator;
@@ -47,36 +47,22 @@ public class WikipediaWorker extends Worker {
 	}
 
     @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        // we should work using the LLR to drive wikipedia at different speeds!!
-        TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
-        this.executeWork(nextTrans);
-        return (nextTrans);
-    }
-    
-    @Override
-    protected void executeWork(TransactionType nextTransaction) {
+    protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
         WikipediaOperation t = generator.nextTransaction();
         //System.out.println("[Executing] "+nextTransaction.getProcedureClass());
-        try {
-            if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
-                addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
-            } else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
-                removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
-            } else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
-                updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
-            } else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
-                getPageAnonymous(true, userIp, 0, t.nameSpace, t.pageTitle);
-            } else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
-                getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
-            }
-
-        } catch (MySQLTransactionRollbackException m) {
-            System.err.println("Rollback of thread: "+ this.id+" "+ m.getMessage());
-        } catch (SQLException e) {
-            System.err.println("Timeout of thread: "+ this.id+" Doing: "+ nextTransaction.getProcedureClass() +" Message:"+ e.getMessage());
+        if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
+            addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
+        } else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
+            removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
+        } else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
+            updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
+        } else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
+            getPageAnonymous(true, userIp, 0, t.nameSpace, t.pageTitle);
+        } else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
+            getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
         }
-        return;
+//        conn.commit();
+        return (TransactionStatus.SUCCESS);
     }
     
 	/**
@@ -134,7 +120,6 @@ public class WikipediaWorker extends Worker {
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
         proc.run(conn, a, userIp, userId, nameSpace, pageTitle);
-
 	}
 
 }

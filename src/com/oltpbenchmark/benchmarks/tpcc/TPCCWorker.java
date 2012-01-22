@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery;
@@ -45,16 +45,10 @@ import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.Payment;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel;
+import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.SimplePrinter;
 
 public class TPCCWorker extends Worker {
-
-	@Override
-	protected TransactionType doWork(boolean measure, Phase phase) {
-		TransactionType nextTrans = transactionTypes.getType(phase
-				.chooseTransaction());
-		return executeTransaction(nextTrans);
-	}
 
 	// private TransactionTypes transactionTypes;
 
@@ -99,46 +93,35 @@ public class TPCCWorker extends Worker {
 	/**
 	 * Executes a single TPCC transaction of type transactionType.
 	 */
-	public TransactionType executeTransaction(TransactionType nextTransaction) {
-
-		try {
-			//System.out.println("[Executing] "+ nextTransaction.getProcedureClass());
-            if (nextTransaction.getProcedureClass().equals(NewOrder.class)) {
-            	NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
-				proc.run(conn, gen, terminalWarehouseID, numWarehouses,
-						terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(Payment.class)) {
-				Payment proc2 = (Payment) this.getProcedure(Payment.class);
-				proc2.run(conn, gen, terminalWarehouseID, numWarehouses,
-						terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(StockLevel.class)) {
-            	StockLevel proc3 = (StockLevel) this.getProcedure(StockLevel.class);
-            	proc3.run(conn, gen, terminalWarehouseID, numWarehouses, 
-            			terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(OrderStatus.class)) {
-            	OrderStatus proc4 = (OrderStatus) this.getProcedure(OrderStatus.class);
-            	proc4.run(conn, gen, terminalWarehouseID, numWarehouses, 
-            			terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(Delivery.class)) {
-            	Delivery proc5 = (Delivery) this.getProcedure(Delivery.class);
-				proc5.run(conn, gen, terminalWarehouseID, numWarehouses, 
-						terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else {
-            	System.err.println("We have been invoked with an INVALID transactionType?!");
-            	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
-            }
-			transactionCount++;
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-		return nextTransaction;
-	}
-
 	@Override
-	protected void executeWork(TransactionType txnType) {
-		// TODO Auto-generated method stub
+    protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
+		//System.out.println("[Executing] "+ nextTransaction.getProcedureClass());
+        if (nextTransaction.getProcedureClass().equals(NewOrder.class)) {
+        	NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
+			proc.run(conn, gen, terminalWarehouseID, numWarehouses,
+					terminalDistrictLowerID, terminalDistrictUpperID, this);
+        } else if (nextTransaction.getProcedureClass().equals(Payment.class)) {
+			Payment proc2 = (Payment) this.getProcedure(Payment.class);
+			proc2.run(conn, gen, terminalWarehouseID, numWarehouses,
+					terminalDistrictLowerID, terminalDistrictUpperID, this);
+        } else if (nextTransaction.getProcedureClass().equals(StockLevel.class)) {
+        	StockLevel proc3 = (StockLevel) this.getProcedure(StockLevel.class);
+        	proc3.run(conn, gen, terminalWarehouseID, numWarehouses, 
+        			terminalDistrictLowerID, terminalDistrictUpperID, this);
+        } else if (nextTransaction.getProcedureClass().equals(OrderStatus.class)) {
+        	OrderStatus proc4 = (OrderStatus) this.getProcedure(OrderStatus.class);
+        	proc4.run(conn, gen, terminalWarehouseID, numWarehouses, 
+        			terminalDistrictLowerID, terminalDistrictUpperID, this);
+        } else if (nextTransaction.getProcedureClass().equals(Delivery.class)) {
+        	Delivery proc5 = (Delivery) this.getProcedure(Delivery.class);
+			proc5.run(conn, gen, terminalWarehouseID, numWarehouses, 
+					terminalDistrictLowerID, terminalDistrictUpperID, this);
+        } else {
+        	System.err.println("We have been invoked with an INVALID transactionType?!");
+        	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
+        }
+		transactionCount++;
+		return TransactionStatus.SUCCESS;
 	}
 
 	/**

@@ -83,6 +83,7 @@ import com.oltpbenchmark.benchmarks.seats.procedures.UpdateCustomer;
 import com.oltpbenchmark.benchmarks.seats.procedures.UpdateReservation;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
+import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomGenerator;
 import com.oltpbenchmark.util.StringUtil;
 
@@ -349,14 +350,7 @@ public class SEATSWorker extends Worker {
     }
 
     @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        TransactionType next = transactionTypes.getType(phase.chooseTransaction());
-        this.executeWork(next);
-        return (next);
-    }
-
-    @Override
-    protected void executeWork(TransactionType txnType) {
+    protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         if (this.first.compareAndSet(true, false)) {
             try {
                 this.initialize();
@@ -374,46 +368,40 @@ public class SEATSWorker extends Worker {
                                              this.benchmarkModule.getBenchmarkName(), txnType);
         if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
         boolean ret = false;
-        try {
-            try {
-                switch (txn) {
-                    case DeleteReservation: {
-                        ret = this.executeDeleteReservation((DeleteReservation)proc);
-                        break;
-                    }
-                    case FindFlights: {
-                        ret = this.executeFindFlights((FindFlights)proc);
-                        break;
-                    }
-                    case FindOpenSeats: {
-                        ret = this.executeFindOpenSeats((FindOpenSeats)proc);
-                        break;
-                    }
-                    case NewReservation: {
-                        ret = this.executeNewReservation((NewReservation)proc);
-                        break;
-                    }
-                    case UpdateCustomer: {
-                        ret = this.executeUpdateCustomer((UpdateCustomer)proc);
-                        break;
-                    }
-                    case UpdateReservation: {
-                        ret = this.executeUpdateReservation((UpdateReservation)proc);
-                        break;
-                    }
-                    default:
-                        assert(false) : "Unexpected transaction: " + txn; 
-                } // SWITCH
-                this.conn.commit();
-            } catch (UserAbortException ex) {
-                if (LOG.isDebugEnabled()) LOG.debug(proc + " Aborted", ex);
-                this.conn.rollback();
+        switch (txn) {
+            case DeleteReservation: {
+                ret = this.executeDeleteReservation((DeleteReservation)proc);
+                break;
             }
-        } catch (SQLException ex) {
-            throw new RuntimeException("Unexpected error when executing " + proc, ex);
+            case FindFlights: {
+                ret = this.executeFindFlights((FindFlights)proc);
+                break;
+            }
+            case FindOpenSeats: {
+                ret = this.executeFindOpenSeats((FindOpenSeats)proc);
+                break;
+            }
+            case NewReservation: {
+                ret = this.executeNewReservation((NewReservation)proc);
+                break;
+            }
+            case UpdateCustomer: {
+                ret = this.executeUpdateCustomer((UpdateCustomer)proc);
+                break;
+            }
+            case UpdateReservation: {
+                ret = this.executeUpdateReservation((UpdateReservation)proc);
+                break;
+            }
+            default:
+                assert(false) : "Unexpected transaction: " + txn; 
+        } // SWITCH
+        if (ret == false) {
+            return (TransactionStatus.RETRY_DIFFERENT);
         }
-        if (ret && LOG.isDebugEnabled()) LOG.debug("Executed a new invocation of " + txn);
         
+        if (ret && LOG.isDebugEnabled()) LOG.debug("Executed a new invocation of " + txn);
+        return (TransactionStatus.SUCCESS);
     }
     
 //    @Override
@@ -506,6 +494,7 @@ public class SEATSWorker extends Worker {
         
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
         proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
+        conn.commit();
         
         // We can remove this from our set of full flights because know that there is now a free seat
         BitSet seats = SEATSWorker.getSeatsBitSet(r.flight_id);
@@ -579,6 +568,8 @@ public class SEATSWorker extends Worker {
                                           start_date,
                                           stop_date,
                                           distance);
+        conn.commit();
+        
         if (results.size() > 1) {
             // Convert the data into a FlightIds that other transactions can use
             int ctr = 0;
@@ -608,6 +599,8 @@ public class SEATSWorker extends Worker {
         
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
         List<Object[]> results = proc.run(conn, search_flight.encode());
+        conn.commit();
+        
         int rowCount = results.size();
         assert (rowCount <= SEATSConstants.NUM_SEATS_PER_FLIGHT) :
             String.format("Unexpected %d open seats returned for %s", rowCount, search_flight);
@@ -736,9 +729,11 @@ public class SEATSWorker extends Worker {
                        reservation.seatnum,
                        price,
                        attributes);
+        conn.commit();
+        
         // Mark this seat as successfully reserved
         seats.set(reservation.seatnum);
-
+        
         // Set it up so we can play with it later
         SEATSWorker.this.requeueReservation(reservation);
         
@@ -770,6 +765,8 @@ public class SEATSWorker extends Worker {
 
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
         proc.run(conn, c_id, c_id_str, update_ff, attr0, attr1);
+        conn.commit();
+        
         return (true);
     }
 
@@ -804,6 +801,8 @@ public class SEATSWorker extends Worker {
                        r.seatnum,
                        attribute_idx,
                        value);
+        conn.commit();
+        
         SEATSWorker.this.requeueReservation(r);
         return (true);
     }

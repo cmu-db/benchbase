@@ -12,16 +12,29 @@ import com.oltpbenchmark.benchmarks.wikipedia.Article;
 public class GetPageAnonymous extends Procedure {
 	
 	
-	public SQLStmt selectUser = new SQLStmt("SELECT * FROM `user` WHERE user_id = ? LIMIT 1");
-	public SQLStmt selectGroup = new SQLStmt("SELECT ug_group FROM `user_groups` WHERE ug_user = ? ");
-	public SQLStmt selectPage = new SQLStmt("SELECT * FROM `page` WHERE page_namespace = ? AND page_title = ? LIMIT 1 ");
-	public SQLStmt selectPageRestriction = new SQLStmt("SELECT * FROM `page_restrictions` WHERE pr_page = ? ");
+	public SQLStmt selectUser = new SQLStmt(
+        "SELECT * FROM `user` WHERE user_id = ? LIMIT 1"
+    );
+	public SQLStmt selectGroup = new SQLStmt(
+        "SELECT ug_group FROM `user_groups` WHERE ug_user = ?"
+    );
+	public SQLStmt selectPage = new SQLStmt(
+        "SELECT * FROM `page` WHERE page_namespace = ? AND page_title = ? LIMIT 1"
+    );
+	public SQLStmt selectPageRestriction = new SQLStmt(
+        "SELECT * FROM `page_restrictions` WHERE pr_page = ?"
+    );
 	// XXX this is hard for translation
-	public SQLStmt selectIpBlocks = new SQLStmt("SELECT * FROM `ipblocks` WHERE ipb_user = ? "); 
-	public SQLStmt selectPageRevision = new SQLStmt("SELECT * FROM `page`,`revision` WHERE (page_id=rev_page) AND " +
-			"rev_page = ? AND page_id = ? AND (rev_id=page_latest) LIMIT 1 ");
-	public SQLStmt selectText = new SQLStmt("SELECT old_text,old_flags FROM `text` WHERE old_id = ? LIMIT 1");
-
+	public SQLStmt selectIpBlocks = new SQLStmt(
+        "SELECT * FROM `ipblocks` WHERE ipb_user = ?"
+    ); 
+	public SQLStmt selectPageRevision = new SQLStmt(
+        "SELECT * FROM `page`,`revision` WHERE (page_id=rev_page) AND " +
+		"rev_page = ? AND page_id = ? AND (rev_id=page_latest) LIMIT 1"
+    );
+	public SQLStmt selectText = new SQLStmt(
+        "SELECT old_text,old_flags FROM `text` WHERE old_id = ? LIMIT 1"
+    );
 	
 	public Article run(Connection conn, boolean forSelect, String userIp, int userId,
 			int nameSpace, String pageTitle) throws SQLException {		

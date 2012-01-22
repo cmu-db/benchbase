@@ -6,13 +6,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.types.TransactionStatus;
 
 public abstract class Worker implements Runnable {
+    private static final Logger LOG = Logger.getLogger(Worker.class);
 
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
@@ -64,6 +69,12 @@ public abstract class Worker implements Runnable {
 	public int getId() {
 		return this.id;
 	}
+	public int getRequests() {
+        return latencies.size();
+    }
+    public Iterable<LatencyRecord.Sample> getLatencyRecords() {
+        return latencies;
+    }
 	
 	public final Procedure getProcedure(TransactionType type) {
         return (this.procedures.get(type));
@@ -97,8 +108,7 @@ public abstract class Worker implements Runnable {
 		while (true) {
 			if (state == State.DONE && !seenDone) {
 				// This is the first time we have observed that the test is
-				// done
-				// notify the global test state, then continue applying load
+				// done notify the global test state, then continue applying load
 				seenDone = true;
 				testState.signalDone();
 				break;
@@ -139,14 +149,6 @@ public abstract class Worker implements Runnable {
 		testState = null;
 	}
 
-	public int getRequests() {
-		return latencies.size();
-	}
-
-	public Iterable<LatencyRecord.Sample> getLatencyRecords() {
-		return latencies;
-	}
-
 	/**
 	 * Called in a loop in the thread to exercise the system under test.
 	 * Each implementing worker should return the TransactionType handle that
@@ -154,13 +156,70 @@ public abstract class Worker implements Runnable {
 	 * 
 	 * @param llr
 	 */
-	protected abstract TransactionType doWork(boolean measure, Phase phase);
+	protected final TransactionType doWork(boolean measure, Phase phase) {
+	    TransactionType next = null;
+	    TransactionStatus status = TransactionStatus.RETRY; 
+
+	    try {
+    	    while (status == TransactionStatus.RETRY) {
+    	        if (next == null)
+    	            next = transactionTypes.getType(phase.chooseTransaction());
+    	        
+        	    try {
+        	        status = this.executeWork(next);
+        	        switch (status) {
+        	            case SUCCESS:
+        	                if (LOG.isDebugEnabled()) 
+                                LOG.debug("Executed a new invocation of " + next);
+        	                break;
+        	            case RETRY_DIFFERENT:
+        	                status = TransactionStatus.RETRY;
+        	                next = null;
+        	            case RETRY:
+        	                continue;
+    	                default:
+    	                    assert(false) :
+    	                        String.format("Unexpected status '%s' for %s", status, next);
+        	        } // SWITCH
+        	        
+    	        // User Abort Handling
+    	        // These are not errors
+        	    } catch (UserAbortException ex) {
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(next + " Aborted", ex);
+                    this.conn.rollback();
+                    break;
+                    
+                // Database System Specific Exception Handling
+                } catch (SQLException ex) {
+                    String msg = ex.getMessage();
+                    
+                    // ORACLE
+                    if (msg.contains("ORA-08177")) {
+                        // We should just retry the same txn
+                        continue;
+                    }
+                    // UNKNOWN: Just rethrow it!
+                    else {
+                        throw ex;
+                    }
+                }
+    	    } // WHILE
+	    } catch (SQLException ex) {
+            throw new RuntimeException("Unexpected error when executing " + next, ex);
+        } 
+        
+        return (next);
+	}
 
     /**
      * Invoke a single transaction for the given TransactionType
      * @param txnType
+     * @return TODO
+     * @throws UserAbortException TODO
+     * @throws SQLException TODO
      */
-	protected abstract void executeWork(TransactionType txnType);
+	protected abstract TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException;
 	
 	/**
 	 * Called at the end of the test to do any clean up that may be
@@ -175,7 +234,7 @@ public abstract class Worker implements Runnable {
 		}
 	}
 
-	public void setBenchmark(BenchmarkState testState) {
+	public void setBenchmarkState(BenchmarkState testState) {
 		assert this.testState == null;
 		this.testState = testState;
 	}

@@ -23,9 +23,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
-import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.LoaderUtil;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
@@ -37,6 +36,7 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
+import com.oltpbenchmark.types.TransactionStatus;
 
 public class EpinionsWorker extends Worker {
 
@@ -51,42 +51,28 @@ public class EpinionsWorker extends Worker {
     }
 
     @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
-        this.executeWork(nextTrans);
-        return nextTrans;
-    }
-    
-    @Override
-    protected void executeWork(TransactionType nextTrans) {
-        try {
-            if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
-                reviewItemByID();
-            } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
-                reviewsByUser();
-            } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
-                averageRatingByTrustedUser();
-            } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
-                averageRatingOfItem();
-            } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
-                itemReviewsByTrustedUser();
-            } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
-                updateUserName();
-            } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
-                updateItemTitle();
-            } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
-                updateReviewRating();
-            } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
-                updateTrustRating();
-            }
-            conn.commit();
-
-        } catch (MySQLTransactionRollbackException m) {
-            System.err.println("Rollback:" + m.getMessage());
-        } catch (SQLException e) {
-            System.err.println("Timeout:" + e.getMessage());
+    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+        if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
+            reviewItemByID();
+        } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
+            reviewsByUser();
+        } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
+            averageRatingByTrustedUser();
+        } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
+            averageRatingOfItem();
+        } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
+            itemReviewsByTrustedUser();
+        } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
+            updateUserName();
+        } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
+            updateItemTitle();
+        } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
+            updateReviewRating();
+        } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
+            updateTrustRating();
         }
-        return;
+        conn.commit();
+        return (TransactionStatus.SUCCESS);
     }
 
     public void reviewItemByID() throws SQLException {

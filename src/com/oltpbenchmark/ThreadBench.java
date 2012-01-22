@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
@@ -37,6 +39,8 @@ import com.oltpbenchmark.util.QueueLimitException;
 
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler{
+    private static final Logger LOG = Logger.getLogger(ThreadBench.class);
+    
 	private BenchmarkState testState;
 	private final List<? extends Worker> workers;
 	private File profileFile;
@@ -242,7 +246,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		testState = new BenchmarkState(workers.size() + 1, isRateLimited, RATE_QUEUE_LIMIT);
 		ArrayList<Thread> workerThreads = new ArrayList<Thread>(workers.size());
 		for (Worker worker : workers) {
-			worker.setBenchmark(testState);
+			worker.setBenchmarkState(testState);
 			Thread thread = new Thread(worker);
 			thread.setUncaughtExceptionHandler(this);
 			thread.start();
@@ -314,7 +318,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 
 		Phase phase = workConf.getNextPhase();
 		testState.setCurrentPhase(phase);
-		System.out.println("[Starting Phase] [Time= " + phase.time
+		LOG.info("[Starting Phase] [Time= " + phase.time
 				+ "] [Rate= " + phase.rate + "] [Ratios= " + phase.weights
 				+ "]");
 
@@ -367,7 +371,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 					lastEntry = true;
 				} else {
 					delta += phase.time * 1000000000L;
-					System.out.println("[Starting Phase] [Time= " + phase.time
+					LOG.info("[Starting Phase] [Time= " + phase.time
 							+ "] [Rate= " + phase.rate + "] [Ratios= "
 							+ phase.weights + "]");
 					// update frequency in which we check according to wakeup speed
@@ -389,7 +393,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			} else if (state == State.MEASURE && lastEntry
 					&& now >= start + delta) {
 				testState.startCoolDown();
-				System.out.println("[Terminate] Waiting for all terminals to finish ..");
+				LOG.info("[Terminate] Waiting for all terminals to finish ..");
 				measureEnd = now;
 			} else if (state == State.EXIT) {
 				// All threads have noticed the done, meaning all measured

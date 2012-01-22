@@ -101,8 +101,8 @@ public abstract class SEATSConstants {
      * NUM_FLIGHTS_PER_DAY = 15000
      * Source: http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236&DB_Short_Name=On-Time
      */
-    public static final int MIN_FLIGHTS_PER_DAY = 11250;
-    public static final int MAX_FLIGHTS_PER_DAY = 18750;
+    public static final int MIN_FLIGHTS_PER_DAY = 1125;
+    public static final int MAX_FLIGHTS_PER_DAY = 1875;
     
     /** Max Number of FREQUENT_FLYER records per CUSTOMER */ 
     public static final int MAX_FREQUENTFLYER_PER_CUSTOMER = 5;

@@ -22,8 +22,7 @@ package com.oltpbenchmark.benchmarks.twitter;
 import java.sql.SQLException;
 import java.sql.Time;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
-import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -32,6 +31,7 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets;
 import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
+import com.oltpbenchmark.types.TransactionStatus;
 
 public class TwitterWorker extends Worker {
     private TransactionGenerator<TwitterOperation> generator;
@@ -47,36 +47,24 @@ public class TwitterWorker extends Worker {
     }
 
     @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
-        this.executeWork(nextTrans);
-        return nextTrans;
-    }
-
-    @Override
-    protected void executeWork(TransactionType nextTrans) {
+    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         TwitterOperation t = generator.nextTransaction();
-        try {
-            if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
-                doSelect1Tweet(t.tweetid);
-            } else if (nextTrans.getProcedureClass().equals(GetTweetsFromFollowing.class)) {
-                doSelectTweetsFromPplIFollow(t.uid);
-            } else if (nextTrans.getProcedureClass().equals(GetFollowers.class)) {
-                doSelectNamesOfPplThatFollowMe(t.uid);
-            } else if (nextTrans.getProcedureClass().equals(GetUserTweets.class)) {
-                doSelectTweetsForUid(t.uid);
-            } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
-                // TODO FIXME THIS NEEDS TO BE FIXED.. checking with Aubrey how we
-                // generated ids before...
-                String text = "Blah blah new tweet...";
-                doInsertTweet(t.uid, text);
-            }
-            conn.commit();
-        } catch (MySQLTransactionRollbackException m) {
-            System.err.println("Rollback:" + m.getMessage());
-        } catch (SQLException e) {
-            System.err.println("Timeout:" + e.getMessage());
+        if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
+            doSelect1Tweet(t.tweetid);
+        } else if (nextTrans.getProcedureClass().equals(GetTweetsFromFollowing.class)) {
+            doSelectTweetsFromPplIFollow(t.uid);
+        } else if (nextTrans.getProcedureClass().equals(GetFollowers.class)) {
+            doSelectNamesOfPplThatFollowMe(t.uid);
+        } else if (nextTrans.getProcedureClass().equals(GetUserTweets.class)) {
+            doSelectTweetsForUid(t.uid);
+        } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
+            // TODO FIXME THIS NEEDS TO BE FIXED.. checking with Aubrey how we
+            // generated ids before...
+            String text = "Blah blah new tweet...";
+            doInsertTweet(t.uid, text);
         }
+        conn.commit();
+        return (TransactionStatus.SUCCESS);
     }
 
     public void doSelect1Tweet(int tweet_id) throws SQLException {

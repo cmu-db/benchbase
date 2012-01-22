@@ -23,16 +23,16 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Random;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException;
-import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2;
+import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1;
+import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2;
+import com.oltpbenchmark.types.TransactionStatus;
 
 public class ResourceStresserWorker extends Worker {
     public static final int CONTENTION1_howManyKeys = 1;
@@ -62,42 +62,28 @@ public class ResourceStresserWorker extends Worker {
     }
 
     @Override
-    protected TransactionType doWork(boolean measure, Phase phase) {
-        TransactionType nextTrans = transactionTypes.getType(phase.chooseTransaction());
-        this.executeWork(nextTrans);
-        return (nextTrans);
-    }
-    
-    @Override
-    protected void executeWork(TransactionType nextTrans) {
-        try {
-            if (nextTrans.getProcedureClass().equals(CPU1.class)) {
-                cpu1Transaction(10, 1);
-            } else if (nextTrans.getProcedureClass().equals(CPU2.class)) {
-                cpu2Transaction(5, 2);
-            } else if (nextTrans.getProcedureClass().equals(IO1.class)) {
-                io1Transaction(10, 10);
-            } else if (nextTrans.getProcedureClass().equals(IO2.class)) {
-                io2Transaction(true, 50);
-            } else if (nextTrans.getProcedureClass().equals(Contention1.class)) {
-                contention1Transaction();
-            } else if (nextTrans.getProcedureClass().equals(Contention2.class)) {
-                contention2Transaction(2, 5, 1);
-            }
-            conn.commit();
-        } catch (MySQLTransactionRollbackException m) {
-            System.err.println("Rollback:" + m.getMessage());
-        } catch (SQLException e) {
-            System.err.println("Timeout:" + e.getMessage());
+    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+        if (nextTrans.getProcedureClass().equals(CPU1.class)) {
+            cpu1Transaction(10, 1);
+        } else if (nextTrans.getProcedureClass().equals(CPU2.class)) {
+            cpu2Transaction(5, 2);
+        } else if (nextTrans.getProcedureClass().equals(IO1.class)) {
+            io1Transaction(10, 10);
+        } else if (nextTrans.getProcedureClass().equals(IO2.class)) {
+            io2Transaction(true, 50);
+        } else if (nextTrans.getProcedureClass().equals(Contention1.class)) {
+            contention1Transaction();
+        } else if (nextTrans.getProcedureClass().equals(Contention2.class)) {
+            contention2Transaction(2, 5, 1);
         }
-        return;
+        conn.commit();
+        return (TransactionStatus.SUCCESS);
     }
 
     private void contention1Transaction() throws SQLException {
         Contention1 proc = this.getProcedure(Contention1.class);
         assert (proc != null);
         proc.run(conn);
-
     }
 
     private void contention2Transaction(int howManyUpdates, int howManyKeys, int sleepLength) throws SQLException {
@@ -110,14 +96,12 @@ public class ResourceStresserWorker extends Worker {
         IO1 proc = this.getProcedure(IO1.class);
         assert (proc != null);
         proc.run(conn, this.getId());
-        conn.commit();
     }
 
     private void io2Transaction(boolean makeSureWorketSetFitsInMemory, int howManyUpdatePerTransaction) throws SQLException {
         IO2 proc = this.getProcedure(IO2.class);
         assert (proc != null);
         proc.run(conn, this.getId());
-        conn.commit();
     }
 
     private void cpu1Transaction(int howManyPerTrasaction, long sleepLength) throws SQLException {

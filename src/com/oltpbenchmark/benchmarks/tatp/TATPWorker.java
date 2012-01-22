@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -39,6 +38,7 @@ import com.oltpbenchmark.benchmarks.tatp.procedures.GetSubscriberData;
 import com.oltpbenchmark.benchmarks.tatp.procedures.InsertCallForwarding;
 import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation;
 import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData;
+import com.oltpbenchmark.types.TransactionStatus;
 
 public class TATPWorker extends Worker {
 	private static final Logger LOG = Logger.getLogger(TATPWorker.class);
@@ -176,14 +176,7 @@ public class TATPWorker extends Worker {
 	}
 	
 	@Override
-	protected TransactionType doWork(boolean measure, Phase phase) {
-		TransactionType next = transactionTypes.getType(phase.chooseTransaction());
-		this.executeWork(next);
-		return (next);
-	}
-	
-	@Override
-	protected void executeWork(TransactionType txnType) {
+	protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
 	    Transaction t = Transaction.get(txnType.getName());
         assert(t != null) : "Unexpected " + txnType;
         
@@ -193,17 +186,9 @@ public class TATPWorker extends Worker {
                                              this.benchmarkModule.getBenchmarkName(), txnType);
         if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
         
-		try {
-		    try {
-		        t.invoke(this.conn, proc, subscriberSize);
-		        this.conn.commit();
-		    } catch (UserAbortException ex) {
-		        if (LOG.isDebugEnabled()) LOG.debug(proc + " Aborted", ex);
-		        this.conn.rollback();
-		    }
-		} catch (SQLException ex) {
-			throw new RuntimeException("Unexpected error when executing " + proc, ex);
-		}
+        t.invoke(this.conn, proc, subscriberSize);
+        conn.commit();
+        return (TransactionStatus.SUCCESS);
 	}
 
 }
