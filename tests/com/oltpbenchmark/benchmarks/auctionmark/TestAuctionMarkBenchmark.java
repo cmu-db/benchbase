@@ -22,21 +22,21 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 import java.io.File;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
+import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 	
     public static final Class<?> PROC_CLASSES[] = {
-//        CloseAuctions.class,
+        CloseAuctions.class,
         GetItem.class,
-//        GetUserInfo.class,
-//        NewBid.class,
-//        NewComment.class,
-//        NewCommentResponse.class,
-//        NewFeedback.class,
-//        NewItem.class,
-//        NewPurchase.class,
-//        UpdateItem.class
+        GetUserInfo.class,
+        NewBid.class,
+        NewComment.class,
+        NewCommentResponse.class,
+        NewFeedback.class,
+        NewItem.class,
+        NewPurchase.class,
+        UpdateItem.class
     };
     
 	@Override

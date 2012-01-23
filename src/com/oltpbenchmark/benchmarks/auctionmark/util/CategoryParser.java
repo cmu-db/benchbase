@@ -35,14 +35,17 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
 
-public class AuctionMarkCategoryParser {
+
+public class CategoryParser {
+    private static final Logger LOG = Logger.getLogger(CategoryParser.class);
 	
 	Map<String, Category> _categoryMap;
 	private int _nextCategoryID;
 	String _fileName;
 
-	public AuctionMarkCategoryParser(File file) {
+	public CategoryParser(File file) {
 	
 		_categoryMap = new TreeMap<String, Category>();
 		_nextCategoryID = 0;
@@ -57,8 +60,8 @@ public class AuctionMarkCategoryParser {
 				//System.out.println(strLine);
 			}
 			in.close();
-		} catch (Exception e) {// Catch exception if any
-			System.err.println("Error: " + e.getMessage());
+		} catch (Exception ex) {
+		    throw new RuntimeException("Failed to load in category file", ex);
 		}
 
 	}
@@ -89,7 +92,7 @@ public class AuctionMarkCategoryParser {
 		
 		String categoryName = fullCategoryName;
 		String parentCategoryName = "";
-		int parentCategoryID = -1;
+		Integer parentCategoryID = null;
 		
 		if(categoryName.indexOf('/') != -1){
 			int separatorIndex = fullCategoryName.lastIndexOf('/');
@@ -126,10 +129,10 @@ public class AuctionMarkCategoryParser {
 	}
 	
 	public static void main(String args[]) throws Exception {	
-		AuctionMarkCategoryParser ebp = new AuctionMarkCategoryParser(new File("bin/edu/brown/benchmark/auctionmark/data/categories.txt"));
+		CategoryParser ebp = new CategoryParser(new File("bin/edu/brown/benchmark/auctionmark/data/categories.txt"));
 		
-		for(String key : ebp.getCategoryMap().keySet()){
-			System.out.println(key + " : " + ebp.getCategoryMap().get(key).getCategoryID() + " : " + ebp.getCategoryMap().get(key).getParentCategoryID() + " : " + ebp.getCategoryMap().get(key).getItemCount());
+		for (String key : ebp.getCategoryMap().keySet()){
+			LOG.info(key + " : " + ebp.getCategoryMap().get(key).getCategoryID() + " : " + ebp.getCategoryMap().get(key).getParentCategoryID() + " : " + ebp.getCategoryMap().get(key).getItemCount());
 		}
 		//addNewCategory("001/123456/789", 0, true);
 	}

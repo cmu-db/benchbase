@@ -102,12 +102,12 @@ public class AuctionMarkProfile {
     /**
      * Database Scale Factor
      */
-    private double scale_factor;
+    protected double scale_factor;
     
     /**
      * The start time used when creating the data for this benchmark
      */
-    private Date benchmarkStartTime;
+    protected Date benchmarkStartTime;
     
     /**
      * A histogram for the number of users that have the number of items listed

@@ -54,7 +54,8 @@ public class UserIdGenerator implements Iterator<UserId> {
      * @param numClients
      * @param clientId
      */
-    public UserIdGenerator(Histogram<Long> users_per_item_count, int numClients,  Integer clientId) {
+    public UserIdGenerator(Histogram<Long> users_per_item_count, int numClients, Integer clientId) {
+        assert(users_per_item_count != null);
         if (numClients <= 0)
             throw new IllegalArgumentException("numClients must be more than 0 : " + numClients);
         if (clientId != null && clientId < 0)
@@ -63,8 +64,12 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.numClients = numClients;
         this.clientId = clientId;
         this.users_per_item_count = users_per_item_count;
-        this.min_count = users_per_item_count.getMinValue();
-        this.max_count = users_per_item_count.getMaxValue();
+        
+        Long temp = users_per_item_count.getMinValue();
+        this.min_count = (temp != null ? temp.longValue() : 0);
+        
+        temp = users_per_item_count.getMaxValue();
+        this.max_count = (temp != null ? temp.longValue() : 0);
         
         this.setCurrentItemCount(this.min_count);
     }

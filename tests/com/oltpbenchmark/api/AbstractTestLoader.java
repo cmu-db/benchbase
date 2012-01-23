@@ -42,6 +42,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         }
         
         this.workConf.setScaleFactor(0.001);
+        this.workConf.setTerminals(1);
         this.benchmark.createDatabase();
     }
     

@@ -29,12 +29,12 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 public class Category {
     private int categoryID;
-    private int parentCategoryID;
+    private Integer parentCategoryID;
     private int itemCount;
     private String name;
     private boolean isLeaf;
 
-    public Category(int categoryID, String name, int parentCategoryID, int itemCount, boolean isLeaf) {
+    public Category(int categoryID, String name, Integer parentCategoryID, int itemCount, boolean isLeaf) {
         this.categoryID = categoryID;
         this.name = name;
         this.parentCategoryID = parentCategoryID;
@@ -50,7 +50,7 @@ public class Category {
         return this.categoryID;
     }
 
-    public int getParentCategoryID() {
+    public Integer getParentCategoryID() {
         return this.parentCategoryID;
     }
 
