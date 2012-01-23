@@ -166,8 +166,6 @@
                     <exclude name="**/Test*$*.class"/>
                 	<exclude name="**/TestJPAB*.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>
-                    <exclude name="**/TestYCSBLoader.class"/>
-                	<exclude name="**/TestAuctionMarkLoader.class"/> 
                 </fileset>
             </tests>
         </run_junit>
@@ -189,7 +187,7 @@
 	            <formatter usefile="false" type="plain"/>
 	        </formatters>
 	        <tests>
-	            <fileset dir='${build.test.dir}'>
+	            <fileset dir='${build.tests.dir}'>
 	              <include name="**/${junitclass}.class"/>
 	            </fileset>
 	        </tests>

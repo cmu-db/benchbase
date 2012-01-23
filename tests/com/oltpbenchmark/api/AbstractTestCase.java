@@ -54,7 +54,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         } // FOR
         
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
-
+        
         Class.forName(DB_JDBC);
         this.workConf = new WorkloadConfiguration();
         this.workConf.setDBType(DB_TYPE);
@@ -65,6 +65,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
                                                    new Object[] { this.workConf },
                                                    new Class<?>[] { WorkloadConfiguration.class });
         assertNotNull(this.benchmark);
+        System.err.println(this.benchmark + " -> " + this.dbName);
         
         this.catalog = this.benchmark.getCatalog();
         assertNotNull(this.catalog);
