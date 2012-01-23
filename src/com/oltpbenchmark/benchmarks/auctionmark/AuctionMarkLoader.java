@@ -122,13 +122,15 @@ public class AuctionMarkLoader extends Loader {
         // BenchmarkProfile
         profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
         profile.setAndGetBenchmarkStartTime();
+
+        File category_file = new File(profile.data_directory.getAbsolutePath() + "/table.category.gz");
         
         // ---------------------------
         // Fixed-Size Table Generators
         // ---------------------------
         
         this.registerGenerator(new RegionGenerator());
-        this.registerGenerator(new CategoryGenerator(new File(profile.data_directory.getAbsolutePath() + "/categories.txt")));
+        this.registerGenerator(new CategoryGenerator(category_file));
         this.registerGenerator(new GlobalAttributeGroupGenerator());
         this.registerGenerator(new GlobalAttributeValueGenerator());
 

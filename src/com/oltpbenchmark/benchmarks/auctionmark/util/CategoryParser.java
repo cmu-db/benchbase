@@ -28,14 +28,13 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+
+import com.oltpbenchmark.util.FileUtil;
 
 
 public class CategoryParser {
@@ -50,16 +49,14 @@ public class CategoryParser {
 		_categoryMap = new TreeMap<String, Category>();
 		_nextCategoryID = 0;
 		
+		
 		try {
-			FileInputStream fstream = new FileInputStream(file);
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			BufferedReader br = FileUtil.getReader(file);
 			String strLine;
 			while ((strLine = br.readLine()) != null) {		
 				extractCategory(strLine);
 				//System.out.println(strLine);
 			}
-			in.close();
 		} catch (Exception ex) {
 		    throw new RuntimeException("Failed to load in category file", ex);
 		}

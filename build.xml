@@ -168,6 +168,7 @@
                 	<exclude name="**/TestSEATSWorker.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>
                     <exclude name="**/TestYCSBLoader.class"/>
+                	<exclude name="**/TestAuctionMarkLoader.class"/>
                 </fileset>
             </tests>
         </run_junit>
