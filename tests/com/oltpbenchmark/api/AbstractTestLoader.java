@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
@@ -54,7 +55,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         // and then check to make sure that our tables aren't empty
         this.benchmark.loadDatabase();
         
-        System.err.println("TABLES: " + this.catalog.getTableNames());
+        Histogram<String> tableSizes = new Histogram<String>();
         for (String tableName : this.catalog.getTableNames()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);
@@ -66,8 +67,14 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             boolean adv = result.next();
             assertTrue(adv);
             int count = result.getInt(1);
-            System.err.println(tableName + " => " + count + "\n");
+            tableSizes.put(tableName, count);            
+        } // FOR
+        System.err.println(tableSizes);
+        
+        for (String tableName : tableSizes.values()) {
+            long count = tableSizes.get(tableName);
             assert(count > 0) : "No tuples were inserted for table " + tableName;
         } // FOR
+        
     }
 }

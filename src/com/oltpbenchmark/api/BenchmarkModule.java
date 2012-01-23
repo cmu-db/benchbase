@@ -169,7 +169,8 @@ public abstract class BenchmarkModule {
     	String xmlName = this.benchmarkName + "-dialects.xml";
     	URL ddlURL = this.getClass().getResource(xmlName);
     	if (ddlURL != null) return new File(ddlURL.getPath());
-    	LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
+    	if (LOG.isDebugEnabled())
+    	    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
     	return (null);
     }
 

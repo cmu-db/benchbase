@@ -78,6 +78,12 @@ public abstract class AuctionMarkConstants {
     public static final long USER_MIN_RATING   = 0;
     public static final long USER_MAX_RATING   = 10000;
     
+    public static final int USER_ATTRIBUTE_NAME_LENGTH_MIN = 5;
+    public static final int USER_ATTRIBUTE_NAME_LENGTH_MAX = 32;
+    
+    public static final int USER_ATTRIBUTE_VALUE_LENGTH_MIN = 5;
+    public static final int USER_ATTRIBUTE_VALUE_LENGTH_MAX = 32;
+    
     // ----------------------------------------------------------------
     // ITEM PARAMETERS
     // ----------------------------------------------------------------
@@ -157,8 +163,8 @@ public abstract class AuctionMarkConstants {
     public static final long BATCHSIZE_GLOBAL_ATTRIBUTE_GROUP   = 5000;
     public static final long BATCHSIZE_GLOBAL_ATTRIBUTE_VALUE   = 5000;
     public static final long BATCHSIZE_CATEGORY                 = 5000;
-    public static final long BATCHSIZE_USER                     = 1000;
-    public static final long BATCHSIZE_USER_ATTRIBUTES          = 5000;
+    public static final long BATCHSIZE_USER                     = 100;
+    public static final long BATCHSIZE_USER_ATTRIBUTES          = 500;
     public static final long BATCHSIZE_USER_FEEDBACK            = 1000;
     public static final long BATCHSIZE_USER_ITEM                = 5000;
     public static final long BATCHSIZE_USER_WATCH               = 5000;

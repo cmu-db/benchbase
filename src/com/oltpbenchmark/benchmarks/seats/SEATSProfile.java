@@ -228,9 +228,10 @@ public class SEATSProfile {
         stmt.setObject(param_idx++, this.reservation_upcoming_offset);   // CFP_RESERVATION_OFFSET
         stmt.setObject(param_idx++, this.num_records.toJSONString());    // CFP_NUM_RECORDS
         stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
-        if (LOG.isDebugEnabled()) LOG.debug("Saved profile information into " + catalog_tbl.getName());
         int result = stmt.executeUpdate();
         assert(result == 1);
+        if (LOG.isDebugEnabled())
+            LOG.debug("Saved profile information into " + catalog_tbl.getName());
         
         // CONFIG_HISTOGRAMS
         catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
@@ -243,7 +244,8 @@ public class SEATSProfile {
             result = stmt.executeUpdate();
             assert(result == 1);
         } // FOR
-        if (LOG.isDebugEnabled()) LOG.debug("Saved airport histogram information into " + catalog_tbl.getName());
+        if (LOG.isDebugEnabled())
+            LOG.debug("Saved airport histogram information into " + catalog_tbl.getName());
         
         for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
             param_idx = 1;
@@ -253,7 +255,8 @@ public class SEATSProfile {
             result = stmt.executeUpdate();
             assert(result == 1);
         } // FOR
-        if (LOG.isDebugEnabled()) LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
+        if (LOG.isDebugEnabled())
+            LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
 
         return;
     }

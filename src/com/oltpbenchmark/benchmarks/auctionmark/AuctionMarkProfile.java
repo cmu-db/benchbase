@@ -201,6 +201,7 @@ public class AuctionMarkProfile {
         this.benchmark = benchmark;
         this.catalog = benchmark.getCatalog();
         this.rng = rng;
+        this.scale_factor = benchmark.getWorkloadConfiguration().getScaleFactor();
         this.num_clients = benchmark.getWorkloadConfiguration().getTerminals();
         this.data_directory = benchmark.getDataDir();
 
@@ -238,6 +239,8 @@ public class AuctionMarkProfile {
         stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
         stmt.setObject(param_idx++, this.benchmarkStartTime); // CFP_BENCHMARK_START
         stmt.setObject(param_idx++, this.users_per_item_count.toJSONString()); // CFP_USER_ITEM_HISTOGRAM
+        int result = stmt.executeUpdate();
+        assert(result == 1);
 
         if (LOG.isDebugEnabled())
             LOG.debug("Saving profile information into " + catalog_tbl);

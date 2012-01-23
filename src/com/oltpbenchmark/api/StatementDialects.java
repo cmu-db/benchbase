@@ -57,7 +57,7 @@ public class StatementDialects {
             "Failed to find 'dialects.xml' for " + this.getClass().getName();
         if (this.xmlFile != null && this.dbType != null) {
             this.load();
-        } else {
+        } else if (LOG.isDebugEnabled()) {
             LOG.warn("DatabaseType is null. Not loading StatementDialect XML");
         }
         

@@ -37,15 +37,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -67,16 +59,9 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.CollectionUtil;
-import com.oltpbenchmark.util.CompositeId;
-import com.oltpbenchmark.util.EventObservableExceptionHandler;
-import com.oltpbenchmark.util.EventObservable;
-import com.oltpbenchmark.util.EventObserver;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.Pair;
+import com.oltpbenchmark.util.*;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
-import com.oltpbenchmark.util.SQLUtil;
 
 /**
  * 
@@ -101,7 +86,7 @@ public class AuctionMarkLoader extends Loader {
     private final Collection<String> sub_generators = new HashSet<String>();
 
     /** The set of tables that we have finished loading **/
-    private final transient Collection<String> finished = new HashSet<String>();
+    private final transient Collection<String> finished = Collections.synchronizedCollection(new HashSet<String>());
     
     private final Histogram<String> tableSizes = new Histogram<String>();
 
@@ -161,6 +146,9 @@ public class AuctionMarkLoader extends Loader {
     
     @Override
     public void load() {
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Starting loader [scaleFactor=%.2f]", profile.getScaleFactor())); 
+        
         final EventObservableExceptionHandler handler = new EventObservableExceptionHandler();
         final List<Thread> threads = new ArrayList<Thread>();
         for (AbstractTableGenerator generator : this.generators.values()) {
@@ -198,10 +186,12 @@ public class AuctionMarkLoader extends Loader {
             }
         }
         
+        // Save the benchmark profile out to disk so that we can send it
+        // to all of the clients
         try {
             profile.saveProfile(this.conn);
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to save profile", ex);
+            throw new RuntimeException("Failed to save profile information in database", ex);
         }
         LOG.info("Finished generating data for all tables");
     }
@@ -237,6 +227,16 @@ public class AuctionMarkLoader extends Loader {
         
         while (generator.hasMore()) {
             generator.generateBatch();
+            
+//            StringBuilder sb = new StringBuilder();
+//            if (tableName.equalsIgnoreCase("USER_FEEDBACK")) { //  || tableName.equalsIgnoreCase("USER_ATTRIBUTES")) {
+//                sb.append(tableName + "\n");
+//                for (int i = 0; i < volt_table.size(); i++) {
+//                    sb.append(String.format("[%03d] %s\n", i, StringUtil.abbrv(Arrays.toString(volt_table.get(i)), 100)));
+//                }
+//                LOG.debug(sb.toString() + "\n");
+//            }
+            
             for (Object row[] : volt_table) {
                 for (int i = 0; i < row.length; i++) {
                     stmt.setObject(i+1, row[i]);
@@ -249,6 +249,11 @@ public class AuctionMarkLoader extends Loader {
             
             this.tableSizes.put(tableName, volt_table.size());
         } // WHILE
+        
+        // Release anything to the sub-generators if we have it
+        // We have to do this to ensure that all of the parent tuples get
+        // insert first for foreign-key relationships
+        generator.releaseHoldsToSubTableGenerators();
         
         // Mark as finished
         if (this.fail == false) {
@@ -281,6 +286,8 @@ public class AuctionMarkLoader extends Loader {
          */
         protected final Set<SubTableGenerator<?>> sub_generators = new HashSet<SubTableGenerator<?>>();  
 
+        protected final List<Object> subGenerator_hold = new ArrayList<Object>();
+        
         protected long count = 0;
         
         /** Any column with the name XX_SATTR## will automatically be filled with a random string */
@@ -394,14 +401,20 @@ public class AuctionMarkLoader extends Loader {
             return ((T)this);
         }
         @SuppressWarnings("unchecked")
+        public void releaseHoldsToSubTableGenerators() {
+            if (this.subGenerator_hold.isEmpty() == false) {
+                for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
+                    sub_generator.queue.addAll(this.subGenerator_hold);
+                } // FOR
+                this.subGenerator_hold.clear();
+            }
+        }
         public void updateSubTableGenerators(Object obj) {
             // Queue up this item for our multi-threaded sub-generators
             if (LOG.isTraceEnabled())
                 LOG.trace(String.format("%s: Updating %d sub-generators with %s: %s",
                                         this.tableName, this.sub_generators.size(), obj, this.sub_generators));
-            for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
-                sub_generator.queue(obj);
-            } // FOR
+            this.subGenerator_hold.add(obj);
         }
         public boolean hasSubTableGenerators() {
             return (!this.sub_generators.isEmpty());
@@ -496,10 +509,11 @@ public class AuctionMarkLoader extends Loader {
             int cols = this.populateRow(row);
             
             // RANDOM COLS
-            cols += populateRandomColumns(row);
+            cols += this.populateRandomColumns(row);
             
-            assert(cols == this.catalog_tbl.getColumnCount()) : String.format("Invalid number of columns for %s [expected=%d, actual=%d]",
-                                                                        this.tableName, this.catalog_tbl.getColumnCount(), cols);
+            assert(cols == this.catalog_tbl.getColumnCount()) : 
+                String.format("Invalid number of columns for %s [expected=%d, actual=%d]",
+                              this.tableName, this.catalog_tbl.getColumnCount(), cols);
             
             // Convert all CompositeIds into their long encodings
             for (int i = 0; i < cols; i++) {
@@ -888,9 +902,11 @@ public class AuctionMarkLoader extends Loader {
             // UA_U_ID
             row[col++] = user_id;
             // UA_NAME
-            row[col++] = profile.rng.astring(5, 32);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_NAME_LENGTH_MIN,
+                                             AuctionMarkConstants.USER_ATTRIBUTE_NAME_LENGTH_MAX);
             // UA_VALUE
-            row[col++] = profile.rng.astring(5, 32);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MIN,
+                                             AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MAX);
             // U_CREATED
             row[col++] = new Date(System.currentTimeMillis());
             
@@ -907,9 +923,6 @@ public class AuctionMarkLoader extends Loader {
          * BidDurationDay -> Pair<NumberOfBids, NumberOfWatches>
          */
         private final Map<Long, Pair<Zipf, Zipf>> item_bid_watch_zipfs = new HashMap<Long, Pair<Zipf,Zipf>>();
-        
-        /** End date distribution */
-        private final Histogram<String> endDateHistogram = new Histogram<String>();
         
         public ItemGenerator() {
             super(AuctionMarkConstants.TABLENAME_ITEM,
@@ -1027,12 +1040,6 @@ public class AuctionMarkLoader extends Loader {
 
             this.updateSubTableGenerators(itemInfo);
             return (col);
-        }
-        
-        @Override
-        public void markAsFinished() {
-            super.markAsFinished();
-            if (LOG.isDebugEnabled()) LOG.debug("Item End Date Distribution:\n" + this.endDateHistogram);
         }
 
         private Date getRandomStartTimestamp(Date endDate) {
@@ -1371,12 +1378,12 @@ public class AuctionMarkLoader extends Loader {
             
             // UF_ID
             row[col++] = this.count;
+            // UF_U_ID
+            row[col++] = (is_buyer ? bid.bidderId : itemInfo.sellerId);
             // UF_I_ID
             row[col++] = itemInfo.itemId;
             // UF_I_U_ID
             row[col++] = itemInfo.sellerId;
-            // UF_TO_ID
-            row[col++] = (is_buyer ? bid.bidderId : itemInfo.sellerId);
             // UF_FROM_ID
             row[col++] = (is_buyer ? itemInfo.sellerId : bid.bidderId);
             // UF_RATING
@@ -1449,11 +1456,12 @@ public class AuctionMarkLoader extends Loader {
             Histogram<UserId> bidderHistogram = itemInfo.getBidderHistogram();
             UserId buyerId = null;
             try {
-                profile.getRandomBuyerId(bidderHistogram, itemInfo.sellerId);
+                buyerId = profile.getRandomBuyerId(bidderHistogram, itemInfo.sellerId);
             } catch (NullPointerException ex) {
                 LOG.error("Busted Bidder Histogram:\n" + bidderHistogram);
                 throw ex;
             }
+            assert(buyerId != null);
             
             // UW_U_ID
             row[col++] = buyerId;
