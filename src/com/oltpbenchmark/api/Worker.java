@@ -194,15 +194,21 @@ public abstract class Worker implements Runnable {
                     
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
-                    String msg = ex.getMessage();
+                                       
+                    //TODO: Handle acceptable error codes for every DBMS
+                    LOG.info(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
+                        // MySQLTransactionRollbackException
+                        continue;
+                    } 
                     
-                    // ORACLE
-                    if (msg.contains("ORA-08177")) {
-                        // We should just retry the same txn
+                    if (ex.getMessage().contains("ORA-08177")) {
+                        // Oracle
                         continue;
                     }
                     // UNKNOWN: Just rethrow it!
                     else {
+                        LOG.fatal(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
                         throw ex;
                     }
                 }

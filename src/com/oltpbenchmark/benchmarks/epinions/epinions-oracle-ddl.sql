@@ -44,7 +44,7 @@ CREATE TABLE "review_rating" (
 CREATE TABLE "trust" (
   source_u_id number(11,0) NOT NULL REFERENCES "user" (u_id),
   target_u_id number(11,0) NOT NULL REFERENCES "user" (u_id),
-  "trust" number(11,0) NOT NULL,
+  trust number(11,0) NOT NULL,
   creation_date date DEFAULT NULL
 );
 

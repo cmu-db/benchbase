@@ -49,7 +49,6 @@ public class WikipediaWorker extends Worker {
     @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
         WikipediaOperation t = generator.nextTransaction();
-        //System.out.println("[Executing] "+nextTransaction.getProcedureClass());
         if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
             addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
         } else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
@@ -61,7 +60,6 @@ public class WikipediaWorker extends Worker {
         } else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
             getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
         }
-//        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
     
