@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -125,7 +126,7 @@ public class WikipediaLoader extends Loader {
             pageInsert.setNull(1, java.sql.Types.INTEGER); // page_id (auto_increment)
             pageInsert.setInt(2, namespace); // page_namespace
             pageInsert.setString(3, title); // page_title
-            pageInsert.setString(4, "xxx"); // page_restrictions
+            pageInsert.setString(4, "rxws"); // page_restrictions
             pageInsert.setInt(5, 0); // page_counter
             pageInsert.setInt(6, 0); // page_is_redirect
             pageInsert.setInt(7, 0); // page_is_new
@@ -224,18 +225,20 @@ public class WikipediaLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog("text");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
-        PreparedStatement textInsert = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        System.out.println(sql);
+        PreparedStatement textInsert = this.conn.prepareStatement(sql+" returning old_id",new String[] {"old_id"});
 
         catalog_tbl = this.getTableCatalog("revision");
         assert (catalog_tbl != null);
         sql = SQLUtil.getInsertSQL(catalog_tbl);
-        PreparedStatement revisionInsert = this.conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement revisionInsert = this.conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
         PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
         PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
 
         //
         int k = 1;
+        ZipfianGenerator text_size = new ZipfianGenerator(WikipediaConstants.TEXT,0.5);
         ZipfianGenerator users = new ZipfianGenerator(num_users);
         ZipfianGenerator revisions = new ZipfianGenerator(num_revisions, 1.75);
         for (int page_id = 1; page_id <= num_pages; page_id++) {
@@ -251,7 +254,7 @@ public class WikipediaLoader extends Loader {
 
                 // Insert the text
                 textInsert.setNull(1, java.sql.Types.INTEGER); // old_id (auto_increment)
-                textInsert.setString(2, LoaderUtil.randomStr(LoaderUtil.randomNumber(100, 1000, new Random()))); // old_text
+                textInsert.setString(2, LoaderUtil.randomStr(WikipediaConstants.TEXT-text_size.nextInt())); // old_text
                 textInsert.setString(3, "utf-8"); // old_flags
                 textInsert.setInt(4, page_id); // old_page
                 textInsert.execute();
@@ -263,7 +266,7 @@ public class WikipediaLoader extends Loader {
                     conn.rollback();
                     throw new RuntimeException("Problem inserting new tupels in table `text`");
                 }
-
+                System.out.println("YHOH:"+ nextTextId);
                 // Insert the revision
                 revisionInsert.setNull(1, java.sql.Types.INTEGER); // rev_id (auto_increment)
                 revisionInsert.setInt(2, page_id); // rev_page

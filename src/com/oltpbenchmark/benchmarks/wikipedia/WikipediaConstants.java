@@ -38,6 +38,11 @@ public abstract class WikipediaConstants {
 	public static final int TITLE = 10;
 	
 	/**
+     * Text size
+     */
+    public static final int TEXT = 20000;
+	
+	/**
      * Commit count
      */
 	public static final int configCommitCount = 1000;
