@@ -226,7 +226,7 @@ public class WikipediaLoader extends Loader {
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         System.out.println(sql);
-        PreparedStatement textInsert = this.conn.prepareStatement(sql+" returning old_id",new String[] {"old_id"});
+        PreparedStatement textInsert = this.conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
         catalog_tbl = this.getTableCatalog("revision");
         assert (catalog_tbl != null);
