@@ -22,6 +22,7 @@ CREATE TABLE review (
 );
 CREATE INDEX IDX_RATING_UID ON review (u_id);
 CREATE INDEX IDX_RATING_AID ON review (a_id);
+CREATE INDEX IDX_RATING_IID ON review (i_id);
 
 DROP TABLE IF EXISTS review_rating;
 CREATE TABLE review_rating (
@@ -44,5 +45,5 @@ CREATE TABLE trust (
   trust int NOT NULL,
   creation_date datetime DEFAULT NULL
 );
-CREATE INDEX IDX_TRUST_UID ON trust (source_u_id);
-CREATE INDEX IDX_TRUST_AID ON trust (target_u_id);
+CREATE INDEX IDX_TRUST_SID ON trust (source_u_id);
+CREATE INDEX IDX_TRUST_TID ON trust (target_u_id);
