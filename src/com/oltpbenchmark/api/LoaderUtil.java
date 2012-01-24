@@ -51,6 +51,13 @@ public class LoaderUtil {
 
 	} // end randomStr
 
+	public static String blockBuilder(String piece, int repeat){
+	    String r="<HTML>";
+	    for (int i=0;i<repeat;i++)
+	        r+=piece;
+	    return r+"</HTML>";
+	}
+	
 	public static String randomNStr(Random r, int stringLength) {
 		StringBuilder output = new StringBuilder();
 		char base = '0';

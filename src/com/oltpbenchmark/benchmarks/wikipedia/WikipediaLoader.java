@@ -36,7 +36,6 @@ public class WikipediaLoader extends Loader {
 
     public WikipediaLoader(WikipediaBenchmark benchmark, Connection c) {
         super(benchmark, c);
-        System.out.println("coucou " + this.scaleFactor);
         this.num_users = (int) Math.round(WikipediaConstants.USERS * this.scaleFactor);
         this.num_pages = (int) Math.round(WikipediaConstants.PAGES * this.scaleFactor);
         this.num_revisions = (int) Math.round(WikipediaConstants.REVISIONS * this.scaleFactor);
@@ -225,7 +224,7 @@ public class WikipediaLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog("text");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
-        System.out.println(sql);
+      
         PreparedStatement textInsert = this.conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
         catalog_tbl = this.getTableCatalog("revision");
@@ -238,7 +237,7 @@ public class WikipediaLoader extends Loader {
 
         //
         int k = 1;
-        ZipfianGenerator text_size = new ZipfianGenerator(WikipediaConstants.TEXT,0.5);
+        ZipfianGenerator text_size = new ZipfianGenerator(100);
         ZipfianGenerator users = new ZipfianGenerator(num_users);
         ZipfianGenerator revisions = new ZipfianGenerator(num_revisions, 1.75);
         for (int page_id = 1; page_id <= num_pages; page_id++) {
@@ -254,7 +253,7 @@ public class WikipediaLoader extends Loader {
 
                 // Insert the text
                 textInsert.setNull(1, java.sql.Types.INTEGER); // old_id (auto_increment)
-                textInsert.setString(2, LoaderUtil.randomStr(WikipediaConstants.TEXT-text_size.nextInt())); // old_text
+                textInsert.setString(2, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt()+1)); // old_text
                 textInsert.setString(3, "utf-8"); // old_flags
                 textInsert.setInt(4, page_id); // old_page
                 textInsert.execute();
@@ -266,7 +265,7 @@ public class WikipediaLoader extends Loader {
                     conn.rollback();
                     throw new RuntimeException("Problem inserting new tupels in table `text`");
                 }
-                System.out.println("YHOH:"+ nextTextId);
+
                 // Insert the revision
                 revisionInsert.setNull(1, java.sql.Types.INTEGER); // rev_id (auto_increment)
                 revisionInsert.setInt(2, page_id); // rev_page
