@@ -31,7 +31,7 @@ public abstract class Worker implements Runnable {
 	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
 	protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<Class<? extends Procedure>, Procedure>();
 	
-	public Worker(int id, BenchmarkModule benchmarkModule) {
+	public Worker(BenchmarkModule benchmarkModule, int id) {
 		this.id = id;
 		this.benchmarkModule = benchmarkModule;
 		this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
@@ -90,11 +90,13 @@ public abstract class Worker implements Runnable {
 
 	@Override
 	public final void run() {
-		// TODO: Make this an interface; move code to class to prevent reuse
 		// In case of reuse reset the measurements
 		latencies = new LatencyRecord(testState.getTestStartNs());
 		boolean isRateLimited = testState.isRateLimited();
 
+		// Invoke the initialize callback
+		this.initialize();
+		
 		// wait for start
 		testState.blockForStart();
 
@@ -212,6 +214,13 @@ public abstract class Worker implements Runnable {
         return (next);
 	}
 
+	/**
+	 * 
+	 */
+	protected void initialize() {
+	   // The default is to do nothing 
+	}
+	
     /**
      * Invoke a single transaction for the given TransactionType
      * @param txnType

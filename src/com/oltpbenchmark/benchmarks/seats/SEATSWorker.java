@@ -322,14 +322,18 @@ public class SEATSWorker extends Worker {
     // -----------------------------------------------------------------
 
     public SEATSWorker(int id, SEATSBenchmark benchmark) {
-        super(id, benchmark);
+        super(benchmark, id);
 
         this.rng = benchmark.getRandomGenerator();
         this.profile = new SEATSProfile(benchmark, rng); 
     }
     
-    private void initialize() throws SQLException {
-        this.profile.loadProfile(this.conn);
+    protected void initialize() {
+        try {
+            this.profile.loadProfile(this.conn);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
         if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.profile.airport_max_customer_id);
         
         // Make sure we have the information we need in the BenchmarkProfile
@@ -345,20 +349,16 @@ public class SEATSWorker extends Worker {
         
         // Fire off a FindOpenSeats so that we can prime ourselves
         FindOpenSeats proc = this.getProcedure(FindOpenSeats.class);
-        boolean ret = this.executeFindOpenSeats(proc);
-        assert(ret);
+        try {
+            boolean ret = this.executeFindOpenSeats(proc);
+            assert(ret);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
-        if (this.first.compareAndSet(true, false)) {
-            try {
-                this.initialize();
-            } catch (SQLException ex) {
-                throw new RuntimeException("Failed to initialize SEATSWorker", ex);
-            }
-        }
-        
         Transaction txn = Transaction.get(txnType.getName());
         assert(txn != null) : "Unexpected " + txnType;
         

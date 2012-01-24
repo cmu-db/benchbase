@@ -2,6 +2,7 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -245,10 +246,13 @@ public class AuctionMarkWorker extends Worker {
      * @param args
      */
     public AuctionMarkWorker(int id, AuctionMarkBenchmark benchmark) {
-        super(id, benchmark);
-
-        // BenchmarkProfile
-        profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
+        super(benchmark, id);
+        this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
+    }
+    
+    @Override
+    protected void initialize() {
+        // Load BenchmarkProfile
         try {
             profile.loadProfile(this.conn);
         } catch (SQLException ex) {
@@ -333,20 +337,29 @@ public class AuctionMarkWorker extends Worker {
      * stored in that row. 
      * @param vt
      * @return
+     * @see AuctionMarkConstants.ITEM_COLUMNS
      * @see CloseAuctions
+     * @see GetItem
      * @see GetUserInfo
      * @see NewBid
      * @see NewItem
      * @see NewPurchase
      */
+    @SuppressWarnings("unused")
     public ItemId processItemRecord(Object row[]) {
         int col = 0;
         ItemId i_id = new ItemId((Long)row[col++]);             // i_id
         long i_u_id = (Long)row[col++];                         // i_u_id
+        String i_name = (String)row[col++];                     // i_name
         double i_current_price = (Double)row[col++];            // i_current_price
         long i_num_bids = (Long)row[col++];                     // i_num_bids
-        Date i_end_date = (Date)row[col++];                     // i_end_date
-        ItemStatus i_status = ItemStatus.get((Long)row[col++]); // i_status
+        Date i_end_date = null;                                 // i_end_date
+        if (row[col] instanceof Timestamp) {
+            i_end_date = new Date(((Timestamp)row[col++]).getTime());
+        } else {
+            i_end_date = (Date)row[col++];
+        }
+        ItemStatus i_status = ItemStatus.get((Integer)row[col++]); // i_status
         
         ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, (int)i_num_bids);
         itemInfo.status = i_status;
@@ -386,7 +399,7 @@ public class AuctionMarkWorker extends Worker {
         List<Object[]> results = proc.run(conn, benchmarkTimes, startTime, endTime);
         conn.commit();
         
-        assert (null != results && results.size() > 0);
+        assert(null != results);
         for (Object row[] : results) {
             ItemId itemId = this.processItemRecord(row);
             assert(itemId != null);
@@ -487,7 +500,7 @@ public class AuctionMarkWorker extends Worker {
         // ITEM Result Tables
         for ( ; idx < results.length; idx++) {
             vt = results[idx];
-            assert(vt != null);
+            if (vt == null) continue;
             for (Object row[] : vt) {
                 ItemId itemId = this.processItemRecord(row);
                 assert(itemId != null);

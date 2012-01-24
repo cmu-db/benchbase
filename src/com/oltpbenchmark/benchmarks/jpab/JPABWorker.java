@@ -20,7 +20,7 @@ public class JPABWorker extends Worker{
 	public EntityManager em;
 
 	public JPABWorker(int id, BenchmarkModule benchmarkModule) {
-		super(id, benchmarkModule);
+		super(benchmarkModule, id);
 		// Connections are managed by JPA .. 
 		// No need to keep this
 		try {

@@ -155,6 +155,19 @@ public abstract class AuctionMarkConstants {
      */
     public static final int CLOSE_AUCTIONS_ITEMS_PER_ROUND = 100;
     
+    /**
+     * The default list of columns that we will return whenever we
+     * query the item table. This must match the ordering expected
+     * in AuctionMarkWorker.processItemRecord()
+     */
+    public static final String ITEM_COLUMNS = "i_id, " +
+            "i_u_id, " +
+            "i_name, " + 
+            "i_current_price, " +
+            "i_num_bids, " +
+            "i_end_date, " +
+            "i_status ";
+    
     // ----------------------------------------------------------------
     // DEFAULT BATCH SIZES
     // ----------------------------------------------------------------
@@ -301,4 +314,5 @@ public abstract class AuctionMarkConstants {
     
     /** The probability that a NewBid txn will target an item whose auction is ending soon (1-100) */
     public static final int PROB_NEWBID_ENDINGSOON_ITEM = 50;
+
 }

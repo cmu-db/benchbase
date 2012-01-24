@@ -42,7 +42,7 @@ public class TwitterWorker extends Worker {
     public static int LIMIT_FOLLOWERS = 20;
 
     public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
-        super(id, benchmarkModule);
+        super(benchmarkModule, id);
         this.generator = generator;
     }
 

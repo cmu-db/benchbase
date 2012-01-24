@@ -72,7 +72,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		List<Worker> workers = new ArrayList<Worker>();
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			// XXX workers.add(new SEATSWorker(i, this));
+			workers.add(new AuctionMarkWorker(i, this));
 		} // FOR
 		return (workers);
 	}

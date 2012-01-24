@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<parameters>
+    <driver>org.sqlite.JDBC</driver>
+    <DBUrl>jdbc:sqlite:/tmp/auctionmark.db</DBUrl>
+    <DBName>auctionmark</DBName>
+    <terminals>1</terminals>
+  
+    <transactiontypes>
+        <transactiontype>
+                <name>GetItem</name>
+        </transactiontype>
+        <transactiontype>
+                <name>GetUserInfo</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NewBid</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NewComment</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NewCommentResponse</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NewFeedback</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NewItem</name>
+        </transactiontype>
+        <transactiontype>
+                <name>NewPurchase</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdateItem</name>
+        </transactiontype>
+    </transactiontypes>
+    
+    <works>
+        <work>
+            <time>10</time>
+            <rate>200</rate>
+            <weights>25, 15, 20, 5, 5, 5, 10, 5, 10</weights>
+        </work>
+    </works>
+</parameters>

@@ -26,7 +26,7 @@ public class YCSBWorker extends Worker {
     private ZipfianGenerator randScan;
 
     public YCSBWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
-        super(id, benchmarkModule);
+        super(benchmarkModule, id);
         readRecord = new ZipfianGenerator(init_record_count);// pool for read
                                                              // keys
         insertRecord = new CounterGenerator(init_record_count);// we must know

@@ -58,7 +58,7 @@ public class ResourceStresserWorker extends Worker {
                                                     // every time!
 
     public ResourceStresserWorker(int id, ResourceStresserBenchmark benchmarkModule) {
-        super(id, benchmarkModule);
+        super(benchmarkModule, id);
     }
 
     @Override

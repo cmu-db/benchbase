@@ -166,7 +166,9 @@ public class NewPurchase extends Procedure {
             // ITEM ID
             item_id,
             // SELLER ID
-            seller_id, 
+            seller_id,
+            // ITEM_NAME
+            null,
             // CURRENT PRICE
             i_current_price,
             // NUM BIDS

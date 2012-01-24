@@ -40,7 +40,7 @@ public class WikipediaWorker extends Worker {
 
 	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule, TransactionGenerator<WikipediaOperation> generator,
 			String userIp,TransactionTypes transTypes) {
-		super(id, benchmarkModule);
+		super(benchmarkModule, id);
 
 		this.generator = generator;
 		this.userIp = userIp;

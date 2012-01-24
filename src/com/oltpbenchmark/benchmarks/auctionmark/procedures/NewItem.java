@@ -253,10 +253,12 @@ public class NewItem extends Procedure {
             item_id,
             // SELLER ID
             seller_id,
+            // ITEM_NAME
+            name,
             // CURRENT PRICE
             initial_price,
             // NUM BIDS
-            0,
+            0l,
             // END DATE
             end_date,
             // STATUS

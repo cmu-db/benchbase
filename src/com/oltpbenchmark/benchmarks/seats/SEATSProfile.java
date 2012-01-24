@@ -282,55 +282,57 @@ public class SEATSProfile {
      * Load the profile information stored in the database
      */
     private static SEATSProfile cachedProfile;
-    protected synchronized final void loadProfile(Connection conn) throws SQLException {
-        // Check whether we have a cached Profile we can copy from
-        if (cachedProfile != null) {
-            if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
-            this.copy(cachedProfile);
-            return;
-        }
-        
-        if (LOG.isDebugEnabled()) LOG.debug("Loading SEATSProfile for the first time");
-        
-        // Otherwise we have to go fetch everything again
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        
-        // CONFIG_PROFILE
-        stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE);
-        rs = stmt.executeQuery();
-        this.loadConfigProfile(rs); 
-        
-        // CONFIG_HISTOGRAMS
-        stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-        rs = stmt.executeQuery();
-        this.loadConfigHistograms(rs);
-        
-        // CODE XREFS
-        String sql[] = {
-            "SELECT CO_ID, CO_CODE_3 FROM " + SEATSConstants.TABLENAME_COUNTRY,
-            "SELECT AP_ID, AP_CODE FROM " + SEATSConstants.TABLENAME_AIRPORT,
-            "SELECT AL_ID, AL_IATA_CODE FROM " + SEATSConstants.TABLENAME_AIRLINE + " WHERE AL_IATA_CODE != ''"      
-        };
-        assert(sql.length == SEATSConstants.CODE_TO_ID_COLUMNS.length);
-        for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
-            stmt = conn.prepareStatement(sql[i]);
+    protected final void loadProfile(Connection conn) throws SQLException {
+        synchronized (SEATSProfile.class) {
+            // Check whether we have a cached Profile we can copy from
+            if (cachedProfile != null) {
+                if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
+                this.copy(cachedProfile);
+                return;
+            }
+            
+            if (LOG.isDebugEnabled()) LOG.debug("Loading SEATSProfile for the first time");
+            
+            // Otherwise we have to go fetch everything again
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+            
+            // CONFIG_PROFILE
+            stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE);
             rs = stmt.executeQuery();
-            String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
-            String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
-            this.loadCodeXref(rs, codeCol, idCol);
-        } // FOR
-        
-        // CACHED FLIGHT IDS
-        stmt = conn.prepareStatement(
-                "SELECT f_id FROM " + SEATSConstants.TABLENAME_FLIGHT +
-                " ORDER BY F_DEPART_TIME DESC ");// + 
-                //" LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS);
-        rs = stmt.executeQuery();
-        this.loadCachedFlights(rs);
-
-        if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
-        cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
+            this.loadConfigProfile(rs); 
+            
+            // CONFIG_HISTOGRAMS
+            stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
+            rs = stmt.executeQuery();
+            this.loadConfigHistograms(rs);
+            
+            // CODE XREFS
+            String sql[] = {
+                "SELECT CO_ID, CO_CODE_3 FROM " + SEATSConstants.TABLENAME_COUNTRY,
+                "SELECT AP_ID, AP_CODE FROM " + SEATSConstants.TABLENAME_AIRPORT,
+                "SELECT AL_ID, AL_IATA_CODE FROM " + SEATSConstants.TABLENAME_AIRLINE + " WHERE AL_IATA_CODE != ''"      
+            };
+            assert(sql.length == SEATSConstants.CODE_TO_ID_COLUMNS.length);
+            for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
+                stmt = conn.prepareStatement(sql[i]);
+                rs = stmt.executeQuery();
+                String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
+                String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
+                this.loadCodeXref(rs, codeCol, idCol);
+            } // FOR
+            
+            // CACHED FLIGHT IDS
+            stmt = conn.prepareStatement(
+                    "SELECT f_id FROM " + SEATSConstants.TABLENAME_FLIGHT +
+                    " ORDER BY F_DEPART_TIME DESC ");// + 
+                    //" LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS);
+            rs = stmt.executeQuery();
+            this.loadCachedFlights(rs);
+    
+            if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
+            cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
+        } // SYNCH
     }
     
     private final void loadConfigProfile(ResultSet vt) throws SQLException {

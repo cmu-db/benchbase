@@ -52,18 +52,6 @@ public class GetUserInfo extends Procedure {
     private static final Logger LOG = Logger.getLogger(GetUserInfo.class);
 
     // -----------------------------------------------------------------
-    // STATIC MEMBERS
-    // -----------------------------------------------------------------
-    
-    private static final String ITEM_COLUMNS = "i_id, " +
-                                               "i_u_id, " +
-                                               "i_name, " + 
-                                               "i_current_price, " +
-                                               "i_num_bids, " +
-                                               "i_end_date, " +
-                                               "i_status ";
-    
-    // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------
     
@@ -83,7 +71,7 @@ public class GetUserInfo extends Procedure {
     );
 
     public final SQLStmt getItemComments = new SQLStmt(
-        "SELECT " + ITEM_COLUMNS + ", " +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS + ", " +
         "       ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created " +
         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " + 
                     AuctionMarkConstants.TABLENAME_ITEM_COMMENT +
@@ -93,14 +81,14 @@ public class GetUserInfo extends Procedure {
     );
     
     public final SQLStmt getSellerItems = new SQLStmt(
-        "SELECT " + ITEM_COLUMNS +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
          " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " +
          "WHERE i_u_id = ? " +
          "ORDER BY i_end_date DESC LIMIT 25 "
     );
     
     public final SQLStmt getBuyerItems = new SQLStmt(
-        "SELECT " + ITEM_COLUMNS +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
          " FROM " + AuctionMarkConstants.TABLENAME_USER_ITEM + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM +
         " WHERE ui_u_id = ? " +
@@ -109,7 +97,7 @@ public class GetUserInfo extends Procedure {
     );
     
     public final SQLStmt getWatchedItems = new SQLStmt(
-        "SELECT " + ITEM_COLUMNS + ", uw_u_id, uw_created " +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS + ", uw_u_id, uw_created " +
           "FROM " + AuctionMarkConstants.TABLENAME_USER_WATCH + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM +
         " WHERE uw_u_id = ? " +
@@ -198,15 +186,18 @@ public class GetUserInfo extends Procedure {
         @SuppressWarnings("unchecked")
         List<Object[]> final_results[] = new List[results.length];
         for (result_idx = 0; result_idx < results.length; result_idx++) {
-            List<Object[]> inner = new ArrayList<Object[]>();
-            int num_cols = results[result_idx].getMetaData().getColumnCount();
-            while (results[result_idx].next()) {
-                Object row[] = new Object[num_cols];
-                for (int i = 0; i < num_cols; i++) {
-                    row[i] = results[result_idx].getObject(i+1);
-                } // FOR
-                inner.add(row);
-            } // WHILE
+            List<Object[]> inner = null; 
+            if (results[result_idx] != null) {
+                inner = new ArrayList<Object[]>();
+                int num_cols = results[result_idx].getMetaData().getColumnCount();
+                while (results[result_idx].next()) {
+                    Object row[] = new Object[num_cols];
+                    for (int i = 0; i < num_cols; i++) {
+                        row[i] = results[result_idx].getObject(i+1);
+                    } // FOR
+                    inner.add(row);
+                } // WHILE
+            }
             final_results[result_idx] = inner;
         } // FOR
         

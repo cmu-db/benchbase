@@ -57,7 +57,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
-import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
@@ -274,57 +273,59 @@ public class AuctionMarkProfile {
      * Load the profile information stored in the database
      * @param 
      */
-    protected synchronized void loadProfile(Connection conn) throws SQLException {
-        // Check whether we have a cached Profile we can copy from
-        if (cachedProfile != null) {
-            if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
-            this.copyProfile(cachedProfile);
-            return;
-        }
-        
-        if (LOG.isDebugEnabled())
-            LOG.debug("Loading AuctionMarkProfile for the first time");
-        
-        
-        // Otherwise we have to go fetch everything again
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        
-        // CONFIG_PROFILE
-        stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE);
-        rs = stmt.executeQuery();
-        this.loadConfigProfile(rs);
-        
-        // IMPORTANT: We need to set these timestamps here. It must be done
-        // after we have loaded benchmarkStartTime
-        this.setAndGetClientStartTime();
-        this.updateAndGetCurrentTime();
-        
-        // ITEM CATEGORY COUNTS
-        stmt = conn.prepareStatement("SELECT i_c_id, COUNT(i_id) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " GROUP BY i_c_id");
-        rs = stmt.executeQuery();
-        this.loadItemCategoryCounts(rs);
-
-        // ITEMS
-        stmt = conn.prepareStatement("SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
-                                     "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
-                                     " WHERE i_status = ? " +
-                                     " ORDER BY i_iattr0 " +
-                                     " LIMIT " + AuctionMarkConstants.ITEM_ID_CACHE_SIZE);
-        for (ItemStatus status : ItemStatus.values()) {
-            if (status.isInternal()) continue;
-            int param = 1;
-            stmt.setInt(param++, status.ordinal());
+    protected void loadProfile(Connection conn) throws SQLException {
+        synchronized (AuctionMarkProfile.class) {
+            // Check whether we have a cached Profile we can copy from
+            if (cachedProfile != null) {
+                if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
+                this.copyProfile(cachedProfile);
+                return;
+            }
+            
+            if (LOG.isDebugEnabled())
+                LOG.debug("Loading AuctionMarkProfile for the first time");
+            
+            
+            // Otherwise we have to go fetch everything again
+            PreparedStatement stmt = null;
+            ResultSet rs = null;
+            
+            // CONFIG_PROFILE
+            stmt = conn.prepareStatement("SELECT * FROM " + AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
             rs = stmt.executeQuery();
-            this.loadItems(rs, status);
-        } // FOR
-        
-        // GLOBAL_ATTRIBUTE_GROUPS
-        stmt = conn.prepareStatement("SELECT gag_id FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
-        rs = stmt.executeQuery();
-        this.loadGlobalAttributeGroups(rs);
-        
-        cachedProfile = this;
+            this.loadConfigProfile(rs);
+            
+            // IMPORTANT: We need to set these timestamps here. It must be done
+            // after we have loaded benchmarkStartTime
+            this.setAndGetClientStartTime();
+            this.updateAndGetCurrentTime();
+            
+            // ITEM CATEGORY COUNTS
+            stmt = conn.prepareStatement("SELECT i_c_id, COUNT(i_id) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " GROUP BY i_c_id");
+            rs = stmt.executeQuery();
+            this.loadItemCategoryCounts(rs);
+    
+            // ITEMS
+            stmt = conn.prepareStatement("SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
+                                         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
+                                         " WHERE i_status = ? " +
+                                         " ORDER BY i_iattr0 " +
+                                         " LIMIT " + AuctionMarkConstants.ITEM_ID_CACHE_SIZE);
+            for (ItemStatus status : ItemStatus.values()) {
+                if (status.isInternal()) continue;
+                int param = 1;
+                stmt.setInt(param++, status.ordinal());
+                rs = stmt.executeQuery();
+                this.loadItems(rs, status);
+            } // FOR
+            
+            // GLOBAL_ATTRIBUTE_GROUPS
+            stmt = conn.prepareStatement("SELECT gag_id FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
+            rs = stmt.executeQuery();
+            this.loadGlobalAttributeGroups(rs);
+            
+            cachedProfile = this;
+        } // SYNCH
     }
     
     private final void loadConfigProfile(ResultSet vt) throws SQLException {
@@ -467,11 +468,10 @@ public class AuctionMarkProfile {
      * 
      * @param min_item_count
      * @param client
-     * @param skew
      * @param exclude
      * @return
      */
-    private UserId getRandomUserId(int min_item_count, Integer client, boolean skew, UserId...exclude) {
+    private UserId getRandomUserId(int min_item_count, Integer client, UserId...exclude) {
         if (this.randomItemCount == null) {
             synchronized (this) {
                 if (this.randomItemCount == null)
@@ -527,16 +527,12 @@ public class AuctionMarkProfile {
             }
             
             // If we don't care about skew, then we're done right here
-            if (skew == false) {
-                if (LOG.isTraceEnabled()) LOG.trace("Selected " + user_id);
-                break;
-            }
-            if (LOG.isTraceEnabled()) LOG.trace("Skipping " + user_id);
-            user_id = null;
+            if (LOG.isTraceEnabled()) LOG.trace("Selected " + user_id);
+            break;
         } // WHILE
         assert(user_id != null) : String.format("Failed to select a random UserId " +
-                                                "[min_item_count=%d, client=%d, skew=%s, exclude=%s, totalPossible=%d, currentPosition=%d]",
-                                                min_item_count, client, skew, Arrays.toString(exclude),
+                                                "[min_item_count=%d, client=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
+                                                min_item_count, client, Arrays.toString(exclude),
                                                 gen.getTotalUsers(), gen.getCurrentPosition());
         
         return (user_id);
@@ -548,7 +544,7 @@ public class AuctionMarkProfile {
      */
     public UserId getRandomBuyerId(UserId...exclude) {
         // We don't care about skewing the buyerIds at this point, so just get one from getRandomUserId
-        return (this.getRandomUserId(0, null, false, exclude));
+        return (this.getRandomUserId(0, null, exclude));
     }
     /**
      * Gets a random buyer ID for the given client
@@ -556,7 +552,7 @@ public class AuctionMarkProfile {
      */
     public UserId getRandomBuyerId(int client, UserId...exclude) {
         // We don't care about skewing the buyerIds at this point, so just get one from getRandomUserId
-        return (this.getRandomUserId(0, client, false, exclude));
+        return (this.getRandomUserId(0, client, exclude));
     }
     /**
      * Get a random buyer UserId, where the probability that a particular user is selected
@@ -589,7 +585,7 @@ public class AuctionMarkProfile {
      * @return
      */
     public UserId getRandomSellerId(int client) {
-        return (this.getRandomUserId(1, client, true));
+        return (this.getRandomUserId(1, client));
     }
     
     // ----------------------------------------------------------------

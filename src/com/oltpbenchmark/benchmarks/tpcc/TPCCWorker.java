@@ -71,7 +71,7 @@ public class TPCCWorker extends Worker {
 			TPCCBenchmark benchmarkModule, SimplePrinter terminalOutputArea,
 			SimplePrinter errorOutputArea, int numWarehouses)
 			throws SQLException {
-		super(terminalId.getAndIncrement(), benchmarkModule);
+		super(benchmarkModule, terminalId.getAndIncrement());
 		
 		this.terminalName = terminalName;
 

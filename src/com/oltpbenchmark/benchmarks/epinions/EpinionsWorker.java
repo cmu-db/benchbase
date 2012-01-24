@@ -45,7 +45,7 @@ public class EpinionsWorker extends Worker {
     private final Random rand = new Random(System.currentTimeMillis());
 
     public EpinionsWorker(int id, EpinionsBenchmark benchmarkModule, ArrayList<String> user_ids, ArrayList<String> item_ids) {
-        super(id, benchmarkModule);
+        super(benchmarkModule, id);
         this.user_ids = user_ids;
         this.item_ids = item_ids;
     }

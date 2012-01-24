@@ -267,6 +267,8 @@ public class NewBid extends Procedure {
             item_id,
             // SELLER_ID
             seller_id,
+            // ITEM_NAME
+            null, // ignore
             // CURRENT PRICE
             i_current_price,
             // NUM BIDS

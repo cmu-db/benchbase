@@ -74,9 +74,10 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     public void testExecuteWork() throws Exception {
         this.benchmark.createDatabase();
         this.benchmark.loadDatabase();
-        
+
         Worker w = workers.get(0);
         assertNotNull(w);
+        w.initialize();
         for (TransactionType txnType : this.workConf.getTransTypes()) {
             try {
                 // Bombs away!
@@ -85,6 +86,8 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored
                 // Anything else is a serious error
+            } catch (Throwable ex) {
+                throw new RuntimeException("Failed to execute " + txnType, ex);
             }
         } // FOR
     }
