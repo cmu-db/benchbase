@@ -253,7 +253,7 @@ public class WikipediaLoader extends Loader {
 
                 // Insert the text
                 textInsert.setNull(1, java.sql.Types.INTEGER); // old_id (auto_increment)
-                textInsert.setString(2, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt()+1)); // old_text
+                textInsert.setString(2, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt())); // old_text
                 textInsert.setString(3, "utf-8"); // old_flags
                 textInsert.setInt(4, page_id); // old_page
                 textInsert.execute();
