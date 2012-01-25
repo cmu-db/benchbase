@@ -159,10 +159,10 @@ public abstract class SEATSConstants {
     public static final int PROB_UPDATE_FREQUENT_FLYER = 25;
     
     /** Probability that a new Reservation will be added to the DeleteReservation queue */
-    public static final int PROB_DELETE_NEW_RESERVATION = 10;
+    public static final int PROB_DELETE_RESERVATION = 50;
     
     /** Probability that a new Reservation will be added to the UpdateReservation queue */
-    public static final int PROB_UPDATE_NEW_RESERVATION = 25;
+    public static final int PROB_UPDATE_RESERVATION = 50;
 
     /** Probability that a deleted Reservation will be requeued for another NewReservation call */
     public static final int PROB_REQUEUE_DELETED_RESERVATION = 90;

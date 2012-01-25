@@ -91,7 +91,7 @@ public class UpdateReservation extends Procedure {
         ReserveSeat3,
     };
     
-    public void run(Connection conn, long r_id, long c_id, long f_id, long seatnum, long attr_idx, long attr_val) throws SQLException {
+    public void run(Connection conn, long r_id, long f_id, long c_id, long seatnum, long attr_idx, long attr_val) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
         assert(attr_idx >= 0);
         assert(attr_idx < ReserveSeats.length);

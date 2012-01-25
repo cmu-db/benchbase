@@ -84,8 +84,8 @@
         <condition property="load" value="false">
             <not><isset property="load"/></not>
         </condition>
-        <condition property="execute" value="true">
-            <not><isset property="execute"/></not>
+        <condition property="extra" value="">
+            <not><isset property="extra"/></not>
         </condition>
         
         <java fork="yes" failonerror="true" classname="com.oltpbenchmark.DBWorkload">
@@ -98,6 +98,7 @@
         	<arg line="--create ${clear}" />
             <arg line="--load ${load}" />
             <arg line="--execute ${execute}" />
+        	<arg line="${extra}" />
             <classpath refid='project.classpath' />
             <assertions><enable/></assertions>
         </java>

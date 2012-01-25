@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -148,7 +149,8 @@ public class DBWorkload {
     		INIT_LOG.info("Driver = "+ wrkld.getDBDriver());
     		INIT_LOG.info("URL = "+ wrkld.getDBConnection());
     		INIT_LOG.info("Isolation mode = "+ xmlConfig.getString("isolation","TRANSACTION_SERIALIZABLE [DEFAULT]"));
-			int size = xmlConfig.configurationsAt("works.work").size();
+			
+    		int size = xmlConfig.configurationsAt("works.work").size();
 			for (int i = 0; i < size; i++){
 			
 				if((int) xmlConfig.getInt("works.work(" + i + ").rate")<1)
@@ -201,7 +203,7 @@ public class DBWorkload {
             printUsage(options);
             return;
         }
-		
+		INIT_LOG.info(SINGLE_LINE);
 
         // Load TransactionTypes
         List<TransactionType> ttypes = new ArrayList<TransactionType>();
@@ -226,7 +228,6 @@ public class DBWorkload {
 		
 		// Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
-    		CREATE_LOG.info(SINGLE_LINE);
         	CREATE_LOG.info("Creating new " + bench.getBenchmarkName().toUpperCase() + " database...");
             runCreator(bench, verbose);
             CREATE_LOG.info("Finished!");
@@ -234,9 +235,10 @@ public class DBWorkload {
         else if (CREATE_LOG.isDebugEnabled()) {
         	CREATE_LOG.debug("Skipping creating benchmark database tables");
         }
+        CREATE_LOG.info(SINGLE_LINE);
+        
         // Clear the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "clear")) {
-            CREATE_LOG.info(SINGLE_LINE);
             CREATE_LOG.info("Resetting " + bench.getBenchmarkName().toUpperCase() + " database...");
             bench.clearDatabase();
             CREATE_LOG.info("Finished!");
@@ -244,10 +246,10 @@ public class DBWorkload {
         else if (CREATE_LOG.isDebugEnabled()) {
             CREATE_LOG.debug("Skipping creating benchmark database tables");
         }
+        CREATE_LOG.info(SINGLE_LINE);
 		
 		// Execute Loader
         if (isBooleanOptionSet(argsLine, "load")) {
-    		LOAD_LOG.info(SINGLE_LINE);
     		LOAD_LOG.info("Loading data into " + bench.getBenchmarkName().toUpperCase() + " database...");
 		    runLoader(bench, verbose);
 		    LOAD_LOG.info("Finished!");
@@ -255,27 +257,31 @@ public class DBWorkload {
         else if (LOAD_LOG.isDebugEnabled()) {
         	LOAD_LOG.debug("Skipping loading benchmark database records");
         }
-		
+        LOAD_LOG.info(SINGLE_LINE);
+        
 		// Execute Workload
         if (isBooleanOptionSet(argsLine, "execute")) {
     		// Bombs away!
     		Results r = runWorkload(bench, verbose);
+    		
             PrintStream ps = System.out;
             PrintStream rs = System.out;
-            EXEC_LOG.info(SINGLE_LINE);
-            if (argsLine.hasOption("o"))
-            {
-                ps = new PrintStream(new File(argsLine.getOptionValue("o")+".res"));
-                EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o")+".res");
-                
-                rs = new PrintStream(new File(argsLine.getOptionValue("o")+".raw"));
-                EXEC_LOG.info("Output Raw data into file: " + argsLine.getOptionValue("o")+".raw");
+            if (argsLine.hasOption("o")) {
+                ps = new PrintStream(new File(argsLine.getOptionValue("o") + ".res"));
+                EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o") + ".res");
+
+                rs = new PrintStream(new File(argsLine.getOptionValue("o") + ".raw"));
+                EXEC_LOG.info("Output Raw data into file: " + argsLine.getOptionValue("o") + ".raw");
+            } else if (EXEC_LOG.isDebugEnabled()) {
+                EXEC_LOG.debug("No output file specified");
             }
             if (argsLine.hasOption("s")) {
                 int windowSize = Integer.parseInt(argsLine
                         .getOptionValue("s"));
-                EXEC_LOG.info("Grouped into Buckets of "+ windowSize + " seconds");
+                EXEC_LOG.warn("Grouped into Buckets of "+ windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
+            } else if (EXEC_LOG.isDebugEnabled()) {
+                EXEC_LOG.warn("No bucket size specified");
             }
             
             r.writeAllCSVAbsoluteTiming(rs);
@@ -298,7 +304,7 @@ public class DBWorkload {
 	}
 	
 	private static Results runWorkload(BenchmarkModule bench, boolean verbose) throws QueueLimitException, IOException {
-		EXEC_LOG.info("Creating "+ bench.getWorkloadConfiguration().getTerminals()+" virtual terminals .. ");
+		EXEC_LOG.info("Creating "+ bench.getWorkloadConfiguration().getTerminals()+" virtual terminals...");
 		List<Worker> workers = bench.makeWorkers(verbose);
 //		EXEC_LOG.info("done.");
 		EXEC_LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
