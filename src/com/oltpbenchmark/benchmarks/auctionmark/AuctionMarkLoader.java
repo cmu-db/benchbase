@@ -156,6 +156,11 @@ public class AuctionMarkLoader extends Loader {
             Thread t = new Thread(generator);
             t.setName(generator.getTableName());
             t.setUncaughtExceptionHandler(handler);
+            
+            // Call init() before we start!
+            // This will setup non-data related dependencies
+            generator.init();
+            
             threads.add(t);
         } // FOR
         assert(threads.size() > 0);
@@ -364,6 +369,11 @@ public class AuctionMarkLoader extends Loader {
         public abstract void init();
         
         /**
+         * Prepare to generate tuples
+         */
+        public abstract void prepare();
+        
+        /**
          * All sub-classes must implement this. This will enter new tuple data into the row
          * @param row TODO
          */
@@ -384,8 +394,8 @@ public class AuctionMarkLoader extends Loader {
                 }
             } // FOR
             
-            // Make sure we call init first before starting any thread
-            this.init();
+            // Make sure we call prepare before we start generating table data
+            this.prepare();
             
             // Then invoke the loader generation method
             try {
@@ -403,6 +413,8 @@ public class AuctionMarkLoader extends Loader {
         @SuppressWarnings("unchecked")
         public void releaseHoldsToSubTableGenerators() {
             if (this.subGenerator_hold.isEmpty() == false) {
+                LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators",
+                                        this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
                 for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
                     sub_generator.queue.addAll(this.subGenerator_hold);
                 } // FOR
@@ -536,10 +548,13 @@ public class AuctionMarkLoader extends Loader {
                 this.addRow();
                 batch_count++;
             } // WHILE
-            if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
         }
 
         public void markAsFinished() {
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("%s: Marking as finished", this.tableName));
         	this.latch.countDown();
             for (SubTableGenerator<?> sub_generator : this.sub_generators) {
                 sub_generator.stopWhenEmpty();
@@ -580,11 +595,9 @@ public class AuctionMarkLoader extends Loader {
         protected abstract short getElementCounter(T t);
         protected abstract int populateRow(T t, Object[] row, short remaining);
         
-        public void queue(T t) {
-            assert(this.queue.contains(t) == false) : "Trying to queue duplicate element for '" + this.getTableName() + "'";
-            this.queue.add(t);
-        }
         public void stopWhenEmpty() {
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("%s: Will stop when queue is empty", this.getTableName()));
             this.stop = true;
         }
         
@@ -597,6 +610,10 @@ public class AuctionMarkLoader extends Loader {
             
             this.current = null;
             this.currentCounter = 0;
+        }
+        @Override
+        public void prepare() {
+            // Nothing to do...
         }
         @Override
         public final boolean hasMore() {
@@ -654,6 +671,10 @@ public class AuctionMarkLoader extends Loader {
             // Nothing to do
         }
         @Override
+        public void prepare() {
+            // Nothing to do
+        }
+        @Override
         protected int populateRow(Object[] row) {
             int col = 0;
 
@@ -694,6 +715,10 @@ public class AuctionMarkLoader extends Loader {
             } // FOR
         }
         @Override
+        public void prepare() {
+            // Nothing to do
+        }
+        @Override
         protected int populateRow(Object[] row) {
             int col = 0;
 
@@ -726,6 +751,10 @@ public class AuctionMarkLoader extends Loader {
 
         @Override
         public void init() {
+            // Nothing to do
+        }
+        @Override
+        public void prepare() {
             // Grab the number of CATEGORY items that we have inserted
             this.num_categories = getGenerator(AuctionMarkConstants.TABLENAME_CATEGORY).tableSize;
             
@@ -775,6 +804,10 @@ public class AuctionMarkLoader extends Loader {
 
         @Override
         public void init() {
+            // Nothing to do
+        }
+        @Override
+        public void prepare() {
             this.tableSize = 0l;
             for (GlobalAttributeGroupId gag_id : profile.gag_ids) {
                 this.gag_counters.set(gag_id, 0);
@@ -844,6 +877,10 @@ public class AuctionMarkLoader extends Loader {
                 LOG.trace("Users Per Item Count:\n" + profile.users_per_item_count);
             this.idGenerator = new UserIdGenerator(profile.users_per_item_count, benchmark.getWorkloadConfiguration().getTerminals());
             assert(this.idGenerator.hasNext());
+        }
+        @Override
+        public void prepare() {
+            // Nothing to do
         }
         @Override
         public synchronized boolean hasMore() {
