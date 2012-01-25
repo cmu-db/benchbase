@@ -561,19 +561,22 @@ public class SEATSProfile {
      * @return
      */
     public CustomerId getRandomCustomerId() {
-        Long airport_id = null;
         int num_airports = this.airport_max_customer_id.getValueCount();
-        if (LOG.isTraceEnabled()) LOG.trace(String.format("Selecting a random airport with customers [numAirports=%d]", num_airports));
-        while (airport_id == null) {
-            airport_id = (long)this.rng.number(1, num_airports);
-            Long cnt = this.getCustomerIdCount(airport_id); 
-            if (cnt != null) {
-                if (LOG.isTraceEnabled()) LOG.trace(String.format("Selected airport '%s' [numCustomers=%d]", this.getAirportCode(airport_id), cnt));
-                break;
-            }
-            airport_id = null;
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Selecting a random airport with customers [numAirports=%d]", num_airports));
+        CustomerId c_id = null;
+        while (c_id == null) {
+            Long airport_id = (long)this.rng.number(1, num_airports);
+            Long cnt = this.getCustomerIdCount(airport_id);
+            c_id = this.getRandomCustomerId(airport_id);
+//            if (cnt != null) {
+//                if (LOG.isTraceEnabled())
+//                    LOG.trace(String.format("Selected airport '%s' [numCustomers=%d]", this.getAirportCode(airport_id), cnt));
+//                break;
+//            }
+//            airport_id = null;
         } // WHILE
-        return (this.getRandomCustomerId(airport_id));
+        return (c_id);
     }
     
     /**
@@ -600,10 +603,12 @@ public class SEATSProfile {
      */
     public FlightId getRandomFlightId() {
         assert(this.cached_flight_ids.isEmpty() == false);
-        if (LOG.isTraceEnabled()) LOG.trace("Attempting to get a random FlightId");
+        if (LOG.isTraceEnabled())
+            LOG.trace("Attempting to get a random FlightId");
         int idx = rng.nextInt(this.cached_flight_ids.size());
         FlightId flight_id = this.cached_flight_ids.get(idx);
-        if (LOG.isTraceEnabled()) LOG.trace("Got random " + flight_id);
+        if (LOG.isTraceEnabled())
+            LOG.trace("Got random " + flight_id);
         return (flight_id);
     }
     // ----------------------------------------------------------------
@@ -764,11 +769,8 @@ public class SEATSProfile {
     }
     
     public long getNextReservationId(int id) {
-        long base_id = -1;
-        synchronized (this.num_records) {
-            base_id = this.num_records.get(SEATSConstants.TABLENAME_RESERVATION);
-            this.num_records.set(SEATSConstants.TABLENAME_RESERVATION, base_id+1);
-        } // SYNCH
+        long base_id = this.num_records.get(SEATSConstants.TABLENAME_RESERVATION);
+        this.num_records.put(SEATSConstants.TABLENAME_RESERVATION);
         // Offset it by the client id so that we can ensure it's unique
         return (id | base_id<<48);
     }

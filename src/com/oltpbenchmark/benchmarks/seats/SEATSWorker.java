@@ -442,6 +442,10 @@ public class SEATSWorker extends Worker {
         cache.add(r);
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Queued %s for %s [cache=%d]", r, ctype, cache.size()));
+        
+        while (cache.size() > ctype.limit) {
+            cache.remove();
+        }
     }
     
     // -----------------------------------------------------------------
@@ -599,21 +603,26 @@ public class SEATSWorker extends Worker {
         Set<Integer> emptySeats = new HashSet<Integer>();
         Set<CustomerId> pendingCustomers = getPendingCustomers(search_flight);
         for (Object row[] : results) {
+            if (rng.nextInt(100) < 75) continue; // HACK
+            
             FlightId flight_id = new FlightId((Long)row[0]);
             assert(flight_id.equals(search_flight));
             int seatnum = (Integer)row[1];
             long airport_depart_id = flight_id.getDepartAirportId();
           
             // We first try to get a CustomerId based at this departure airport
-            CustomerId customer_id = SEATSWorker.this.profile.getRandomCustomerId(airport_depart_id);
+            if (LOG.isTraceEnabled())
+                LOG.trace("Looking for a random customer to fly on " + flight_id);
+            CustomerId customer_id = profile.getRandomCustomerId(airport_depart_id);
           
             // We will go for a random one if:
             //  (1) The Customer is already booked on this Flight
             //  (2) We already made a new Reservation just now for this Customer
             int tries = SEATSConstants.NUM_SEATS_PER_FLIGHT;
             while (tries-- > 0 && (customer_id == null || pendingCustomers.contains(customer_id) || isCustomerBookedOnFlight(customer_id, flight_id))) {
-                customer_id = SEATSWorker.this.profile.getRandomCustomerId();
-                if (LOG.isTraceEnabled()) LOG.trace("RANDOM CUSTOMER: " + customer_id);
+                customer_id = profile.getRandomCustomerId();
+                if (LOG.isTraceEnabled())
+                    LOG.trace("RANDOM CUSTOMER: " + customer_id);
             } // WHILE
             assert(customer_id != null) :
                 String.format("Failed to find a unique Customer to reserve for seat #%d on %s", seatnum, flight_id);
@@ -621,28 +630,21 @@ public class SEATSWorker extends Worker {
             pendingCustomers.add(customer_id);
             emptySeats.add(seatnum);
             reservations.add(new Reservation(profile.getNextReservationId(getId()), flight_id, customer_id, (int)seatnum));
-            if (LOG.isTraceEnabled()) LOG.trace("QUEUED INSERT: " + flight_id + " / " + flight_id.encode() + " -> " + customer_id);
+            if (LOG.isTraceEnabled())
+                LOG.trace("QUEUED INSERT: " + flight_id + " / " + flight_id.encode() + " -> " + customer_id);
         } // WHILE
       
         if (reservations.isEmpty() == false) {
-            int ctr = 0;
             Collections.shuffle(reservations);
-            List<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
+            LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
             assert(cache != null) : "Unexpected " + CacheType.PENDING_INSERTS;
-//            CacheType.PENDING_INSERTS.lock.lock();
-            try {
-                for (Reservation r : reservations) {
-                    if (cache.contains(r) == false) {
-                        cache.add(r);
-                        ctr++;
-                    }
-                } // FOR
-            } finally {
-//                CacheType.PENDING_INSERTS.lock.unlock();
-            } // SYNCH
+            cache.addAll(reservations);
+            while (cache.size() > SEATSConstants.CACHE_LIMIT_PENDING_INSERTS) {
+                cache.remove();
+            }
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("Stored %d pending inserts for %s [totalPendingInserts=%d]",
-                          ctr, search_flight, cache.size()));
+                          reservations.size(), search_flight, cache.size()));
         }
         BitSet seats = getSeatsBitSet(search_flight);
         for (int i = 0; i < SEATSConstants.NUM_SEATS_PER_FLIGHT; i++) {
@@ -720,7 +722,7 @@ public class SEATSWorker extends Worker {
         seats.set(reservation.seatnum);
         
         // Set it up so we can play with it later
-        SEATSWorker.this.requeueReservation(reservation);
+        this.requeueReservation(reservation);
         
         return (true);
     }
