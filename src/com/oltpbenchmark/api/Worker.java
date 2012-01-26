@@ -201,6 +201,10 @@ public abstract class Worker implements Runnable {
                         // MySQLTransactionRollbackException
                         continue;
                     } 
+                    if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
+                        // SQLServerException Deadlock
+                        continue;
+                    } 
                     
                     if (ex.getMessage().contains("ORA-08177")) {
                         // Oracle

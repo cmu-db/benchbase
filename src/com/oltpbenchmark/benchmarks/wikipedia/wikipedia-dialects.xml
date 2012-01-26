@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="AddWatchList">
+            <statement name="insertWatchList">
+                INSERT INTO [watchlist] (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL) 
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE [user] SET user_touched = ? WHERE user_id =  ?
+            </statement>
+        </procedure>
+        <procedure name="RemoveWatchList">
+            <statement name="removeWatchList">
+                DELETE FROM [watchlist] WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE [user] SET user_touched = ? WHERE user_id =  ? 
+            </statement>
+        </procedure>
+        <procedure name="GetPageAnonymous">
+            <statement name="selectPage">
+                SELECT TOP 1 * FROM page WHERE page_namespace = ? AND page_title = ?
+            </statement>
+            <statement name="selectPageRevision">
+                SELECT TOP 1 * FROM page,revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest)
+            </statement>
+            <statement name="selectText">
+                SELECT TOP 1 old_text,old_flags FROM text WHERE old_id = ?
+            </statement>
+        </procedure>
+        <procedure name="UpdatePage">
+            <statement name="selectUser">
+                SELECT  *  FROM [user]  WHERE user_id = ?
+            </statement>
+            <statement name="updateUserEdit">
+                UPDATE [user] SET user_editcount=user_editcount+1 WHERE user_id = ?
+            </statement>
+            <statement name="updateUserTouched">
+                UPDATE  [user] SET user_touched = ? WHERE user_id = ?
+            </statement>
+        </procedure>
+        <procedure name="GetPageAuthenticated">
+            <statement name="selectUser">
+                SELECT TOP 1  *  FROM [user]  WHERE user_id = ?
+            </statement>
+            <statement name="selectPage">
+                SELECT TOP 1 * FROM page WHERE page_namespace = ? AND page_title = ?
+            </statement>
+            <statement name="selectPageRevision">
+                SELECT TOP 1 * FROM page, revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest)
+            </statement>
+            <statement name="selectText">
+                SELECT TOP 1 old_text,old_flags FROM text WHERE old_id = ?
+            </statement>
+        </procedure>
+    </dialect>
+    <dialect type="Oracle">
+        <procedure name="AddWatchList">
+            <statement name="insertWatchList">
+                INSERT /*+ ignore_row_on_dupkey_index(watchlist(wl_user,wl_namespace,wl_title)) */ INTO watchlist (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL)
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE "user" SET user_touched = ? WHERE user_id =  ?
+            </statement>
+        </procedure>
+        <procedure name="RemoveWatchList">
+            <statement name="removeWatchList">
+                DELETE FROM watchlist WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE "user" SET user_touched = ? WHERE user_id =  ? 
+            </statement>
+        </procedure>
+        <procedure name="GetPageAnonymous">
+            <statement name="selectPage">
+                SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
+            </statement>
+           <statement name="selectPageRevision">
+                SELECT * FROM page,revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest) AND ROWNUM = 1
+            </statement>
+            <statement name="selectText">
+                SELECT old_text,old_flags FROM text WHERE old_id = ? AND ROWNUM = 1
+            </statement>
+        </procedure>
+        <procedure name="UpdatePage">
+            <statement name="selectUser">
+                SELECT  *  FROM "user"  WHERE user_id = ?
+            </statement>
+           <statement name="updateUserEdit">
+                UPDATE "user" SET user_editcount=user_editcount+1 WHERE user_id = ?
+            </statement>
+            <statement name="updateUserTouched">
+                UPDATE  "user" SET user_touched = ? WHERE user_id = ?
+            </statement>
+        </procedure>
+        <procedure name="GetPageAuthenticated">
+            <statement name="selectUser">
+                SELECT * FROM "user"  WHERE user_id = ? AND ROWNUM = 1
+            </statement>
+            <statement name="selectPage">
+                SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
+            </statement>
+            <statement name="selectPageRevision">
+                SELECT * FROM page, revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest) AND ROWNUM = 1
+            </statement>
+            <statement name="selectText">
+                SELECT old_text,old_flags FROM text WHERE old_id = ? AND ROWNUM = 1
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

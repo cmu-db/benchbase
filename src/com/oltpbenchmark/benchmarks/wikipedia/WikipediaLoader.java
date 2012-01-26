@@ -25,9 +25,6 @@ public class WikipediaLoader extends Loader {
 
     private static final Logger LOG = Logger.getLogger(WikipediaLoader.class);
 
-    public String updatePageSql = "UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
-    public String updateUserSql = "UPDATE  `user` SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
-
     private final int num_users;
     private final int num_pages;
     private final int num_revisions;
@@ -67,29 +64,31 @@ public class WikipediaLoader extends Loader {
 
         Table catalog_tbl = this.getTableCatalog("user");
         assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = "INSERT INTO "+catalog_tbl.getEscapedName()+" (user_name,user_real_name,user_password,user_newpassword,user_newpass_time," +
+        		"user_email,user_options,user_touched,user_token,user_email_authenticated" +
+        		",user_email_token,user_email_token_expires,user_registration,user_editcount) " +
+        		" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
 
         int k = 1;
         for (int i = 0; i < num_users; i++) {
             String name = LoaderUtil.randomStr(WikipediaConstants.NAME);
-            userInsert.setNull(1, java.sql.Types.INTEGER); // id (use the
-                                                           // auto_increment)
-            userInsert.setString(2, name); // nickname
-            userInsert.setString(3, name); // real_name
-            userInsert.setString(4, "***"); // password
-            userInsert.setString(5, "***"); // password2
-            userInsert.setString(6, LoaderUtil.getCurrentTime14()); // new_pass
+            userInsert.setString(1, name); // name
+            userInsert.setString(2, name); // real_name
+            userInsert.setString(3, "***"); // password
+            userInsert.setString(4, "***"); // password2
+            userInsert.setString(5, LoaderUtil.getCurrentTime14()); // new_pass
                                                                     // time
-            userInsert.setString(7, "fake_email@test.me"); // user_email
-            userInsert.setString(8, "fake_longoptionslist"); // user_options
-            userInsert.setString(9, LoaderUtil.getCurrentTime14()); // user_touched
-            userInsert.setString(10, LoaderUtil.randomStr(WikipediaConstants.TOKEN)); // user_token
-            userInsert.setNull(11, java.sql.Types.BINARY); // user_email_authenticated
-            userInsert.setNull(12, java.sql.Types.BINARY); // user_email_token
-            userInsert.setNull(13, java.sql.Types.BINARY); // user_email_token_expires
-            userInsert.setNull(14, java.sql.Types.BINARY); // user_registration
-            userInsert.setInt(15, 0); // user_editcount
+            userInsert.setString(6, "fake_email@test.me"); // user_email
+            userInsert.setString(7, "fake_longoptionslist"); // user_options
+            userInsert.setString(8, LoaderUtil.getCurrentTime14()); // user_touched
+            userInsert.setString(9, LoaderUtil.randomStr(WikipediaConstants.TOKEN)); // user_token
+            userInsert.setNull(10, java.sql.Types.VARCHAR); // user_email_authenticated
+            userInsert.setNull(11, java.sql.Types.VARCHAR); // user_email_token
+            userInsert.setNull(12, java.sql.Types.VARCHAR); // user_email_token_expires
+            userInsert.setNull(13, java.sql.Types.VARCHAR); // user_registration
+            userInsert.setInt(14, 0); // user_editcount
             userInsert.addBatch();
             if ((k % 100) == 0) {
                 userInsert.executeBatch();
@@ -111,9 +110,9 @@ public class WikipediaLoader extends Loader {
 
     private void LoadPages() throws SQLException {
 
-        Table catalog_tbl = this.getTableCatalog("page");
-        assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = "INSERT INTO page (page_namespace,page_title,page_restrictions," +
+        		"page_counter,page_is_redirect,page_is_new,page_random,page_touched," +
+        		"page_latest,page_len) VALUES (?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pageInsert = this.conn.prepareStatement(sql);
         
         //
@@ -122,17 +121,16 @@ public class WikipediaLoader extends Loader {
         for (int i = 0; i < num_pages; i++) {
             int namespace = ns.nextInt();
             String title = LoaderUtil.randomStr(WikipediaConstants.TITLE);
-            pageInsert.setNull(1, java.sql.Types.INTEGER); // page_id (auto_increment)
-            pageInsert.setInt(2, namespace); // page_namespace
-            pageInsert.setString(3, title); // page_title
-            pageInsert.setString(4, "rxws"); // page_restrictions
-            pageInsert.setInt(5, 0); // page_counter
-            pageInsert.setInt(6, 0); // page_is_redirect
-            pageInsert.setInt(7, 0); // page_is_new
-            pageInsert.setDouble(8, new Random().nextDouble()); // page_random
-            pageInsert.setString(9, LoaderUtil.getCurrentTime14()); // page_touched
-            pageInsert.setInt(10, 0); // page_latest
-            pageInsert.setInt(11, 0); // page_len
+            pageInsert.setInt(1, namespace); // page_namespace
+            pageInsert.setString(2, title); // page_title
+            pageInsert.setString(3, "rxws"); // page_restrictions
+            pageInsert.setInt(4, 0); // page_counter
+            pageInsert.setInt(5, 0); // page_is_redirect
+            pageInsert.setInt(6, 0); // page_is_new
+            pageInsert.setDouble(7, new Random().nextDouble()); // page_random
+            pageInsert.setString(8, LoaderUtil.getCurrentTime14()); // page_touched
+            pageInsert.setInt(9, 0); // page_latest
+            pageInsert.setInt(10, 0); // page_len
             pageInsert.addBatch();
             titles.add(namespace + " " + title);
             if ((k % 100) == 0) {
@@ -154,9 +152,8 @@ public class WikipediaLoader extends Loader {
     }
 
     private void LoadWatchlist() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("watchlist");
-        assert (catalog_tbl != null);
-        final PreparedStatement watchInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+        
+        final PreparedStatement watchInsert = this.conn.prepareStatement("INSERT INTO watchlist values (?,?,?,?)");
 
         int total = 1;
         int batchSize = 0;
@@ -170,7 +167,7 @@ public class WikipediaLoader extends Loader {
             watchInsert.setInt(1, user_id); // wl_user
             watchInsert.setInt(2, Integer.parseInt(url[0])); // wl_namespace
             watchInsert.setString(3, url[1]); // wl_title
-            watchInsert.setNull(4, java.sql.Types.VARBINARY); // wl_notificationtimestamp
+            watchInsert.setNull(4, java.sql.Types.VARCHAR); // wl_notificationtimestamp
             watchInsert.addBatch();
 
             total++;
@@ -221,17 +218,17 @@ public class WikipediaLoader extends Loader {
 
     private void LoadRevision() throws SQLException {
         // Loading revisions
-        Table catalog_tbl = this.getTableCatalog("text");
-        assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
-      
-        PreparedStatement textInsert = this.conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+  
+        PreparedStatement textInsert = this.conn.prepareStatement("INSERT INTO text (old_text,old_flags,old_page) values (?,?,?)", new int[]{1});
+        
+        PreparedStatement revisionInsert = this.conn.prepareStatement("INSERT INTO revision " +
+        		"(rev_page,rev_text_id,rev_comment,rev_user,rev_user_text,rev_timestamp,rev_minor_edit,rev_deleted,rev_len,rev_parent_id) " +
+        		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", new int[]{1});
 
-        catalog_tbl = this.getTableCatalog("revision");
-        assert (catalog_tbl != null);
-        sql = SQLUtil.getInsertSQL(catalog_tbl);
-        PreparedStatement revisionInsert = this.conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-
+        String updatePageSql = "UPDATE page SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
+        
+        Table catalog_tbl = this.getTableCatalog("user");
+        String updateUserSql = "UPDATE "+catalog_tbl.getEscapedName()+" SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
         PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
         PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
 
@@ -249,14 +246,13 @@ public class WikipediaLoader extends Loader {
                 // revised
                 int user_id = users.nextInt();
                 String new_text = LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
-                String rev_comment = LoaderUtil.randomStr(LoaderUtil.randomNumber(0, 255, new Random()));
+                String rev_comment = LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
 
                 // Insert the text
-                textInsert.setNull(1, java.sql.Types.INTEGER); // old_id (auto_increment)
-                textInsert.setString(2, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt())); // old_text
-                textInsert.setString(3, "utf-8"); // old_flags
-                textInsert.setInt(4, page_id); // old_page
-                textInsert.execute();
+                textInsert.setString(1, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt())); // old_text
+                textInsert.setString(2, "utf-8"); // old_flags
+                textInsert.setInt(3, page_id); // old_page
+                textInsert.executeUpdate();
                 ResultSet rs = textInsert.getGeneratedKeys();
                 int nextTextId=0;
                 if (rs.next()) {
@@ -267,17 +263,16 @@ public class WikipediaLoader extends Loader {
                 }
 
                 // Insert the revision
-                revisionInsert.setNull(1, java.sql.Types.INTEGER); // rev_id (auto_increment)
-                revisionInsert.setInt(2, page_id); // rev_page
-                revisionInsert.setInt(3, nextTextId); // rev_text_id
-                revisionInsert.setString(4, rev_comment); // rev_comment
-                revisionInsert.setInt(5, user_id); // rev_user
-                revisionInsert.setString(6, new_text); // rev_user_text
-                revisionInsert.setString(7, LoaderUtil.getCurrentTime14()); // rev_timestamp
-                revisionInsert.setInt(8, 0); // rev_minor_edit
-                revisionInsert.setInt(9, 0); // rev_deleted
-                revisionInsert.setInt(10, 0); // rev_len
-                revisionInsert.setInt(11, 0); // rev_parent_id
+                revisionInsert.setInt(1, page_id); // rev_page
+                revisionInsert.setInt(2, nextTextId); // rev_text_id
+                revisionInsert.setString(3, rev_comment); // rev_comment
+                revisionInsert.setInt(4, user_id); // rev_user
+                revisionInsert.setString(5, new_text); // rev_user_text
+                revisionInsert.setString(6, LoaderUtil.getCurrentTime14()); // rev_timestamp
+                revisionInsert.setInt(7, 0); // rev_minor_edit
+                revisionInsert.setInt(8, 0); // rev_deleted
+                revisionInsert.setInt(9, 0); // rev_len
+                revisionInsert.setInt(10, 0); // rev_parent_id
                 revisionInsert.execute();
 
                 int nextRevID = 0;

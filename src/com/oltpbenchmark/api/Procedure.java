@@ -78,18 +78,18 @@ public abstract class Procedure {
      * for the target DBMS is used for this SQLStmt. 
      * @param conn
      * @param stmt
-     * @param returnGeneratedKeys 
+     * @param is 
      * @return
      * @throws SQLException
      */
-    public final PreparedStatement getPreparedStatementReturnKeys(Connection conn, SQLStmt stmt, Integer returnGeneratedKeys) throws SQLException {
+    public final PreparedStatement getPreparedStatementReturnKeys(Connection conn, SQLStmt stmt, int[] is) throws SQLException {
         assert(this.name_stmt_xref != null) : "The Procedure " + this + " has not been initialized yet!";
         PreparedStatement pStmt = this.prepardStatements.get(stmt);
         if (pStmt == null) {
             assert(this.stmt_name_xref.containsKey(stmt)) :
                 "Unexpected SQLStmt handle in " + this.getClass().getSimpleName() + "\n" + this.name_stmt_xref;
             String sql = stmt.getSQL();
-            pStmt = (returnGeneratedKeys != null ? conn.prepareStatement(sql, returnGeneratedKeys) :
+            pStmt = (is != null ? conn.prepareStatement(sql, is) :
                                                    conn.prepareStatement(sql));
             this.prepardStatements.put(stmt, pStmt);
         }

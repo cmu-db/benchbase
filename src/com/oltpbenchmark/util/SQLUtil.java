@@ -37,8 +37,7 @@ public abstract class SQLUtil {
             data[i] = rs.getObject(i+1);
         } // FOR
         
-        return (String.format("ROW[%02d] -> [%s]",
-                             rs.getRow(), StringUtil.join(",", data)));
+        return (String.format("ROW[%02d] -> [%s]", rs.getRow(), StringUtil.join(",", data)));
     }
     
     /**

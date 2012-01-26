@@ -5,22 +5,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.Article;
 
 public class GetPageAuthenticated extends Procedure {
+    private static final Logger LOG = Logger.getLogger(GetPageAuthenticated.class);
 	
-	
-	public SQLStmt selectUser = new SQLStmt("SELECT * FROM `user` WHERE user_id = ? LIMIT 1");
-	public SQLStmt selectGroup = new SQLStmt("SELECT ug_group FROM `user_groups` WHERE ug_user = ? ");
-	public SQLStmt selectPage = new SQLStmt("SELECT * FROM `page` WHERE page_namespace = ? AND page_title = ? LIMIT 1 ");
-	public SQLStmt selectPageRestriction = new SQLStmt("SELECT * FROM `page_restrictions` WHERE pr_page = ? ");
-	// XXX this is hard for translation
-	public SQLStmt selectIpBlocks = new SQLStmt("SELECT * FROM `ipblocks` WHERE ipb_user = ? "); 
-	public SQLStmt selectPageRevision = new SQLStmt("SELECT * FROM `page`,`revision` WHERE (page_id=rev_page) AND " +
+	public SQLStmt selectUser = new SQLStmt("SELECT * FROM user WHERE user_id = ? LIMIT 1");
+	public SQLStmt selectGroup = new SQLStmt("SELECT ug_group FROM user_groups WHERE ug_user = ? ");
+	public SQLStmt selectPage = new SQLStmt("SELECT * FROM page WHERE page_namespace = ? AND page_title = ? LIMIT 1 ");
+	public SQLStmt selectPageRestriction = new SQLStmt("SELECT * FROM page_restrictions WHERE pr_page = ? ");
+	public SQLStmt selectIpBlocks = new SQLStmt("SELECT * FROM ipblocks WHERE ipb_user = ? "); 
+	public SQLStmt selectPageRevision = new SQLStmt("SELECT * FROM page, revision WHERE (page_id=rev_page) AND " +
 			"rev_page = ? AND page_id = ? AND (rev_id=page_latest) LIMIT 1 ");
-	public SQLStmt selectText = new SQLStmt("SELECT old_text,old_flags FROM `text` WHERE old_id = ? LIMIT 1");
+	public SQLStmt selectText = new SQLStmt("SELECT old_text,old_flags FROM text WHERE old_id = ? LIMIT 1");
 
 	
 	public Article run(Connection conn, boolean forSelect, String userIp, int userId,
@@ -33,17 +34,17 @@ public class GetPageAuthenticated extends Procedure {
 		// FIXME TOO FREQUENTLY SELECTING BY USER_ID
 		String userText = userIp;
 		PreparedStatement st =this.getPreparedStatement(conn,selectUser);
-		if (userId >= 0) {
+		if (userId > 0) {
 			st.setInt(1, userId);
 			ResultSet rs = st.executeQuery();
 			if (rs.next()) {
 				userText = rs.getString("user_name");
 			}
-	
-			// else {
-			// throw new RuntimeException("no such user id?");
-			// }
-	
+			else
+			{
+			    LOG.fatal("The used trace is invalid");
+			    throw new RuntimeException("Unknown user:"+userId);
+			}    
 			// Fetch all groups the user might belong to (access control
 			// information)
 			st =this.getPreparedStatement(conn,selectGroup);
@@ -91,7 +92,7 @@ public class GetPageAuthenticated extends Procedure {
 		// user_name
 	
 		st= this.getPreparedStatement(conn, selectIpBlocks);
-		st.setString(1, userText);
+		st.setInt(1, userId);
 		rs = st.executeQuery();
 		int blockCount = 0;
 		while (rs.next()) {

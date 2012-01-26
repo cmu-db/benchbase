@@ -16,41 +16,30 @@ import com.oltpbenchmark.benchmarks.wikipedia.Article;
 public class UpdatePage extends Procedure {
 	
 	// pretend we are changing something in the text
-	public SQLStmt insertText = new SQLStmt("INSERT INTO `text` (old_page,old_text,old_flags) VALUES (?,?,'utf-8') "); 
-	public SQLStmt insertRevision = new SQLStmt("INSERT INTO `revision` (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
-		+ "VALUES (NULL, ?, ?,'','0',?, ?,\""+ LoaderUtil.getCurrentTime14()+ "\",'0',?,?)");
-	public SQLStmt updatePage = new SQLStmt("UPDATE `page` SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14()
-	+ "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?");
-	public SQLStmt insertRecentChanges = new SQLStmt("INSERT INTO `recentchanges` (rc_timestamp," + "rc_cur_time,"
-	+ "rc_namespace," + "rc_title," + "rc_type," + "rc_minor,"
-	+ "rc_cur_id," + "rc_user," + "rc_user_text," + "rc_comment,"
-	+ "rc_this_oldid," + "rc_last_oldid," + "rc_bot,"
-	+ "rc_moved_to_ns," + "rc_moved_to_title," + "rc_ip,"
-	+ "rc_patrolled," + "rc_new," + "rc_old_len," + "rc_new_len,"
-	+ "rc_deleted," + "rc_logid," + "rc_log_type,"
-	+ "rc_log_action," + "rc_params) " +
-	"VALUES ('"
-	+ LoaderUtil.getCurrentTime14()
-	+ "','"
-	+ LoaderUtil.getCurrentTime14()
-	+ "', ? , ? ,"
-	+ "'0','0', ? , ? , ? ,'', ? , ? ,'0','0','','"
-	+ getMyIp()
-	+ "','1','0', ? , ? ,'0','0',NULL,'','')");
+	public SQLStmt insertText = new SQLStmt("INSERT INTO text (old_page,old_text,old_flags) VALUES (?,?,'utf-8') "); 
+	public SQLStmt insertRevision = new SQLStmt("INSERT INTO revision " +
+			"(rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) "
+		+ "VALUES (?, ?, ? ,'0',?, ?, ? ,'0',?,?)");
+	public SQLStmt updatePage = new SQLStmt("UPDATE page SET page_latest = ? , page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?");
+	public SQLStmt insertRecentChanges = new SQLStmt("INSERT INTO recentchanges (rc_timestamp," + "rc_cur_time,"
+	+ "rc_namespace,rc_title,rc_type,rc_minor,rc_cur_id,rc_user,rc_user_text,rc_comment,rc_this_oldid," + "rc_last_oldid," + 
+	"rc_bot,rc_moved_to_ns,rc_moved_to_title,rc_ip,rc_patrolled," + "rc_new," + "rc_old_len," + "rc_new_len,rc_deleted," + "rc_logid," + 
+	"rc_log_type,rc_log_action," + "rc_params) " +
+	"VALUES (?, ?, ? , ? ,'0','0', ? , ? , ? ,'', ? , ? ,'0','0','',?,'1','0', ? , ? ,'0','0',NULL,'','')");
 	
-	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_user  FROM `watchlist`  WHERE wl_title = ? AND wl_namespace = ? " +
+	public SQLStmt selectWatchList = new SQLStmt("SELECT wl_user  FROM watchlist WHERE wl_title = ? AND wl_namespace = ? " +
 			"AND (wl_user != ?) AND (wl_notificationtimestamp IS NULL)");
 	
-	public SQLStmt updateWatchList = new SQLStmt("UPDATE `watchlist` SET wl_notificationtimestamp = '"
+	public SQLStmt updateWatchList = new SQLStmt("UPDATE watchlist SET wl_notificationtimestamp = '"
 		+ LoaderUtil.getCurrentTime14() + "' WHERE wl_title = ? AND wl_namespace = ? AND wl_user = ?");
 	
-	public SQLStmt selectUser = new SQLStmt("SELECT   *  FROM `user`  WHERE user_id = ?");
+	public SQLStmt selectUser = new SQLStmt("SELECT  *  FROM user  WHERE user_id = ?");
 	
-	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO `logging` (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params) "
-		+ "VALUES (NULL,'patrol','patrol','"+ LoaderUtil.getCurrentTime14()+ "',?,?,?,?,?,'',?)");
+	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO logging (log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params) "
+		+ "VALUES ('patrol','patrol','"+ LoaderUtil.getCurrentTime14()+ "',?,?,?,?,?,'',?)");
 	
-	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  `user` SET user_editcount=user_editcount+1 WHERE user_id = ? ");
-	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  `user` SET user_touched = '" + LoaderUtil.getCurrentTime14()+ "' WHERE user_id = ? ");
+	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  user SET user_editcount=user_editcount+1 WHERE user_id = ? ");
+	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  user SET user_touched = ? WHERE user_id = ? ");
 	
 	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace,
 			String pageTitle) throws SQLException {
@@ -75,7 +64,7 @@ public class UpdatePage extends Procedure {
 		// Attention the original wikipedia does not include page_id
 		
 
-		PreparedStatement ps = this.getPreparedStatementReturnKeys(conn, insertText, Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement ps = this.getPreparedStatementReturnKeys(conn, insertText, new int[]{1});
 		//conn.prepareStatement(sql, );
 		
 		ps.setInt(1, a.pageId);
@@ -101,13 +90,15 @@ public class UpdatePage extends Procedure {
 			throw new RuntimeException(
 					"Problem inserting new tupels in table text... 2");
 
-		ps = this.getPreparedStatementReturnKeys(conn, insertRevision, Statement.RETURN_GENERATED_KEYS);
+		ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1});
 		ps.setInt(1, a.pageId);
 		ps.setInt(2, nextTextId);
-		ps.setInt(3, userId);
-		ps.setString(4, a.userText);
-		ps.setInt(5, a.oldText.length());
-		ps.setInt(6, a.revisionId);
+		ps.setString(3, LoaderUtil.randomStr(255));
+		ps.setInt(4, userId);
+		ps.setString(5, a.userText);
+		ps.setString(6, LoaderUtil.getCurrentTime14());
+		ps.setInt(7, a.oldText.length());
+		ps.setInt(8, a.revisionId);
 		ps.executeUpdate();
 		
 		int nextRevID = -1;
@@ -127,8 +118,9 @@ public class UpdatePage extends Procedure {
 
 		ps= this.getPreparedStatement(conn, updatePage);
 		ps.setInt(1, nextRevID);
-		ps.setInt(2, a.oldText.length());
-		ps.setInt(3, a.pageId);
+		ps.setString(2, LoaderUtil.getCurrentTime14());
+		ps.setInt(3, a.oldText.length());
+		ps.setInt(4, a.pageId);
 		int numUpdatePages = ps.executeUpdate();
 
 		if (numUpdatePages != 1)
@@ -139,15 +131,18 @@ public class UpdatePage extends Procedure {
 		// st.addBatch(sql);
 
 		ps=this.getPreparedStatement(conn, insertRecentChanges);
-		ps.setInt(1, nameSpace);
-		ps.setString(2, pageTitle);
-		ps.setInt(3, a.pageId);
-		ps.setInt(4, userId);
-		ps.setString(5, a.userText);
-		ps.setInt(6,nextTextId);
-		ps.setInt(7, a.textId);
-		ps.setInt(8, a.oldText.length());
-		ps.setInt(9, a.oldText.length());
+		ps.setString(1,LoaderUtil.getCurrentTime14());
+		ps.setString(2,LoaderUtil.getCurrentTime14());
+		ps.setInt(3, nameSpace);
+		ps.setString(4, pageTitle);
+		ps.setInt(5, a.pageId);
+		ps.setInt(6, userId);
+		ps.setString(7, a.userText);
+		ps.setInt(8,nextTextId);
+		ps.setInt(9, a.textId);
+		ps.setString(10, getMyIp());
+		ps.setInt(11, a.oldText.length());
+		ps.setInt(12, a.oldText.length());
 		int count = ps.executeUpdate();
 		assert count == 1;
 		//ps.close();
@@ -229,7 +224,8 @@ public class UpdatePage extends Procedure {
 		ps.executeUpdate();
 		
 		ps=this.getPreparedStatement(conn, updateUserTouched);
-		ps.setInt(1, userId);
+		ps.setString(1, LoaderUtil.getCurrentTime14());
+		ps.setInt(2, userId);
 		ps.executeUpdate();
 		//rs.close();		
 		

@@ -56,7 +56,7 @@ public class WikipediaWorker extends Worker {
         } else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
             updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
         } else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
-            getPageAnonymous(true, userIp, 0, t.nameSpace, t.pageTitle);
+            getPageAnonymous(true, userIp, t.nameSpace, t.pageTitle);
         } else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
             getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
         }
@@ -79,11 +79,11 @@ public class WikipediaWorker extends Worker {
 	 * @throws SQLException
 	 * @throws UnknownHostException
 	 */
-	public Article getPageAnonymous(boolean forSelect, String userIp, int userId,
+	public Article getPageAnonymous(boolean forSelect, String userIp,
 			int nameSpace, String pageTitle) throws SQLException {
 		GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);
         assert (proc != null);
-        return proc.run(conn, forSelect, userIp, userId, nameSpace, pageTitle);
+        return proc.run(conn, forSelect, userIp, nameSpace, pageTitle);
 	}
 
 	public Article getPageAuthenticated(boolean forSelect, String userIp, int userId,
@@ -109,7 +109,7 @@ public class WikipediaWorker extends Worker {
 
 	public void updatePage(String userIp, int userId, int nameSpace,
 			String pageTitle) throws SQLException {
-		Article a = getPageAnonymous(false, userIp, userId, nameSpace, pageTitle);
+		Article a = getPageAnonymous(false, userIp, nameSpace, pageTitle);
 		if (a == null) {
 			// this would be an insert of a new page, that we don't support for
 			// now.

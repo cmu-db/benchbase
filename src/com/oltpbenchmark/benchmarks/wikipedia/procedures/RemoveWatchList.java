@@ -11,12 +11,11 @@ import com.oltpbenchmark.api.SQLStmt;
 public class RemoveWatchList extends Procedure {
 	
 	public SQLStmt removeWatchList = new SQLStmt(
-        "DELETE FROM `watchlist` WHERE " +
+        "DELETE FROM watchlist WHERE " +
 		"wl_user = ? AND wl_namespace = ? AND wl_title = ?"
     );
     public SQLStmt setUserTouched = new SQLStmt(
-        "UPDATE  `user` SET user_touched = '" + LoaderUtil.getCurrentTime14() +
-	    "' WHERE user_id =  ? "
+        "UPDATE  user SET user_touched = ? WHERE user_id =  ? "
     ); 
 
 	public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {	        
@@ -41,7 +40,8 @@ public class RemoveWatchList extends Procedure {
 			}
 			
 			ps= this.getPreparedStatement(conn, setUserTouched);
-			ps.setInt(1, userId);
+			ps.setString(1, LoaderUtil.getCurrentTime14());
+			ps.setInt(2, userId);
 			ps.executeUpdate();
 			conn.commit();
 		}
