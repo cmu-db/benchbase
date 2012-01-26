@@ -13,7 +13,7 @@ public class InsertTweet extends Procedure {
 
 	//FIXME: Carlo is this correct? 1) added_tweets is empty initially 2) id is supposed to be not null
     public final SQLStmt insertTweet = new SQLStmt(
-        "INSERT INTO added_tweets VALUES (null, ?, ?, ?)"
+        "INSERT INTO added_tweets (uid,text,createdate) VALUES (?, ?, ?)"
     );
     
     public boolean run(Connection conn, long uid, String text, Time time) throws SQLException {

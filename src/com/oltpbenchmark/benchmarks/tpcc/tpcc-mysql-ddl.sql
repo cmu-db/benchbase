@@ -1,5 +1,14 @@
 -- TODO: c_since ON UPDATE CURRENT_TIMESTAMP,
 DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS district;
+DROP TABLE IF EXISTS history;
+DROP TABLE IF EXISTS item;
+DROP TABLE IF EXISTS new_order;
+DROP TABLE IF EXISTS oorder;
+DROP TABLE IF EXISTS order_line;
+DROP TABLE IF EXISTS stock;
+DROP TABLE IF EXISTS warehouse;
+
 CREATE TABLE customer (
   c_w_id int NOT NULL,
   c_d_id int NOT NULL,
@@ -24,9 +33,8 @@ CREATE TABLE customer (
   c_data varchar(500) NOT NULL,
   PRIMARY KEY (c_w_id,c_d_id,c_id)
 );
-CREATE INDEX IDX_CUSTOMER_NAME ON customer (c_w_id,c_d_id,c_last,c_first);
 
-DROP TABLE IF EXISTS district;
+
 CREATE TABLE district (
   d_w_id int NOT NULL,
   d_id int NOT NULL,
@@ -43,7 +51,7 @@ CREATE TABLE district (
 );
 
 -- TODO: h_date ON UPDATE CURRENT_TIMESTAMP
-DROP TABLE IF EXISTS history;
+
 CREATE TABLE history (
   h_c_id int NOT NULL,
   h_c_d_id int NOT NULL,
@@ -55,7 +63,7 @@ CREATE TABLE history (
   h_data varchar(24) NOT NULL
 );
 
-DROP TABLE IF EXISTS item;
+
 CREATE TABLE item (
   i_id int NOT NULL,
   i_name varchar(24) NOT NULL,
@@ -65,7 +73,7 @@ CREATE TABLE item (
   PRIMARY KEY (i_id)
 );
 
-DROP TABLE IF EXISTS new_order;
+
 CREATE TABLE new_order (
   no_w_id int NOT NULL,
   no_d_id int NOT NULL,
@@ -74,7 +82,7 @@ CREATE TABLE new_order (
 );
 
 -- TODO: o_entry_d  ON UPDATE CURRENT_TIMESTAMP
-DROP TABLE IF EXISTS oorder;
+
 CREATE TABLE oorder (
   o_w_id int NOT NULL,
   o_d_id int NOT NULL,
@@ -88,7 +96,7 @@ CREATE TABLE oorder (
   UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
 );
 
-DROP TABLE IF EXISTS order_line;
+
 CREATE TABLE order_line (
   ol_w_id int NOT NULL,
   ol_d_id int NOT NULL,
@@ -103,7 +111,6 @@ CREATE TABLE order_line (
   PRIMARY KEY (ol_w_id,ol_d_id,ol_o_id,ol_number)
 );
 
-DROP TABLE IF EXISTS stock;
 CREATE TABLE stock (
   s_w_id int NOT NULL,
   s_i_id int NOT NULL,
@@ -125,7 +132,6 @@ CREATE TABLE stock (
   PRIMARY KEY (s_w_id,s_i_id)
 );
 
-DROP TABLE IF EXISTS warehouse;
 CREATE TABLE warehouse (
   w_id int NOT NULL,
   w_ytd decimal(12,2) NOT NULL,
@@ -138,3 +144,6 @@ CREATE TABLE warehouse (
   w_zip char(9) NOT NULL,
   PRIMARY KEY (w_id)
 );
+
+-- Indexes
+CREATE INDEX IDX_CUSTOMER_NAME ON customer (c_w_id,c_d_id,c_last,c_first);

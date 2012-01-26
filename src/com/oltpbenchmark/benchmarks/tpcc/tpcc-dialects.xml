@@ -16,7 +16,7 @@
             </statement>
         </procedure>
     </dialect>
-    <dialect type="MSSQL">
+    <dialect type="SQLSERVER">
         <procedure name="Delivery">
             <statement name="delivGetOrderIdSQL">
                 SELECT TOP 1 no_o_id 
