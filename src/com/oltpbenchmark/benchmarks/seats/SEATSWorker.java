@@ -281,6 +281,8 @@ public class SEATSWorker extends Worker {
             this.flight_id = flight_id;
             this.customer_id = customer_id;
             this.seatnum = seatnum;
+            assert(this.seatnum >= 0) : "Invalid seat number\n" + this;
+            assert(this.seatnum < SEATSConstants.NUM_SEATS_PER_FLIGHT) : "Invalid seat number\n" + this;
         }
         
         @Override
@@ -774,7 +776,7 @@ public class SEATSWorker extends Worker {
             r = cache.poll();
         } catch (Throwable ex) {
             // Nothing
-        } // SYNCH
+        }
         if (r == null) {
             if (LOG.isDebugEnabled())
                 LOG.warn(String.format("Failed to find Reservation to update [cache=%d]", cache.size()));
@@ -785,7 +787,7 @@ public class SEATSWorker extends Worker {
         
         long value = rng.number(1, 1 << 20);
         long attribute_idx = rng.nextInt(UpdateReservation.NUM_UPDATES);
-        long seatnum = rng.number(0, SEATSConstants.NUM_SEATS_PER_FLIGHT);
+        long seatnum = rng.number(0, SEATSConstants.NUM_SEATS_PER_FLIGHT-1);
 
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
         proc.run(conn, r.id,
