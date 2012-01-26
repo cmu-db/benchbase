@@ -47,24 +47,22 @@ public class NewFeedback extends Procedure {
     // STATEMENTS
     // -----------------------------------------------------------------
     
-    public final SQLStmt getMaxFeedback = new SQLStmt(
-        "SELECT MAX(uf_id) " + 
+    public final SQLStmt checkUserFeedback = new SQLStmt(
+        "SELECT uf_i_id, uf_i_u_id, uf_from_id " + 
         "  FROM " + AuctionMarkConstants.TABLENAME_USER_FEEDBACK + " " + 
-        " WHERE uf_i_id = ? AND uf_u_id = ?"
+        " WHERE uf_u_id = ? AND uf_i_id = ? AND uf_i_u_id = ? AND uf_from_id = ?"
     );
 	
     public final SQLStmt insertFeedback = new SQLStmt(
         "INSERT INTO " + AuctionMarkConstants.TABLENAME_USER_FEEDBACK + "( " +
-        	"uf_id," +
-        	"uf_u_id," +
-        	"uf_i_id," +
+            "uf_u_id, " +
+            "uf_i_id," +
         	"uf_i_u_id," +
         	"uf_from_id," +
         	"uf_rating," +
         	"uf_date," +
         	"uf_sattr0" +
         ") VALUES (" +
-            "?," + // UF_ID
             "?," + // UF_U_ID
             "?," + // UF_I_ID
             "?," + // UF_I_U_ID
@@ -86,26 +84,24 @@ public class NewFeedback extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public long run(Connection conn, Date benchmarkTimes[],
-                    long i_id, long seller_id, long buyer_id, long rating, String comment) throws SQLException {
+    public void run(Connection conn, Date benchmarkTimes[],
+                    long user_id, long i_id, long seller_id, long from_id, long rating, String comment) throws SQLException {
         final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
         if (debug) LOG.debug("NewFeedback::: selecting max feedback");
 
-        // Set comment_id
-        long if_id = 0;
-        PreparedStatement stmt = this.getPreparedStatement(conn, getMaxFeedback, i_id, seller_id);
-        ResultSet results = stmt.executeQuery();
-        if (results.next()) {
-            if_id = results.getLong(1) + 1;
+        // Check to make sure they're not trying to add feedback
+        // twice for the same ITEM
+        PreparedStatement stmt = this.getPreparedStatement(conn, checkUserFeedback, user_id, i_id, seller_id, from_id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            throw new UserAbortException("Trying to add feedback for item " + i_id + " twice");
         }
 
-        if (debug) LOG.debug("NewFeedback::: if_id = " + if_id);
-        this.getPreparedStatement(conn, insertFeedback, if_id, seller_id, i_id, seller_id, buyer_id, rating, currentTime, comment).executeUpdate();
-        this.getPreparedStatement(conn, updateUser, rating, currentTime, seller_id).executeUpdate();
+        this.getPreparedStatement(conn, insertFeedback, user_id, i_id, seller_id, from_id, rating, currentTime, comment).executeUpdate();
+        this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
         if (debug) LOG.debug("NewFeedback::: feedback inserted ");
 
-        // Return new if_id
-        return (if_id);
+        return;
     }
 }

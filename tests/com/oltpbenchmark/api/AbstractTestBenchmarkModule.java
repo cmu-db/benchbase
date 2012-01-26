@@ -64,7 +64,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         for (Class<? extends Procedure> procClass: this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.getTransactionType(procName, id++);
+            TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
             System.err.println(procClass + " -> " + txnType);
@@ -80,7 +80,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         String procName = procClass.getSimpleName();
         TransactionType txnType = null;
         try {
-            txnType = this.benchmark.getTransactionType(procName, TransactionType.INVALID_ID);
+            txnType = this.benchmark.initTransactionType(procName, TransactionType.INVALID_ID);
         } catch (Throwable ex) {
             // Ignore
         }

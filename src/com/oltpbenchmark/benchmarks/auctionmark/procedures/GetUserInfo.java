@@ -44,7 +44,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 
 /**
  * GetUserInfo
- * 
  * @author pavlo
  * @author visawee
  */

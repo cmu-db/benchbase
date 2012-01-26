@@ -22,8 +22,15 @@ package com.oltpbenchmark.api;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class SQLStmt {
+import org.apache.log4j.Logger;
 
+/**
+ * Wrapper Class for SQL Statements
+ * @author pavlo
+ */
+public final class SQLStmt {
+    private static final Logger LOG = Logger.getLogger(SQLStmt.class);
+    
     private static final Pattern SUBSTITUTION_PATTERN = Pattern.compile("\\?\\?"); 
     
     private String orig_sql;
@@ -37,7 +44,6 @@ public final class SQLStmt {
     
     /**
      * Constructor
-     * 
      * @param sql
      * @param substitutions
      */
@@ -65,6 +71,8 @@ public final class SQLStmt {
             sql = m.replaceFirst(replace);
         } // FOR
         this.sql = sql;
+        if (LOG.isDebugEnabled())
+            LOG.debug("Initialized SQL:\n" + this.sql);
     }
     
     public final String getSQL() {

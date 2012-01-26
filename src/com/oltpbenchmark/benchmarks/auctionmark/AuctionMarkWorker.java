@@ -9,12 +9,14 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions;
@@ -53,6 +55,37 @@ public class AuctionMarkWorker extends Worker {
      */
     private final List<long[]> pending_commentResponse = Collections.synchronizedList(new ArrayList<long[]>());
     
+    private final AtomicBoolean closeAuctions_flag = new AtomicBoolean();
+    
+    private final Thread closeAuctions_checker;
+    
+    // --------------------------------------------------------------------
+    // CLOSE_AUCTIONS CHECKER
+    // --------------------------------------------------------------------
+    private class CloseAuctionsChecker extends Thread {
+        {
+            this.setDaemon(true);
+        }
+        @Override
+        public void run() {
+            long sleepTime = AuctionMarkConstants.INTERVAL_CLOSE_AUCTIONS / AuctionMarkConstants.TIME_SCALE_FACTOR;
+            while (true) {
+                // Always sleep until the next time that we need to check
+                try {
+                    Thread.sleep(sleepTime * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                assert(AuctionMarkWorker.this.closeAuctions_flag.get() == false);
+                
+                AuctionMarkWorker.this.closeAuctions_flag.set(true);
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Ready to execute %s [sleep=%d sec]",
+                                            Transaction.CLOSE_AUCTIONS, sleepTime));
+            } // WHILE
+        }
+    }
+    
     // --------------------------------------------------------------------
     // TXN PARAMETER GENERATOR
     // --------------------------------------------------------------------
@@ -79,20 +112,14 @@ public class AuctionMarkWorker extends Worker {
         CLOSE_AUCTIONS(CloseAuctions.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
-                if (AuctionMarkConstants.ENABLE_CLOSE_AUCTIONS && client.getId() == 0) {
-                    // If we've never checked before, then we'll want to do that now
-                    if (client.profile.hasLastCloseAuctionsTime() == false) return (true);
-
-                    // Otherwise check whether enough time has passed since the last time we checked
-                    Date lastCheckWinningBidTime = client.profile.getLastCloseAuctionsTime();
-                    Date currentTime = client.profile.getCurrentTime();
-                    long time_elapsed = Math.round((currentTime.getTime() - lastCheckWinningBidTime.getTime()) / 1000.0);
-                    if (LOG.isDebugEnabled()) 
-                        LOG.debug(String.format("%s [start=%s, current=%s, elapsed=%d]",
-                                  Transaction.CLOSE_AUCTIONS, client.profile.getBenchmarkStartTime(), currentTime, time_elapsed));
-                    if (time_elapsed > AuctionMarkConstants.INTERVAL_CLOSE_AUCTIONS) return (true);
-                }
-                return (false);
+//                if (AuctionMarkConstants.ENABLE_CLOSE_AUCTIONS && client.getId() == 0) {
+//                    // If we've never checked before, then we'll want to do that now
+//                    if (client.profile.hasLastCloseAuctionsTime() == false) return (true);
+//
+//                    // Otherwise 
+//                    return (run);
+//                }
+                return (false); // Use CloseAuctionsChecker
             }
         }),
         // ====================================================================
@@ -248,6 +275,14 @@ public class AuctionMarkWorker extends Worker {
     public AuctionMarkWorker(int id, AuctionMarkBenchmark benchmark) {
         super(benchmark, id);
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
+        
+        boolean needCloseAuctions = (AuctionMarkConstants.ENABLE_CLOSE_AUCTIONS && id == 0);
+        this.closeAuctions_flag.set(needCloseAuctions);
+        if (needCloseAuctions) {
+            this.closeAuctions_checker = new CloseAuctionsChecker(); 
+        } else {
+            this.closeAuctions_checker = null;
+        }
     }
     
     @Override
@@ -258,6 +293,7 @@ public class AuctionMarkWorker extends Worker {
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to initialize AuctionMarkWorker", ex);
         }
+        if (this.closeAuctions_checker != null) this.closeAuctions_checker.start();
     }
     
     @Override
@@ -278,21 +314,25 @@ public class AuctionMarkWorker extends Worker {
         
         // Always check if we need to want to run CLOSE_AUCTIONS
         // We only do this from the first client
-        if (Transaction.CLOSE_AUCTIONS.canExecute(this)) {
+        if (closeAuctions_flag.compareAndSet(true, false)) {
             txn = Transaction.CLOSE_AUCTIONS;
-            assert(txnType != null);
+            TransactionTypes txnTypes = this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
+            txnType = txnTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);
+            assert(txnType != null) : txnTypes;
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
             if (txn.canExecute(this) == false) {
-                if (LOG.isTraceEnabled())
+                if (LOG.isDebugEnabled())
                     LOG.warn("Unable to execute " + txn + " because it is not ready");
-                return (TransactionStatus.RETRY);
+                return (TransactionStatus.RETRY_DIFFERENT);
             }
         }
         
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
         assert(proc != null);
+//        System.err.println(txnType + " -> " + txn + " -> " + txnType.getProcedureClass() + " -> " + proc);
+        
         boolean ret = false;
         switch (txn) {
             case CLOSE_AUCTIONS:
@@ -328,6 +368,11 @@ public class AuctionMarkWorker extends Worker {
             default:
                 assert(false) : "Unexpected transaction: " + txn; 
         } // SWITCH
+        assert(ret);
+        
+        if (ret && LOG.isDebugEnabled())
+            LOG.debug("Executed a new invocation of " + txn);
+        
         return (TransactionStatus.SUCCESS);
     }
     
@@ -351,7 +396,13 @@ public class AuctionMarkWorker extends Worker {
         ItemId i_id = new ItemId((Long)row[col++]);             // i_id
         long i_u_id = (Long)row[col++];                         // i_u_id
         String i_name = (String)row[col++];                     // i_name
-        double i_current_price = (Double)row[col++];            // i_current_price
+        
+        double i_current_price;                                 // i_current_price
+        if (row[col] instanceof Float) {
+            i_current_price = ((Float)row[col++]).doubleValue();
+        } else {
+            i_current_price = (Double)row[col++];
+        }
         long i_num_bids = (Long)row[col++];                     // i_num_bids
         Date i_end_date = null;                                 // i_end_date
         if (row[col] instanceof Timestamp) {
@@ -404,7 +455,6 @@ public class AuctionMarkWorker extends Worker {
             ItemId itemId = this.processItemRecord(row);
             assert(itemId != null);
         } // WHILE
-        if (LOG.isDebugEnabled()) LOG.debug(super.toString());
         profile.updateItemQueues();
         
         return (true);
@@ -648,9 +698,20 @@ public class AuctionMarkWorker extends Worker {
         long rating = (long) profile.rng.number(-1, 1);
         String feedback = profile.rng.astring(10, 80);
         
-        proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
+        long user_id;
+        long from_id;
+        if (profile.rng.nextBoolean()) {
+            user_id = sellerId.encode();
+            from_id = buyerId.encode();
+        } else {
+            user_id = buyerId.encode();
+            from_id = sellerId.encode();
+        }
+        
+        proc.run(conn, benchmarkTimes, user_id,
+                                       itemInfo.itemId.encode(),
                                        sellerId.encode(),
-                                       buyerId.encode(),
+                                       from_id,
                                        rating,
                                        feedback);
         conn.commit();

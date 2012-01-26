@@ -213,7 +213,7 @@ public class DBWorkload {
             if (xmlConfig.containsKey(key + ".id")) {
                 txnId = xmlConfig.getInt(key + ".id");
             }
-            ttypes.add(bench.getTransactionType(txnName, txnId));
+            ttypes.add(bench.initTransactionType(txnName, txnId));
         } // FOR
         TransactionTypes tt = new TransactionTypes(ttypes);
         wrkld.setTransTypes(tt);

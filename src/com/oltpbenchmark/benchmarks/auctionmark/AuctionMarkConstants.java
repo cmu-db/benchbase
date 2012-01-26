@@ -63,7 +63,7 @@ public abstract class AuctionMarkConstants {
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_GROUP   = 100;
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_VALUE   = 1; // HACK: IGNORE
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP = 10;
-    public static final long TABLESIZE_USER                     = 100000;
+    public static final long TABLESIZE_USER                     = 1000;
     
     // ----------------------------------------------------------------
     // USER PARAMETERS
@@ -109,16 +109,22 @@ public abstract class AuctionMarkConstants {
     
     public static final int ITEM_MIN_INITIAL_PRICE = 1;
     public static final int ITEM_MAX_INITIAL_PRICE = 1000;
+    
     public static final int ITEM_MIN_ITEMS_PER_SELLER = 0;
     public static final int ITEM_MAX_ITEMS_PER_SELLER = 10000;
+    
     public static final int ITEM_MIN_BIDS_PER_DAY = 0;
     public static final int ITEM_MAX_BIDS_PER_DAY = 10;
+    
     public static final int ITEM_MIN_WATCHES_PER_DAY = 0;
-    public static final int ITEM_MAX_WATCHES_PER_DAY = 20;
+    public static final int ITEM_MAX_WATCHES_PER_DAY = 10;
+    
     public static final int ITEM_MIN_IMAGES = 1;
     public static final int ITEM_MAX_IMAGES = 10;
+    
     public static final int ITEM_MIN_COMMENTS = 0;
     public static final int ITEM_MAX_COMMENTS = 5;
+    
     public static final int ITEM_MIN_GLOBAL_ATTRS = 1;
     public static final int ITEM_MAX_GLOBAL_ATTRS = 10;
 
@@ -277,25 +283,27 @@ public abstract class AuctionMarkConstants {
     // TIME PARAMETERS
     // ----------------------------------------------------------------
     
+    public static final long SECONDS_IN_A_DAY = 24 * 60 * 60;
+    public static final long MILLISECONDS_IN_A_SECOND = 1000;
+    public static final long MILLISECONDS_IN_A_DAY = SECONDS_IN_A_DAY * MILLISECONDS_IN_A_SECOND;
+    
     /**
      * 1 sec in real time equals this value in the benchmark's virtual time in seconds
      */
-    public static final long TIME_SCALE_FACTOR = 3600l; //  * 1000000l; // one hour
-    
-    /** How often to execute CLOSE_AUCTIONS in virtual milliseconds */
-    public static final long INTERVAL_CLOSE_AUCTIONS    = 3600000l; // Check winning bid's frequency in millisecond
+    public static final long TIME_SCALE_FACTOR = 600l; // one hour
     
     /**
-     * If the amount of time (in milliseconds) remaining for an item auction
+     * How often to execute CLOSE_AUCTIONS in virtual seconds
+     */
+    public static final long INTERVAL_CLOSE_AUCTIONS = 3600l; // one hour
+    
+    /**
+     * If the amount of time in seconds remaining for an item auction
      * is less than this parameter, then it will be added to a special queue
      * in the client. We will increase the likelihood that a users will bid on these
      * items as it gets closer to their end times
      */
-    public static final long ENDING_SOON = 7200000l; // 10 hours
-    
-    public static final long SECONDS_IN_A_DAY = 24 * 60 * 60;
-    public static final long MILLISECONDS_IN_A_SECOND = 1000;
-    public static final long MILLISECONDS_IN_A_DAY = SECONDS_IN_A_DAY * MILLISECONDS_IN_A_SECOND;
+    public static final long ENDING_SOON = 36000l; // 10 hours
     
     // ----------------------------------------------------------------
     // PROBABILITIES
@@ -306,11 +314,11 @@ public abstract class AuctionMarkConstants {
     /** The probability that a seller will leave feedback for the buyer (1-100)*/
     public static final int PROB_PURCHASE_SELLER_LEAVES_FEEDBACK = 80;
     
-    public static final int PROB_GETUSERINFO_INCLUDE_FEEDBACK = 33;
-    public static final int PROB_GETUSERINFO_INCLUDE_COMMENTS = 25;
-    public static final int PROB_GETUSERINFO_INCLUDE_SELLER_ITEMS = 25;
-    public static final int PROB_GETUSERINFO_INCLUDE_BUYER_ITEMS = 25;
-    public static final int PROB_GETUSERINFO_INCLUDE_WATCHED_ITEMS = 50;
+    public static final int PROB_GETUSERINFO_INCLUDE_FEEDBACK = 25;
+    public static final int PROB_GETUSERINFO_INCLUDE_COMMENTS = 10;
+    public static final int PROB_GETUSERINFO_INCLUDE_SELLER_ITEMS = 10;
+    public static final int PROB_GETUSERINFO_INCLUDE_BUYER_ITEMS = 10;
+    public static final int PROB_GETUSERINFO_INCLUDE_WATCHED_ITEMS = 10;
     
     public static final int PROB_UPDATEITEM_DELETE_ATTRIBUTE = 25;
     public static final int PROB_UPDATEITEM_ADD_ATTRIBUTE = -1; // 25;

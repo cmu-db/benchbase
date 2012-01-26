@@ -280,16 +280,18 @@ public abstract class BenchmarkModule {
     }
 
     /**
-     * Return a TransactionType handle for the get procedure name and id
-     * 
+     * Initialize a TransactionType handle for the get procedure name and id
+     * This should only be invoked a start-up time
      * @param procName
      * @param id
      * @return
      */
     @SuppressWarnings("unchecked")
-    public final TransactionType getTransactionType(String procName, int id) {
-        assert (id != TransactionType.INVALID_ID) : String.format("Procedure %s.%s cannot the reserved id '%d' for %s", this.benchmarkName, procName, id, TransactionType.INVALID.getClass()
-                .getSimpleName());
+    public final TransactionType initTransactionType(String procName, int id) {
+        assert (id != TransactionType.INVALID_ID) :
+            String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
+                           this.benchmarkName, procName, id,
+                           TransactionType.INVALID.getClass().getSimpleName());
         Package pkg = this.getProcedurePackageImpl();
         assert (pkg != null) : "Null Procedure package for " + this.benchmarkName;
         String fullName = pkg.getName() + "." + procName;
@@ -297,7 +299,7 @@ public abstract class BenchmarkModule {
         assert (procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;
         return new TransactionType(procClass, id);
     }
-
+    
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.workConf);
     }

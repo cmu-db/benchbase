@@ -253,12 +253,12 @@ public class AuctionMarkLoader extends Loader {
             stmt.clearBatch();
             
             this.tableSizes.put(tableName, volt_table.size());
+            
+            // Release anything to the sub-generators if we have it
+            // We have to do this to ensure that all of the parent tuples get
+            // insert first for foreign-key relationships
+            generator.releaseHoldsToSubTableGenerators();
         } // WHILE
-        
-        // Release anything to the sub-generators if we have it
-        // We have to do this to ensure that all of the parent tuples get
-        // insert first for foreign-key relationships
-        generator.releaseHoldsToSubTableGenerators();
         
         // Mark as finished
         if (this.fail == false) {
@@ -1069,6 +1069,8 @@ public class AuctionMarkLoader extends Loader {
             row[col++] = itemInfo.numImages;
             // I_NUM_GLOBAL_ATTRS
             row[col++] = itemInfo.numAttributes;
+            // I_NUM_COMMENTS
+            row[col++] = itemInfo.numComments;
             // I_START_DATE
             row[col++] = itemInfo.startDate;
             // I_END_DATE
@@ -1343,7 +1345,6 @@ public class AuctionMarkLoader extends Loader {
             // IMB_UPDATED
             row[col++] = bid.updateDate;
 
-            if (remaining == 0) this.updateSubTableGenerators(itemInfo);
             return (col);
         }
     }
@@ -1395,6 +1396,8 @@ public class AuctionMarkLoader extends Loader {
      **********************************************************************************************/
     protected class UserFeedbackGenerator extends SubTableGenerator<LoaderItemInfo.Bid> {
 
+        Set<ItemId> seenIds = new HashSet<ItemId>();
+        
         public UserFeedbackGenerator() {
             super(AuctionMarkConstants.TABLENAME_USER_FEEDBACK,
                   AuctionMarkConstants.TABLENAME_ITEM_PURCHASE);
@@ -1402,6 +1405,8 @@ public class AuctionMarkLoader extends Loader {
 
         @Override
         protected short getElementCounter(LoaderItemInfo.Bid bid) {
+            assert(seenIds.contains(bid.getLoaderItemInfo().itemId) == false);
+            seenIds.add(bid.getLoaderItemInfo().itemId);
             return (short)((bid.buyer_feedback ? 1 : 0) + (bid.seller_feedback ? 1 : 0));
         }
         @Override
@@ -1409,17 +1414,14 @@ public class AuctionMarkLoader extends Loader {
             int col = 0;
 
             boolean is_buyer = false;
-            if (bid.buyer_feedback && bid.seller_feedback == false) {
+            if (remaining > 1 || (bid.buyer_feedback && bid.seller_feedback == false)) {
                 is_buyer = true;
-            } else if (bid.seller_feedback && bid.buyer_feedback == false) {
+            } else {
+                assert(bid.seller_feedback);
                 is_buyer = false;
-            } else if (remaining > 1) {
-                is_buyer = true;
             }
             LoaderItemInfo itemInfo = bid.getLoaderItemInfo();
             
-            // UF_ID
-            row[col++] = this.count;
             // UF_U_ID
             row[col++] = (is_buyer ? bid.bidderId : itemInfo.sellerId);
             // UF_I_ID
@@ -1482,6 +1484,8 @@ public class AuctionMarkLoader extends Loader {
      **********************************************************************************************/
     protected class UserWatchGenerator extends SubTableGenerator<LoaderItemInfo> {
 
+        final Set<UserId> watchers = new HashSet<UserId>();
+        
         public UserWatchGenerator() {
             super(AuctionMarkConstants.TABLENAME_USER_WATCH,
                   AuctionMarkConstants.TABLENAME_ITEM_BID);
@@ -1497,13 +1501,26 @@ public class AuctionMarkLoader extends Loader {
             // Make it more likely that a user that has bid on an item is watching it
             Histogram<UserId> bidderHistogram = itemInfo.getBidderHistogram();
             UserId buyerId = null;
-            try {
-                buyerId = profile.getRandomBuyerId(bidderHistogram, itemInfo.sellerId);
-            } catch (NullPointerException ex) {
-                LOG.error("Busted Bidder Histogram:\n" + bidderHistogram);
-                throw ex;
-            }
+            boolean use_random = (this.watchers.size() == bidderHistogram.getValueCount());
+            
+            if (LOG.isTraceEnabled())
+                LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, size=%d]", use_random, this.watchers.size()));
+            while (buyerId == null) {
+                try {
+                    if (use_random) {
+                        buyerId = profile.getRandomBuyerId();        
+                    } else {
+                        buyerId = profile.getRandomBuyerId(bidderHistogram, itemInfo.sellerId);
+                    }
+                } catch (NullPointerException ex) {
+                    LOG.error("Busted Bidder Histogram:\n" + bidderHistogram);
+                    throw ex;
+                }
+                if (this.watchers.contains(buyerId) == false) break;
+                buyerId = null;
+            } // WHILE
             assert(buyerId != null);
+            this.watchers.add(buyerId);
             
             // UW_U_ID
             row[col++] = buyerId;
@@ -1512,11 +1529,17 @@ public class AuctionMarkLoader extends Loader {
             // UW_I_U_ID
             row[col++] = itemInfo.sellerId;
             // UW_CREATED
-            row[col++] = this.getRandomCommentDate(itemInfo.startDate, itemInfo.endDate);
+            row[col++] = this.getRandomDate(itemInfo.startDate, itemInfo.endDate);
 
             return (col);
         }
-        private Date getRandomCommentDate(Date startDate, Date endDate) {
+        @Override
+        protected void finishElementCallback(LoaderItemInfo t) {
+            if (LOG.isTraceEnabled())
+                LOG.trace("Clearing watcher cache [size=" + this.watchers.size() + "]");
+            this.watchers.clear();
+        }
+        private Date getRandomDate(Date startDate, Date endDate) {
             int start = Math.round(startDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
             int end = Math.round(endDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
             long offset = profile.rng.number(start, end);

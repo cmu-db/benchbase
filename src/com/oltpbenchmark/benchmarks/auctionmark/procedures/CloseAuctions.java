@@ -135,6 +135,7 @@ public class CloseAuctions extends Procedure {
                 col = 1;
                 long itemId = dueItemsTable.getLong(col++);
                 long sellerId = dueItemsTable.getLong(col++);
+                String i_name = dueItemsTable.getString(col++);
                 double currentPrice = dueItemsTable.getDouble(col++);
                 long numBids = dueItemsTable.getLong(col++);
                 Date endDate = dueItemsTable.getDate(col++);
@@ -182,6 +183,7 @@ public class CloseAuctions extends Procedure {
                 Object row[] = new Object[] {
                         itemId,               // i_id
                         sellerId,             // i_u_id
+                        i_name,               // i_name
                         currentPrice,         // i_current_price
                         numBids,              // i_num_bids
                         endDate,              // i_end_date

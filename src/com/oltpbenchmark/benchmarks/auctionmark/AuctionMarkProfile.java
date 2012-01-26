@@ -177,11 +177,11 @@ public class AuctionMarkProfile {
     /**
      * When this client started executing
      */
-    private Date clientStartTime;
+    private transient Date clientStartTime;
     /**
      * Current Timestamp
      */
-    private Date currentTime;
+    private transient Date currentTime;
     
     /**
      * Keep track of previous waitForPurchase ItemIds so that we don't try to call NewPurchase
@@ -426,7 +426,6 @@ public class AuctionMarkProfile {
     public boolean hasClientStartTime() {
         return (this.clientStartTime != null);
     }
-    
 
     public synchronized Date updateAndGetLastCloseAuctionsTime() {
         this.lastCloseAuctionsTime = this.getScaledCurrentTimestamp();

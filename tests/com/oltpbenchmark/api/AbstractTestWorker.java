@@ -39,7 +39,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         for (Class<? extends Procedure> procClass: this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.getTransactionType(procName, id++);
+            TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
             txnList.add(txnType);

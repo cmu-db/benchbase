@@ -90,6 +90,7 @@ CREATE TABLE USER (
     u_iattr7            BIGINT DEFAULT NULL, 
     PRIMARY KEY (u_id)
 );
+CREATE INDEX IDX_USER_REGION ON USER (u_id, u_r_id);
 
 -- ================================================================
 -- USER_ATTRIBUTES
@@ -177,6 +178,7 @@ CREATE TABLE ITEM (
     i_num_bids          BIGINT,
     i_num_images        BIGINT,
     i_num_global_attrs  BIGINT,
+    i_num_comments      BIGINT,
     i_start_date        TIMESTAMP,
     i_end_date          TIMESTAMP,
     i_status		    INT DEFAULT 0,
@@ -191,6 +193,7 @@ CREATE TABLE ITEM (
     i_iattr7            BIGINT DEFAULT NULL, 
     PRIMARY KEY (i_id, i_u_id)
 );
+CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
 
 -- ================================================================
 -- ITEM_ATTRIBUTE
@@ -249,6 +252,7 @@ CREATE TABLE ITEM_COMMENT (
     FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id),
     PRIMARY KEY (ic_id, ic_i_id, ic_u_id)
 ); 
+-- CREATE INDEX IDX_ITEM_COMMENT ON ITEM_COMMENT (ic_i_id, ic_u_id);
 
 -- ================================================================
 -- ITEM_BID
@@ -320,7 +324,6 @@ CREATE TABLE ITEM_PURCHASE (
 -- uf_comment        Feedback by other user
 -- ================================================================
 CREATE TABLE USER_FEEDBACK (
-    uf_id               BIGINT NOT NULL,
     uf_u_id             BIGINT NOT NULL REFERENCES USER (u_id),
     uf_i_id             BIGINT NOT NULL,
     uf_i_u_id           BIGINT NOT NULL,
@@ -328,7 +331,8 @@ CREATE TABLE USER_FEEDBACK (
     uf_rating           TINYINT NOT NULL,
     uf_date             TIMESTAMP,
     uf_sattr0           VARCHAR(80) NOT NULL,
-    FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id)
+    FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id),
+    PRIMARY KEY (uf_u_id, uf_i_id, uf_i_u_id, uf_from_id)
 );
 
 -- ================================================================

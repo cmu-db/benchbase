@@ -48,10 +48,16 @@ public class NewComment extends Procedure {
     // STATEMENTS
     // -----------------------------------------------------------------
     
-    public final SQLStmt getMaxItemCommentId = new SQLStmt(
-        "SELECT MAX(ic_id) " + 
-        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM_COMMENT + 
-        " WHERE ic_i_id = ? AND ic_u_id = ?"
+    public final SQLStmt getItemComments = new SQLStmt(
+        "SELECT i_num_comments " + 
+        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
+        " WHERE i_id = ? AND i_u_id = ?"
+    );
+    
+    public final SQLStmt updateItemComments = new SQLStmt(
+        "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM +
+        "   SET i_num_comments = i_num_comments + 1 " + 
+        " WHERE i_id = ? AND i_u_id = ?"
     );
 	
     public final SQLStmt insertItemComment = new SQLStmt(
@@ -83,13 +89,14 @@ public class NewComment extends Procedure {
     	
         // Set comment_id
         long ic_id = 0;
-        PreparedStatement stmt = this.getPreparedStatement(conn, getMaxItemCommentId, item_id, seller_id);
+        PreparedStatement stmt = this.getPreparedStatement(conn, getItemComments, item_id, seller_id);
         ResultSet results = stmt.executeQuery();
         if (results.next()) {
             ic_id = results.getLong(1) + 1;
         }
 
         this.getPreparedStatement(conn, insertItemComment, ic_id, item_id, seller_id, buyer_id, question, currentTime, currentTime).executeUpdate();
+        this.getPreparedStatement(conn, updateItemComments, item_id, seller_id).executeUpdate();
         this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
 
         // Return new ic_id
