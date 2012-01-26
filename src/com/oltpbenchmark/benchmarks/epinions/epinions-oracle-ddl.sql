@@ -52,7 +52,6 @@ CREATE TABLE "trust" (
 
 CREATE INDEX IDX_REVIEW_RATING_UID ON "review_rating" (u_id);
 CREATE INDEX IDX_REVIEW_RATING_AID ON "review_rating" (a_id);
-CREATE INDEX IDX_REVIEW_RATING_IID ON "review_rating" (i_id);
 CREATE INDEX IDX_TRUST_SID ON "trust" (source_u_id);
 CREATE INDEX IDX_TRUST_TID ON "trust" (target_u_id);
 CREATE INDEX IDX_RATING_UID ON "review" (u_id);

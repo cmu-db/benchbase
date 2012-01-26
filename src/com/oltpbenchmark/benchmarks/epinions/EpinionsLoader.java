@@ -200,13 +200,13 @@ public class EpinionsLoader extends Loader {
         int total = 0;
         int batch = 0;
         ZipfianGenerator numTrust = new ZipfianGenerator(num_trust, 1.95);
-        ScrambledZipfianGenerator reviewer = new ScrambledZipfianGenerator(num_users);
+        ScrambledZipfianGenerator reviewed = new ScrambledZipfianGenerator(num_users);
         Random isTrusted = new Random(System.currentTimeMillis());
         for (int i = 0; i < num_users; i++) {
             List<Integer> trusted = new ArrayList<Integer>();
             int trust_count = numTrust.nextInt();
             for (int tc = 0; tc < trust_count;) {
-                int u_id = reviewer.nextInt();
+                int u_id = reviewed.nextInt();
                 if (!trusted.contains(u_id)) {
                     tc++;
                     trustInsert.setInt(1, i);
