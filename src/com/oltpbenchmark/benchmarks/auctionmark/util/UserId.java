@@ -94,7 +94,7 @@ public class UserId extends CompositeId {
     
     @Override
     public String toString() {
-        return String.format("UserId{itemCount=%d,offset=%d}",
+        return String.format("UserId<itemCount=%d,offset=%d>",
                              this.itemCount, this.offset);
     }
     

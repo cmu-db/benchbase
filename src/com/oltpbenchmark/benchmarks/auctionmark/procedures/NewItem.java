@@ -159,7 +159,7 @@ public class NewItem extends Procedure {
         final boolean debug = LOG.isDebugEnabled();
         
         // Calculate endDate
-        Date end_date = new Date(currentTime.getTime() + (duration * AuctionMarkConstants.MICROSECONDS_IN_A_DAY));
+        Date end_date = new Date(currentTime.getTime() + (duration * AuctionMarkConstants.MILLISECONDS_IN_A_DAY));
         
         if (debug) {
             LOG.debug("NewItem :: run ");

@@ -987,9 +987,10 @@ public class AuctionMarkLoader extends Loader {
             ItemId itemId = new ItemId(seller_id, remaining);
             Date endDate = this.getRandomEndTimestamp();
             Date startDate = this.getRandomStartTimestamp(endDate); 
+            if (LOG.isTraceEnabled())
+                LOG.trace("endDate = " + endDate + " : startDate = " + startDate);
             
-            //LOG.info("endDate = " + endDate + " : startDate = " + startDate);
-            long bidDurationDay = ((endDate.getTime() - startDate.getTime()) / AuctionMarkConstants.MICROSECONDS_IN_A_DAY);
+            long bidDurationDay = ((endDate.getTime() - startDate.getTime()) / AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
             if (this.item_bid_watch_zipfs.containsKey(bidDurationDay) == false) {
                 Zipf randomNumBids = new Zipf(profile.rng,
                         AuctionMarkConstants.ITEM_MIN_BIDS_PER_DAY * (int)bidDurationDay,
@@ -1012,7 +1013,7 @@ public class AuctionMarkLoader extends Loader {
             // tables are done with it.
             LoaderItemInfo itemInfo = new LoaderItemInfo(itemId, endDate, numBids);
             itemInfo.sellerId = seller_id;
-            itemInfo.startDate = endDate;
+            itemInfo.startDate = startDate;
             itemInfo.initialPrice = profile.randomInitialPrice.nextInt();
             assert(itemInfo.initialPrice > 0) : "Invalid initial price for " + itemId;
             itemInfo.numImages = (short) profile.randomNumImages.nextInt();
@@ -1022,10 +1023,9 @@ public class AuctionMarkLoader extends Loader {
             
             // The auction for this item has already closed
             if (itemInfo.endDate.getTime() <= profile.getBenchmarkStartTime().getTime()) {
+                // Somebody won a bid and bought the item
                 if (itemInfo.numBids > 0) {
-                	// Somebody won a bid and bought the item
                     itemInfo.lastBidderId = profile.getRandomBuyerId(itemInfo.sellerId);
-                    //System.out.println("@@@ z last_bidder_id = " + itemInfo.last_bidder_id);
                     itemInfo.purchaseDate = this.getRandomPurchaseTimestamp(itemInfo.endDate);
                     itemInfo.numComments = (short) profile.randomNumComments.nextInt();
                 }
@@ -1044,11 +1044,14 @@ public class AuctionMarkLoader extends Loader {
             // I_C_ID
             row[col++] = profile.getRandomCategoryId();
             // I_NAME
-            row[col++] = profile.rng.astring(6, 32);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_NAME_LENGTH_MIN,
+                                             AuctionMarkConstants.ITEM_NAME_LENGTH_MAX);
             // I_DESCRIPTION
-            row[col++] = profile.rng.astring(50, 255);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_DESCRIPTION_LENGTH_MIN,
+                                             AuctionMarkConstants.ITEM_DESCRIPTION_LENGTH_MAX);
             // I_USER_ATTRIBUTES
-            row[col++] = profile.rng.astring(20, 255);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_USER_ATTRIBUTES_LENGTH_MIN,
+                                             AuctionMarkConstants.ITEM_USER_ATTRIBUTES_LENGTH_MAX);
             // I_INITIAL_PRICE
             row[col++] = itemInfo.initialPrice;
 
@@ -1080,20 +1083,20 @@ public class AuctionMarkLoader extends Loader {
         }
 
         private Date getRandomStartTimestamp(Date endDate) {
-            long duration = ((long)profile.randomDuration.nextInt()) * AuctionMarkConstants.MICROSECONDS_IN_A_DAY;
+            long duration = ((long)profile.randomDuration.nextInt()) * AuctionMarkConstants.MILLISECONDS_IN_A_DAY;
             long lStartTimestamp = endDate.getTime() - duration;
             Date startTimestamp = new Date(lStartTimestamp);
             return startTimestamp;
         }
         private Date getRandomEndTimestamp() {
-            long timeDiff = profile.randomTimeDiff.nextLong();
-            Date time = new Date(profile.getBenchmarkStartTime().getTime() + (timeDiff * 1000000));
+            int timeDiff = profile.randomTimeDiff.nextInt();
+            Date time = new Date(profile.getBenchmarkStartTime().getTime() + (timeDiff * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND));
 //            LOG.info(timeDiff + " => " + sdf.format(time.asApproximateJavaDate()));
             return time;
         }
         private Date getRandomPurchaseTimestamp(Date endDate) {
             long duration = profile.randomPurchaseDuration.nextInt();
-            return new Date(endDate.getTime() + duration * AuctionMarkConstants.MICROSECONDS_IN_A_DAY);
+            return new Date(endDate.getTime() + duration * AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
         }
     }
     
@@ -1186,9 +1189,11 @@ public class AuctionMarkLoader extends Loader {
             // IC_BUYER_ID
             row[col++] = itemInfo.lastBidderId;
             // IC_QUESTION
-            row[col++] = profile.rng.astring(10, 128);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN,
+                                             AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
             // IC_RESPONSE
-            row[col++] = profile.rng.astring(10, 128);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN,
+                                             AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
             // IC_CREATED
             row[col++] = this.getRandomCommentDate(itemInfo.startDate, itemInfo.endDate);
             // IC_UPDATED
@@ -1197,9 +1202,9 @@ public class AuctionMarkLoader extends Loader {
             return (col);
         }
         private Date getRandomCommentDate(Date startDate, Date endDate) {
-            int start = Math.round(startDate.getTime() / 1000000);
-            int end = Math.round(endDate.getTime() / 1000000);
-            return new Date((profile.rng.number(start, end)) * 1000 * 1000);
+            int start = Math.round(startDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
+            int end = Math.round(endDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
+            return new Date((profile.rng.number(start, end)) * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
         }
     }
 
@@ -1512,10 +1517,10 @@ public class AuctionMarkLoader extends Loader {
             return (col);
         }
         private Date getRandomCommentDate(Date startDate, Date endDate) {
-            int start = Math.round(startDate.getTime() / 1000000);
-            int end = Math.round(endDate.getTime() / 1000000);
+            int start = Math.round(startDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
+            int end = Math.round(endDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
             long offset = profile.rng.number(start, end);
-            return new Date(offset * 1000000l);
+            return new Date(offset * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
         }
     } // END CLASS
 } // END CLASS

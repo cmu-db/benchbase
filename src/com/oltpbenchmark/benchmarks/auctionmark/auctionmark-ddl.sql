@@ -129,7 +129,7 @@ CREATE TABLE GLOBAL_ATTRIBUTE_GROUP (
     gag_id              BIGINT NOT NULL,
     gag_c_id            BIGINT NOT NULL REFERENCES CATEGORY (c_id),
     gag_name            VARCHAR(100) NOT NULL,
-    PRIMARY KEY (gag_id),
+    PRIMARY KEY (gag_id)
 );
 
 -- ================================================================
@@ -144,7 +144,7 @@ CREATE TABLE GLOBAL_ATTRIBUTE_VALUE (
     gav_id              BIGINT NOT NULL,
     gav_gag_id          BIGINT NOT NULL REFERENCES GLOBAL_ATTRIBUTE_GROUP (gag_id),
     gav_name            VARCHAR(100) NOT NULL,
-    PRIMARY KEY (gav_id, gav_gag_id),
+    PRIMARY KEY (gav_id, gav_gag_id)
 );
 
 -- ================================================================
@@ -189,7 +189,7 @@ CREATE TABLE ITEM (
     i_iattr5            BIGINT DEFAULT NULL,
     i_iattr6            BIGINT DEFAULT NULL,
     i_iattr7            BIGINT DEFAULT NULL, 
-    PRIMARY KEY (i_id, i_u_id),
+    PRIMARY KEY (i_id, i_u_id)
 );
 
 -- ================================================================
@@ -224,7 +224,7 @@ CREATE TABLE ITEM_IMAGE (
     ii_u_id             BIGINT NOT NULL,
     ii_sattr0			VARCHAR(128) NOT NULL,
     FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES ITEM (i_id, i_u_id),
-    PRIMARY KEY (ii_id, ii_i_id, ii_u_id),
+    PRIMARY KEY (ii_id, ii_i_id, ii_u_id)
 );
 
 -- ================================================================
@@ -247,7 +247,7 @@ CREATE TABLE ITEM_COMMENT (
     ic_created          TIMESTAMP,
     ic_updated          TIMESTAMP,
     FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id),
-    PRIMARY KEY (ic_id, ic_i_id, ic_u_id),
+    PRIMARY KEY (ic_id, ic_i_id, ic_u_id)
 ); 
 
 -- ================================================================
@@ -271,7 +271,7 @@ CREATE TABLE ITEM_BID (
     ib_created          TIMESTAMP,
     ib_updated          TIMESTAMP,
     FOREIGN KEY (ib_i_id, ib_u_id) REFERENCES ITEM (i_id, i_u_id),
-    PRIMARY KEY (ib_id, ib_i_id, ib_u_id),
+    PRIMARY KEY (ib_id, ib_i_id, ib_u_id)
 );
 
 -- ================================================================
@@ -288,7 +288,7 @@ CREATE TABLE ITEM_MAX_BID (
     imb_updated         TIMESTAMP,
     FOREIGN KEY (imb_i_id, imb_u_id) REFERENCES ITEM (i_id, i_u_id),
     FOREIGN KEY (imb_ib_id, imb_ib_i_id, imb_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id),
-    PRIMARY KEY (imb_i_id, imb_u_id),
+    PRIMARY KEY (imb_i_id, imb_u_id)
 );
 
 -- ================================================================
@@ -305,7 +305,7 @@ CREATE TABLE ITEM_PURCHASE (
     ip_ib_u_id          BIGINT NOT NULL,
     ip_date             TIMESTAMP,
     FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id),
-    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
+    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
 );
 
 -- ================================================================

@@ -121,6 +121,15 @@ public abstract class AuctionMarkConstants {
     public static final int ITEM_MAX_COMMENTS = 5;
     public static final int ITEM_MIN_GLOBAL_ATTRS = 1;
     public static final int ITEM_MAX_GLOBAL_ATTRS = 10;
+
+    public static final int ITEM_NAME_LENGTH_MIN = 16;
+    public static final int ITEM_NAME_LENGTH_MAX = 100;
+    
+    public static final int ITEM_DESCRIPTION_LENGTH_MIN = 50;
+    public static final int ITEM_DESCRIPTION_LENGTH_MAX = 255;
+    
+    public static final int ITEM_USER_ATTRIBUTES_LENGTH_MIN = 20;
+    public static final int ITEM_USER_ATTRIBUTES_LENGTH_MAX = 255;
     
     public static final int ITEM_COMMENT_LENGTH_MIN = 10;
     public static final int ITEM_COMMENT_LENGTH_MAX = 128;
@@ -285,8 +294,8 @@ public abstract class AuctionMarkConstants {
     public static final long ENDING_SOON = 7200000l; // 10 hours
     
     public static final long SECONDS_IN_A_DAY = 24 * 60 * 60;
-    public static final long MILLISECONDS_IN_A_DAY = SECONDS_IN_A_DAY * 1000;
-    public static final long MICROSECONDS_IN_A_DAY = MILLISECONDS_IN_A_DAY * 1000;
+    public static final long MILLISECONDS_IN_A_SECOND = 1000;
+    public static final long MILLISECONDS_IN_A_DAY = SECONDS_IN_A_DAY * MILLISECONDS_IN_A_SECOND;
     
     // ----------------------------------------------------------------
     // PROBABILITIES
