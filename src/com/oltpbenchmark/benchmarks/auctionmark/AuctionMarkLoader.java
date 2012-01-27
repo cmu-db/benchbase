@@ -1501,7 +1501,8 @@ public class AuctionMarkLoader extends Loader {
             
             if (LOG.isTraceEnabled())
                 LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, size=%d]", use_random, this.watchers.size()));
-            while (buyerId == null) {
+            int tries = 1000;
+            while (buyerId == null && tries-- > 0) {
                 try {
                     if (use_random) {
                         buyerId = profile.getRandomBuyerId();        

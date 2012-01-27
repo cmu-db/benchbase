@@ -188,6 +188,11 @@ public class AuctionMarkProfile {
      * on them more than once
      */
     private transient Set<ItemInfo> previousWaitForPurchase = new HashSet<ItemInfo>();
+
+    /**
+     * TODO
+     */
+    protected final transient Histogram<UserId> seller_item_cnt = new Histogram<UserId>();
     
     // -----------------------------------------------------------------
     // CONSTRUCTOR

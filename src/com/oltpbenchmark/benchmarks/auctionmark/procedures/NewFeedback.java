@@ -33,15 +33,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 
+/**
+ * NewFeedback
+ * @author pavlo
+ */
 public class NewFeedback extends Procedure {
-    private static final Logger LOG = Logger.getLogger(NewFeedback.class);
     
     // -----------------------------------------------------------------
     // STATEMENTS
@@ -87,8 +88,6 @@ public class NewFeedback extends Procedure {
     public void run(Connection conn, Date benchmarkTimes[],
                     long user_id, long i_id, long seller_id, long from_id, long rating, String comment) throws SQLException {
         final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
-        final boolean debug = LOG.isDebugEnabled();
-        if (debug) LOG.debug("NewFeedback::: selecting max feedback");
 
         // Check to make sure they're not trying to add feedback
         // twice for the same ITEM
@@ -100,7 +99,6 @@ public class NewFeedback extends Procedure {
 
         this.getPreparedStatement(conn, insertFeedback, user_id, i_id, seller_id, from_id, rating, currentTime, comment).executeUpdate();
         this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
-        if (debug) LOG.debug("NewFeedback::: feedback inserted ");
 
         return;
     }

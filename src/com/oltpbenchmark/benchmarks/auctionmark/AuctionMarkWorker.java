@@ -48,11 +48,6 @@ public class AuctionMarkWorker extends Worker {
     /**
      * TODO
      */
-    private final Map<UserId, Integer> seller_item_cnt = new HashMap<UserId, Integer>();
-
-    /**
-     * TODO
-     */
     private final List<long[]> pending_commentResponse = Collections.synchronizedList(new ArrayList<long[]>());
     
     private final AtomicBoolean closeAuctions_flag = new AtomicBoolean();
@@ -419,18 +414,18 @@ public class AuctionMarkWorker extends Worker {
         assert (i_id.getSellerId().equals(sellerId));
          
         ItemStatus qtype = profile.addItemToProperQueue(itemInfo, false);
-//        this.updated.put(qtype);
     
         return (i_id);
     }
     
     public ItemId getNextItemId(UserId seller_id) {
-        Integer cnt = this.seller_item_cnt.get(seller_id);
+        Long cnt = profile.seller_item_cnt.get(seller_id);
         if (cnt == null || cnt == 0) {
-            cnt = (int)seller_id.getItemCount();
+            cnt = (long)seller_id.getItemCount();
+            profile.seller_item_cnt.put(seller_id, cnt);
         }
-        this.seller_item_cnt.put(seller_id, ++cnt);
-        return (new ItemId(seller_id, cnt));
+        profile.seller_item_cnt.put(seller_id);
+        return (new ItemId(seller_id, cnt.intValue()));
     }
     
     public Date[] getTimestampParameterArray() {
