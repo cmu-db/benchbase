@@ -209,11 +209,11 @@ public abstract class Worker implements Runnable {
                         // SQLServerException Deadlock
                         continue;
                     } 
-                    
-                    if (ex.getMessage().contains("ORA-08177")) {
-                        // Oracle
+                    if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
+                        // ORA-08177: Oracle Serialization
                         continue;
-                    }
+                    } 
+                    
                     // UNKNOWN: Just rethrow it!
                     else {
                         LOG.fatal(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
