@@ -128,7 +128,7 @@ public class LoaderItemInfo extends ItemInfo {
         public String toString() {
             Class<?> hints_class = this.getClass();
             ListOrderedMap<String, Object> m = new ListOrderedMap<String, Object>();
-            for (Field f : hints_class.getDeclaredFields()) {
+            for (Field f : hints_class.getFields()) {
                 String key = f.getName().toUpperCase();
                 Object val = null;
                 try {

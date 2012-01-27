@@ -309,7 +309,8 @@ CREATE TABLE ITEM_PURCHASE (
     ip_ib_u_id          BIGINT NOT NULL,
     ip_date             TIMESTAMP,
     FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id),
-    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
+    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
+    UNIQUE (ip_ib_id, ip_ib_i_id, ip_ib_u_id)
 );
 
 -- ================================================================
@@ -332,7 +333,8 @@ CREATE TABLE USER_FEEDBACK (
     uf_date             TIMESTAMP,
     uf_sattr0           VARCHAR(80) NOT NULL,
     FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id),
-    PRIMARY KEY (uf_u_id, uf_i_id, uf_i_u_id, uf_from_id)
+    PRIMARY KEY (uf_u_id, uf_i_id, uf_i_u_id, uf_from_id),
+    CHECK (uf_u_id <> uf_from_id)
 );
 
 -- ================================================================

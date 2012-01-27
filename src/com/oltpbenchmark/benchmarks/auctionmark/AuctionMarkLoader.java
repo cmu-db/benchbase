@@ -239,7 +239,7 @@ public class AuctionMarkLoader extends Loader {
 //                for (int i = 0; i < volt_table.size(); i++) {
 //                    sb.append(String.format("[%03d] %s\n", i, StringUtil.abbrv(Arrays.toString(volt_table.get(i)), 100)));
 //                }
-//                LOG.debug(sb.toString() + "\n");
+//                LOG.info(sb.toString() + "\n");
 //            }
             
             for (Object row[] : volt_table) {
@@ -1396,8 +1396,6 @@ public class AuctionMarkLoader extends Loader {
      **********************************************************************************************/
     protected class UserFeedbackGenerator extends SubTableGenerator<LoaderItemInfo.Bid> {
 
-        Set<ItemId> seenIds = new HashSet<ItemId>();
-        
         public UserFeedbackGenerator() {
             super(AuctionMarkConstants.TABLENAME_USER_FEEDBACK,
                   AuctionMarkConstants.TABLENAME_ITEM_PURCHASE);
@@ -1405,8 +1403,6 @@ public class AuctionMarkLoader extends Loader {
 
         @Override
         protected short getElementCounter(LoaderItemInfo.Bid bid) {
-            assert(seenIds.contains(bid.getLoaderItemInfo().itemId) == false);
-            seenIds.add(bid.getLoaderItemInfo().itemId);
             return (short)((bid.buyer_feedback ? 1 : 0) + (bid.seller_feedback ? 1 : 0));
         }
         @Override
@@ -1414,7 +1410,7 @@ public class AuctionMarkLoader extends Loader {
             int col = 0;
 
             boolean is_buyer = false;
-            if (remaining > 1 || (bid.buyer_feedback && bid.seller_feedback == false)) {
+            if (remaining == 1 || (bid.buyer_feedback && bid.seller_feedback == false)) {
                 is_buyer = true;
             } else {
                 assert(bid.seller_feedback);
@@ -1434,7 +1430,7 @@ public class AuctionMarkLoader extends Loader {
             row[col++] = 1; // TODO
             // UF_DATE
             row[col++] = profile.getBenchmarkStartTime(); // Does this matter?
-
+            
             return (col);
         }
     }
