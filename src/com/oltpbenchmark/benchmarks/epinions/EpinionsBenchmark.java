@@ -27,6 +27,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -36,6 +38,8 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
 public class EpinionsBenchmark extends BenchmarkModule {
+    
+    private static final Logger LOG = Logger.getLogger(EpinionsBenchmark.class);
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
         super("epinions", workConf);
@@ -67,7 +71,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
                 user_ids.add(res.getString(1));
             }
             res.close();
-
+            if(LOG.isDebugEnabled()) LOG.debug("Loaded: "+user_ids.size()+" User ids");
             // LIST OF ITEMS AND
             t = this.catalog.getTable("ITEM");
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
@@ -78,6 +82,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
                 item_ids.add(res.getString(1));
             }
             res.close();
+            if(LOG.isDebugEnabled()) LOG.debug("Loaded: "+item_ids.size()+" Item ids");
             metaConn.close();
             // Now create the workers.
             for (int i = 0; i < workConf.getTerminals(); ++i) {
