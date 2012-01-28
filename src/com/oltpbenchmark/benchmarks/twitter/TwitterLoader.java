@@ -48,7 +48,7 @@ public class TwitterLoader extends Loader {
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
         
         int total = 0;
-        for (int i = 0; i < this.num_users; i++) {
+        for (int i = 0; i <= this.num_users; i++) {
         	// Generate a random username for this user
         	int name_length = LoaderUtil.randomNumber(TwitterConstants.MIN_NAME_LENGTH,
         											  TwitterConstants.MAX_NAME_LENGTH,
@@ -148,21 +148,22 @@ public class TwitterLoader extends Loader {
             followees.clear();
             int time = zipfFollows.nextInt();
             if(time==0) time=1; // At least this follower will follow 1 user 
-            for (int f = 0; f < time; f++) {
+            for (int f = 0; f < time; ) {
                 int followee = zipfFollowee.nextInt();
                 if (follower != followee && !followees.contains(followee)) {
-                    followsInsert.setInt(1, followee);
-                    followsInsert.setInt(2, follower);
+                    followsInsert.setInt(1, follower);
+                    followsInsert.setInt(2, followee);
                     followsInsert.addBatch();
 
-                    followersInsert.setInt(1, follower);
-                    followersInsert.setInt(2, followee);
+                    followersInsert.setInt(1, followee);
+                    followersInsert.setInt(2, follower);
                     followersInsert.addBatch();
 
                     followees.add(followee);
                     
                     total++;
                     batchSize++;
+                    f++;
 
                     if ((batchSize % configCommitCount) == 0) {
                         followsInsert.executeBatch();
