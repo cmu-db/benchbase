@@ -82,9 +82,14 @@ public class GetPageAnonymous extends Procedure {
 		st.setInt(2, pageId);
 		rs = st.executeQuery();
 		if (!rs.next())
-			throw new RuntimeException("no such revision: page_id:" + pageId
+		{
+		    LOG.warn("no such revision: page_id:" + pageId
+                    + " page_namespace: " + nameSpace + " page_title:"
+                    + pageTitle);
+			throw new UserAbortException("no such revision: page_id:" + pageId
 					+ " page_namespace: " + nameSpace + " page_title:"
 					+ pageTitle);
+		}
 	
 		int revisionId = rs.getInt("rev_id");
 		int textId = rs.getInt("rev_text_id");
@@ -101,8 +106,17 @@ public class GetPageAnonymous extends Procedure {
 		st.setInt(1, textId);
 		rs = st.executeQuery();
 		if (!rs.next())
-			throw new RuntimeException("no such old_text");
-		if (!forSelect)
+		{
+            LOG.warn("no such text: " + textId 
+            		+ " for page_id:" + pageId
+                    + " page_namespace: " + nameSpace  
+                    + " page_title:" + pageTitle);
+            throw new UserAbortException("no such text: " + textId 
+                    + " for page_id:" + pageId
+                    + " page_namespace: " + nameSpace  
+                    + " page_title:" + pageTitle);
+		}
+			if (!forSelect)
 			a = new Article(userIp, pageId, rs.getString("old_text"), textId,
 					revisionId);
 		assert !rs.next();
