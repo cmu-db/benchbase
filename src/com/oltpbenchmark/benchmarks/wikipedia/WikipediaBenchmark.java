@@ -39,7 +39,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	private final WikipediaConfiguration wikiConf;
 	
 	public WikipediaBenchmark(WorkloadConfiguration workConf) {		
-		super("wikipedia", workConf);
+		super("wikipedia", workConf, true);
 		this.wikiConf = new WikipediaConfiguration(workConf);
 	}
 

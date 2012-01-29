@@ -38,7 +38,7 @@ import com.oltpbenchmark.util.SimpleSystemPrinter;
 public class TPCCBenchmark extends BenchmarkModule {
 
 	public TPCCBenchmark(WorkloadConfiguration workConf) {
-		super("tpcc", workConf);
+		super("tpcc", workConf, true);
 	}
 
 	@Override

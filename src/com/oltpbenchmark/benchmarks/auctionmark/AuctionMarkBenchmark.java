@@ -48,7 +48,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     private final RandomGenerator rng = new RandomGenerator((int)System.currentTimeMillis());
     
 	public AuctionMarkBenchmark(WorkloadConfiguration workConf) {
-		super("auctionmark", workConf);
+		super("auctionmark", workConf, true);
 	}
 	
 	public File getDataDir() {

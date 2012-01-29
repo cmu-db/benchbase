@@ -68,13 +68,15 @@ public abstract class BenchmarkModule {
      */
     protected boolean verbose;
 
-    public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf) {
+    public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf, boolean withCatalog) {
         assert (workConf != null) : "The WorkloadConfiguration instance is null.";
 
         this.benchmarkName = benchmarkName;
         this.workConf = workConf;
-        this.catalog = new Catalog(this);
-        
+        if(withCatalog)
+            this.catalog = new Catalog(this);
+        else
+            this.catalog=null;
         File xmlFile = this.getSQLDialect();
         this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
     }

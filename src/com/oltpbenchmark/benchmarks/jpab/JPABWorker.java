@@ -49,7 +49,6 @@ public class JPABWorker extends Worker{
 		else if (txnType.getProcedureClass().equals(NodeTest.class)) {			
 			nodeTest();
 		}
-		conn.commit();
 		return (TransactionStatus.SUCCESS);
 	}
 

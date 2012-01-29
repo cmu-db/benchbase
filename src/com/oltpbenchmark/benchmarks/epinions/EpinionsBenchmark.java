@@ -42,7 +42,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(EpinionsBenchmark.class);
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super("epinions", workConf);
+        super("epinions", workConf, true);
     }
 
     @Override

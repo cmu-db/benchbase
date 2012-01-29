@@ -12,7 +12,7 @@ import com.oltpbenchmark.types.DatabaseType;
 
 public class MockBenchmark extends BenchmarkModule {
     public MockBenchmark() {
-        super("mock", new WorkloadConfiguration());
+        super("mock", new WorkloadConfiguration(), true);
     }
     @Override
     protected Package getProcedurePackageImpl() {

@@ -22,14 +22,17 @@ public class JPABBenchmark extends BenchmarkModule {
 
     private EntityManagerFactory emf;
 
+    private JPABConfiguration jpabConf;
+
     public JPABBenchmark(WorkloadConfiguration workConf) {
-        super("jpab", workConf);
+        super("jpab", workConf, false);
+        this.jpabConf = new JPABConfiguration(workConf);
     }
 
     @Override
     protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
         ArrayList<Worker> workers = new ArrayList<Worker>();
-        emf = Persistence.createEntityManagerFactory("Hibernate-MySQL-server");
+        emf = Persistence.createEntityManagerFactory(jpabConf.getPersistanceUnit());
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             JPABWorker worker = new JPABWorker(i, this);
             worker.em = emf.createEntityManager();

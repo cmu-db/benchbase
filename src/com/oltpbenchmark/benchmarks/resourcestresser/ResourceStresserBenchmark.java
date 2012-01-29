@@ -36,7 +36,7 @@ import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 public class ResourceStresserBenchmark extends BenchmarkModule {
 
 	public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
-		super("resourcestresser", workConf);
+		super("resourcestresser", workConf, true);
 	}
 	
 	@Override
