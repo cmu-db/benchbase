@@ -40,7 +40,7 @@ CREATE TABLE "tweets" (
 -- TODO: id AUTO_INCREMENT
 DROP TABLE IF EXISTS "added_tweets";
 CREATE TABLE "added_tweets" (
-  id bigint NOT NULL,
+  id serial,
   uid int NOT NULL REFERENCES "user" (uid),
   text char(140) NOT NULL,
   createdate timestamp DEFAULT NULL,
