@@ -209,6 +209,10 @@ public abstract class Worker implements Runnable {
                         // SQLServerException Deadlock
                         continue;
                     } 
+                    if (ex.getErrorCode() == 0 && ex.getSQLState().equals("40001")) {
+                        // Postgres serialization
+                        continue;
+                    } 
                     if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
                         // ORA-08177: Oracle Serialization
                         continue;
