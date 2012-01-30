@@ -218,10 +218,10 @@ public abstract class Worker implements Runnable {
                         continue;
                     } 
                     
-                    // UNKNOWN: Just rethrow it!
+                    // UNKNOWN: Just keep going ..
                     else {
-                        LOG.fatal(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
-                        throw ex;
+                        LOG.warn(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                        // throw ex;
                     }
                 }
     	    } // WHILE
