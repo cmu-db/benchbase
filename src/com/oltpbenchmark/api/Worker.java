@@ -196,7 +196,7 @@ public abstract class Worker implements Runnable {
                 } catch (SQLException ex) {
                                        
                     //TODO: Handle acceptable error codes for every DBMS
-                    LOG.info(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    if(LOG.isDebugEnabled()) LOG.debug(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
                     if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
                         // MySQLTransactionRollbackException
                         continue;
