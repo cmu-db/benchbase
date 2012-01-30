@@ -2,6 +2,7 @@ package com.oltpbenchmark.api;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 
@@ -161,13 +163,17 @@ public abstract class Worker implements Runnable {
 	protected final TransactionType doWork(boolean measure, Phase phase) {
 	    TransactionType next = null;
 	    TransactionStatus status = TransactionStatus.RETRY; 
-
+	    Savepoint savepoint = null;
+	    
 	    try {
     	    while (status == TransactionStatus.RETRY) {
     	        if (next == null)
     	            next = transactionTypes.getType(phase.chooseTransaction());
     	        
         	    try {
+        	        if (wrkld.getDBType() == DatabaseType.POSTGRES)
+        	            savepoint = this.conn.setSavepoint();
+        	        
         	        status = this.executeWork(next);
         	        switch (status) {
         	            case SUCCESS:
@@ -189,7 +195,11 @@ public abstract class Worker implements Runnable {
         	    } catch (UserAbortException ex) {
                     if (LOG.isDebugEnabled())
                         LOG.debug(next + " Aborted", ex);
-                    this.conn.rollback();
+                    if (savepoint != null) {
+                        this.conn.rollback(savepoint);
+                    } else {
+                        this.conn.rollback();
+                    }
                     break;
                     
                 // Database System Specific Exception Handling
