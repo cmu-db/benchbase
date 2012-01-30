@@ -46,8 +46,8 @@ public class GetPageAnonymous extends Procedure {
 			rs.close();
 			//st.close();
 			conn.commit();// skipping the rest of the transaction
-			LOG.fatal("The used trace is invalid");
-			throw new RuntimeException("INVALID page namespace/title:"+nameSpace+"/" + pageTitle);	
+			LOG.warn("The used trace contains invalid pages: "+ nameSpace+"/" + pageTitle);
+			throw new UserAbortException("INVALID page namespace/title:"+nameSpace+"/" + pageTitle);	
 		}
 		int pageId = rs.getInt("page_id");
 		assert !rs.next();

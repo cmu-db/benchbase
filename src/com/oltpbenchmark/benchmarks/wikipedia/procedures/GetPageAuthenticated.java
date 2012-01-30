@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.benchmarks.wikipedia.Article;
 
 public class GetPageAuthenticated extends Procedure {
@@ -42,8 +43,8 @@ public class GetPageAuthenticated extends Procedure {
 			}
 			else
 			{
-			    LOG.fatal("The used trace is invalid");
-			    throw new RuntimeException("Unknown user:"+userId);
+			    LOG.warn("The used trace contains invalid users: " + userId);
+			    throw new UserAbortException("Unknown user: "+userId);
 			}    
 			// Fetch all groups the user might belong to (access control
 			// information)
@@ -65,15 +66,13 @@ public class GetPageAuthenticated extends Procedure {
 		st.setString(2, pageTitle);
 		ResultSet rs = st.executeQuery();
 	
-		if (!rs.next()) {
-			rs.close();
-			//st.close();
-			conn.commit();// skipping the rest of the transaction
-			return null;
-			// throw new RuntimeException("invalid page namespace/title:"
-			// +nameSpace+" /" + pageTitle);
-	
-		}
+        if (!rs.next()) {
+            rs.close();
+            //st.close();
+            conn.commit();// skipping the rest of the transaction
+            LOG.warn("The used trace contains invalid pages");
+            throw new UserAbortException("INVALID page namespace/title:"+nameSpace+"/" + pageTitle);    
+        }
 		int pageId = rs.getInt("page_id");
 		assert !rs.next();
 		//st.close();
@@ -106,10 +105,15 @@ public class GetPageAuthenticated extends Procedure {
 		st.setInt(1, pageId);
 		st.setInt(2, pageId);
 		rs = st.executeQuery();
-		if (!rs.next())
-			throw new RuntimeException("no such revision: page_id:" + pageId
-					+ " page_namespace: " + nameSpace + " page_title:"
-					+ pageTitle);
+        if (!rs.next())
+        {
+            LOG.warn("no such revision: page_id:" + pageId
+                    + " page_namespace: " + nameSpace + " page_title:"
+                    + pageTitle);
+            throw new UserAbortException("no such revision: page_id:" + pageId
+                    + " page_namespace: " + nameSpace + " page_title:"
+                    + pageTitle);
+        }
 	
 		int revisionId = rs.getInt("rev_id");
 		int textId = rs.getInt("rev_text_id");
@@ -125,8 +129,17 @@ public class GetPageAuthenticated extends Procedure {
 		st=this.getPreparedStatement(conn, selectText);
 		st.setInt(1,textId);
 		rs = st.executeQuery();
-		if (!rs.next())
-			throw new RuntimeException("no such old_text");
+        if (!rs.next())
+        {
+            LOG.warn("no such text: " + textId 
+                    + " for page_id:" + pageId
+                    + " page_namespace: " + nameSpace  
+                    + " page_title:" + pageTitle);
+            throw new UserAbortException("no such text: " + textId 
+                    + " for page_id:" + pageId
+                    + " page_namespace: " + nameSpace  
+                    + " page_title:" + pageTitle);
+        }
 		if (!forSelect)
 			a = new Article(userText, pageId, rs.getString("old_text"), textId,
 					revisionId);
