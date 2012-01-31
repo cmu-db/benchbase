@@ -36,6 +36,7 @@ public class GlobalAttributeGroupId extends CompositeId {
         8,  // ID
         8   // COUNT
     };
+    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
     
     private int category_id;
     private int id;
@@ -53,12 +54,12 @@ public class GlobalAttributeGroupId extends CompositeId {
     
     @Override
     public long encode() {
-        return (this.encode(COMPOSITE_BITS));
+        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
     }
 
     @Override
     public void decode(long composite_id) {
-        long values[] = super.decode(composite_id, COMPOSITE_BITS);
+        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.category_id = (int)values[0];
         this.id = (int)values[1];
         this.count = (int)values[2];

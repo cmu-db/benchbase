@@ -30,35 +30,36 @@ package com.oltpbenchmark.benchmarks.seats.util;
 import java.sql.Date;
 
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+import com.oltpbenchmark.util.CompositeId;
 
-public class FlightId {
+public class FlightId extends CompositeId {
     
-    private static final int MAX_VALUE = 65535; // 2^14 - 1
-    private static final int VALUE_OFFSET = 16;
-
+    private static final int COMPOSITE_BITS[] = {
+        16, // AIRLINE_ID
+        16, // DEPART AIRPORT_ID
+        16, // ARRIVE AIRPORT_ID
+        16, // DEPART DATE
+    };
+    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
+    
     /** 
      * The airline for this flight
      */
-    private long airline_id;
+    private int airline_id;
     /**
      * The id of the departure airport
      */
-    private long depart_airport_id;
+    private int depart_airport_id;
     /**
      * The id of the arrival airport
      */
-    private long arrive_airport_id;
+    private int arrive_airport_id;
     /**
      * This is the departure time of the flight in minutes since the benchmark start date
      * @see SEATSBaseClient.getFlightTimeInMinutes()
      */
-    private long depart_date;
-
-    private transient int hashCode = -1;
+    private int depart_date;
     
-    public FlightId() {
-        // Nothing...
-    }
     
     /**
      * Constructor
@@ -69,10 +70,15 @@ public class FlightId {
      * @param flight_date - when departure date of the flight
      */
     public FlightId(long airline_id, long depart_airport_id, long arrive_airport_id, Date benchmark_start, Date flight_date) {
-        this.airline_id = airline_id;
-        this.depart_airport_id = depart_airport_id;
-        this.arrive_airport_id = arrive_airport_id;
+        this.airline_id = (int)airline_id;
+        this.depart_airport_id = (int)depart_airport_id;
+        this.arrive_airport_id = (int)arrive_airport_id;
         this.depart_date = FlightId.calculateFlightDate(benchmark_start, flight_date);
+        assert(this.depart_date >= 0) : benchmark_start + " / " + flight_date;
+    }
+    
+    public FlightId() {
+        // Nothing!
     }
     
     /**
@@ -80,11 +86,33 @@ public class FlightId {
      * @param composite_id
      */
     public FlightId(long composite_id) {
-        long values[] = FlightId.decode(composite_id);
-        this.airline_id = values[0];
-        this.depart_airport_id = values[1];
-        this.arrive_airport_id = values[2];
-        this.depart_date = values[3];
+        this.set(composite_id);
+    }
+    
+    public void set(long composite_id) {
+        this.decode(composite_id);
+    }
+    
+    @Override
+    public long encode() {
+        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+    }
+
+    @Override
+    public void decode(long composite_id) {
+        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        this.airline_id = (int)values[0];
+        this.depart_airport_id = (int)values[1];
+        this.arrive_airport_id = (int)values[2];
+        this.depart_date = (int)values[3];
+    }
+
+    @Override
+    public long[] toArray() {
+        return (new long[]{ this.airline_id,
+                            this.depart_airport_id,
+                            this.arrive_airport_id,
+                            this.depart_date });
     }
     
     /**
@@ -93,16 +121,16 @@ public class FlightId {
      * @param flight_date
      * @return
      */
-    protected static final long calculateFlightDate(Date benchmark_start, Date flight_date) {
+    protected static final int calculateFlightDate(Date benchmark_start, Date flight_date) {
         assert(benchmark_start != null);
         assert(flight_date != null);
-        return (flight_date.getTime() - benchmark_start.getTime()) / 3600000; // 60s * 60m * 1000
+        return (int)((flight_date.getTime() - benchmark_start.getTime()) / 3600000); // 60s * 60m * 1000
     }
     
     /**
      * @return the id
      */
-    public long getSEATSId() {
+    public long getAirlineId() {
         return airline_id;
     }
 
@@ -132,49 +160,6 @@ public class FlightId {
         return ((depart_date.getTime() - benchmark_start.getTime()) >= (past_days * SEATSConstants.MILLISECONDS_PER_DAY)); 
     }
     
-    public long encode() {
-        return FlightId.encode(new long[]{ this.airline_id,
-                                           this.depart_airport_id,
-                                           this.arrive_airport_id,
-                                           this.depart_date});
-    }
-
-    public static long encode(long...values) {
-        assert(values.length == 4);
-        for (int i = 0; i < values.length; i++) {
-            assert(values[i] >= 0) : "FlightId value at position " + i + " is " + values[i];
-            assert(values[i] < MAX_VALUE) : "FlightId value at position " + i + " is " + values[i] + ". Max value is " + MAX_VALUE;
-        } // FOR
-        
-        long id = values[0];
-        int offset = VALUE_OFFSET;
-        // System.out.println("0: " + id);
-        for (int i = 1; i < values.length; i++) {
-            id = id | values[i]<<offset;
-            // System.out.println(id + ": " + id + "  [offset=" + offset + ", value=" + values[i] + "]");
-            offset += VALUE_OFFSET;
-        }
-        return (id);
-    }
-    
-    public static long[] decode(long composite_id) {
-        long values[] = new long[4];
-        int offset = 0;
-        for (int i = 0; i < values.length; i++) {
-            values[i] = composite_id>>offset & MAX_VALUE;
-            offset += VALUE_OFFSET;
-        } // FOR
-        return (values);
-    }
-    
-    private void internalDecode(long composite_id) {
-        long vals[] = decode(composite_id);
-        this.airline_id = vals[0];
-        this.depart_airport_id = vals[1];
-        this.arrive_airport_id = vals[2];
-        this.depart_date = vals[3];
-    }
-    
     @Override
     public String toString() {
         return String.format("FlightId{airline=%d,depart=%d,arrive=%d,date=%s}",
@@ -192,37 +177,4 @@ public class FlightId {
         }
         return (false);
     }
-    
-    @Override
-    public int hashCode() {
-        if (this.hashCode == -1) {
-            this.hashCode = new Long(this.encode()).hashCode();
-        }
-        return (this.hashCode);
-    }
-    
-    // -----------------------------------------------------------------
-    // SERIALIZATION
-    // -----------------------------------------------------------------
-    
-//    @Override
-//    public void load(String input_path, Database catalog_db) throws IOException {
-//        JSONUtil.load(this, catalog_db, input_path);
-//    }
-//    @Override
-//    public void save(String output_path) throws IOException {
-//        JSONUtil.save(this, output_path);
-//    }
-//    @Override
-//    public String toJSONString() {
-//        return (JSONUtil.toJSONString(this));
-//    }
-//    @Override
-//    public void toJSON(JSONStringer stringer) throws JSONException {
-//        stringer.key("ID").value(this.encode());
-//    }
-//    @Override
-//    public void fromJSON(JSONObject json_object, Database catalog_db) throws JSONException {
-//        this.internalDecode(json_object.getLong("ID"));
-//    }
 }

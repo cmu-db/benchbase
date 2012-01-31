@@ -28,6 +28,7 @@
 package com.oltpbenchmark.util;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.oltpbenchmark.util.json.JSONException;
 import com.oltpbenchmark.util.json.JSONObject;
@@ -41,17 +42,25 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
     
     private transient int hashCode = -1;
     
-    protected final long encode(int...offset_bits) {
+    protected static final long[] compositeBitsPreCompute(int offset_bits[]) {
+        long pows[] = new long[offset_bits.length];
+        for (int i = 0; i < offset_bits.length; i++) {
+            pows[i] = (long)(Math.pow(2, offset_bits[i]) - 1l);
+        } // FOR
+        return (pows);
+    }
+    
+    protected final long encode(int offset_bits[], long offset_pows[]) {
         long values[] = this.toArray();
         assert(values.length == offset_bits.length);
         long id = 0;
         int offset = 0;
         for (int i = 0; i < values.length; i++) {
-            long max_value = (long)(Math.pow(2, offset_bits[i]) - 1l);
+            long max_value = offset_pows[i];
 
             assert(values[i] >= 0) :
-                String.format("%s value at position %d is %d",
-                              this.getClass().getSimpleName(), i, values[i]);
+                String.format("%s value at position %d is %d %s",
+                              this.getClass().getSimpleName(), i, values[i], Arrays.toString(values));
             assert(values[i] < max_value) :
                 String.format("%s value at position %d is %d. Max value is %d",
                               this.getClass().getSimpleName(), i, values[i], max_value);
@@ -63,11 +72,11 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
         return (id);
     }
     
-    protected final long[] decode(long composite_id, int...offset_bits) {
+    protected final long[] decode(long composite_id, int offset_bits[], long offset_pows[]) {
         long values[] = new long[offset_bits.length];
         int offset = 0;
         for (int i = 0; i < values.length; i++) {
-            long max_value = (long)(Math.pow(2, offset_bits[i]) - 1l);
+            long max_value = offset_pows[i];
             values[i] = (composite_id>>offset & max_value);
             offset += offset_bits[i];
         } // FOR

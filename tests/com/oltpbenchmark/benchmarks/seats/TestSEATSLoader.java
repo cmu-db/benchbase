@@ -33,7 +33,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         assertEquals(orig.flight_future_days, copy.flight_future_days);
         assertEquals(orig.flight_upcoming_offset, copy.flight_upcoming_offset);
         assertEquals(orig.reservation_upcoming_offset, copy.reservation_upcoming_offset);
-        assertEquals(orig.num_records, copy.num_records);
+        assertEquals(orig.num_reservations, copy.num_reservations);
         assertEquals(orig.histograms, copy.histograms);
         assertEquals(orig.airport_histograms, copy.airport_histograms);
 //        assertEquals(orig.code_id_xref, copy.code_id_xref);

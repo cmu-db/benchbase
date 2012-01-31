@@ -35,6 +35,7 @@ public class UserId extends CompositeId {
         24, // ITEM_COUNT
         24, // OFFSET
     };
+    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
     
     /**
      * The size index is the position in the histogram for the number
@@ -72,11 +73,11 @@ public class UserId extends CompositeId {
     
     @Override
     public long encode() {
-        return (this.encode(COMPOSITE_BITS));
+        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
     }
     @Override
     public void decode(long composite_id) {
-        long values[] = super.decode(composite_id, COMPOSITE_BITS);
+        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.offset = (int)values[0];
         this.itemCount = (int)values[1];
     }

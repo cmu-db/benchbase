@@ -54,8 +54,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.*;
@@ -84,7 +82,7 @@ public class FindOpenSeats extends Procedure {
         " WHERE R_F_ID = ?"
     );
     
-    public List<Object[]> run(Connection conn, long f_id) throws SQLException {
+    public Object[][] run(Connection conn, long f_id) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
         
         // 150 seats
@@ -124,23 +122,23 @@ public class FindOpenSeats extends Procedure {
                                     f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
         
         // Then build the seat map of the remaining seats
-        int max = SEATSConstants.NUM_SEATS_PER_FLIGHT;
-        int ctr = 0;
-        while (s_results.next() && ctr++ < max) {
+        while (s_results.next()) {
             long r_id = s_results.getLong(1);
             int seatnum = s_results.getInt(3);
             if (debug) LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
             assert(seatmap[seatnum] == -1) : "Duplicate seat reservation: R_ID=" + r_id;
             seatmap[seatnum] = 1;
         } // WHILE
-        
-        List<Object[]> returnResults = new ArrayList<Object[]>();
+
+        int ctr = 0;
+        Object[][] returnResults = new Object[SEATSConstants.MAX_OPEN_SEATS_PER_TXN][];
         for (int i = 0; i < seatmap.length; ++i) {
             if (seatmap[i] == -1) {
                 // Charge more for the first seats
                 double price = seat_price * (i < SEATSConstants.FIRST_CLASS_SEATS_OFFSET ? 2.0 : 1.0);
                 Object[] row = new Object[]{ f_id, i, price };
-                returnResults.add(row);
+                returnResults[ctr++] = row;
+                if (ctr == returnResults.length) break;
             }
         } // FOR
 //        assert(seats_left == returnResults.getRowCount()) :

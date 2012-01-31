@@ -400,11 +400,13 @@ public class SEATSLoader extends Loader {
 
         if (is_airport) assert(this.profile.getAirportCount() == row_idx) : String.format("%d != %d", profile.getAirportCount(), row_idx);
         
-        // Record the number of tuples that we loaded for this table in the profile 
-        this.profile.setRecordCount(catalog_tbl.getName(), row_idx + 1);
+        // Record the number of tuples that we loaded for this table in the profile
+        if (catalog_tbl.getName().equals(SEATSConstants.TABLENAME_RESERVATION)) {
+            this.profile.num_reservations = row_idx + 1;
+        }
         
         LOG.info(String.format("Finished loading all %d tuples for %s [%d / %d]",
-                                row_idx, catalog_tbl.getName(),
+                               row_idx, catalog_tbl.getName(),
                                 this.finished.incrementAndGet(), this.getTableCount()));
         return;
     }
@@ -669,7 +671,7 @@ public class SEATSLoader extends Loader {
                         this.airport_code = this.rand.nextValue();
                         airport_id = profile.getAirportId(this.airport_code);
                     } // WHILE
-                    long next_customer_id = profile.incrementAirportCustomerCount(airport_id);
+                    int next_customer_id = profile.incrementAirportCustomerCount(airport_id);
                     this.last_id = new CustomerId(next_customer_id, airport_id);
                     if (LOG.isTraceEnabled()) LOG.trace("NEW CUSTOMER: " + this.last_id.encode() + " / " + this.last_id);
                     value = this.last_id.encode();

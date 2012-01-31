@@ -40,7 +40,7 @@ public class TestCustomerId extends TestCase {
     public void testCustomerId() {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {
-                CustomerId customer_id = new CustomerId(base_id, airport_id);
+                CustomerId customer_id = new CustomerId((int)base_id, airport_id);
                 assertNotNull(customer_id);
                 assertEquals(base_id, customer_id.getId());
                 assertEquals(airport_id, customer_id.getDepartAirportId());
@@ -54,8 +54,7 @@ public class TestCustomerId extends TestCase {
     public void testCustomerIdEncode() {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {
-                long values[] = { base_id, airport_id };
-                long encoded = CustomerId.encode(values);
+                long encoded = new CustomerId((int)base_id, airport_id).encode();
 //                System.err.println("base_id=" + base_id);
 //                System.err.println("airport_id=" + airport_id);
 //                System.err.println("encodd=" + encoded);
@@ -77,10 +76,10 @@ public class TestCustomerId extends TestCase {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {
                 long values[] = { base_id, airport_id };
-                long encoded = CustomerId.encode(values);
+                long encoded = new CustomerId((int)base_id, airport_id).encode();
                 assert(encoded >= 0);
 
-                long new_values[] = CustomerId.decode(encoded);
+                long new_values[] = new CustomerId(encoded).toArray();
                 assertEquals(values.length, new_values.length);
                 for (int i = 0; i < new_values.length; i++) {
                     assertEquals(values[i], new_values[i]);

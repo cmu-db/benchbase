@@ -95,9 +95,9 @@ public class SEATSProfile {
      */
     protected Long reservation_upcoming_offset = null;
     /**
-     * The number of records loaded for each table
+     * The number of reservations initially created.
      */
-    protected final Histogram<String> num_records = new Histogram<String>();
+    protected long num_reservations = 0l;
 
     /**
      * TODO
@@ -226,7 +226,7 @@ public class SEATSProfile {
         stmt.setObject(param_idx++, this.flight_future_days);            // CFP_FLIGHT_FUTURE_DAYS
         stmt.setObject(param_idx++, this.flight_upcoming_offset);        // CFP_FLIGHT_OFFSET
         stmt.setObject(param_idx++, this.reservation_upcoming_offset);   // CFP_RESERVATION_OFFSET
-        stmt.setObject(param_idx++, this.num_records.toJSONString());    // CFP_NUM_RECORDS
+        stmt.setObject(param_idx++, this.num_reservations);              // CFP_NUM_RESERVATIONS
         stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
         int result = stmt.executeUpdate();
         assert(result == 1);
@@ -270,7 +270,7 @@ public class SEATSProfile {
         this.flight_future_days = other.flight_future_days;
         this.flight_upcoming_offset = other.flight_upcoming_offset;
         this.reservation_upcoming_offset = other.reservation_upcoming_offset;
-        this.num_records.putHistogram(other.num_records);
+        this.num_reservations = other.num_reservations;
         this.code_id_xref.putAll(other.code_id_xref);
         this.cached_flight_ids.addAll(other.cached_flight_ids);
         this.airport_histograms.putAll(other.airport_histograms);
@@ -347,7 +347,7 @@ public class SEATSProfile {
         this.flight_future_days = vt.getLong(col++);
         this.flight_upcoming_offset = vt.getLong(col++);
         this.reservation_upcoming_offset = vt.getLong(col++);
-        JSONUtil.fromJSONString(this.num_records, vt.getString(col++));
+        this.num_reservations = vt.getLong(col++);
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_PROFILE));
     }
@@ -409,22 +409,6 @@ public class SEATSProfile {
         assert(m != null) : "Invalid code xref mapping column '" + col_name + "'";
         assert(m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'\n" + StringUtil.formatMaps(this.code_id_xref); 
         return (m);
-    }
-    
-    /**
-     * The number of reservations preloaded for this benchmark run
-     * @return
-     */
-    public Long getRecordCount(String table_name) {
-        return (this.num_records.get(table_name));
-    }
-    
-    /**
-     * Set the number of preloaded reservations
-     * @param numReservations
-     */
-    public void setRecordCount(String table_name, long count) {
-        this.num_records.set(table_name, count);
     }
 
     /**
@@ -567,26 +551,11 @@ public class SEATSProfile {
         CustomerId c_id = null;
         while (c_id == null) {
             Long airport_id = (long)this.rng.number(1, num_airports);
-            Long cnt = this.getCustomerIdCount(airport_id);
             c_id = this.getRandomCustomerId(airport_id);
-//            if (cnt != null) {
-//                if (LOG.isTraceEnabled())
-//                    LOG.trace(String.format("Selected airport '%s' [numCustomers=%d]", this.getAirportCode(airport_id), cnt));
-//                break;
-//            }
-//            airport_id = null;
         } // WHILE
         return (c_id);
     }
     
-    /**
-     * Return a random airline id
-     * @return
-     */
-    public long getRandomSEATSId() {
-        return (rng.nextInt(this.getRecordCount(SEATSConstants.TABLENAME_AIRLINE).intValue()));
-    }
-
     /**
      * Return a random date in the future (after the start of upcoming flights)
      * @return
@@ -630,8 +599,8 @@ public class SEATSProfile {
         return (m.get(airline_code));
     }
     
-    public synchronized long incrementAirportCustomerCount(long airport_id) {
-        long next_id = this.airport_max_customer_id.get(airport_id, 0); 
+    public int incrementAirportCustomerCount(long airport_id) {
+        int next_id = (int)this.airport_max_customer_id.get(airport_id, 0); 
         this.airport_max_customer_id.put(airport_id);
         return (next_id);
     }
@@ -769,10 +738,8 @@ public class SEATSProfile {
     }
     
     public long getNextReservationId(int id) {
-        long base_id = this.num_records.get(SEATSConstants.TABLENAME_RESERVATION);
-        this.num_records.put(SEATSConstants.TABLENAME_RESERVATION);
         // Offset it by the client id so that we can ensure it's unique
-        return (id | base_id<<48);
+        return (id | this.num_reservations++<<48);
     }
     
 }

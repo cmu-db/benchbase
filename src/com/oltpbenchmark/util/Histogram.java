@@ -177,7 +177,7 @@ public class Histogram<X> implements JSONSerializable {
         // If we already have this value in our histogram, then add the new count
         // to its existing total
         if (this.histogram.containsKey(value)) {
-            count += this.histogram.get(value);
+            count += this.histogram.get(value).longValue();
         } else if (this.histogram.isEmpty()) {
             this.min_count = count;
             this.min_count_values.add(value);

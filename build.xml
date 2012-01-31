@@ -95,7 +95,7 @@
             <arg line="-b ${benchmark}" />
             <arg line="-c ${config}" />
             <arg line="--create ${create}" />
-        	<arg line="--create ${clear}" />
+            <arg line="--clear ${clear}" />
             <arg line="--load ${load}" />
             <arg line="--execute ${execute}" />
         	<arg line="${extra}" />
@@ -167,6 +167,7 @@
                     <exclude name="**/Test*$*.class"/>
                 	<exclude name="**/TestJPAB*.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>
+                	<exclude name="**/TestAuctionMark*.class"/>
                 </fileset>
             </tests>
         </run_junit>

@@ -38,7 +38,7 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
     private final Histogram<Long> airport_max_customer_id;
     private final ListOrderedSet<Long> airport_ids = new ListOrderedSet<Long>();
     private Long last_airport_id = null;
-    private long last_id = -1;
+    private int last_id = -1;
     private long last_max_id = -1;
     
     public CustomerIdIterable(Histogram<Long> airport_max_customer_id, long...airport_ids) {
@@ -69,7 +69,7 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
             public CustomerId next() {
                 if (last_airport_id == null) {
                     last_airport_id = airport_ids.remove(0);
-                    last_id = 0l;
+                    last_id = 0;
                     last_max_id = airport_max_customer_id.get(last_airport_id);
                 } 
                 CustomerId next_id = new CustomerId(last_id, last_airport_id);

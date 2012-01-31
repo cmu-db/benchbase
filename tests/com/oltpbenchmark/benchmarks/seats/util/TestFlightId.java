@@ -63,7 +63,7 @@ public class TestFlightId extends TestCase {
                     for (Date flight_date : this.flight_dates) {
                         FlightId flight_id = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date);
                         assertNotNull(flight_id);
-                        assertEquals(base_id, flight_id.getSEATSId());
+                        assertEquals(base_id, flight_id.getAirlineId());
                         assertEquals(depart_airport_id, flight_id.getDepartAirportId());
                         assertEquals(arrive_airport_id, flight_id.getArriveAirportId());
                         assertEquals(flight_date, flight_id.getDepartDate(this.start_date));
@@ -81,13 +81,12 @@ public class TestFlightId extends TestCase {
             for (long depart_airport_id : this.depart_airport_ids) {
                 for (long arrive_airport_id : this.arrive_airport_ids) {
                     for (Date flight_date : this.flight_dates) {
-                        long values[] = { base_id, depart_airport_id, arrive_airport_id, FlightId.calculateFlightDate(this.start_date, flight_date) };
-                        long encoded = FlightId.encode(values);
+                        long encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
                         assert(encoded >= 0) : "Invalid encoded value '" + encoded + "'";
                 
                         FlightId flight_id = new FlightId(encoded);
                         assertNotNull(flight_id);
-                        assertEquals(base_id, flight_id.getSEATSId());
+                        assertEquals(base_id, flight_id.getAirlineId());
                         assertEquals(depart_airport_id, flight_id.getDepartAirportId());
                         assertEquals(arrive_airport_id, flight_id.getArriveAirportId());
                         assertEquals(flight_date, flight_id.getDepartDate(this.start_date));
@@ -106,10 +105,10 @@ public class TestFlightId extends TestCase {
                 for (long arrive_airport_id : this.arrive_airport_ids) {
                     for (Date flight_date : this.flight_dates) {
                         long values[] = { base_id, depart_airport_id, arrive_airport_id, FlightId.calculateFlightDate(this.start_date, flight_date) };
-                        long encoded = FlightId.encode(values);
-                        assert(encoded >= 0);
+                        long encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
+                        assert(encoded >= 0) : "Invalid encoded value '" + encoded + "'";
 
-                        long new_values[] = FlightId.decode(encoded);
+                        long new_values[] = new FlightId(encoded).toArray();
                         assertEquals(values.length, new_values.length);
                         for (int i = 0; i < new_values.length; i++) {
                             assertEquals(values[i], new_values[i]);
