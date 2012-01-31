@@ -84,10 +84,6 @@ public class TPCCWorker extends Worker {
 		this.terminalOutputArea = terminalOutputArea;
 		this.errorOutputArea = errorOutputArea;
 		this.numWarehouses = numWarehouses;
-		terminalMessage("Terminal \'" + terminalName + "\' has WarehouseID="
-				+ terminalWarehouseID + " and DistrictID=["
-				+ terminalDistrictLowerID + ", " + terminalDistrictUpperID
-				+ "].");
 	}
 
 	/**
@@ -95,7 +91,6 @@ public class TPCCWorker extends Worker {
 	 */
 	@Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
-		//System.out.println("[Executing] "+ nextTransaction.getProcedureClass());
         if (nextTransaction.getProcedureClass().equals(NewOrder.class)) {
         	NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
 			proc.run(conn, gen, terminalWarehouseID, numWarehouses,
@@ -121,96 +116,93 @@ public class TPCCWorker extends Worker {
         	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
         }
 		transactionCount++;
-		return TransactionStatus.SUCCESS;
+        conn.commit();
+        return (TransactionStatus.SUCCESS);
 	}
 
-	/**
-	 * Rolls back the current transaction, then rethrows e if it is not a
-	 * serialization error. Serialization errors are exceptions caused by
-	 * deadlock detection, lock wait timeout, or similar.
-	 * 
-	 * @param e
-	 *            Exception to check if it is a serialization error.
-	 * @throws SQLException
-	 */
-	// Lame deadlock profiling: set this to new HashMap<Integer, Integer>() to
-	// enable.
-	private final HashMap<Integer, Integer> deadlockLocations = null;
-
-	public void rollbackAndHandleError(SQLException e, Connection conn)
-			throws SQLException {
-		conn.rollback();
-
-		// Unfortunately, JDBC provides no standardized way to do this, so we
-		// resort to this ugly hack.
-		boolean isSerialization = false;
-		if (e.getErrorCode() == 1213 && e.getSQLState().equals("40001")) {
-			// MySQL serialization
-			isSerialization = true;
-			assert e.getMessage()
-					.equals("Deadlock found when trying to get lock; try restarting transaction");
-		} else if (e.getErrorCode() == 1205 && e.getSQLState().equals("40001")) {
-			// SQL Server serialization
-			isSerialization = true;
-			assert e.getMessage().equals("Rerun the transaction.");
-		} else if (e.getErrorCode() == 8177 && e.getSQLState().equals("72000")) {
-			// Oracle serialization
-			isSerialization = true;
-			assert e.getMessage().equals("Rerun the transaction.");
-		} else if (e.getErrorCode() == 0 && e.getSQLState().equals("40001")) {
-			// Postgres serialization
-			isSerialization = true;
-			assert e.getMessage().equals(
-					"could not serialize access due to concurrent update");
-		} else if (e.getErrorCode() == 1205 && e.getSQLState().equals("41000")) {
-			// TODO: This probably shouldn't really happen?
-			// FIXME: What is this?
-			isSerialization = true;
-			assert e.getMessage().equals(
-					"Lock wait timeout exceeded; try restarting transaction");
-		}
-
-		// Djellel
-		// This is to prevent other errors to kill the thread.
-		// Errors may include -- duplicate key
-		if (!isSerialization) {
-			error("Oops SQLException code " + e.getErrorCode() + " state "
-					+ e.getSQLState() + " message: " + e.getMessage());
-			// throw e; //Otherwise the benchmark will keep going
-		}
-
-		if (deadlockLocations != null) {
-			String className = this.getClass().getCanonicalName();
-			for (StackTraceElement trace : e.getStackTrace()) {
-				if (trace.getClassName().equals(className)) {
-					int line = trace.getLineNumber();
-					Integer count = deadlockLocations.get(line);
-					if (count == null)
-						count = 0;
-
-					count += 1;
-					deadlockLocations.put(line, count);
-					return;
-				}
-			}
-			assert false;
-		}
-	}
-
-	PreparedStatement customerByName;
-	boolean isCustomerByName = false;
-
-	private void error(String type) {
-		errorOutputArea.println("[ERROR] TERMINAL=" + terminalName + "  TYPE="
-				+ type + "  COUNT=" + transactionCount);
-	}
-
-	public void terminalMessage(String message) {
-		if (TERMINAL_MESSAGES)
-			terminalOutputArea.println(message);
-	}
-
-	public Connection getConnection() {
-		return conn;
-	}
+//	/**
+//	 * Rolls back the current transaction, then rethrows e if it is not a
+//	 * serialization error. Serialization errors are exceptions caused by
+//	 * deadlock detection, lock wait timeout, or similar.
+//	 * 
+//	 * @param e
+//	 *            Exception to check if it is a serialization error.
+//	 * @throws SQLException
+//	 */
+//	// Lame deadlock profiling: set this to new HashMap<Integer, Integer>() to
+//	// enable.
+//	private final HashMap<Integer, Integer> deadlockLocations = null;
+//
+//	public void rollbackAndHandleError(SQLException e, Connection conn)
+//			throws SQLException {
+//		conn.rollback();
+//
+//		// Unfortunately, JDBC provides no standardized way to do this, so we
+//		// resort to this ugly hack.
+//		boolean isSerialization = false;
+//		if (e.getErrorCode() == 1213 && e.getSQLState().equals("40001")) {
+//			// MySQL serialization
+//			isSerialization = true;
+//			assert e.getMessage()
+//					.equals("Deadlock found when trying to get lock; try restarting transaction");
+//		} else if (e.getErrorCode() == 1205 && e.getSQLState().equals("40001")) {
+//			// SQL Server serialization
+//			isSerialization = true;
+//			assert e.getMessage().equals("Rerun the transaction.");
+//		} else if (e.getErrorCode() == 8177 && e.getSQLState().equals("72000")) {
+//			// Oracle serialization
+//			isSerialization = true;
+//			assert e.getMessage().equals("Rerun the transaction.");
+//		} else if (e.getErrorCode() == 0 && e.getSQLState().equals("40001")) {
+//			// Postgres serialization
+//			isSerialization = true;
+//			assert e.getMessage().equals(
+//					"could not serialize access due to concurrent update");
+//		} else if (e.getErrorCode() == 1205 && e.getSQLState().equals("41000")) {
+//			// TODO: This probably shouldn't really happen?
+//			// FIXME: What is this?
+//			isSerialization = true;
+//			assert e.getMessage().equals(
+//					"Lock wait timeout exceeded; try restarting transaction");
+//		}
+//
+//		// Djellel
+//		// This is to prevent other errors to kill the thread.
+//		// Errors may include -- duplicate key
+//		if (!isSerialization) {
+//			error("Oops SQLException code " + e.getErrorCode() + " state "
+//					+ e.getSQLState() + " message: " + e.getMessage());
+//			// throw e; //Otherwise the benchmark will keep going
+//		}
+//
+//		if (deadlockLocations != null) {
+//			String className = this.getClass().getCanonicalName();
+//			for (StackTraceElement trace : e.getStackTrace()) {
+//				if (trace.getClassName().equals(className)) {
+//					int line = trace.getLineNumber();
+//					Integer count = deadlockLocations.get(line);
+//					if (count == null)
+//						count = 0;
+//
+//					count += 1;
+//					deadlockLocations.put(line, count);
+//					return;
+//				}
+//			}
+//			assert false;
+//		}
+//	}
+//
+//	PreparedStatement customerByName;
+//	boolean isCustomerByName = false;
+//
+//	private void error(String type) {
+//		errorOutputArea.println("[ERROR] TERMINAL=" + terminalName + "  TYPE="
+//				+ type + "  COUNT=" + transactionCount);
+//	}
+//
+//
+//	public Connection getConnection() {
+//		return conn;
+//	}
 }

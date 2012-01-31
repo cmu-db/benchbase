@@ -65,24 +65,14 @@ public class Delivery extends Procedure {
 		delivSumOrderAmount = this.getPreparedStatement(conn, delivSumOrderAmountSQL);
 		delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, delivUpdateCustBalDelivCntSQL);
 
-		
-		
-		while (true) {
-			try {
-				int result = deliveryTransaction(terminalWarehouseID,
-						orderCarrierID, conn, w);
-				break;
-			} catch (SQLException e) {
-				w.rollbackAndHandleError(e,conn);
-			}
-		}
+		deliveryTransaction(terminalWarehouseID,orderCarrierID, conn, w);
 		return null;
     }
     
 
-	private int deliveryTransaction(int w_id, int o_carrier_id, Connection conn, TPCCWorker w)
-			throws SQLException {
-		int d_id, c_id;
+	private int deliveryTransaction(int w_id, int o_carrier_id, Connection conn, TPCCWorker w) throws SQLException {
+	    
+	    int d_id, c_id;
 		float ol_total;
 		int[] orderIDs;
 
@@ -118,8 +108,8 @@ public class Delivery extends Procedure {
 				// error makes this work with MySQL's default consistency.
 				// Careful
 				// auditing would be required.
-				throw new RuntimeException(
-						"new order w_id="
+				throw new UserAbortException(
+						"New order w_id="
 								+ w_id
 								+ " d_id="
 								+ d_id
@@ -191,6 +181,7 @@ public class Delivery extends Procedure {
 
 		conn.commit();
 
+		//TODO: This part is not used
 		StringBuilder terminalMessage = new StringBuilder();
 		terminalMessage
 				.append("\n+---------------------------- DELIVERY ---------------------------+\n");
@@ -219,7 +210,6 @@ public class Delivery extends Procedure {
 			}
 		}
 		terminalMessage.append("+-----------------------------------------------------------------+\n\n");
-		w.terminalMessage(terminalMessage.toString());
 
 		return skippedDeliveries;
 	}

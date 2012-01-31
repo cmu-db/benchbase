@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
@@ -13,6 +15,7 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
 public class StockLevel extends Procedure {
 
+    private static final Logger LOG = Logger.getLogger(StockLevel.class);
 	
 	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT d_next_o_id"
 			+ " FROM district" + " WHERE d_w_id = ?" + " AND d_id = ?");
@@ -36,22 +39,15 @@ public class StockLevel extends Procedure {
 				TPCCWorker w) throws SQLException {
 		 
 		 
-		 stockGetDistOrderId = this.getPreparedStatement(conn, stockGetDistOrderIdSQL);
-		 stockGetCountStock= this.getPreparedStatement(conn, stockGetCountStockSQL);
+		stockGetDistOrderId = this.getPreparedStatement(conn, stockGetDistOrderIdSQL);
+		stockGetCountStock= this.getPreparedStatement(conn, stockGetCountStockSQL);
 		 
 		int threshold = TPCCUtil.randomNumber(10, 20, gen);
 	
 		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
 	
-		while (true) {
-			try {
-				stockLevelTransaction(terminalWarehouseID, districtID,
-						threshold,conn,w);
-				break;
-			} catch (SQLException e) {
-				w.rollbackAndHandleError(e,conn);
-			}
-	}
+		stockLevelTransaction(terminalWarehouseID, districtID, threshold,conn,w);
+		
 		return null;
 	 }
 	
@@ -113,9 +109,7 @@ public class StockLevel extends Procedure {
 			terminalMessage.append(stock_count);
 			terminalMessage
 					.append("\n+-----------------------------------------------------------------+\n\n");
-			w.terminalMessage(terminalMessage.toString());
+			if(LOG.isTraceEnabled())LOG.trace(terminalMessage.toString());
 		}
-
-	 
 	 
 }

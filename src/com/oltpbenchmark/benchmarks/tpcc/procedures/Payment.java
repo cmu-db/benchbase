@@ -8,6 +8,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
@@ -17,6 +19,7 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 
 public class Payment extends Procedure {
 
+    private static final Logger LOG = Logger.getLogger(Payment.class);
 	
 	public SQLStmt payUpdateWhseSQL = new SQLStmt("UPDATE warehouse SET w_ytd = w_ytd + ?  WHERE w_id = ? ");
 	public SQLStmt payGetWhseSQL = new SQLStmt("SELECT w_street_1, w_street_2, w_city, w_state, w_zip, w_name"
@@ -76,62 +79,54 @@ public class Payment extends Procedure {
 			customerByName=this.getPreparedStatement(conn, customerByNameSQL);
 		 
 		 
-		// payUpdateWhse =this.getPreparedStatement(conn, payUpdateWhseSQL);
+		    // payUpdateWhse =this.getPreparedStatement(conn, payUpdateWhseSQL);
 		 
 		 
-    int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
-	int customerID = TPCCUtil.getCustomerID(gen);
+            int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
+        	int customerID = TPCCUtil.getCustomerID(gen);
+        
+        	int x = TPCCUtil.randomNumber(1, 100, gen);
+        	int customerDistrictID;
+        	int customerWarehouseID;
+        	if (x <= 85) {
+        		customerDistrictID = districtID;
+        		customerWarehouseID = terminalWarehouseID;
+        	} else {
+        		customerDistrictID = TPCCUtil.randomNumber(1,
+        				jTPCCConfig.configDistPerWhse, gen);
+        		do {
+        			customerWarehouseID = TPCCUtil.randomNumber(1,
+        					numWarehouses, gen);
+        		} while (customerWarehouseID == terminalWarehouseID
+        				&& numWarehouses > 1);
+        	}
+        
+        	long y = TPCCUtil.randomNumber(1, 100, gen);
+        	boolean customerByName;
+        	String customerLastName = null;
+        	customerID = -1;
+        	if (y <= 60) {
+        		// 60% lookups by last name
+        		customerByName = true;
+        		customerLastName = TPCCUtil
+        				.getNonUniformRandomLastNameForRun(gen);
+        	} else {
+        		// 40% lookups by customer ID
+        		customerByName = false;
+        		customerID = TPCCUtil.getCustomerID(gen);
+        	}
+        
+        	float paymentAmount = (float) (TPCCUtil.randomNumber(100, 500000, gen) / 100.0);
 
-	int x = TPCCUtil.randomNumber(1, 100, gen);
-	int customerDistrictID;
-	int customerWarehouseID;
-	if (x <= 85) {
-		customerDistrictID = districtID;
-		customerWarehouseID = terminalWarehouseID;
-	} else {
-		customerDistrictID = TPCCUtil.randomNumber(1,
-				jTPCCConfig.configDistPerWhse, gen);
-		do {
-			customerWarehouseID = TPCCUtil.randomNumber(1,
-					numWarehouses, gen);
-		} while (customerWarehouseID == terminalWarehouseID
-				&& numWarehouses > 1);
-	}
-
-	long y = TPCCUtil.randomNumber(1, 100, gen);
-	boolean customerByName;
-	String customerLastName = null;
-	customerID = -1;
-	if (y <= 60) {
-		// 60% lookups by last name
-		customerByName = true;
-		customerLastName = TPCCUtil
-				.getNonUniformRandomLastNameForRun(gen);
-	} else {
-		// 40% lookups by customer ID
-		customerByName = false;
-		customerID = TPCCUtil.getCustomerID(gen);
-	}
-
-	float paymentAmount = (float) (TPCCUtil.randomNumber(100,
-			500000, gen) / 100.0);
-
-
-	while (true) {
-		try {
 			paymentTransaction(terminalWarehouseID,
 					customerWarehouseID, paymentAmount, districtID,
 					customerDistrictID, customerID,
 					customerLastName, customerByName, conn, w);
-			break;
-		} catch (SQLException e) {
-			w.rollbackAndHandleError(e,conn);
-		}
-	}
-	return null;
+
+			return null;
 	}
 	 
-	 private void paymentTransaction(int w_id, int c_w_id, float h_amount,
+    private void paymentTransaction(int w_id, int c_w_id, float h_amount,
 				int d_id, int c_d_id, int c_id, String c_last, boolean c_by_name, Connection conn, TPCCWorker w)
 				throws SQLException {
 			String w_street_1, w_street_2, w_city, w_state, w_zip, w_name;
@@ -346,10 +341,10 @@ public class Payment extends Procedure {
 					terminalMessage.append("\n\n Cust-Data: " + c_data);
 				}
 			}
-			terminalMessage
-					.append("\n+-----------------------------------------------------------------+\n\n");
-			w.terminalMessage(terminalMessage.toString());
-
+			terminalMessage.append("\n+-----------------------------------------------------------------+\n\n");
+			
+			if(LOG.isTraceEnabled())LOG.trace(terminalMessage.toString());
+			
 		} 
 	 
 	 	// attention duplicated code across trans... ok for now to maintain separate prepared statements

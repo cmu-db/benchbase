@@ -8,15 +8,18 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
+import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 
 public class OrderStatus extends Procedure {
 
-	
+    private static final Logger LOG = Logger.getLogger(OrderStatus.class);
 	
 	public SQLStmt ordStatGetNewestOrdSQL = new SQLStmt("SELECT o_id, o_carrier_id, o_entry_d FROM oorder"
 			+ " WHERE o_w_id = ?"
@@ -71,17 +74,8 @@ public class OrderStatus extends Procedure {
 				customerID = TPCCUtil.getCustomerID(gen);
 			}
 
-			while (true) {
-				try {
-					orderStatusTransaction(terminalWarehouseID, districtID,
+			orderStatusTransaction(terminalWarehouseID, districtID,
 							customerID, customerLastName, isCustomerByName, conn, w);
-					break;
-				} catch (SQLException e) {
-					w.rollbackAndHandleError(e,conn);
-				}
-			}
-			
-			
 			return null;
 	 }
 	
@@ -215,12 +209,11 @@ public class OrderStatus extends Procedure {
 							terminalMessage.append("\n");
 						}
 					} else {
-						w.terminalMessage(" This Order has no Order-Lines.\n");
+					    if(LOG.isTraceEnabled()) LOG.trace(" This Order has no Order-Lines.\n");
 					}
 				}
-				terminalMessage
-						.append("+-----------------------------------------------------------------+\n\n");
-				w.terminalMessage(terminalMessage.toString());
+				terminalMessage.append("+-----------------------------------------------------------------+\n\n");
+				if(LOG.isTraceEnabled()) LOG.trace(terminalMessage.toString());
 			}
 			
 			//attention this code is repeated in other transacitons... ok for now to allow for separate statements.
