@@ -235,7 +235,7 @@ public abstract class Worker implements Runnable {
                     
                     // UNKNOWN: Just keep going ..
                     else {
-                        LOG.warn(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                        if(LOG.isDebugEnabled())LOG.warn(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
                         // throw ex;
                     }
                 }
