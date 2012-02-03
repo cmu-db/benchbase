@@ -34,13 +34,13 @@
         </procedure> 
         <procedure name="GetReviewItemById">
             <statement name="getReviewItem">
-                SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM = 10
+                SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM <= 10
                 ORDER BY rating
             </statement>
         </procedure>
         <procedure name="GetReviewsByUser">
             <statement name="getReviewUser">
-                SELECT * FROM "review" r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM = 10
+                SELECT * FROM "review" r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM <= 10
                 ORDER BY rating
             </statement>
         </procedure>

@@ -36,7 +36,7 @@ public class UpdatePage extends Procedure {
 	public SQLStmt selectUser = new SQLStmt("SELECT  *  FROM user  WHERE user_id = ?");
 	
 	public SQLStmt insertLogging = new SQLStmt("INSERT  INTO logging (log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params) "
-		+ "VALUES ('patrol','patrol','"+ LoaderUtil.getCurrentTime14()+ "',?,?,?,?,?,'',?)");
+		+ "VALUES ('patrol','patrol',?,?,?,?,?,?,'',?)");
 	
 	public SQLStmt updateUserEdit = new SQLStmt("UPDATE  user SET user_editcount=user_editcount+1 WHERE user_id = ? ");
 	public SQLStmt updateUserTouched = new SQLStmt("UPDATE  user SET user_touched = ? WHERE user_id = ? ");
@@ -210,12 +210,13 @@ public class UpdatePage extends Procedure {
 		// sometimes together with the previous one
 		
 		ps = this.getPreparedStatement(conn, insertLogging);
-		ps.setInt(1, userId);
-		ps.setString(2, pageTitle);
-		ps.setInt(3, nameSpace);
-		ps.setString(4, a.userText);
-		ps.setInt(5, a.pageId);
-		ps.setString(6, nextRevID+"\n"+a.revisionId+"\n1");
+		ps.setString(1, LoaderUtil.getCurrentTime14());
+		ps.setInt(2, userId);
+		ps.setString(3, pageTitle);
+		ps.setInt(4, nameSpace);
+		ps.setString(5, a.userText);
+		ps.setInt(6, a.pageId);
+		ps.setString(7, nextRevID+"\n"+a.revisionId+"\n1");
 		ps.executeUpdate();
 		//ps.close();
 
