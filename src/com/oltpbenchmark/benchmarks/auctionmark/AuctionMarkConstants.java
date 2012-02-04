@@ -63,7 +63,7 @@ public abstract class AuctionMarkConstants {
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_GROUP   = 100;
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_VALUE   = 1; // HACK: IGNORE
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP = 10;
-    public static final long TABLESIZE_USER                     = 1000;
+    public static final long TABLESIZE_USER                     = 10000;
     
     // ----------------------------------------------------------------
     // USER PARAMETERS
@@ -111,13 +111,13 @@ public abstract class AuctionMarkConstants {
     public static final int ITEM_MAX_INITIAL_PRICE = 1000;
     
     public static final int ITEM_MIN_ITEMS_PER_SELLER = 0;
-    public static final int ITEM_MAX_ITEMS_PER_SELLER = 10000;
+    public static final int ITEM_MAX_ITEMS_PER_SELLER = 1000;
     
     public static final int ITEM_MIN_BIDS_PER_DAY = 0;
     public static final int ITEM_MAX_BIDS_PER_DAY = 10;
     
     public static final int ITEM_MIN_WATCHES_PER_DAY = 0;
-    public static final int ITEM_MAX_WATCHES_PER_DAY = 10;
+    public static final int ITEM_MAX_WATCHES_PER_DAY = 5;
     
     public static final int ITEM_MIN_IMAGES = 1;
     public static final int ITEM_MAX_IMAGES = 10;
@@ -193,7 +193,7 @@ public abstract class AuctionMarkConstants {
     public static final long BATCHSIZE_CATEGORY                 = 5000;
     public static final long BATCHSIZE_USER                     = 1000;
     public static final long BATCHSIZE_USER_ATTRIBUTES          = 5000;
-    public static final long BATCHSIZE_USER_FEEDBACK            = 1;
+    public static final long BATCHSIZE_USER_FEEDBACK            = 5000;
     public static final long BATCHSIZE_USER_ITEM                = 5000;
     public static final long BATCHSIZE_USER_WATCH               = 5000;
     public static final long BATCHSIZE_ITEM                     = 2000;

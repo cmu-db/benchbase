@@ -401,6 +401,7 @@ public class AuctionMarkLoader extends Loader {
             try {
                 AuctionMarkLoader.this.generateTableData(this.tableName);
             } catch (Throwable ex) {
+                ex.printStackTrace();
                 throw new RuntimeException("Unexpected error while generating table data for '" + this.tableName + "'", ex);
             }
         }
@@ -865,6 +866,7 @@ public class AuctionMarkLoader extends Loader {
             // the user ids by placing them into numeric ranges
             int max_items = Math.max(1, (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_ITEMS_PER_SELLER * profile.getScaleFactor()));
             assert(max_items > 0);
+            LOG.debug("Max Items Per Seller: " + max_items);
             Zipf randomNumItems = new Zipf(profile.rng,
                                            AuctionMarkConstants.ITEM_MIN_ITEMS_PER_SELLER,
                                            max_items,
@@ -873,8 +875,8 @@ public class AuctionMarkLoader extends Loader {
                 long num_items = randomNumItems.nextInt();
                 profile.users_per_item_count.put(num_items);
             } // FOR
-            if (LOG.isTraceEnabled())
-                LOG.trace("Users Per Item Count:\n" + profile.users_per_item_count);
+            if (LOG.isDebugEnabled())
+                LOG.debug("Users Per Item Count:\n" + profile.users_per_item_count);
             this.idGenerator = new UserIdGenerator(profile.users_per_item_count, benchmark.getWorkloadConfiguration().getTerminals());
             assert(this.idGenerator.hasNext());
         }
@@ -991,17 +993,19 @@ public class AuctionMarkLoader extends Loader {
                 LOG.trace("endDate = " + endDate + " : startDate = " + startDate);
             
             long bidDurationDay = ((endDate.getTime() - startDate.getTime()) / AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
-            if (this.item_bid_watch_zipfs.containsKey(bidDurationDay) == false) {
+            Pair<Zipf, Zipf> p = this.item_bid_watch_zipfs.get(bidDurationDay);
+            if (p == null) {
                 Zipf randomNumBids = new Zipf(profile.rng,
                         AuctionMarkConstants.ITEM_MIN_BIDS_PER_DAY * (int)bidDurationDay,
-                        AuctionMarkConstants.ITEM_MAX_BIDS_PER_DAY * (int)bidDurationDay,
+                        (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_BIDS_PER_DAY * (int)bidDurationDay * profile.getScaleFactor()),
                         1.001);
                 Zipf randomNumWatches = new Zipf(profile.rng,
                         AuctionMarkConstants.ITEM_MIN_WATCHES_PER_DAY * (int)bidDurationDay,
-                        (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_WATCHES_PER_DAY * (int)bidDurationDay * profile.getScaleFactor()), 1.001);
-                this.item_bid_watch_zipfs.put(bidDurationDay, Pair.of(randomNumBids, randomNumWatches));
+                        (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_WATCHES_PER_DAY * (int)bidDurationDay * profile.getScaleFactor()),
+                        1.001);
+                p = Pair.of(randomNumBids, randomNumWatches);
+                this.item_bid_watch_zipfs.put(bidDurationDay, p);
             }
-            Pair<Zipf, Zipf> p = this.item_bid_watch_zipfs.get(bidDurationDay);
             assert(p != null);
 
             // Calculate the number of bids and watches for this item
@@ -1497,12 +1501,14 @@ public class AuctionMarkLoader extends Loader {
             // Make it more likely that a user that has bid on an item is watching it
             Histogram<UserId> bidderHistogram = itemInfo.getBidderHistogram();
             UserId buyerId = null;
-            boolean use_random = (this.watchers.size() == bidderHistogram.getValueCount());
+            int num_watchers = this.watchers.size();
+            boolean use_random = (num_watchers == bidderHistogram.getValueCount());
+            long num_users = tableSizes.get(AuctionMarkConstants.TABLENAME_USER);
             
             if (LOG.isTraceEnabled())
                 LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, size=%d]", use_random, this.watchers.size()));
             int tries = 1000;
-            while (buyerId == null && tries-- > 0) {
+            while (buyerId == null && num_watchers < num_users) {
                 try {
                     if (use_random) {
                         buyerId = profile.getRandomBuyerId();        
@@ -1516,7 +1522,9 @@ public class AuctionMarkLoader extends Loader {
                 if (this.watchers.contains(buyerId) == false) break;
                 buyerId = null;
             } // WHILE
-            assert(buyerId != null);
+            assert(buyerId != null) :
+                String.format("Failed to buyer for new USER_WATCH record / Tries:%d / Watchers:%d / Users:%d / BidderHistogram:%d",
+                              tries, num_watchers, num_users, bidderHistogram.getValueCount());
             this.watchers.add(buyerId);
             
             // UW_U_ID

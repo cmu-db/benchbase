@@ -167,7 +167,6 @@
                     <exclude name="**/Test*$*.class"/>
                 	<exclude name="**/TestJPAB*.class"/>
                 	<exclude name="**/TestTwitterLoader.class"/>
-                	<exclude name="**/TestAuctionMark*.class"/>
                 </fileset>
             </tests>
         </run_junit>
