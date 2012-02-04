@@ -102,7 +102,7 @@ public class SEATSWorker extends Worker {
         static {
             for (Transaction vt : EnumSet.allOf(Transaction.class)) {
                 Transaction.idx_lookup.put(vt.ordinal(), vt);
-                Transaction.name_lookup.put(vt.name().toLowerCase().intern(), vt);
+                Transaction.name_lookup.put(vt.name(), vt);
             }
         }
         
@@ -112,7 +112,7 @@ public class SEATSWorker extends Worker {
         }
 
         public static Transaction get(String name) {
-            return (Transaction.name_lookup.get(name.toLowerCase().intern()));
+            return (Transaction.name_lookup.get(name));
         }
         public String getDisplayName() {
             return (this.displayName);
@@ -192,42 +192,15 @@ public class SEATSWorker extends Worker {
         Set<FlightId> flights = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
         return (flights != null && flights.contains(flight_id));
     }
-
-    /**
-     * Returns the set of Customers that are waiting to be added the given Flight
-     * @param flight_id
-     * @return
-     */
-//    protected Set<CustomerId> getPendingCustomers(FlightId flight_id) {
-        
-//        return (this.tmp_customers);
-//    }
-    
-    /**
-     * Returns true if the given Customer is pending to be booked on the given Flight
-     * @param customer_id
-     * @param flight_id
-     * @return
-     */
-    protected boolean isCustomerPendingOnFlight(CustomerId customer_id, FlightId flight_id) {
-        for (Reservation r : CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS)) {
-            if (r.flight_id.equals(flight_id) && r.customer_id.equals(customer_id)) {
-                return (true);
-            }
-        } // FOR
-        return (false);
-    }
     
     protected Set<FlightId> getCustomerBookedFlights(CustomerId customer_id) {
         Set<FlightId> f_ids = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
         if (f_ids == null) {
-//            synchronized (CACHE_CUSTOMER_BOOKED_FLIGHTS) {
-                f_ids = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
-                if (f_ids == null) {
-                    f_ids = new HashSet<FlightId>();
-                    CACHE_CUSTOMER_BOOKED_FLIGHTS.put(customer_id, f_ids);
-                }
-//            } // SYNCH
+            f_ids = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
+            if (f_ids == null) {
+                f_ids = new HashSet<FlightId>();
+                CACHE_CUSTOMER_BOOKED_FLIGHTS.put(customer_id, f_ids);
+            }
         }
         return (f_ids);
     }
@@ -250,9 +223,7 @@ public class SEATSWorker extends Worker {
     
     private final SEATSProfile profile;
     private final RandomGenerator rng;
-    private final Set<CustomerId> tmp_customers = new HashSet<CustomerId>();
     private final List<Reservation> tmp_reservations = new ArrayList<Reservation>();
-    private final Set<Integer> tmp_emptySeats = new HashSet<Integer>();
     
     /**
      * When a customer looks for an open seat, they will then attempt to book that seat in
@@ -385,33 +356,6 @@ public class SEATSWorker extends Worker {
         return (TransactionStatus.SUCCESS);
     }
     
-//    @Override
-//    public void tick(int counter) {
-//        super.tick(counter);
-//        for (CacheType ctype : CACHE_RESERVATIONS.keySet()) {
-//            ctype.lock.lock();
-//            try {
-//                List<Reservation> cache = CACHE_RESERVATIONS.get(ctype);
-//                int before = cache.size();
-//                if (before > ctype.limit) {
-//                    Collections.shuffle(cache, rng);
-//                    while (cache.size() > ctype.limit) {
-//                        cache.remove(0);
-//                    } // WHILE
-//                    if (LOG.isDebugEnabled()) LOG.debug(String.format("Pruned records from cache [newSize=%d, origSize=%d]",
-//                                               cache.size(), before));
-//                } // IF
-//            } finally {
-//                ctype.lock.unlock();
-//            } // SYNCH
-//        } // FOR
-//        
-//        if (this.getId() == 0) {
-//            LOG.info("NewReservation Errors:\n" + newReservationErrors);
-//            newReservationErrors.clear();
-//        }
-//    }
-    
     /**
      * Take an existing Reservation that we know is legit and randomly decide to 
      * either queue it for a later update or delete transaction 
@@ -482,12 +426,7 @@ public class SEATSWorker extends Worker {
       
         // And then put it up for a pending insert
         if (rng.nextInt(100) < SEATSConstants.PROB_REQUEUE_DELETED_RESERVATION) {
-//            CacheType.PENDING_INSERTS.lock.lock();
-            try {
-                CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS).add(r);
-            } finally {
-//                CacheType.PENDING_INSERTS.lock.unlock();
-            } // SYNCH
+            CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS).add(r);
         }
 
         return (true);
@@ -576,6 +515,7 @@ public class SEATSWorker extends Worker {
     private boolean executeFindOpenSeats(FindOpenSeats proc) throws SQLException {
         final FlightId search_flight = this.profile.getRandomFlightId();
         assert(search_flight != null);
+        Long airport_depart_id = search_flight.getDepartAirportId();
         
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
         Object[][] results = proc.run(conn, search_flight.encode());
@@ -593,47 +533,38 @@ public class SEATSWorker extends Worker {
         assert(cache != null) : "Unexpected " + CacheType.PENDING_INSERTS;
         
         // Store pending reservations in our queue for a later transaction            
-        tmp_emptySeats.clear();
+        BitSet seats = getSeatsBitSet(search_flight);
         tmp_reservations.clear();
-//        this.tmp_customers.clear();
-//        for (Reservation r : cache) {
-//            if (r.flight_id.equals(search_flight)) {
-//                this.tmp_customers.add(r.customer_id);
-//            }
-//        } // FOR
-//        cache.removeAll(tmp_customers);
         
-        FlightId flight_id = new FlightId();
         for (Object row[] : results) {
-            if (row == null) continue; //  && rng.nextInt(100) < 75) continue; // HACK
-            
-            flight_id.set((Long)row[0]);
-            assert(flight_id.equals(search_flight));
+            if (row == null || rng.nextInt(100) < 75) continue; // HACK
             Integer seatnum = (Integer)row[1];
-            long airport_depart_id = flight_id.getDepartAirportId();
           
             // We first try to get a CustomerId based at this departure airport
             if (LOG.isTraceEnabled())
-                LOG.trace("Looking for a random customer to fly on " + flight_id);
+                LOG.trace("Looking for a random customer to fly on " + search_flight);
             CustomerId customer_id = profile.getRandomCustomerId(airport_depart_id);
           
             // We will go for a random one if:
             //  (1) The Customer is already booked on this Flight
             //  (2) We already made a new Reservation just now for this Customer
             int tries = SEATSConstants.NUM_SEATS_PER_FLIGHT;
-            while (tries-- > 0 && (customer_id == null || isCustomerBookedOnFlight(customer_id, flight_id))) {
+            while (tries-- > 0 && (customer_id == null)) { //  || isCustomerBookedOnFlight(customer_id, flight_id))) {
                 customer_id = profile.getRandomCustomerId();
                 if (LOG.isTraceEnabled())
                     LOG.trace("RANDOM CUSTOMER: " + customer_id);
             } // WHILE
             assert(customer_id != null) :
-                String.format("Failed to find a unique Customer to reserve for seat #%d on %s", seatnum, flight_id);
+                String.format("Failed to find a unique Customer to reserve for seat #%d on %s", seatnum, search_flight);
     
-//            tmp_customers.add(customer_id);
-            tmp_emptySeats.add(seatnum);
-            tmp_reservations.add(new Reservation(profile.getNextReservationId(getId()), flight_id, customer_id, (int)seatnum));
+            Reservation r = new Reservation(profile.getNextReservationId(getId()),
+                                            search_flight,
+                                            customer_id,
+                                            seatnum.intValue());
+            seats.set(seatnum);
+            tmp_reservations.add(r);
             if (LOG.isTraceEnabled())
-                LOG.trace("QUEUED INSERT: " + flight_id + " / " + flight_id.encode() + " -> " + customer_id);
+                LOG.trace("QUEUED INSERT: " + search_flight + " / " + search_flight.encode() + " -> " + customer_id);
         } // WHILE
       
         if (tmp_reservations.isEmpty() == false) {
@@ -646,13 +577,6 @@ public class SEATSWorker extends Worker {
                 LOG.debug(String.format("Stored %d pending inserts for %s [totalPendingInserts=%d]",
                           tmp_reservations.size(), search_flight, cache.size()));
         }
-        BitSet seats = getSeatsBitSet(search_flight);
-        for (int i = 0; i < SEATSConstants.NUM_SEATS_PER_FLIGHT; i++) {
-            if (tmp_emptySeats.contains(i) == false) {
-                seats.set(i);
-            }
-        } // FOR
-        
         return (true);
     }
     

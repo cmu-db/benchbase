@@ -99,10 +99,12 @@ public class FindOpenSeats extends Procedure {
            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         
         
-        PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight, f_id);
+        PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight);
+        f_stmt.setLong(1, f_id);
         ResultSet f_results = f_stmt.executeQuery();
         
-        PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats, f_id);
+        PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats);
+        s_stmt.setLong(1, f_id);
         ResultSet s_results = s_stmt.executeQuery();
         
         // First calculate the seat price using the flight's base price

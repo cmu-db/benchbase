@@ -202,7 +202,6 @@ public abstract class SEATSConstants {
     public static final int CACHE_LIMIT_PENDING_UPDATES = 5000;
     public static final int CACHE_LIMIT_PENDING_DELETES = 5000;
     
-    
     // ----------------------------------------------------------------
     // DATA SET INFORMATION
     // ----------------------------------------------------------------

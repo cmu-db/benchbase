@@ -529,8 +529,7 @@ public class Histogram<X> implements JSONSerializable {
      * @return
      */
     public Long get(X value) {
-        Long count = histogram.get(value); 
-        return (count); //  == null ? 0 : count);
+        return histogram.get(value); 
     }
     
     /**

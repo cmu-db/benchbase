@@ -319,7 +319,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		Phase phase = workConf.getNextPhase();
 		testState.setCurrentPhase(phase);
 		LOG.info("[Starting Phase] [Time= " + phase.time
-				+ "] [Rate= " + phase.rate + "] [Ratios= " + phase.weights
+				+ "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights()
 				+ "]");
 
 		long intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
@@ -373,7 +373,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 					delta += phase.time * 1000000000L;
 					LOG.info("[Starting Phase] [Time= " + phase.time
 							+ "] [Rate= " + phase.rate + "] [Ratios= "
-							+ phase.weights + "]");
+							+ phase.getWeights() + "]");
 					// update frequency in which we check according to wakeup speed
 					intervalNs = (long) (1000000000. / (double) phase.rate + 0.5); 
 				}

@@ -92,6 +92,9 @@ public abstract class Worker implements Runnable {
 
 	@Override
 	public final void run() {
+	    Thread t = Thread.currentThread();
+	    t.setName(String.format("worker%02d", this.getId()));
+	    
 		// In case of reuse reset the measurements
 		latencies = new LatencyRecord(testState.getTestStartNs());
 		boolean isRateLimited = testState.isRateLimited();

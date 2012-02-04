@@ -167,9 +167,9 @@ public class DBWorkload {
         int j = 0;
         for (Phase p : wrkld.getAllPhases()) {
             j++;
-            if (p.weights.size() != numTxnTypes) {
+            if (p.getWeightCount() != numTxnTypes) {
                 LOG.fatal(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types",
-                                        j, p.weights.size(), numTxnTypes));
+                                        j, p.getWeightCount(), numTxnTypes));
                 System.exit(-1);
             }
         } // FOR
