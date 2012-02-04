@@ -119,7 +119,7 @@ public class StatementDialects {
                     String stmtName = statement.getName();
                     assert(stmtName.isEmpty() == false) :
                         String.format("Invalid Statement for %s.%s", this.dbType, procName);
-                    String stmtSQL = statement.getValue();
+                    String stmtSQL = statement.getValue().trim();
                     assert(stmtSQL.isEmpty() == false) :
                         String.format("Invalid SQL for %s.%s.%s", this.dbType, procName, stmtName);
                     

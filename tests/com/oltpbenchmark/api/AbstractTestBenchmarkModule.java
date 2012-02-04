@@ -109,7 +109,16 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             
             // Just make sure that we can load it
             StatementDialects dialects = new StatementDialects(dbType, xmlFile);
-            boolean ret = dialects.load();
+            dialects.load();
+            
+            for (String procName : dialects.getProcedureNames()) {
+                for (String stmtName : dialects.getStatementNames(procName)) {
+                    String sql = dialects.getSQL(procName, stmtName);
+                    assertNotNull(sql);
+                    assertFalse(sql.isEmpty());
+                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
+                } // FOR
+            } // FOR
             
             // TODO: We should XSD to validate the SQL
         } // FOR (dbtype)
