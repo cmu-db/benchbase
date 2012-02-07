@@ -81,7 +81,7 @@ public class AuctionMarkLoader extends Loader {
      * Data Generator Classes
      * TableName -> AbstactTableGenerator
      */
-    private final Map<String, AbstractTableGenerator> generators = new ListOrderedMap<String, AbstractTableGenerator>();
+    private final Map<String, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<String, AbstractTableGenerator>());
     
     private final Collection<String> sub_generators = new HashSet<String>();
 

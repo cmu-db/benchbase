@@ -37,6 +37,47 @@ import java.util.*;
 public abstract class AuctionMarkConstants {
     
     // ----------------------------------------------------------------
+    // TIME PARAMETERS
+    // ----------------------------------------------------------------
+    
+    public static final long SECONDS_IN_A_DAY = 24 * 60 * 60;
+    public static final long MILLISECONDS_IN_A_SECOND = 1000;
+    public static final long MILLISECONDS_IN_A_DAY = SECONDS_IN_A_DAY * MILLISECONDS_IN_A_SECOND;
+    
+    /**
+     * 1 sec in real time equals this value in the benchmark's virtual time in seconds
+     */
+    public static final long TIME_SCALE_FACTOR = 600l; // one hour
+    
+    /**
+     * If the amount of time in seconds remaining for an item auction
+     * is less than this parameter, then it will be added to a special queue
+     * in the client. We will increase the likelihood that a users will bid on these
+     * items as it gets closer to their end times
+     */
+    public static final long ITEM_ENDING_SOON = 36000l; // 10 hours
+    
+    public static final int ITEM_ALREADY_ENDED = 100000;
+    
+    // ----------------------------------------------------------------
+    // EXECUTION CONFIGURATION
+    // ----------------------------------------------------------------
+    
+    /**
+     * How often to execute CLOSE_AUCTIONS in virtual seconds
+     * @see AuctionMarkConstants.TIME_SCALE_FACTOR
+     */
+    public static final long CLOSE_AUCTIONS_INTERVAL = 3600l; // one hour
+    
+    /**
+     * If set to true, the CloseAuctions transactions will be a executed
+     * in a separate thread. If set to false, then these txns will be executed
+     * whenever the interval interrupt occurs on the first worker thread 
+     */
+    public static final boolean CLOSE_AUCTIONS_SEPARATE_THREAD = true;
+    
+    
+    // ----------------------------------------------------------------
     // STORED PROCEDURE INFORMATION
     // ----------------------------------------------------------------
     
@@ -279,33 +320,7 @@ public abstract class AuctionMarkConstants {
     	DATAFILE_TABLES.add(AuctionMarkConstants.TABLENAME_CATEGORY);
     }
 
-    // ----------------------------------------------------------------
-    // TIME PARAMETERS
-    // ----------------------------------------------------------------
-    
-    public static final long SECONDS_IN_A_DAY = 24 * 60 * 60;
-    public static final long MILLISECONDS_IN_A_SECOND = 1000;
-    public static final long MILLISECONDS_IN_A_DAY = SECONDS_IN_A_DAY * MILLISECONDS_IN_A_SECOND;
-    
-    /**
-     * 1 sec in real time equals this value in the benchmark's virtual time in seconds
-     */
-    public static final long TIME_SCALE_FACTOR = 600l; // one hour
-    
-    /**
-     * How often to execute CLOSE_AUCTIONS in virtual seconds
-     */
-    public static final long INTERVAL_CLOSE_AUCTIONS = 3600l; // one hour
-    
-    /**
-     * If the amount of time in seconds remaining for an item auction
-     * is less than this parameter, then it will be added to a special queue
-     * in the client. We will increase the likelihood that a users will bid on these
-     * items as it gets closer to their end times
-     */
-    public static final long ITEM_ENDING_SOON = 36000l; // 10 hours
-    
-    public static final int ITEM_ALREADY_ENDED = 100000;
+
     
     // ----------------------------------------------------------------
     // PROBABILITIES
