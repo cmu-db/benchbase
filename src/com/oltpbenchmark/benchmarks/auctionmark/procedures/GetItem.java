@@ -36,7 +36,7 @@ import java.sql.SQLException;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 
 /**
  * Get Item Information

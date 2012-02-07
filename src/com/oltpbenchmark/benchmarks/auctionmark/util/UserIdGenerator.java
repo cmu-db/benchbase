@@ -101,8 +101,21 @@ public class UserIdGenerator implements Iterator<UserId> {
     public UserId seekToPosition(long position) {
         assert(position <= this.getTotalUsers()) : String.format("%d < %d", position, this.getTotalUsers());
         UserId user_id = null;
-        while (this.currentPosition < position) {
-            user_id = this.next();
+        
+        this.currentPosition = 0;
+        this.currentItemCount = 0;
+        while (true) {
+            long num_users = this.users_per_item_count.get(this.currentItemCount, 0l);
+            
+            if (this.currentPosition + num_users > position) {
+                this.next = null;
+                this.currentOffset = num_users - (position - this.currentPosition);
+                user_id = this.next();
+                break;
+            } else {
+                this.currentPosition += num_users;
+            }
+            this.currentItemCount++;
         } // WHILE
         return (user_id);
     }

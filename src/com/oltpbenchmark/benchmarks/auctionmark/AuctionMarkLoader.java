@@ -48,12 +48,12 @@ import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
 import com.oltpbenchmark.benchmarks.auctionmark.util.Category;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.LoaderItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;

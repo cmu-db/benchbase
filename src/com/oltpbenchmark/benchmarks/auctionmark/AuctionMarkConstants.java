@@ -33,6 +33,7 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 
 import java.util.*;
 
+import com.oltpbenchmark.util.StringUtil;
 
 public abstract class AuctionMarkConstants {
     
@@ -67,14 +68,14 @@ public abstract class AuctionMarkConstants {
      * How often to execute CLOSE_AUCTIONS in virtual seconds
      * @see AuctionMarkConstants.TIME_SCALE_FACTOR
      */
-    public static final long CLOSE_AUCTIONS_INTERVAL = 3600l; // one hour
+    public static final long CLOSE_AUCTIONS_INTERVAL = Integer.MAX_VALUE ; // 3600l; // one hour
     
     /**
      * If set to true, the CloseAuctions transactions will be a executed
      * in a separate thread. If set to false, then these txns will be executed
      * whenever the interval interrupt occurs on the first worker thread 
      */
-    public static final boolean CLOSE_AUCTIONS_SEPARATE_THREAD = false;
+    public static boolean CLOSE_AUCTIONS_SEPARATE_THREAD = false;
     
     
     // ----------------------------------------------------------------
@@ -128,25 +129,6 @@ public abstract class AuctionMarkConstants {
     // ----------------------------------------------------------------
     // ITEM PARAMETERS
     // ----------------------------------------------------------------
-    
-    public enum ItemStatus {
-        OPEN                    (false),
-        ENDING_SOON             (true), // Only used internally
-        WAITING_FOR_PURCHASE    (false),
-        CLOSED                  (false);
-        
-        private final boolean internal;
-        
-        private ItemStatus(boolean internal) {
-            this.internal = internal;
-        }
-        public boolean isInternal() {
-            return internal;
-        }
-        public static ItemStatus get(long idx) {
-            return (values()[(int)idx]);
-        }
-    }
     
     public static final int ITEM_MIN_INITIAL_PRICE = 1;
     public static final int ITEM_MAX_INITIAL_PRICE = 1000;
@@ -216,13 +198,13 @@ public abstract class AuctionMarkConstants {
      * query the item table. This must match the ordering expected
      * in AuctionMarkWorker.processItemRecord()
      */
-    public static final String ITEM_COLUMNS = "i_id, " +
-            "i_u_id, " +
-            "i_name, " + 
-            "i_current_price, " +
-            "i_num_bids, " +
-            "i_end_date, " +
-            "i_status ";
+    public static final String ITEM_COLUMNS = StringUtil.join(", ", "i_id",
+                                                                    "i_u_id",
+                                                                    "i_name",
+                                                                    "i_current_price", 
+                                                                    "i_num_bids",
+                                                                    "i_end_date",
+                                                                    "i_status");
     
     // ----------------------------------------------------------------
     // DEFAULT BATCH SIZES
@@ -244,8 +226,6 @@ public abstract class AuctionMarkConstants {
     public static final long BATCHSIZE_ITEM_BID                 = 5000;
     public static final long BATCHSIZE_ITEM_MAX_BID             = 5000;
     public static final long BATCHSIZE_ITEM_PURCHASE            = 5000;
-    
-    public static final long BATCHSIZE_CLOSE_AUCTIONS_UPDATES   = 50;
     
     // ----------------------------------------------------------------
     // TABLE NAMES
@@ -319,8 +299,6 @@ public abstract class AuctionMarkConstants {
     static {
     	DATAFILE_TABLES.add(AuctionMarkConstants.TABLENAME_CATEGORY);
     }
-
-
     
     // ----------------------------------------------------------------
     // PROBABILITIES
@@ -341,7 +319,7 @@ public abstract class AuctionMarkConstants {
     public static final int PROB_UPDATEITEM_ADD_ATTRIBUTE = -1; // 25;
     
     /** The probability that a buyer will not have enough money to purchase an item (1-100) */
-    public static final int PROB_NEW_PURCHASE_NOT_ENOUGH_MONEY = 1;
+    public static final int PROB_NEWPURCHASE_NOT_ENOUGH_MONEY = 1;
     
     /** The probability that the NewBid txn will try to bid on a closed item (1-100) */
     public static final int PROB_NEWBID_CLOSED_ITEM = 5;

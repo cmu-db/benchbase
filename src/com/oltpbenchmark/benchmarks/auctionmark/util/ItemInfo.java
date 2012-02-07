@@ -30,7 +30,6 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 import java.io.IOException;
 import java.sql.Date;
 
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 import com.oltpbenchmark.util.JSONSerializable;
 import com.oltpbenchmark.util.JSONUtil;
 import com.oltpbenchmark.util.json.JSONException;

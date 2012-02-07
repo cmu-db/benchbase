@@ -39,9 +39,9 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 
 /**
  * PostAuction

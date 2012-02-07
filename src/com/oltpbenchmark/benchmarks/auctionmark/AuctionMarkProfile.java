@@ -49,12 +49,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
 import com.oltpbenchmark.catalog.Catalog;
@@ -504,7 +504,7 @@ public class AuctionMarkProfile {
         while (user_id == null && tries-- > 0) {
             // We first need to figure out how many items our seller needs to have
             long itemCount = -1;
-            assert(min_item_count < this.users_per_item_count.getMaxValue());
+            // assert(min_item_count < this.users_per_item_count.getMaxValue());
             while (itemCount < min_item_count) {
                 itemCount = this.randomItemCount.nextValue();
             } // WHILE

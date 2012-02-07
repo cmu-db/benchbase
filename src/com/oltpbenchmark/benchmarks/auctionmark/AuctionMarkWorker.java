@@ -18,7 +18,6 @@ import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetUserInfo;
@@ -32,6 +31,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.UpdateItem;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.StringUtil;
@@ -66,7 +66,7 @@ public class AuctionMarkWorker extends Worker {
             Thread.currentThread().setName(this.getClass().getSimpleName());
             
             TransactionTypes txnTypes = AuctionMarkWorker.this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
-            TransactionType txnType = txnTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);
+            TransactionType txnType = txnTypes.getType(Transaction.CloseAuctions.procClass);
             assert(txnType != null) : txnTypes;
             
             Procedure proc = AuctionMarkWorker.this.getProcedure(txnType);
@@ -87,7 +87,7 @@ public class AuctionMarkWorker extends Worker {
                 
                 if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD) {
                     if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("Executing %s in separate thread", Transaction.CLOSE_AUCTIONS));
+                        LOG.debug(String.format("Executing %s in separate thread", Transaction.CloseAuctions));
                     try {
                         executeCloseAuctions((CloseAuctions)proc);
                     } catch (Exception ex) {
@@ -96,7 +96,7 @@ public class AuctionMarkWorker extends Worker {
                 } else {
                     AuctionMarkWorker.this.closeAuctions_flag.set(true);
                     if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("Marked ready flag for %s", Transaction.CLOSE_AUCTIONS));
+                        LOG.debug(String.format("Marked ready flag for %s", Transaction.CloseAuctions));
                 }
             } // WHILE
         }
@@ -123,9 +123,9 @@ public class AuctionMarkWorker extends Worker {
     // --------------------------------------------------------------------
     public enum Transaction {
         // ====================================================================
-        // CLOSE_AUCTIONS
+        // CloseAuctions
         // ====================================================================
-        CLOSE_AUCTIONS(CloseAuctions.class, new AuctionMarkParamGenerator() {
+        CloseAuctions(CloseAuctions.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
 //                if (AuctionMarkConstants.ENABLE_CLOSE_AUCTIONS && client.getId() == 0) {
@@ -139,81 +139,81 @@ public class AuctionMarkWorker extends Worker {
             }
         }),
         // ====================================================================
-        // GET_ITEM
+        // GetItem
         // ====================================================================
-        GET_ITEM(GetItem.class, new AuctionMarkParamGenerator() {
+        GetItem(GetItem.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.profile.getAvailableItemsCount() > 0);
             }
         }),
         // ====================================================================
-        // GET_USER_INFO
+        // GetUserInfo
         // ====================================================================
-        GET_USER_INFO(GetUserInfo.class, new AuctionMarkParamGenerator() {
+        GetUserInfo(GetUserInfo.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (true);
             }
         }),
         // ====================================================================
-        // NEW_BID
+        // NewBid
         // ====================================================================
-        NEW_BID(NewBid.class, new AuctionMarkParamGenerator() {
+        NewBid(NewBid.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.profile.getAllItemsCount() > 0);
             }
         }),
         // ====================================================================
-        // NEW_COMMENT
+        // NewComment
         // ====================================================================
-        NEW_COMMENT(NewComment.class, new AuctionMarkParamGenerator() {
+        NewComment(NewComment.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.profile.getCompleteItemsCount() > 0);
             }
         }),
         // ====================================================================
-        // NEW_COMMENT_RESPONSE
+        // NewCommentResponse
         // ====================================================================
-        NEW_COMMENT_RESPONSE(NewCommentResponse.class, new AuctionMarkParamGenerator() {
+        NewCommentResponse(NewCommentResponse.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.pending_commentResponse.isEmpty() == false);
             }
         }),
         // ====================================================================
-        // NEW_FEEDBACK
+        // NewFeedback
         // ====================================================================
-        NEW_FEEDBACK(NewFeedback.class, new AuctionMarkParamGenerator() {
+        NewFeedback(NewFeedback.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.profile.getCompleteItemsCount() > 0);
             }
         }),
         // ====================================================================
-        // NEW_ITEM
+        // NewItem
         // ====================================================================
-        NEW_ITEM(NewItem.class, new AuctionMarkParamGenerator() {
+        NewItem(NewItem.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (true);
             }
         }),
         // ====================================================================
-        // NEW_PURCHASE
+        // NewPurchase
         // ====================================================================
-        NEW_PURCHASE(NewPurchase.class, new AuctionMarkParamGenerator() {
+        NewPurchase(NewPurchase.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.profile.getWaitForPurchaseItemsCount() > 0);
             }
         }),
         // ====================================================================
-        // UPDATE_ITEM
+        // UpdateItem
         // ====================================================================
-        UPDATE_ITEM(UpdateItem.class, new AuctionMarkParamGenerator() {
+        UpdateItem(UpdateItem.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
                 return (client.profile.getAvailableItemsCount() > 0);
@@ -228,14 +228,10 @@ public class AuctionMarkWorker extends Worker {
          */
         private Transaction(Class<? extends Procedure> procClass, AuctionMarkParamGenerator generator) {
             this.procClass = procClass;
-            this.displayName = StringUtil.title(this.name().replace("_", " "));
-            this.callName = this.displayName.replace(" ", "");
             this.generator = generator;
         }
 
         public final Class<? extends Procedure> procClass;
-        public final String displayName;
-        public final String callName;
         public final AuctionMarkParamGenerator generator;
         
         protected static final Map<Class<? extends Procedure>, Transaction> class_lookup = new HashMap<Class<? extends Procedure>, Transaction>();
@@ -244,7 +240,7 @@ public class AuctionMarkWorker extends Worker {
         static {
             for (Transaction vt : EnumSet.allOf(Transaction.class)) {
                 Transaction.idx_lookup.put(vt.ordinal(), vt);
-                Transaction.name_lookup.put(vt.name().toLowerCase().intern(), vt);
+                Transaction.name_lookup.put(vt.name(), vt);
                 Transaction.class_lookup.put(vt.procClass, vt);
             }
         }
@@ -258,15 +254,7 @@ public class AuctionMarkWorker extends Worker {
             return (Transaction.class_lookup.get(clazz));
         }
         public static Transaction get(String name) {
-            return (Transaction.name_lookup.get(name.toLowerCase().intern()));
-        }
-        
-        public String getDisplayName() {
-            return (this.displayName);
-        }
-        
-        public String getCallName() {
-            return (this.callName);
+            return (Transaction.name_lookup.get(name));
         }
         
         /**
@@ -312,7 +300,6 @@ public class AuctionMarkWorker extends Worker {
         if (this.closeAuctions_checker != null) this.closeAuctions_checker.start();
     }
     
-    @SuppressWarnings("unused")
     @Override
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         // We need to subtract the different between this and the profile's start time,
@@ -332,9 +319,9 @@ public class AuctionMarkWorker extends Worker {
         // Always check if we need to want to run CLOSE_AUCTIONS
         // We only do this from the first client
         if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD == false && closeAuctions_flag.compareAndSet(true, false)) {
-            txn = Transaction.CLOSE_AUCTIONS;
+            txn = Transaction.CloseAuctions;
             TransactionTypes txnTypes = this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
-            txnType = txnTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);
+            txnType = txnTypes.getType(txn.procClass);
             assert(txnType != null) : txnTypes;
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
@@ -348,45 +335,45 @@ public class AuctionMarkWorker extends Worker {
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
         assert(proc != null);
-//        System.err.println(txnType + " -> " + txn + " -> " + txnType.getProcedureClass() + " -> " + proc);
+        if (LOG.isTraceEnabled())
+            LOG.trace(txnType + " -> " + txn + " -> " + txnType.getProcedureClass() + " -> " + proc);
         
         boolean ret = false;
         switch (txn) {
-            case CLOSE_AUCTIONS:
+            case CloseAuctions:
                 ret = executeCloseAuctions((CloseAuctions)proc);
                 break;
-            case GET_ITEM:
+            case GetItem:
                 ret = executeGetItem((GetItem)proc);
                 break;
-            case GET_USER_INFO:
+            case GetUserInfo:
                 ret = executeGetUserInfo((GetUserInfo)proc);
                 break;
-            case NEW_BID:
+            case NewBid:
                 ret = executeNewBid((NewBid)proc);
                 break;
-            case NEW_COMMENT:
+            case NewComment:
                 ret = executeNewComment((NewComment)proc);
                 break;
-            case NEW_COMMENT_RESPONSE:
+            case NewCommentResponse:
                 ret = executeNewCommentResponse((NewCommentResponse)proc);
                 break;
-            case NEW_FEEDBACK:
+            case NewFeedback:
                 ret = executeNewFeedback((NewFeedback)proc);
                 break;
-            case NEW_ITEM:
+            case NewItem:
                 ret = executeNewItem((NewItem)proc);
                 break;
-            case NEW_PURCHASE:
+            case NewPurchase:
                 ret = executeNewPurchase((NewPurchase)proc);
                 break;
-            case UPDATE_ITEM:
+            case UpdateItem:
                 ret = executeUpdateItem((UpdateItem)proc);
                 break;
             default:
                 assert(false) : "Unexpected transaction: " + txn; 
         } // SWITCH
-        assert(ret);
-        
+//        assert(ret);
         if (ret && LOG.isDebugEnabled())
             LOG.debug("Executed a new invocation of " + txn);
         
@@ -478,7 +465,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // GET_ITEM
+    // GetItem
     // ----------------------------------------------------------------
     
     protected boolean executeGetItem(GetItem proc) throws SQLException {
@@ -498,7 +485,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // GET_USER_INFO
+    // GetUserInfo
     // ----------------------------------------------------------------
     
     protected boolean executeGetUserInfo(GetUserInfo proc) throws SQLException {
@@ -578,7 +565,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // NEW_BID
+    // NewBid
     // ----------------------------------------------------------------
     
     protected boolean executeNewBid(NewBid proc) throws SQLException {
@@ -594,7 +581,7 @@ public class AuctionMarkWorker extends Worker {
         boolean has_waiting = (profile.getWaitForPurchaseItemsCount() > 0);
         boolean has_completed = (profile.getCompleteItemsCount() > 0); 
         
-        // Some NEW_BIDs will be for items that have already ended.
+        // Some NewBids will be for items that have already ended.
         // This will simulate somebody trying to bid at the very end but failing
         if ((has_waiting || has_completed) &&
             (profile.rng.number(1, 100) <= AuctionMarkConstants.PROB_NEWBID_CLOSED_ITEM || has_available == false)) {
@@ -617,7 +604,7 @@ public class AuctionMarkWorker extends Worker {
         // Otherwise we want to generate information for a real bid
         else {
             assert(has_available || has_ending);
-            // 50% of NEW_BIDS will be for items that are ending soon
+            // 50% of NewBids will be for items that are ending soon
             if ((has_ending && profile.rng.number(1, 100) <= AuctionMarkConstants.PROB_NEWBID_CLOSED_ITEM) || has_available == false) {
                 itemInfo = profile.getRandomEndingSoonItem(true);
             }
@@ -651,7 +638,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // NEW_COMMENT
+    // NewComment
     // ----------------------------------------------------------------
     
     protected boolean executeNewComment(NewComment proc) throws SQLException {
@@ -679,7 +666,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // NEW_COMMENT_RESPONSE
+    // NewCommentResponse
     // ----------------------------------------------------------------
     
     protected boolean executeNewCommentResponse(NewCommentResponse proc) throws SQLException {
@@ -704,7 +691,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // NEW_FEEDBACK
+    // NewFeedback
     // ----------------------------------------------------------------
     
     protected boolean executeNewFeedback(NewFeedback proc) throws SQLException {
@@ -737,7 +724,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // NEW_ITEM
+    // NewItem
     // ----------------------------------------------------------------
 
     protected boolean executeNewItem(NewItem proc) throws SQLException {
@@ -788,7 +775,7 @@ public class AuctionMarkWorker extends Worker {
     }
 
     // ----------------------------------------------------------------
-    // NEW_PURCHASE
+    // NewPurchase
     // ----------------------------------------------------------------
     
     protected boolean executeNewPurchase(NewPurchase proc) throws SQLException {
@@ -799,7 +786,7 @@ public class AuctionMarkWorker extends Worker {
         
         // Whether the buyer will not have enough money
         if (itemInfo.hasCurrentPrice()) {
-            if (profile.rng.number(1, 100) < AuctionMarkConstants.PROB_NEW_PURCHASE_NOT_ENOUGH_MONEY) {
+            if (profile.rng.number(1, 100) < AuctionMarkConstants.PROB_NEWPURCHASE_NOT_ENOUGH_MONEY) {
                 buyer_credit = -1 * itemInfo.getCurrentPrice();
             } else {
                 buyer_credit = itemInfo.getCurrentPrice();
@@ -819,7 +806,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     // ----------------------------------------------------------------
-    // UPDATE_ITEM
+    // UpdateItem
     // ----------------------------------------------------------------
     
     protected boolean executeUpdateItem(UpdateItem proc) throws SQLException {

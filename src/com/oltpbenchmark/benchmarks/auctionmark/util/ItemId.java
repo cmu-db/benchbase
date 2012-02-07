@@ -96,7 +96,7 @@ public class ItemId extends CompositeId {
     
     @Override
     public String toString() {
-        return ("ItemId<" + this.getItemCtr() + "-" + this.getSellerId() + ">");
+        return ("ItemId<" + this.item_ctr + "-" + this.seller_id + ">");
     }
     
     public static String toString(long itemId) {
@@ -107,8 +107,10 @@ public class ItemId extends CompositeId {
     public boolean equals(Object obj) {
         if (obj instanceof ItemId) {
             ItemId o = (ItemId)obj;
-            return (this.seller_id.equals(o.seller_id) &&
-                    this.item_ctr == o.item_ctr);
+            return (
+                this.item_ctr == o.item_ctr &&
+                this.seller_id.equals(o.seller_id)
+            );
         }
         return (false);
     }
