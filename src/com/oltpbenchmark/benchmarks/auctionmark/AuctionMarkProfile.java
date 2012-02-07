@@ -181,15 +181,15 @@ public class AuctionMarkProfile {
     /**
      * The last time that we called CHECK_WINNING_BIDS on this client
      */
-    private transient Date lastCloseAuctionsTime;
+    private transient Date lastCloseAuctionsTime = new Date(0);
     /**
      * When this client started executing
      */
-    private transient Date clientStartTime;
+    private transient Date clientStartTime = new Date(0);
     /**
      * Current Timestamp
      */
-    private transient Date currentTime;
+    private transient Date currentTime = new Date(0);
     
 //    /**
 //     * Keep track of previous waitForPurchase ItemIds so that we don't try to call NewPurchase
@@ -426,8 +426,8 @@ public class AuctionMarkProfile {
     }
     
     public Date setAndGetBenchmarkStartTime() {
-        assert(this.benchmarkStartTime == null);
-        this.benchmarkStartTime = new Date(System.currentTimeMillis());
+        assert(this.benchmarkStartTime.getTime() == 0);
+        this.benchmarkStartTime.setTime(System.currentTimeMillis());
         return (this.benchmarkStartTime);
     }
     public Date getBenchmarkStartTime() {
@@ -435,15 +435,15 @@ public class AuctionMarkProfile {
     }
 
     public Date setAndGetClientStartTime() {
-        assert(this.clientStartTime == null);
-        this.clientStartTime = new Date(System.currentTimeMillis());
+        assert(this.clientStartTime.getTime() == 0);
+        this.clientStartTime.setTime(System.currentTimeMillis());
         return (this.clientStartTime);
     }
     public Date getClientStartTime() {
         return (this.clientStartTime);
     }
     public boolean hasClientStartTime() {
-        return (this.clientStartTime != null);
+        return (this.clientStartTime.getTime() != 0);
     }
 
     public synchronized Date updateAndGetLastCloseAuctionsTime() {
@@ -454,7 +454,7 @@ public class AuctionMarkProfile {
         return this.lastCloseAuctionsTime;
     }
     public boolean hasLastCloseAuctionsTime() {
-        return (this.lastCloseAuctionsTime != null);
+        return (this.lastCloseAuctionsTime.getTime() != 0);
     }
     
     
