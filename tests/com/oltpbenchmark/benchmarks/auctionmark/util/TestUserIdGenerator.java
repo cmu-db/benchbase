@@ -76,14 +76,14 @@ public class TestUserIdGenerator extends TestCase {
 	 */
 	public void testSeekToPosition() throws Exception {
 	    UserIdGenerator generator = new UserIdGenerator(users_per_item_count, 1);
-	    final long num_users = generator.getTotalUsers()-1;
+	    final int num_users = (int)(generator.getTotalUsers()-1);
 	    
 	    int itemCount = rand.nextInt(users_per_item_count.getMaxValue().intValue()-1);
 	    generator.setCurrentItemCount(itemCount);
 	    System.err.println("itemCount = " + itemCount);
 	    
-	    long cur_position = generator.getCurrentPosition();
-        long new_position = rand.number(cur_position, num_users);
+	    int cur_position = generator.getCurrentPosition();
+        int new_position = rand.number(cur_position, num_users);
 //        System.err.println(users_per_item_count);
         System.err.println("cur_position = " + cur_position);
         System.err.println("new_position = " + new_position);

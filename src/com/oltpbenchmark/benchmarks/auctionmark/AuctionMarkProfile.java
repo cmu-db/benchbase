@@ -406,13 +406,15 @@ public class AuctionMarkProfile {
     // TIME METHODS
     // -----------------------------------------------------------------
 
+    private transient final Date tmp_now = new Date(System.currentTimeMillis());
+   
     private Date getScaledCurrentTimestamp() {
         assert(this.clientStartTime != null);
-        Date now = new Date(System.currentTimeMillis());
-        Date time = AuctionMarkUtil.getScaledTimestamp(this.benchmarkStartTime, this.clientStartTime, now);
+        tmp_now.setTime(System.currentTimeMillis());
+        Date time = AuctionMarkUtil.getScaledTimestamp(this.benchmarkStartTime, this.clientStartTime, tmp_now);
         if (LOG.isTraceEnabled())
             LOG.trace(String.format("Scaled:%d / Now:%d / BenchmarkStart:%d / ClientStart:%d",
-                                   time.getTime(), now.getTime(), this.benchmarkStartTime.getTime(), this.clientStartTime.getTime()));
+                                   time.getTime(), tmp_now.getTime(), this.benchmarkStartTime.getTime(), this.clientStartTime.getTime()));
         return (time);
     }
     
@@ -511,10 +513,10 @@ public class AuctionMarkProfile {
         
             // Set the current item count and then choose a random position
             // between where the generator is currently at and where it ends
-            this.userIdGenerator.setCurrentItemCount(itemCount);
+            this.userIdGenerator.setCurrentItemCount((int)itemCount);
             long cur_position = this.userIdGenerator.getCurrentPosition();
             long new_position = rng.number(cur_position, num_users);
-            user_id = this.userIdGenerator.seekToPosition(new_position);
+            user_id = this.userIdGenerator.seekToPosition((int)new_position);
             if (user_id == null) continue;
             
             // Make sure that we didn't select the same UserId as the one we were

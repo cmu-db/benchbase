@@ -34,10 +34,9 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.types.TransactionStatus;
-import com.oltpbenchmark.util.StringUtil;
 
 public class AuctionMarkWorker extends Worker {
-    private static final Logger LOG = Logger.getLogger(AuctionMarkLoader.class);
+    private static final Logger LOG = Logger.getLogger(AuctionMarkWorker.class);
 
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS

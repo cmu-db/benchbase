@@ -37,14 +37,15 @@ public class UserIdGenerator implements Iterator<UserId> {
 
     private final int numClients;
     private final Integer clientId;
-    private final Histogram<Long> users_per_item_count;
-    private final long min_count;
-    private final long maxItemCount;
+    private final int users_per_item_count[];
+    private final int min_count;
+    private final int maxItemCount;
+    private final long totaUsers;
     
     private UserId next = null;
-    private long currentItemCount = -1;
-    private long currentOffset;
-    private long currentPosition = 0l;
+    private int currentItemCount = -1;
+    private int currentOffset;
+    private int currentPosition = 0;
     
     /**
      * Construct a new generator based on the given histogram.
@@ -63,13 +64,18 @@ public class UserIdGenerator implements Iterator<UserId> {
 
         this.numClients = numClients;
         this.clientId = clientId;
-        this.users_per_item_count = users_per_item_count;
+        this.users_per_item_count = new int[users_per_item_count.getMaxValue().intValue()+2];
+        for (int i = 0; i < this.users_per_item_count.length; i++) {
+            this.users_per_item_count[i] = (int)users_per_item_count.get((long)i, 0l); 
+        } // FOR
         
         Long temp = users_per_item_count.getMinValue();
-        this.min_count = (temp != null ? temp.longValue() : 0);
+        this.min_count = (temp != null ? temp.intValue() : 0);
         
         temp = users_per_item_count.getMaxValue();
-        this.maxItemCount = (temp != null ? temp.longValue() : 0);
+        this.maxItemCount = (temp != null ? temp.intValue() : 0);
+        
+        this.totaUsers = users_per_item_count.getSampleCount();
         
         this.setCurrentItemCount(this.min_count);
     }
@@ -80,32 +86,32 @@ public class UserIdGenerator implements Iterator<UserId> {
     
     
     public long getTotalUsers() {
-        return (this.users_per_item_count.getSampleCount());
+        return (this.totaUsers);
     }
     
-    public void setCurrentItemCount(long size) {
+    public void setCurrentItemCount(int size) {
         // It's lame, but we need to make sure that we prime total_ctr
         // so that we always get the same UserIds back per client
         this.currentPosition = 0;
-        for (long i = 0; i < size; i++) {
-            this.currentPosition += this.users_per_item_count.get(i, 0l);
+        for (int i = 0; i < size; i++) {
+            this.currentPosition += this.users_per_item_count[i];
         } // FOR
         this.currentItemCount = size;
-        this.currentOffset = this.users_per_item_count.get(this.currentItemCount, 0l);
+        this.currentOffset = this.users_per_item_count[this.currentItemCount];
     }
     
-    public long getCurrentPosition() {
+    public int getCurrentPosition() {
         return (this.currentPosition);
     }
     
-    public UserId seekToPosition(long position) {
+    public UserId seekToPosition(int position) {
         assert(position <= this.getTotalUsers()) : String.format("%d < %d", position, this.getTotalUsers());
         UserId user_id = null;
         
         this.currentPosition = 0;
         this.currentItemCount = 0;
         while (true) {
-            long num_users = this.users_per_item_count.get(this.currentItemCount, 0l);
+            int num_users = this.users_per_item_count[this.currentItemCount];
             
             if (this.currentPosition + num_users > position) {
                 this.next = null;
@@ -142,7 +148,7 @@ public class UserIdGenerator implements Iterator<UserId> {
             } // WHILE
             if (found != null) break;
             this.currentItemCount++;
-            this.currentOffset = (int)this.users_per_item_count.get(this.currentItemCount, 0l);
+            this.currentOffset = this.users_per_item_count[this.currentItemCount];
         } // WHILE
         if (found == null) return (null);
         
