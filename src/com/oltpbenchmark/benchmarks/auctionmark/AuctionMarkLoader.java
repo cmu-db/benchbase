@@ -170,6 +170,7 @@ public class AuctionMarkLoader extends Loader {
                 fail = true;
                 for (Thread thread : threads)
                     thread.interrupt();
+                t.getSecond().printStackTrace();
             }
         });
         

@@ -303,7 +303,9 @@ public abstract class AuctionMarkConstants {
      * in the client. We will increase the likelihood that a users will bid on these
      * items as it gets closer to their end times
      */
-    public static final long ENDING_SOON = 36000l; // 10 hours
+    public static final long ITEM_ENDING_SOON = 36000l; // 10 hours
+    
+    public static final int ITEM_ALREADY_ENDED = 100000;
     
     // ----------------------------------------------------------------
     // PROBABILITIES

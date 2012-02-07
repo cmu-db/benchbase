@@ -145,6 +145,14 @@ public class AuctionMarkProfile {
     private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<ItemInfo>();
     private transient final LinkedList<ItemInfo> items_completed = new LinkedList<ItemInfo>();
     
+    @SuppressWarnings("unchecked")
+    private transient final LinkedList<ItemInfo> allItemSets[] = new LinkedList[]{
+        this.items_available,
+        this.items_endingSoon,
+        this.items_waitingForPurchase,
+        this.items_completed,
+    };
+    
     /**
      * Internal list of GlobalAttributeGroupIds
      */
@@ -153,7 +161,7 @@ public class AuctionMarkProfile {
     /**
      * Internal map of UserIdGenerators
      */
-    private transient final Map<Integer, UserIdGenerator> userIdGenerators = new HashMap<Integer, UserIdGenerator>();
+    private transient UserIdGenerator userIdGenerator;
     
     /** Random time different in seconds */
     public transient final DiscreteRNG randomTimeDiff;
@@ -193,6 +201,11 @@ public class AuctionMarkProfile {
      * TODO
      */
     protected final transient Histogram<UserId> seller_item_cnt = new Histogram<UserId>();
+    
+    
+    private final transient Set<ItemInfo> tmp_itemQueues = new HashSet<ItemInfo>();
+    private final transient Set<ItemInfo> tmp_seenItems = new HashSet<ItemInfo>();
+    private final Histogram<UserId> new_h = new Histogram<UserId>(true);
     
     // -----------------------------------------------------------------
     // CONSTRUCTOR
@@ -469,37 +482,25 @@ public class AuctionMarkProfile {
     // ----------------------------------------------------------------
 
     /**
-     * 
+     * Note that this synchronization block only matters for the loader
      * @param min_item_count
      * @param client
      * @param exclude
      * @return
      */
-    private UserId getRandomUserId(int min_item_count, Integer client, UserId...exclude) {
+    private synchronized UserId getRandomUserId(int min_item_count, Integer client, UserId...exclude) {
+        // We use the UserIdGenerator to ensure that we always select the next UserId for
+        // a given client from the same set of UserIds
         if (this.randomItemCount == null) {
-            synchronized (this) {
-                if (this.randomItemCount == null)
-                    this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_item_count);
-            } // SYNCH
+            this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_item_count);
         }
-        
-        // First grab the UserIdGenerator for the client (or -1 if there is no client)
-        // and seek to that itemCount. We use the UserIdGenerator to ensure that we always 
-        // select the next UserId for a given client from the same set of UserIds
-        Integer client_idx = (client == null ? -1 : client);
-        UserIdGenerator gen = this.userIdGenerators.get(client_idx);
-        if (gen == null) {
-            synchronized (this.userIdGenerators) {
-                gen = this.userIdGenerators.get(client);
-                if (gen == null) {
-                    gen = new UserIdGenerator(this.users_per_item_count, this.num_clients, client);
-                    this.userIdGenerators.put(client_idx, gen);
-                }
-            } // SYNCH
+        if (this.userIdGenerator == null) {
+            this.userIdGenerator = new UserIdGenerator(this.users_per_item_count, this.num_clients, client);
         }
         
         UserId user_id = null;
         int tries = 1000;
+        final long num_users = this.userIdGenerator.getTotalUsers()-1;
         while (user_id == null && tries-- > 0) {
             // We first need to figure out how many items our seller needs to have
             long itemCount = -1;
@@ -510,11 +511,10 @@ public class AuctionMarkProfile {
         
             // Set the current item count and then choose a random position
             // between where the generator is currently at and where it ends
-            synchronized (gen) {
-                gen.setCurrentItemCount(itemCount);
-                long position = rng.number(gen.getCurrentPosition(), gen.getTotalUsers());
-                user_id = gen.seekToPosition(position);
-            } // SYNCH
+            this.userIdGenerator.setCurrentItemCount(itemCount);
+            long cur_position = this.userIdGenerator.getCurrentPosition();
+            long new_position = rng.number(cur_position, num_users);
+            user_id = this.userIdGenerator.seekToPosition(new_position);
             if (user_id == null) continue;
             
             // Make sure that we didn't select the same UserId as the one we were
@@ -537,7 +537,7 @@ public class AuctionMarkProfile {
         assert(user_id != null) : String.format("Failed to select a random UserId " +
                                                 "[min_item_count=%d, client=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
                                                 min_item_count, client, Arrays.toString(exclude),
-                                                gen.getTotalUsers(), gen.getCurrentPosition());
+                                                this.userIdGenerator.getTotalUsers(), this.userIdGenerator.getCurrentPosition());
         
         return (user_id);
     }
@@ -567,8 +567,8 @@ public class AuctionMarkProfile {
      */
     public UserId getRandomBuyerId(Histogram<UserId> previousBidders, UserId...exclude) {
         // This is very inefficient, but it's probably good enough for now
-        Histogram<UserId> new_h = new Histogram<UserId>(previousBidders);
-        new_h.setKeepZeroEntries(false);
+        new_h.clear();
+        new_h.putHistogram(previousBidders);
         for (UserId ex : exclude) new_h.removeAll(ex);
         new_h.put(this.getRandomBuyerId(exclude));
         try {
@@ -598,59 +598,45 @@ public class AuctionMarkProfile {
     
     private boolean addItem(LinkedList<ItemInfo> itemSet, ItemInfo itemInfo) {
         boolean added = false;
-        synchronized (itemSet) {
-            if (itemSet.contains(itemInfo)) {
-                // HACK: Always swap existing ItemInfos with our new one, since it will
-                // more up-to-date information
-                int idx = itemSet.indexOf(itemInfo);
-                ItemInfo existing = itemSet.set(idx, itemInfo);
-                assert(existing != null);
-                return (true);
-            }
-            if (itemInfo.hasCurrentPrice()) 
-                assert(itemInfo.getCurrentPrice() > 0) : "Negative current price for " + itemInfo;
-            
-            // If we have room, shove it right in
-            // We'll throw it in the back because we know it hasn't been used yet
-            if (itemSet.size() < AuctionMarkConstants.ITEM_ID_CACHE_SIZE) {
-                itemSet.addLast(itemInfo);
-                added = true;
-            
-            // Otherwise, we can will randomly decide whether to pop one out
-            } else if (this.rng.nextBoolean()) {
-                itemSet.pop();
-                itemSet.addLast(itemInfo);
-                added = true;
-            }
-        } // SYNCH
+        if (itemSet.contains(itemInfo)) {
+            // HACK: Always swap existing ItemInfos with our new one, since it will
+            // more up-to-date information
+            int idx = itemSet.indexOf(itemInfo);
+            ItemInfo existing = itemSet.set(idx, itemInfo);
+            assert(existing != null);
+            return (true);
+        }
+        if (itemInfo.hasCurrentPrice()) 
+            assert(itemInfo.getCurrentPrice() > 0) : "Negative current price for " + itemInfo;
+        
+        // If we have room, shove it right in
+        // We'll throw it in the back because we know it hasn't been used yet
+        if (itemSet.size() < AuctionMarkConstants.ITEM_ID_CACHE_SIZE) {
+            itemSet.addLast(itemInfo);
+            added = true;
+        
+        // Otherwise, we can will randomly decide whether to pop one out
+        } else if (this.rng.nextBoolean()) {
+            itemSet.pop();
+            itemSet.addLast(itemInfo);
+            added = true;
+        }
         return (added);
     }
     private void removeItem(LinkedList<ItemInfo> itemSet, ItemInfo itemInfo) {
-        synchronized (itemSet) {
-            itemSet.remove(itemInfo);
-        } // SYNCH
+        itemSet.remove(itemInfo);
     }
     
-    public synchronized void updateItemQueues() {
-        // HACK
-        Set<ItemInfo> all = new HashSet<ItemInfo>();
-        @SuppressWarnings("unchecked")
-        LinkedList<ItemInfo> itemSets[] = new LinkedList[]{
-            this.items_available,
-            this.items_endingSoon,
-            this.items_waitingForPurchase,
-            this.items_completed,
-        };
-        for (LinkedList<ItemInfo> list : itemSets) {
-            synchronized (list) {
-                all.addAll(list);
-            } // SYNCH
+    public void updateItemQueues() {
+        tmp_itemQueues.clear();
+        for (LinkedList<ItemInfo> list : allItemSets) {
+            tmp_itemQueues.addAll(list);
         } // FOR
         
         Date currentTime = this.updateAndGetCurrentTime();
         assert(currentTime != null);
         if (LOG.isDebugEnabled()) LOG.debug("CurrentTime: " + currentTime);
-        for (ItemInfo itemInfo : all) {
+        for (ItemInfo itemInfo : tmp_itemQueues) {
             this.addItemToProperQueue(itemInfo, false);
         } // FOR
         
@@ -667,22 +653,19 @@ public class AuctionMarkProfile {
     
     public ItemStatus addItemToProperQueue(ItemInfo itemInfo, boolean is_loader) {
         // Calculate how much time is left for this auction
-        Date baseTime = (is_loader ? this.getBenchmarkStartTime() :
-                                              this.getCurrentTime());
+        Date baseTime = (is_loader ? this.getBenchmarkStartTime() : this.getCurrentTime());
         assert(itemInfo.endDate != null);
         assert(baseTime != null) : "is_loader=" + is_loader;
         long remaining = itemInfo.endDate.getTime() - baseTime.getTime();
         ItemStatus ret;
         
         // Already ended
-        if (remaining <= 100000) {
+        if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
             if (itemInfo.numBids > 0 && itemInfo.status != ItemStatus.CLOSED) {
-                synchronized (this.previousWaitForPurchase) {
-                    if (this.previousWaitForPurchase.contains(itemInfo) == false) {
-                        this.previousWaitForPurchase.add(itemInfo);
-                        this.addItem(this.items_waitingForPurchase, itemInfo);
-                    }
-                } // SYNCH
+                if (this.previousWaitForPurchase.contains(itemInfo) == false) {
+                    this.previousWaitForPurchase.add(itemInfo);
+                    this.addItem(this.items_waitingForPurchase, itemInfo);
+                }
                 ret = ItemStatus.WAITING_FOR_PURCHASE;
             } else {
                 this.addItem(this.items_completed, itemInfo);
@@ -692,7 +675,7 @@ public class AuctionMarkProfile {
             this.removeEndingSoonItem(itemInfo);
         }
         // About to end soon
-        else if (remaining < AuctionMarkConstants.ENDING_SOON) {
+        else if (remaining < AuctionMarkConstants.ITEM_ENDING_SOON) {
             this.addItem(this.items_endingSoon, itemInfo);
             this.removeAvailableItem(itemInfo);
             ret = ItemStatus.ENDING_SOON;
@@ -718,55 +701,52 @@ public class AuctionMarkProfile {
      */
     private ItemInfo getRandomItem(LinkedList<ItemInfo> itemSet, boolean needCurrentPrice, boolean needFutureEndDate) {
         ItemInfo itemInfo = null;
-        Set<ItemInfo> seen = new HashSet<ItemInfo>();
         Date currentTime = this.updateAndGetCurrentTime();
+        int num_items = itemSet.size();
+        int idx = -1;
         
-        synchronized (itemSet) {
-            int num_items = itemSet.size();
-            int idx = -1;
+        if (LOG.isTraceEnabled()) 
+            LOG.trace(String.format("Getting random ItemInfo [numItems=%d, currentTime=%s, needCurrentPrice=%s]",
+                                    num_items, currentTime, needCurrentPrice));
+        long tries = 1000;
+        tmp_seenItems.clear();
+        while (num_items > 0 && tries-- > 0 && tmp_seenItems.size() < num_items) {
+            idx = this.rng.nextInt(num_items);
+            ItemInfo temp = itemSet.get(idx);
+            assert(temp != null);
+            if (tmp_seenItems.contains(temp)) continue;
+            tmp_seenItems.add(temp);
             
-            if (LOG.isTraceEnabled()) 
-                LOG.trace(String.format("Getting random ItemInfo [numItems=%d, currentTime=%s, needCurrentPrice=%s]",
-                                       num_items, currentTime, needCurrentPrice));
-            long tries = 1000;
-            while (num_items > 0 && tries-- > 0 && seen.size() < num_items) {
-                idx = this.rng.nextInt(num_items);
-                ItemInfo temp = itemSet.get(idx);
-                assert(temp != null);
-                if (seen.contains(temp)) continue;
-                seen.add(temp);
-                
-                // Needs to have an embedded currentPrice
-                if (needCurrentPrice && temp.hasCurrentPrice() == false) {
+            // Needs to have an embedded currentPrice
+            if (needCurrentPrice && temp.hasCurrentPrice() == false) {
+                continue;
+            }
+            
+            // If they want an item that is ending in the future, then we compare it with 
+            // the current timestamp
+            if (needFutureEndDate) {
+                boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);
+                if (LOG.isTraceEnabled())
+                    LOG.trace("CurrentTime:" + currentTime + " / EndTime:" + temp.getEndDate() + " [compareTo=" + compareTo + "]");
+                if (temp.hasEndDate() == false || compareTo) {
                     continue;
                 }
-                
-                // If they want an item that is ending in the future, then we compare it with 
-                // the current timestamp
-                if (needFutureEndDate) {
-                    boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);
-                    if (LOG.isTraceEnabled())
-                        LOG.trace("CurrentTime:" + currentTime + " / EndTime:" + temp.getEndDate() + " [compareTo=" + compareTo + "]");
-                    if (temp.hasEndDate() == false || compareTo) {
-                        continue;
-                    }
-                }
-                
-                // Uniform
-                itemInfo = temp;
-                break;
-            } // WHILE
-            if (itemInfo == null) {
-                if (LOG.isDebugEnabled()) LOG.debug("Failed to find ItemInfo [hasCurrentPrice=" + needCurrentPrice + ", needFutureEndDate=" + needFutureEndDate + "]");
-                return (null);
             }
-            assert(idx >= 0);
             
-            // Take the item out of the set and insert back to the front
-            // This is so that we can maintain MRU->LRU ordering
-            itemSet.remove(idx);
-            itemSet.addFirst(itemInfo);
-        } // SYNCHRONIZED
+            // Uniform
+            itemInfo = temp;
+            break;
+        } // WHILE
+        if (itemInfo == null) {
+            if (LOG.isDebugEnabled()) LOG.debug("Failed to find ItemInfo [hasCurrentPrice=" + needCurrentPrice + ", needFutureEndDate=" + needFutureEndDate + "]");
+            return (null);
+        }
+        assert(idx >= 0);
+        
+        // Take the item out of the set and insert back to the front
+        // This is so that we can maintain MRU->LRU ordering
+        itemSet.remove(idx);
+        itemSet.addFirst(itemInfo);
         if (needCurrentPrice) {
             assert(itemInfo.hasCurrentPrice()) : "Missing currentPrice for " + itemInfo;
             assert(itemInfo.getCurrentPrice() > 0) : "Negative currentPrice '" + itemInfo.getCurrentPrice() + "' for " + itemInfo;
@@ -844,20 +824,13 @@ public class AuctionMarkProfile {
                 this.getWaitForPurchaseItemsCount() +
                 this.getCompleteItemsCount());
     }
-    @SuppressWarnings("unchecked")
     public ItemInfo getRandomItem() {
         assert(this.getAllItemsCount() > 0);
-        LinkedList<ItemInfo> itemSets[] = new LinkedList[]{
-            this.items_available,
-            this.items_endingSoon,
-            this.items_waitingForPurchase,
-            this.items_completed,
-        };
         int idx = -1;
-        while (idx == -1 || itemSets[idx].isEmpty()) {
-            idx = rng.nextInt(itemSets.length);
+        while (idx == -1 || allItemSets[idx].isEmpty()) {
+            idx = rng.nextInt(allItemSets.length);
         } // WHILE
-        return (this.getRandomItem(itemSets[idx], false, false));
+        return (this.getRandomItem(allItemSets[idx], false, false));
     }
 
     // ----------------------------------------------------------------
@@ -868,7 +841,7 @@ public class AuctionMarkProfile {
      * Return a random GlobalAttributeValueId
      * @return
      */
-    public synchronized GlobalAttributeValueId getRandomGlobalAttributeValue() {
+    public GlobalAttributeValueId getRandomGlobalAttributeValue() {
         int offset = rng.nextInt(this.gag_ids.size());
         GlobalAttributeGroupId gag_id = this.gag_ids.get(offset);
         assert(gag_id != null);
@@ -877,40 +850,11 @@ public class AuctionMarkProfile {
         return gav_id;
     }
     
-    public synchronized long getRandomCategoryId() {
+    public long getRandomCategoryId() {
         if (this.randomCategory == null) {
             this.randomCategory = new FlatHistogram<Long>(this.rng, this.item_category_histogram); 
         }
         return randomCategory.nextLong();
     }
 
-
-    // -----------------------------------------------------------------
-    // SERIALIZATION
-    // -----------------------------------------------------------------
-
-//    @Override
-//    public void load(String input_path, Database catalog_db) throws IOException {
-//        JSONUtil.load(this, catalog_db, input_path);
-//    }
-//
-//    @Override
-//    public void save(String output_path) throws IOException {
-//        JSONUtil.save(this, output_path);
-//    }
-//
-//    @Override
-//    public String toJSONString() {
-//        return (JSONUtil.toJSONString(this));
-//    }
-//
-//    @Override
-//    public void toJSON(JSONStringer stringer) throws JSONException {
-//        JSONUtil.fieldsToJSON(stringer, this, AuctionMarkBenchmarkProfile.class, JSONUtil.getSerializableFields(this.getClass()));
-//    }
-//
-//    @Override
-//    public void fromJSON(JSONObject json_object, Database catalog_db) throws JSONException {
-//        JSONUtil.fieldsFromJSON(json_object, catalog_db, this, AuctionMarkBenchmarkProfile.class, false, JSONUtil.getSerializableFields(this.getClass()));
-//    }
 }

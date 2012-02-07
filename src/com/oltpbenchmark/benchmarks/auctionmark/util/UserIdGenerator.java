@@ -39,10 +39,10 @@ public class UserIdGenerator implements Iterator<UserId> {
     private final Integer clientId;
     private final Histogram<Long> users_per_item_count;
     private final long min_count;
-    private final long max_count;
+    private final long maxItemCount;
     
     private UserId next = null;
-    private Long currentItemCount = null;
+    private long currentItemCount = -1;
     private long currentOffset;
     private long currentPosition = 0l;
     
@@ -69,7 +69,7 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.min_count = (temp != null ? temp.longValue() : 0);
         
         temp = users_per_item_count.getMaxValue();
-        this.max_count = (temp != null ? temp.longValue() : 0);
+        this.maxItemCount = (temp != null ? temp.longValue() : 0);
         
         this.setCurrentItemCount(this.min_count);
     }
@@ -110,7 +110,7 @@ public class UserIdGenerator implements Iterator<UserId> {
     private UserId findNextUserId() {
         // Find the next id for this size level
         Long found = null;
-        while (this.currentItemCount <= this.max_count) {
+        while (this.currentItemCount <= this.maxItemCount) {
             while (this.currentOffset > 0) {
                 long nextCtr = this.currentOffset--;
                 this.currentPosition++;
@@ -133,21 +133,19 @@ public class UserIdGenerator implements Iterator<UserId> {
         } // WHILE
         if (found == null) return (null);
         
-        return (new UserId(this.currentItemCount.intValue(), found.intValue()));
+        return (new UserId((int)this.currentItemCount, found.intValue()));
     }
     
     @Override
-    public synchronized boolean hasNext() {
+    public boolean hasNext() {
         if (this.next == null) {
-            synchronized (this) {
-                if (this.next == null) this.next = this.findNextUserId();
-            }
+            this.next = this.findNextUserId();
         }
         return (this.next != null);
     }
 
     @Override
-    public synchronized UserId next() {
+    public UserId next() {
         if (this.next == null) {
             this.next = this.findNextUserId();
         }

@@ -71,7 +71,7 @@ public class AuctionMarkWorker extends Worker {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-                assert(AuctionMarkWorker.this.closeAuctions_flag.get() == false);
+//                assert(AuctionMarkWorker.this.closeAuctions_flag.get() == false);
                 
                 AuctionMarkWorker.this.closeAuctions_flag.set(true);
                 if (LOG.isDebugEnabled())
