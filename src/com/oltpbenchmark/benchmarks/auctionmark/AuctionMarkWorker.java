@@ -48,7 +48,7 @@ public class AuctionMarkWorker extends Worker {
     /**
      * TODO
      */
-    private final List<long[]> pending_commentResponse = Collections.synchronizedList(new ArrayList<long[]>());
+    private final List<long[]> pending_commentResponse = new ArrayList<long[]>();
     
     private final AtomicBoolean closeAuctions_flag = new AtomicBoolean();
     
@@ -63,8 +63,20 @@ public class AuctionMarkWorker extends Worker {
         }
         @Override
         public void run() {
-            long sleepTime = AuctionMarkConstants.INTERVAL_CLOSE_AUCTIONS / AuctionMarkConstants.TIME_SCALE_FACTOR;
+            Thread.currentThread().setName(this.getClass().getSimpleName());
+            
+            TransactionTypes txnTypes = AuctionMarkWorker.this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
+            TransactionType txnType = txnTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);
+            assert(txnType != null) : txnTypes;
+            
+            Procedure proc = AuctionMarkWorker.this.getProcedure(txnType);
+            assert(proc != null);
+            
+            long sleepTime = AuctionMarkConstants.CLOSE_AUCTIONS_INTERVAL / AuctionMarkConstants.TIME_SCALE_FACTOR;
             while (true) {
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Sleeping for %d seconds", sleepTime));
+
                 // Always sleep until the next time that we need to check
                 try {
                     Thread.sleep(sleepTime * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
@@ -73,10 +85,19 @@ public class AuctionMarkWorker extends Worker {
                 }
 //                assert(AuctionMarkWorker.this.closeAuctions_flag.get() == false);
                 
-                AuctionMarkWorker.this.closeAuctions_flag.set(true);
-                if (LOG.isDebugEnabled())
-                    LOG.debug(String.format("Ready to execute %s [sleep=%d sec]",
-                                            Transaction.CLOSE_AUCTIONS, sleepTime));
+                if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD) {
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("Executing %s in separate thread", Transaction.CLOSE_AUCTIONS));
+                    try {
+                        executeCloseAuctions((CloseAuctions)proc);
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    AuctionMarkWorker.this.closeAuctions_flag.set(true);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("Marked ready flag for %s", Transaction.CLOSE_AUCTIONS));
+                }
             } // WHILE
         }
     }
@@ -291,6 +312,7 @@ public class AuctionMarkWorker extends Worker {
         if (this.closeAuctions_checker != null) this.closeAuctions_checker.start();
     }
     
+    @SuppressWarnings("unused")
     @Override
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         // We need to subtract the different between this and the profile's start time,
@@ -309,7 +331,7 @@ public class AuctionMarkWorker extends Worker {
         
         // Always check if we need to want to run CLOSE_AUCTIONS
         // We only do this from the first client
-        if (closeAuctions_flag.compareAndSet(true, false)) {
+        if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD == false && closeAuctions_flag.compareAndSet(true, false)) {
             txn = Transaction.CLOSE_AUCTIONS;
             TransactionTypes txnTypes = this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
             txnType = txnTypes.getType(Transaction.CLOSE_AUCTIONS.procClass);

@@ -74,7 +74,7 @@ public abstract class AuctionMarkConstants {
      * in a separate thread. If set to false, then these txns will be executed
      * whenever the interval interrupt occurs on the first worker thread 
      */
-    public static final boolean CLOSE_AUCTIONS_SEPARATE_THREAD = true;
+    public static final boolean CLOSE_AUCTIONS_SEPARATE_THREAD = false;
     
     
     // ----------------------------------------------------------------
