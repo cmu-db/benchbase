@@ -789,7 +789,7 @@ public class AuctionMarkWorker extends Worker {
                 buyer_credit = -1 * itemInfo.getCurrentPrice();
             } else {
                 buyer_credit = itemInfo.getCurrentPrice();
-                profile.removeWaitForPurchaseItem(itemInfo);
+                itemInfo.status = ItemStatus.CLOSED;
             }
         }
         

@@ -83,7 +83,8 @@ public abstract class AuctionMarkUtil {
      */
     public static Date getProcTimestamp(Date benchmarkTimes[]) {
         assert(benchmarkTimes.length == 2);
-        return getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Date(System.currentTimeMillis()));
+        long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Date(System.currentTimeMillis()));
+        return new Date(timestamp);
     }
     
     /**
@@ -93,9 +94,7 @@ public abstract class AuctionMarkUtil {
      * @param current
      * @return
      */
-    public static Date getScaledTimestamp(Date benchmarkStart, Date clientStart, Date current) {
-//        if (benchmarkStart == null || clientStart == null || current == null) return (null);
-        
+    public static long getScaledTimestamp(Date benchmarkStart, Date clientStart, Date current) {
         // First get the offset between the benchmarkStart and the clientStart
         // We then subtract that value from the current time. This gives us the total elapsed 
         // time from the current time to the time that the benchmark start (with the gap 
@@ -103,7 +102,7 @@ public abstract class AuctionMarkUtil {
         long base = benchmarkStart.getTime();
         long offset = current.getTime() - (clientStart.getTime() - base);
         long elapsed = (offset - base) * AuctionMarkConstants.TIME_SCALE_FACTOR;
-        return (new Date(base + elapsed));
+        return (base + elapsed);
     }
     
 }

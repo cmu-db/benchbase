@@ -68,7 +68,7 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
             id = (i == 0 ? values[i] : id | values[i]<<offset);
             offset += offset_bits[i];
         } // FOR
-        this.hashCode = new Long(id).hashCode();
+        this.hashCode = (int)(id ^ (id >>> 32)); // From Long.hashCode()
         return (id);
     }
     
