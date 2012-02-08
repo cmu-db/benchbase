@@ -251,15 +251,12 @@ public class RandomDistribution {
         
         public T nextValue() {
             int idx = this.inner.nextInt();
-            for (long total : this.value_rle.keySet()) {
-                if (total >= idx) {
-                    T val = this.value_rle.get(total);
-                    if (this.history != null) this.history.put(val);
-                    return (val);
-                }
-            } // FOR
-            assert(false) : "Went beyond our expected total '" + idx + "'";
-            return (null);
+            Long total = this.value_rle.tailMap((long)idx).firstKey();
+            T val = this.value_rle.get(total);
+            if (this.history != null) this.history.put(val);
+            return (val);
+//            assert(false) : "Went beyond our expected total '" + idx + "'";
+//            return (null);
         }
         
         /**
