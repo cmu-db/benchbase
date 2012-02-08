@@ -264,13 +264,15 @@ public class AuctionMarkLoader extends Loader {
         // Mark as finished
         if (this.fail == false) {
             generator.markAsFinished();
-            this.finished.add(tableName);
-            LOG.info(String.format("*** FINISH %s - %d tuples - [%d / %d]",
-                                   tableName, this.tableSizes.get(tableName),
-                                   this.finished.size(), this.generators.size()));
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Remaining Tables: " + CollectionUtils.subtract(this.generators.keySet(), this.finished));
-            }
+            synchronized (this) {
+                this.finished.add(tableName);
+                LOG.info(String.format("*** FINISH %s - %d tuples - [%d / %d]",
+                                       tableName, this.tableSizes.get(tableName),
+                                       this.finished.size(), this.generators.size()));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Remaining Tables: " + CollectionUtils.subtract(this.generators.keySet(), this.finished));
+                }
+            } // SYNCH
         }
     }
 
