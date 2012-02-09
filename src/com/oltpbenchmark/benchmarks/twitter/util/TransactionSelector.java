@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.twitter;
+package com.oltpbenchmark.benchmarks.twitter.util;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.benchmarks.twitter.TwitterOperation;
 
 import ch.ethz.ssh2.util.Tokenizer;
 

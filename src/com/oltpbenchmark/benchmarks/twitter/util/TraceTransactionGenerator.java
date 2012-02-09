@@ -17,12 +17,13 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.twitter;
+package com.oltpbenchmark.benchmarks.twitter.util;
 
 import java.util.List;
 import java.util.Random;
 
 import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.benchmarks.twitter.TwitterOperation;
 
 public class TraceTransactionGenerator implements TransactionGenerator<TwitterOperation> {
 	private final Random rng = new Random();

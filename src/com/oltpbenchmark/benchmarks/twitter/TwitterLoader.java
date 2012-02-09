@@ -10,9 +10,13 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
+import com.oltpbenchmark.benchmarks.twitter.util.NameHistogram;
+import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
+import com.oltpbenchmark.util.RandomGenerator;
 import com.oltpbenchmark.util.SQLUtil;
 
 public class TwitterLoader extends Loader {
@@ -47,12 +51,13 @@ public class TwitterLoader extends Loader {
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
         
+        NameHistogram name_h = new NameHistogram();
+        FlatHistogram<Integer> name_len_rng = new FlatHistogram<Integer>(this.rng(), name_h);
+        
         int total = 0;
         for (int i = 0; i <= this.num_users; i++) {
         	// Generate a random username for this user
-        	int name_length = LoaderUtil.randomNumber(TwitterConstants.MIN_NAME_LENGTH,
-        											  TwitterConstants.MAX_NAME_LENGTH,
-        											  this.rng());
+        	int name_length = name_len_rng.nextValue().intValue();
             String name = LoaderUtil.randomStr(name_length);
             
             userInsert.setInt(1, i); // ID
@@ -87,15 +92,19 @@ public class TwitterLoader extends Loader {
         assert(catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
-        //
+        
         int total = 0;
         int batchSize = 0;
-        ScrambledZipfianGenerator zy=new ScrambledZipfianGenerator(this.num_users);
-        for (long i = 0; i < this.num_tweets; i++) {           
+        ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(this.num_users);
+        
+        TweetHistogram tweet_h = new TweetHistogram();
+        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<Integer>(this.rng(), tweet_h);
+        
+        for (long i = 0; i < this.num_tweets; i++) {
             int uid = zy.nextInt();
             tweetInsert.setLong(1, i);
             tweetInsert.setInt(2, uid);
-            tweetInsert.setString(3, "some random text from tweeter" + uid);
+            tweetInsert.setString(3, LoaderUtil.randomStr(tweet_len_rng.nextValue()));
             tweetInsert.setNull(4, java.sql.Types.DATE);
             tweetInsert.addBatch();
             batchSize++;
@@ -192,10 +201,4 @@ public class TwitterLoader extends Loader {
         this.loadTweets();
         this.loadFollowData();
     }
-
-	private void genTrace(int trace) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
