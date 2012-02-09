@@ -21,8 +21,10 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 import java.sql.SQLException;
 import java.sql.Time;
+import java.util.Random;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
+import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -31,7 +33,9 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets;
 import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
+import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
 public class TwitterWorker extends Worker {
     private TransactionGenerator<TwitterOperation> generator;
@@ -41,9 +45,14 @@ public class TwitterWorker extends Worker {
     public static int LIMIT_TWEETS_FOR_UID = 10;
     public static int LIMIT_FOLLOWERS = 20;
 
+    private final FlatHistogram<Integer> tweet_len_rng;
+    
     public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
         super(benchmarkModule, id);
         this.generator = generator;
+        
+        TweetHistogram tweet_h = new TweetHistogram();
+        this.tweet_len_rng = new FlatHistogram<Integer>(new Random(), tweet_h);
     }
 
     @Override
@@ -58,9 +67,8 @@ public class TwitterWorker extends Worker {
         } else if (nextTrans.getProcedureClass().equals(GetUserTweets.class)) {
             doSelectTweetsForUid(t.uid);
         } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
-            // TODO FIXME THIS NEEDS TO BE FIXED.. checking with Aubrey how we
-            // generated ids before...
-            String text = "Blah blah new tweet...";
+            int len = this.tweet_len_rng.nextValue().intValue();
+            String text = LoaderUtil.randomStr(len);
             doInsertTweet(t.uid, text);
         }
         conn.commit();

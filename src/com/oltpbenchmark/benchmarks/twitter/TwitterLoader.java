@@ -16,7 +16,6 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
-import com.oltpbenchmark.util.RandomGenerator;
 import com.oltpbenchmark.util.SQLUtil;
 
 public class TwitterLoader extends Loader {
