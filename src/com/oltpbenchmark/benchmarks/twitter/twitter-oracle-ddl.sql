@@ -1,8 +1,8 @@
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "added_tweets"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "tweets"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user_profiles"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 
-CREATE TABLE "user" (
+CREATE TABLE "user_profiles" (
   uuid int NOT NULL,
   name varchar2(255) DEFAULT NULL,
   email varchar2(255) DEFAULT NULL,
@@ -11,8 +11,8 @@ CREATE TABLE "user" (
   followers number(11,0) DEFAULT NULL,
   CONSTRAINT uid_key PRIMARY KEY (uuid)
 );
-CREATE INDEX IDX_USER_FOLLOWERS ON "user" (followers);
-CREATE INDEX IDX_USER_PARTITION ON "user" (partitionid);
+CREATE INDEX IDX_USER_FOLLOWERS ON "user_profiles" (followers);
+CREATE INDEX IDX_USER_PARTITION ON "user_profiles" (partitionid);
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "followers"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 CREATE TABLE "followers" (
@@ -32,7 +32,7 @@ CREATE TABLE "follows" (
 
 CREATE TABLE "tweets" (
   id number(19,0) NOT NULL,
-  uuid int NOT NULL REFERENCES "user" (uuid),
+  uuid int NOT NULL REFERENCES "user_profiles" (uuid),
   text char(140) NOT NULL,
   createdate date DEFAULT NULL,
   CONSTRAINT tweetid_key PRIMARY KEY (id)
@@ -41,7 +41,7 @@ CREATE INDEX IDX_TWEETS_uuid ON "tweets" (uuid);
 
 CREATE TABLE "added_tweets" (
   id number(19,0) NOT NULL,
-  uuid int NOT NULL REFERENCES "user" (uuid),
+  uuid int NOT NULL REFERENCES "user_profiles" (uuid),
   text char(140) NOT NULL,
   createdate date DEFAULT NULL,
   CONSTRAINT new_tweet_id PRIMARY KEY (id)

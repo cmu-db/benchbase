@@ -46,7 +46,7 @@ public class TwitterLoader extends Loader {
      * @throws SQLException
      */
     protected void loadUsers() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("user");
+        Table catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_USER);
         assert(catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
@@ -55,6 +55,8 @@ public class TwitterLoader extends Loader {
         FlatHistogram<Integer> name_len_rng = new FlatHistogram<Integer>(this.rng(), name_h);
         
         int total = 0;
+        int batchSize = 0;
+        
         for (int i = 0; i <= this.num_users; i++) {
         	// Generate a random username for this user
         	int name_length = name_len_rng.nextValue().intValue();
@@ -67,14 +69,23 @@ public class TwitterLoader extends Loader {
             userInsert.setNull(5, java.sql.Types.INTEGER);
             userInsert.setNull(6, java.sql.Types.INTEGER);
             userInsert.addBatch();
-            if ((++total % configCommitCount) == 0) {
+            
+            batchSize++;
+            total++;
+            if ((batchSize % configCommitCount) == 0) {
                 int result[] = userInsert.executeBatch();
                 assert(result != null);
                 conn.commit();
+                userInsert.clearBatch();
+                batchSize = 0;
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("Users %d / %d", total, num_users));
             }
         } // FOR
+        if (batchSize > 0) {
+            userInsert.executeBatch();
+            conn.commit();
+        }
         userInsert.executeBatch();
         conn.commit();
         if (LOG.isDebugEnabled()) LOG.debug(String.format("Users Loaded [%d]", total));
@@ -88,7 +99,7 @@ public class TwitterLoader extends Loader {
      * @throws SQLException
      */
     protected void loadTweets() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("tweets");
+        Table catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
         assert(catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
@@ -139,11 +150,11 @@ public class TwitterLoader extends Loader {
      * @throws SQLException
      */
     protected void loadFollowData() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("follows");
+        Table catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
         assert(catalog_tbl != null);
         final PreparedStatement followsInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
 
-        catalog_tbl = this.getTableCatalog("followers");
+        catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
         assert(catalog_tbl != null);
         final PreparedStatement followersInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
 

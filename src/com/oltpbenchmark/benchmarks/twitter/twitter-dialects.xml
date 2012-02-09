@@ -19,7 +19,7 @@
                 SELECT f2 FROM "followers" WHERE f1 = ? AND ROWNUM &lt;= 20
             </statement>
             <statement name="getFollowerNames">
-                SELECT uid, name FROM "user" WHERE uid IN (??)
+                SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
             </statement>
         </procedure>
         <procedure name="GetUserTweets">
@@ -52,7 +52,7 @@
                 SELECT TOP 20 f2 FROM "followers" WHERE f1 = ?
             </statement>
             <statement name="getFollowerNames">
-                SELECT uid, name FROM "user" WHERE uid IN (??)
+                SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
             </statement>
         </procedure>
         <procedure name="GetUserTweets">
@@ -80,7 +80,7 @@
                 SELECT f2 FROM "followers" WHERE f1 = ? LIMIT 20
             </statement>
             <statement name="getFollowerNames">
-                SELECT uid, name FROM "user" WHERE uid IN (??)
+                SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
             </statement>
         </procedure>
         <procedure name="GetUserTweets">

@@ -24,23 +24,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.tatp.TATPLoader;
+import com.oltpbenchmark.benchmarks.twitter.TwitterConstants;
 import com.oltpbenchmark.benchmarks.twitter.TwitterWorker;
 
 public class GetTweetsFromFollowing extends Procedure {
-	private static final Logger LOG = Logger.getLogger(GetTweetsFromFollowing.class);
 
     public final SQLStmt getFollowing = new SQLStmt(
-        "SELECT f2 FROM follows WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
+        "SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWS +
+        " WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
     );
     
     /** NOTE: The ?? is substituted into a string of repeated ?'s */
     public final SQLStmt getTweets = new SQLStmt(
-        "SELECT * FROM tweets WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
+        "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS +
+        " WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
     );
     
     public ResultSet run(Connection conn, int uid) throws SQLException {

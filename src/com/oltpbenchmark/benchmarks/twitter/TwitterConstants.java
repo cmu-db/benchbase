@@ -2,6 +2,12 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 public abstract class TwitterConstants {
 
+    public static final String TABLENAME_USER           = "user_profiles";
+    public static final String TABLENAME_TWEETS         = "tweets";
+    public static final String TABLENAME_FOLLOWS        = "follows";
+    public static final String TABLENAME_FOLLOWERS      = "followers";
+    public static final String TABLENAME_ADDED_TWEETS   = "added_tweets";
+    
 	/**
 	 * Number of user baseline
 	 */

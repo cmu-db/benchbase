@@ -7,12 +7,14 @@ import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.twitter.TwitterConstants;
 import com.oltpbenchmark.benchmarks.twitter.TwitterWorker;
 
 public class GetUserTweets extends Procedure {
 
     public final SQLStmt getTweets = new SQLStmt(
-        "SELECT * FROM tweets WHERE uid = ? LIMIT " + TwitterWorker.LIMIT_TWEETS_FOR_UID
+        "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS +
+        " WHERE uid = ? LIMIT " + TwitterWorker.LIMIT_TWEETS_FOR_UID
     );
     
     public ResultSet run(Connection conn, long uid) throws SQLException {

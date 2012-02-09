@@ -7,11 +7,12 @@ import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.twitter.TwitterConstants;
 
 public class GetTweet extends Procedure {
 
     public SQLStmt getTweet = new SQLStmt(
-        "SELECT * FROM tweets WHERE id = ?"
+        "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE id = ?"
     );
 
     public ResultSet run(Connection conn, long tweet_id) throws SQLException{

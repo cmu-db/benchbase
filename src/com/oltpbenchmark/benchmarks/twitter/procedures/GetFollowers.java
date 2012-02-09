@@ -5,23 +5,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.twitter.TwitterConstants;
 import com.oltpbenchmark.benchmarks.twitter.TwitterWorker;
 
 public class GetFollowers extends Procedure {
 	
-	private static final Logger LOG = Logger.getLogger(GetFollowers.class);
-	
     public final SQLStmt getFollowers = new SQLStmt(
-        "SELECT f2 FROM followers WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
+        "SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWERS +
+		" WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
     );
     
     /** NOTE: The ?? is substituted into a string of repeated ?'s */
     public final SQLStmt getFollowerNames = new SQLStmt(
-        "SELECT uid, name FROM user WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
+        "SELECT uid, name FROM " + TwitterConstants.TABLENAME_USER + 
+        " WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
     );
     
     public ResultSet run(Connection conn, long uid) throws SQLException {
