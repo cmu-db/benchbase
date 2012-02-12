@@ -228,14 +228,6 @@ public class DBWorkload {
         @Deprecated
         boolean verbose = argsLine.hasOption("v");
 
-        // Execute a Script
-        if (argsLine.hasOption("runscript")) {
-            SCRIPT_LOG.info("Running a SQL script" + bench.getBenchmarkName().toUpperCase() + " database...");
-            String script = argsLine.getOptionValue("runscript");
-            runScript(bench, script);
-            SCRIPT_LOG.info("Finished!");
-            SCRIPT_LOG.info(SINGLE_LINE);
-        }
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
             CREATE_LOG.info("Creating new " + bench.getBenchmarkName().toUpperCase() + " database...");
@@ -267,6 +259,15 @@ public class DBWorkload {
         } else if (LOAD_LOG.isDebugEnabled()) {
             LOAD_LOG.debug("Skipping loading benchmark database records");
             LOAD_LOG.info(SINGLE_LINE);
+        }
+        
+        // Execute a Script
+        if (argsLine.hasOption("runscript")) {
+            String script = argsLine.getOptionValue("runscript");
+            SCRIPT_LOG.info("Running a SQL script: "+script);
+            runScript(bench, script);
+            SCRIPT_LOG.info("Finished!");
+            SCRIPT_LOG.info(SINGLE_LINE);
         }
 
         // Execute Workload
