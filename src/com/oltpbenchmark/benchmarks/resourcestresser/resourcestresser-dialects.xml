@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="ORACLE">
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+            	BEGIN DBMS_LOCK.SLEEP(?); END;
+            </statement>
+        </procedure>   
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+            	BEGIN DBMS_LOCK.SLEEP(?); END;
+            </statement>
+        </procedure>      
+    </dialect>
+    <dialect type="SQLSERVER">
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+            	WAITFOR DELAY ?
+            </statement>
+        </procedure>   
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+            	WAITFOR DELAY ?
+            </statement>
+        </procedure>      
+    </dialect>
+</dialects>

@@ -9,13 +9,13 @@ IF OBJECT_ID('[locktable]') IS NOT NULL DROP table [dbo].[locktable];
 
 CREATE TABLE cputable (
   empid int NOT NULL,
-  passwd char(255) NOT NULL,
+  passwd varchar(255) NOT NULL,
   PRIMARY KEY (empid)
 );
 
 CREATE TABLE iotable (
   empid int NOT NULL,
-  data1 char(255) NOT NULL,
+  data1 varchar(255) NOT NULL,
   data2 varchar(255) NOT NULL,
   data3 varchar(255) NOT NULL,
   data4 varchar(255) NOT NULL,
