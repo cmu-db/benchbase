@@ -220,14 +220,13 @@ public abstract class BenchmarkModule {
         try {
             Connection conn = this.makeConnection();
             ScriptRunner runner = new ScriptRunner(conn, true, true);
-            URL ddlURL = this.getClass().getResource(script);
-            File scriptFile= new File(ddlURL.getPath());
+            File scriptFile= new File(script);
             runner.runScript(scriptFile);
             conn.close();
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to run: ", script), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to run: %", script), ex);
         } catch (IOException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to open: ", script), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to open: %", script), ex);
         }
     }
     
