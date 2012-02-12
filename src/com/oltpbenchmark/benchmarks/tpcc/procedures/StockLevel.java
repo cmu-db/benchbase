@@ -17,8 +17,7 @@ public class StockLevel extends Procedure {
 
     private static final Logger LOG = Logger.getLogger(StockLevel.class);
 	
-	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT d_next_o_id"
-			+ " FROM district" + " WHERE d_w_id = ?" + " AND d_id = ?");
+	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT d_next_o_id FROM district WHERE d_w_id = ? AND d_id = ?");
 	
 	public SQLStmt stockGetCountStockSQL = new SQLStmt("SELECT COUNT(DISTINCT (s_i_id)) AS stock_count"
 			+ " FROM order_line, stock"
@@ -71,8 +70,7 @@ public class StockLevel extends Procedure {
 			ResultSet rs = stockGetDistOrderId.executeQuery();
 
 			if (!rs.next())
-				throw new RuntimeException("D_W_ID=" + w_id + " D_ID=" + d_id
-						+ " not found!");
+				throw new RuntimeException("D_W_ID="+ w_id +" D_ID="+ d_id+" not found!");
 			o_id = rs.getInt("d_next_o_id");
 			rs.close();
 			rs = null;
@@ -87,8 +85,7 @@ public class StockLevel extends Procedure {
 			rs = stockGetCountStock.executeQuery();
 
 			if (!rs.next())
-				throw new RuntimeException("OL_W_ID=" + w_id + " OL_D_ID=" + d_id
-						+ " OL_O_ID=" + o_id + " (...) not found!");
+				throw new RuntimeException("OL_W_ID="+w_id +" OL_D_ID="+d_id+" OL_O_ID="+o_id+" not found!");
 			stock_count = rs.getInt("stock_count");
 
 			conn.commit();

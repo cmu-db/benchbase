@@ -53,6 +53,7 @@ public class DBWorkload {
     private static final Logger INIT_LOG = Logger.getLogger(DBWorkload.class);
     private static final Logger CREATE_LOG = Logger.getLogger(DBWorkload.class);
     private static final Logger LOAD_LOG = Logger.getLogger(DBWorkload.class);
+    private static final Logger SCRIPT_LOG = Logger.getLogger(DBWorkload.class);
     private static final Logger EXEC_LOG = Logger.getLogger(DBWorkload.class);
     
     private static final String SINGLE_LINE = "**********************************************************************************";
@@ -111,6 +112,11 @@ public class DBWorkload {
                 "execute",
                 true,
                 "Execute the benchmark workload");
+        options.addOption(
+                null,
+                "runscript",
+                true,
+                "Run an SQL script");
 		
 		options.addOption("v", "verbose", false, "Display Messages");
 		options.addOption("h", "help", false, "Print this help");
@@ -222,6 +228,14 @@ public class DBWorkload {
         @Deprecated
         boolean verbose = argsLine.hasOption("v");
 
+        // Execute a Script
+        if (argsLine.hasOption("runscript")) {
+            SCRIPT_LOG.info("Running a SQL script" + bench.getBenchmarkName().toUpperCase() + " database...");
+            String script = argsLine.getOptionValue("runscript");
+            runScript(bench, script);
+            SCRIPT_LOG.info("Finished!");
+            SCRIPT_LOG.info(SINGLE_LINE);
+        }
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
             CREATE_LOG.info("Creating new " + bench.getBenchmarkName().toUpperCase() + " database...");
@@ -287,12 +301,17 @@ public class DBWorkload {
             EXEC_LOG.info("Skipping benchmark workload execution");
         }
     }
+	
+    private static void runScript(BenchmarkModule bench, String script) {
+        SCRIPT_LOG.debug(String.format("Running %s", script));
+        bench.runScript(script);
+    }
 
     private static void runCreator(BenchmarkModule bench, boolean verbose) {
         CREATE_LOG.debug(String.format("Creating %s Database", bench));
         bench.createDatabase();
     }
-
+    
     private static void runLoader(BenchmarkModule bench, boolean verbose) {
         LOAD_LOG.debug(String.format("Loading %s Database", bench));
         bench.loadDatabase();

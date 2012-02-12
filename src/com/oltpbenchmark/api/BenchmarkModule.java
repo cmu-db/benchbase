@@ -214,6 +214,24 @@ public abstract class BenchmarkModule {
     }
     
     /**
+     * Run a script on a Database
+     */
+    public final void runScript(String script) {
+        try {
+            Connection conn = this.makeConnection();
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
+            URL ddlURL = this.getClass().getResource(script);
+            File scriptFile= new File(ddlURL.getPath());
+            runner.runScript(scriptFile);
+            conn.close();
+        } catch (SQLException ex) {
+            throw new RuntimeException(String.format("Unexpected error when trying to run: ", script), ex);
+        } catch (IOException ex) {
+            throw new RuntimeException(String.format("Unexpected error when trying to open: ", script), ex);
+        }
+    }
+    
+    /**
      * Invoke this benchmark's database loader
      */
     public final void loadDatabase() {

@@ -1,260 +1,185 @@
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE customer'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-
---PROMPT Creating Table customer ...
 CREATE TABLE customer (
-  c_w_id NUMBER(10,0) NOT NULL,
-  c_d_id NUMBER(10,0) NOT NULL,
-  c_id NUMBER(10,0) NOT NULL,
-  c_discount FLOAT NOT NULL,
-  c_credit CHAR(2 CHAR) NOT NULL,
-  c_last VARCHAR2(16 CHAR) NOT NULL,
-  c_first VARCHAR2(16 CHAR) NOT NULL,
-  c_credit_lim FLOAT NOT NULL,
-  c_balance FLOAT NOT NULL,
-  c_ytd_payment FLOAT NOT NULL,
-  c_payment_cnt NUMBER(10,0) NOT NULL,
-  c_delivery_cnt NUMBER(10,0) NOT NULL,
-  c_street_1 VARCHAR2(20 CHAR) NOT NULL,
-  c_street_2 VARCHAR2(20 CHAR) NOT NULL,
-  c_city VARCHAR2(20 CHAR) NOT NULL,
-  c_state CHAR(2 CHAR) NOT NULL,
-  c_zip CHAR(9 CHAR) NOT NULL,
-  c_phone CHAR(16 CHAR) NOT NULL,
-  c_since DATE DEFAULT SYSDATE NOT NULL,
-  c_middle CHAR(2 CHAR) NOT NULL,
-  c_data VARCHAR2(500 CHAR) NOT NULL
+c_id number
+, c_d_id number
+, c_w_id number
+, c_discount number
+, c_credit char(2)
+, c_last varchar2(16)
+, c_first varchar2(16)
+, c_credit_lim number
+, c_balance number
+, c_ytd_payment number
+, c_payment_cnt number
+, c_delivery_cnt number
+, c_street_1 varchar2(20)
+, c_street_2 varchar2(20)
+, c_city varchar2(20)
+, c_state char(2)
+, c_zip char(9)
+, c_phone char(16)
+, c_since date
+, c_middle char(2)
+, c_data char(500)
 );
 
-
---PROMPT Creating Primary Key Constraint PRIMARY on table customer ... 
-ALTER TABLE customer
-ADD CONSTRAINT PRIMARY PRIMARY KEY
-(
-  c_w_id,
-  c_d_id,
-  c_id
-)
-ENABLE
-;
---PROMPT Creating Index IDX_CUSTOMER_NAME on customer ...
-CREATE INDEX IDX_CUSTOMER_NAME ON customer
-(
-  c_w_id,
-  c_d_id,
-  c_last,
-  c_first
-) 
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON customer TO PUBLIC;
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE district'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-
---PROMPT Creating Table district ...
 CREATE TABLE district (
-  d_w_id NUMBER(10,0) NOT NULL,
-  d_id NUMBER(10,0) NOT NULL,
-  d_ytd FLOAT NOT NULL,
-  d_tax FLOAT NOT NULL,
-  d_next_o_id NUMBER(10,0) NOT NULL,
-  d_name VARCHAR2(10 CHAR) NOT NULL,
-  d_street_1 VARCHAR2(20 CHAR) NOT NULL,
-  d_street_2 VARCHAR2(20 CHAR) NOT NULL,
-  d_city VARCHAR2(20 CHAR) NOT NULL,
-  d_state CHAR(2 CHAR) NOT NULL,
-  d_zip CHAR(9 CHAR) NOT NULL
+  d_id number
+, d_w_id number
+, d_ytd number
+, d_next_o_id number
+, d_tax number
+, d_name varchar2(10)
+, d_street_1 varchar2(20)
+, d_street_2 varchar2(20)
+, d_city varchar2(20)
+, d_state char(2)
+, d_zip char(9)
 );
-
-
---PROMPT Creating Primary Key Constraint PRIMARY_1 on table district ... 
-ALTER TABLE district
-ADD CONSTRAINT PRIMARY_1 PRIMARY KEY
-(
-  d_w_id,
-  d_id
-)
-ENABLE
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON district TO PUBLIC;
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE history'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table history ...
 CREATE TABLE history (
-  h_c_id NUMBER(10,0) NOT NULL,
-  h_c_d_id NUMBER(10,0) NOT NULL,
-  h_c_w_id NUMBER(10,0) NOT NULL,
-  h_d_id NUMBER(10,0) NOT NULL,
-  h_w_id NUMBER(10,0) NOT NULL,
-  h_date DATE DEFAULT SYSDATE NOT NULL,
-  h_amount FLOAT NOT NULL,
-  h_data VARCHAR2(24 CHAR) NOT NULL
+  h_c_id number
+, h_c_d_id number
+, h_c_w_id number
+, h_d_id number
+, h_w_id number
+, h_date date
+, h_amount number
+, h_data varchar2(24)
 );
-
-
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON history TO PUBLIC;
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE item'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table item ...
 CREATE TABLE item (
-  i_id NUMBER(10,0) NOT NULL,
-  i_name VARCHAR2(24 CHAR) NOT NULL,
-  i_price FLOAT NOT NULL,
-  i_data VARCHAR2(50 CHAR) NOT NULL,
-  i_im_id NUMBER(10,0) NOT NULL
+  i_id number(6,0)
+, i_name varchar2(24)
+, i_price number
+, i_data varchar2(50)
+, i_im_id number
 );
-
-
---PROMPT Creating Primary Key Constraint PRIMARY_2 on table item ... 
-ALTER TABLE item
-ADD CONSTRAINT PRIMARY_2 PRIMARY KEY
-(
-  i_id
-)
-ENABLE
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON item TO PUBLIC;
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE new_order'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table new_order ...
 CREATE TABLE new_order (
-  no_w_id NUMBER(10,0) NOT NULL,
-  no_d_id NUMBER(10,0) NOT NULL,
-  no_o_id NUMBER(10,0) NOT NULL
+  no_w_id number
+, no_d_id number
+, no_o_id number sort
+, constraint nord_uk primary key ( no_w_id, no_d_id, no_o_id)
 );
-
-
---PROMPT Creating Primary Key Constraint PRIMARY_7 on table new_order ... 
-ALTER TABLE new_order
-ADD CONSTRAINT PRIMARY_7 PRIMARY KEY
-(
-  no_w_id,
-  no_d_id,
-  no_o_id
-)
-ENABLE
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON new_order TO PUBLIC;
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE oorder'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table oorder ...
 CREATE TABLE oorder (
-  o_w_id NUMBER(10,0) NOT NULL,
-  o_d_id NUMBER(10,0) NOT NULL,
-  o_id NUMBER(10,0) NOT NULL,
-  o_c_id NUMBER(10,0) NOT NULL,
-  o_carrier_id NUMBER(10,0),
-  o_ol_cnt FLOAT NOT NULL,
-  o_all_local FLOAT NOT NULL,
-  o_entry_d DATE DEFAULT SYSDATE NOT NULL
+  o_id number sort
+, o_w_id number
+, o_d_id number
+, o_c_id number
+, o_carrier_id number
+, o_ol_cnt number
+, o_all_local number
+, o_entry_d date
+, constraint ordr_uk primary key ( o_w_id, o_d_id, o_id )
 );
-
-
---PROMPT Creating Primary Key Constraint PRIMARY_4 on table oorder ... 
-ALTER TABLE oorder
-ADD CONSTRAINT PRIMARY_4 PRIMARY KEY
-(
-  o_w_id,
-  o_d_id,
-  o_id
-)
-ENABLE
-;
---PROMPT Creating Unique Index o_w_id on oorder...
-CREATE UNIQUE INDEX o_w_id ON oorder
-(
-  o_w_id,
-  o_d_id,
-  o_c_id,
-  o_id
-) 
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON oorder TO PUBLIC;
 
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE order_line'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table order_line ...
 CREATE TABLE order_line (
-  ol_w_id NUMBER(10,0) NOT NULL,
-  ol_d_id NUMBER(10,0) NOT NULL,
-  ol_o_id NUMBER(10,0) NOT NULL,
-  ol_number NUMBER(10,0) NOT NULL,
-  ol_i_id NUMBER(10,0) NOT NULL,
-  ol_delivery_d DATE,
-  ol_amount FLOAT NOT NULL,
-  ol_supply_w_id NUMBER(10,0) NOT NULL,
-  ol_quantity FLOAT NOT NULL,
-  ol_dist_info CHAR(24 CHAR) NOT NULL
+  ol_w_id number
+, ol_d_id number
+, ol_o_id number sort
+, ol_number number sort
+, ol_i_id number
+, ol_delivery_d date
+, ol_amount number
+, ol_supply_w_id number
+, ol_quantity number
+, ol_dist_info char(24)
+, constraint ordl_uk primary key (ol_w_id, ol_d_id, ol_o_id, ol_number)
 );
 
-
---PROMPT Creating Primary Key Constraint PRIMARY_5 on table order_line ... 
-ALTER TABLE order_line
-ADD CONSTRAINT PRIMARY_5 PRIMARY KEY
-(
-  ol_w_id,
-  ol_d_id,
-  ol_o_id,
-  ol_number
-)
-ENABLE
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON order_line TO PUBLIC;
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE stock'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table stock ...
 CREATE TABLE stock (
-  s_w_id NUMBER(10,0) NOT NULL,
-  s_i_id NUMBER(10,0) NOT NULL,
-  s_quantity FLOAT NOT NULL,
-  s_ytd FLOAT NOT NULL,
-  s_order_cnt NUMBER(10,0) NOT NULL,
-  s_remote_cnt NUMBER(10,0) NOT NULL,
-  s_data VARCHAR2(50 CHAR) NOT NULL,
-  s_dist_01 CHAR(24 CHAR) NOT NULL,
-  s_dist_02 CHAR(24 CHAR) NOT NULL,
-  s_dist_03 CHAR(24 CHAR) NOT NULL,
-  s_dist_04 CHAR(24 CHAR) NOT NULL,
-  s_dist_05 CHAR(24 CHAR) NOT NULL,
-  s_dist_06 CHAR(24 CHAR) NOT NULL,
-  s_dist_07 CHAR(24 CHAR) NOT NULL,
-  s_dist_08 CHAR(24 CHAR) NOT NULL,
-  s_dist_09 CHAR(24 CHAR) NOT NULL,
-  s_dist_10 CHAR(24 CHAR) NOT NULL
+  s_i_id number
+, s_w_id number
+, s_quantity number
+, s_ytd number
+, s_order_cnt number
+, s_remote_cnt number
+, s_data varchar2(50)
+, s_dist_01 char(24)
+, s_dist_02 char(24)
+, s_dist_03 char(24)
+, s_dist_04 char(24)
+, s_dist_05 char(24)
+, s_dist_06 char(24)
+, s_dist_07 char(24)
+, s_dist_08 char(24)
+, s_dist_09 char(24)
+, s_dist_10 char(24)
 );
-
-
---PROMPT Creating Primary Key Constraint PRIMARY_6 on table stock ... 
-ALTER TABLE stock
-ADD CONSTRAINT PRIMARY_6 PRIMARY KEY
-(
-  s_w_id,
-  s_i_id
-)
-ENABLE
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON stock TO PUBLIC;
 
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE warehouse'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
---PROMPT Creating Table warehouse ...
 CREATE TABLE warehouse (
-  w_id NUMBER(10,0) NOT NULL,
-  w_ytd FLOAT NOT NULL,
-  w_tax FLOAT NOT NULL,
-  w_name VARCHAR2(10 CHAR) NOT NULL,
-  w_street_1 VARCHAR2(20 CHAR) NOT NULL,
-  w_street_2 VARCHAR2(20 CHAR) NOT NULL,
-  w_city VARCHAR2(20 CHAR) NOT NULL,
-  w_state CHAR(2 CHAR) NOT NULL,
-  w_zip CHAR(9 CHAR) NOT NULL
+  w_id number
+, w_ytd number
+, w_tax number
+, w_name varchar2(10)
+, w_street_1 varchar2(20)
+, w_street_2 varchar2(20)
+, w_city varchar2(20)
+, w_state char(2)
+, w_zip char(9)
 );
 
 
---PROMPT Creating Primary Key Constraint PRIMARY_3 on table warehouse ... 
-ALTER TABLE warehouse
-ADD CONSTRAINT PRIMARY_3 PRIMARY KEY
-(
-  w_id
-)
-ENABLE
-;
-GRANT SELECT, INSERT, DELETE, UPDATE, REFERENCES ON warehouse TO PUBLIC;
+-- Indexes
+
+--Index District
+create unique index idist on district ( d_w_id, d_id )
+  pctfree 5  initrans 3
+  storage ( buffer_pool default )
+  parallel 1
+  compute statistics;
+
+--Index customer
+create unique index icust1 on customer ( c_w_id, c_d_id, c_id )
+  pctfree 1  initrans 3
+  storage ( buffer_pool default )
+  parallel 4
+  compute statistics;
+
+--Index customer ...
+create unique index icust2 on customer ( c_last, c_w_id, c_d_id, c_id )
+  pctfree 1  initrans 3
+  storage ( buffer_pool default )
+  parallel 4
+  compute statistics;
+
+--PROMPT Creating Primary Key Constraint PRIMARY_2 on table item ... 
+create unique index iitem on item ( i_id )
+  pctfree 5  initrans 4
+  storage ( buffer_pool default )
+  compute statistics;
+
+-- Index warehouse 
+create unique index iwarehouse on warehouse ( w_id )
+  pctfree 1  initrans 3
+  storage ( buffer_pool default )
+  parallel 1
+  compute statistics;
+
+-- Index Stock
+create unique index istock on stock ( s_i_id, s_w_id )
+  pctfree 1  initrans 3
+  storage ( buffer_pool default )
+  parallel 4
+  compute statistics;
+  
+--Index on oorder...
+create unique index ioorder on oorder ( o_w_id, o_d_id, o_c_id, o_id )
+  parallel 4
+  pctfree 25  initrans 4
+  storage ( buffer_pool default )
+  compute statistics;
