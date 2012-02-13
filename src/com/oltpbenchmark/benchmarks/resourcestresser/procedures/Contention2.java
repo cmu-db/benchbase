@@ -48,9 +48,7 @@ public class Contention2 extends Procedure {
             }
 
             stmtSleep.setInt(1, sleepLength);
-            ResultSet rs = stmtSleep.executeQuery();
-            rs.close();
-            rs = null;
+            stmtSleep.execute();
         } // FOR
     }
 
