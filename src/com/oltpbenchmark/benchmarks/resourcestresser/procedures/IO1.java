@@ -34,7 +34,7 @@ public class IO1 extends Procedure {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
 
-        int keyRange = 1024000 / 160; // FIXME
+        int keyRange = 1024000 / 200; // FIXME
         int startingKey = myId * keyRange;
         int lastKey = (myId + 1) * keyRange - 1;
 
