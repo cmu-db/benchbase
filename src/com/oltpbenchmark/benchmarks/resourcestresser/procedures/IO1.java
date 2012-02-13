@@ -4,11 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
 
 public class IO1 extends Procedure {
+    private static final Logger LOG = Logger.getLogger(Procedure.class);
 
     public final SQLStmt ioUpdate;
     {
@@ -49,7 +52,7 @@ public class IO1 extends Procedure {
             stmt.setInt(howManyColsPerRow + 2, rightKey);
             int result = stmt.executeUpdate();
             if (result != howManyRowsPerUpdate) {
-                System.err.println("supposedtochange=" + howManyRowsPerUpdate + " but result=" + result);
+                if(LOG.isInfoEnabled())LOG.warn("supposedtochange=" + howManyRowsPerUpdate + " but result=" + result);
             }
         } // FOR
     }

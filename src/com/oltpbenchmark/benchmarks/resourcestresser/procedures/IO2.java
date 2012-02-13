@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
@@ -14,7 +16,8 @@ import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
  * changes one row.
  */
 public class IO2 extends Procedure {
-
+    private static final Logger LOG = Logger.getLogger(Procedure.class);
+    
     public final SQLStmt ioUpdate = new SQLStmt(
         "UPDATE iotableSmallrow SET flag1 = ? WHERE empid = ?"
     );
@@ -39,9 +42,8 @@ public class IO2 extends Procedure {
             stmt.setInt(2, key);
 
             int result = stmt.executeUpdate();                 
-            //System.err.println(myId+": rc("+rc+"): "+sqlStatement);
             if (result!=1) {
-                System.err.println("supposedtochange="+1+" but rc="+result);
+                LOG.warn("supposedtochange="+1+" but rc="+result);
             }
             
         } // FOR
