@@ -20,7 +20,6 @@ public class JPABLoader extends Loader {
     public JPABLoader(BenchmarkModule benchmark, Connection conn, String persistanceUnit) throws SQLException {
         super(benchmark, conn);
         this.persistanceUnit=persistanceUnit;
-        this.load();
     }
 
     @Override
@@ -33,6 +32,7 @@ public class JPABLoader extends Loader {
         test.setEntityCount(objectCount);
         test.buildInventory(objectCount); 
         while (test.getActionCount() < objectCount) {
+            System.out.println(test.getActionCount()+ " % "+objectCount);
             test.persist(em);
         }
         test.clearInventory();
