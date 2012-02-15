@@ -48,7 +48,7 @@ package com.oltpbenchmark.benchmarks.seats;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
@@ -910,20 +910,20 @@ public class SEATSLoader extends Loader {
         
         private final Set<FlightId> todays_flights = new HashSet<FlightId>();
         
-        private final ListOrderedMap<Date, Integer> flights_per_day = new ListOrderedMap<Date, Integer>();
+        private final ListOrderedMap<Timestamp, Integer> flights_per_day = new ListOrderedMap<Timestamp, Integer>();
 //        private final Map<Long, AtomicInteger> airport_flight_ids = new HashMap<Long, AtomicInteger>();
         
         private int day_idx = 0;
-        private Date today;
-        private Date start_date;
+        private Timestamp today;
+        private Timestamp start_date;
         
         private FlightId flight_id;
         private String depart_airport;
         private String arrive_airport;
         private String airline_code;
         private Long airline_id;
-        private Date depart_time;
-        private Date arrive_time;
+        private Timestamp depart_time;
+        private Timestamp arrive_time;
         private int status;
         
         public FlightIterable(Table catalog_tbl, int days_past, int days_future) {
@@ -954,7 +954,7 @@ public class SEATSLoader extends Loader {
             this.flight_times = new RandomDistribution.FlatHistogram<String>(rng, histogram);
             
             // Figure out how many flights that we want for each day
-            this.today = new Date(System.currentTimeMillis());
+            this.today = new Timestamp(System.currentTimeMillis());
             
             this.total = 0;
             int num_flights_low = (int)Math.round(SEATSConstants.MIN_FLIGHTS_PER_DAY);
@@ -964,7 +964,7 @@ public class SEATSLoader extends Loader {
             boolean first = true;
             for (long _date = this.today.getTime() - (days_past * SEATSConstants.MILLISECONDS_PER_DAY);
                  _date < this.today.getTime(); _date += SEATSConstants.MILLISECONDS_PER_DAY) {
-                Date date = new Date(_date);
+                Timestamp date = new Timestamp(_date);
                 if (first) {
                     this.start_date = date;
                     first = false;
@@ -981,11 +981,11 @@ public class SEATSLoader extends Loader {
             profile.setFlightUpcomingDate(this.today);
             for (long _date = this.today.getTime(), last_date = this.today.getTime() + (days_future * SEATSConstants.MILLISECONDS_PER_DAY);
                  _date <= last_date; _date += SEATSConstants.MILLISECONDS_PER_DAY) {
-                Date date = new Date(_date);
+                Timestamp date = new Timestamp(_date);
                 int num_flights = (int)Math.ceil(gaussian.nextInt() * workConf.getScaleFactor());
                 this.flights_per_day.put(date, num_flights);
                 this.total += num_flights;
-                // System.err.println(new Date(date).toString() + " -> " + num_flights);
+                // System.err.println(new Timestamp(date).toString() + " -> " + num_flights);
             } // FOR
             
             // Update profile
@@ -994,11 +994,11 @@ public class SEATSLoader extends Loader {
         }
         
         /**
-         * Convert a time string "HH:MM" to a Date object
+         * Convert a time string "HH:MM" to a Timestamp object
          * @param code
          * @return
          */
-        private Date convertTimeString(Date base_date, String code) {
+        private Timestamp convertTimeString(Timestamp base_date, String code) {
             Matcher m = SEATSConstants.TIMECODE_PATTERN.matcher(code);
             boolean result = m.find();
             assert(result) : "Invalid time code '" + code + "'";
@@ -1020,14 +1020,14 @@ public class SEATSLoader extends Loader {
             assert(minute != -1);
             
             long offset = (hour * 60 * SEATSConstants.MILLISECONDS_PER_MINUTE) + (minute * SEATSConstants.MILLISECONDS_PER_MINUTE);
-            return (new Date(base_date.getTime() + offset));
+            return (new Timestamp(base_date.getTime() + offset));
         }
         
         /**
          * Select all the data elements for the current tuple
          * @param date
          */
-        private void populate(Date date) {
+        private void populate(Timestamp date) {
             // Depart/Arrive Airports
             this.depart_airport = this.airports.nextValue();
             this.arrive_airport = this.flights_per_airport.get(this.depart_airport).nextValue();
@@ -1062,7 +1062,7 @@ public class SEATSLoader extends Loader {
                 case (0): {
                     // Figure out what date we are currently on
                     Integer remaining = null;
-                    Date date; 
+                    Timestamp date; 
                     do {
                         // Move to the next day.
                         // Make sure that we reset the set of FlightIds that we've used for today
@@ -1229,8 +1229,8 @@ public class SEATSLoader extends Loader {
                 String depart_airport_code = profile.getAirportCode(depart_airport_id);
                 long arrive_airport_id = flight_id.getArriveAirportId();
                 String arrive_airport_code = profile.getAirportCode(arrive_airport_id);
-                Date depart_time = flight_id.getDepartDate(profile.getFlightStartDate());
-                Date arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
+                Timestamp depart_time = flight_id.getDepartDate(profile.getFlightStartDate());
+                Timestamp arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
                 flight_customer_ids.clear();
                 
                 // For each flight figure out which customers are returning
@@ -1311,7 +1311,7 @@ public class SEATSLoader extends Loader {
          * @return
          */
         private void getReturningCustomers(Collection<ReturnFlight> returning_customers, FlightId flight_id) {
-            Date flight_date = flight_id.getDepartDate(profile.getFlightStartDate());
+            Timestamp flight_date = flight_id.getDepartDate(profile.getFlightStartDate());
             returning_customers.clear();
             Set<ReturnFlight> returns = this.airport_returns.get(flight_id.getDepartAirportId());
             if (!returns.isEmpty()) {
@@ -1507,10 +1507,10 @@ public class SEATSLoader extends Loader {
      * @param depart_time
      * @return
      */
-    public Date calculateArrivalTime(String depart_airport, String arrive_airport, Date depart_time) {
+    public Timestamp calculateArrivalTime(String depart_airport, String arrive_airport, Timestamp depart_time) {
         Integer distance = this.getDistance(depart_airport, arrive_airport);
         assert(distance != null) : String.format("The calculated distance between '%s' and '%s' is null", depart_airport, arrive_airport);
         long flight_time = Math.round(distance / SEATSConstants.FLIGHT_TRAVEL_RATE) * 3600000000l; // 60 sec * 60 min * 1,000,000
-        return (new Date(depart_time.getTime() + flight_time));
+        return (new Timestamp(depart_time.getTime() + flight_time));
     }
 }

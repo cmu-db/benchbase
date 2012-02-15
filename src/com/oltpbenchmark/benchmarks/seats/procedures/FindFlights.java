@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.seats.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -94,7 +94,7 @@ public class FindFlights extends Procedure {
     public final SQLStmt GetFlights2 = new SQLStmt(BaseGetFlights, 2);
     public final SQLStmt GetFlights3 = new SQLStmt(BaseGetFlights, 3);
  
-    public List<Object[]> run(Connection conn, long depart_aid, long arrive_aid, Date start_date, Date end_date, long distance) throws SQLException {
+    public List<Object[]> run(Connection conn, long depart_aid, long arrive_aid, Timestamp start_date, Timestamp end_date, long distance) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
         assert(start_date.equals(end_date) == false);
         
@@ -130,8 +130,8 @@ public class FindFlights extends Procedure {
             
             // Set Parameters
             f_stmt.setLong(1, depart_aid);
-            f_stmt.setDate(2, start_date);
-            f_stmt.setDate(3, end_date);
+            f_stmt.setTimestamp(2, start_date);
+            f_stmt.setTimestamp(3, end_date);
             for (int i = 0, cnt = Math.min(3, num_nearby); i < cnt; i++) {
                 f_stmt.setLong(4 + i, arrive_aids.get(i));
             } // FOR

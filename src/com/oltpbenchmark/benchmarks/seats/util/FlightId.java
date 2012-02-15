@@ -27,7 +27,7 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.util.CompositeId;
@@ -69,7 +69,7 @@ public class FlightId extends CompositeId {
      * @param benchmark_start - the base date of when the benchmark data starts (including past days)
      * @param flight_date - when departure date of the flight
      */
-    public FlightId(long airline_id, long depart_airport_id, long arrive_airport_id, Date benchmark_start, Date flight_date) {
+    public FlightId(long airline_id, long depart_airport_id, long arrive_airport_id, Timestamp benchmark_start, Timestamp flight_date) {
         this.airline_id = (int)airline_id;
         this.depart_airport_id = (int)depart_airport_id;
         this.arrive_airport_id = (int)arrive_airport_id;
@@ -121,7 +121,7 @@ public class FlightId extends CompositeId {
      * @param flight_date
      * @return
      */
-    protected static final int calculateFlightDate(Date benchmark_start, Date flight_date) {
+    protected static final int calculateFlightDate(Timestamp benchmark_start, Timestamp flight_date) {
         assert(benchmark_start != null);
         assert(flight_date != null);
         return (int)((flight_date.getTime() - benchmark_start.getTime()) / 3600000); // 60s * 60m * 1000
@@ -151,12 +151,12 @@ public class FlightId extends CompositeId {
     /**
      * @return the flight departure date
      */
-    public Date getDepartDate(Date benchmark_start) {
-        return (new Date(benchmark_start.getTime() + (this.depart_date * SEATSConstants.MILLISECONDS_PER_MINUTE * 60)));
+    public Timestamp getDepartDate(Timestamp benchmark_start) {
+        return (new Timestamp(benchmark_start.getTime() + (this.depart_date * SEATSConstants.MILLISECONDS_PER_MINUTE * 60)));
     }
     
-    public boolean isUpcoming(Date benchmark_start, long past_days) {
-        Date depart_date = this.getDepartDate(benchmark_start);
+    public boolean isUpcoming(Timestamp benchmark_start, long past_days) {
+        Timestamp depart_date = this.getDepartDate(benchmark_start);
         return ((depart_date.getTime() - benchmark_start.getTime()) >= (past_days * SEATSConstants.MILLISECONDS_PER_DAY)); 
     }
     

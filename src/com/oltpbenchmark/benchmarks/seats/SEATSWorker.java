@@ -50,7 +50,7 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -444,8 +444,8 @@ public class SEATSWorker extends Worker {
     private boolean executeFindFlights(FindFlights proc) throws SQLException {
         long depart_airport_id;
         long arrive_airport_id;
-        Date start_date;
-        Date stop_date;
+        Timestamp start_date;
+        Timestamp stop_date;
         
         // Select two random airport ids
         if (rng.nextInt(100) < SEATSConstants.PROB_FIND_FLIGHTS_RANDOM_AIRPORTS) {
@@ -455,7 +455,7 @@ public class SEATSWorker extends Worker {
             
             // Select a random date from our upcoming dates
             start_date = this.profile.getRandomUpcomingDate();
-            stop_date = new Date(start_date.getTime() + (SEATSConstants.MILLISECONDS_PER_DAY * 2));
+            stop_date = new Timestamp(start_date.getTime() + (SEATSConstants.MILLISECONDS_PER_DAY * 2));
         }
         
         // Use an existing flight so that we guaranteed to get back results
@@ -464,10 +464,10 @@ public class SEATSWorker extends Worker {
             depart_airport_id = flight_id.getDepartAirportId();
             arrive_airport_id = flight_id.getArriveAirportId();
             
-            Date flightDate = flight_id.getDepartDate(this.profile.getFlightStartDate());
+            Timestamp flightDate = flight_id.getDepartDate(this.profile.getFlightStartDate());
             long range = Math.round(SEATSConstants.MILLISECONDS_PER_DAY * 0.5);
-            start_date = new Date(flightDate.getTime() - range);
-            stop_date = new Date(flightDate.getTime() + range);
+            start_date = new Timestamp(flightDate.getTime() - range);
+            stop_date = new Timestamp(flightDate.getTime() + range);
             
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("Using %s as look up in %s: %d / %s",

@@ -29,7 +29,7 @@ package com.oltpbenchmark.benchmarks.seats;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -73,11 +73,11 @@ public class SEATSProfile {
     /**
      * The date when flights total data set begins
      */
-    protected Date flight_start_date;
+    protected Timestamp flight_start_date;
     /**
      * The date for when the flights are considered upcoming and are eligible for reservations
      */
-    protected Date flight_upcoming_date;
+    protected Timestamp flight_upcoming_date;
     /**
      * The number of days in the past that our flight data set includes.
      */
@@ -341,8 +341,8 @@ public class SEATSProfile {
         int col = 1;
         this.scale_factor = vt.getDouble(col++);
         JSONUtil.fromJSONString(this.airport_max_customer_id, vt.getString(col++));
-        this.flight_start_date = vt.getDate(col++);
-        this.flight_upcoming_date = vt.getDate(col++);
+        this.flight_start_date = vt.getTimestamp(col++);
+        this.flight_upcoming_date = vt.getTimestamp(col++);
         this.flight_past_days = vt.getLong(col++);
         this.flight_future_days = vt.getLong(col++);
         this.flight_upcoming_offset = vt.getLong(col++);
@@ -559,10 +559,10 @@ public class SEATSProfile {
      * Return a random date in the future (after the start of upcoming flights)
      * @return
      */
-    public Date getRandomUpcomingDate() {
-        Date upcoming_start_date = this.flight_upcoming_date;
+    public Timestamp getRandomUpcomingDate() {
+        Timestamp upcoming_start_date = this.flight_upcoming_date;
         int offset = rng.nextInt((int)this.getFlightFutureDays());
-        return (new Date(upcoming_start_date.getTime() + (offset * SEATSConstants.MILLISECONDS_PER_DAY)));
+        return (new Timestamp(upcoming_start_date.getTime() + (offset * SEATSConstants.MILLISECONDS_PER_DAY)));
     }
     
     /**
@@ -680,14 +680,14 @@ public class SEATSProfile {
      * The date in which the flight data set begins
      * @return
      */
-    public Date getFlightStartDate() {
+    public Timestamp getFlightStartDate() {
         return this.flight_start_date;
     }
     /**
      * 
      * @param start_date
      */
-    public void setFlightStartDate(Date start_date) {
+    public void setFlightStartDate(Timestamp start_date) {
         this.flight_start_date = start_date;
     }
 
@@ -695,14 +695,14 @@ public class SEATSProfile {
      * The date in which the flight data set begins
      * @return
      */
-    public Date getFlightUpcomingDate() {
+    public Timestamp getFlightUpcomingDate() {
         return (this.flight_upcoming_date);
     }
     /**
      * 
      * @param startDate
      */
-    public void setFlightUpcomingDate(Date upcoming_date) {
+    public void setFlightUpcomingDate(Timestamp upcoming_date) {
         this.flight_upcoming_date = upcoming_date;
     }
     
