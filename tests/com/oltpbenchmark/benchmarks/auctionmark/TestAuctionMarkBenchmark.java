@@ -27,7 +27,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 	
     public static final Class<?> PROC_CLASSES[] = {
-        CloseAuctions.class,
         GetItem.class,
         GetUserInfo.class,
         NewBid.class,
@@ -53,5 +52,17 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
 	    assertNotNull(data_dir);
 	    assertTrue(data_dir.exists());
 	}
+	
+//	/**
+//	 * testSupplementalClasses
+//	 */
+//	public void testSupplementalClasses() throws Exception {
+//	    // Check to make sure that we have something...
+//	    Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();
+//	    assertNotNull(procs);
+//	    System.err.println("*****************");
+//	    System.err.println(StringUtil.formatMaps(procs));
+//	    System.err.println("*****************");
+//	}
 
 }

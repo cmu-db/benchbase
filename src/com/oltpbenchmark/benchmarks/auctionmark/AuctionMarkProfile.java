@@ -49,6 +49,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
@@ -289,7 +290,7 @@ public class AuctionMarkProfile {
      * Load the profile information stored in the database
      * @param 
      */
-    protected void loadProfile(Connection conn) throws SQLException {
+    protected void loadProfile(AuctionMarkWorker worker) throws SQLException {
         synchronized (AuctionMarkProfile.class) {
             // Check whether we have a cached Profile we can copy from
             if (cachedProfile != null) {
@@ -301,15 +302,13 @@ public class AuctionMarkProfile {
             if (LOG.isDebugEnabled())
                 LOG.debug("Loading AuctionMarkProfile for the first time");
             
-            
             // Otherwise we have to go fetch everything again
-            PreparedStatement stmt = null;
-            ResultSet rs = null;
+            LoadConfig proc = worker.getProcedure(LoadConfig.class);
+            ResultSet results[] = proc.run(worker.getConnection());
+            int result_idx = 0;
             
             // CONFIG_PROFILE
-            stmt = conn.prepareStatement("SELECT * FROM " + AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
-            rs = stmt.executeQuery();
-            this.loadConfigProfile(rs);
+            this.loadConfigProfile(results[result_idx++]);
             
             // IMPORTANT: We need to set these timestamps here. It must be done
             // after we have loaded benchmarkStartTime
@@ -317,28 +316,15 @@ public class AuctionMarkProfile {
             this.updateAndGetCurrentTime();
             
             // ITEM CATEGORY COUNTS
-            stmt = conn.prepareStatement("SELECT i_c_id, COUNT(i_id) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " GROUP BY i_c_id");
-            rs = stmt.executeQuery();
-            this.loadItemCategoryCounts(rs);
-    
-            // ITEMS
-            stmt = conn.prepareStatement("SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
-                                         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
-                                         " WHERE i_status = ? " +
-                                         " ORDER BY i_iattr0 " +
-                                         " LIMIT " + AuctionMarkConstants.ITEM_ID_CACHE_SIZE);
-            for (ItemStatus status : ItemStatus.values()) {
-                if (status.isInternal()) continue;
-                int param = 1;
-                stmt.setInt(param++, status.ordinal());
-                rs = stmt.executeQuery();
-                this.loadItems(rs, status);
-            } // FOR
+            this.loadItemCategoryCounts(results[result_idx++]);
             
             // GLOBAL_ATTRIBUTE_GROUPS
-            stmt = conn.prepareStatement("SELECT gag_id FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
-            rs = stmt.executeQuery();
-            this.loadGlobalAttributeGroups(rs);
+            this.loadGlobalAttributeGroups(results[result_idx++]);
+    
+            // ITEMS
+            for ( ; result_idx < results.length; result_idx++) {
+                this.loadItems(results[result_idx]);
+            } // FOR
             
             cachedProfile = this;
         } // SYNCH
@@ -368,7 +354,7 @@ public class AuctionMarkProfile {
                                     this.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
     }
     
-    private final void loadItems(ResultSet vt, ItemStatus status) throws SQLException {
+    private final void loadItems(ResultSet vt) throws SQLException {
         int ctr = 0;
         while (vt.next()) {
             int col = 1;
@@ -376,10 +362,9 @@ public class AuctionMarkProfile {
             double i_current_price = vt.getDouble(col++);
             Date i_end_date = vt.getDate(col++);
             int i_num_bids = (int)vt.getLong(col++);
-            ItemStatus i_status = ItemStatus.get(vt.getLong(col++));
-            assert(i_status == status);
             
             ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
+            itemInfo.status = ItemStatus.get(vt.getLong(col++));
             this.addItemToProperQueue(itemInfo, false);
             ctr++;
         } // WHILE

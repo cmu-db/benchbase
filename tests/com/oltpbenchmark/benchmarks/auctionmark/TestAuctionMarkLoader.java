@@ -19,25 +19,4 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         this.workConf.setScaleFactor(0.1);
     }
     
-    /**
-     * testSaveLoadProfile
-     */
-    public void testSaveLoadProfile() throws Exception {
-        AuctionMarkLoader loader = (AuctionMarkLoader)this.benchmark.makeLoaderImpl(conn);
-        assertNotNull(loader);
-        loader.load();
-        
-        AuctionMarkProfile orig = loader.profile;
-        assertNotNull(orig);
-        assertFalse(orig.users_per_item_count.isEmpty());
-        
-        AuctionMarkProfile copy = new AuctionMarkProfile(this.benchmark, new RandomGenerator(0));
-        assertTrue(copy.users_per_item_count.isEmpty());
-        copy.loadProfile(this.conn);
-        
-        assertEquals(orig.scale_factor, copy.scale_factor);
-        assertEquals(orig.benchmarkStartTime.toString(), copy.benchmarkStartTime.toString());
-        assertEquals(orig.users_per_item_count, copy.users_per_item_count);
-    }
-
 }

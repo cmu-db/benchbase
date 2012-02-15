@@ -27,8 +27,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -61,6 +63,11 @@ public abstract class BenchmarkModule {
      * Database Catalog
      */
     protected final Catalog catalog;
+    
+    /**
+     * Supplemental Procedures
+     */
+    private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<Class<? extends Procedure>>();
     
     /**
      * Whether to use verbose output messages
@@ -343,7 +350,6 @@ public abstract class BenchmarkModule {
 
     /**
      * Return a mapping from TransactionTypes to Procedure invocations
-     * 
      * @param txns
      * @param pkg
      * @return
@@ -351,9 +357,20 @@ public abstract class BenchmarkModule {
     public Map<TransactionType, Procedure> getProcedures() {
         Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
         TransactionTypes txns = this.workConf.getTransTypes();
+        
         if (txns != null) {
+            for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
+                TransactionType txn = txns.getType(procClass);
+                if (txn == null) {
+                    txn = new TransactionType(procClass, procClass.hashCode());
+                    txns.add(txn);
+                }
+            } // FOR
+            
             for (TransactionType txn : txns) {
-                Procedure proc = (Procedure) ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
+                Procedure proc = (Procedure)ClassUtil.newInstance(txn.getProcedureClass(),
+                                                                  new Object[0],
+                                                                  new Class<?>[0]);
                 proc.initialize();
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
@@ -362,7 +379,17 @@ public abstract class BenchmarkModule {
         if (proc_xref.isEmpty()) {
             LOG.warn("No procedures defined for " + this);
         }
+        
+        
         return (proc_xref);
+    }
+    
+    /**
+     * 
+     * @param procClass
+     */
+    public final void registerSupplementalProcedure(Class<? extends Procedure> procClass) {
+        this.supplementalProcedures.add(procClass);
     }
 
 }

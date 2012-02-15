@@ -23,7 +23,8 @@ public class TransactionTypes implements Collection<TransactionType> {
 		for (TransactionType tt : transactiontypes) {
 		    // System.err.println("Adding " + tt + " - " + this.types + " / " + transactiontypes);
 		    String key = tt.getName().toUpperCase();
-		    assert(this.types.containsKey(key) == false) : "Duplicate TransactionType '" + tt + "'\n" + this.types;
+		    assert(this.types.containsKey(key) == false) :
+		        "Duplicate TransactionType '" + tt + "'\n" + this.types;
 			this.types.put(key, tt);
 		} // FOR
 	}
@@ -46,9 +47,10 @@ public class TransactionTypes implements Collection<TransactionType> {
 	}
 
 	@Override
-	public boolean add(TransactionType e) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean add(TransactionType tt) {
+	    String key = tt.getName().toUpperCase();
+	    this.types.put(key, tt);
+		return (true);
 	}
 
 	@Override

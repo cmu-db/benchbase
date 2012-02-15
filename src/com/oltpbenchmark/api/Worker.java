@@ -53,9 +53,9 @@ public abstract class Worker implements Runnable {
 		this.procedures.putAll(this.benchmarkModule.getProcedures());
 		assert(this.procedures.size() == this.transactionTypes.size()) :
 		    String.format("Failed to get all of the Procedures for %s [expected=%d, actual=%d]",
-		                 this.benchmarkModule.getBenchmarkName(),
-		                 this.transactionTypes.size(),
-		                 this.procedures.size());
+		                  this.benchmarkModule.getBenchmarkName(),
+		                  this.transactionTypes.size(),
+		                  this.procedures.size());
         for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
             this.name_procedures.put(e.getKey().getName(), proc);
@@ -70,6 +70,9 @@ public abstract class Worker implements Runnable {
 	 */
 	public int getId() {
 		return this.id;
+	}
+	public Connection getConnection() {
+	    return (this.conn);
 	}
 	public int getRequests() {
         return latencies.size();

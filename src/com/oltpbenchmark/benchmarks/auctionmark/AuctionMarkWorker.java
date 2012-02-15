@@ -292,7 +292,7 @@ public class AuctionMarkWorker extends Worker {
     protected void initialize() {
         // Load BenchmarkProfile
         try {
-            profile.loadProfile(this.conn);
+            profile.loadProfile(this);
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to initialize AuctionMarkWorker", ex);
         }
