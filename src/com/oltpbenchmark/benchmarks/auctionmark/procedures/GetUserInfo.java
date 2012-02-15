@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,7 +121,7 @@ public class GetUserInfo extends Procedure {
      * @return
      * @throws SQLException
      */
-    public List<Object[]>[] run(Connection conn, Date benchmarkTimes[],
+    public List<Object[]>[] run(Connection conn, Timestamp benchmarkTimes[],
                           long user_id,
                           boolean get_feedback,
                           boolean get_comments,

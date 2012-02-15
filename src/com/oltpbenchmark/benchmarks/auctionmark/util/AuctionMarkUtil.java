@@ -29,7 +29,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import org.apache.log4j.Logger;
 
@@ -81,10 +81,10 @@ public abstract class AuctionMarkUtil {
      * @param benchmarkTimes
      * @return
      */
-    public static Date getProcTimestamp(Date benchmarkTimes[]) {
+    public static Timestamp getProcTimestamp(Timestamp benchmarkTimes[]) {
         assert(benchmarkTimes.length == 2);
-        long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Date(System.currentTimeMillis()));
-        return new Date(timestamp);
+        long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Timestamp(System.currentTimeMillis()));
+        return new Timestamp(timestamp);
     }
     
     /**
@@ -94,7 +94,7 @@ public abstract class AuctionMarkUtil {
      * @param current
      * @return
      */
-    public static long getScaledTimestamp(Date benchmarkStart, Date clientStart, Date current) {
+    public static long getScaledTimestamp(Timestamp benchmarkStart, Timestamp clientStart, Timestamp current) {
         // First get the offset between the benchmarkStart and the clientStart
         // We then subtract that value from the current time. This gives us the total elapsed 
         // time from the current time to the time that the benchmark start (with the gap 

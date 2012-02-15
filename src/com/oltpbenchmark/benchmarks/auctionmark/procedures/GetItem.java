@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -66,7 +66,7 @@ public class GetItem extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public Object[][] run(Connection conn, Date benchmarkTimes[],
+    public Object[][] run(Connection conn, Timestamp benchmarkTimes[],
                            long item_id, long seller_id) throws SQLException {
         PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
         ResultSet item_results = item_stmt.executeQuery();

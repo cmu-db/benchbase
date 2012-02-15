@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -147,9 +147,9 @@ public class NewBid extends Procedure {
         ")"
     );
 
-    public Object[] run(Connection conn, Date benchmarkTimes[],
-                        long item_id, long seller_id, long buyer_id, double newBid, Date estimatedEndDate) throws SQLException {
-        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+    public Object[] run(Connection conn, Timestamp benchmarkTimes[],
+                        long item_id, long seller_id, long buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
+        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
         if (debug) LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]", item_id, buyer_id, newBid));
 
@@ -166,7 +166,7 @@ public class NewBid extends Procedure {
         double i_initial_price = results.getDouble(col++);
         double i_current_price = results.getDouble(col++);
         long i_num_bids = results.getLong(col++);
-        Date i_end_date = results.getDate(col++);
+        Timestamp i_end_date = results.getTimestamp(col++);
         ItemStatus i_status = ItemStatus.get(results.getLong(col++));
         long newBidId = 0;
         long newBidMaxBuyerId = buyer_id;

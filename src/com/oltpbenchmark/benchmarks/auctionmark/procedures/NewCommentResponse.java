@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
@@ -65,9 +65,9 @@ public class NewCommentResponse extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public void run(Connection conn, Date benchmarkTimes[],
+    public void run(Connection conn, Timestamp benchmarkTimes[],
                     long item_id, long seller_id, long comment_id, String response) throws SQLException {
-        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         this.getPreparedStatement(conn, updateComment, response, currentTime, comment_id, item_id, seller_id).executeUpdate();
         this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
         return;

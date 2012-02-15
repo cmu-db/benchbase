@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -88,10 +88,10 @@ public class UpdateItem extends Procedure {
 	 * A small percentage of the transactions will be for auctions that are
 	 * uneditable (1.0%?); when this occurs, the transaction will abort.
 	 */
-    public boolean run(Connection conn, Date benchmarkTimes[],
+    public boolean run(Connection conn, Timestamp benchmarkTimes[],
                        long item_id, long seller_id, String description,
                        boolean delete_attribute, long add_attribute[]) throws SQLException {
-        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         
         PreparedStatement stmt = this.getPreparedStatement(conn, updateItem, description, currentTime, item_id, seller_id);
         int updated = stmt.executeUpdate();

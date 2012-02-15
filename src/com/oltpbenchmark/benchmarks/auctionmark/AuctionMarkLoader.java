@@ -34,7 +34,7 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -909,9 +909,9 @@ public class AuctionMarkLoader extends Loader {
             // U_R_ID
             row[col++] = this.randomRegion.nextInt();
             // U_CREATED
-            row[col++] = new Date(System.currentTimeMillis());
+            row[col++] = new Timestamp(System.currentTimeMillis());
             // U_UPDATED
-            row[col++] = new Date(System.currentTimeMillis());
+            row[col++] = new Timestamp(System.currentTimeMillis());
             
             this.updateSubTableGenerators(u_id);
             return (col);
@@ -951,7 +951,7 @@ public class AuctionMarkLoader extends Loader {
             row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MIN,
                                              AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MAX);
             // U_CREATED
-            row[col++] = new Date(System.currentTimeMillis());
+            row[col++] = new Timestamp(System.currentTimeMillis());
             
             return (col);
         }
@@ -991,8 +991,8 @@ public class AuctionMarkLoader extends Loader {
             int col = 0;
             
             ItemId itemId = new ItemId(seller_id, remaining);
-            Date endDate = this.getRandomEndTimestamp();
-            Date startDate = this.getRandomStartTimestamp(endDate); 
+            Timestamp endDate = this.getRandomEndTimestamp();
+            Timestamp startDate = this.getRandomStartTimestamp(endDate); 
             if (LOG.isTraceEnabled())
                 LOG.trace("endDate = " + endDate + " : startDate = " + startDate);
             
@@ -1092,21 +1092,21 @@ public class AuctionMarkLoader extends Loader {
             return (col);
         }
 
-        private Date getRandomStartTimestamp(Date endDate) {
+        private Timestamp getRandomStartTimestamp(Timestamp endDate) {
             long duration = ((long)profile.randomDuration.nextInt()) * AuctionMarkConstants.MILLISECONDS_IN_A_DAY;
             long lStartTimestamp = endDate.getTime() - duration;
-            Date startTimestamp = new Date(lStartTimestamp);
+            Timestamp startTimestamp = new Timestamp(lStartTimestamp);
             return startTimestamp;
         }
-        private Date getRandomEndTimestamp() {
+        private Timestamp getRandomEndTimestamp() {
             int timeDiff = profile.randomTimeDiff.nextInt();
-            Date time = new Date(profile.getBenchmarkStartTime().getTime() + (timeDiff * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND));
+            Timestamp time = new Timestamp(profile.getBenchmarkStartTime().getTime() + (timeDiff * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND));
 //            LOG.info(timeDiff + " => " + sdf.format(time.asApproximateJavaDate()));
             return time;
         }
-        private Date getRandomPurchaseTimestamp(Date endDate) {
+        private Timestamp getRandomPurchaseTimestamp(Timestamp endDate) {
             long duration = profile.randomPurchaseDuration.nextInt();
-            return new Date(endDate.getTime() + duration * AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
+            return new Timestamp(endDate.getTime() + duration * AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
         }
     }
     
@@ -1211,10 +1211,10 @@ public class AuctionMarkLoader extends Loader {
 
             return (col);
         }
-        private Date getRandomCommentDate(Date startDate, Date endDate) {
+        private Timestamp getRandomCommentDate(Timestamp startDate, Timestamp endDate) {
             int start = Math.round(startDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
             int end = Math.round(endDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
-            return new Date((profile.rng.number(start, end)) * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
+            return new Timestamp((profile.rng.number(start, end)) * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
         }
     }
 
@@ -1250,7 +1250,7 @@ public class AuctionMarkLoader extends Loader {
                 // If there is only one bid, then it will have to be the last bidder
                 bidderId = (itemInfo.numBids == 1 ? itemInfo.lastBidderId :
                                                     profile.getRandomBuyerId(itemInfo.sellerId));
-                Date endDate;
+                Timestamp endDate;
                 if (itemInfo.status == ItemStatus.OPEN) {
                     endDate = profile.getBenchmarkStartTime();
                 } else {
@@ -1280,7 +1280,7 @@ public class AuctionMarkLoader extends Loader {
 
             float last_bid = (this.new_item ? itemInfo.initialPrice : this.bid.maxBid);
             this.bid = itemInfo.getNextBid(this.count, bidderId);
-            this.bid.createDate = new Date(itemInfo.startDate.getTime() + this.currentCreateDateAdvanceStep);
+            this.bid.createDate = new Timestamp(itemInfo.startDate.getTime() + this.currentCreateDateAdvanceStep);
             this.bid.updateDate = this.bid.createDate; 
             
             if (remaining == 0) {
@@ -1548,11 +1548,11 @@ public class AuctionMarkLoader extends Loader {
                 LOG.trace("Clearing watcher cache [size=" + this.watchers.size() + "]");
             this.watchers.clear();
         }
-        private Date getRandomDate(Date startDate, Date endDate) {
+        private Timestamp getRandomDate(Timestamp startDate, Timestamp endDate) {
             int start = Math.round(startDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
             int end = Math.round(endDate.getTime() / AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
             long offset = profile.rng.number(start, end);
-            return new Date(offset * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
+            return new Timestamp(offset * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
         }
     } // END CLASS
 } // END CLASS

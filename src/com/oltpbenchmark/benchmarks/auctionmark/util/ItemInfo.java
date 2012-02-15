@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import java.io.IOException;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import com.oltpbenchmark.util.JSONSerializable;
 import com.oltpbenchmark.util.JSONUtil;
@@ -39,11 +39,11 @@ import com.oltpbenchmark.util.json.JSONStringer;
 public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     public ItemId itemId;
     public Float currentPrice;
-    public Date endDate;
+    public Timestamp endDate;
     public long numBids = 0;
     public ItemStatus status = ItemStatus.OPEN;
     
-    public ItemInfo(ItemId id, Double currentPrice, Date endDate, int numBids) {
+    public ItemInfo(ItemId id, Double currentPrice, Timestamp endDate, int numBids) {
         this.itemId = id;
         this.currentPrice = (currentPrice != null ? currentPrice.floatValue() : null);
         this.endDate = endDate;
@@ -69,7 +69,7 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     public boolean hasEndDate() {
         return (this.endDate != null);
     }
-    public Date getEndDate() {
+    public Timestamp getEndDate() {
         return endDate;
     }
     

@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -98,9 +98,9 @@ public class CloseAuctions extends Procedure {
      * @param bid_ids - ItemBid Ids
      * @return
      */
-    public List<Object[]> run(Connection conn, Date benchmarkTimes[],
-                              Date startTime, Date endTime) throws SQLException {
-        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+    public List<Object[]> run(Connection conn, Timestamp benchmarkTimes[],
+                              Timestamp startTime, Timestamp endTime) throws SQLException {
+        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
 
         if (debug)
@@ -124,8 +124,8 @@ public class CloseAuctions extends Procedure {
         final List<Object[]> output_rows = new ArrayList<Object[]>();
         while (round-- > 0) {
             param = 1;
-            dueItemsStmt.setDate(param++, startTime);
-            dueItemsStmt.setDate(param++, endTime);
+            dueItemsStmt.setTimestamp(param++, startTime);
+            dueItemsStmt.setTimestamp(param++, endTime);
             dueItemsTable = dueItemsStmt.executeQuery();
             boolean adv = dueItemsTable.next();
             if (adv == false) break;
@@ -138,7 +138,7 @@ public class CloseAuctions extends Procedure {
                 String i_name = dueItemsTable.getString(col++);
                 double currentPrice = dueItemsTable.getDouble(col++);
                 long numBids = dueItemsTable.getLong(col++);
-                Date endDate = dueItemsTable.getDate(col++);
+                Timestamp endDate = dueItemsTable.getTimestamp(col++);
                 ItemStatus itemStatus = ItemStatus.get(dueItemsTable.getLong(col++));
                 Long bidId = null;
                 Long buyerId = null;

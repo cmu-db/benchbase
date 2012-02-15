@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -106,9 +106,9 @@ public class NewPurchase extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public Object[] run(Connection conn, Date benchmarkTimes[],
+    public Object[] run(Connection conn, Timestamp benchmarkTimes[],
                         long item_id, long seller_id, double buyer_credit) throws SQLException {
-        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         
         PreparedStatement stmt = null;
         ResultSet results = null;
@@ -123,7 +123,7 @@ public class NewPurchase extends Procedure {
         int col = 1;
         long i_num_bids = results.getLong(col++);
         double i_current_price = results.getDouble(col++);
-        Date i_end_date = results.getDate(col++);
+        Timestamp i_end_date = results.getTimestamp(col++);
         ItemStatus i_status = ItemStatus.CLOSED;
         long ib_id = results.getLong(col++);
         long ib_buyer_id = results.getLong(col++);

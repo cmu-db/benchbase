@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,9 +85,9 @@ public class NewFeedback extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
     
-    public void run(Connection conn, Date benchmarkTimes[],
+    public void run(Connection conn, Timestamp benchmarkTimes[],
                     long user_id, long i_id, long seller_id, long from_id, long rating, String comment) throws SQLException {
-        final Date currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
+        final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
         // Check to make sure they're not trying to add feedback
         // twice for the same ITEM

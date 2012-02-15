@@ -33,10 +33,10 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,7 +107,7 @@ public class AuctionMarkProfile {
     /**
      * The start time used when creating the data for this benchmark
      */
-    protected Date benchmarkStartTime;
+    protected Timestamp benchmarkStartTime;
     
     /**
      * A histogram for the number of users that have the number of items listed
@@ -182,15 +182,15 @@ public class AuctionMarkProfile {
     /**
      * The last time that we called CHECK_WINNING_BIDS on this client
      */
-    private transient final Date lastCloseAuctionsTime = new Date(0);
+    private transient final Timestamp lastCloseAuctionsTime = new Timestamp(0);
     /**
      * When this client started executing
      */
-    private transient final Date clientStartTime = new Date(0);
+    private transient final Timestamp clientStartTime = new Timestamp(0);
     /**
      * Current Timestamp
      */
-    private transient final Date currentTime = new Date(0);
+    private transient final Timestamp currentTime = new Timestamp(0);
     
 //    /**
 //     * Keep track of previous waitForPurchase ItemIds so that we don't try to call NewPurchase
@@ -342,7 +342,7 @@ public class AuctionMarkProfile {
         assert(adv);
         int col = 1;
         this.scale_factor = vt.getDouble(col++);
-        this.benchmarkStartTime = vt.getDate(col++);
+        this.benchmarkStartTime = vt.getTimestamp(col++);
         JSONUtil.fromJSONString(this.users_per_item_count, vt.getString(col++));
         
         if (LOG.isDebugEnabled())
@@ -367,7 +367,7 @@ public class AuctionMarkProfile {
             int col = 1;
             ItemId i_id = new ItemId(vt.getLong(col++));
             double i_current_price = vt.getDouble(col++);
-            Date i_end_date = vt.getDate(col++);
+            Timestamp i_end_date = vt.getTimestamp(col++);
             int i_num_bids = (int)vt.getLong(col++);
             
             ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
@@ -396,9 +396,9 @@ public class AuctionMarkProfile {
     // TIME METHODS
     // -----------------------------------------------------------------
 
-    private transient final Date tmp_now = new Date(System.currentTimeMillis());
+    private transient final Timestamp tmp_now = new Timestamp(System.currentTimeMillis());
    
-    private Date getScaledCurrentTimestamp(Date time) {
+    private Timestamp getScaledCurrentTimestamp(Timestamp time) {
         assert(this.clientStartTime != null);
         tmp_now.setTime(System.currentTimeMillis());
         time.setTime(AuctionMarkUtil.getScaledTimestamp(this.benchmarkStartTime, this.clientStartTime, tmp_now));
@@ -408,41 +408,41 @@ public class AuctionMarkProfile {
         return (time);
     }
     
-    public synchronized Date updateAndGetCurrentTime() {
+    public synchronized Timestamp updateAndGetCurrentTime() {
         this.getScaledCurrentTimestamp(this.currentTime);
         if (LOG.isDebugEnabled()) LOG.debug("CurrentTime: " + currentTime);
         return this.currentTime;
     }
-    public Date getCurrentTime() {
+    public Timestamp getCurrentTime() {
         return this.currentTime;
     }
     
-    public Date setAndGetBenchmarkStartTime() {
+    public Timestamp setAndGetBenchmarkStartTime() {
         assert(this.benchmarkStartTime == null);
-        this.benchmarkStartTime = new Date(System.currentTimeMillis());
+        this.benchmarkStartTime = new Timestamp(System.currentTimeMillis());
         return (this.benchmarkStartTime);
     }
-    public Date getBenchmarkStartTime() {
+    public Timestamp getBenchmarkStartTime() {
         return (this.benchmarkStartTime);
     }
 
-    public Date setAndGetClientStartTime() {
+    public Timestamp setAndGetClientStartTime() {
         assert(this.clientStartTime.getTime() == 0);
         this.clientStartTime.setTime(System.currentTimeMillis());
         return (this.clientStartTime);
     }
-    public Date getClientStartTime() {
+    public Timestamp getClientStartTime() {
         return (this.clientStartTime);
     }
     public boolean hasClientStartTime() {
         return (this.clientStartTime.getTime() != 0);
     }
 
-    public synchronized Date updateAndGetLastCloseAuctionsTime() {
+    public synchronized Timestamp updateAndGetLastCloseAuctionsTime() {
         this.getScaledCurrentTimestamp(this.lastCloseAuctionsTime);
         return this.lastCloseAuctionsTime;
     }
-    public Date getLastCloseAuctionsTime() {
+    public Timestamp getLastCloseAuctionsTime() {
         return this.lastCloseAuctionsTime;
     }
     public boolean hasLastCloseAuctionsTime() {
@@ -619,7 +619,7 @@ public class AuctionMarkProfile {
     }
     
     public void updateItemQueues() {
-        Date currentTime = this.updateAndGetCurrentTime();
+        Timestamp currentTime = this.updateAndGetCurrentTime();
         assert(currentTime != null);
         
         for (LinkedList<ItemInfo> items : allItemSets) {
@@ -645,13 +645,13 @@ public class AuctionMarkProfile {
     
     public ItemStatus addItemToProperQueue(ItemInfo itemInfo, boolean is_loader) {
         // Calculate how much time is left for this auction
-        Date baseTime = (is_loader ? this.getBenchmarkStartTime() : this.getCurrentTime());
+        Timestamp baseTime = (is_loader ? this.getBenchmarkStartTime() : this.getCurrentTime());
         assert(itemInfo.endDate != null);
         assert(baseTime != null) : "is_loader=" + is_loader;
         return addItemToProperQueue(itemInfo, baseTime);
     }
         
-    private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Date baseTime) {
+    private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Timestamp baseTime) {
         long remaining = itemInfo.endDate.getTime() - baseTime.getTime();
         ItemStatus new_status = itemInfo.status;
         
@@ -711,7 +711,7 @@ public class AuctionMarkProfile {
      */
     private ItemInfo getRandomItem(LinkedList<ItemInfo> itemSet, boolean needCurrentPrice, boolean needFutureEndDate) {
         ItemInfo itemInfo = null;
-        Date currentTime = this.updateAndGetCurrentTime();
+        Timestamp currentTime = this.updateAndGetCurrentTime();
         int num_items = itemSet.size();
         int idx = -1;
         

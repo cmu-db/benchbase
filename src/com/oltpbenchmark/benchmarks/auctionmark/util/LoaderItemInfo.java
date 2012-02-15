@@ -28,7 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import java.lang.reflect.Field;
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,13 +49,13 @@ public class LoaderItemInfo extends ItemInfo {
     public short numAttributes;
     public short numComments;
     public short numWatches;
-    public Date startDate;
-    public Date purchaseDate;
+    public Timestamp startDate;
+    public Timestamp purchaseDate;
     public float initialPrice;
     public UserId sellerId;
     public UserId lastBidderId; // if null, then no bidder
 
-    public LoaderItemInfo(ItemId id, Date endDate, int numBids) {
+    public LoaderItemInfo(ItemId id, Timestamp endDate, int numBids) {
         super(id, null, endDate, numBids);
         this.numImages = 0;
         this.numAttributes = 0;
@@ -108,8 +108,8 @@ public class LoaderItemInfo extends ItemInfo {
         public final long id;
         public final UserId bidderId;
         public float maxBid;
-        public Date createDate;
-        public Date updateDate;
+        public Timestamp createDate;
+        public Timestamp updateDate;
         public boolean buyer_feedback = false;
         public boolean seller_feedback = false;
 

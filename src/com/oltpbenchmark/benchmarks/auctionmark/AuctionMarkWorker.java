@@ -1,8 +1,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.sql.Date;
-import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -409,11 +408,12 @@ public class AuctionMarkWorker extends Worker {
             i_current_price = (Double)row[col++];
         }
         long i_num_bids = (Long)row[col++];                     // i_num_bids
-        Date i_end_date = null;                                 // i_end_date
+        Timestamp i_end_date = null;                                 // i_end_date
         if (row[col] instanceof Timestamp) {
-            i_end_date = new Date(((Timestamp)row[col++]).getTime());
+            i_end_date = (Timestamp)row[col++];
         } else {
-            i_end_date = (Date)row[col++];
+            assert(false);
+            // i_end_date = (Date)row[col++];
         }
         ItemStatus i_status = ItemStatus.get((Integer)row[col++]); // i_status
         
@@ -438,8 +438,8 @@ public class AuctionMarkWorker extends Worker {
         return (new ItemId(seller_id, cnt.intValue()));
     }
     
-    public Date[] getTimestampParameterArray() {
-        return new Date[] { profile.getBenchmarkStartTime(),
+    public Timestamp[] getTimestampParameterArray() {
+        return new Timestamp[] { profile.getBenchmarkStartTime(),
                             profile.getClientStartTime() };
     }
     
@@ -448,9 +448,9 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeCloseAuctions(CloseAuctions proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
-        Date startTime = profile.getLastCloseAuctionsTime();
-        Date endTime = profile.updateAndGetLastCloseAuctionsTime();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp startTime = profile.getLastCloseAuctionsTime();
+        Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
         
         List<Object[]> results = proc.run(conn, benchmarkTimes, startTime, endTime);
         conn.commit();
@@ -470,7 +470,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeGetItem(GetItem proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomAvailableItemId();
         
         Object results[][] = proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
@@ -490,7 +490,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeGetUserInfo(GetUserInfo proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         UserId userId = profile.getRandomBuyerId();
         int rand;
         
@@ -570,7 +570,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeNewBid(NewBid proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = null;
         UserId sellerId;
         UserId buyerId;
@@ -643,7 +643,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeNewComment(NewComment proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomCompleteItem();
         UserId sellerId = itemInfo.getSellerId();
         UserId buyerId = profile.getRandomBuyerId(sellerId);
@@ -671,7 +671,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeNewCommentResponse(NewCommentResponse proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         Collections.shuffle(pending_commentResponse, profile.rng);
         long row[] = pending_commentResponse.remove(0);
         assert(row != null);
@@ -696,7 +696,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeNewFeedback(NewFeedback proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomCompleteItem();
         UserId sellerId = itemInfo.getSellerId();
         UserId buyerId = profile.getRandomBuyerId(sellerId);
@@ -729,7 +729,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
 
     protected boolean executeNewItem(NewItem proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         UserId sellerId = profile.getRandomSellerId(this.getId());
         ItemId itemId = this.getNextItemId(sellerId);
 
@@ -780,7 +780,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeNewPurchase(NewPurchase proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomWaitForPurchaseItem();
         UserId sellerId = itemInfo.getSellerId();
         double buyer_credit = 0d;
@@ -811,7 +811,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeUpdateItem(UpdateItem proc) throws SQLException {
-        Date benchmarkTimes[] = this.getTimestampParameterArray();
+        Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomAvailableItemId();
         UserId sellerId = itemInfo.getSellerId();
         String description = profile.rng.astring(50, 255);
