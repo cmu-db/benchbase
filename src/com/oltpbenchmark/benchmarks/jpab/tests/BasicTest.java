@@ -17,19 +17,17 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.procedures;
+package com.oltpbenchmark.benchmarks.jpab.tests;
 
 import javax.persistence.EntityManager;
 
-import com.oltpbenchmark.benchmarks.jpab.Test;
-import com.oltpbenchmark.benchmarks.jpab.beans.TestEntity;
-import com.oltpbenchmark.benchmarks.jpab.beans.Person2d;
-
+import com.oltpbenchmark.benchmarks.jpab.objects.Person;
+import com.oltpbenchmark.benchmarks.jpab.objects.TestEntity;
 
 /**
- * Tests using simple Person entity objects with inheritance.
+ * Tests using simple Person entity objects.  
  */
-public class ExtTest extends Test {
+public class BasicTest extends Test {
     
     /**
      * Gets the type of the benchmark main entity class.
@@ -38,8 +36,18 @@ public class ExtTest extends Test {
      */
     @Override
     protected Class getEntityClass() {
-        return Person2d.class;
+        return Person.class;
     }
+    
+    /**
+     * Gets the name of the entity
+     * 
+     * @return the name of the Entity
+     */
+	@Override
+	public String getEntityName() {
+		return "Person";
+	}
 
 	/**
 	 * Creates a new entity object for storing in the database.
@@ -48,22 +56,18 @@ public class ExtTest extends Test {
 	 */
     @Override
     protected TestEntity newEntity() {
-        return new Person2d(this);
+        return new Person(this);
     }
 
-	@Override
-	public String getEntityName() {
-		// TODO Auto-generated method stub
-		return "Person2d";
+	public void run(EntityManager em) {	
+		//this.persist(em);
+		this.doAction(em, Test.ActionType.RETRIEVE);
+//		if (this.hasQueries()) {
+//			this.query(em);
+//		}
+//		this.doAction(em, Test.ActionType.UPDATE);
+//		this.doAction(em, Test.ActionType.DELETE);
 	}
 	
-	public void run(EntityManager em) {	
-		this.persist(em);
-		this.doAction(em, Test.ActionType.RETRIEVE);
-		if (this.hasQueries()) {
-			this.query(em);
-		}
-		this.doAction(em, Test.ActionType.UPDATE);
-		this.doAction(em, Test.ActionType.DELETE);
-	}
+
 }

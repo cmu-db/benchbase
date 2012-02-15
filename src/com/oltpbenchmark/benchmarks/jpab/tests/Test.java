@@ -22,7 +22,7 @@
  * difallah@gmail.com
  */
 
-package com.oltpbenchmark.benchmarks.jpab;
+package com.oltpbenchmark.benchmarks.jpab.tests;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -32,22 +32,21 @@ import javax.persistence.OptimisticLockException;
 import javax.persistence.Query;
 
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.benchmarks.jpab.beans.TestEntity;
+import com.oltpbenchmark.benchmarks.jpab.objects.TestEntity;
 
 
 
 /**
  * Super abstract class of the concrete benchmark test classes.
  */
-public abstract class Test extends Procedure{
+public abstract class Test {
 
 	//--------------//
 	// Action Types //
 	//--------------//
 
 	/** Action types for the doAction function */
-	protected enum ActionType {
+	public enum ActionType {
 		RETRIEVE, UPDATE, DELETE 
 	}
 
@@ -224,7 +223,9 @@ public abstract class Test extends Procedure{
 			int graphSize = getGraphSize(); // > 1 only in NodeTest
 			int operCount = batchSize / graphSize;
 			for (int i = 0; i < operCount && !entityInventory.isEmpty(); i++) {
-				em.persist(entityInventory.pop());
+			    TestEntity t=entityInventory.pop();
+			    //System.out.println(t.toString());
+				em.persist(t);
 				increaseActionCount(graphSize);
 			}
 			em.getTransaction().commit();
@@ -260,8 +261,7 @@ public abstract class Test extends Procedure{
 			int graphSize = getGraphSize();
 			int graphCount = batchSize / graphSize;
 			boolean isRandom = action != ActionType.DELETE;
-			List<TestEntity> entityList =
-				retireveEntities(em, graphCount, isRandom);
+			List<TestEntity> entityList = retireveEntities(em, graphCount, isRandom);
 
 			// Repeat the action on all the entity objects: 
 			for (TestEntity entity : entityList) {
@@ -273,6 +273,7 @@ public abstract class Test extends Procedure{
 						entity.update();
 						break;
 					case DELETE:
+					    //System.out.println("Removed: "+entity.toString());
 						em.remove(entity);
 						entityCount--;
 						break;

@@ -17,7 +17,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.beans;
+package com.oltpbenchmark.benchmarks.jpab.objects;
 
 import javax.persistence.*;
 

@@ -8,21 +8,23 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.jpab.procedures.BasicTest;
-import com.oltpbenchmark.benchmarks.jpab.procedures.CollectionTest;
-import com.oltpbenchmark.benchmarks.jpab.procedures.ExtTest;
-import com.oltpbenchmark.benchmarks.jpab.procedures.IndexTest;
-import com.oltpbenchmark.benchmarks.jpab.procedures.NodeTest;
+import com.oltpbenchmark.benchmarks.jpab.procedures.Delete;
+import com.oltpbenchmark.benchmarks.jpab.procedures.Persist;
+import com.oltpbenchmark.benchmarks.jpab.procedures.Retrieve;
+import com.oltpbenchmark.benchmarks.jpab.procedures.Update;
+import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 import com.oltpbenchmark.types.TransactionStatus;
 
 public class JPABWorker extends Worker{
 
 	public EntityManager em;
+	public Test test;
 
-	public JPABWorker(int id, BenchmarkModule benchmarkModule) {
+	public JPABWorker(int id, BenchmarkModule benchmarkModule, Test test) {
 		super(benchmarkModule, id);
 		// Connections are managed by JPA .. 
 		// No need to keep this
+		this.test=test;
 		try {
           this.conn.close();
         } catch (SQLException e) {
@@ -34,62 +36,36 @@ public class JPABWorker extends Worker{
 
 	@Override
 	protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
-		if (txnType.getProcedureClass().equals(BasicTest.class)) {			
-			basicTest();
+		if (txnType.getProcedureClass().equals(Persist.class)) {			
+			persistTest();
 		}
-		else if (txnType.getProcedureClass().equals(CollectionTest.class)) {			
-			collectionTest();
-		}
-		else if (txnType.getProcedureClass().equals(ExtTest.class)) {			
-			extTest();
-		}
-		else if (txnType.getProcedureClass().equals(IndexTest.class)) {			
-			indexTest();
-		}
-		else if (txnType.getProcedureClass().equals(NodeTest.class)) {			
-			nodeTest();
-		}
+	    if (txnType.getProcedureClass().equals(Retrieve.class)) {            
+	        retrieveTest();
+	    }
+	    if (txnType.getProcedureClass().equals(Update.class)) {            
+	        updateTest();
+	    }
+	    if (txnType.getProcedureClass().equals(Delete.class)) {            
+	        deleteTest();
+	    }
 		return (TransactionStatus.SUCCESS);
 	}
 
-	private void nodeTest() {
-    	NodeTest proc=this.getProcedure(NodeTest.class);
-    	proc.setBatchSize(1);
-    	proc.setEntityCount(1);
-		proc.buildInventory(1); 
-    	proc.run(em);
-	}
-
-	private void indexTest() {
-    	IndexTest proc=this.getProcedure(IndexTest.class);
-    	proc.setBatchSize(1);
-    	proc.setEntityCount(1);
-		proc.buildInventory(1); 
-    	proc.run(em);
-	}
-
-	private void extTest() {
-    	ExtTest proc=new ExtTest();
-    	proc.setBatchSize(1);
-    	proc.setEntityCount(1);
-		proc.buildInventory(1); 
-    	proc.run(em);
-	}
-
-	private void collectionTest() {
-    	CollectionTest proc=this.getProcedure(CollectionTest.class);
-    	proc.setBatchSize(1);
-    	proc.setEntityCount(1);
-		proc.buildInventory(1); 
-    	proc.run(em);
-	}
-	
-    public void basicTest() throws SQLException {
-    	BasicTest proc=this.getProcedure(BasicTest.class);
-    	proc.setBatchSize(1);
-    	proc.setEntityCount(1);
-		proc.buildInventory(1); 
-    	proc.run(em);
+    public void persistTest() throws SQLException {
+    	Persist proc=this.getProcedure(Persist.class);
+    	proc.run(em, test);
+    }
+    public void retrieveTest() throws SQLException {
+        Retrieve proc=this.getProcedure(Retrieve.class);
+        proc.run(em, test);
+    }
+    public void updateTest() throws SQLException {
+        Update proc=this.getProcedure(Update.class);
+        proc.run(em, test);
+    }
+    public void deleteTest() throws SQLException {
+        Delete proc=this.getProcedure(Delete.class);
+        proc.run(em, test);
     }
 
 }

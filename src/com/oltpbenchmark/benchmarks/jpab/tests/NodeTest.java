@@ -17,7 +17,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.procedures;
+package com.oltpbenchmark.benchmarks.jpab.tests;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -25,9 +25,8 @@ import java.util.concurrent.atomic.*;
 import javax.persistence.*;
 
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.benchmarks.jpab.Test;
-import com.oltpbenchmark.benchmarks.jpab.beans.Node;
-import com.oltpbenchmark.benchmarks.jpab.beans.TestEntity;
+import com.oltpbenchmark.benchmarks.jpab.objects.Node;
+import com.oltpbenchmark.benchmarks.jpab.objects.TestEntity;
 
 
 /**

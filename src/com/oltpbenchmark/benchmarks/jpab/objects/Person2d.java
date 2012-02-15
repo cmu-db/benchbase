@@ -17,56 +17,59 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.beans;
+package com.oltpbenchmark.benchmarks.jpab.objects;
+
+import java.util.*;
 
 import javax.persistence.*;
 
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.benchmarks.jpab.Test;
+import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 
 /**
- * A simple based entity class.
+ * A simple sub entity class (two inheritance levels).
  */
 @Entity
-@DiscriminatorColumn
-@TableGenerator(name="extSeq", allocationSize=1000)
-public class PersonBase {
+public class Person2d extends Person1st implements TestEntity {
 	
 	// Fields:
 
-	@Id @GeneratedValue(strategy=GenerationType.TABLE, generator="extSeq")
-    private Integer id;
+	@Temporal(TemporalType.DATE)
+	private Date birthDate;
+	@Temporal(TemporalType.DATE)
+	private Date joinDate;
 
-	private String firstName;
-	private String middleName;
-	private String lastName;
+	@Temporal(TemporalType.DATE)
+	private Date lastLoginDate;
+
+	@Basic private int loginCount;
 
 	// Constructors:
 
-    public PersonBase() {
+    public Person2d() {
     	// used by JPA to load an entity object from the database
     }
 
-    public PersonBase(Test test) {
-    	firstName = LoaderUtil.randomStr(10);
-    	middleName = LoaderUtil.randomStr(10);
-    	lastName = LoaderUtil.randomStr(10);
+    public Person2d(Test test) {
+    	super(test);
+    	Date[] dates = null;
+    	birthDate = null;//dates[0];
+    	joinDate =  null;//dates[1];
+    	lastLoginDate = null;//dates[2]; 
+    	loginCount = LoaderUtil.randomNumber(1, 100, new Random());
     }
 
 	// Methods:
 
-    public void load() {
-		assert firstName != null && middleName != null && lastName != null;
+    @Override
+	public void load() {
+    	super.load();
+		assert birthDate != null && joinDate != null &&
+			lastLoginDate != null && loginCount > 0;
     }
 
-    @Override
-    public String toString() {
-    	StringBuilder sb = new StringBuilder(64);
-    	sb.append(firstName);
-    	if (middleName != null) {
-        	sb.append(' ').append(middleName);
-    	}
-    	sb.append(' ').append(lastName);
-        return sb.toString();
+    public void update() {
+    	lastLoginDate = new Date();
+    	loginCount++;
     }
 }

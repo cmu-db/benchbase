@@ -17,19 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.procedures;
+package com.oltpbenchmark.benchmarks.jpab.tests;
 
 import javax.persistence.EntityManager;
 
-import com.oltpbenchmark.benchmarks.jpab.Test;
-import com.oltpbenchmark.benchmarks.jpab.beans.CollectionPerson;
-import com.oltpbenchmark.benchmarks.jpab.beans.TestEntity;
+import com.oltpbenchmark.benchmarks.jpab.objects.Person2d;
+import com.oltpbenchmark.benchmarks.jpab.objects.TestEntity;
 
 
 /**
- * Tests using simple Person entity objects with element collections.  
+ * Tests using simple Person entity objects with inheritance.
  */
-public class CollectionTest extends Test {
+public class ExtTest extends Test {
     
     /**
      * Gets the type of the benchmark main entity class.
@@ -38,7 +37,7 @@ public class CollectionTest extends Test {
      */
     @Override
     protected Class getEntityClass() {
-        return CollectionPerson.class;
+        return Person2d.class;
     }
 
 	/**
@@ -48,13 +47,13 @@ public class CollectionTest extends Test {
 	 */
     @Override
     protected TestEntity newEntity() {
-        return new CollectionPerson(this);
+        return new Person2d(this);
     }
 
 	@Override
 	public String getEntityName() {
 		// TODO Auto-generated method stub
-		return "CollectionPerson";
+		return "Person2d";
 	}
 	
 	public void run(EntityManager em) {	

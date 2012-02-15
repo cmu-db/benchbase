@@ -17,34 +17,30 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.beans;
+package com.oltpbenchmark.benchmarks.jpab.objects;
 
 import java.util.*;
 import javax.persistence.*;
 
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.benchmarks.jpab.Test;
+import com.oltpbenchmark.benchmarks.jpab.tests.Test;
+
 
 /**
- * A simple entity class with one index.
+ * A simple entity class with no inheritance/collections/indexes.
  */
 @Entity
-@TableGenerator(name="indexSeq", allocationSize=1000)
-public class IndexedPerson implements TestEntity {
+@TableGenerator(name="basicSeq", allocationSize=1000)
+public class Person implements TestEntity {
 	
 	// Fields:
 
-	@Id @GeneratedValue(strategy=GenerationType.TABLE, generator="indexSeq")
+	@Id @GeneratedValue(strategy=GenerationType.TABLE, generator="basicSeq")
     private Integer id;
 
 	private String firstName;
 	private String middleName;
-	
-	@javax.jdo.annotations.Index
-    @org.hibernate.annotations.Index(name="lastName")
-    @org.apache.openjpa.persistence.jdbc.Index
 	private String lastName;
-	
 	private String street;
 	private String city;
 	private String state;
@@ -64,26 +60,25 @@ public class IndexedPerson implements TestEntity {
 
 	// Constructors:
 
-    public IndexedPerson() {
+    public Person() {
     	// used by JPA to load an entity object from the database
     }
 
-    public IndexedPerson(Test test) {
+    public Person(Test test) {
     	firstName = LoaderUtil.randomStr(10);
     	middleName = LoaderUtil.randomStr(10);
     	lastName = LoaderUtil.randomStr(10);
     	street = LoaderUtil.randomStr(10);
-    	city =LoaderUtil.randomStr(10);
+    	city = LoaderUtil.randomStr(10);
     	state = LoaderUtil.randomStr(10);
-    	country = LoaderUtil.randomStr(10);
     	zip = LoaderUtil.randomStr(10);
+    	country = LoaderUtil.randomStr(10);
     	phone = LoaderUtil.randomStr(10);
     	email = LoaderUtil.randomStr(10);
-    	Date[] dates = null;
-    	birthDate = null;//dates[0];
-    	joinDate = null;// dates[1];
-    	lastLoginDate = null;//dates[2]; 
-    	loginCount = LoaderUtil.randomNumber(1, 100, new Random());
+    	birthDate = new Date(System.currentTimeMillis());
+    	joinDate =  new Date(System.currentTimeMillis());
+    	lastLoginDate = new Date(System.currentTimeMillis());
+    	loginCount = LoaderUtil.randomNumber(1, 1000, new Random());
     }
 
 	// Methods:
@@ -94,11 +89,14 @@ public class IndexedPerson implements TestEntity {
 			zip != null && country != null && phone != null && email != null &&
 			birthDate != null && joinDate != null &&
 			lastLoginDate != null && loginCount > 0;
+		//System.out.println(firstName);
     }
 
     public void update() {
+        Date last=lastLoginDate;
     	lastLoginDate = new Date();
     	loginCount++;
+    	//System.out.println(firstName+ " last login: "+last+" now: "+ lastLoginDate);
     }
 
     @Override

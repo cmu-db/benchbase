@@ -17,60 +17,52 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.beans;
-
-import java.util.*;
+package com.oltpbenchmark.benchmarks.jpab.objects;
 
 import javax.persistence.*;
 
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.benchmarks.jpab.Person1st;
-import com.oltpbenchmark.benchmarks.jpab.Test;
+import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 
 /**
- * A simple sub entity class (two inheritance levels).
+ * A simple sub entity class (one inheritance level).
  */
 @Entity
-public class Person2d extends Person1st implements TestEntity {
+public class Person1st extends PersonBase {
 	
 	// Fields:
 
-	@Temporal(TemporalType.DATE)
-	private Date birthDate;
-	@Temporal(TemporalType.DATE)
-	private Date joinDate;
-
-	@Temporal(TemporalType.DATE)
-	private Date lastLoginDate;
-
-	@Basic private int loginCount;
+	private String street;
+	private String city;
+	private String state;
+	private String zip;
+	private String country;
+	private String phone;
+	private String email;
 
 	// Constructors:
 
-    public Person2d() {
+    public Person1st() {
     	// used by JPA to load an entity object from the database
-    }
-
-    public Person2d(Test test) {
-    	super(test);
-    	Date[] dates = null;
-    	birthDate = null;//dates[0];
-    	joinDate =  null;//dates[1];
-    	lastLoginDate = null;//dates[2]; 
-    	loginCount = LoaderUtil.randomNumber(1, 100, new Random());
     }
 
 	// Methods:
 
+    public Person1st(Test test) {
+    	super(test);
+    	street = LoaderUtil.randomStr(10);
+    	city = LoaderUtil.randomStr(10);
+    	state = LoaderUtil.randomStr(10);
+    	zip = LoaderUtil.randomStr(10);
+    	country = LoaderUtil.randomStr(10);
+    	phone = LoaderUtil.randomStr(10);
+    	email = LoaderUtil.randomStr(10);
+    }
+    
     @Override
 	public void load() {
     	super.load();
-		assert birthDate != null && joinDate != null &&
-			lastLoginDate != null && loginCount > 0;
-    }
-
-    public void update() {
-    	lastLoginDate = new Date();
-    	loginCount++;
+		assert street != null && city != null && state != null &&
+			zip != null && country != null && phone != null && email != null;
     }
 }

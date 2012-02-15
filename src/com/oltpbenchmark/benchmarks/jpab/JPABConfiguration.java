@@ -15,4 +15,9 @@ public class JPABConfiguration {
 	public String getPersistanceUnit() {
 		return xmlConfig.getString("persistence-unit",null);
 	}
+
+    public String getTestName() {
+        // TODO Auto-generated method stub
+        return xmlConfig.getString("testClass",null);
+    }
 }

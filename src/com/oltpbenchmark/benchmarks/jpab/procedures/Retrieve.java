@@ -17,21 +17,22 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.beans;
+package com.oltpbenchmark.benchmarks.jpab.procedures;
 
+import javax.persistence.EntityManager;
+
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.benchmarks.jpab.objects.Person;
+import com.oltpbenchmark.benchmarks.jpab.objects.TestEntity;
+import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 
 /**
- * This interface is implemented by the main entity class of every test.
+ * Tests using simple Person entity objects.  
  */
-public interface TestEntity {
+public class Retrieve extends Procedure {
+    
+	public void run(EntityManager em, Test test) {	
+		test.doAction(em, Test.ActionType.RETRIEVE);
+	}
 	
-	/**
-	 * Loads this and all the reachable entity objects (if any).
-	 */
-	void load();
-
-	/**
-	 * Updates this and all the reachable entity objects (if any).
-	 */
-	void update();
 }

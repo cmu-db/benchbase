@@ -17,18 +17,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab.procedures;
+package com.oltpbenchmark.benchmarks.jpab.tests;
 
 import javax.persistence.EntityManager;
 
-import com.oltpbenchmark.benchmarks.jpab.Test;
-import com.oltpbenchmark.benchmarks.jpab.beans.Person;
-import com.oltpbenchmark.benchmarks.jpab.beans.TestEntity;
+import com.oltpbenchmark.benchmarks.jpab.objects.CollectionPerson;
+import com.oltpbenchmark.benchmarks.jpab.objects.TestEntity;
+
 
 /**
- * Tests using simple Person entity objects.  
+ * Tests using simple Person entity objects with element collections.  
  */
-public class BasicTest extends Test {
+public class CollectionTest extends Test {
     
     /**
      * Gets the type of the benchmark main entity class.
@@ -37,18 +37,8 @@ public class BasicTest extends Test {
      */
     @Override
     protected Class getEntityClass() {
-        return Person.class;
+        return CollectionPerson.class;
     }
-    
-    /**
-     * Gets the name of the entity
-     * 
-     * @return the name of the Entity
-     */
-	@Override
-	public String getEntityName() {
-		return "Person";
-	}
 
 	/**
 	 * Creates a new entity object for storing in the database.
@@ -57,9 +47,15 @@ public class BasicTest extends Test {
 	 */
     @Override
     protected TestEntity newEntity() {
-        return new Person(this);
+        return new CollectionPerson(this);
     }
 
+	@Override
+	public String getEntityName() {
+		// TODO Auto-generated method stub
+		return "CollectionPerson";
+	}
+	
 	public void run(EntityManager em) {	
 		this.persist(em);
 		this.doAction(em, Test.ActionType.RETRIEVE);
@@ -69,6 +65,4 @@ public class BasicTest extends Test {
 		this.doAction(em, Test.ActionType.UPDATE);
 		this.doAction(em, Test.ActionType.DELETE);
 	}
-
-
 }

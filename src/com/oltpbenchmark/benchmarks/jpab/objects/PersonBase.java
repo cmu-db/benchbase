@@ -17,52 +17,56 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package com.oltpbenchmark.benchmarks.jpab;
+package com.oltpbenchmark.benchmarks.jpab.objects;
 
 import javax.persistence.*;
 
 import com.oltpbenchmark.api.LoaderUtil;
-import com.oltpbenchmark.benchmarks.jpab.beans.PersonBase;
+import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 
 /**
- * A simple sub entity class (one inheritance level).
+ * A simple based entity class.
  */
 @Entity
-public class Person1st extends PersonBase {
+@DiscriminatorColumn
+@TableGenerator(name="extSeq", allocationSize=1000)
+public class PersonBase {
 	
 	// Fields:
 
-	private String street;
-	private String city;
-	private String state;
-	private String zip;
-	private String country;
-	private String phone;
-	private String email;
+	@Id @GeneratedValue(strategy=GenerationType.TABLE, generator="extSeq")
+    private Integer id;
+
+	private String firstName;
+	private String middleName;
+	private String lastName;
 
 	// Constructors:
 
-    public Person1st() {
+    public PersonBase() {
     	// used by JPA to load an entity object from the database
+    }
+
+    public PersonBase(Test test) {
+    	firstName = LoaderUtil.randomStr(10);
+    	middleName = LoaderUtil.randomStr(10);
+    	lastName = LoaderUtil.randomStr(10);
     }
 
 	// Methods:
 
-    public Person1st(Test test) {
-    	super(test);
-    	street = LoaderUtil.randomStr(10);
-    	city = LoaderUtil.randomStr(10);
-    	state = LoaderUtil.randomStr(10);
-    	zip = LoaderUtil.randomStr(10);
-    	country = LoaderUtil.randomStr(10);
-    	phone = LoaderUtil.randomStr(10);
-    	email = LoaderUtil.randomStr(10);
+    public void load() {
+		assert firstName != null && middleName != null && lastName != null;
     }
-    
+
     @Override
-	public void load() {
-    	super.load();
-		assert street != null && city != null && state != null &&
-			zip != null && country != null && phone != null && email != null;
+    public String toString() {
+    	StringBuilder sb = new StringBuilder(64);
+    	sb.append(firstName);
+    	if (middleName != null) {
+        	sb.append(' ').append(middleName);
+    	}
+    	sb.append(' ').append(lastName);
+        return sb.toString();
     }
 }
