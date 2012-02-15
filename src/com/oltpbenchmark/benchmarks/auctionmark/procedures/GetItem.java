@@ -57,7 +57,7 @@ public class GetItem extends Procedure {
     
     public final SQLStmt getUser = new SQLStmt(
         "SELECT u_id, u_rating, u_created, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name " +
-        "  FROM " + AuctionMarkConstants.TABLENAME_USER + ", " +
+        "  FROM " + AuctionMarkConstants.TABLENAME_USERACCT + ", " +
                     AuctionMarkConstants.TABLENAME_REGION +
         " WHERE u_id = ? AND u_r_id = r_id"
     );

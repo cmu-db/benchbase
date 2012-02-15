@@ -80,7 +80,7 @@ public class CloseAuctions extends Procedure {
     );
 
     public final SQLStmt insertUserItem = new SQLStmt(
-        "INSERT INTO " + AuctionMarkConstants.TABLENAME_USER_ITEM + "(" +
+        "INSERT INTO " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + "(" +
             "ui_u_id, " +
             "ui_i_id, " +
             "ui_i_u_id, " +  

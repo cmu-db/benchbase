@@ -305,6 +305,10 @@ public class AuctionMarkProfile {
             // Otherwise we have to go fetch everything again
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
             ResultSet results[] = proc.run(worker.getConnection());
+            if (LOG.isTraceEnabled())
+                for (int i = 0; i < results.length; i++) {
+                    LOG.trace(String.format("[%02d] => %s [%s]\n", i, results[i], results[i].isClosed()));
+                } // FOR
             int result_idx = 0;
             
             // CONFIG_PROFILE
@@ -317,13 +321,16 @@ public class AuctionMarkProfile {
             
             // ITEM CATEGORY COUNTS
             this.loadItemCategoryCounts(results[result_idx++]);
-            
+
             // GLOBAL_ATTRIBUTE_GROUPS
             this.loadGlobalAttributeGroups(results[result_idx++]);
-    
+            
             // ITEMS
-            for ( ; result_idx < results.length; result_idx++) {
+            while (result_idx < (results.length - 1)) {
+                assert(results[result_idx].isClosed() == false) :
+                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
                 this.loadItems(results[result_idx]);
+                result_idx++;
             } // FOR
             
             cachedProfile = this;
@@ -350,7 +357,7 @@ public class AuctionMarkProfile {
             this.item_category_histogram.put(i_c_id, count);
         } // WHILE
         if (LOG.isDebugEnabled())
-            LOG.debug(String.format("Loaded %d item category records from %s",
+            LOG.debug(String.format("Loaded %d CATEGORY records from %s",
                                     this.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
     }
     

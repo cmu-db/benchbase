@@ -105,7 +105,7 @@ public abstract class AuctionMarkConstants {
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_GROUP   = 100;
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_VALUE   = 1; // HACK: IGNORE
     public static final long TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP = 10;
-    public static final long TABLESIZE_USER                     = 10000;
+    public static final long TABLESIZE_USERACCT                 = 10000;
     
     // ----------------------------------------------------------------
     // USER PARAMETERS
@@ -214,11 +214,11 @@ public abstract class AuctionMarkConstants {
     public static final long BATCHSIZE_GLOBAL_ATTRIBUTE_GROUP   = 5000;
     public static final long BATCHSIZE_GLOBAL_ATTRIBUTE_VALUE   = 5000;
     public static final long BATCHSIZE_CATEGORY                 = 5000;
-    public static final long BATCHSIZE_USER                     = 1000;
-    public static final long BATCHSIZE_USER_ATTRIBUTES          = 5000;
-    public static final long BATCHSIZE_USER_FEEDBACK            = 5000;
-    public static final long BATCHSIZE_USER_ITEM                = 5000;
-    public static final long BATCHSIZE_USER_WATCH               = 5000;
+    public static final long BATCHSIZE_USERACCT                 = 1000;
+    public static final long BATCHSIZE_USERACCT_ATTRIBUTES      = 5000;
+    public static final long BATCHSIZE_USERACCT_FEEDBACK        = 5000;
+    public static final long BATCHSIZE_USERACCT_ITEM            = 5000;
+    public static final long BATCHSIZE_USERACCT_WATCH           = 5000;
     public static final long BATCHSIZE_ITEM                     = 2000;
     public static final long BATCHSIZE_ITEM_ATTRIBUTE           = 5000;
     public static final long BATCHSIZE_ITEM_IMAGE               = 5000;
@@ -232,11 +232,11 @@ public abstract class AuctionMarkConstants {
     // ----------------------------------------------------------------
     public static final String TABLENAME_CONFIG_PROFILE         = "CONFIG_PROFILE";
     public static final String TABLENAME_REGION                 = "REGION";
-    public static final String TABLENAME_USER                   = "USER";
-    public static final String TABLENAME_USER_ATTRIBUTES        = "USER_ATTRIBUTES";
-    public static final String TABLENAME_USER_ITEM              = "USER_ITEM";
-    public static final String TABLENAME_USER_WATCH             = "USER_WATCH";
-    public static final String TABLENAME_USER_FEEDBACK          = "USER_FEEDBACK";
+    public static final String TABLENAME_USERACCT               = "USERACCT";
+    public static final String TABLENAME_USERACCT_ATTRIBUTES    = "USERACCT_ATTRIBUTES";
+    public static final String TABLENAME_USERACCT_ITEM          = "USERACCT_ITEM";
+    public static final String TABLENAME_USERACCT_WATCH         = "USERACCT_WATCH";
+    public static final String TABLENAME_USERACCT_FEEDBACK      = "USERACCT_FEEDBACK";
     public static final String TABLENAME_CATEGORY               = "CATEGORY";
     public static final String TABLENAME_GLOBAL_ATTRIBUTE_GROUP = "GLOBAL_ATTRIBUTE_GROUP";
     public static final String TABLENAME_GLOBAL_ATTRIBUTE_VALUE = "GLOBAL_ATTRIBUTE_VALUE";
@@ -253,11 +253,11 @@ public abstract class AuctionMarkConstants {
         AuctionMarkConstants.TABLENAME_CATEGORY,
         AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP,
         AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE,
-        AuctionMarkConstants.TABLENAME_USER,
-        AuctionMarkConstants.TABLENAME_USER_ATTRIBUTES,
-        AuctionMarkConstants.TABLENAME_USER_ITEM,
-        AuctionMarkConstants.TABLENAME_USER_WATCH,
-        AuctionMarkConstants.TABLENAME_USER_FEEDBACK,
+        AuctionMarkConstants.TABLENAME_USERACCT,
+        AuctionMarkConstants.TABLENAME_USERACCT_ATTRIBUTES,
+        AuctionMarkConstants.TABLENAME_USERACCT_ITEM,
+        AuctionMarkConstants.TABLENAME_USERACCT_WATCH,
+        AuctionMarkConstants.TABLENAME_USERACCT_FEEDBACK,
         AuctionMarkConstants.TABLENAME_ITEM,
         AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE,
         AuctionMarkConstants.TABLENAME_ITEM_IMAGE,
@@ -282,16 +282,16 @@ public abstract class AuctionMarkConstants {
     
     public static final Collection<String> DYNAMIC_TABLES = new HashSet<String>();
     static {
-    	DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USER_ATTRIBUTES);
+    	DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_ATTRIBUTES);
     	DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_IMAGE);
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE);
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_COMMENT);
-        DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USER_FEEDBACK);
+        DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_FEEDBACK);
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_BID);
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_MAX_BID);
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_ITEM_PURCHASE);
-        DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USER_ITEM);
-        DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USER_WATCH);
+        DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_ITEM);
+        DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_WATCH);
     }
     
     // These tables are loaded from static data files

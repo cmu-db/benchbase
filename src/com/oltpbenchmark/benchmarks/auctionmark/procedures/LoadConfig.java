@@ -39,21 +39,20 @@ public class LoadConfig extends Procedure {
     );
 
     public ResultSet[] run(Connection conn) throws SQLException {
-        List<PreparedStatement> stmts = new ArrayList<PreparedStatement>();
-        stmts.add(this.getPreparedStatement(conn, getConfigProfile));
-        stmts.add(this.getPreparedStatement(conn, getCategoryCounts));
-        stmts.add(this.getPreparedStatement(conn, getAttributes));
+        List<ResultSet> results = new ArrayList<ResultSet>();
+        results.add(this.getPreparedStatement(conn, getConfigProfile).executeQuery());
+        results.add(this.getPreparedStatement(conn, getCategoryCounts).executeQuery());
+        results.add(this.getPreparedStatement(conn, getAttributes).executeQuery());
         
         for (ItemStatus status : ItemStatus.values()) {
             if (status.isInternal()) continue;
-            stmts.add(this.getPreparedStatement(conn, getItems, status.ordinal()));
+            // We have to create a new PreparedStatement to make sure that
+            // the ResultSets don't get closed if we reuse the stmt handle
+            PreparedStatement stmt = conn.prepareStatement(getItems.getSQL());
+            stmt.setLong(1, status.ordinal());
+            results.add(stmt.executeQuery());
         } // FOR
         
-        ResultSet results[] = new ResultSet[stmts.size()];
-        for (int i = 0; i < stmts.size(); i++) {
-            results[i] = stmts.get(i).executeQuery();
-        } // FOR
-        
-        return (results);
+        return (results.toArray(new ResultSet[0]));
     }
 }

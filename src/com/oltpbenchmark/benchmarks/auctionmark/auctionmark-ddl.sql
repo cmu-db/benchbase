@@ -52,8 +52,8 @@ CREATE TABLE REGION (
 );
 
 -- ================================================================
--- USER
--- Represents users 
+-- USERACCT
+-- Represents user accounts 
 -- u_id             User ID
 -- u_firstname      User's first name
 -- u_lastname       User's last name
@@ -64,7 +64,7 @@ CREATE TABLE REGION (
 -- u_created        User's create date
 -- u_r_id           User's region ID
 -- ================================================================
-CREATE TABLE USER (
+CREATE TABLE USERACCT (
     u_id                BIGINT NOT NULL,
     u_rating            BIGINT NOT NULL,
     u_balance           FLOAT NOT NULL,
@@ -90,15 +90,15 @@ CREATE TABLE USER (
     u_iattr7            BIGINT DEFAULT NULL, 
     PRIMARY KEY (u_id)
 );
-CREATE INDEX IDX_USER_REGION ON USER (u_id, u_r_id);
+CREATE INDEX IDX_USERACCT_REGION ON USERACCT (u_id, u_r_id);
 
 -- ================================================================
--- USER_ATTRIBUTES
+-- USERACCT_ATTRIBUTES
 -- Represents user's attributes 
 -- ================================================================
-CREATE TABLE USER_ATTRIBUTES (
+CREATE TABLE USERACCT_ATTRIBUTES (
     ua_id               BIGINT NOT NULL,
-    ua_u_id             BIGINT NOT NULL REFERENCES USER (u_id),
+    ua_u_id             BIGINT NOT NULL REFERENCES USERACCT (u_id),
     ua_name             VARCHAR(32) NOT NULL,
     ua_value            VARCHAR(32) NOT NULL,
     u_created           TIMESTAMP,
@@ -168,7 +168,7 @@ CREATE TABLE GLOBAL_ATTRIBUTE_VALUE (
 -- ================================================================
 CREATE TABLE ITEM (
     i_id                BIGINT NOT NULL,
-    i_u_id              BIGINT NOT NULL REFERENCES USER (u_id),
+    i_u_id              BIGINT NOT NULL REFERENCES USERACCT (u_id),
     i_c_id              BIGINT NOT NULL REFERENCES CATEGORY (c_id),
     i_name              VARCHAR(100),
     i_description       VARCHAR(1024),
@@ -244,7 +244,7 @@ CREATE TABLE ITEM_COMMENT (
     ic_id               BIGINT NOT NULL,
     ic_i_id             BIGINT NOT NULL,
     ic_u_id             BIGINT NOT NULL,
-    ic_buyer_id         BIGINT NOT NULL REFERENCES USER (u_id),
+    ic_buyer_id         BIGINT NOT NULL REFERENCES USERACCT (u_id),
     ic_question         VARCHAR(128) NOT NULL,
     ic_response         VARCHAR(128) DEFAULT NULL,
     ic_created          TIMESTAMP,
@@ -269,7 +269,7 @@ CREATE TABLE ITEM_BID (
     ib_id               BIGINT NOT NULL,
     ib_i_id             BIGINT NOT NULL,
     ib_u_id             BIGINT NOT NULL,
-    ib_buyer_id         BIGINT NOT NULL REFERENCES USER (u_id),
+    ib_buyer_id         BIGINT NOT NULL REFERENCES USERACCT (u_id),
     ib_bid		        FLOAT NOT NULL,
     ib_max_bid          FLOAT NOT NULL,
     ib_created          TIMESTAMP,
@@ -314,7 +314,7 @@ CREATE TABLE ITEM_PURCHASE (
 );
 
 -- ================================================================
--- USER_FEEDBACK
+-- USERACCT_FEEDBACK
 -- Represents feedbacks between buyers and sellers for a transaction
 -- uf_id             Feedback's ID
 -- uf_u_id           The user receiving the feedback
@@ -324,11 +324,11 @@ CREATE TABLE ITEM_PURCHASE (
 -- uf_date           Feedback's create date
 -- uf_comment        Feedback by other user
 -- ================================================================
-CREATE TABLE USER_FEEDBACK (
-    uf_u_id             BIGINT NOT NULL REFERENCES USER (u_id),
+CREATE TABLE USERACCT_FEEDBACK (
+    uf_u_id             BIGINT NOT NULL REFERENCES USERACCT (u_id),
     uf_i_id             BIGINT NOT NULL,
     uf_i_u_id           BIGINT NOT NULL,
-    uf_from_id          BIGINT NOT NULL REFERENCES USER (u_id),
+    uf_from_id          BIGINT NOT NULL REFERENCES USERACCT (u_id),
     uf_rating           TINYINT NOT NULL,
     uf_date             TIMESTAMP,
     uf_sattr0           VARCHAR(80) NOT NULL,
@@ -338,11 +338,11 @@ CREATE TABLE USER_FEEDBACK (
 );
 
 -- ================================================================
--- USER_ITEM
+-- USERACCT_ITEM
 -- The items that a user has recently purchased
 -- ================================================================
-CREATE TABLE USER_ITEM (
-    ui_u_id             BIGINT NOT NULL REFERENCES USER (u_id),
+CREATE TABLE USERACCT_ITEM (
+    ui_u_id             BIGINT NOT NULL REFERENCES USERACCT (u_id),
     ui_i_id             BIGINT NOT NULL,
     ui_i_u_id           BIGINT NOT NULL,
     ui_ip_id            BIGINT,
@@ -354,14 +354,14 @@ CREATE TABLE USER_ITEM (
     FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
     PRIMARY KEY (ui_u_id, ui_i_id, ui_i_u_id)
 );
--- CREATE INDEX IDX_USER_ITEM_ID ON USER_ITEM (ui_i_id);
+-- CREATE INDEX IDX_USERACCT_ITEM_ID ON USERACCT_ITEM (ui_i_id);
 
 -- ================================================================
--- USER_WATCH
+-- USERACCT_WATCH
 -- The items that a user is watching
 -- ================================================================
-CREATE TABLE USER_WATCH (
-    uw_u_id             BIGINT NOT NULL REFERENCES USER (u_id),
+CREATE TABLE USERACCT_WATCH (
+    uw_u_id             BIGINT NOT NULL REFERENCES USERACCT (u_id),
     uw_i_id             BIGINT NOT NULL,
     uw_i_u_id           BIGINT NOT NULL,
     uw_created          TIMESTAMP,

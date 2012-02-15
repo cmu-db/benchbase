@@ -56,15 +56,15 @@ public class GetUserInfo extends Procedure {
     
     public final SQLStmt getUser = new SQLStmt(
         "SELECT u_id, u_rating, u_created, u_balance, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name " +
-          "FROM " + AuctionMarkConstants.TABLENAME_USER + ", " +
+          "FROM " + AuctionMarkConstants.TABLENAME_USERACCT + ", " +
                     AuctionMarkConstants.TABLENAME_REGION + " " +
          "WHERE u_id = ? AND u_r_id = r_id"
     );
 
     public final SQLStmt getUserFeedback = new SQLStmt(
         "SELECT u_id, u_rating, u_sattr0, u_sattr1, uf_rating, uf_date, uf_sattr0 " +
-        "  FROM " + AuctionMarkConstants.TABLENAME_USER + ", " +
-                    AuctionMarkConstants.TABLENAME_USER_FEEDBACK +
+        "  FROM " + AuctionMarkConstants.TABLENAME_USERACCT + ", " +
+                    AuctionMarkConstants.TABLENAME_USERACCT_FEEDBACK +
         " WHERE u_id = ? AND uf_u_id = u_id " +
         " ORDER BY uf_date DESC LIMIT 25 "
     );
@@ -88,7 +88,7 @@ public class GetUserInfo extends Procedure {
     
     public final SQLStmt getBuyerItems = new SQLStmt(
         "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
-         " FROM " + AuctionMarkConstants.TABLENAME_USER_ITEM + ", " +
+         " FROM " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM +
         " WHERE ui_u_id = ? " +
            "AND ui_i_id = i_id AND ui_i_u_id = i_u_id " +
@@ -97,7 +97,7 @@ public class GetUserInfo extends Procedure {
     
     public final SQLStmt getWatchedItems = new SQLStmt(
         "SELECT " + AuctionMarkConstants.ITEM_COLUMNS + ", uw_u_id, uw_created " +
-          "FROM " + AuctionMarkConstants.TABLENAME_USER_WATCH + ", " +
+          "FROM " + AuctionMarkConstants.TABLENAME_USERACCT_WATCH + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM +
         " WHERE uw_u_id = ? " +
         "   AND uw_i_id = i_id AND uw_i_u_id = i_u_id " +

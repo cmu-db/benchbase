@@ -57,7 +57,7 @@ public class NewPurchase extends Procedure {
 		"  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " +
 		            AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + ", " +
 		            AuctionMarkConstants.TABLENAME_ITEM_BID + ", " +
-		            AuctionMarkConstants.TABLENAME_USER +
+		            AuctionMarkConstants.TABLENAME_USERACCT +
         " WHERE i_id = ? AND i_u_id = ? AND i_status = " + ItemStatus.WAITING_FOR_PURCHASE.ordinal() +
         "   AND imb_i_id = i_id AND imb_u_id = i_u_id " +
         "   AND imb_ib_id = ib_id AND imb_ib_i_id = ib_i_id AND imb_ib_u_id = ib_u_id " +
@@ -66,7 +66,7 @@ public class NewPurchase extends Procedure {
 
     public final SQLStmt getBuyerInfo = new SQLStmt(
         "SELECT u_id, u_balance " +
-        "  FROM " + AuctionMarkConstants.TABLENAME_USER +
+        "  FROM " + AuctionMarkConstants.TABLENAME_USERACCT +
         " WHERE u_id = ? "
     );
     
@@ -88,7 +88,7 @@ public class NewPurchase extends Procedure {
     );    
     
     public final SQLStmt updateUserItem = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_USER_ITEM + " " +
+        "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + " " +
            "SET ui_ip_id = ?, " +
            "    ui_ip_ib_id = ?, " +
            "    ui_ip_ib_i_id = ?, " +
@@ -97,7 +97,7 @@ public class NewPurchase extends Procedure {
     );
     
     public final SQLStmt updateUserBalance = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_USER + " " +
+        "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
            "SET u_balance = u_balance + ? " + 
         " WHERE u_id = ?"
     );

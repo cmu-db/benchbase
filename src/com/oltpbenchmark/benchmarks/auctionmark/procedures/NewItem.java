@@ -127,7 +127,7 @@ public class NewItem extends Procedure {
 	);
     
     public final SQLStmt updateUserBalance = new SQLStmt(
-		"UPDATE " + AuctionMarkConstants.TABLENAME_USER + " " +
+		"UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
 		   "SET u_balance = u_balance - 1, " +
 		   "    u_updated = ? " +
 		" WHERE u_id = ?"

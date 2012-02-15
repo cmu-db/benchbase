@@ -73,7 +73,7 @@ public class NewComment extends Procedure {
     );
     
     public final SQLStmt updateUser = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_USER + " " +
+        "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
            "SET u_comments = u_comments + 1, " +
            "    u_updated = ? " +
         " WHERE u_id = ?"
