@@ -324,6 +324,8 @@ public class AuctionMarkWorker extends Worker {
             assert(txnType != null) : txnTypes;
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
+            assert(txn != null) :
+                "Failed to get Transaction handle for " + txnType.getProcedureClass().getSimpleName(); 
             if (txn.canExecute(this) == false) {
                 if (LOG.isDebugEnabled())
                     LOG.warn("Unable to execute " + txn + " because it is not ready");

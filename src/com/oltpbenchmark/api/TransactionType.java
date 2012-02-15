@@ -9,10 +9,16 @@ public class TransactionType implements Comparable<TransactionType> {
     
 	private final Class<? extends Procedure> procClass;
 	private final int id;
+	private final boolean supplemental;
 
+	protected TransactionType(Class<? extends Procedure> procClass, int id, boolean supplemental) {
+	    this.procClass = procClass;
+        this.id = id;
+        this.supplemental = supplemental;
+    }
+	
 	protected TransactionType(Class<? extends Procedure> procClass, int id) {
-		this.procClass = procClass;
-		this.id = id;
+	    this(procClass, id, false);
 	}
 
 	public Class<? extends Procedure> getProcedureClass() {
@@ -24,6 +30,9 @@ public class TransactionType implements Comparable<TransactionType> {
 	public int getId() {
 		return this.id;
 	}
+	public boolean isSupplemental() {
+        return this.supplemental;
+    }
 
 	@Override
 	public boolean equals(Object obj) {

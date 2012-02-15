@@ -15,15 +15,13 @@ public class Phase {
     
 
     Phase(int t, int r, List<String> o) {
-
         ArrayList<Double> w = new ArrayList<Double>();
-
         for (String s : o)
             w.add(Double.parseDouble(s));
 
-        time = t;
-        rate = r;
-        weights = Collections.unmodifiableList(w);
+        this.time = t;
+        this.rate = r;
+        this.weights = Collections.unmodifiableList(w);
         this.num_weights = this.weights.size();
     }
 

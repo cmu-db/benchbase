@@ -175,6 +175,8 @@ public abstract class Worker implements Runnable {
     	    while (status == TransactionStatus.RETRY) {
     	        if (next == null)
     	            next = transactionTypes.getType(phase.chooseTransaction());
+    	        assert(next.isSupplemental() == false) :
+    	            "Trying to select a supplemental transaction " + next;
     	        
         	    try {
         	        if (wrkld.getDBType() == DatabaseType.POSTGRES)

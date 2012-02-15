@@ -362,7 +362,7 @@ public abstract class BenchmarkModule {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode());
+                    txn = new TransactionType(procClass, procClass.hashCode(), true);
                     txns.add(txn);
                 }
             } // FOR
@@ -379,8 +379,6 @@ public abstract class BenchmarkModule {
         if (proc_xref.isEmpty()) {
             LOG.warn("No procedures defined for " + this);
         }
-        
-        
         return (proc_xref);
     }
     
