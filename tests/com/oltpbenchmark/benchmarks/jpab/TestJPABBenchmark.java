@@ -20,7 +20,11 @@
 package com.oltpbenchmark.benchmarks.jpab;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.jpab.procedures.*;
+import com.oltpbenchmark.benchmarks.jpab.tests.BasicTest;
+import com.oltpbenchmark.benchmarks.jpab.tests.CollectionTest;
+import com.oltpbenchmark.benchmarks.jpab.tests.ExtTest;
+import com.oltpbenchmark.benchmarks.jpab.tests.IndexTest;
+import com.oltpbenchmark.benchmarks.jpab.tests.NodeTest;
 
 public class TestJPABBenchmark extends AbstractTestBenchmarkModule<JPABBenchmark> {
 	
