@@ -655,7 +655,6 @@ public class AuctionMarkProfile {
     private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Timestamp baseTime) {
         long remaining = itemInfo.endDate.getTime() - baseTime.getTime();
         ItemStatus new_status = (itemInfo.status != null ? itemInfo.status : ItemStatus.OPEN); 
-        
         // Already ended
         if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
             if (itemInfo.numBids > 0 && itemInfo.status != ItemStatus.CLOSED) {

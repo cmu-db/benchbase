@@ -51,8 +51,8 @@ public class GetItem extends Procedure {
     
     public final SQLStmt getItem = new SQLStmt(
         "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
-         " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " + 
-         "WHERE i_id = ? AND i_u_id = ? AND i_status = " + ItemStatus.OPEN.ordinal()
+         " FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
+         " WHERE i_id = ? AND i_u_id = ? AND i_status = ?" 
     );
     
     public final SQLStmt getUser = new SQLStmt(
@@ -68,7 +68,7 @@ public class GetItem extends Procedure {
     
     public Object[][] run(Connection conn, Timestamp benchmarkTimes[],
                            long item_id, long seller_id) throws SQLException {
-        PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
+        PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id, ItemStatus.OPEN.ordinal());
         ResultSet item_results = item_stmt.executeQuery();
         if (item_results.next() == false) {
             throw new UserAbortException("Invalid item " + item_id);

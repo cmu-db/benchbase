@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="LoadConfig">
+            <statement name="getItems">
+                SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status
+                FROM ITEM
+                WHERE i_status = ?
+                ORDER BY i_iattr0
+            </statement>
+        </procedure>
+	</dialect>
+	<dialect type="SQLSERVER">
+        <procedure name="LoadConfig">
+            <statement name="getItems">
+                SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status
+                FROM ITEM
+                WHERE i_status = ?
+                ORDER BY i_iattr0
+            </statement>
+        </procedure>
+	</dialect>
+</dialects>
