@@ -11,6 +11,10 @@ import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 
 public class LoadConfig extends Procedure {
 
+    // -----------------------------------------------------------------
+    // STATEMENTS
+    // -----------------------------------------------------------------
+    
     public final SQLStmt getConfigProfile = new SQLStmt(
         "SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE
     );

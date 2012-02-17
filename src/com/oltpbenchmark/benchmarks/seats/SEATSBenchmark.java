@@ -39,7 +39,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation;
+import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomGenerator;
 
@@ -49,6 +49,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     
 	public SEATSBenchmark(WorkloadConfiguration workConf) {
 		super("seats", workConf, true);
+		this.registerSupplementalProcedure(LoadConfig.class);
 	}
 	
 	public File getDataDir() {
@@ -65,7 +66,7 @@ public class SEATSBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected Package getProcedurePackageImpl() {
-		return (DeleteReservation.class.getPackage());
+		return (LoadConfig.class.getPackage());
 	}
 
 	@Override

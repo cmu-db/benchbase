@@ -46,17 +46,20 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
         super.setUp();
+        Class.forName(DB_JDBC);
         
+        this.workConf = new WorkloadConfiguration();
+        TransactionTypes txnTypes = new TransactionTypes();
         for (int i = 0; i < procClasses.length; i++) {
             assertFalse("Duplicate Procedure '" + procClasses[i] + "'",
                         this.procClasses.contains(procClasses[i]));
             this.procClasses.add(procClasses[i]);
+            TransactionType tt = new TransactionType(procClasses[i], i);
+            txnTypes.add(tt);
         } // FOR
         
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
-        
-        Class.forName(DB_JDBC);
-        this.workConf = new WorkloadConfiguration();
+        this.workConf.setTransTypes(txnTypes);
         this.workConf.setDBType(DB_TYPE);
         this.workConf.setDBConnection(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);

@@ -13,6 +13,10 @@ public class TransactionTypes implements Collection<TransactionType> {
 	
 	private final ListOrderedMap<String, TransactionType> types = new ListOrderedMap<String, TransactionType>();
 	
+	protected TransactionTypes() {
+	    // Nothing to see... nothing to do...
+	}
+	
 	public TransactionTypes(List<TransactionType> transactiontypes) {
 		Collections.sort(transactiontypes, new Comparator<TransactionType>() {
 			@Override

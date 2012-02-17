@@ -306,10 +306,6 @@ public class AuctionMarkProfile {
             // Otherwise we have to go fetch everything again
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
             ResultSet results[] = proc.run(worker.getConnection());
-            if (LOG.isTraceEnabled())
-                for (int i = 0; i < results.length; i++) {
-                    LOG.trace(String.format("[%02d] => %s [%s]\n", i, results[i], results[i].isClosed()));
-                } // FOR
             int result_idx = 0;
             
             // CONFIG_PROFILE
@@ -896,7 +892,6 @@ public class AuctionMarkProfile {
             itemCounts.put(status, cnt);
         }
         m.put("Item Queues", itemCounts);
-        
         
         return (StringUtil.formatMaps(m));
     }

@@ -278,7 +278,7 @@ public class SEATSWorker extends Worker {
     
     protected void initialize() {
         try {
-            this.profile.loadProfile(this.conn);
+            this.profile.loadProfile(this);
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }

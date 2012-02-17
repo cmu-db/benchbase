@@ -1,6 +1,9 @@
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import java.util.List;
+
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
 
 public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchmark> {
@@ -17,6 +20,30 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
     protected void setUp() throws Exception {
         super.setUp(AuctionMarkBenchmark.class, IGNORE, TestAuctionMarkBenchmark.PROC_CLASSES);
         this.workConf.setScaleFactor(0.1);
+    }
+    
+    /**
+     * testSaveLoadProfile
+     */
+    public void testSaveLoadProfile() throws Exception {
+        AuctionMarkLoader loader = (AuctionMarkLoader)this.benchmark.makeLoaderImpl(conn);
+        assertNotNull(loader);
+        loader.load();
+        
+        AuctionMarkProfile orig = loader.profile;
+        assertNotNull(orig);
+        assertFalse(orig.users_per_item_count.isEmpty());
+        
+        AuctionMarkProfile copy = new AuctionMarkProfile(this.benchmark, new RandomGenerator(0));
+        assertTrue(copy.users_per_item_count.isEmpty());
+        
+        List<Worker> workers = this.benchmark.makeWorkers(false);
+        AuctionMarkWorker worker = (AuctionMarkWorker)workers.get(0); 
+        copy.loadProfile(worker);
+        
+        assertEquals(orig.scale_factor, copy.scale_factor);
+        assertEquals(orig.benchmarkStartTime.toString(), copy.benchmarkStartTime.toString());
+        assertEquals(orig.users_per_item_count, copy.users_per_item_count);
     }
     
 }

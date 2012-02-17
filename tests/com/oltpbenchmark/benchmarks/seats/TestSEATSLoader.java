@@ -1,6 +1,9 @@
 package com.oltpbenchmark.benchmarks.seats;
 
+import java.util.List;
+
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
 
 public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
@@ -23,7 +26,10 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         
         SEATSProfile copy = new SEATSProfile(this.benchmark, new RandomGenerator(0));
         assert(copy.airport_histograms.isEmpty());
-        copy.loadProfile(this.conn);
+        
+        List<Worker> workers = this.benchmark.makeWorkers(false);
+        SEATSWorker worker = (SEATSWorker)workers.get(0);
+        copy.loadProfile(worker);
         
         assertEquals(orig.scale_factor, copy.scale_factor);
         assertEquals(orig.airport_max_customer_id, copy.airport_max_customer_id);

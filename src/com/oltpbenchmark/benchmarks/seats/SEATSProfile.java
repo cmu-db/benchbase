@@ -39,8 +39,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
 import com.oltpbenchmark.catalog.Catalog;
@@ -73,7 +75,7 @@ public class SEATSProfile {
     /**
      * The date when flights total data set begins
      */
-    protected Timestamp flight_start_date;
+    protected final Timestamp flight_start_date = new Timestamp(0);
     /**
      * The date for when the flights are considered upcoming and are eligible for reservations
      */
@@ -264,7 +266,7 @@ public class SEATSProfile {
     private SEATSProfile copy(SEATSProfile other) {
         this.scale_factor = other.scale_factor;
         this.airport_max_customer_id.putHistogram(other.airport_max_customer_id);
-        this.flight_start_date = other.flight_start_date;
+        this.flight_start_date.setTime(other.flight_start_date.getTime());
         this.flight_upcoming_date = other.flight_upcoming_date;
         this.flight_past_days = other.flight_past_days;
         this.flight_future_days = other.flight_future_days;
@@ -282,7 +284,7 @@ public class SEATSProfile {
      * Load the profile information stored in the database
      */
     private static SEATSProfile cachedProfile;
-    protected final void loadProfile(Connection conn) throws SQLException {
+    protected final void loadProfile(SEATSWorker worker) throws SQLException {
         synchronized (SEATSProfile.class) {
             // Check whether we have a cached Profile we can copy from
             if (cachedProfile != null) {
@@ -294,43 +296,31 @@ public class SEATSProfile {
             if (LOG.isDebugEnabled()) LOG.debug("Loading SEATSProfile for the first time");
             
             // Otherwise we have to go fetch everything again
-            PreparedStatement stmt = null;
-            ResultSet rs = null;
+            LoadConfig proc = worker.getProcedure(LoadConfig.class);
+            ResultSet results[] = proc.run(worker.getConnection());
+            int result_idx = 0;
             
             // CONFIG_PROFILE
-            stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_PROFILE);
-            rs = stmt.executeQuery();
-            this.loadConfigProfile(rs); 
+            this.loadConfigProfile(results[result_idx++]); 
             
             // CONFIG_HISTOGRAMS
-            stmt = conn.prepareStatement("SELECT * FROM " + SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-            rs = stmt.executeQuery();
-            this.loadConfigHistograms(rs);
+            this.loadConfigHistograms(results[result_idx++]);
             
             // CODE XREFS
-            String sql[] = {
-                "SELECT CO_ID, CO_CODE_3 FROM " + SEATSConstants.TABLENAME_COUNTRY,
-                "SELECT AP_ID, AP_CODE FROM " + SEATSConstants.TABLENAME_AIRPORT,
-                "SELECT AL_ID, AL_IATA_CODE FROM " + SEATSConstants.TABLENAME_AIRLINE + " WHERE AL_IATA_CODE != ''"      
-            };
-            assert(sql.length == SEATSConstants.CODE_TO_ID_COLUMNS.length);
             for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
-                stmt = conn.prepareStatement(sql[i]);
-                rs = stmt.executeQuery();
                 String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
                 String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
-                this.loadCodeXref(rs, codeCol, idCol);
+                this.loadCodeXref(results[result_idx++], codeCol, idCol);
             } // FOR
             
             // CACHED FLIGHT IDS
-            stmt = conn.prepareStatement(
-                    "SELECT f_id FROM " + SEATSConstants.TABLENAME_FLIGHT +
-                    " ORDER BY F_DEPART_TIME DESC ");// + 
-                    //" LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS);
-            rs = stmt.executeQuery();
-            this.loadCachedFlights(rs);
-    
-            if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
+            this.loadCachedFlights(results[result_idx++]);
+            
+            if (LOG.isDebugEnabled())
+                LOG.debug("Loaded profile:\n" + this.toString());
+            if (LOG.isTraceEnabled())
+                LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
+            
             cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
         } // SYNCH
     }
@@ -341,7 +331,7 @@ public class SEATSProfile {
         int col = 1;
         this.scale_factor = vt.getDouble(col++);
         JSONUtil.fromJSONString(this.airport_max_customer_id, vt.getString(col++));
-        this.flight_start_date = vt.getTimestamp(col++);
+        this.flight_start_date.setTime(vt.getTimestamp(col++).getTime());
         this.flight_upcoming_date = vt.getTimestamp(col++);
         this.flight_past_days = vt.getLong(col++);
         this.flight_future_days = vt.getLong(col++);
@@ -688,7 +678,7 @@ public class SEATSProfile {
      * @param start_date
      */
     public void setFlightStartDate(Timestamp start_date) {
-        this.flight_start_date = start_date;
+        this.flight_start_date.setTime(start_date.getTime());
     }
 
     /**
@@ -739,6 +729,22 @@ public class SEATSProfile {
     public long getNextReservationId(int id) {
         // Offset it by the client id so that we can ensure it's unique
         return (id | this.num_reservations++<<48);
+    }
+    
+    @Override
+    public String toString() {
+        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        m.put("Scale Factor", this.scale_factor);
+        m.put("# of Reservations", this.num_reservations);
+        m.put("Flight Start Date", this.flight_start_date);
+        m.put("Flight Upcoming Date", this.flight_upcoming_date);
+        m.put("Flight Past Days", this.flight_past_days);
+        m.put("Flight Future Days", this.flight_future_days);
+        m.put("Flight Upcoming Offset", this.flight_upcoming_offset);
+        m.put("Reservation Upcoming Offset", this.reservation_upcoming_offset);
+        m.put("ID->Code Xref", this.code_id_xref);
+        
+        return (StringUtil.formatMaps(m));
     }
     
 }
