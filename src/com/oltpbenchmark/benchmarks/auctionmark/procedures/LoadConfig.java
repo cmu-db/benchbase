@@ -30,7 +30,7 @@ public class LoadConfig extends Procedure {
         "SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
         " WHERE i_status = ? " +
-        " ORDER BY i_iattr0 " +
+        " ORDER BY i_end_date ASC " +
         " LIMIT " + AuctionMarkConstants.ITEM_ID_CACHE_SIZE
     );
     

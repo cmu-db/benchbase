@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
@@ -326,12 +327,15 @@ public class AuctionMarkProfile {
             this.loadGlobalAttributeGroups(results[result_idx++]);
             
             // ITEMS
-            while (result_idx < (results.length - 1)) {
+            while (result_idx < results.length) {
                 assert(results[result_idx].isClosed() == false) :
                     "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
                 this.loadItems(results[result_idx]);
                 result_idx++;
             } // FOR
+            
+            if (LOG.isDebugEnabled())
+                LOG.debug("Loaded profile:\n" + this.toString());
             
             cachedProfile = this;
         } // SYNCH
@@ -370,8 +374,9 @@ public class AuctionMarkProfile {
             Timestamp i_end_date = vt.getTimestamp(col++);
             int i_num_bids = (int)vt.getLong(col++);
             
+            // IMPORTANT: Do not set the status here so that we make sure that
+            // it is added to the right queue
             ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
-            itemInfo.status = ItemStatus.get(vt.getLong(col++));
             this.addItemToProperQueue(itemInfo, false);
             ctr++;
         } // WHILE
@@ -653,7 +658,7 @@ public class AuctionMarkProfile {
         
     private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Timestamp baseTime) {
         long remaining = itemInfo.endDate.getTime() - baseTime.getTime();
-        ItemStatus new_status = itemInfo.status;
+        ItemStatus new_status = (itemInfo.status != null ? itemInfo.status : ItemStatus.OPEN); 
         
         // Already ended
         if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
@@ -669,10 +674,14 @@ public class AuctionMarkProfile {
         }
         
         if (new_status != itemInfo.status) {
-            assert(new_status.ordinal() > itemInfo.status.ordinal()) :
-                "Trying to improperly move " + itemInfo + " from " + itemInfo.status + " to " + new_status;
+            if (itemInfo.status != null)
+                assert(new_status.ordinal() > itemInfo.status.ordinal()) :
+                    "Trying to improperly move " + itemInfo + " from " + itemInfo.status + " to " + new_status;
             
             switch (new_status) {
+                case OPEN:
+                    this.addItem(this.items_available, itemInfo);
+                    break;
                 case ENDING_SOON:
                     this.items_available.remove(itemInfo);
                     this.addItem(this.items_endingSoon, itemInfo);
@@ -853,6 +862,43 @@ public class AuctionMarkProfile {
             this.randomCategory = new FlatHistogram<Long>(this.rng, this.item_category_histogram); 
         }
         return randomCategory.nextLong();
+    }
+    
+    @Override
+    public String toString() {
+        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        m.put("Scale Factor", this.scale_factor);
+        m.put("Benchmark Start", this.benchmarkStartTime);
+        m.put("Last CloseAuctions", (this.lastCloseAuctionsTime.getTime() > 0 ? this.lastCloseAuctionsTime : null));
+        m.put("Client Start", this.clientStartTime);
+        m.put("Current Time", this.currentTime);
+        
+        // Item Queues
+        Histogram<ItemStatus> itemCounts = new Histogram<ItemStatus>(true);
+        for (ItemStatus status : ItemStatus.values()) {
+            int cnt = 0;
+            switch (status) {
+                case OPEN:
+                    cnt = this.items_available.size();
+                    break;
+                case ENDING_SOON:
+                    cnt = this.items_endingSoon.size();
+                    break;
+                case WAITING_FOR_PURCHASE:
+                    cnt = this.items_waitingForPurchase.size();
+                    break;
+                case CLOSED:
+                    cnt = this.items_completed.size();
+                    break;
+                default:
+                    assert(false) : "Unexpected " + status;
+            } // SWITCH
+            itemCounts.put(status, cnt);
+        }
+        m.put("Item Queues", itemCounts);
+        
+        
+        return (StringUtil.formatMaps(m));
     }
 
 }

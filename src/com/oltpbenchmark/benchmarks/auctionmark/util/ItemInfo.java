@@ -41,7 +41,7 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     public Float currentPrice;
     public Timestamp endDate;
     public long numBids = 0;
-    public ItemStatus status = ItemStatus.OPEN;
+    public ItemStatus status = null;
     
     public ItemInfo(ItemId id, Double currentPrice, Timestamp endDate, int numBids) {
         this.itemId = id;
