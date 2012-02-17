@@ -19,9 +19,7 @@
  ******************************************************************************/
 package com.oltpbenchmark;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -33,8 +31,11 @@ import java.util.NoSuchElementException;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.QueueLimitException;
 
 
@@ -155,6 +156,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 		public final long nanoSeconds;
 		public final int measuredRequests;
 		public final DistributionStatistics latencyDistribution;
+		private final Histogram<TransactionType> txnHistogram = new Histogram<TransactionType>();
 
 		public final List<LatencyRecord.Sample> latencySamples;
 
@@ -177,6 +179,14 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			}
 		}
 
+		/**
+		 * Get a histogram of how often each transaction was executed
+		 * @return
+		 */
+		public Histogram<TransactionType> getTransactionHistogram() {
+            return txnHistogram;
+        }
+		
 		public double getRequestsPerSecond() {
 			return (double) measuredRequests / (double) nanoSeconds * 1e9;
 		}
@@ -423,7 +433,17 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler{
 			DistributionStatistics stats = DistributionStatistics
 					.computeStatistics(latencies);
 
-			return new Results(measureEnd - start, requests, stats, samples);
+			Results results = new Results(measureEnd - start, requests, stats, samples);
+			
+			// Compute transaction histogram
+			TransactionTypes txnTypes = workConf.getTransTypes();
+	        for (Worker w : workers) {
+	            for (LatencyRecord.Sample sample : w.getLatencyRecords()) {
+                    results.txnHistogram.put(txnTypes.getType(sample.tranType));
+                }
+            }
+			
+			return (results);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}

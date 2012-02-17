@@ -122,6 +122,7 @@ public class DBWorkload {
 		options.addOption("h", "help", false, "Print this help");
 		options.addOption("s", "sample", true, "Sampling window");
 		options.addOption("o", "output", true, "Output file (default System.out)");		
+		options.addOption(null, "histogram", false, "Print txn histogram");
 
         // parse the command line arguments
         CommandLine argsLine = parser.parse(options, args);
@@ -290,6 +291,11 @@ public class DBWorkload {
                 int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
                 EXEC_LOG.info("Grouped into Buckets of " + windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
+            } else if (EXEC_LOG.isDebugEnabled()) {
+                EXEC_LOG.warn("No bucket size specified");
+            }
+            if (argsLine.hasOption("histogram")) {
+                EXEC_LOG.info("Transaction Distribution:\n" + r.getTransactionHistogram());
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
