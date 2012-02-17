@@ -535,8 +535,8 @@ public class SEATSProfile {
      */
     public CustomerId getRandomCustomerId() {
         int num_airports = this.airport_max_customer_id.getValueCount();
-        if (LOG.isDebugEnabled())
-            LOG.debug(String.format("Selecting a random airport with customers [numAirports=%d]", num_airports));
+        if (LOG.isTraceEnabled())
+            LOG.trace(String.format("Selecting a random airport with customers [numAirports=%d]", num_airports));
         CustomerId c_id = null;
         while (c_id == null) {
             Long airport_id = (long)this.rng.number(1, num_airports);
@@ -735,6 +735,7 @@ public class SEATSProfile {
     public String toString() {
         Map<String, Object> m = new ListOrderedMap<String, Object>();
         m.put("Scale Factor", this.scale_factor);
+        m.put("Data Directory", this.airline_data_dir);
         m.put("# of Reservations", this.num_reservations);
         m.put("Flight Start Date", this.flight_start_date);
         m.put("Flight Upcoming Date", this.flight_upcoming_date);
@@ -742,8 +743,6 @@ public class SEATSProfile {
         m.put("Flight Future Days", this.flight_future_days);
         m.put("Flight Upcoming Offset", this.flight_upcoming_offset);
         m.put("Reservation Upcoming Offset", this.reservation_upcoming_offset);
-        m.put("ID->Code Xref", this.code_id_xref);
-        
         return (StringUtil.formatMaps(m));
     }
     

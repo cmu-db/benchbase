@@ -129,7 +129,7 @@ public abstract class SEATSConstants {
     public static final int MIN_RESERVATION_PRICE = 100;
     public static final int MAX_RESERVATION_PRICE = 1000;
     
-    public static final int MAX_OPEN_SEATS_PER_TXN = 25;
+    public static final int MAX_OPEN_SEATS_PER_TXN = 100;
     
     // ----------------------------------------------------------------
     // PROBABILITIES

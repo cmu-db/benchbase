@@ -17,6 +17,7 @@ import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.Histogram;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
@@ -32,6 +33,10 @@ public abstract class Worker implements Runnable {
 	protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
 	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
 	protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<Class<? extends Procedure>, Procedure>();
+	
+	protected final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
+	protected final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
+	protected final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
 	
 	public Worker(BenchmarkModule benchmarkModule, int id) {
 		this.id = id;
@@ -179,16 +184,20 @@ public abstract class Worker implements Runnable {
     	            "Trying to select a supplemental transaction " + next;
     	        
         	    try {
+        	        // For Postgres, we have to create a savepoint in order
+        	        // to rollback a user aborted transaction
         	        if (wrkld.getDBType() == DatabaseType.POSTGRES)
         	            savepoint = this.conn.setSavepoint();
         	        
         	        status = this.executeWork(next);
         	        switch (status) {
         	            case SUCCESS:
+        	                this.txnSuccess.put(next);
         	                if (LOG.isDebugEnabled()) 
                                 LOG.debug("Executed a new invocation of " + next);
         	                break;
         	            case RETRY_DIFFERENT:
+        	                this.txnRetry.put(next);
         	                status = TransactionStatus.RETRY;
         	                next = null;
         	            case RETRY:
@@ -208,6 +217,7 @@ public abstract class Worker implements Runnable {
                     } else {
                         this.conn.rollback();
                     }
+                    this.txnRetry.put(next);
                     break;
                     
                 // Database System Specific Exception Handling

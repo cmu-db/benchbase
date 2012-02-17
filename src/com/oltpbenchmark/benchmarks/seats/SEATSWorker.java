@@ -79,7 +79,7 @@ public class SEATSWorker extends Worker {
     /**
      * Airline Benchmark Transactions
      */
-    public static enum Transaction {
+    private static enum Transaction {
         DeleteReservation   (DeleteReservation.class),
         FindFlights         (FindFlights.class),
         FindOpenSeats       (FindOpenSeats.class),
@@ -134,11 +134,8 @@ public class SEATSWorker extends Worker {
         
         private CacheType(int limit) {
             this.limit = limit;
-//            this.lock = new ReentrantLock();
         }
-        
         private final int limit;
-//        private final ReentrantLock lock;
     }
     
     protected final Map<CacheType, LinkedList<Reservation>> CACHE_RESERVATIONS = new HashMap<SEATSWorker.CacheType, LinkedList<Reservation>>();
@@ -146,7 +143,7 @@ public class SEATSWorker extends Worker {
         for (CacheType ctype : CacheType.values()) {
             CACHE_RESERVATIONS.put(ctype, new LinkedList<Reservation>());
         } // FOR
-    } // STATIC 
+    } 
     
     
     protected final Map<CustomerId, Set<FlightId>> CACHE_CUSTOMER_BOOKED_FLIGHTS = new HashMap<CustomerId, Set<FlightId>>();
@@ -209,10 +206,11 @@ public class SEATSWorker extends Worker {
     public String toString() {
         Map<String, Object> m = new ListOrderedMap<String, Object>();
         for (CacheType ctype : CACHE_RESERVATIONS.keySet()) {
-            m.put(ctype.name(), CACHE_RESERVATIONS.get(ctype));
+            m.put(ctype.name(), CACHE_RESERVATIONS.get(ctype).size());
         } // FOR
-        m.put("CACHE_CUSTOMER_BOOKED_FLIGHTS", CACHE_CUSTOMER_BOOKED_FLIGHTS); 
-        m.put("CACHE_BOOKED_SEATS", CACHE_BOOKED_SEATS); 
+        m.put("CACHE_CUSTOMER_BOOKED_FLIGHTS", CACHE_CUSTOMER_BOOKED_FLIGHTS.size()); 
+        m.put("CACHE_BOOKED_SEATS", CACHE_BOOKED_SEATS.size());
+        m.put("PROFILE", this.profile);
         
         return StringUtil.formatMaps(m);
     }
@@ -282,7 +280,8 @@ public class SEATSWorker extends Worker {
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
-        if (LOG.isTraceEnabled()) LOG.trace("Airport Max Customer Id:\n" + this.profile.airport_max_customer_id);
+        if (LOG.isTraceEnabled())
+            LOG.trace("Airport Max Customer Id:\n" + this.profile.airport_max_customer_id);
         
         // Make sure we have the information we need in the BenchmarkProfile
         String error_msg = null;
@@ -303,6 +302,9 @@ public class SEATSWorker extends Worker {
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
+        
+        if (LOG.isDebugEnabled())
+            LOG.debug("Initialized SEATSWorker:\n" + this.toString());
     }
 
     @Override
@@ -537,7 +539,7 @@ public class SEATSWorker extends Worker {
         tmp_reservations.clear();
         
         for (Object row[] : results) {
-            if (row == null || rng.nextInt(100) < 75) continue; // HACK
+            if (row == null) continue; //  || rng.nextInt(100) < 75) continue; // HACK
             Integer seatnum = (Integer)row[1];
           
             // We first try to get a CustomerId based at this departure airport
@@ -590,36 +592,40 @@ public class SEATSWorker extends Worker {
         LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
         assert(cache != null) : "Unexpected " + CacheType.PENDING_INSERTS;
         
-        if (LOG.isDebugEnabled()) LOG.debug(String.format("Attempting to get a new pending insert Reservation [totalPendingInserts=%d]",
-                                                 cache.size()));
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Attempting to get a new pending insert Reservation [totalPendingInserts=%d]",
+                                    cache.size()));
         while (reservation == null) {
-            Reservation r = null;
-//            CacheType.PENDING_INSERTS.lock.lock();
-            try {
-                r = cache.poll();
-            } finally {
-//                CacheType.PENDING_INSERTS.lock.unlock();
-            } // SYNCH
-            if (r == null) break;
+            Reservation r = cache.poll();
+            if (r == null) {
+                if (LOG.isDebugEnabled())
+                    LOG.warn("Unable to execute " + proc + " - No available reservations to insert");
+                break;
+            }
             
             seats = getSeatsBitSet(r.flight_id);
             
             if (isFlightFull(seats)) {
-                if (LOG.isDebugEnabled()) LOG.debug(String.format("%s is full", r.flight_id));
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("%s is full", r.flight_id));
                 continue;
             }
-            else if (seats.get(r.seatnum)) {
-                if (LOG.isDebugEnabled()) LOG.debug(String.format("Seat #%d on %s is already booked", r.seatnum, r.flight_id));
-                continue;
-            }
+            // PAVLO: Not sure why this is always coming back as reserved? 
+//            else if (seats.get(r.seatnum)) {
+//                if (LOG.isDebugEnabled())
+//                    LOG.debug(String.format("Seat #%d on %s is already booked", r.seatnum, r.flight_id));
+//                continue;
+//            }
             else if (isCustomerBookedOnFlight(r.customer_id, r.flight_id)) {
-                if (LOG.isDebugEnabled()) LOG.debug(String.format("%s is already booked on %s", r.customer_id, r.flight_id));
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("%s is already booked on %s", r.customer_id, r.flight_id));
                 continue;
             }
             reservation = r; 
         } // WHILE
         if (reservation == null) {
-            if (LOG.isDebugEnabled()) LOG.debug("Failed to find a valid pending insert Reservation\n" + this.toString());
+            if (LOG.isDebugEnabled())
+                LOG.warn("Failed to find a valid pending insert Reservation\n" + this.toString());
             return (false);
         }
         
