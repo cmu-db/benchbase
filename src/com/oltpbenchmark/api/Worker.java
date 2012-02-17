@@ -98,6 +98,8 @@ public abstract class Worker implements Runnable {
         return (T)(this.class_procedures.get(procClass));
     }
 
+    boolean seenDone = false;
+    
 	@Override
 	public final void run() {
 	    Thread t = Thread.currentThread();
@@ -114,7 +116,7 @@ public abstract class Worker implements Runnable {
 		testState.blockForStart();
 
 		// System.out.println(this + " start");
-		boolean seenDone = false;
+		
 		State state = testState.getState();
 		
 		TransactionType invalidTT = TransactionType.INVALID;
@@ -153,7 +155,7 @@ public abstract class Worker implements Runnable {
 			if (phase != null) type = doWork(measure, phase);
 			assert(type != null);
 			
-			if (measure) {
+			if (measure && type !=null) {
 				long end = System.nanoTime();
 				latencies.addLatency(type.getId(), start, end);
 			}
@@ -198,8 +200,9 @@ public abstract class Worker implements Runnable {
         	                break;
         	            case RETRY_DIFFERENT:
         	                this.txnRetry.put(next);
-        	                status = TransactionStatus.RETRY;
+        	                //status = TransactionStatus.RETRY;
         	                next = null;
+        	                continue;
         	            case RETRY:
         	                continue;
     	                default:
