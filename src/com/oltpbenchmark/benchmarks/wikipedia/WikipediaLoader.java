@@ -225,32 +225,35 @@ public class WikipediaLoader extends Loader {
         // Loading revisions
 
         Table catalog_tbl = this.getTableCatalog("text");
-        String textInsertSQL = "INSERT INTO text (old_text,old_flags,old_page) values (?,?,?)";
+        String textInsertSQL = "INSERT INTO " + catalog_tbl.getEscapedName() +
+                               " (old_text,old_flags,old_page) values (?,?,?)";
         PreparedStatement textInsert = null;
         
         catalog_tbl = this.getTableCatalog("revision");
-        String revisionInsertSQL = "INSERT INTO revision " +
-                                   "(rev_page,rev_text_id,rev_comment,rev_user,rev_user_text,rev_timestamp,rev_minor_edit,rev_deleted,rev_len,rev_parent_id) " +
+        String revisionInsertSQL = "INSERT INTO " + catalog_tbl.getEscapedName() +
+                                   " (rev_page,rev_text_id,rev_comment,rev_user,rev_user_text,rev_timestamp,rev_minor_edit,rev_deleted,rev_len,rev_parent_id) " +
                                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement revisionInsert = null;
         
         if (this.getDatabaseType() == DatabaseType.POSTGRES) {
             // HACK
-            textInsertSQL += " ;  SELECT currval('text_old_id_seq')";
-            revisionInsertSQL += " ;  SELECT currval('revision_rev_id_seq')";
+            textInsertSQL += " ; SELECT currval('text_old_id_seq')";
+            revisionInsertSQL += " ; SELECT currval('revision_rev_id_seq')";
             
             textInsert = this.conn.prepareStatement(textInsertSQL);
             revisionInsert = this.conn.prepareStatement(revisionInsertSQL);
-            
         } else {
             textInsert = this.conn.prepareStatement(textInsertSQL, new int[]{ 1 });
             revisionInsert = this.conn.prepareStatement(revisionInsertSQL, new int[] { 1 });
         }
 
-        String updatePageSql = "UPDATE page SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
+        catalog_tbl = this.getTableCatalog("page");
+        String updatePageSql = "UPDATE " + catalog_tbl.getEscapedName() +
+                               " SET page_latest = ?, page_touched = '" + LoaderUtil.getCurrentTime14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
 
         catalog_tbl = this.getTableCatalog("user");
-        String updateUserSql = "UPDATE " + catalog_tbl.getEscapedName() + " SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
+        String updateUserSql = "UPDATE " + catalog_tbl.getEscapedName() + 
+                               " SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
         PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
         PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
 
@@ -276,14 +279,16 @@ public class WikipediaLoader extends Loader {
                 textInsert.setString(1, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt())); // old_text
                 textInsert.setString(2, "utf-8"); // old_flags
                 textInsert.setInt(3, page_id); // old_page
-                textInsert.executeUpdate();
+                textInsert.execute();
                 
                 // POSTGRES
                 // We can't use the auto-generated keys here
                 if (this.getDatabaseType() == DatabaseType.POSTGRES) {
                     int nInserted = textInsert.getUpdateCount();
-                    if (nInserted == 1 && textInsert.getMoreResults())
-                        rs = textInsert.getResultSet();
+                    assert(nInserted == 1);
+                    boolean more = textInsert.getMoreResults();
+                    assert(more);
+                    rs = textInsert.getResultSet();
                 } else {
                     rs = textInsert.getGeneratedKeys();
                 }
@@ -310,8 +315,10 @@ public class WikipediaLoader extends Loader {
                 // We can't use the auto-generated keys here
                 if (this.getDatabaseType() == DatabaseType.POSTGRES) {
                     int nInserted = revisionInsert.getUpdateCount();
-                    if (nInserted == 1 && revisionInsert.getMoreResults())
-                        rs = textInsert.getResultSet();
+                    assert(nInserted == 1);
+                    boolean more = revisionInsert.getMoreResults();
+                    assert(more);
+                    rs = revisionInsert.getResultSet();
                 } else {
                     rs = revisionInsert.getGeneratedKeys();
                 }
