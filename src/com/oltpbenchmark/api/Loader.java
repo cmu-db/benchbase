@@ -25,6 +25,7 @@ import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
 
 /**
  * 
@@ -49,6 +50,10 @@ public abstract class Loader {
     	this.conn = conn;
     	this.workConf = benchmark.getWorkloadConfiguration();
     	this.scaleFactor = workConf.getScaleFactor();
+    }
+    
+    public DatabaseType getDatabaseType() {
+        return (this.workConf.getDBType());
     }
     
     /**

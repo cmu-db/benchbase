@@ -3,12 +3,11 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,6 +18,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 
 public class WikipediaLoader extends Loader {
@@ -46,15 +46,12 @@ public class WikipediaLoader extends Loader {
     @Override
     public void load() {
         try {
-
-            LoadUsers();
-            LoadPages();
-            LoadWatchlist();
-            genTrace(this.workConf.getXmlConfig().getInt("traceOut", 0));
-            LoadRevision();
-
+            this.LoadUsers();
+            this.LoadPages();
+            this.LoadWatchlist();
+            this.genTrace(this.workConf.getXmlConfig().getInt("traceOut", 0));
+            this.LoadRevision();
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -65,60 +62,66 @@ public class WikipediaLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog("user");
         assert (catalog_tbl != null);
         String sql = "INSERT INTO "+catalog_tbl.getEscapedName()+" (user_name,user_real_name,user_password,user_newpassword,user_newpass_time," +
-        		"user_email,user_options,user_touched,user_token,user_email_authenticated" +
-        		",user_email_token,user_email_token_expires,user_registration,user_editcount) " +
-        		" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        
+                     "user_email,user_options,user_touched,user_token,user_email_authenticated" +
+                     ",user_email_token,user_email_token_expires,user_registration,user_editcount) " +
+                     " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
 
-        int k = 1;
-        for (int i = 0; i < num_users; i++) {
+        int batch_size = 0;
+        try {
+        for (int i = 0; i < this.num_users; i++) {
             String name = LoaderUtil.randomStr(WikipediaConstants.NAME);
-            userInsert.setString(1, name); // name
-            userInsert.setString(2, name); // real_name
-            userInsert.setString(3, "***"); // password
-            userInsert.setString(4, "***"); // password2
-            userInsert.setString(5, LoaderUtil.getCurrentTime14()); // new_pass
+            int col = 1;
+            userInsert.setString(col++, name);                  // name
+            userInsert.setString(col++, name);                  // real_name
+            userInsert.setString(col++, "***");                 // password
+            userInsert.setString(col++, "***");                 // password2
+            userInsert.setString(col++, LoaderUtil.getCurrentTime14()); // new_pass
                                                                     // time
-            userInsert.setString(6, "fake_email@test.me"); // user_email
-            userInsert.setString(7, "fake_longoptionslist"); // user_options
-            userInsert.setString(8, LoaderUtil.getCurrentTime14()); // user_touched
-            userInsert.setString(9, LoaderUtil.randomStr(WikipediaConstants.TOKEN)); // user_token
-            userInsert.setNull(10, java.sql.Types.VARCHAR); // user_email_authenticated
-            userInsert.setNull(11, java.sql.Types.VARCHAR); // user_email_token
-            userInsert.setNull(12, java.sql.Types.VARCHAR); // user_email_token_expires
-            userInsert.setNull(13, java.sql.Types.VARCHAR); // user_registration
-            userInsert.setInt(14, 0); // user_editcount
+            userInsert.setString(col++, "fake_email@test.me"); // user_email
+            userInsert.setString(col++, "fake_longoptionslist"); // user_options
+            userInsert.setString(col++, LoaderUtil.getCurrentTime14()); // user_touched
+            userInsert.setString(col++, LoaderUtil.randomStr(WikipediaConstants.TOKEN)); // user_token
+            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_authenticated
+            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_token
+            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_token_expires
+            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_registration
+            userInsert.setInt(col++, 0); // user_editcount
             userInsert.addBatch();
-            if ((k % 100) == 0) {
+            
+            if ((++batch_size % 100) == 0) {
                 userInsert.executeBatch();
-                conn.commit();
+                this.conn.commit();
                 userInsert.clearBatch();
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Users  % " + k);
+                batch_size = 0;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Users  % " + i);
+                }
             }
-            k++;
+        } // FOR
+        if (batch_size > 0) {
+            userInsert.executeBatch();
+            this.conn.commit();
+            userInsert.clearBatch();
         }
-        userInsert.executeBatch();
-        conn.commit();
-        userInsert.clearBatch();
-        if (LOG.isDebugEnabled())
-            LOG.debug("Users  % " + k);
-        if (LOG.isDebugEnabled())
-            LOG.debug("Users loaded");
+        } catch (BatchUpdateException ex) {
+            ex.getNextException().printStackTrace();
+            throw ex;
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Users  % " + this.num_users);
+        }
     }
 
     private void LoadPages() throws SQLException {
-
         String sql = "INSERT INTO page (page_namespace,page_title,page_restrictions," +
-        		"page_counter,page_is_redirect,page_is_new,page_random,page_touched," +
-        		"page_latest,page_len) VALUES (?,?,?,?,?,?,?,?,?,?)";
+                     "page_counter,page_is_redirect,page_is_new,page_random,page_touched," +
+                     "page_latest,page_len) VALUES (?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pageInsert = this.conn.prepareStatement(sql);
-        
-        //
-        int k = 1;
+
+        int batch_size = 0;
         ZipfianGenerator ns = new ZipfianGenerator(WikipediaConstants.NAMESPACES);
-        for (int i = 0; i < num_pages; i++) {
+        for (int i = 0; i < this.num_pages; i++) {
             int namespace = ns.nextInt();
             String title = LoaderUtil.randomStr(WikipediaConstants.TITLE);
             pageInsert.setInt(1, namespace); // page_namespace
@@ -132,37 +135,39 @@ public class WikipediaLoader extends Loader {
             pageInsert.setInt(9, 0); // page_latest
             pageInsert.setInt(10, 0); // page_len
             pageInsert.addBatch();
-            titles.add(namespace + " " + title);
-            if ((k % 100) == 0) {
+            this.titles.add(namespace + " " + title);
+            
+            if ((++batch_size % 100) == 0) {
                 pageInsert.executeBatch();
-                conn.commit();
+                this.conn.commit();
                 pageInsert.clearBatch();
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Page  % " + k);
+                batch_size = 0;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Page  % " + batch_size);
+                }
             }
-            k++;
+        } // FOR
+        if (batch_size > 0) {
+            pageInsert.executeBatch();
+            this.conn.commit();
+            pageInsert.clearBatch();
         }
-        pageInsert.executeBatch();
-        conn.commit();
-        pageInsert.clearBatch();
-        if (LOG.isDebugEnabled())
-            LOG.debug("Page  % " + k);
-        if (LOG.isDebugEnabled())
-            LOG.debug("Pages loaded");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Page  % " + batch_size);
+        }
     }
 
     private void LoadWatchlist() throws SQLException {
-        
-        final PreparedStatement watchInsert = this.conn.prepareStatement("INSERT INTO watchlist values (?,?,?,?)");
-
-        int total = 1;
-        int batchSize = 0;
+        Table catalog_tbl = this.getTableCatalog("watchlist");
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        final PreparedStatement watchInsert = this.conn.prepareStatement(sql);
 
         ZipfianGenerator zipPages = new ZipfianGenerator(this.num_pages);
 
+        int batchSize = 0;
         for (int user_id = 0; user_id < this.num_users; user_id++) {
             int page = zipPages.nextInt();
-            String url[] = titles.get(page).split(" ");
+            String url[] = this.titles.get(page).split(" ");
 
             watchInsert.setInt(1, user_id); // wl_user
             watchInsert.setInt(2, Integer.parseInt(url[0])); // wl_namespace
@@ -170,97 +175,123 @@ public class WikipediaLoader extends Loader {
             watchInsert.setNull(4, java.sql.Types.VARCHAR); // wl_notificationtimestamp
             watchInsert.addBatch();
 
-            total++;
-            batchSize++;
-
-            if ((batchSize % WikipediaConstants.configCommitCount) == 0) {
+            if ((++batchSize % WikipediaConstants.configCommitCount) == 0) {
                 watchInsert.executeBatch();
-                conn.commit();
+                this.conn.commit();
                 watchInsert.clearBatch();
                 watchInsert.clearBatch();
                 batchSize = 0;
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Watchlist  % " + (int) (((double) user_id / (double) this.num_users) * 100));
+                }
             }
         } // FOR
         if (batchSize > 0) {
             watchInsert.executeBatch();
             watchInsert.executeBatch();
-            conn.commit();
+            this.conn.commit();
         }
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Watchlist Loaded");
+        }
     }
 
     private void genTrace(int trace) {
-        if (trace == 0)
+        if (trace == 0) {
             return;
-        assert (num_pages == titles.size());
-        ZipfianGenerator pages = new ZipfianGenerator(num_pages);
+        }
+        assert (this.num_pages == this.titles.size());
+        ZipfianGenerator pages = new ZipfianGenerator(this.num_pages);
         Random users = new Random(System.currentTimeMillis());
         try {
             LOG.info("Generating a " + trace + "k trace into > wikipedia-" + trace + "k.trace");
             PrintStream ps = new PrintStream(new File("wikipedia-" + trace + "k.trace"));
             for (int i = 0; i < trace * 1000; i++) {
-                int user_id = users.nextInt(num_users);
+                int user_id = users.nextInt(this.num_users);
                 // lets 10% be unauthenticated users
-                if (user_id % 10 == 0)
+                if (user_id % 10 == 0) {
                     user_id = 0;
-                String title = titles.get(pages.nextInt());
+                }
+                String title = this.titles.get(pages.nextInt());
                 ps.println(user_id + " " + title);
             }
             ps.close();
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            LOG.info("Generating the trace failed - " + e.getMessage());
+            throw new RuntimeException("Generating the trace failed", e);
         }
     }
 
     private void LoadRevision() throws SQLException {
         // Loading revisions
-  
-        PreparedStatement textInsert = this.conn.prepareStatement("INSERT INTO text (old_text,old_flags,old_page) values (?,?,?)", new int[]{1});
+
+        Table catalog_tbl = this.getTableCatalog("text");
+        String textInsertSQL = "INSERT INTO text (old_text,old_flags,old_page) values (?,?,?)";
+        PreparedStatement textInsert = null;
         
-        PreparedStatement revisionInsert = this.conn.prepareStatement("INSERT INTO revision " +
-        		"(rev_page,rev_text_id,rev_comment,rev_user,rev_user_text,rev_timestamp,rev_minor_edit,rev_deleted,rev_len,rev_parent_id) " +
-        		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", new int[]{1});
+        catalog_tbl = this.getTableCatalog("revision");
+        String revisionInsertSQL = "INSERT INTO revision " +
+                                   "(rev_page,rev_text_id,rev_comment,rev_user,rev_user_text,rev_timestamp,rev_minor_edit,rev_deleted,rev_len,rev_parent_id) " +
+                                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement revisionInsert = null;
+        
+        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+            // HACK
+            textInsertSQL += " ;  SELECT currval('text_old_id_seq')";
+            revisionInsertSQL += " ;  SELECT currval('revision_rev_id_seq')";
+            
+            textInsert = this.conn.prepareStatement(textInsertSQL);
+            revisionInsert = this.conn.prepareStatement(revisionInsertSQL);
+            
+        } else {
+            textInsert = this.conn.prepareStatement(textInsertSQL, new int[]{ 1 });
+            revisionInsert = this.conn.prepareStatement(revisionInsertSQL, new int[] { 1 });
+        }
 
         String updatePageSql = "UPDATE page SET page_latest = ? , page_touched = '" + LoaderUtil.getCurrentTime14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
-        
-        Table catalog_tbl = this.getTableCatalog("user");
-        String updateUserSql = "UPDATE "+catalog_tbl.getEscapedName()+" SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
+
+        catalog_tbl = this.getTableCatalog("user");
+        String updateUserSql = "UPDATE " + catalog_tbl.getEscapedName() + " SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
         PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
         PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
 
-        //
-        int k = 1;
+        int batchSize = 1;
         ZipfianGenerator text_size = new ZipfianGenerator(100);
-        ZipfianGenerator users = new ZipfianGenerator(num_users);
-        ZipfianGenerator revisions = new ZipfianGenerator(num_revisions, 1.75);
-        for (int page_id = 1; page_id <= num_pages; page_id++) {
+        ZipfianGenerator users = new ZipfianGenerator(this.num_users);
+        Random rand = new Random(); // FIXME
+        ZipfianGenerator revisions = new ZipfianGenerator(this.num_revisions, 1.75);
+        ResultSet rs = null;
+        
+        for (int page_id = 1; page_id <= this.num_pages; page_id++) {
             int revised = revisions.nextInt();
-            if (revised == 0)
+            if (revised == 0) {
                 revised = 1; // unsure at least one revision by page
+            }
             for (int i = 0; i < revised; i++) {
-                // Generate the User who's doing the revision and the Page
-                // revised
+                // Generate the User who's doing the revision and the Page revised
                 int user_id = users.nextInt();
-                String new_text = LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
-                String rev_comment = LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, new Random()));
+                String new_text = LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, rand));
+                String rev_comment = LoaderUtil.randomStr(LoaderUtil.randomNumber(20, 255, rand));
 
                 // Insert the text
                 textInsert.setString(1, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt())); // old_text
                 textInsert.setString(2, "utf-8"); // old_flags
                 textInsert.setInt(3, page_id); // old_page
                 textInsert.executeUpdate();
-                ResultSet rs = textInsert.getGeneratedKeys();
-                int nextTextId=0;
-                if (rs.next()) {
-                    nextTextId = rs.getInt(1);
+                
+                // POSTGRES
+                // We can't use the auto-generated keys here
+                if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+                    int nInserted = textInsert.getUpdateCount();
+                    if (nInserted == 1 && textInsert.getMoreResults())
+                        rs = textInsert.getResultSet();
                 } else {
-                    conn.rollback();
-                    throw new RuntimeException("Problem inserting new tupels in table `text`");
+                    rs = textInsert.getGeneratedKeys();
                 }
+                if (rs.next() == false) {
+                    this.conn.rollback();
+                    throw new RuntimeException("Problem inserting new tuples in table `text`");
+                }
+                int nextTextId = rs.getInt(1);
 
                 // Insert the revision
                 revisionInsert.setInt(1, page_id); // rev_page
@@ -275,14 +306,20 @@ public class WikipediaLoader extends Loader {
                 revisionInsert.setInt(10, 0); // rev_parent_id
                 revisionInsert.execute();
 
-                int nextRevID = 0;
-                rs = revisionInsert.getGeneratedKeys();
-                if (rs.next()) {
-                    nextRevID = rs.getInt(1);
+                // POSTGRES
+                // We can't use the auto-generated keys here
+                if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+                    int nInserted = revisionInsert.getUpdateCount();
+                    if (nInserted == 1 && revisionInsert.getMoreResults())
+                        rs = textInsert.getResultSet();
                 } else {
-                    conn.rollback();
+                    rs = revisionInsert.getGeneratedKeys();
+                }
+                if (rs.next() == false) {
+                    this.conn.rollback();
                     throw new RuntimeException("Problem inserting new tupels in table `revision`");
                 }
+                int nextRevID = rs.getInt(1);
 
                 pageUpdate.setInt(1, nextRevID);
                 pageUpdate.setInt(2, new_text.length());
@@ -292,22 +329,28 @@ public class WikipediaLoader extends Loader {
                 userUpdate.setInt(1, user_id);
                 userUpdate.addBatch();
 
-                if ((k % WikipediaConstants.configCommitCount) == 0) {
+                if ((++batchSize % WikipediaConstants.configCommitCount) == 0) {
                     pageUpdate.executeBatch();
-                    conn.commit();
+                    this.conn.commit();
                     pageUpdate.clearBatch();
-                    if (LOG.isDebugEnabled())
-                        LOG.debug("Revisions made # " + k + " - Pages revised % " + page_id + "/" + num_pages);
+                    batchSize = 0;
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Revisions made # " + batchSize + " - Pages revised % " + page_id + "/" + this.num_pages);
+                    }
                 }
-                k++;
+            }
+        } // FOR
+        if (batchSize > 0) {
+            pageUpdate.executeBatch();
+            this.conn.commit();
+            pageUpdate.clearBatch();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Revisions made # " + batchSize + " - Pages revised % " + this.num_pages + "/" + this.num_pages);
             }
         }
 
-        pageUpdate.executeBatch();
-        if (LOG.isDebugEnabled())  
-            LOG.debug("Revisions made # " + k + " - Pages revised % " + num_pages + "/" + num_pages);
-        pageUpdate.clearBatch();
-        if (LOG.isDebugEnabled())  
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Revision loaded");
+        }
     }
 }

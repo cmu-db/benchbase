@@ -7,6 +7,8 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -191,35 +193,46 @@ public abstract class SQLUtil {
      * @param batchSize
      * @return
      */
-    public static String getInsertSQL(Table catalog_tbl, int batchSize) {
+    public static String getInsertSQL(Table catalog_tbl, int batchSize, int...exclude_columns) {
+        return getInsertSQL(catalog_tbl, false, batchSize, exclude_columns);
+    }
+    
+    public static String getInsertSQL(Table catalog_tbl, boolean show_cols, int batchSize, int...exclude_columns) {
     	StringBuilder sb = new StringBuilder();
     	sb.append("INSERT INTO ")
     	  .append(catalog_tbl.getEscapedName());
     	
-    	StringBuilder inner = new StringBuilder();
+    	StringBuilder values = new StringBuilder();
     	boolean first;
     	
     	// Column Names
     	// XXX: Disabled because of case issues with HSQLDB
-//    	sb.append(" (");
+    	if (show_cols) sb.append(" (");
     	first = true;
+    	
+    	// These are the column offset that we want to exclude
+    	Set<Integer> excluded = new HashSet<Integer>();
+    	for (int ex : exclude_columns)
+    	    excluded.add(ex);
+    	
     	for (Column catalog_col : catalog_tbl.getColumns()) {
+    	    if (excluded.contains(catalog_col.getIndex())) continue;
     		if (first == false) {
-//    			sb.append(", ");
-    			inner.append(", ");
+    			if (show_cols) sb.append(", ");
+    			values.append(", ");
     		}
-//    		sb.append(catalog_col.getName());
-    		inner.append("?");
+    		if (show_cols) sb.append(catalog_col.getEscapedName());
+    		values.append("?");
     		first = false;
     	} // FOR
-//    	sb.append(")");
+    	if (show_cols) sb.append(")");
     	
     	// Values
     	sb.append(" VALUES ");
     	first = true;
     	for (int i = 0; i < batchSize; i++) {
     		if (first == false) sb.append(", ");
-    		sb.append("(").append(inner.toString()).append(")");
+    		sb.append("(").append(values.toString()).append(")");
     	} // FOR
 //    	sb.append(";");
     	
