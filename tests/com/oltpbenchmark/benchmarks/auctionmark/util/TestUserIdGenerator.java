@@ -56,8 +56,8 @@ public class TestUserIdGenerator extends TestCase {
     private static final RandomGenerator rand = new RandomGenerator((int)System.currentTimeMillis());
     
     private static final Zipf randomNumItems = new Zipf(rand,
-            AuctionMarkConstants.ITEM_MIN_ITEMS_PER_SELLER,
-            AuctionMarkConstants.ITEM_MAX_ITEMS_PER_SELLER,
+            AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN,
+            AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MAX,
             1.0001);
     
     private final Histogram<Long> users_per_item_count = new Histogram<Long>();

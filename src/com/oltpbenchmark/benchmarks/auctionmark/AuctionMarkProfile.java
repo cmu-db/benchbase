@@ -224,22 +224,22 @@ public class AuctionMarkProfile {
         this.data_directory = benchmark.getDataDir();
 
         this.randomInitialPrice = new Zipf(this.rng,
-                AuctionMarkConstants.ITEM_MIN_INITIAL_PRICE,
-                AuctionMarkConstants.ITEM_MAX_INITIAL_PRICE,
+                AuctionMarkConstants.ITEM_INITIAL_PRICE_MIN,
+                AuctionMarkConstants.ITEM_INITIAL_PRICE_MAX,
                 AuctionMarkConstants.ITEM_INITIAL_PRICE_SIGMA);
         
         // Random time difference in a second scale
         this.randomTimeDiff = new Gaussian(this.rng,
                 AuctionMarkConstants.ITEM_PRESERVE_DAYS * 24 * 60 * 60 * -1,
-                AuctionMarkConstants.ITEM_MAX_DURATION_DAYS * 24 * 60 * 60);
+                AuctionMarkConstants.ITEM_DURATION_DAYS_MAX * 24 * 60 * 60);
         
         this.randomDuration = new Gaussian(this.rng,
-                AuctionMarkConstants.ITEM_MIN_DURATION_DAYS,
-                AuctionMarkConstants.ITEM_MAX_DURATION_DAYS);
+                AuctionMarkConstants.ITEM_DURATION_DAYS_MIN,
+                AuctionMarkConstants.ITEM_DURATION_DAYS_MAX);
         
         this.randomPurchaseDuration = new Zipf(this.rng,
-                AuctionMarkConstants.ITEM_MIN_PURCHASE_DURATION_DAYS,
-                AuctionMarkConstants.ITEM_MAX_PURCHASE_DURATION_DAYS,
+                AuctionMarkConstants.ITEM_PURCHASE_DURATION_DAYS_MIN,
+                AuctionMarkConstants.ITEM_PURCHASE_DURATION_DAYS_MAX,
                 AuctionMarkConstants.ITEM_PURCHASE_DURATION_DAYS_SIGMA);
         
         this.randomNumImages = new Zipf(this.rng,
@@ -248,13 +248,13 @@ public class AuctionMarkProfile {
                 AuctionMarkConstants.ITEM_NUM_IMAGES_SIGMA);
         
         this.randomNumAttributes = new Zipf(this.rng,
-                AuctionMarkConstants.ITEM_MIN_GLOBAL_ATTRS,
-                AuctionMarkConstants.ITEM_MAX_GLOBAL_ATTRS,
+                AuctionMarkConstants.ITEM_NUM_GLOBAL_ATTRS_MIN,
+                AuctionMarkConstants.ITEM_NUM_GLOBAL_ATTRS_MAX,
                 AuctionMarkConstants.ITEM_NUM_GLOBAL_ATTRS_SIGMA);
         
         this.randomNumComments = new Zipf(this.rng,
-                AuctionMarkConstants.ITEM_MIN_COMMENTS,
-                AuctionMarkConstants.ITEM_MAX_COMMENTS,
+                AuctionMarkConstants.ITEM_NUM_COMMENTS_MIN,
+                AuctionMarkConstants.ITEM_NUM_COMMENTS_MAX,
                 AuctionMarkConstants.ITEM_NUM_COMMENTS_SIGMA);
 
         LOG.debug("AuctionMarkBenchmarkProfile :: constructor");

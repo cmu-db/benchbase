@@ -868,11 +868,11 @@ public class AuctionMarkLoader extends Loader {
             // Populate the profile's users per item count histogram so that we know how many
             // items that each user should have. This will then be used to calculate the
             // the user ids by placing them into numeric ranges
-            int max_items = Math.max(1, (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_ITEMS_PER_SELLER * profile.getScaleFactor()));
+            int max_items = Math.max(1, (int)Math.ceil(AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MAX * profile.getScaleFactor()));
             assert(max_items > 0);
             LOG.debug("Max Items Per Seller: " + max_items);
             Zipf randomNumItems = new Zipf(profile.rng,
-                       AuctionMarkConstants.ITEM_MIN_ITEMS_PER_SELLER,
+                       AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN,
                        max_items,
                        AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_SIGMA);
             for (long i = 0; i < this.tableSize; i++) {
@@ -1000,12 +1000,12 @@ public class AuctionMarkLoader extends Loader {
             Pair<Zipf, Zipf> p = this.item_bid_watch_zipfs.get(bidDurationDay);
             if (p == null) {
                 Zipf randomNumBids = new Zipf(profile.rng,
-                        AuctionMarkConstants.ITEM_MIN_BIDS_PER_DAY * (int)bidDurationDay,
-                        AuctionMarkConstants.ITEM_MAX_BIDS_PER_DAY * (int)bidDurationDay,
+                        AuctionMarkConstants.ITEM_BIDS_PER_DAY_MIN * (int)bidDurationDay,
+                        AuctionMarkConstants.ITEM_BIDS_PER_DAY_MAX * (int)bidDurationDay,
                         AuctionMarkConstants.ITEM_BIDS_PER_DAY_SIGMA);
                 Zipf randomNumWatches = new Zipf(profile.rng,
-                        AuctionMarkConstants.ITEM_MIN_WATCHES_PER_DAY * (int)bidDurationDay,
-                        AuctionMarkConstants.ITEM_MAX_WATCHES_PER_DAY * (int)bidDurationDay,
+                        AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MIN * (int)bidDurationDay,
+                        AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MAX * (int)bidDurationDay,
                         AuctionMarkConstants.ITEM_WATCHES_PER_DAY_SIGMA);
                 p = Pair.of(randomNumBids, randomNumWatches);
                 this.item_bid_watch_zipfs.put(bidDurationDay, p);
@@ -1320,13 +1320,13 @@ public class AuctionMarkLoader extends Loader {
     }
 
     /**********************************************************************************************
-     * ITEM_MAX_BID Generator
+     * ITEM_BID_MAX Generator
      **********************************************************************************************/
     protected class ItemMaxBidGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public ItemMaxBidGenerator() {
             super(AuctionMarkConstants.TABLENAME_ITEM_MAX_BID,
-                AuctionMarkConstants.TABLENAME_ITEM_BID);
+                 AuctionMarkConstants.TABLENAME_ITEM_BID);
         }
         @Override
         public short getElementCounter(LoaderItemInfo itemInfo) {

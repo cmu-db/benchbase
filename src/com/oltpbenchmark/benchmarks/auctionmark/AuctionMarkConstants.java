@@ -130,32 +130,32 @@ public abstract class AuctionMarkConstants {
     // ITEM PARAMETERS
     // ----------------------------------------------------------------
     
-    public static final int ITEM_MIN_INITIAL_PRICE = 1;
-    public static final int ITEM_MAX_INITIAL_PRICE = 1000;
+    public static final int ITEM_INITIAL_PRICE_MIN = 1;
+    public static final int ITEM_INITIAL_PRICE_MAX = 1000;
     public static final double ITEM_INITIAL_PRICE_SIGMA = 1.25;
     
-    public static final int ITEM_MIN_ITEMS_PER_SELLER = 0;
-    public static final int ITEM_MAX_ITEMS_PER_SELLER = 1000;
+    public static final int ITEM_ITEMS_PER_SELLER_MIN = 0;
+    public static final int ITEM_ITEMS_PER_SELLER_MAX = 1000;
     public static final double ITEM_ITEMS_PER_SELLER_SIGMA = 2.0;
     
-    public static final int ITEM_MIN_BIDS_PER_DAY = 0;
-    public static final int ITEM_MAX_BIDS_PER_DAY = 10;
+    public static final int ITEM_BIDS_PER_DAY_MIN = 0;
+    public static final int ITEM_BIDS_PER_DAY_MAX = 10;
     public static final double ITEM_BIDS_PER_DAY_SIGMA = 1.25;
     
-    public static final int ITEM_MIN_WATCHES_PER_DAY = 0;
-    public static final int ITEM_MAX_WATCHES_PER_DAY = 5;
+    public static final int ITEM_WATCHES_PER_DAY_MIN = 0;
+    public static final int ITEM_WATCHES_PER_DAY_MAX = 5;
     public static final double ITEM_WATCHES_PER_DAY_SIGMA = 1.25;
     
     public static final int ITEM_NUM_IMAGES_MIN = 1;
     public static final int ITEM_NUM_IMAGES_MAX = 10;
     public static final double ITEM_NUM_IMAGES_SIGMA = 1.25;
     
-    public static final int ITEM_MIN_COMMENTS = 0;
-    public static final int ITEM_MAX_COMMENTS = 5;
+    public static final int ITEM_NUM_COMMENTS_MIN = 0;
+    public static final int ITEM_NUM_COMMENTS_MAX = 5;
     public static final double ITEM_NUM_COMMENTS_SIGMA = 5;
     
-    public static final int ITEM_MIN_GLOBAL_ATTRS = 1;
-    public static final int ITEM_MAX_GLOBAL_ATTRS = 10;
+    public static final int ITEM_NUM_GLOBAL_ATTRS_MIN = 1;
+    public static final int ITEM_NUM_GLOBAL_ATTRS_MAX = 10;
     public static final double ITEM_NUM_GLOBAL_ATTRS_SIGMA = 10;
 
     public static final int ITEM_NAME_LENGTH_MIN = 16;
@@ -174,17 +174,17 @@ public abstract class AuctionMarkConstants {
     public static final float ITEM_BID_PERCENT_STEP = 0.025f;
     
     /** How long should we wait before the buyer purchases an item that they won */
-    public static final int ITEM_MIN_PURCHASE_DURATION_DAYS = 0;
-    public static final int ITEM_MAX_PURCHASE_DURATION_DAYS = 7;
+    public static final int ITEM_PURCHASE_DURATION_DAYS_MIN = 0;
+    public static final int ITEM_PURCHASE_DURATION_DAYS_MAX = 7;
     public static final double ITEM_PURCHASE_DURATION_DAYS_SIGMA = 1.1;
     
     /** Duration in days that expired bids are preserved */
     public static final int ITEM_PRESERVE_DAYS = 7;
     
     /** The duration in days for each auction */
-    public static final int ITEM_MIN_DURATION_DAYS = 1;
-    public static final int ITEM_MAX_DURATION_DAYS = 10;
-    public static final int ITEM_MAX_PURCHASE_DAY = 7;
+    public static final int ITEM_DURATION_DAYS_MIN = 1;
+    public static final int ITEM_DURATION_DAYS_MAX = 10;
+    public static final int ITEM_PURCHASE_DAY_MAX = 7;
     
     /**
      * This defines the maximum size of a small cache of ItemIds that
