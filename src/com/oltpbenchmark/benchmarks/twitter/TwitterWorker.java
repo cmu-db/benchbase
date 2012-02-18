@@ -34,30 +34,31 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets;
 import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
 import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
+import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
 public class TwitterWorker extends Worker {
     private TransactionGenerator<TwitterOperation> generator;
 
-    // TODO: make the next parameters of WorkLoadConfiguration
-    public static int LIMIT_TWEETS = 100;
-    public static int LIMIT_TWEETS_FOR_UID = 10;
-    public static int LIMIT_FOLLOWERS = 20;
-
     private final FlatHistogram<Integer> tweet_len_rng;
+    private final int num_users;
+    private final Random random = new Random(); // FIXME
     
     public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
         super(benchmarkModule, id);
         this.generator = generator;
+        this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.benchmarkModule.getWorkloadConfiguration().getScaleFactor());
         
         TweetHistogram tweet_h = new TweetHistogram();
-        this.tweet_len_rng = new FlatHistogram<Integer>(new Random(), tweet_h);
+        this.tweet_len_rng = new FlatHistogram<Integer>(this.random, tweet_h);
     }
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         TwitterOperation t = generator.nextTransaction();
+        t.uid = this.random.nextInt(this.num_users); // HACK
+        
         if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
             doSelect1Tweet(t.tweetid);
         } else if (nextTrans.getProcedureClass().equals(GetTweetsFromFollowing.class)) {
@@ -103,6 +104,13 @@ public class TwitterWorker extends Worker {
         InsertTweet proc = this.getProcedure(InsertTweet.class);
         assert (proc != null);
         Time time = new Time(System.currentTimeMillis());
-        proc.run(conn, uid, text, time);
+        try {
+            proc.run(conn, uid, text, time);
+        } catch (SQLException ex) {
+            System.err.println("uid=" + uid);
+            System.err.println("text=" + text);
+            System.err.println("time=" + time);
+            throw ex;
+        }
     }
 }

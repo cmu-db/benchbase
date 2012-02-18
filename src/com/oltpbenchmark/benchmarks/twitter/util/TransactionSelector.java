@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.oltpbenchmark.api.TransactionTypes;
-import com.oltpbenchmark.benchmarks.twitter.TwitterOperation;
 
 import ch.ethz.ssh2.util.Tokenizer;
 

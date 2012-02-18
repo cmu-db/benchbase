@@ -34,6 +34,7 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 import com.oltpbenchmark.benchmarks.twitter.util.TraceTransactionGenerator;
 import com.oltpbenchmark.benchmarks.twitter.util.TransactionSelector;
+import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
 
 public class TwitterBenchmark extends BenchmarkModule {
 	

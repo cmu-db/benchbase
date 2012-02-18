@@ -27,19 +27,18 @@ import java.sql.SQLException;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.twitter.TwitterConstants;
-import com.oltpbenchmark.benchmarks.twitter.TwitterWorker;
 
 public class GetTweetsFromFollowing extends Procedure {
 
     public final SQLStmt getFollowing = new SQLStmt(
         "SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWS +
-        " WHERE f1 = ? LIMIT " + TwitterWorker.LIMIT_FOLLOWERS
+        " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS
     );
     
     /** NOTE: The ?? is substituted into a string of repeated ?'s */
     public final SQLStmt getTweets = new SQLStmt(
         "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS +
-        " WHERE uid IN (??)", TwitterWorker.LIMIT_FOLLOWERS
+        " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS
     );
     
     public ResultSet run(Connection conn, int uid) throws SQLException {
@@ -50,13 +49,13 @@ public class GetTweetsFromFollowing extends Procedure {
         stmt = this.getPreparedStatement(conn, getTweets);
         int ctr = 0;
         long last = -1;
-        while (rs.next() && ctr++ < TwitterWorker.LIMIT_FOLLOWERS) {
+        while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
             last = rs.getLong(1);
             stmt.setLong(ctr, last);
             
         } // WHILE
         if (ctr > 0) {
-            while (ctr++ < TwitterWorker.LIMIT_FOLLOWERS) {
+            while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
                 stmt.setLong(ctr, last);
             } // WHILE     
             return stmt.executeQuery();

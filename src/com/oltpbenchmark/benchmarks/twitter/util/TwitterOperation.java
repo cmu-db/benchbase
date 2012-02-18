@@ -18,7 +18,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.twitter;
+package com.oltpbenchmark.benchmarks.twitter.util;
 
 import com.oltpbenchmark.api.Operation;
 
@@ -26,7 +26,7 @@ import com.oltpbenchmark.api.Operation;
 public final class TwitterOperation extends Operation {
 	
 	public final int tweetid;
-	public final int uid;
+	public int uid;
 	public TwitterOperation(int tweetid, int uid) {
 		super();
 		this.tweetid = tweetid;
