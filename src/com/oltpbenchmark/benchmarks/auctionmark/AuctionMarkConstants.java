@@ -152,11 +152,14 @@ public abstract class AuctionMarkConstants {
     
     public static final int ITEM_NUM_COMMENTS_MIN = 0;
     public static final int ITEM_NUM_COMMENTS_MAX = 5;
-    public static final double ITEM_NUM_COMMENTS_SIGMA = 5;
+    public static final double ITEM_NUM_COMMENTS_SIGMA = 1.25;
+    
+    public static final int ITEM_COMMENT_LENGTH_MIN = 10;
+    public static final int ITEM_COMMENT_LENGTH_MAX = 128;
     
     public static final int ITEM_NUM_GLOBAL_ATTRS_MIN = 1;
     public static final int ITEM_NUM_GLOBAL_ATTRS_MAX = 10;
-    public static final double ITEM_NUM_GLOBAL_ATTRS_SIGMA = 10;
+    public static final double ITEM_NUM_GLOBAL_ATTRS_SIGMA = 1.25;
 
     public static final int ITEM_NAME_LENGTH_MIN = 16;
     public static final int ITEM_NAME_LENGTH_MAX = 100;
@@ -166,25 +169,30 @@ public abstract class AuctionMarkConstants {
     
     public static final int ITEM_USER_ATTRIBUTES_LENGTH_MIN = 20;
     public static final int ITEM_USER_ATTRIBUTES_LENGTH_MAX = 255;
+
     
-    public static final int ITEM_COMMENT_LENGTH_MIN = 10;
-    public static final int ITEM_COMMENT_LENGTH_MAX = 128;
-    
-    /** When an item receives a bid we will increase its price by this amount */
+    /**
+     * When an item receives a bid we will increase its price by this amount
+     */
     public static final float ITEM_BID_PERCENT_STEP = 0.025f;
     
-    /** How long should we wait before the buyer purchases an item that they won */
+    /**
+     * How long should we wait before the buyer purchases an item that they won
+     */
     public static final int ITEM_PURCHASE_DURATION_DAYS_MIN = 0;
     public static final int ITEM_PURCHASE_DURATION_DAYS_MAX = 7;
     public static final double ITEM_PURCHASE_DURATION_DAYS_SIGMA = 1.1;
     
-    /** Duration in days that expired bids are preserved */
+    /**
+     * Duration in days that expired bids are preserved
+     */
     public static final int ITEM_PRESERVE_DAYS = 7;
     
-    /** The duration in days for each auction */
+    /**
+     * The duration in days for each auction
+     */
     public static final int ITEM_DURATION_DAYS_MIN = 1;
     public static final int ITEM_DURATION_DAYS_MAX = 10;
-    public static final int ITEM_PURCHASE_DAY_MAX = 7;
     
     /**
      * This defines the maximum size of a small cache of ItemIds that
