@@ -872,14 +872,14 @@ public class AuctionMarkLoader extends Loader {
             assert(max_items > 0);
             LOG.debug("Max Items Per Seller: " + max_items);
             Zipf randomNumItems = new Zipf(profile.rng,
-                                           AuctionMarkConstants.ITEM_MIN_ITEMS_PER_SELLER,
-                                           max_items,
-                                           1.001);
+                       AuctionMarkConstants.ITEM_MIN_ITEMS_PER_SELLER,
+                       max_items,
+                       AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_SIGMA);
             for (long i = 0; i < this.tableSize; i++) {
                 long num_items = randomNumItems.nextInt();
                 profile.users_per_item_count.put(num_items);
             } // FOR
-            if (LOG.isDebugEnabled())
+             if (LOG.isDebugEnabled())
                 LOG.debug("Users Per Item Count:\n" + profile.users_per_item_count);
             this.idGenerator = new UserIdGenerator(profile.users_per_item_count, benchmark.getWorkloadConfiguration().getTerminals());
             assert(this.idGenerator.hasNext());
@@ -1001,12 +1001,12 @@ public class AuctionMarkLoader extends Loader {
             if (p == null) {
                 Zipf randomNumBids = new Zipf(profile.rng,
                         AuctionMarkConstants.ITEM_MIN_BIDS_PER_DAY * (int)bidDurationDay,
-                        (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_BIDS_PER_DAY * (int)bidDurationDay * profile.getScaleFactor()),
-                        1.001);
+                        AuctionMarkConstants.ITEM_MAX_BIDS_PER_DAY * (int)bidDurationDay,
+                        AuctionMarkConstants.ITEM_BIDS_PER_DAY_SIGMA);
                 Zipf randomNumWatches = new Zipf(profile.rng,
                         AuctionMarkConstants.ITEM_MIN_WATCHES_PER_DAY * (int)bidDurationDay,
-                        (int)Math.ceil(AuctionMarkConstants.ITEM_MAX_WATCHES_PER_DAY * (int)bidDurationDay * profile.getScaleFactor()),
-                        1.001);
+                        AuctionMarkConstants.ITEM_MAX_WATCHES_PER_DAY * (int)bidDurationDay,
+                        AuctionMarkConstants.ITEM_WATCHES_PER_DAY_SIGMA);
                 p = Pair.of(randomNumBids, randomNumWatches);
                 this.item_bid_watch_zipfs.put(bidDurationDay, p);
             }

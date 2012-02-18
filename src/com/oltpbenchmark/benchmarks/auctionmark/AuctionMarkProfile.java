@@ -223,23 +223,39 @@ public class AuctionMarkProfile {
         this.num_clients = benchmark.getWorkloadConfiguration().getTerminals();
         this.data_directory = benchmark.getDataDir();
 
-        this.randomInitialPrice = new Zipf(this.rng, AuctionMarkConstants.ITEM_MIN_INITIAL_PRICE,
-                                                     AuctionMarkConstants.ITEM_MAX_INITIAL_PRICE, 1.001);
+        this.randomInitialPrice = new Zipf(this.rng,
+                AuctionMarkConstants.ITEM_MIN_INITIAL_PRICE,
+                AuctionMarkConstants.ITEM_MAX_INITIAL_PRICE,
+                AuctionMarkConstants.ITEM_INITIAL_PRICE_SIGMA);
         
         // Random time difference in a second scale
-        this.randomTimeDiff = new Gaussian(this.rng, -AuctionMarkConstants.ITEM_PRESERVE_DAYS * 24 * 60 * 60,
-                                                     AuctionMarkConstants.ITEM_MAX_DURATION_DAYS * 24 * 60 * 60);
-        this.randomDuration = new Gaussian(this.rng, 1, AuctionMarkConstants.ITEM_MAX_DURATION_DAYS);
-        this.randomPurchaseDuration = new Zipf(this.rng, 0, AuctionMarkConstants.ITEM_MAX_PURCHASE_DURATION_DAYS, 1.001);
-        this.randomNumImages = new Zipf(this.rng,   AuctionMarkConstants.ITEM_MIN_IMAGES,
-                                                    AuctionMarkConstants.ITEM_MAX_IMAGES, 1.001);
-        this.randomNumAttributes = new Zipf(this.rng, AuctionMarkConstants.ITEM_MIN_GLOBAL_ATTRS,
-                                                    AuctionMarkConstants.ITEM_MAX_GLOBAL_ATTRS, 1.001);
-        this.randomNumComments = new Zipf(this.rng, AuctionMarkConstants.ITEM_MIN_COMMENTS,
-                                                    AuctionMarkConstants.ITEM_MAX_COMMENTS, 1.001);
-
+        this.randomTimeDiff = new Gaussian(this.rng,
+                AuctionMarkConstants.ITEM_PRESERVE_DAYS * 24 * 60 * 60 * -1,
+                AuctionMarkConstants.ITEM_MAX_DURATION_DAYS * 24 * 60 * 60);
         
-        // _lastUserId = this.getTableSize(AuctionMarkConstants.TABLENAME_USER);
+        this.randomDuration = new Gaussian(this.rng,
+                AuctionMarkConstants.ITEM_MIN_DURATION_DAYS,
+                AuctionMarkConstants.ITEM_MAX_DURATION_DAYS);
+        
+        this.randomPurchaseDuration = new Zipf(this.rng,
+                AuctionMarkConstants.ITEM_MIN_PURCHASE_DURATION_DAYS,
+                AuctionMarkConstants.ITEM_MAX_PURCHASE_DURATION_DAYS,
+                AuctionMarkConstants.ITEM_PURCHASE_DURATION_DAYS_SIGMA);
+        
+        this.randomNumImages = new Zipf(this.rng,
+                AuctionMarkConstants.ITEM_NUM_IMAGES_MIN,
+                AuctionMarkConstants.ITEM_NUM_IMAGES_MAX,
+                AuctionMarkConstants.ITEM_NUM_IMAGES_SIGMA);
+        
+        this.randomNumAttributes = new Zipf(this.rng,
+                AuctionMarkConstants.ITEM_MIN_GLOBAL_ATTRS,
+                AuctionMarkConstants.ITEM_MAX_GLOBAL_ATTRS,
+                AuctionMarkConstants.ITEM_NUM_GLOBAL_ATTRS_SIGMA);
+        
+        this.randomNumComments = new Zipf(this.rng,
+                AuctionMarkConstants.ITEM_MIN_COMMENTS,
+                AuctionMarkConstants.ITEM_MAX_COMMENTS,
+                AuctionMarkConstants.ITEM_NUM_COMMENTS_SIGMA);
 
         LOG.debug("AuctionMarkBenchmarkProfile :: constructor");
     }
