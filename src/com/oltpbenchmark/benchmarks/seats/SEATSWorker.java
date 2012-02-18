@@ -149,9 +149,9 @@ public class SEATSWorker extends Worker {
     protected final Map<CustomerId, Set<FlightId>> CACHE_CUSTOMER_BOOKED_FLIGHTS = new HashMap<CustomerId, Set<FlightId>>();
     protected final Map<FlightId, BitSet> CACHE_BOOKED_SEATS = new HashMap<FlightId, BitSet>();
 
-    private static final BitSet FULL_FLIGHT_BITSET = new BitSet(SEATSConstants.NUM_SEATS_PER_FLIGHT);
+    private static final BitSet FULL_FLIGHT_BITSET = new BitSet(SEATSConstants.FLIGHTS_NUM_SEATS);
     static {
-        for (int i = 0; i < SEATSConstants.NUM_SEATS_PER_FLIGHT; i++)
+        for (int i = 0; i < SEATSConstants.FLIGHTS_NUM_SEATS; i++)
             FULL_FLIGHT_BITSET.set(i);
     } // STATIC
     
@@ -161,7 +161,7 @@ public class SEATSWorker extends Worker {
 //            synchronized (CACHE_BOOKED_SEATS) {
                 seats = CACHE_BOOKED_SEATS.get(flight_id);
                 if (seats == null) {
-                    seats = new BitSet(SEATSConstants.NUM_SEATS_PER_FLIGHT);
+                    seats = new BitSet(SEATSConstants.FLIGHTS_NUM_SEATS);
                     CACHE_BOOKED_SEATS.put(flight_id, seats);
                 }
 //            } // SYNCH
@@ -240,7 +240,7 @@ public class SEATSWorker extends Worker {
             this.customer_id = customer_id;
             this.seatnum = seatnum;
             assert(this.seatnum >= 0) : "Invalid seat number\n" + this;
-            assert(this.seatnum < SEATSConstants.NUM_SEATS_PER_FLIGHT) : "Invalid seat number\n" + this;
+            assert(this.seatnum < SEATSConstants.FLIGHTS_NUM_SEATS) : "Invalid seat number\n" + this;
         }
         
         @Override
@@ -524,7 +524,7 @@ public class SEATSWorker extends Worker {
         conn.commit();
         
         int rowCount = results.length;
-        assert (rowCount <= SEATSConstants.NUM_SEATS_PER_FLIGHT) :
+        assert (rowCount <= SEATSConstants.FLIGHTS_NUM_SEATS) :
             String.format("Unexpected %d open seats returned for %s", rowCount, search_flight);
     
         // there is some tiny probability of an empty flight .. maybe 1/(20**150)
@@ -550,7 +550,7 @@ public class SEATSWorker extends Worker {
             // We will go for a random one if:
             //  (1) The Customer is already booked on this Flight
             //  (2) We already made a new Reservation just now for this Customer
-            int tries = SEATSConstants.NUM_SEATS_PER_FLIGHT;
+            int tries = SEATSConstants.FLIGHTS_NUM_SEATS;
             while (tries-- > 0 && (customer_id == null)) { //  || isCustomerBookedOnFlight(customer_id, flight_id))) {
                 customer_id = profile.getRandomCustomerId();
                 if (LOG.isTraceEnabled())
@@ -630,8 +630,8 @@ public class SEATSWorker extends Worker {
         }
         
         // Generate a random price for now
-        double price = 2.0 * rng.number(SEATSConstants.MIN_RESERVATION_PRICE,
-                                        SEATSConstants.MAX_RESERVATION_PRICE);
+        double price = 2.0 * rng.number(SEATSConstants.RESERVATION_PRICE_MIN,
+                                        SEATSConstants.RESERVATION_PRICE_MAX);
         
         // Generate random attributes
         long attributes[] = new long[9];
@@ -715,7 +715,7 @@ public class SEATSWorker extends Worker {
         
         long value = rng.number(1, 1 << 20);
         long attribute_idx = rng.nextInt(UpdateReservation.NUM_UPDATES);
-        long seatnum = rng.number(0, SEATSConstants.NUM_SEATS_PER_FLIGHT-1);
+        long seatnum = rng.number(0, SEATSConstants.FLIGHTS_NUM_SEATS-1);
 
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
         proc.run(conn, r.id,

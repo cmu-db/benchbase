@@ -80,14 +80,8 @@ import com.oltpbenchmark.benchmarks.seats.util.ReturnFlight;
 import com.oltpbenchmark.benchmarks.seats.util.SEATSHistogramUtil;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.CollectionUtil;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.Pair;
-import com.oltpbenchmark.util.RandomDistribution;
-import com.oltpbenchmark.util.RandomGenerator;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.StringUtil;
-import com.oltpbenchmark.util.TableDataIterable;
+import com.oltpbenchmark.util.*;
+import com.oltpbenchmark.util.RandomDistribution.*;
 
 public class SEATSLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(SEATSLoader.class);
@@ -119,9 +113,15 @@ public class SEATSLoader extends Loader {
     /**
      * Counter for the number of tables that we have finished loading
      */
-    private final transient AtomicInteger finished = new AtomicInteger(0);
+    private final AtomicInteger finished = new AtomicInteger(0);
 
-    private final RandomGenerator rng;
+    /**
+     * A histogram of the number of flights in the database per airline code
+     */
+    private final Histogram<String> flights_per_airline = new Histogram<String>(true);
+    
+    
+    private final RandomGenerator rng; // FIXME
     
     // -----------------------------------------------------------------
     // INITIALIZATION
@@ -246,6 +246,12 @@ public class SEATSLoader extends Loader {
      * @param catalog_db
      */
     protected void loadScalingTables() {
+        // Setup the # of flights per airline
+        this.flights_per_airline.putAll(profile.getAirlineCodes(), 0);
+
+        // IMPORTANT: FLIGHT must come before FREQUENT_FLYER so that we 
+        // can use the flights_per_airline histogram when selecting an airline to 
+        // create a new FREQUENT_FLYER account for a CUSTOMER 
         for (String table_name : SEATSConstants.TABLES_SCALING) {
             try {
                 Table catalog_tbl = this.getTableCatalog(table_name);
@@ -491,28 +497,33 @@ public class SEATSLoader extends Loader {
         String name = catalog_tbl.getName().toUpperCase();
         ScalingDataIterable it = null;
         double scaleFactor = workConf.getScaleFactor(); 
+        long num_customers = Math.round(SEATSConstants.CUSTOMERS_COUNT * scaleFactor); 
         
         // Customers
         if (name.equals(SEATSConstants.TABLENAME_CUSTOMER)) {
-            long total = Math.round(SEATSConstants.NUM_CUSTOMERS * scaleFactor);
-            it = new CustomerIterable(catalog_tbl, total);
+            it = new CustomerIterable(catalog_tbl, num_customers);
+        }
         // FrequentFlyer
-        } else if (name.equals(SEATSConstants.TABLENAME_FREQUENT_FLYER)) {
-            long total = Math.round(SEATSConstants.NUM_CUSTOMERS * scaleFactor);
-            int per_customer = (int)Math.ceil(SEATSConstants.MAX_FREQUENTFLYER_PER_CUSTOMER);
-            it = new FrequentFlyerIterable(catalog_tbl, total, per_customer);
+        else if (name.equals(SEATSConstants.TABLENAME_FREQUENT_FLYER)) {
+            it = new FrequentFlyerIterable(catalog_tbl, num_customers);
+        }   
         // Airport Distance
-        } else if (name.equals(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {
+        else if (name.equals(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {
             int max_distance = Integer.MAX_VALUE; // SEATSConstants.DISTANCES[SEATSConstants.DISTANCES.length - 1];
             it = new AirportDistanceIterable(catalog_tbl, max_distance);
+        }
         // Flights
-        } else if (name.equals(SEATSConstants.TABLENAME_FLIGHT)) {
-            it = new FlightIterable(catalog_tbl, SEATSConstants.DAYS_PAST, SEATSConstants.DAYS_FUTURE);
+        else if (name.equals(SEATSConstants.TABLENAME_FLIGHT)) {
+            it = new FlightIterable(catalog_tbl,
+                    (int)Math.round(SEATSConstants.FLIGHTS_DAYS_PAST * scaleFactor),
+                    (int)Math.round(SEATSConstants.FLIGHTS_DAYS_FUTURE * scaleFactor));
+        }
         // Reservations
-        } else if (name.equals(SEATSConstants.TABLENAME_RESERVATION)) {
-            long total = Math.round((SEATSConstants.MIN_FLIGHTS_PER_DAY + SEATSConstants.MAX_FLIGHTS_PER_DAY) / 2d * scaleFactor);
+        else if (name.equals(SEATSConstants.TABLENAME_RESERVATION)) {
+            long total = Math.round((SEATSConstants.FLIGHTS_PER_DAY_MIN + SEATSConstants.FLIGHTS_PER_DAY_MAX) / 2d * scaleFactor);
             it = new ReservationIterable(catalog_tbl, total);
-        } else {
+        }
+        else {
             assert(false) : "Unexpected table '" + name + "' in getScalingIterable()";
         }
         assert(it != null) : "The ScalingIterable for '" + name + "' is null!";
@@ -642,7 +653,7 @@ public class SEATSLoader extends Loader {
     // CUSTOMERS
     // ----------------------------------------------------------------
     protected class CustomerIterable extends ScalingDataIterable {
-        private final RandomDistribution.FlatHistogram<String> rand;
+        private final FlatHistogram<String> rand;
         private final RandomDistribution.Flat randBalance;
         private String airport_code = null;
         private CustomerId last_id = null;
@@ -652,7 +663,7 @@ public class SEATSLoader extends Loader {
             
             // Use the flights per airport histogram to select where people are located
             Histogram<String> histogram = profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);  
-            this.rand = new RandomDistribution.FlatHistogram<String>(rng, histogram);
+            this.rand = new FlatHistogram<String>(rng, histogram);
             if (LOG.isDebugEnabled()) this.rand.enableHistory();
             
             this.randBalance = new RandomDistribution.Flat(rng, 1000, 10000);
@@ -719,38 +730,40 @@ public class SEATSLoader extends Loader {
     protected class FrequentFlyerIterable extends ScalingDataIterable {
         private final Iterator<CustomerId> customer_id_iterator;
         private final short ff_per_customer[];
-        private final RandomDistribution.FlatHistogram<String> airline_rand;
+        private final FlatHistogram<String> airline_rand;
+        
         private int customer_idx = 0;
         private CustomerId last_customer_id = null;
         private Collection<String> customer_airlines = new HashSet<String>();
-        private final Collection<String> all_airlines;
         
-        public FrequentFlyerIterable(Table catalog_tbl, long num_customers, int max_per_customer) {
+        public FrequentFlyerIterable(Table catalog_tbl, long num_customers) {
             super(catalog_tbl, num_customers, new int[]{ 0, 1, 2 });
             
             this.customer_id_iterator = new CustomerIdIterable(profile.airport_max_customer_id).iterator();
             this.last_customer_id = this.customer_id_iterator.next();
 
-            // Flights per Airline
-            this.all_airlines = profile.getAirlineCodes();
-            Histogram<String> histogram = new Histogram<String>();
-            histogram.putAll(this.all_airlines);
-            
-            // Embed a Gaussian distribution
-            RandomDistribution.Gaussian gauss_rng = new RandomDistribution.Gaussian(rng, 0, this.all_airlines.size());
-            this.airline_rand = new RandomDistribution.FlatHistogram<String>(gauss_rng, histogram);
+            // A customer is more likely to have a FREQUENTY_FLYER account with
+            // an airline that has more flights 
+            assert(flights_per_airline.isEmpty() == false);
+            this.airline_rand = new FlatHistogram<String>(rng, flights_per_airline);
             if (LOG.isTraceEnabled()) this.airline_rand.enableHistory();
+            LOG.info("Flights Per Airline:\n" + flights_per_airline);
             
             // Loop through for the total customers and figure out how many entries we 
             // should have for each one. This will be our new total;
-            RandomDistribution.Zipf ff_zipf = new RandomDistribution.Zipf(rng, 0, this.all_airlines.size(), 1.1);
+            long max_per_customer = Math.min(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX, flights_per_airline.getValueCount()); 
+            Zipf ff_zipf = new Zipf(rng,
+                    SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MIN,
+                    max_per_customer,
+                    SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_SIGMA);
             long new_total = 0; 
             long total = profile.getCustomerIdCount();
             if (LOG.isDebugEnabled()) LOG.debug("Num of Customers: " + total);
             this.ff_per_customer = new short[(int)total];
             for (int i = 0; i < total; i++) {
                 this.ff_per_customer[i] = (short)ff_zipf.nextInt();
-                if (this.ff_per_customer[i] > max_per_customer) this.ff_per_customer[i] = (short)max_per_customer;
+                if (this.ff_per_customer[i] > max_per_customer)
+                    this.ff_per_customer[i] = (short)max_per_customer;
                 new_total += this.ff_per_customer[i]; 
             } // FOR
             this.total = new_total;
@@ -777,7 +790,7 @@ public class SEATSLoader extends Loader {
                 }
                 // AIRLINE ID
                 case (1): {
-                    assert(this.customer_airlines.size() < this.all_airlines.size());
+                    assert(this.customer_airlines.size() < flights_per_airline.getValueCount());
                     do {
                         value = this.airline_rand.nextValue();
                     } while (this.customer_airlines.contains(value));
@@ -902,16 +915,14 @@ public class SEATSLoader extends Loader {
     // FLIGHTS
     // ----------------------------------------------------------------
     protected class FlightIterable extends ScalingDataIterable {
-        private final RandomDistribution.FlatHistogram<String> airlines;
-        private final RandomDistribution.FlatHistogram<String> airports;
-        private final Map<String, RandomDistribution.FlatHistogram<String>> flights_per_airport = new HashMap<String, RandomDistribution.FlatHistogram<String>>();
-        private final RandomDistribution.FlatHistogram<String> flight_times;
-        private final RandomDistribution.Flat prices = new RandomDistribution.Flat(rng, SEATSConstants.MIN_RESERVATION_PRICE, SEATSConstants.MAX_RESERVATION_PRICE);
+        private final FlatHistogram<String> airlines;
+        private final FlatHistogram<String> airports;
+        private final Map<String, FlatHistogram<String>> flights_per_airport = new HashMap<String, FlatHistogram<String>>();
+        private final FlatHistogram<String> flight_times;
+        private final Flat prices;
         
         private final Set<FlightId> todays_flights = new HashSet<FlightId>();
-        
         private final ListOrderedMap<Timestamp, Integer> flights_per_day = new ListOrderedMap<Timestamp, Integer>();
-//        private final Map<Long, AtomicInteger> airport_flight_ids = new HashMap<Long, AtomicInteger>();
         
         private int day_idx = 0;
         private Timestamp today;
@@ -931,46 +942,51 @@ public class SEATSLoader extends Loader {
             assert(days_past >= 0);
             assert(days_future >= 0);
             
+            this.prices = new Flat(rng,
+                    SEATSConstants.RESERVATION_PRICE_MIN,
+                    SEATSConstants.RESERVATION_PRICE_MAX);
+            
             // Flights per Airline
             Collection<String> all_airlines = profile.getAirlineCodes();
             Histogram<String> histogram = new Histogram<String>();
             histogram.putAll(all_airlines);
             
             // Embed a Gaussian distribution
-            RandomDistribution.Gaussian gauss_rng = new RandomDistribution.Gaussian(rng, 0, all_airlines.size());
-            this.airlines = new RandomDistribution.FlatHistogram<String>(gauss_rng, histogram);
+            Gaussian gauss_rng = new Gaussian(rng, 0, all_airlines.size());
+            this.airlines = new FlatHistogram<String>(gauss_rng, histogram);
             
             // Flights Per Airport
             histogram = profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);  
-            this.airports = new RandomDistribution.FlatHistogram<String>(rng, histogram);
+            this.airports = new FlatHistogram<String>(rng, histogram);
             for (String airport_code : histogram.values()) {
                 histogram = profile.getFightsPerAirportHistogram(airport_code);
                 assert(histogram != null) : "Unexpected departure airport code '" + airport_code + "'";
-                this.flights_per_airport.put(airport_code, new RandomDistribution.FlatHistogram<String>(rng, histogram));
+                this.flights_per_airport.put(airport_code, new FlatHistogram<String>(rng, histogram));
             } // FOR
             
             // Flights Per Departure Time
             histogram = profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_DEPART_TIMES);  
-            this.flight_times = new RandomDistribution.FlatHistogram<String>(rng, histogram);
+            this.flight_times = new FlatHistogram<String>(rng, histogram);
             
             // Figure out how many flights that we want for each day
             this.today = new Timestamp(System.currentTimeMillis());
             
-            this.total = 0;
-            int num_flights_low = (int)Math.round(SEATSConstants.MIN_FLIGHTS_PER_DAY);
-            int num_flights_high = (int)Math.round(SEATSConstants.MAX_FLIGHTS_PER_DAY);
+            // Sometime there are more flights per day, and sometimes there are fewer 
+            Gaussian gaussian = new Gaussian(rng,
+                    SEATSConstants.FLIGHTS_PER_DAY_MIN,
+                    SEATSConstants.FLIGHTS_PER_DAY_MAX);
             
-            RandomDistribution.Gaussian gaussian = new RandomDistribution.Gaussian(rng, num_flights_low, num_flights_high);
+            this.total = 0;
             boolean first = true;
-            for (long _date = this.today.getTime() - (days_past * SEATSConstants.MILLISECONDS_PER_DAY);
-                 _date < this.today.getTime(); _date += SEATSConstants.MILLISECONDS_PER_DAY) {
-                Timestamp date = new Timestamp(_date);
+            for (long t = this.today.getTime() - (days_past * SEATSConstants.MILLISECONDS_PER_DAY);
+                 t < this.today.getTime(); t += SEATSConstants.MILLISECONDS_PER_DAY) {
+                Timestamp timestamp = new Timestamp(t);
                 if (first) {
-                    this.start_date = date;
+                    this.start_date = timestamp;
                     first = false;
                 }
                 int num_flights = (int)Math.ceil(gaussian.nextInt() * workConf.getScaleFactor());
-                this.flights_per_day.put(date, num_flights);
+                this.flights_per_day.put(timestamp, num_flights);
                 this.total += num_flights;
             } // FOR
             if (this.start_date == null) this.start_date = this.today;
@@ -979,11 +995,11 @@ public class SEATSLoader extends Loader {
             // This is for upcoming flights that we want to be able to schedule
             // new reservations for in the benchmark
             profile.setFlightUpcomingDate(this.today);
-            for (long _date = this.today.getTime(), last_date = this.today.getTime() + (days_future * SEATSConstants.MILLISECONDS_PER_DAY);
-                 _date <= last_date; _date += SEATSConstants.MILLISECONDS_PER_DAY) {
-                Timestamp date = new Timestamp(_date);
+            for (long t = this.today.getTime(), last_date = this.today.getTime() + (days_future * SEATSConstants.MILLISECONDS_PER_DAY);
+                 t <= last_date; t += SEATSConstants.MILLISECONDS_PER_DAY) {
+                Timestamp timestamp = new Timestamp(t);
                 int num_flights = (int)Math.ceil(gaussian.nextInt() * workConf.getScaleFactor());
-                this.flights_per_day.put(date, num_flights);
+                this.flights_per_day.put(timestamp, num_flights);
                 this.total += num_flights;
                 // System.err.println(new Timestamp(date).toString() + " -> " + num_flights);
             } // FOR
@@ -1098,6 +1114,7 @@ public class SEATSLoader extends Loader {
                 // AIRLINE ID
                 case (1): {
                     value = this.airline_code;
+                    flights_per_airline.put(this.airline_code);
                     break;
                 }
                 // DEPART AIRPORT
@@ -1132,13 +1149,13 @@ public class SEATSLoader extends Loader {
                 }
                 // SEATS TOTAL
                 case (8): {
-                    value = SEATSConstants.NUM_SEATS_PER_FLIGHT;
+                    value = SEATSConstants.FLIGHTS_NUM_SEATS;
                     break;
                 }
                 // SEATS REMAINING
                 case (9): {
                     // We have to figure this out ahead of time since we need to populate the tuple now
-                    for (int seatnum = 0; seatnum < SEATSConstants.NUM_SEATS_PER_FLIGHT; seatnum++) {
+                    for (int seatnum = 0; seatnum < SEATSConstants.FLIGHTS_NUM_SEATS; seatnum++) {
                         if (!this.seatIsOccupied()) continue;
                         SEATSLoader.this.decrementFlightSeat(this.flight_id);
                     } // FOR
@@ -1158,7 +1175,7 @@ public class SEATSLoader extends Loader {
     // RESERVATIONS
     // ----------------------------------------------------------------
     protected class ReservationIterable extends ScalingDataIterable {
-        private final RandomDistribution.Flat prices = new RandomDistribution.Flat(rng, SEATSConstants.MIN_RESERVATION_PRICE, SEATSConstants.MAX_RESERVATION_PRICE);
+        private final RandomDistribution.Flat prices = new RandomDistribution.Flat(rng, SEATSConstants.RESERVATION_PRICE_MIN, SEATSConstants.RESERVATION_PRICE_MAX);
         
         /**
          * For each airport id, store a list of ReturnFlight objects that represent customers
@@ -1176,7 +1193,9 @@ public class SEATSLoader extends Loader {
          * We use a Gaussian distribution for determining how long a customer will stay at their
          * destination before needing to return to their original airport
          */
-        private final RandomDistribution.Gaussian rand_returns = new RandomDistribution.Gaussian(rng, 1, SEATSConstants.MAX_RETURN_FLIGHT_DAYS);
+        private final Gaussian rand_returns = new Gaussian(rng,
+                SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MIN,
+                SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MAX);
         
         private final LinkedBlockingDeque<Object[]> queue = new LinkedBlockingDeque<Object[]>(100);
         private Object current[] = null;
@@ -1235,7 +1254,7 @@ public class SEATSLoader extends Loader {
                 
                 // For each flight figure out which customers are returning
                 this.getReturningCustomers(returning_customers, flight_id);
-                int booked_seats = SEATSConstants.NUM_SEATS_PER_FLIGHT - SEATSLoader.this.getFlightRemainingSeats(flight_id);
+                int booked_seats = SEATSConstants.FLIGHTS_NUM_SEATS - SEATSLoader.this.getFlightRemainingSeats(flight_id);
 
                 if (LOG.isTraceEnabled()) {
                     Map<String, Object> m = new ListOrderedMap<String, Object>();
@@ -1421,7 +1440,7 @@ public class SEATSLoader extends Loader {
         assert(this.profile.flight_start_date != null);
         assert(this.profile.flight_upcoming_date != null);
         this.profile.addFlightId(flight_id);
-        this.seats_remaining.put(flight_id, (short)SEATSConstants.NUM_SEATS_PER_FLIGHT);
+        this.seats_remaining.put(flight_id, (short)SEATSConstants.FLIGHTS_NUM_SEATS);
         
         // XXX
         if (this.profile.flight_upcoming_offset == null &&

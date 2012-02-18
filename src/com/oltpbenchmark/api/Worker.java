@@ -34,9 +34,11 @@ public abstract class Worker implements Runnable {
 	protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
 	protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<Class<? extends Procedure>, Procedure>();
 	
-	protected final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
-	protected final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
-	protected final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
+	private final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
+	private final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
+	private final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
+	
+	private boolean seenDone = false;
 	
 	public Worker(BenchmarkModule benchmarkModule, int id) {
 		this.id = id;
@@ -97,8 +99,16 @@ public abstract class Worker implements Runnable {
     public final <T extends Procedure> T getProcedure(Class<T> procClass) {
         return (T)(this.class_procedures.get(procClass));
     }
-
-    boolean seenDone = false;
+    
+    public final Histogram<TransactionType> getTransactionSuccessHistogram() {
+        return (this.txnSuccess);
+    }
+    public final Histogram<TransactionType> getTransactionRetryHistogram() {
+        return (this.txnRetry);
+    }
+    public final Histogram<TransactionType> getTransactionAbortHistogram() {
+        return (this.txnAbort);
+    }
     
 	@Override
 	public final void run() {
@@ -114,9 +124,6 @@ public abstract class Worker implements Runnable {
 		
 		// wait for start
 		testState.blockForStart();
-
-		// System.out.println(this + " start");
-		
 		State state = testState.getState();
 		
 		TransactionType invalidTT = TransactionType.INVALID;
@@ -153,7 +160,8 @@ public abstract class Worker implements Runnable {
 
 			TransactionType type = invalidTT;
 			if (phase != null) type = doWork(measure, phase);
-			assert(type != null);
+			assert(type != null) :
+			    "Unexpected null TransactionType returned from doWork";
 			
 			if (measure && type !=null) {
 				long end = System.nanoTime();
@@ -200,7 +208,7 @@ public abstract class Worker implements Runnable {
         	                break;
         	            case RETRY_DIFFERENT:
         	                this.txnRetry.put(next);
-        	                //status = TransactionStatus.RETRY;
+        	                status = TransactionStatus.RETRY;
         	                next = null;
         	                continue;
         	            case RETRY:
@@ -220,7 +228,7 @@ public abstract class Worker implements Runnable {
                     } else {
                         this.conn.rollback();
                     }
-                    this.txnRetry.put(next);
+                    this.txnAbort.put(next);
                     break;
                     
                 // Database System Specific Exception Handling
@@ -269,7 +277,8 @@ public abstract class Worker implements Runnable {
 	}
 
 	/**
-	 * 
+	 * Optional callback that can be used to initialize the Worker
+	 * right before the benchmark execution begins
 	 */
 	protected void initialize() {
 	   // The default is to do nothing 
@@ -292,8 +301,7 @@ public abstract class Worker implements Runnable {
 		try {
 			conn.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("No connection to close");
+			LOG.warn("No connection to close");
 		}
 	}
 

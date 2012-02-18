@@ -97,7 +97,7 @@ public class FindOpenSeats extends Procedure {
            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-        
+        assert(seatmap.length == SEATSConstants.FLIGHTS_NUM_SEATS);
         
         PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight);
         f_stmt.setLong(1, f_id);
@@ -133,11 +133,11 @@ public class FindOpenSeats extends Procedure {
         } // WHILE
 
         int ctr = 0;
-        Object[][] returnResults = new Object[SEATSConstants.MAX_OPEN_SEATS_PER_TXN][];
+        Object[][] returnResults = new Object[SEATSConstants.FLIGHTS_NUM_SEATS][];
         for (int i = 0; i < seatmap.length; ++i) {
             if (seatmap[i] == -1) {
                 // Charge more for the first seats
-                double price = seat_price * (i < SEATSConstants.FIRST_CLASS_SEATS_OFFSET ? 2.0 : 1.0);
+                double price = seat_price * (i < SEATSConstants.FLIGHTS_FIRST_CLASS_OFFSET ? 2.0 : 1.0);
                 Object[] row = new Object[]{ f_id, i, price };
                 returnResults[ctr++] = row;
                 if (ctr == returnResults.length) break;

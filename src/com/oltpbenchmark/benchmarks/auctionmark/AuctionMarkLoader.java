@@ -1326,7 +1326,7 @@ public class AuctionMarkLoader extends Loader {
 
         public ItemMaxBidGenerator() {
             super(AuctionMarkConstants.TABLENAME_ITEM_MAX_BID,
-                 AuctionMarkConstants.TABLENAME_ITEM_BID);
+                  AuctionMarkConstants.TABLENAME_ITEM_BID);
         }
         @Override
         public short getElementCounter(LoaderItemInfo itemInfo) {

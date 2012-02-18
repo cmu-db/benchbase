@@ -37,7 +37,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.Procedure;
 
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
-import com.oltpbenchmark.benchmarks.seats.SEATSConstants.ErrorType;
+import com.oltpbenchmark.benchmarks.seats.util.ErrorType;
 
 public class UpdateCustomer extends Procedure {
     private static final Logger LOG = Logger.getLogger(UpdateCustomer.class);

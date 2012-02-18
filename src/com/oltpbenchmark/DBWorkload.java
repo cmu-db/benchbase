@@ -295,7 +295,10 @@ public class DBWorkload {
                 EXEC_LOG.warn("No bucket size specified");
             }
             if (argsLine.hasOption("histogram")) {
-                EXEC_LOG.info("Transaction Distribution:\n" + r.getTransactionHistogram());
+                EXEC_LOG.info(SINGLE_LINE);
+                EXEC_LOG.info("Completed Transactions:\n" + r.getTransactionSuccessHistogram() + "\n");
+                EXEC_LOG.info("Aborted Transactions:\n" + r.getTransactionAbortHistogram() + "\n");
+                EXEC_LOG.info("Rejected Transactions:\n" + r.getTransactionRetryHistogram());
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
