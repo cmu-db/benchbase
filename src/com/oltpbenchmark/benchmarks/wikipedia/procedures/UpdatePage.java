@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
@@ -56,7 +54,7 @@ public class UpdatePage extends Procedure {
         "UPDATE user SET user_editcount=user_editcount+1 WHERE user_id = ?"
     );
 	public SQLStmt updateUserTouched = new SQLStmt(
-        "UPDATE  user SET user_touched = ? WHERE user_id = ?"
+        "UPDATE user SET user_touched = ? WHERE user_id = ?"
     );
 	
 	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {

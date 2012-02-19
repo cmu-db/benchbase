@@ -24,6 +24,15 @@ public abstract class SQLUtil {
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
     };
 
+    public static int[] getColumnTypes(Table catalog_tbl) {
+        int types[] = new int[catalog_tbl.getColumnCount()];
+        for (Column catalog_col : catalog_tbl.getColumns()) {
+            types[catalog_col.getIndex()] = catalog_col.getType();
+        } // FOR
+        return (types);
+    }
+    
+    
     /**
      * Simple pretty-print debug method for the current row
      * in the given ResultSet 

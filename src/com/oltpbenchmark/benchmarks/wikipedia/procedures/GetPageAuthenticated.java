@@ -79,8 +79,6 @@ public class GetPageAuthenticated extends Procedure {
         ResultSet rs = st.executeQuery();
 
         if (!rs.next()) {
-            conn.commit();// skipping the rest of the transaction
-            LOG.warn("The used trace contains invalid pages");
             throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
         }
         int pageId = rs.getInt("page_id");
@@ -97,9 +95,9 @@ public class GetPageAuthenticated extends Procedure {
             restrictionsCount += 1;
         }
         rs.close();
+        
         // check using blocking of a user by either the IP address or the
         // user_name
-
         st = this.getPreparedStatement(conn, selectIpBlocks);
         st.setInt(1, userId);
         rs = st.executeQuery();
@@ -109,7 +107,6 @@ public class GetPageAuthenticated extends Procedure {
             blockCount += 1;
         }
         rs.close();
-        // st.close();
 
         st = this.getPreparedStatement(conn, selectPageRevision);
         st.setInt(1, pageId);
@@ -125,7 +122,6 @@ public class GetPageAuthenticated extends Procedure {
         assert !rs.next();
         rs.close();
 
-        Article a = null;
         // NOTE: the following is our variation of wikipedia... the original did
         // not contain old_page column!
         // sql =
@@ -138,6 +134,7 @@ public class GetPageAuthenticated extends Procedure {
             LOG.warn("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
             throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
+        Article a = null;
         if (!forSelect)
             a = new Article(userText, pageId, rs.getString("old_text"), textId, revisionId);
         assert !rs.next();

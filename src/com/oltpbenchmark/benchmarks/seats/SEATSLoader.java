@@ -310,6 +310,7 @@ public class SEATSLoader extends Loader {
         try {
             String insert_sql = SQLUtil.getInsertSQL(catalog_tbl);
             PreparedStatement insert_stmt = this.conn.prepareStatement(insert_sql);
+            int sqlTypes[] = SQLUtil.getColumnTypes(catalog_tbl);
             
             for (Object tuple[] : iterable) {
                 assert(tuple[0] != null) : "The primary key for " + catalog_tbl.getName() + " is null";
@@ -377,7 +378,11 @@ public class SEATSLoader extends Loader {
                
                 for (int i = 0; i < tuple.length; i++) {
                     try {
-                        insert_stmt.setObject(i+1, tuple[i]);
+                        if (tuple[i] != null) {
+                            insert_stmt.setObject(i+1, tuple[i]);
+                        } else {
+                            insert_stmt.setNull(i+1, sqlTypes[i]);
+                        }
                     } catch (SQLDataException ex) {
                         LOG.error("INVALID " + catalog_tbl.getName() + " TUPLE: " + Arrays.toString(tuple));
                         throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).fullName(), ex);
@@ -750,7 +755,7 @@ public class SEATSLoader extends Loader {
             flights_per_airline.putAll();
             this.airline_rand = new FlatHistogram<String>(rng, flights_per_airline);
             if (LOG.isTraceEnabled()) this.airline_rand.enableHistory();
-            LOG.info("Flights Per Airline:\n" + flights_per_airline);
+            if (LOG.isDebugEnabled()) LOG.debug("Flights Per Airline:\n" + flights_per_airline);
             
             // Loop through for the total customers and figure out how many entries we 
             // should have for each one. This will be our new total;

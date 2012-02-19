@@ -114,15 +114,13 @@ public class WikipediaWorker extends Worker {
         proc.run(conn, userId, nameSpace, pageTitle);
 	}
 
-	public void removeFromWatchlist(int userId, int nameSpace, String pageTitle)
-			throws SQLException {
+	public void removeFromWatchlist(int userId, int nameSpace, String pageTitle) throws SQLException {
 		RemoveWatchList proc = this.getProcedure(RemoveWatchList.class);
         assert (proc != null);
         proc.run(conn, userId, nameSpace, pageTitle);
 	}
 
-	public void updatePage(String userIp, int userId, int nameSpace,
-			String pageTitle) throws SQLException {
+	public void updatePage(String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
 		Article a = getPageAnonymous(false, userIp, nameSpace, pageTitle);
 		if (a == null) {
 			// this would be an insert of a new page, that we don't support for

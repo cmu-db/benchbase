@@ -64,7 +64,7 @@ public class AuctionMarkWorker extends Worker {
             Thread.currentThread().setName(this.getClass().getSimpleName());
             
             TransactionTypes txnTypes = AuctionMarkWorker.this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
-            TransactionType txnType = txnTypes.getType(Transaction.CloseAuctions.procClass);
+            TransactionType txnType = txnTypes.getType(CloseAuctions.class);
             assert(txnType != null) : txnTypes;
             
             Procedure proc = AuctionMarkWorker.this.getProcedure(txnType);
@@ -85,7 +85,7 @@ public class AuctionMarkWorker extends Worker {
                 
                 if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD) {
                     if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("Executing %s in separate thread", Transaction.CloseAuctions));
+                        LOG.debug(String.format("Executing %s in separate thread", txnType));
                     try {
                         executeCloseAuctions((CloseAuctions)proc);
                     } catch (Exception ex) {
@@ -94,7 +94,7 @@ public class AuctionMarkWorker extends Worker {
                 } else {
                     AuctionMarkWorker.this.closeAuctions_flag.set(true);
                     if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("Marked ready flag for %s", Transaction.CloseAuctions));
+                        LOG.debug(String.format("Marked ready flag for %s", txnType));
                 }
             } // WHILE
         }
@@ -408,7 +408,7 @@ public class AuctionMarkWorker extends Worker {
             i_current_price = (Double)row[col++];
         }
         long i_num_bids = (Long)row[col++];                     // i_num_bids
-        Timestamp i_end_date = null;                                 // i_end_date
+        Timestamp i_end_date = null;                            // i_end_date
         if (row[col] instanceof Timestamp) {
             i_end_date = (Timestamp)row[col++];
         } else {
@@ -624,7 +624,6 @@ public class AuctionMarkWorker extends Worker {
             maxBid = profile.rng.fixedPoint(2, bid, (bid * (1 + (AuctionMarkConstants.ITEM_BID_PERCENT_STEP / 2))));
         }
 
-        
         Object results[] = proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
                                                           sellerId.encode(),
                                                           buyerId.encode(),
