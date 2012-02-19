@@ -1510,9 +1510,10 @@ public class AuctionMarkLoader extends Loader {
             long num_users = tableSizes.get(AuctionMarkConstants.TABLENAME_USERACCT);
             
             if (LOG.isTraceEnabled())
-                LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, size=%d]", use_random, this.watchers.size()));
+                LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, watchers=%d]",
+                                        use_random, this.watchers.size()));
             int tries = 1000;
-            while (buyerId == null && num_watchers < num_users) {
+            while (buyerId == null && num_watchers < num_users && tries-- > 0) {
                 try {
                     if (use_random) {
                         buyerId = profile.getRandomBuyerId();        
@@ -1525,10 +1526,18 @@ public class AuctionMarkLoader extends Loader {
                 }
                 if (this.watchers.contains(buyerId) == false) break;
                 buyerId = null;
+                
+                // If for some reason we unable to find a buyer from our bidderHistogram,
+                // then just give up and get a random one
+                if (use_random == false && tries == 0) {
+                    use_random = true;
+                    tries = 500;
+                }
             } // WHILE
             assert(buyerId != null) :
-                String.format("Failed to buyer for new USER_WATCH record / Tries:%d / Watchers:%d / Users:%d / BidderHistogram:%d",
-                              tries, num_watchers, num_users, bidderHistogram.getValueCount());
+                String.format("Failed to buyer for new USER_WATCH record\n" +
+                              "Tries:%d / UseRandom:%s / Watchers:%d / Users:%d / BidderHistogram:%d",
+                              tries, use_random, num_watchers, num_users, bidderHistogram.getValueCount());
             this.watchers.add(buyerId);
             
             // UW_U_ID
