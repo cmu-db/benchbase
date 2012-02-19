@@ -31,7 +31,6 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -90,12 +89,22 @@ public class AuctionMarkProfile {
     // ----------------------------------------------------------------
     
     /**
+     * TableName -> TableCatalog
+     */
+    protected transient final Catalog catalog;
+    
+    /**
      * Specialized random number generator
      */
-    protected final RandomGenerator rng;
-    private final int num_clients;
-    protected transient File data_directory;
+    protected transient final RandomGenerator rng;
 
+    /**
+     * The total number of clients in this benchmark invocation. Each
+     * client will be responsible for adding new auctions for unique set of sellers
+     * This may change per benchmark invocation.
+     */
+    private transient final int num_clients;
+    
     // ----------------------------------------------------------------
     // SERIALIZABLE DATA MEMBERS
     // ----------------------------------------------------------------
@@ -120,13 +129,6 @@ public class AuctionMarkProfile {
     // ----------------------------------------------------------------
     // TRANSIENT DATA MEMBERS
     // ----------------------------------------------------------------
-    
-    protected final AuctionMarkBenchmark benchmark;
-    
-    /**
-     * TableName -> TableCatalog
-     */
-    protected transient final Catalog catalog;
     
     /**
      * Histogram for number of items per category (stored as category_id)
@@ -192,21 +194,18 @@ public class AuctionMarkProfile {
      * Current Timestamp
      */
     private transient final Timestamp currentTime = new Timestamp(0);
-    
-//    /**
-//     * Keep track of previous waitForPurchase ItemIds so that we don't try to call NewPurchase
-//     * on them more than once
-//     */
-//    private transient Set<ItemInfo> previousWaitForPurchase = new HashSet<ItemInfo>();
 
     /**
      * TODO
      */
     protected final transient Histogram<UserId> seller_item_cnt = new Histogram<UserId>();
     
+    // -----------------------------------------------------------------
+    // TEMPORARY VARIABLES
+    // -----------------------------------------------------------------
     
-    private final transient Set<ItemInfo> tmp_seenItems = new HashSet<ItemInfo>();
-    private final Histogram<UserId> new_h = new Histogram<UserId>(true);
+    private transient final Set<ItemInfo> tmp_seenItems = new HashSet<ItemInfo>();
+    private transient final Histogram<UserId> tmp_userIdHistogram = new Histogram<UserId>(true);
     
     // -----------------------------------------------------------------
     // CONSTRUCTOR
@@ -216,12 +215,10 @@ public class AuctionMarkProfile {
      * Constructor - Keep your pimp hand strong!
      */
     public AuctionMarkProfile(AuctionMarkBenchmark benchmark, RandomGenerator rng) {
-        this.benchmark = benchmark;
         this.catalog = benchmark.getCatalog();
         this.rng = rng;
         this.scale_factor = benchmark.getWorkloadConfiguration().getScaleFactor();
         this.num_clients = benchmark.getWorkloadConfiguration().getTerminals();
-        this.data_directory = benchmark.getDataDir();
 
         this.randomInitialPrice = new Zipf(this.rng,
                 AuctionMarkConstants.ITEM_INITIAL_PRICE_MIN,
@@ -494,18 +491,18 @@ public class AuctionMarkProfile {
     /**
      * Note that this synchronization block only matters for the loader
      * @param min_item_count
-     * @param client
+     * @param clientId
      * @param exclude
      * @return
      */
-    private synchronized UserId getRandomUserId(int min_item_count, Integer client, UserId...exclude) {
+    private synchronized UserId getRandomUserId(int min_item_count, Integer clientId, UserId...exclude) {
         // We use the UserIdGenerator to ensure that we always select the next UserId for
         // a given client from the same set of UserIds
         if (this.randomItemCount == null) {
             this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_item_count);
         }
         if (this.userIdGenerator == null) {
-            this.userIdGenerator = new UserIdGenerator(this.users_per_item_count, this.num_clients, client);
+            this.userIdGenerator = new UserIdGenerator(this.users_per_item_count, this.num_clients, clientId);
         }
         
         UserId user_id = null;
@@ -546,7 +543,7 @@ public class AuctionMarkProfile {
         } // WHILE
         assert(user_id != null) : String.format("Failed to select a random UserId " +
                                                 "[min_item_count=%d, client=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
-                                                min_item_count, client, Arrays.toString(exclude),
+                                                min_item_count, clientId, Arrays.toString(exclude),
                                                 this.userIdGenerator.getTotalUsers(), this.userIdGenerator.getCurrentPosition());
         
         return (user_id);
@@ -577,20 +574,20 @@ public class AuctionMarkProfile {
      */
     public UserId getRandomBuyerId(Histogram<UserId> previousBidders, UserId...exclude) {
         // This is very inefficient, but it's probably good enough for now
-        new_h.clear();
-        new_h.putHistogram(previousBidders);
-        for (UserId ex : exclude) new_h.removeAll(ex);
-        new_h.put(this.getRandomBuyerId(exclude));
+        tmp_userIdHistogram.clear();
+        tmp_userIdHistogram.putHistogram(previousBidders);
+        for (UserId ex : exclude) tmp_userIdHistogram.removeAll(ex);
+        tmp_userIdHistogram.put(this.getRandomBuyerId(exclude));
         try {
-            LOG.trace("New Histogram:\n" + new_h);
+            LOG.trace("New Histogram:\n" + tmp_userIdHistogram);
         } catch (NullPointerException ex) {
-            for (UserId user_id : new_h.values()) {
-                System.err.println(String.format("%s => NEW:%s / ORIG:%s", user_id, new_h.get(user_id), previousBidders.get(user_id)));
+            for (UserId user_id : tmp_userIdHistogram.values()) {
+                System.err.println(String.format("%s => NEW:%s / ORIG:%s", user_id, tmp_userIdHistogram.get(user_id), previousBidders.get(user_id)));
             }
             throw ex;
         }
         
-        FlatHistogram<UserId> rand_h = new FlatHistogram<UserId>(rng, new_h);
+        FlatHistogram<UserId> rand_h = new FlatHistogram<UserId>(rng, tmp_userIdHistogram);
         return (rand_h.nextValue());
     }
     
@@ -729,8 +726,8 @@ public class AuctionMarkProfile {
      * @param needFutureEndDate TODO
      * @return
      */
-    private ItemInfo getRandomItem(LinkedList<ItemInfo> itemSet, boolean needCurrentPrice, boolean needFutureEndDate) {
         ItemInfo itemInfo = null;
+        private ItemInfo getRandomItem(LinkedList<ItemInfo> itemSet, boolean needCurrentPrice, boolean needFutureEndDate) {
         Timestamp currentTime = this.updateAndGetCurrentTime();
         int num_items = itemSet.size();
         int idx = -1;

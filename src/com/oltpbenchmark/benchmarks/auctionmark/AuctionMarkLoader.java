@@ -108,7 +108,7 @@ public class AuctionMarkLoader extends Loader {
         profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
         profile.setAndGetBenchmarkStartTime();
 
-        File category_file = new File(profile.data_directory.getAbsolutePath() + "/table.category.gz");
+        File category_file = new File(benchmark.getDataDir().getAbsolutePath() + "/table.category.gz");
         
         // ---------------------------
         // Fixed-Size Table Generators

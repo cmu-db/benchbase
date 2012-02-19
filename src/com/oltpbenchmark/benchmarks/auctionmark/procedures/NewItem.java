@@ -198,6 +198,7 @@ public class NewItem extends Procedure {
         assert(adv);
         String category_name = results.getString(1);
         
+        // CATEGORY PARENT
         stmt = this.getPreparedStatement(conn, getCategoryParent, category_id);
         results = stmt.executeQuery();
         String category_parent = null;
