@@ -33,6 +33,9 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
+import com.oltpbenchmark.benchmarks.wikipedia.util.TraceTransactionGenerator;
+import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
+import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 
 public class WikipediaBenchmark extends BenchmarkModule {
 

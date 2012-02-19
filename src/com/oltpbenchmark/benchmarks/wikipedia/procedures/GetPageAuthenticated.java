@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.benchmarks.wikipedia.Article;
+import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
 public class GetPageAuthenticated extends Procedure {
     private static final Logger LOG = Logger.getLogger(GetPageAuthenticated.class);

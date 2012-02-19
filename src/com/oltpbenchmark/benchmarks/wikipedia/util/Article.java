@@ -2,13 +2,12 @@
  * oltpbenchmark.com
  *  
  *  Project Info:  http://oltpbenchmark.com
- *  Project Members:  Carlo Curino <carlo.curino@gmail.com>
- *                               Evan Jones <ej@evanjones.ca>
+ *  Project Members:  	Carlo Curino <carlo.curino@gmail.com>
+ * 				Evan Jones <ej@evanjones.ca>
  * 				DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
  * 				Andy Pavlo <pavlo@cs.brown.edu>
- * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch> 
- * 				Yang Zhang <yaaang@gmail.com> 
- * 
+ * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
+ *  				Yang Zhang <yaaang@gmail.com> 
  * 
  *  This library is free software; you can redistribute it and/or modify it under the terms
  *  of the GNU General Public License as published by the Free Software Foundation;
@@ -18,21 +17,24 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.wikipedia;
+package com.oltpbenchmark.benchmarks.wikipedia.util;
 
-import com.oltpbenchmark.api.Operation;
+public class Article {
 
-/** Immutable class containing information about transactions. */
-public final class WikipediaOperation extends Operation {
-	
-	public final int userId;
-	public final int nameSpace;
-	public final String pageTitle;
+	public String userText;
+	public int pageId;
+	public String oldText;
+	public int textId;
+	public int revisionId;
 
-	public WikipediaOperation(int userId, int nameSpace, String pageTitle) {
-		// value of -1 indicate user is not logged in
-		this.userId = userId;
-		this.nameSpace = nameSpace;
-		this.pageTitle = pageTitle;
+	public Article(String userText, int pageId, String oldText, int textId,
+			int revisionId) {
+		super();
+		this.userText = userText;
+		this.pageId = pageId;
+		this.oldText = oldText;
+		this.textId = textId;
+		this.revisionId = revisionId;
 	}
+
 }

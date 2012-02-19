@@ -32,6 +32,8 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
+import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
+import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 
 public class WikipediaWorker extends Worker {

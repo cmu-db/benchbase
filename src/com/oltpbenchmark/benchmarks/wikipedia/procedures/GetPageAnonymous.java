@@ -11,7 +11,7 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.benchmarks.wikipedia.Article;
+import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
 public class GetPageAnonymous extends Procedure {
     private static final Logger LOG = Logger.getLogger(GetPageAnonymous.class);

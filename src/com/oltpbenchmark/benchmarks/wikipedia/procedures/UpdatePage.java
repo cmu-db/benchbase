@@ -11,7 +11,7 @@ import java.util.Calendar;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.wikipedia.Article;
+import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
 public class UpdatePage extends Procedure {
 	

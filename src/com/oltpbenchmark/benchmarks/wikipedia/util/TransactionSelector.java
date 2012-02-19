@@ -17,7 +17,7 @@
  *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
  ******************************************************************************/
-package com.oltpbenchmark.benchmarks.wikipedia;
+package com.oltpbenchmark.benchmarks.wikipedia.util;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
