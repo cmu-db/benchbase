@@ -743,8 +743,11 @@ public class SEATSLoader extends Loader {
             this.last_customer_id = this.customer_id_iterator.next();
 
             // A customer is more likely to have a FREQUENTY_FLYER account with
-            // an airline that has more flights 
+            // an airline that has more flights.
+            // IMPORTANT: Add one to all of the airlines so that we don't get trapped
+            // in an infinite loop
             assert(flights_per_airline.isEmpty() == false);
+            flights_per_airline.putAll();
             this.airline_rand = new FlatHistogram<String>(rng, flights_per_airline);
             if (LOG.isTraceEnabled()) this.airline_rand.enableHistory();
             LOG.info("Flights Per Airline:\n" + flights_per_airline);

@@ -425,8 +425,14 @@ public class Histogram<X> implements JSONSerializable {
     }
     
     /**
-     * Increment multiple values
-     * @param <T>
+     * Increment all values in the histogram by one
+     */
+    public void putAll() {
+        this.putAll(this.histogram.keySet(), 1);
+    }
+    
+    /**
+     * Increment multiple values by one
      * @param values
      */
     public void putAll(Collection<X> values) {
@@ -435,7 +441,6 @@ public class Histogram<X> implements JSONSerializable {
     
     /**
      * Increment multiple values by the given count
-     * @param <T>
      * @param values
      * @param count
      */
