@@ -20,6 +20,7 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.TimeUtil;
 
 public class WikipediaLoader extends Loader {
 
@@ -76,11 +77,11 @@ public class WikipediaLoader extends Loader {
             userInsert.setString(col++, name);                  // real_name
             userInsert.setString(col++, "***");                 // password
             userInsert.setString(col++, "***");                 // password2
-            userInsert.setString(col++, LoaderUtil.getCurrentTime14()); // new_pass
+            userInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // new_pass
                                                                     // time
             userInsert.setString(col++, "fake_email@test.me"); // user_email
             userInsert.setString(col++, "fake_longoptionslist"); // user_options
-            userInsert.setString(col++, LoaderUtil.getCurrentTime14()); // user_touched
+            userInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // user_touched
             userInsert.setString(col++, LoaderUtil.randomStr(WikipediaConstants.TOKEN)); // user_token
             userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_authenticated
             userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_token
@@ -131,7 +132,7 @@ public class WikipediaLoader extends Loader {
             pageInsert.setInt(5, 0); // page_is_redirect
             pageInsert.setInt(6, 0); // page_is_new
             pageInsert.setDouble(7, new Random().nextDouble()); // page_random
-            pageInsert.setString(8, LoaderUtil.getCurrentTime14()); // page_touched
+            pageInsert.setString(8, TimeUtil.getCurrentTimeString14()); // page_touched
             pageInsert.setInt(9, 0); // page_latest
             pageInsert.setInt(10, 0); // page_len
             pageInsert.addBatch();
@@ -249,11 +250,11 @@ public class WikipediaLoader extends Loader {
 
         catalog_tbl = this.getTableCatalog("page");
         String updatePageSql = "UPDATE " + catalog_tbl.getEscapedName() +
-                               " SET page_latest = ?, page_touched = '" + LoaderUtil.getCurrentTime14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
+                               " SET page_latest = ?, page_touched = '" + TimeUtil.getCurrentTimeString14() + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
 
         catalog_tbl = this.getTableCatalog("user");
         String updateUserSql = "UPDATE " + catalog_tbl.getEscapedName() + 
-                               " SET user_editcount=user_editcount+1, user_touched = '" + LoaderUtil.getCurrentTime14() + "' WHERE user_id = ? ";
+                               " SET user_editcount=user_editcount+1, user_touched = '" + TimeUtil.getCurrentTimeString14() + "' WHERE user_id = ? ";
         PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
         PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
 
@@ -304,7 +305,7 @@ public class WikipediaLoader extends Loader {
                 revisionInsert.setString(3, rev_comment); // rev_comment
                 revisionInsert.setInt(4, user_id); // rev_user
                 revisionInsert.setString(5, new_text); // rev_user_text
-                revisionInsert.setString(6, LoaderUtil.getCurrentTime14()); // rev_timestamp
+                revisionInsert.setString(6, TimeUtil.getCurrentTimeString14()); // rev_timestamp
                 revisionInsert.setInt(7, 0); // rev_minor_edit
                 revisionInsert.setInt(8, 0); // rev_deleted
                 revisionInsert.setInt(9, 0); // rev_len

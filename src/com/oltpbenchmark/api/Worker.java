@@ -185,6 +185,7 @@ public abstract class Worker implements Runnable {
 	    TransactionType next = null;
 	    TransactionStatus status = TransactionStatus.RETRY; 
 	    Savepoint savepoint = null;
+	    final DatabaseType dbType = wrkld.getDBType();
 	    
 	    try {
     	    while (status == TransactionStatus.RETRY) {
@@ -196,8 +197,11 @@ public abstract class Worker implements Runnable {
         	    try {
         	        // For Postgres, we have to create a savepoint in order
         	        // to rollback a user aborted transaction
-        	        if (wrkld.getDBType() == DatabaseType.POSTGRES)
-        	            savepoint = this.conn.setSavepoint();
+//        	        if (dbType == DatabaseType.POSTGRES) {
+//        	            savepoint = this.conn.setSavepoint();
+//        	            // if (LOG.isDebugEnabled())
+//        	            LOG.info("Created SavePoint: " + savepoint);
+//        	        }
         	        
         	        status = this.executeWork(next);
         	        switch (status) {
@@ -270,7 +274,8 @@ public abstract class Worker implements Runnable {
                 }
     	    } // WHILE
 	    } catch (SQLException ex) {
-            throw new RuntimeException("Unexpected error when executing " + next, ex);
+            throw new RuntimeException(String.format("Unexpected error when executing %s [%s]",
+                                                     next, dbType), ex);
         } 
         
         return (next);

@@ -5,9 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.util.TimeUtil;
 
 public class AddWatchList extends Procedure {
 
@@ -24,7 +24,7 @@ public class AddWatchList extends Procedure {
 		    // Here I am simply catching the right excpetion and move on.
 		    try
 		    {
-    			PreparedStatement ps =this.getPreparedStatement(conn, insertWatchList);
+    			PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList);
     			ps.setInt(1, userId);
     			ps.setInt(2, nameSpace);
     			ps.setString(3, pageTitle);
@@ -54,10 +54,9 @@ public class AddWatchList extends Procedure {
 			}
 
 			PreparedStatement ps= this.getPreparedStatement(conn, setUserTouched);
-			ps.setString(1,LoaderUtil.getCurrentTime14());
+			ps.setString(1,TimeUtil.getCurrentTimeString14());
 			ps.setInt(2, userId);
 			ps.executeUpdate();
-			conn.commit();
 		}
 	}
     

@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.util.TimeUtil;
 
 public class RemoveWatchList extends Procedure {
 	
@@ -18,33 +18,29 @@ public class RemoveWatchList extends Procedure {
         "UPDATE  user SET user_touched = ? WHERE user_id =  ? "
     ); 
 
-	public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {	        
-		
-		if (userId > 0) {	
-			PreparedStatement ps =this.getPreparedStatement(conn, removeWatchList);
-			ps.setInt(1, userId);
-			ps.setInt(2, nameSpace);
-			ps.setString(3, pageTitle);
-			ps.executeUpdate();
-			//ps.close();
-	
-			if (nameSpace == 0) 
-			{ 
-				// if regular page, also remove a line of
-				// watchlist for the corresponding talk page
-				ps =this.getPreparedStatement(conn, removeWatchList);
-				ps.setInt(1, userId);
-				ps.setInt(2, 1);
-				ps.setString(3, pageTitle);
-				ps.executeUpdate();
-			}
-			
-			ps= this.getPreparedStatement(conn, setUserTouched);
-			ps.setString(1, LoaderUtil.getCurrentTime14());
-			ps.setInt(2, userId);
-			ps.executeUpdate();
-			conn.commit();
-		}
-	 }
- 
+    public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
+
+        if (userId > 0) {
+            PreparedStatement ps = this.getPreparedStatement(conn, removeWatchList);
+            ps.setInt(1, userId);
+            ps.setInt(2, nameSpace);
+            ps.setString(3, pageTitle);
+            ps.executeUpdate();
+
+            if (nameSpace == 0) {
+                // if regular page, also remove a line of
+                // watchlist for the corresponding talk page
+                ps = this.getPreparedStatement(conn, removeWatchList);
+                ps.setInt(1, userId);
+                ps.setInt(2, 1);
+                ps.setString(3, pageTitle);
+                ps.executeUpdate();
+            }
+
+            ps = this.getPreparedStatement(conn, setUserTouched);
+            ps.setString(1, TimeUtil.getCurrentTimeString14());
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
 }

@@ -19,14 +19,10 @@
  ******************************************************************************/
 package com.oltpbenchmark.api;
 
-import java.text.SimpleDateFormat;
 import java.util.Random;
 
 public class LoaderUtil {
 
-	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public final static SimpleDateFormat stringFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-	
 	private final static String[] nameTokens = {
 		"BAR", "OUGHT", "ABLE", "PRI",
 		"PRES", "ESE", "ANTI", "CALLY",
@@ -68,10 +64,6 @@ public class LoaderUtil {
 		return output.toString();
 	}
 
-	public static String getCurrentTime() {
-		return dateFormat.format(new java.util.Date());
-	}
-
 	public static String formattedDouble(double d) {
 		String dS = "" + d;
 		return dS.length() > 6 ? dS.substring(0, 6) : dS;
@@ -93,10 +85,6 @@ public class LoaderUtil {
 	}
 	public static int randomNumber(int min, int max, Random r) {
 		return (int) (r.nextDouble() * (max - min + 1) + min);
-	}
-
-	public static String getCurrentTime14() {
-		return stringFormat.format(new java.util.Date());
 	}
 
 } // end jTPCCUtil

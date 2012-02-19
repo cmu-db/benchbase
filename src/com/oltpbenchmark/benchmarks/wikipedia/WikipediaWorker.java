@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
-import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous;
@@ -37,11 +36,12 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 
 public class WikipediaWorker extends Worker {
+    
 	private final TransactionGenerator<WikipediaOperation> generator;
 	private final String userIp;
 
-	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule, TransactionGenerator<WikipediaOperation> generator,
-			String userIp,TransactionTypes transTypes) {
+	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule,
+	                       TransactionGenerator<WikipediaOperation> generator, String userIp) {
 		super(benchmarkModule, id);
 
 		this.generator = generator;
@@ -51,17 +51,29 @@ public class WikipediaWorker extends Worker {
     @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
         WikipediaOperation t = generator.nextTransaction();
+        
+        // AddWatchList
         if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
             addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
-        } else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
+        }
+        // RemoveWatchList
+        else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
             removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
-        } else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
+        }
+        // UpdatePage
+        else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
             updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
-        } else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
+        }
+        // GetPageAnonymous
+        else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
             getPageAnonymous(true, userIp, t.nameSpace, t.pageTitle);
-        } else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
+        }
+        // GetPageAuthenticated
+        else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
             getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
         }
+        
+        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
     

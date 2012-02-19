@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -38,6 +40,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 
 public class WikipediaBenchmark extends BenchmarkModule {
+    private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
 
 	private final WikipediaConfiguration wikiConf;
 	
@@ -53,24 +56,21 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		// System.out.println("Using trace:" +workConf.getTracefile());
+	    if (LOG.isDebugEnabled())
+	        LOG.debug("Using trace:" + wikiConf.getTracefile());
 
-		TransactionSelector transSel = new TransactionSelector(
-				wikiConf.getTracefile(), 
-				workConf.getTransTypes());
-		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel
-				.readAll());
+		TransactionSelector transSel = new TransactionSelector(wikiConf.getTracefile(), 
+				                                               workConf.getTransTypes());
+		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
+		
 		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
-
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(
-					trace);
-			workers.add(new WikipediaWorker(i, this, generator, 
-					wikiConf.getBaseIP()
-					+ (i % 256) + "." + rand.nextInt(256), 
-					workConf.getTransTypes()));
+			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(trace);
+			String ipAddress = String.format("%s.%d.%d", wikiConf.getBaseIP(), (i % 256), rand.nextInt(256));
+			WikipediaWorker worker = new WikipediaWorker(i, this, generator, ipAddress);
+			workers.add(worker);
 		} // FOR
 		return workers;
 	}

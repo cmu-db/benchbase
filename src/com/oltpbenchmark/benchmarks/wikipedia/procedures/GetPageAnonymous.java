@@ -37,15 +37,12 @@ public class GetPageAnonymous extends Procedure {
 	public Article run(Connection conn, boolean forSelect, String userIp,
 			int nameSpace, String pageTitle) throws UserAbortException, SQLException {		
 
-		PreparedStatement st =this.getPreparedStatement(conn,selectPage);
+		PreparedStatement st = this.getPreparedStatement(conn,selectPage);
 		st.setInt(1, nameSpace);
 		st.setString(2, pageTitle);
 		ResultSet rs = st.executeQuery();
 	
 		if (!rs.next()) {
-			rs.close();
-			//st.close();
-			conn.commit();// skipping the rest of the transaction
 			LOG.warn("The used trace contains invalid pages: "+ nameSpace+"/" + pageTitle);
 			throw new UserAbortException("INVALID page namespace/title:"+nameSpace+"/" + pageTitle);	
 		}
@@ -66,7 +63,7 @@ public class GetPageAnonymous extends Procedure {
 		// check using blocking of a user by either the IP address or the
 		// user_name
 	
-		st= this.getPreparedStatement(conn, selectIpBlocks);
+		st = this.getPreparedStatement(conn, selectIpBlocks);
 		st.setString(1, userIp);
 		rs = st.executeQuery();
 		int blockCount = 0;
@@ -102,7 +99,7 @@ public class GetPageAnonymous extends Procedure {
 		// sql =
 		// "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
 		// For now we run the original one, which works on the data we have
-		st=this.getPreparedStatement(conn, selectText);
+		st = this.getPreparedStatement(conn, selectText);
 		st.setInt(1, textId);
 		rs = st.executeQuery();
 		if (!rs.next())
@@ -121,7 +118,6 @@ public class GetPageAnonymous extends Procedure {
 					revisionId);
 		assert !rs.next();
 		rs.close();
-		conn.commit();
 		return a;
 	}
 
