@@ -28,6 +28,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -89,6 +90,11 @@ public class NewItem extends Procedure {
             "?," +  // i_updated
             "1"  +  // i_attr0
         ")"
+    );
+    
+    public final SQLStmt getSellerItemCount = new SQLStmt(
+        "SELECT COUNT(*) FROM " + AuctionMarkConstants.TABLENAME_ITEM +
+        " WHERE i_u_id = ?"
     );
     
     public final SQLStmt getCategory = new SQLStmt(
@@ -175,7 +181,7 @@ public class NewItem extends Procedure {
         // them to the item description
         PreparedStatement stmt = null;
         ResultSet results = null;
-        int updated;
+        int updated = -1;
         
         // ATTRIBUTES
         description += "\nATTRIBUTES: ";
@@ -210,13 +216,24 @@ public class NewItem extends Procedure {
         description += String.format("\nCATEGORY: %s >> %s", category_parent, category_name);
 
         // Insert new ITEM tuple
-        updated = this.getPreparedStatement(conn, insertItem,
-                                            item_id, seller_id, category_id,
-                                            name, description, attributes,
-                                            initial_price, initial_price, 0,
-                                            images.length, gav_ids.length,
-                                            currentTime, end_date,
-                                            ItemStatus.OPEN.ordinal(), currentTime).executeUpdate();
+        stmt = this.getPreparedStatement(conn, insertItem,
+                                         item_id, seller_id, category_id,
+                                         name, description, attributes,
+                                         initial_price, initial_price, 0,
+                                         images.length, gav_ids.length,
+                                         currentTime, end_date,
+                                         ItemStatus.OPEN.ordinal(), currentTime);
+        // NOTE: This may fail with a duplicate entry exception because 
+        // the client's internal count of the number of items that this seller 
+        // already has is wrong. That's ok. We'll just abort and ignore the problem
+        // Eventually the client's internal cache will catch up with what's in the database
+        try {
+            updated = stmt.executeUpdate();
+        } catch (SQLIntegrityConstraintViolationException ex) {
+            // this.getPreparedStatement(conn, getSellerItemCount, seller_id);
+            String msg = String.format("Duplicate ItemId #%d for Seller #%d. Ignoring...", item_id, seller_id);
+            throw new UserAbortException(msg, ex);
+        }
         assert(updated == 1);
 
         // Insert ITEM_ATTRIBUTE tuples

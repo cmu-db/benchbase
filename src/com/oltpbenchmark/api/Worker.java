@@ -110,10 +110,14 @@ public abstract class Worker implements Runnable {
         return (this.txnAbort);
     }
     
+    public final String getName() {
+        return String.format("worker%02d", this.getId());
+    }
+    
 	@Override
 	public final void run() {
 	    Thread t = Thread.currentThread();
-	    t.setName(String.format("worker%02d", this.getId()));
+	    t.setName(this.getName());
 	    
 		// In case of reuse reset the measurements
 		latencies = new LatencyRecord(testState.getTestStartNs());
@@ -170,7 +174,7 @@ public abstract class Worker implements Runnable {
 			state = testState.getState();
 		}
 
-		tearDown();
+		tearDown(false);
 		testState = null;
 	}
 
@@ -274,8 +278,8 @@ public abstract class Worker implements Runnable {
                 }
     	    } // WHILE
 	    } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when executing %s [%s]",
-                                                     next, dbType), ex);
+            throw new RuntimeException(String.format("Unexpected error in %s when executing %s [%s]",
+                                                     this.getName(), next, dbType), ex);
         } 
         
         return (next);
@@ -301,8 +305,9 @@ public abstract class Worker implements Runnable {
 	/**
 	 * Called at the end of the test to do any clean up that may be
 	 * required.
+	 * @param error TODO
 	 */
-	public void tearDown() {
+	public void tearDown(boolean error) {
 		try {
 			conn.close();
 		} catch (SQLException e) {

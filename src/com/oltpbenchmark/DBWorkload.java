@@ -38,7 +38,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.ThreadBench.Results;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
@@ -334,7 +333,7 @@ public class DBWorkload {
         EXEC_LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
                                     bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
         ThreadBench.setWorkConf(bench.getWorkloadConfiguration());
-        ThreadBench.Results r = ThreadBench.runRateLimitedBenchmark(workers);
+        Results r = ThreadBench.runRateLimitedBenchmark(workers);
         EXEC_LOG.info(SINGLE_LINE);
         EXEC_LOG.info("Rate limited reqs/s: " + r);
         return r;

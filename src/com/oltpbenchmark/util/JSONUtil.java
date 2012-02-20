@@ -4,13 +4,24 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.util.json.*;
+import com.oltpbenchmark.util.json.JSONArray;
+import com.oltpbenchmark.util.json.JSONException;
+import com.oltpbenchmark.util.json.JSONObject;
+import com.oltpbenchmark.util.json.JSONStringer;
 
 /**
  * @author pavlo
@@ -233,7 +244,6 @@ public abstract class JSONUtil {
      * @param field_value
      * @throws JSONException
      */
-    @SuppressWarnings("unchecked")
     public static void writeFieldValue(JSONStringer stringer, Class<?> field_class, Object field_value) throws JSONException {
         // Null
         if (field_value == null) {

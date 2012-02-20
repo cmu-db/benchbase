@@ -96,6 +96,19 @@ public class NewPurchase extends Procedure {
         " WHERE ui_u_id = ? AND ui_i_id = ? AND ui_i_u_id = ?"
     );
     
+    public final SQLStmt insertUserItem = new SQLStmt(
+        "INSERT INTO " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + "(" +
+            "ui_u_id, " +
+            "ui_i_id, " +
+            "ui_i_u_id, " +
+            "ui_ip_id, " +
+            "ui_ip_ib_id, " +
+            "ui_ip_ib_i_id, " +
+            "ui_ip_ib_u_id, " +
+            "ui_created" +     
+        ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    
     public final SQLStmt updateUserBalance = new SQLStmt(
         "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
            "SET u_balance = u_balance + ? " + 
@@ -132,34 +145,49 @@ public class NewPurchase extends Procedure {
         // Make sure that the buyer has enough money to cover this charge
         // We can add in a credit for the buyer's account
         if (i_current_price > (buyer_credit + u_balance)) {
-            throw new UserAbortException(String.format("Buyer does not have enough money in account to purchase item " +
-                                                       "[maxBid=%.2f, balance=%.2f, credit=%.2f]",
-                                                       i_current_price, u_balance, buyer_credit));
+            String msg = String.format("Buyer #%d does not have enough money in account to purchase Item #%d" +
+                                       "[maxBid=%.2f, balance=%.2f, credit=%.2f]",
+                                       ib_buyer_id, item_id, i_current_price, u_balance, buyer_credit);
+            throw new UserAbortException(msg);
         }
 
         // Set item_purchase_id
         long ip_id = AuctionMarkUtil.getUniqueElementId(item_id, 1);
 
         // Insert a new purchase
-        // System.err.println(String.format("NewPurchase: ip_id=%d, ib_bid=%.2f, item_id=%d, seller_id=%d", ip_id, ib_bid, item_id, seller_id));
         updated = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime).executeUpdate();
         assert(updated == 1);
         
         // Update item status to close
         updated = this.getPreparedStatement(conn, updateItem, currentTime, item_id, seller_id).executeUpdate();
-        assert(updated == 1);
+        assert(updated == 1) :
+            String.format("Failed to update %s for Seller #%d's Item #%d",
+                          AuctionMarkConstants.TABLENAME_ITEM, seller_id, item_id);
         
-        // And update this the USER_ITEM record to link it to the new ITEM_PURCHASE record
-        updated = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id, ib_buyer_id, item_id, seller_id).executeUpdate();
-        assert(updated == 1);
+        // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
+        // If we don't have a record to update, just go ahead and create it
+        updated = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id,
+                                                                  ib_buyer_id, item_id, seller_id).executeUpdate();
+        if (updated == 0) {
+            updated = this.getPreparedStatement(conn, insertUserItem, ib_buyer_id, item_id, seller_id,
+                                                                      ip_id, ib_id, item_id, seller_id,
+                                                                      currentTime).executeUpdate();
+        }
+        assert(updated == 1) :
+            String.format("Failed to update %s for Buyer #%d's Item #%d",
+                          AuctionMarkConstants.TABLENAME_USERACCT_ITEM, ib_buyer_id, item_id);
         
         // Decrement the buyer's account 
         updated = this.getPreparedStatement(conn, updateUserBalance, -1*(i_current_price) + buyer_credit, ib_buyer_id).executeUpdate();
-        assert(updated == 1);
+        assert(updated == 1) :
+            String.format("Failed to update %s for Buyer #%d",
+                          AuctionMarkConstants.TABLENAME_USERACCT, ib_buyer_id);
         
         // And credit the seller's account
         this.getPreparedStatement(conn, updateUserBalance, i_current_price, seller_id).executeUpdate();
-        assert(updated == 1);
+        assert(updated == 1) :
+            String.format("Failed to update %s for Seller #%d",
+                          AuctionMarkConstants.TABLENAME_USERACCT, seller_id);
         
         // Return a tuple of the item that we just updated
         return new Object[] {

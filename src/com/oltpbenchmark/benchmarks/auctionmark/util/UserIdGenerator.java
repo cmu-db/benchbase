@@ -64,7 +64,11 @@ public class UserIdGenerator implements Iterator<UserId> {
 
         this.numClients = numClients;
         this.clientId = clientId;
-        this.users_per_item_count = new int[users_per_item_count.getMaxValue().intValue()+2];
+        
+        Long max_value = users_per_item_count.getMaxValue();
+        assert(max_value != null) :
+            "Invalid Users Per Item Histogram:\n" + users_per_item_count;
+        this.users_per_item_count = new int[max_value.intValue()+2];
         for (int i = 0; i < this.users_per_item_count.length; i++) {
             this.users_per_item_count[i] = users_per_item_count.get((long)i, 0); 
         } // FOR
