@@ -230,6 +230,7 @@ public class AuctionMarkLoader extends Loader {
         final List<Object[]> volt_table = generator.getVoltTable();
         final String sql = SQLUtil.getInsertSQL(catalog_tbl);
         final PreparedStatement stmt = conn.prepareStatement(sql);
+        final int types[] = SQLUtil.getColumnTypes(catalog_tbl);
         
         while (generator.hasMore()) {
             generator.generateBatch();
@@ -245,7 +246,11 @@ public class AuctionMarkLoader extends Loader {
             
             for (Object row[] : volt_table) {
                 for (int i = 0; i < row.length; i++) {
-                    stmt.setObject(i+1, row[i]);
+                    if (row[i] != null) {
+                        stmt.setObject(i+1, row[i]);
+                    } else {
+                        stmt.setNull(i+1, types[i]);
+                    }
                 } // FOR
                 stmt.addBatch();
             } // FOR
