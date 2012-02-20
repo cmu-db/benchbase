@@ -22,6 +22,8 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
@@ -36,7 +38,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 
 public class WikipediaWorker extends Worker {
-    
+    private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);
 	private final TransactionGenerator<WikipediaOperation> generator;
 	private final String userIp;
 
@@ -128,7 +130,7 @@ public class WikipediaWorker extends Worker {
 			// now.
 			return;
 		}
-	    System.out.println(a.pageId+" "+nameSpace +" "+ pageTitle);
+	    if(LOG.isTraceEnabled())LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
         proc.run(conn, a, userIp, userId, nameSpace, pageTitle);
