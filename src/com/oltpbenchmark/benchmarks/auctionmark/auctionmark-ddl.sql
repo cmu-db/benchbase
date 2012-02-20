@@ -35,7 +35,7 @@
 -- ================================================================
 CREATE TABLE CONFIG_PROFILE (
     CFP_SCALE_FACTOR            FLOAT NOT NULL,
-    CFP_BENCHMARK_START			TIMESTAMP NOT NULL,
+    CFP_BENCHMARK_START         TIMESTAMP NOT NULL,
     CFP_USER_ITEM_HISTOGRAM     VARCHAR(12000) NOT NULL
 );
 
@@ -68,7 +68,7 @@ CREATE TABLE USERACCT (
     u_id                BIGINT NOT NULL,
     u_rating            BIGINT NOT NULL,
     u_balance           FLOAT NOT NULL,
-    u_comments			INTEGER DEFAULT 0,
+    u_comments          INTEGER DEFAULT 0,
     u_r_id              BIGINT NOT NULL REFERENCES REGION (r_id),
     u_created           TIMESTAMP,
     u_updated           TIMESTAMP,
@@ -82,7 +82,7 @@ CREATE TABLE USERACCT (
     u_sattr7            VARCHAR(64),
     u_iattr0            BIGINT DEFAULT NULL,
     u_iattr1            BIGINT DEFAULT NULL,
-    u_iattr2			BIGINT DEFAULT NULL,
+    u_iattr2            BIGINT DEFAULT NULL,
     u_iattr3            BIGINT DEFAULT NULL,
     u_iattr4            BIGINT DEFAULT NULL,
     u_iattr5            BIGINT DEFAULT NULL,
@@ -164,7 +164,7 @@ CREATE TABLE GLOBAL_ATTRIBUTE_VALUE (
 -- i_user_attributes Text field for attributes defined just for this item
 -- i_start_date        Item's bid start date
 -- i_end_date          Item's bid end date
--- i_status	        Items' status (0 = open, 1 = wait for purchase, 2 = close)
+-- i_status            Items' status (0 = open, 1 = wait for purchase, 2 = close)
 -- ================================================================
 CREATE TABLE ITEM (
     i_id                BIGINT NOT NULL,
@@ -181,11 +181,11 @@ CREATE TABLE ITEM (
     i_num_comments      BIGINT,
     i_start_date        TIMESTAMP,
     i_end_date          TIMESTAMP,
-    i_status		    INT DEFAULT 0,
+    i_status            INT DEFAULT 0,
     i_updated           TIMESTAMP,
     i_iattr0            BIGINT DEFAULT NULL,
     i_iattr1            BIGINT DEFAULT NULL,
-    i_iattr2			BIGINT DEFAULT NULL,
+    i_iattr2            BIGINT DEFAULT NULL,
     i_iattr3            BIGINT DEFAULT NULL,
     i_iattr4            BIGINT DEFAULT NULL,
     i_iattr5            BIGINT DEFAULT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE ITEM_ATTRIBUTE (
     ia_u_id             BIGINT NOT NULL,
     ia_gav_id           BIGINT NOT NULL,
     ia_gag_id           BIGINT NOT NULL,
-    ia_sattr0			VARCHAR(64) DEFAULT NULL,
+    ia_sattr0           VARCHAR(64) DEFAULT NULL,
     FOREIGN KEY (ia_i_id, ia_u_id) REFERENCES ITEM (i_id, i_u_id),
     FOREIGN KEY (ia_gav_id, ia_gag_id) REFERENCES GLOBAL_ATTRIBUTE_VALUE (gav_id, gav_gag_id),
     PRIMARY KEY (ia_id, ia_i_id, ia_u_id)
@@ -225,7 +225,7 @@ CREATE TABLE ITEM_IMAGE (
     ii_id               BIGINT NOT NULL,
     ii_i_id             BIGINT NOT NULL,
     ii_u_id             BIGINT NOT NULL,
-    ii_sattr0			VARCHAR(128) NOT NULL,
+    ii_sattr0           VARCHAR(128) NOT NULL,
     FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES ITEM (i_id, i_u_id),
     PRIMARY KEY (ii_id, ii_i_id, ii_u_id)
 );
@@ -270,7 +270,7 @@ CREATE TABLE ITEM_BID (
     ib_i_id             BIGINT NOT NULL,
     ib_u_id             BIGINT NOT NULL,
     ib_buyer_id         BIGINT NOT NULL REFERENCES USERACCT (u_id),
-    ib_bid		        FLOAT NOT NULL,
+    ib_bid                FLOAT NOT NULL,
     ib_max_bid          FLOAT NOT NULL,
     ib_created          TIMESTAMP,
     ib_updated          TIMESTAMP,

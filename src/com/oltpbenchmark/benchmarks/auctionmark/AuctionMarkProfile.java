@@ -345,8 +345,8 @@ public class AuctionMarkProfile {
             
             // ITEMS
             while (result_idx < results.length) {
-                assert(results[result_idx].isClosed() == false) :
-                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
+//                assert(results[result_idx].isClosed() == false) :
+//                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
                 this.loadItems(results[result_idx]);
                 result_idx++;
             } // FOR

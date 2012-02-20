@@ -1,5 +1,76 @@
 <?xml version="1.0"?>
 <dialects>
+    <dialect type="POSTGRES">
+        <procedure name="LoadConfig">
+            <statement name="getConfigProfile">
+                SELECT * FROM "CONFIG_PROFILE"
+            </statement>
+            <statement name="getCategoryCounts">
+                SELECT i_c_id, COUNT(i_id)
+                  FROM "ITEM"
+                 GROUP BY i_c_id
+            </statement>
+            <statement name="getItems">
+                SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status
+                  FROM "ITEM" 
+                 WHERE i_status = ?
+                 ORDER BY i_end_date ASC
+                 LIMIT 1000
+            </statement>
+            <statement name="getAttributes">
+                SELECT gag_id FROM "GLOBAL_ATTRIBUTE_GROUP"
+            </statement>
+        </procedure>
+        <procedure name="NewBid">
+            <statement name="getItem">
+                SELECT i_initial_price, i_current_price, i_num_bids, i_end_date, i_status
+                  FROM "ITEM"
+                 WHERE i_id = ? AND i_u_id = ?
+            </statement>
+            <statement name="updateItem">
+                UPDATE "ITEM"
+                   SET i_num_bids = i_num_bids + 1,
+                       i_current_price = ?,
+                       i_updated = ?
+                 WHERE i_id = ? AND i_u_id = ?
+            </statement>
+        </procedure>
+        <procedure name="NewComment">
+            <statement name="getItemComments">
+                SELECT i_num_comments
+                  FROM "ITEM"
+                  WHERE i_id = ? AND i_u_id = ?
+            </statement>
+            <statement name="updateItemComments">
+                UPDATE "ITEM"
+                  SET i_num_comments = i_num_comments + 1
+                WHERE i_id = ? AND i_u_id = ?
+            </statement>
+        </procedure>
+        <procedure name="UpdateItem">
+            <statement name="updateItem">
+                UPDATE "ITEM"
+                   SET i_description = ?,
+                       i_updated = ?
+                 WHERE i_id = ? AND i_u_id = ?
+                   AND i_status = 0
+            </statement>
+        </procedure>
+        <procedure name="NewItem">
+            <statement name="insertItem">
+                INSERT INTO "ITEM" VALUES (
+                i_id, _u_id, i_c_id, i_name, i_description, 
+                i_user_attributes, i_initial_price, i_current_price, 
+                i_num_bids, i_num_images, i_num_global_attrs,
+                i_start_date, i_end_date, i_status, i_updated, i_iattr0
+                ) VALUES (
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, "1")
+           </statement>
+        </procedure>
+    </dialect>
+
     <dialect type="SQLSERVER">
         <procedure name="LoadConfig">
             <statement name="getItems">
@@ -9,8 +80,8 @@
                 ORDER BY i_iattr0
             </statement>
         </procedure>
-	</dialect>
-	<dialect type="SQLSERVER">
+    </dialect>
+    <dialect type="SQLSERVER">
         <procedure name="LoadConfig">
             <statement name="getItems">
                 SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status
@@ -19,5 +90,5 @@
                 ORDER BY i_iattr0
             </statement>
         </procedure>
-	</dialect>
+    </dialect>
 </dialects>
