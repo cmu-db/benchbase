@@ -1276,7 +1276,7 @@ public class SEATSLoader extends Loader {
                 
                 for (int seatnum = 0; seatnum < booked_seats; seatnum++) {
                     CustomerId customer_id = null;
-                    Long airport_customer_cnt = profile.getCustomerIdCount(depart_airport_id);
+                    Integer airport_customer_cnt = profile.getCustomerIdCount(depart_airport_id);
                     boolean local_customer = airport_customer_cnt != null && (flight_customer_ids.size() < airport_customer_cnt.intValue());
                     int tries = 2000;
                     ReturnFlight return_flight = null;

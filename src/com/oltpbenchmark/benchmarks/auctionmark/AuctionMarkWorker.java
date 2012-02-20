@@ -1,5 +1,6 @@
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class AuctionMarkWorker extends Worker {
     private static final Logger LOG = Logger.getLogger(AuctionMarkWorker.class);
@@ -287,6 +289,10 @@ public class AuctionMarkWorker extends Worker {
         }
     }
     
+    protected AuctionMarkProfile getProfile() {
+        return (this.profile);
+    }
+    
     @Override
     protected void initialize() {
         // Load BenchmarkProfile
@@ -429,9 +435,9 @@ public class AuctionMarkWorker extends Worker {
     }
     
     public ItemId getNextItemId(UserId seller_id) {
-        Long cnt = profile.seller_item_cnt.get(seller_id);
+        Integer cnt = profile.seller_item_cnt.get(seller_id);
         if (cnt == null || cnt == 0) {
-            cnt = (long)seller_id.getItemCount();
+            cnt = seller_id.getItemCount();
             profile.seller_item_cnt.put(seller_id, cnt);
         }
         profile.seller_item_cnt.put(seller_id);
@@ -493,6 +499,9 @@ public class AuctionMarkWorker extends Worker {
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         UserId userId = profile.getRandomBuyerId();
         int rand;
+//        System.err.println("============================================");
+//        System.err.println(profile);
+//        System.err.println(profile.users_per_item_count);
         
         // USER_FEEDBACK records
         rand = profile.rng.number(0, 100);
@@ -528,7 +537,15 @@ public class AuctionMarkWorker extends Worker {
         // USER
         vt = results[idx++];
         assert(vt != null);
-        assert(vt.size() > 0);
+//        if (vt.size() == 0) {
+//            ResultSet rs = this.getConnection().prepareStatement("SELECT U_ID FROM USERACCT").executeQuery();
+//            while (rs.next()) {
+//                System.err.println(SQLUtil.debug(rs));
+//            }
+//            System.err.println(profile.users_per_item_count);
+//        }
+        assert(vt.size() > 0) :
+            "Failed to find user information for " + userId + " / " + userId.encode();
           
         // USER_FEEDBACK
         if (get_feedback) {

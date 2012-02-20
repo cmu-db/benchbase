@@ -32,8 +32,10 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
@@ -102,6 +104,46 @@ public class TestUserIdGenerator extends TestCase {
         assertEquals(expected, user_id);
 	}
 	
+    /**
+     * testSeekToPositionSameUserId
+     */
+    public void testSeekToPositionClientId() throws Exception {
+        int num_clients = 10;
+        UserIdGenerator generator = new UserIdGenerator(users_per_item_count, num_clients);
+        final int num_users = (int)(generator.getTotalUsers()-1);
+        
+        Map<Integer, UserId> expectedIds = new TreeMap<Integer, UserId>();
+        while (generator.hasNext()) {
+            int position = generator.getCurrentPosition();
+            UserId user_id = generator.next();
+            assertNotNull(user_id);
+            expectedIds.put(position, user_id);
+        } // WHILE
+//        System.err.println(StringUtil.formatMaps(expectedIds));
+        
+        for (int client = 0; client < num_clients; client++) {
+            generator = new UserIdGenerator(users_per_item_count, num_clients, client);
+            
+            // Randomly jump around and make sure that we get the same UserId per position
+            for (int i = 0; i < NUM_USERS; i++) {
+                // This could be null because there were no more UserIds for this
+                // client beyond the given position
+                int position = rand.nextInt(num_users);
+                UserId user_id = generator.seekToPosition(position);
+                if (user_id == null) continue;
+
+                // We have to go back and get our position since we used a client id,
+                // which means that the generator could skip ahead even more
+                position = generator.getCurrentPosition();
+                UserId expected = expectedIds.get(position);
+                assertNotNull(expected);
+                
+                assertEquals("Position: " + position, expected, user_id);
+            } // FOR
+        } // FOR
+ 
+    }
+	
 	/**
 	 * testAllUsers
 	 */
@@ -142,7 +184,7 @@ public class TestUserIdGenerator extends TestCase {
 	    assertEquals(NUM_USERS, all_seen.size());
 	    
 	    // Make sure that they all have the same number of UserIds
-	    Long last_cnt = null; 
+	    Integer last_cnt = null; 
 	    for (Integer client : clients_h.values()) {
 	        if (last_cnt != null) {
 	            assertEquals(client.toString(), last_cnt, clients_h.get(client));

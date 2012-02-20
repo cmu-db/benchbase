@@ -20,6 +20,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
     protected void setUp() throws Exception {
         super.setUp(AuctionMarkBenchmark.class, IGNORE, TestAuctionMarkBenchmark.PROC_CLASSES);
         this.workConf.setScaleFactor(0.1);
+        AuctionMarkProfile.clearCachedProfile();
     }
     
     /**

@@ -167,10 +167,14 @@ public class AuctionMarkProfile {
      */
     private transient UserIdGenerator userIdGenerator;
     
-    /** Random time different in seconds */
+    /**
+     * Random time different in seconds
+     */
     public transient final DiscreteRNG randomTimeDiff;
     
-    /** Random duration in days */
+    /**
+     * Random duration in days
+     */
     public transient final Gaussian randomDuration;
 
     protected transient final Zipf randomNumImages;
@@ -300,6 +304,10 @@ public class AuctionMarkProfile {
         return (this);
     }
     
+    protected static void clearCachedProfile() {
+        cachedProfile = null;
+    }
+    
     /**
      * Load the profile information stored in the database
      * @param 
@@ -366,7 +374,7 @@ public class AuctionMarkProfile {
         while (vt.next()) {
             int col = 1;
             long i_c_id = vt.getLong(col++);
-            long count = vt.getLong(col++);
+            int count = vt.getInt(col++);
             this.item_category_histogram.put(i_c_id, count);
         } // WHILE
         if (LOG.isDebugEnabled())
@@ -491,18 +499,20 @@ public class AuctionMarkProfile {
     /**
      * Note that this synchronization block only matters for the loader
      * @param min_item_count
-     * @param clientId
+     * @param clientId - Will use null if less than zero 
      * @param exclude
      * @return
      */
-    private synchronized UserId getRandomUserId(int min_item_count, Integer clientId, UserId...exclude) {
+    private synchronized UserId getRandomUserId(int min_item_count, int clientId, UserId...exclude) {
         // We use the UserIdGenerator to ensure that we always select the next UserId for
         // a given client from the same set of UserIds
         if (this.randomItemCount == null) {
             this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_item_count);
         }
         if (this.userIdGenerator == null) {
-            this.userIdGenerator = new UserIdGenerator(this.users_per_item_count, this.num_clients, clientId);
+            this.userIdGenerator = new UserIdGenerator(this.users_per_item_count,
+                                                       this.num_clients,
+                                                       (clientId < 0 ? null : clientId));
         }
         
         UserId user_id = null;
@@ -541,11 +551,11 @@ public class AuctionMarkProfile {
             if (LOG.isTraceEnabled()) LOG.trace("Selected " + user_id);
             break;
         } // WHILE
-        assert(user_id != null) : String.format("Failed to select a random UserId " +
-                                                "[min_item_count=%d, client=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
-                                                min_item_count, clientId, Arrays.toString(exclude),
-                                                this.userIdGenerator.getTotalUsers(), this.userIdGenerator.getCurrentPosition());
-        
+        assert(user_id != null) :
+            String.format("Failed to select a random UserId " +
+                          "[minItemCount=%d, clientId=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
+                          min_item_count, clientId, Arrays.toString(exclude),
+                          this.userIdGenerator.getTotalUsers(), this.userIdGenerator.getCurrentPosition());
         return (user_id);
     }
 
@@ -555,7 +565,7 @@ public class AuctionMarkProfile {
      */
     public UserId getRandomBuyerId(UserId...exclude) {
         // We don't care about skewing the buyerIds at this point, so just get one from getRandomUserId
-        return (this.getRandomUserId(0, null, exclude));
+        return (this.getRandomUserId(0, -1, exclude));
     }
     /**
      * Gets a random buyer ID for the given client

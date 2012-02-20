@@ -1,6 +1,12 @@
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 import com.oltpbenchmark.api.AbstractTestWorker;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 
 public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchmark> {
    
@@ -11,7 +17,62 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
     @Override
     protected void setUp() throws Exception {
         super.setUp(AuctionMarkBenchmark.class, TestAuctionMarkBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.01);
+        AuctionMarkProfile.clearCachedProfile();
+    }
+    
+    /**
+     * testUniqueSellers
+     */
+    public void testUniqueSellers() throws Exception {
+        int num_workers = 200;
+        this.workConf.setScaleFactor(0.1);
+        this.workConf.setTerminals(num_workers);
+        this.benchmark.createDatabase();
+        this.benchmark.loadDatabase();
+        
+        // Make a bunch of workers and then loop through all of them to
+        // make sure that they don't generate a seller id that was
+        // generated from another worker
+        this.workers = this.benchmark.makeWorkers(false);
+        assertNotNull(this.workers);
+        assertEquals(num_workers, this.workers.size());
+        
+        Set<UserId> all_users = new HashSet<UserId>();
+        Set<UserId> worker_users = new TreeSet<UserId>();
+        Integer last_num_users = null; 
+        for (Worker w : this.workers) {
+            AuctionMarkWorker worker = (AuctionMarkWorker)w;
+            assertNotNull(w);
+            
+            // Get the uninitialized profile
+            AuctionMarkProfile profile = worker.getProfile();
+            assertNotNull(profile);
+            assertTrue(profile.users_per_item_count.isEmpty());
+            
+            // Then try to initialize it
+            profile.loadProfile(worker);
+            assertFalse(profile.users_per_item_count.isEmpty());
+            int num_users = profile.users_per_item_count.getSampleCount();
+            if (last_num_users != null)
+                assertEquals(last_num_users.intValue(), num_users);
+            else {
+                System.err.println("Number of Users: " + num_users);
+            }
+            
+            worker_users.clear();
+            for (int i = 0; i < num_users; i++) {
+                UserId user_id = profile.getRandomSellerId(worker.getId());
+                assertNotNull(user_id);
+                assertFalse(worker.getId() + " -> " + user_id.toString() + " / " + user_id.encode(),
+                            all_users.contains(user_id));
+                worker_users.add(user_id);
+            } // FOR
+            assertFalse(worker_users.isEmpty());
+            all_users.addAll(worker_users);
+            last_num_users = num_users;
+            
+//            System.err.println(String.format("Worker %03d: %d", worker.getId(), worker_users.size()));
+        } // FOR
     }
     
 }

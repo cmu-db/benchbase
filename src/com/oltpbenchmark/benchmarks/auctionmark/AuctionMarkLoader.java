@@ -249,9 +249,14 @@ public class AuctionMarkLoader extends Loader {
                 } // FOR
                 stmt.addBatch();
             } // FOR
-            stmt.executeBatch();
-            conn.commit();
-            stmt.clearBatch();
+            try {
+                stmt.executeBatch();
+                conn.commit();
+                stmt.clearBatch();
+            } catch (SQLException ex) {
+                LOG.warn(tableName + " - " + ex.getMessage());
+                // SKIP
+            }
             
             this.tableSizes.put(tableName, volt_table.size());
             

@@ -41,6 +41,7 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp(AuctionMarkBenchmark.class, PROC_CLASSES);
+		AuctionMarkProfile.clearCachedProfile();
 	}
 	
 	/**

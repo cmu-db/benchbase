@@ -70,6 +70,11 @@ public abstract class BenchmarkModule {
     private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<Class<? extends Procedure>>();
     
     /**
+     * The last Connection that was created using this BenchmarkModule
+     */
+    private Connection last_connection;
+    
+    /**
      * Whether to use verbose output messages
      * @deprecated
      */
@@ -102,7 +107,16 @@ public abstract class BenchmarkModule {
                                                       workConf.getDBUsername(),
                                                       workConf.getDBPassword());
         Catalog.setSeparator(conn);
+        this.last_connection = conn;
         return (conn);
+    }
+    
+    /**
+     * Return the last Connection handle created by this BenchmarkModule
+     * @return
+     */
+    protected final Connection getLastConnection() {
+        return (this.last_connection);
     }
 
     // --------------------------------------------------------------------------

@@ -19,15 +19,19 @@
  ******************************************************************************/
 package com.oltpbenchmark;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.configuration.XMLConfiguration;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.StringUtil;
 
 public class WorkloadConfiguration {
 
@@ -193,4 +197,20 @@ public class WorkloadConfiguration {
 		else if(!mode.equals(""))
 			System.out.println("Indefined isolation mode, set to default [TRANSACTION_SERIALIZABLE]");
 	}
+	
+	@Override
+	public String toString() {
+        Class<?> confClass = this.getClass();
+        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        for (Field f : confClass.getDeclaredFields()) {
+            Object obj = null;
+            try {
+                obj = f.get(this);
+            } catch (IllegalAccessException ex) {
+                throw new RuntimeException(ex);
+            }
+            m.put(f.getName().toUpperCase(), obj);
+        } // FOR
+        return StringUtil.formatMaps(m);
+    }
 }

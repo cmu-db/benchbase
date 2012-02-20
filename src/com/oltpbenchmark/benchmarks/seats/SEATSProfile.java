@@ -263,6 +263,10 @@ public class SEATSProfile {
         return;
     }
     
+    protected static void clearCachedProfile() {
+        cachedProfile = null;
+    }
+    
     private SEATSProfile copy(SEATSProfile other) {
         this.scale_factor = other.scale_factor;
         this.airport_max_customer_id.putHistogram(other.airport_max_customer_id);
@@ -417,8 +421,6 @@ public class SEATSProfile {
         this.reservation_upcoming_offset = offset;
     }
 
-    
-    
     // -----------------------------------------------------------------
     // FLIGHTS
     // -----------------------------------------------------------------
@@ -521,7 +523,7 @@ public class SEATSProfile {
      * @return
      */
     public CustomerId getRandomCustomerId(Long airport_id) {
-        Long cnt = this.getCustomerIdCount(airport_id);
+        Integer cnt = this.getCustomerIdCount(airport_id);
         if (cnt != null) {
             int base_id = rng.nextInt(cnt.intValue());
             return (new CustomerId(base_id, airport_id));
@@ -593,7 +595,7 @@ public class SEATSProfile {
         this.airport_max_customer_id.put(airport_id);
         return (next_id);
     }
-    public Long getCustomerIdCount(Long airport_id) {
+    public Integer getCustomerIdCount(Long airport_id) {
         return (this.airport_max_customer_id.get(airport_id));
     }
     public long getCustomerIdCount() {
@@ -644,7 +646,7 @@ public class SEATSProfile {
         if (LOG.isDebugEnabled()) LOG.debug("Generating Airport-CustomerCount histogram [numAirports=" + this.getAirportCount() + "]");
         for (Long airport_id : this.airport_max_customer_id.values()) {
             String airport_code = this.getAirportCode(airport_id);
-            long count = this.airport_max_customer_id.get(airport_id);
+            int count = this.airport_max_customer_id.get(airport_id);
             h.put(airport_code, count);
         } // FOR
         return (h);

@@ -11,6 +11,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
     @Override
     protected void setUp() throws Exception {
         super.setUp(SEATSBenchmark.class, null, TestSEATSBenchmark.PROC_CLASSES);
+        SEATSProfile.clearCachedProfile();
     }
     
     /**

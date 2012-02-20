@@ -66,7 +66,7 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.clientId = clientId;
         this.users_per_item_count = new int[users_per_item_count.getMaxValue().intValue()+2];
         for (int i = 0; i < this.users_per_item_count.length; i++) {
-            this.users_per_item_count[i] = (int)users_per_item_count.get((long)i, 0l); 
+            this.users_per_item_count[i] = users_per_item_count.get((long)i, 0); 
         } // FOR
         
         Long temp = users_per_item_count.getMinValue();
@@ -116,6 +116,7 @@ public class UserIdGenerator implements Iterator<UserId> {
             if (this.currentPosition + num_users > position) {
                 this.next = null;
                 this.currentOffset = num_users - (position - this.currentPosition);
+                this.currentPosition = position;
                 user_id = this.next();
                 break;
             } else {
@@ -143,6 +144,7 @@ public class UserIdGenerator implements Iterator<UserId> {
                 // Otherwise we have to spin through and find one for our client
                 else if (this.currentPosition % this.numClients == this.clientId) {
                     found = nextCtr;
+//                    System.err.print(this.currentPosition);
                     break;
                 }
             } // WHILE

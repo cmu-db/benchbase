@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import junit.framework.TestCase;
+
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
-
-import junit.framework.TestCase;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
     
@@ -28,9 +28,14 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     public static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
     
     // H2
-//    public static final String DB_CONNECTION = "jdbc:h2:mem:";
-//    public static final String DB_JDBC = "org.h2.Driver";
-//    public static final DatabaseType DB_TYPE = DatabaseType.H2;
+    // public static final String DB_CONNECTION = "jdbc:h2:mem:";
+    // public static final String DB_JDBC = "org.h2.Driver";
+    // public static final DatabaseType DB_TYPE = DatabaseType.H2;
+    
+    // SQLITE
+    // public static final String DB_CONNECTION = "jdbc:sqlite:/tmp/";
+    // public static final String DB_JDBC = "org.sqlite.JDBC";
+    // public static final DatabaseType DB_TYPE = DatabaseType.SQLITE;
     
     // -----------------------------------------------------------------
     
@@ -79,8 +84,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        
         File f = new File(this.dbName);
-        if (f.exists()) f.delete();
+        if (f.exists()) {
+            f.delete();
+        }
     }
 }

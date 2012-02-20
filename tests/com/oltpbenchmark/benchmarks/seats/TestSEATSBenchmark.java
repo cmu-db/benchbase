@@ -38,6 +38,7 @@ public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchma
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp(SEATSBenchmark.class, PROC_CLASSES);
+		SEATSProfile.clearCachedProfile();
 	}
 	
 	/**
