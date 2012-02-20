@@ -75,11 +75,6 @@ public class AuctionMarkWorker extends Worker {
     
     protected final AuctionMarkProfile profile;
     
-    /**
-     * TODO
-     */
-    private final List<ItemCommentResponse> pending_commentResponses = new ArrayList<ItemCommentResponse>();
-    
     private final AtomicBoolean closeAuctions_flag = new AtomicBoolean();
     
     private final Thread closeAuctions_checker;
@@ -210,7 +205,7 @@ public class AuctionMarkWorker extends Worker {
         NewCommentResponse(NewCommentResponse.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
-                return (client.pending_commentResponses.isEmpty() == false);
+                return (client.profile.pending_commentResponses.isEmpty() == false);
             }
         }),
         // ====================================================================
@@ -592,7 +587,7 @@ public class AuctionMarkWorker extends Worker {
             assert(vt != null);
             for (Object row[] : vt) {
                 ItemCommentResponse cr = new ItemCommentResponse((Long)row[0], (Long)row[1], (Long)row[2]);
-                this.pending_commentResponses.add(cr);
+                profile.addPendingItemCommentResponse(cr);
             } // FOR
         }
         idx++;
@@ -702,9 +697,9 @@ public class AuctionMarkWorker extends Worker {
         conn.commit();
         assert(results != null);
         
-        this.pending_commentResponses.add(new ItemCommentResponse((Long)results[0],
-                                                                 (Long)results[1],
-                                                                 (Long)results[2]));
+        profile.pending_commentResponses.add(new ItemCommentResponse((Long)results[0],
+                                                                     (Long)results[1],
+                                                                     (Long)results[2]));
         return (true);
     }
     
@@ -714,8 +709,8 @@ public class AuctionMarkWorker extends Worker {
     
     protected boolean executeNewCommentResponse(NewCommentResponse proc) throws SQLException {
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
-        int idx = profile.rng.nextInt(this.pending_commentResponses.size());
-        ItemCommentResponse cr = this.pending_commentResponses.remove(idx);
+        int idx = profile.rng.nextInt(profile.pending_commentResponses.size());
+        ItemCommentResponse cr = profile.pending_commentResponses.remove(idx);
         assert(cr != null);
         
         long commentId = cr.commentId.longValue();;

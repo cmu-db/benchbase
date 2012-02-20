@@ -37,12 +37,19 @@ public class LoadConfig extends Procedure {
     public final SQLStmt getAttributes = new SQLStmt(
         "SELECT gag_id FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP
     );
+    
+    public final SQLStmt getPendingComments = new SQLStmt(
+        "SELECT ic_id, ic_i_id, ic_u_id, ic_buyer_id " +
+        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM_COMMENT +
+        " WHERE ic_response IS NULL"
+    );
 
     public ResultSet[] run(Connection conn) throws SQLException {
         List<ResultSet> results = new ArrayList<ResultSet>();
         results.add(this.getPreparedStatement(conn, getConfigProfile).executeQuery());
         results.add(this.getPreparedStatement(conn, getCategoryCounts).executeQuery());
         results.add(this.getPreparedStatement(conn, getAttributes).executeQuery());
+        results.add(this.getPreparedStatement(conn, getPendingComments).executeQuery());
         
         for (ItemStatus status : ItemStatus.values()) {
             if (status.isInternal()) continue;

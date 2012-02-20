@@ -49,11 +49,11 @@ import java.util.Set;
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemCommentResponse;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
@@ -201,7 +201,12 @@ public class AuctionMarkProfile {
     /**
      * TODO
      */
-    protected final transient Histogram<UserId> seller_item_cnt = new Histogram<UserId>();
+    protected transient final Histogram<UserId> seller_item_cnt = new Histogram<UserId>();
+    
+    /**
+     * TODO
+     */
+    protected transient final List<ItemCommentResponse> pending_commentResponses = new ArrayList<ItemCommentResponse>();
     
     // -----------------------------------------------------------------
     // TEMPORARY VARIABLES
@@ -210,7 +215,7 @@ public class AuctionMarkProfile {
     private transient final Set<ItemInfo> tmp_seenItems = new HashSet<ItemInfo>();
     private transient final Histogram<UserId> tmp_userIdHistogram = new Histogram<UserId>(true);
     private transient final Timestamp tmp_now = new Timestamp(System.currentTimeMillis());
-    
+
     // -----------------------------------------------------------------
     // CONSTRUCTOR
     // -----------------------------------------------------------------
@@ -316,6 +321,13 @@ public class AuctionMarkProfile {
             Collections.shuffle(list);
         } // FOR
         
+        for (ItemCommentResponse cr : other.pending_commentResponses) {
+            UserId sellerId = new UserId(cr.sellerId);
+            if (this.userIdGenerator.checkClient(sellerId)) {
+                this.pending_commentResponses.add(cr);
+            }
+        } // FOR
+        
         return (this);
     }
     
@@ -357,6 +369,9 @@ public class AuctionMarkProfile {
     
                 // GLOBAL_ATTRIBUTE_GROUPS
                 loadGlobalAttributeGroups(cachedProfile, results[result_idx++]);
+                
+                // PENDING COMMENTS
+                loadPendingItemComments(cachedProfile, results[result_idx++]);
                 
                 // ITEMS
                 while (result_idx < results.length) {
@@ -427,6 +442,20 @@ public class AuctionMarkProfile {
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %d records from %s",
                                     ctr, AuctionMarkConstants.TABLENAME_ITEM));
+    }
+    
+    private static final void loadPendingItemComments(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
+        while (vt.next()) {
+            int col = 1;
+            long ic_id = vt.getLong(col++);
+            long ic_i_id = vt.getLong(col++);
+            long ic_u_id = vt.getLong(col++);
+            ItemCommentResponse cr = new ItemCommentResponse(ic_id, ic_i_id, ic_u_id);
+            profile.pending_commentResponses.add(cr);
+        } // WHILE
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Loaded %d records from %s",
+                                    profile.pending_commentResponses.size(), AuctionMarkConstants.TABLENAME_ITEM_COMMENT));
     }
     
     private static final void loadGlobalAttributeGroups(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
@@ -628,6 +657,16 @@ public class AuctionMarkProfile {
      */
     public UserId getRandomSellerId(int client) {
         return (this.getRandomUserId(1, client));
+    }
+    
+    public void addPendingItemCommentResponse(ItemCommentResponse cr) {
+        if (this.client_id != -1) {
+            UserId sellerId = new UserId(cr.sellerId);
+            if (this.userIdGenerator.checkClient(sellerId) == false) {
+                return;
+            }
+        }
+        this.pending_commentResponses.add(cr);
     }
     
     // ----------------------------------------------------------------
@@ -921,6 +960,7 @@ public class AuctionMarkProfile {
         m.put("Last CloseAuctions", (this.lastCloseAuctionsTime.getTime() > 0 ? this.lastCloseAuctionsTime : null));
         m.put("Client Start", this.clientStartTime);
         m.put("Current Time", this.currentTime);
+        m.put("Pending ItemCommentResponses", this.pending_commentResponses.size());
         
         // Item Queues
         Histogram<ItemStatus> itemCounts = new Histogram<ItemStatus>(true);
