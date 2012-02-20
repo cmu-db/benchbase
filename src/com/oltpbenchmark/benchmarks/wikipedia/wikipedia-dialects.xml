@@ -112,7 +112,7 @@
         </procedure>
         <procedure name="UpdatePage">
         	<statement name="insertText">
-        		INSERT INTO text (old_page,old_text,old_flags) VALUES (text_seq.NEXTVAL,?,?,'utf-8') 
+        		INSERT INTO text (old_id,old_page,old_text,old_flags) VALUES (text_seq.NEXTVAL,?,?,'utf-8') 
         	</statement>
         	<statement name="insertRevision">
         		INSERT INTO revision (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) 
@@ -133,7 +133,7 @@
                 UPDATE  "user" SET user_touched = ? WHERE user_id = ?
             </statement>
             <statement name="insertLogging">
-                INSERT INTO logging (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params) "
+                INSERT INTO logging (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params)
 				VALUES (logging_seq.NEXTVAL,'patrol','patrol',?,?,?,?,?,?,'',?)
             </statement>
         </procedure>

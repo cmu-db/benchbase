@@ -122,11 +122,13 @@ public class WikipediaWorker extends Worker {
 
 	public void updatePage(String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
 		Article a = getPageAnonymous(false, userIp, nameSpace, pageTitle);
+
 		if (a == null) {
 			// this would be an insert of a new page, that we don't support for
 			// now.
 			return;
 		}
+	    System.out.println(a.pageId+" "+nameSpace +" "+ pageTitle);
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
         proc.run(conn, a, userIp, userId, nameSpace, pageTitle);
