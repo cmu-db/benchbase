@@ -158,8 +158,8 @@ public class NewBid extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id); // , currentTime);
         ResultSet results = stmt.executeQuery();
         if (results.next() == false) {
-            if (debug) 
-                LOG.debug("The auction for item " + item_id + " has ended - " + currentTime);
+//            if (debug) 
+                LOG.info("The auction for item " + item_id + " has ended - " + currentTime);
             throw new UserAbortException("Unable to bid on item: Auction has ended");
         }
         int col = 1;

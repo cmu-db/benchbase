@@ -103,18 +103,19 @@ public class CloseAuctions extends Procedure {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
 
+        int orig_isolation = conn.getTransactionIsolation();
+        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+        
         if (debug)
             LOG.debug(String.format("startTime=%s, endTime=%s, currentTime=%s",
                                     startTime, endTime, currentTime));
 
         int closed_ctr = 0;
         int waiting_ctr = 0;
-        
         int round = AuctionMarkConstants.CLOSE_AUCTIONS_ROUNDS;
-        
-        int updated;
-        int col;
-        int param;
+        int updated = -1;
+        int col = -1;
+        int param = -1;
         
         PreparedStatement dueItemsStmt = this.getPreparedStatement(conn, getDueItems);
         ResultSet dueItemsTable = null;
@@ -179,7 +180,6 @@ public class CloseAuctions extends Procedure {
                 if (debug)
                     LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
                 
-                
                 Object row[] = new Object[] {
                         itemId,               // i_id
                         sellerId,             // i_u_id
@@ -193,10 +193,12 @@ public class CloseAuctions extends Procedure {
                 };
                 output_rows.add(row);
             } // WHILE
+            if (round > 0) conn.commit();
         } // WHILE
 
         if (debug)
             LOG.debug(String.format("Updated Auctions - Closed=%d / Waiting=%d", closed_ctr, waiting_ctr));
+        conn.setTransactionIsolation(orig_isolation);
         return (output_rows);
     }
 }

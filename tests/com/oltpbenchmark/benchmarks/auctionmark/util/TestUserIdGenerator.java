@@ -31,6 +31,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
@@ -72,6 +74,41 @@ public class TestUserIdGenerator extends TestCase {
         } // FOR
         assertEquals(NUM_USERS, this.users_per_item_count.getSampleCount());
 	}
+	
+    /**
+     * testCheckClient
+     */
+    public void testCheckClient() throws Exception {
+        int num_clients = 10;
+        UserIdGenerator generator;
+        
+        // Create a mapping from each Client Id -> UserIds
+        Map<Integer, Collection<UserId>> clientIds = new HashMap<Integer, Collection<UserId>>();
+        Map<Integer, UserIdGenerator> clientGenerators = new HashMap<Integer, UserIdGenerator>();
+        for (int client = 0; client < num_clients; client++) {
+            generator = new UserIdGenerator(users_per_item_count, num_clients, client);
+            Collection<UserId> users = CollectionUtil.addAll(new HashSet<UserId>(), CollectionUtil.iterable(generator));
+            assertFalse(users.isEmpty());
+            clientIds.put(client, users);
+            clientGenerators.put(client, generator);
+        } // FOR
+        
+        // Then loop back through all of the User Ids and make sure that each UserId
+        // is mappable to the expected client
+        generator = new UserIdGenerator(users_per_item_count, num_clients);
+        for (UserId user_id : CollectionUtil.iterable(generator)) {
+            assertNotNull(user_id);
+            boolean found = false;
+            for (int client = 0; client < num_clients; client++) {
+                boolean expected = clientIds.get(client).contains(user_id);
+                if (expected) assertFalse(found);
+                boolean actual = clientGenerators.get(client).checkClient(user_id);
+                assertEquals(client + " / " + user_id.toString(), expected, actual); 
+                found = (found || expected);
+            } // FOR
+            assertTrue(user_id.toString(), found);
+        } // FOR
+    }
 	
 	/**
 	 * testSeekToPosition

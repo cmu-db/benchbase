@@ -34,7 +34,6 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +47,7 @@ import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdException;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetUserInfo;
@@ -62,6 +62,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import com.oltpbenchmark.benchmarks.auctionmark.util.ItemCommentResponse;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.types.TransactionStatus;
 
@@ -77,7 +78,7 @@ public class AuctionMarkWorker extends Worker {
     /**
      * TODO
      */
-    private final List<long[]> pending_commentResponse = new ArrayList<long[]>();
+    private final List<ItemCommentResponse> pending_commentResponses = new ArrayList<ItemCommentResponse>();
     
     private final AtomicBoolean closeAuctions_flag = new AtomicBoolean();
     
@@ -94,7 +95,7 @@ public class AuctionMarkWorker extends Worker {
         public void run() {
             Thread.currentThread().setName(this.getClass().getSimpleName());
             
-            TransactionTypes txnTypes = AuctionMarkWorker.this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
+            TransactionTypes txnTypes = AuctionMarkWorker.this.getWorkloadConfiguration().getTransTypes(); 
             TransactionType txnType = txnTypes.getType(CloseAuctions.class);
             assert(txnType != null) : txnTypes;
             
@@ -103,8 +104,8 @@ public class AuctionMarkWorker extends Worker {
             
             long sleepTime = AuctionMarkConstants.CLOSE_AUCTIONS_INTERVAL / AuctionMarkConstants.TIME_SCALE_FACTOR;
             while (true) {
-                if (LOG.isDebugEnabled())
-                    LOG.debug(String.format("Sleeping for %d seconds", sleepTime));
+//                if (LOG.isDebugEnabled())
+                    LOG.info(String.format("Sleeping for %d seconds", sleepTime));
 
                 // Always sleep until the next time that we need to check
                 try {
@@ -209,7 +210,7 @@ public class AuctionMarkWorker extends Worker {
         NewCommentResponse(NewCommentResponse.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
-                return (client.pending_commentResponse.isEmpty() == false);
+                return (client.pending_commentResponses.isEmpty() == false);
             }
         }),
         // ====================================================================
@@ -331,6 +332,7 @@ public class AuctionMarkWorker extends Worker {
             throw new RuntimeException("Failed to initialize AuctionMarkWorker", ex);
         }
         if (this.closeAuctions_checker != null) this.closeAuctions_checker.start();
+        LOG.info("AuctionMarkProfile\n" + profile);
     }
     
     @Override
@@ -353,9 +355,10 @@ public class AuctionMarkWorker extends Worker {
         // We only do this from the first client
         if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD == false && closeAuctions_flag.compareAndSet(true, false)) {
             txn = Transaction.CloseAuctions;
-            TransactionTypes txnTypes = this.benchmarkModule.getWorkloadConfiguration().getTransTypes(); 
+            TransactionTypes txnTypes = this.getWorkloadConfiguration().getTransTypes(); 
             txnType = txnTypes.getType(txn.procClass);
             assert(txnType != null) : txnTypes;
+            LOG.info("Executing " + txn);
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
             assert(txn != null) :
@@ -475,7 +478,7 @@ public class AuctionMarkWorker extends Worker {
     
     public Timestamp[] getTimestampParameterArray() {
         return new Timestamp[] { profile.getBenchmarkStartTime(),
-                            profile.getClientStartTime() };
+                                 profile.getClientStartTime() };
     }
     
     // ----------------------------------------------------------------
@@ -588,12 +591,8 @@ public class AuctionMarkWorker extends Worker {
             vt = results[idx];
             assert(vt != null);
             for (Object row[] : vt) {
-                long vals[] = {
-                    (Long)row[0],
-                    (Long)row[1],
-                    (Long)row[2]
-                };
-                pending_commentResponse.add(vals);
+                ItemCommentResponse cr = new ItemCommentResponse((Long)row[0], (Long)row[1], (Long)row[2]);
+                this.pending_commentResponses.add(cr);
             } // FOR
         }
         idx++;
@@ -703,11 +702,9 @@ public class AuctionMarkWorker extends Worker {
         conn.commit();
         assert(results != null);
         
-        pending_commentResponse.add(new long[] {
-                (Long)results[0],
-                (Long)results[1],
-                (Long)results[2]
-        });
+        this.pending_commentResponses.add(new ItemCommentResponse((Long)results[0],
+                                                                 (Long)results[1],
+                                                                 (Long)results[2]));
         return (true);
     }
     
@@ -717,13 +714,14 @@ public class AuctionMarkWorker extends Worker {
     
     protected boolean executeNewCommentResponse(NewCommentResponse proc) throws SQLException {
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
-        Collections.shuffle(pending_commentResponse, profile.rng);
-        long row[] = pending_commentResponse.remove(0);
-        assert(row != null);
+        int idx = profile.rng.nextInt(this.pending_commentResponses.size());
+        ItemCommentResponse cr = this.pending_commentResponses.remove(idx);
+        assert(cr != null);
         
-        long commentId = row[0];
-        ItemId itemId = new ItemId(row[1]);
+        long commentId = cr.commentId.longValue();;
+        ItemId itemId = new ItemId(cr.itemId.longValue());
         UserId sellerId = itemId.getSellerId();
+        assert(sellerId.encode() == cr.sellerId);
         String response = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN,
                                               AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
 
@@ -808,10 +806,16 @@ public class AuctionMarkWorker extends Worker {
 
         long duration = profile.randomDuration.nextInt();
 
-        Object results[] = proc.run(conn, benchmarkTimes, itemId.encode(), sellerId.encode(),
-                                                          categoryId, name, description,
-                                                          duration, initial_price, attributes,
-                                                          gag_ids, gav_ids, images);
+        Object results[] = null;
+        try {
+            results = proc.run(conn, benchmarkTimes, itemId.encode(), sellerId.encode(),
+                                                     categoryId, name, description,
+                                                     duration, initial_price, attributes,
+                                                     gag_ids, gav_ids, images);
+        } catch (DuplicateItemIdException ex) {
+            profile.seller_item_cnt.set(sellerId, ex.getItemCount());
+            throw ex;
+        }
         conn.commit();
                        
         itemId = this.processItemRecord(results);

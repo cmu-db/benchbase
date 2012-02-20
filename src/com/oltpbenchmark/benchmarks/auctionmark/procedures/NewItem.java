@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdException;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 
@@ -230,9 +231,11 @@ public class NewItem extends Procedure {
         try {
             updated = stmt.executeUpdate();
         } catch (SQLIntegrityConstraintViolationException ex) {
-            // this.getPreparedStatement(conn, getSellerItemCount, seller_id);
-            String msg = String.format("Duplicate ItemId #%d for Seller #%d. Ignoring...", item_id, seller_id);
-            throw new UserAbortException(msg, ex);
+            results = this.getPreparedStatement(conn, getSellerItemCount, seller_id).executeQuery();
+            adv = results.next();
+            assert(adv);
+            int item_count = results.getInt(1);
+            throw new DuplicateItemIdException(item_id, seller_id, item_count, ex);
         }
         assert(updated == 1);
 

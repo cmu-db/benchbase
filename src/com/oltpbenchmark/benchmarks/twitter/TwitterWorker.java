@@ -48,7 +48,7 @@ public class TwitterWorker extends Worker {
     public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
         super(benchmarkModule, id);
         this.generator = generator;
-        this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.benchmarkModule.getWorkloadConfiguration().getScaleFactor());
+        this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());
         
         TweetHistogram tweet_h = new TweetHistogram();
         this.tweet_len_rng = new FlatHistogram<Integer>(this.random, tweet_h);

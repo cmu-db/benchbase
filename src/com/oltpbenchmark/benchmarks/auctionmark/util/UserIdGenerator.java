@@ -66,6 +66,7 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.clientId = clientId;
         
         Long max_value = users_per_item_count.getMaxValue();
+        if (max_value == null) max_value = users_per_item_count.getMaxValue();
         assert(max_value != null) :
             "Invalid Users Per Item Histogram:\n" + users_per_item_count;
         this.users_per_item_count = new int[max_value.intValue()+2];
@@ -131,6 +132,29 @@ public class UserIdGenerator implements Iterator<UserId> {
         return (user_id);
     }
     
+    /**
+     * Returns true if the given UserId should be processed by the given
+     * client id 
+     * @param user_id
+     * @return
+     */
+    public boolean checkClient(UserId user_id) {
+        if (this.clientId == null) return (true);
+        
+        int tmp_count = 0;
+        int tmp_position = 0;
+        while (tmp_count < this.maxItemCount) {
+            int num_users = this.users_per_item_count[tmp_count];
+            if (tmp_count == user_id.getItemCount()) {
+                tmp_position += (num_users - user_id.getOffset()) + 1;
+                break;
+            }
+            tmp_position += num_users;
+            tmp_count++;
+        }
+        return (tmp_position % this.numClients == this.clientId.intValue());
+    }
+    
     private UserId findNextUserId() {
         // Find the next id for this size level
         Long found = null;
@@ -146,7 +170,7 @@ public class UserIdGenerator implements Iterator<UserId> {
                     break;
                 }
                 // Otherwise we have to spin through and find one for our client
-                else if (this.currentPosition % this.numClients == this.clientId) {
+                else if (this.currentPosition % this.numClients == this.clientId.intValue()) {
                     found = nextCtr;
 //                    System.err.print(this.currentPosition);
                     break;

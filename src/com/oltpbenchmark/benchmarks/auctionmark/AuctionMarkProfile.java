@@ -49,6 +49,7 @@ import java.util.Set;
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
@@ -58,7 +59,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
-import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.JSONUtil;
@@ -83,15 +83,14 @@ public class AuctionMarkProfile {
      * This prevents the need to have every single client thread load up a separate copy
      */
     private static AuctionMarkProfile cachedProfile;
-    
+
     // ----------------------------------------------------------------
     // REQUIRED REFERENCES
     // ----------------------------------------------------------------
     
-    /**
-     * TableName -> TableCatalog
-     */
-    protected transient final Catalog catalog;
+    private final AuctionMarkBenchmark benchmark;
+    
+    private int client_id;
     
     /**
      * Specialized random number generator
@@ -150,7 +149,7 @@ public class AuctionMarkProfile {
     private transient final LinkedList<ItemInfo> items_completed = new LinkedList<ItemInfo>();
     
     @SuppressWarnings("unchecked")
-    private transient final LinkedList<ItemInfo> allItemSets[] = new LinkedList[]{
+    protected transient final LinkedList<ItemInfo> allItemSets[] = new LinkedList[]{
         this.items_available,
         this.items_endingSoon,
         this.items_waitingForPurchase,
@@ -210,6 +209,7 @@ public class AuctionMarkProfile {
     
     private transient final Set<ItemInfo> tmp_seenItems = new HashSet<ItemInfo>();
     private transient final Histogram<UserId> tmp_userIdHistogram = new Histogram<UserId>(true);
+    private transient final Timestamp tmp_now = new Timestamp(System.currentTimeMillis());
     
     // -----------------------------------------------------------------
     // CONSTRUCTOR
@@ -219,7 +219,12 @@ public class AuctionMarkProfile {
      * Constructor - Keep your pimp hand strong!
      */
     public AuctionMarkProfile(AuctionMarkBenchmark benchmark, RandomGenerator rng) {
-        this.catalog = benchmark.getCatalog();
+        this(benchmark, -1, rng);
+    }
+    
+    private AuctionMarkProfile(AuctionMarkBenchmark benchmark, int client_id, RandomGenerator rng) {
+        this.benchmark = benchmark;
+        this.client_id = client_id;
         this.rng = rng;
         this.scale_factor = benchmark.getWorkloadConfiguration().getScaleFactor();
         this.num_clients = benchmark.getWorkloadConfiguration().getTerminals();
@@ -267,7 +272,7 @@ public class AuctionMarkProfile {
 
     protected final void saveProfile(Connection conn) throws SQLException {
         // CONFIG_PROFILE
-        Table catalog_tbl = this.catalog.getTable(AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
+        Table catalog_tbl = this.benchmark.getCatalog().getTable(AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
         assert(catalog_tbl != null);
         PreparedStatement stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
         int param_idx = 1;
@@ -282,24 +287,34 @@ public class AuctionMarkProfile {
         return;
     }
     
-    private AuctionMarkProfile copyProfile(AuctionMarkProfile other) {
+    private AuctionMarkProfile copyProfile(AuctionMarkWorker worker, AuctionMarkProfile other) {
+        this.client_id = worker.getId();
         this.scale_factor = other.scale_factor;
         this.benchmarkStartTime = other.benchmarkStartTime;
         this.users_per_item_count = other.users_per_item_count;
         this.item_category_histogram = other.item_category_histogram;
         this.gag_ids = other.gag_ids;
         
-        this.items_available.addAll(other.items_available);
-        Collections.shuffle(this.items_available);
+        // Initialize the UserIdGenerator so we can figure out whether our 
+        // client should even have these ids
+        this.initializeUserIdGenerator(this.client_id);
+        assert(this.userIdGenerator != null);
         
-        this.items_endingSoon.addAll(other.items_endingSoon);
-        Collections.shuffle(this.items_endingSoon);
-        
-        this.items_waitingForPurchase.addAll(other.items_waitingForPurchase);
-        Collections.shuffle(this.items_waitingForPurchase);
-        
-        this.items_completed.addAll(other.items_completed);
-        Collections.shuffle(this.items_completed);
+        for (int i = 0; i < this.allItemSets.length; i++) {
+            LinkedList<ItemInfo> list = this.allItemSets[i];
+            assert(list != null);
+            LinkedList<ItemInfo> origList = other.allItemSets[i];
+            assert(origList != null);
+            
+            for (ItemInfo itemInfo : origList) {
+                UserId sellerId = itemInfo.getSellerId();
+                if (this.userIdGenerator.checkClient(sellerId)) {
+                    this.seller_item_cnt.put(sellerId, sellerId.getItemCount());
+                    list.add(itemInfo);
+                }
+            } // FOR
+            Collections.shuffle(list);
+        } // FOR
         
         return (this);
     }
@@ -315,74 +330,85 @@ public class AuctionMarkProfile {
     protected void loadProfile(AuctionMarkWorker worker) throws SQLException {
         synchronized (AuctionMarkProfile.class) {
             // Check whether we have a cached Profile we can copy from
-            if (cachedProfile != null) {
-                if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
-                this.copyProfile(cachedProfile);
-                return;
+            if (cachedProfile == null) {
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Loading AuctionMarkProfile for the first time");
+    
+                // Store everything in the cached profile.
+                // We can then copy from that and extract out only the records
+                // that we need for each AuctionMarkWorker
+                cachedProfile = new AuctionMarkProfile(this.benchmark, this.rng);
+                
+                // Otherwise we have to go fetch everything again
+                LoadConfig proc = worker.getProcedure(LoadConfig.class);
+                ResultSet results[] = proc.run(worker.getConnection());
+                int result_idx = 0;
+                
+                // CONFIG_PROFILE
+                loadConfigProfile(cachedProfile, results[result_idx++]);
+                
+                // IMPORTANT: We need to set these timestamps here. It must be done
+                // after we have loaded benchmarkStartTime
+                cachedProfile.setAndGetClientStartTime();
+                cachedProfile.updateAndGetCurrentTime();
+                
+                // ITEM CATEGORY COUNTS
+                loadItemCategoryCounts(cachedProfile, results[result_idx++]);
+    
+                // GLOBAL_ATTRIBUTE_GROUPS
+                loadGlobalAttributeGroups(cachedProfile, results[result_idx++]);
+                
+                // ITEMS
+                while (result_idx < results.length) {
+    //                assert(results[result_idx].isClosed() == false) :
+    //                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
+                    loadItems(cachedProfile, results[result_idx]);
+                    result_idx++;
+                } // FOR
+                
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Loaded profile:\n" + cachedProfile.toString());
             }
-            
-            if (LOG.isDebugEnabled())
-                LOG.debug("Loading AuctionMarkProfile for the first time");
-            
-            // Otherwise we have to go fetch everything again
-            LoadConfig proc = worker.getProcedure(LoadConfig.class);
-            ResultSet results[] = proc.run(worker.getConnection());
-            int result_idx = 0;
-            
-            // CONFIG_PROFILE
-            this.loadConfigProfile(results[result_idx++]);
-            
-            // IMPORTANT: We need to set these timestamps here. It must be done
-            // after we have loaded benchmarkStartTime
-            this.setAndGetClientStartTime();
-            this.updateAndGetCurrentTime();
-            
-            // ITEM CATEGORY COUNTS
-            this.loadItemCategoryCounts(results[result_idx++]);
-
-            // GLOBAL_ATTRIBUTE_GROUPS
-            this.loadGlobalAttributeGroups(results[result_idx++]);
-            
-            // ITEMS
-            while (result_idx < results.length) {
-//                assert(results[result_idx].isClosed() == false) :
-//                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
-                this.loadItems(results[result_idx]);
-                result_idx++;
-            } // FOR
-            
-            if (LOG.isDebugEnabled())
-                LOG.debug("Loaded profile:\n" + this.toString());
-            
-            cachedProfile = this;
         } // SYNCH
+        
+        if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
+        this.copyProfile(worker, cachedProfile);
+
     }
     
-    private final void loadConfigProfile(ResultSet vt) throws SQLException {
+    private final void initializeUserIdGenerator(int clientId) {
+        assert(this.users_per_item_count != null);
+        assert(this.users_per_item_count.isEmpty() == false);
+        this.userIdGenerator = new UserIdGenerator(this.users_per_item_count,
+                                                   this.num_clients,
+                                                   (clientId < 0 ? null : clientId));
+    }
+    
+    private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         boolean adv = vt.next();
         assert(adv);
         int col = 1;
-        this.scale_factor = vt.getDouble(col++);
-        this.benchmarkStartTime = vt.getTimestamp(col++);
-        JSONUtil.fromJSONString(this.users_per_item_count, vt.getString(col++));
+        profile.scale_factor = vt.getDouble(col++);
+        profile.benchmarkStartTime = vt.getTimestamp(col++);
+        JSONUtil.fromJSONString(profile.users_per_item_count, vt.getString(col++));
         
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
     }
     
-    private final void loadItemCategoryCounts(ResultSet vt) throws SQLException {
+    private static final void loadItemCategoryCounts(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         while (vt.next()) {
             int col = 1;
             long i_c_id = vt.getLong(col++);
             int count = vt.getInt(col++);
-            this.item_category_histogram.put(i_c_id, count);
+            profile.item_category_histogram.put(i_c_id, count);
         } // WHILE
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %d CATEGORY records from %s",
-                                    this.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
+                                    profile.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
     }
     
-    private final void loadItems(ResultSet vt) throws SQLException {
+    private static final void loadItems(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         int ctr = 0;
         while (vt.next()) {
             int col = 1;
@@ -394,7 +420,7 @@ public class AuctionMarkProfile {
             // IMPORTANT: Do not set the status here so that we make sure that
             // it is added to the right queue
             ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
-            this.addItemToProperQueue(itemInfo, false);
+            profile.addItemToProperQueue(itemInfo, false);
             ctr++;
         } // WHILE
         
@@ -403,23 +429,21 @@ public class AuctionMarkProfile {
                                     ctr, AuctionMarkConstants.TABLENAME_ITEM));
     }
     
-    private final void loadGlobalAttributeGroups(ResultSet vt) throws SQLException {
+    private static final void loadGlobalAttributeGroups(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         while (vt.next()) {
             int col = 1;
             long gag_id = vt.getLong(col++);
-            this.gag_ids.add(new GlobalAttributeGroupId(gag_id));
+            profile.gag_ids.add(new GlobalAttributeGroupId(gag_id));
         } // WHILE
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %d records from %s",
-                                    this.gag_ids.size(), AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP));
+                                    profile.gag_ids.size(), AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP));
     }
     
     // -----------------------------------------------------------------
     // TIME METHODS
     // -----------------------------------------------------------------
 
-    private transient final Timestamp tmp_now = new Timestamp(System.currentTimeMillis());
-   
     private Timestamp getScaledCurrentTimestamp(Timestamp time) {
         assert(this.clientStartTime != null);
         tmp_now.setTime(System.currentTimeMillis());
@@ -509,11 +533,7 @@ public class AuctionMarkProfile {
         if (this.randomItemCount == null) {
             this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_item_count);
         }
-        if (this.userIdGenerator == null) {
-            this.userIdGenerator = new UserIdGenerator(this.users_per_item_count,
-                                                       this.num_clients,
-                                                       (clientId < 0 ? null : clientId));
-        }
+        if (this.userIdGenerator == null) this.initializeUserIdGenerator(clientId);
         
         UserId user_id = null;
         int tries = 1000;
@@ -551,11 +571,12 @@ public class AuctionMarkProfile {
             if (LOG.isTraceEnabled()) LOG.trace("Selected " + user_id);
             break;
         } // WHILE
-        assert(user_id != null) :
-            String.format("Failed to select a random UserId " +
-                          "[minItemCount=%d, clientId=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
-                          min_item_count, clientId, Arrays.toString(exclude),
-                          this.userIdGenerator.getTotalUsers(), this.userIdGenerator.getCurrentPosition());
+        if (user_id == null && LOG.isDebugEnabled()) {
+            LOG.warn(String.format("Failed to select a random UserId " +
+                                   "[minItemCount=%d, clientId=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
+                                   min_item_count, clientId, Arrays.toString(exclude),
+                                   this.userIdGenerator.getTotalUsers(), this.userIdGenerator.getCurrentPosition()));
+        }
         return (user_id);
     }
 
@@ -676,6 +697,16 @@ public class AuctionMarkProfile {
     }
         
     private ItemStatus addItemToProperQueue(ItemInfo itemInfo, Timestamp baseTime) {
+        // Always check whether we even want it for this client
+        // The loader's profile and the cache profile will always have a negative client_id,
+        // which means that we always want to keep it
+        if (this.client_id != -1) {
+            if (this.userIdGenerator == null) this.initializeUserIdGenerator(this.client_id);
+            if (this.userIdGenerator.checkClient(itemInfo.getSellerId()) == false) {
+                return (null);
+            }
+        }
+        
         long remaining = itemInfo.endDate.getTime() - baseTime.getTime();
         ItemStatus new_status = (itemInfo.status != null ? itemInfo.status : ItemStatus.OPEN); 
         // Already ended
@@ -736,11 +767,11 @@ public class AuctionMarkProfile {
      * @param needFutureEndDate TODO
      * @return
      */
-        ItemInfo itemInfo = null;
-        private ItemInfo getRandomItem(LinkedList<ItemInfo> itemSet, boolean needCurrentPrice, boolean needFutureEndDate) {
+    private ItemInfo getRandomItem(LinkedList<ItemInfo> itemSet, boolean needCurrentPrice, boolean needFutureEndDate) {
         Timestamp currentTime = this.updateAndGetCurrentTime();
         int num_items = itemSet.size();
         int idx = -1;
+        ItemInfo itemInfo = null;
         
         if (LOG.isTraceEnabled()) 
             LOG.trace(String.format("Getting random ItemInfo [numItems=%d, currentTime=%s, needCurrentPrice=%s]",

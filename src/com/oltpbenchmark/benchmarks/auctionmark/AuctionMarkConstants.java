@@ -68,7 +68,7 @@ public abstract class AuctionMarkConstants {
      * How often to execute CLOSE_AUCTIONS in virtual seconds
      * @see AuctionMarkConstants.TIME_SCALE_FACTOR
      */
-    public static final long CLOSE_AUCTIONS_INTERVAL = Integer.MAX_VALUE ; // 3600l; // one hour
+    public static final long CLOSE_AUCTIONS_INTERVAL = 12000l; // Every 20 seconds
     
     /**
      * If set to true, the CloseAuctions transactions will be a executed
@@ -169,7 +169,6 @@ public abstract class AuctionMarkConstants {
     
     public static final int ITEM_USER_ATTRIBUTES_LENGTH_MIN = 20;
     public static final int ITEM_USER_ATTRIBUTES_LENGTH_MAX = 255;
-
     
     /**
      * When an item receives a bid we will increase its price by this amount
@@ -195,6 +194,11 @@ public abstract class AuctionMarkConstants {
     public static final int ITEM_DURATION_DAYS_MAX = 10;
     
     /**
+     * This defines the number of items to read in when LoadConfig is invoked
+     */
+    public static final int ITEM_LOADCONFIG_LIMIT = 5000;
+    
+    /**
      * This defines the maximum size of a small cache of ItemIds that
      * we maintain in the benchmark profile. For some procedures, the client will 
      * ItemIds out of this cache and use them as txn parameters 
@@ -204,7 +208,7 @@ public abstract class AuctionMarkConstants {
     /**
      * The number of update rounds in each invocation of CloseAuctions
      */
-    public static final int CLOSE_AUCTIONS_ROUNDS = 10;
+    public static final int CLOSE_AUCTIONS_ROUNDS = 1;
     
     /**
      * The number of items to pull in for each update round in CloseAuctions
@@ -311,7 +315,7 @@ public abstract class AuctionMarkConstants {
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_ITEM);
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_WATCH);
     }
-    
+
     // These tables are loaded from static data files
     public static final Collection<String> DATAFILE_TABLES = new HashSet<String>();
     static {

@@ -14,10 +14,12 @@ import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
+import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
@@ -25,8 +27,8 @@ public abstract class Worker implements Runnable {
 	private BenchmarkState testState;
 	private LatencyRecord latencies;
 	
-	protected final int id;
-	protected final BenchmarkModule benchmarkModule;
+	private final int id;
+	private final BenchmarkModule benchmarkModule;
 	protected final Connection conn;
 	protected final WorkloadConfiguration wrkld;
 	protected final TransactionTypes transactionTypes;
@@ -37,6 +39,9 @@ public abstract class Worker implements Runnable {
 	private final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
 	private final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
 	private final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
+	
+	public static final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
+	
 	
 	private boolean seenDone = false;
 	
@@ -72,12 +77,25 @@ public abstract class Worker implements Runnable {
 	}
 	
 	/**
-	 * Unique thread id for this worker
-	 * @return
+	 * Get the BenchmarkModule managing this Worker
+	 */
+	@SuppressWarnings("unchecked")
+    public <T extends BenchmarkModule> T getBenchmarkModule() {
+	    return ((T)this.benchmarkModule);
+	}
+	/**
+	 * Get the unique thread id for this worker
 	 */
 	public int getId() {
 		return this.id;
 	}
+	public WorkloadConfiguration getWorkloadConfiguration() {
+	    return (this.benchmarkModule.getWorkloadConfiguration());
+	}
+	public Catalog getCatalog() {
+	    return (this.benchmarkModule.getCatalog());
+	}
+	
 	public Connection getConnection() {
 	    return (this.conn);
 	}
@@ -231,6 +249,14 @@ public abstract class Worker implements Runnable {
         	    } catch (UserAbortException ex) {
                     if (LOG.isDebugEnabled())
                         LOG.debug(next + " Aborted", ex);
+                    
+                    Histogram<String> error_h = txnAbortMessages.get(next);
+                    if (error_h == null) {
+                        error_h = new Histogram<String>();
+                        txnAbortMessages.put(next, error_h);
+                    }
+                    error_h.put(StringUtil.abbrv(ex.getMessage(), 20));
+                    
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);
                     } else {
@@ -261,7 +287,7 @@ public abstract class Worker implements Runnable {
                         // SQLServerException Deadlock
                         continue;
                     } 
-                    if (ex.getErrorCode() == 0 && ex.getSQLState().equals("40001")) {
+                    if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
                         continue;
                     } 
@@ -272,7 +298,8 @@ public abstract class Worker implements Runnable {
                     
                     // UNKNOWN: Just keep going ..
                     else {
-                        if (LOG.isDebugEnabled()) LOG.warn(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+//                        if (LOG.isDebugEnabled()) 
+                            LOG.warn(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
                         //throw ex;
                     }
                 }

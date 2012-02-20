@@ -131,7 +131,9 @@ public class NewPurchase extends Procedure {
         stmt = this.getPreparedStatement(conn, getItemInfo, item_id, seller_id);
         results = stmt.executeQuery();
         if (results.next() == false) {
-            throw new UserAbortException("No ITEM_MAX_BID is available record for item " + item_id);
+            String msg = "No ITEM_MAX_BID is available record for item " + item_id;
+//            System.err.println(msg);
+            throw new UserAbortException(msg);
         }
         int col = 1;
         long i_num_bids = results.getLong(col++);

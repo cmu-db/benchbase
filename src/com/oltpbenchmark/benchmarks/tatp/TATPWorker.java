@@ -183,7 +183,7 @@ public class TATPWorker extends Worker {
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
         assert(proc != null) : String.format("Failed to get Procedure handle for %s.%s",
-                                             this.benchmarkModule.getBenchmarkName(), txnType);
+                                             this.getBenchmarkModule().getBenchmarkName(), txnType);
         if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
         
         t.invoke(this.conn, proc, subscriberSize);

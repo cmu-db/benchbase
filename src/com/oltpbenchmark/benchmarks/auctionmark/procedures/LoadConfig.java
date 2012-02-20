@@ -31,7 +31,7 @@ public class LoadConfig extends Procedure {
         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
         " WHERE i_status = ? " +
         " ORDER BY i_end_date ASC " +
-        " LIMIT " + AuctionMarkConstants.ITEM_ID_CACHE_SIZE
+        " LIMIT " + AuctionMarkConstants.ITEM_LOADCONFIG_LIMIT
     );
     
     public final SQLStmt getAttributes = new SQLStmt(

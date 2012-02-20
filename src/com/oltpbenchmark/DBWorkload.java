@@ -121,7 +121,7 @@ public class DBWorkload {
 		options.addOption("h", "help", false, "Print this help");
 		options.addOption("s", "sample", true, "Sampling window");
 		options.addOption("o", "output", true, "Output file (default System.out)");		
-		options.addOption(null, "histogram", false, "Print txn histogram");
+		options.addOption(null, "histograms", false, "Print txn histograms");
 
         // parse the command line arguments
         CommandLine argsLine = parser.parse(options, args);
@@ -293,11 +293,12 @@ public class DBWorkload {
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
-            if (argsLine.hasOption("histogram")) {
+            if (argsLine.hasOption("histograms")) {
                 EXEC_LOG.info(SINGLE_LINE);
                 EXEC_LOG.info("Completed Transactions:\n" + r.getTransactionSuccessHistogram() + "\n");
                 EXEC_LOG.info("Aborted Transactions:\n" + r.getTransactionAbortHistogram() + "\n");
                 EXEC_LOG.info("Rejected Transactions:\n" + r.getTransactionRetryHistogram());
+                EXEC_LOG.info("User Aborts:\n" + StringUtil.formatMaps(Worker.txnAbortMessages));
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
