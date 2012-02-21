@@ -1,6 +1,19 @@
 <?xml version="1.0"?>
 <dialects>
-    <dialect type="POSTGRES">
+<!--    <dialect type="POSTGRES">
+        <procedure name="CloseAuctions">
+            <statement name="getDueItems">
+                SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status
+                  FROM "ITEM"
+                 WHERE (i_start_date BETWEEN ? AND ?) AND i_status = 0
+                 ORDER BY i_id ASC LIMIT 100
+            </statement>
+            <statement name="updateItemStatus">
+                UPDATE "ITEM"
+                   SET i_status = ?, i_updated = ?
+                 WHERE i_id = ? AND i_u_id = ?
+            </statement>
+        </procedure>
         <procedure name="LoadConfig">
             <statement name="getConfigProfile">
                 SELECT * FROM "CONFIG_PROFILE"
@@ -21,18 +34,12 @@
                 SELECT gag_id FROM "GLOBAL_ATTRIBUTE_GROUP"
             </statement>
         </procedure>
-        <procedure name="NewBid">
+        <procedure name="GetItem">
             <statement name="getItem">
-                SELECT i_initial_price, i_current_price, i_num_bids, i_end_date, i_status
-                  FROM "ITEM"
-                 WHERE i_id = ? AND i_u_id = ?
-            </statement>
-            <statement name="updateItem">
-                UPDATE "ITEM"
-                   SET i_num_bids = i_num_bids + 1,
-                       i_current_price = ?,
-                       i_updated = ?
-                 WHERE i_id = ? AND i_u_id = ?
+                SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status
+                 FROM ITEM
+                WHERE (i_start_date BETWEEN ? AND ?) AND i_status = 0
+                ORDER BY i_id ASC LIMIT 100
             </statement>
         </procedure>
         <procedure name="NewComment">
@@ -47,13 +54,18 @@
                 WHERE i_id = ? AND i_u_id = ?
             </statement>
         </procedure>
-        <procedure name="UpdateItem">
+        <procedure name="NewBid">
+            <statement name="getItem">
+                SELECT i_initial_price, i_current_price, i_num_bids, i_end_date, i_status
+                  FROM "ITEM"
+                 WHERE i_id = ? AND i_u_id = ?
+            </statement>
             <statement name="updateItem">
                 UPDATE "ITEM"
-                   SET i_description = ?,
+                   SET i_num_bids = i_num_bids + 1,
+                       i_current_price = ?,
                        i_updated = ?
                  WHERE i_id = ? AND i_u_id = ?
-                   AND i_status = 0
             </statement>
         </procedure>
         <procedure name="NewItem">
@@ -69,7 +81,31 @@
                 ?, ?, ?, ?, ?, "1")
            </statement>
         </procedure>
-    </dialect>
+        <procedure name="NewPurchase">
+            <statement name="getItemInfo">
+                SELECT i_num_bids, i_current_price, i_end_date, ib_id, ib_buyer_id, u_balance
+                  FROM ITEM, ITEM_MAX_BID, ITEM_BID, USERACCT
+                 WHERE i_id = ?
+                   AND i_u_id = ?
+                   AND i_status = 2
+                   AND imb_i_id = i_id
+                   AND imb_u_id = i_u_id
+                   AND imb_ib_id = ib_id
+                   AND imb_ib_i_id = ib_i_id
+                   AND imb_ib_u_id = ib_u_id
+                   AND ib_buyer_id = u_id
+           </statement>
+        </procedure>        
+        <procedure name="UpdateItem">
+            <statement name="updateItem">
+                UPDATE "ITEM"
+                   SET i_description = ?,
+                       i_updated = ?
+                 WHERE i_id = ? AND i_u_id = ?
+                   AND i_status = 0
+            </statement>
+        </procedure>
+    </dialect>-->
 
     <dialect type="SQLSERVER">
         <procedure name="LoadConfig">

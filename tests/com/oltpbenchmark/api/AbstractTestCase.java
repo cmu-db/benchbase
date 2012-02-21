@@ -79,6 +79,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         assertNotNull(this.catalog);
         this.conn = this.benchmark.makeConnection();
         assertNotNull(this.conn);
+        assertFalse(this.conn.isReadOnly());
     }
     
     @Override

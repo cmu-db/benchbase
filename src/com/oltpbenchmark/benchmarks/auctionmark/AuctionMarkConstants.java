@@ -64,6 +64,8 @@ public abstract class AuctionMarkConstants {
     // EXECUTION CONFIGURATION
     // ----------------------------------------------------------------
     
+    public static boolean CLOSE_AUCTIONS_ENABLE = true;
+    
     /**
      * How often to execute CLOSE_AUCTIONS in virtual seconds
      * @see AuctionMarkConstants.TIME_SCALE_FACTOR
@@ -84,7 +86,6 @@ public abstract class AuctionMarkConstants {
     
     // Non-standard txns
     public static final int FREQUENCY_CLOSE_AUCTIONS    = -1; // called at regular intervals
-    public static final boolean ENABLE_CLOSE_AUCTIONS   = true;
     
     // Regular Txn Mix
     public static final int FREQUENCY_GET_ITEM              = 25;

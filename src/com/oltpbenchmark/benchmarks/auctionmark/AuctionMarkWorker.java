@@ -305,7 +305,7 @@ public class AuctionMarkWorker extends Worker {
         super(benchmark, id);
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
         
-        boolean needCloseAuctions = (AuctionMarkConstants.ENABLE_CLOSE_AUCTIONS && id == 0);
+        boolean needCloseAuctions = (AuctionMarkConstants.CLOSE_AUCTIONS_ENABLE && id == 0);
         this.closeAuctions_flag.set(needCloseAuctions);
         if (needCloseAuctions) {
             this.closeAuctions_checker = new CloseAuctionsChecker(); 
@@ -349,7 +349,8 @@ public class AuctionMarkWorker extends Worker {
         
         // Always check if we need to want to run CLOSE_AUCTIONS
         // We only do this from the first client
-        if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD == false && closeAuctions_flag.compareAndSet(true, false)) {
+        if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD == false &&
+            closeAuctions_flag.compareAndSet(true, false)) {
             txn = Transaction.CloseAuctions;
             TransactionTypes txnTypes = this.getWorkloadConfiguration().getTransTypes(); 
             txnType = txnTypes.getType(txn.procClass);

@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.oltpbenchmark.api;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,10 +75,12 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     public void testExecuteWork() throws Exception {
         this.benchmark.createDatabase();
         this.benchmark.loadDatabase();
+        this.conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
         Worker w = workers.get(0);
         assertNotNull(w);
         w.initialize();
+        assertFalse(this.conn.isReadOnly());
         for (TransactionType txnType : this.workConf.getTransTypes()) {
             if (txnType.isSupplemental()) continue;
             try {
@@ -88,8 +91,10 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
                 // These are expected, so they can be ignored
                 // Anything else is a serious error
             } catch (Throwable ex) {
-                throw new RuntimeException("Failed to execute " + txnType, ex);
+//                ex.printStackTrace();
+                 throw new RuntimeException("Failed to execute " + txnType, ex);
             }
+            conn.commit();
         } // FOR
     }
 }

@@ -28,10 +28,10 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import org.apache.log4j.Logger;
 
@@ -153,13 +153,16 @@ public class NewBid extends Procedure {
         final boolean debug = LOG.isDebugEnabled();
         if (debug) LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]", item_id, buyer_id, newBid));
 
+        PreparedStatement stmt = null;
+        ResultSet results = null;
+        
         // Check to make sure that we can even add a new bid to this item
         // If we fail to get back an item, then we know that the auction is closed
-        PreparedStatement stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id); // , currentTime);
-        ResultSet results = stmt.executeQuery();
+        stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id); // , currentTime);
+        results = stmt.executeQuery();
         if (results.next() == false) {
-//            if (debug) 
-                LOG.info("The auction for item " + item_id + " has ended - " + currentTime);
+            if (debug) 
+                LOG.debug("The auction for item " + item_id + " has ended - " + currentTime);
             throw new UserAbortException("Unable to bid on item: Auction has ended");
         }
         int col = 1;
@@ -199,6 +202,7 @@ public class NewBid extends Procedure {
             double currentBidAmount = results.getDouble(col++);
             double currentBidMax = results.getDouble(col++);
             long currentBuyerId = results.getLong(col++);
+            boolean updateMaxBid = false;
             assert((int)currentBidAmount == (int)i_current_price) :
                 String.format("%.2f == %.2f", currentBidAmount, i_current_price);
             
@@ -213,7 +217,12 @@ public class NewBid extends Procedure {
                     if (debug) LOG.debug(msg);
                     throw new UserAbortException(msg);
                 }
-                this.getPreparedStatement(conn, updateBid, i_current_price, newBid, currentTime, currentBidId, item_id, seller_id);
+                this.getPreparedStatement(conn, updateBid, i_current_price,
+                                                           newBid,
+                                                           currentTime,
+                                                           currentBidId,
+                                                           item_id,
+                                                           seller_id).executeUpdate();
                 if (debug) LOG.debug(String.format("Increasing the max bid the highest bidder %s from %.2f to %.2f for Item %d",
                                                    buyer_id, currentBidMax, newBid, item_id));
             }
@@ -225,10 +234,8 @@ public class NewBid extends Procedure {
                 if (newBid > currentBidMax) {
                     i_current_price = Math.min(newBid, currentBidMax + (i_initial_price * AuctionMarkConstants.ITEM_BID_PERCENT_STEP));
                     assert(i_current_price > currentBidMax);
-                    this.getPreparedStatement(conn, updateItemMaxBid, newBidId, item_id, seller_id, currentTime, item_id, seller_id);
-                    if (debug) LOG.debug(String.format("Changing new highest bidder of Item %d to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
-                                                        item_id, UserId.toString(buyer_id), newBid, currentBidMax));
-
+                    // Defer the update to ITEM_MAX_BID until after we insert our new ITEM_BID record
+                    updateMaxBid = true;
                 }
                 // The current max bidder is still the current one
                 // We just need to bump up their bid amount to be at least the bidder's amount
@@ -238,7 +245,12 @@ public class NewBid extends Procedure {
                     newBidMaxBuyerId = currentBuyerId;
                     i_current_price = Math.min(currentBidMax, newBid + (i_initial_price * AuctionMarkConstants.ITEM_BID_PERCENT_STEP));
                     assert(i_current_price >= newBid) : String.format("%.2f > %.2f", i_current_price, newBid);
-                    this.getPreparedStatement(conn, updateBid, i_current_price, i_current_price, currentTime, currentBidId, item_id, seller_id);
+                    this.getPreparedStatement(conn, updateBid, i_current_price,
+                                                               i_current_price,
+                                                               currentTime,
+                                                               currentBidId,
+                                                               item_id,
+                                                               seller_id).executeUpdate();
                     if (debug) LOG.debug(String.format("Keeping the existing highest bidder of Item %d as %s but updating current price from %.2f to %.2f",
                                                        item_id, buyer_id, currentBidAmount, i_current_price));
                 }
@@ -247,16 +259,54 @@ public class NewBid extends Procedure {
                 // the new highest bidder. We also want to insert a new record even if
                 // the BuyerId already has ITEM_BID record, because we want to maintain
                 // the history of all the bid attempts
-                this.getPreparedStatement(conn, insertItemBid, newBidId, item_id, seller_id, buyer_id,
-                                            i_current_price, newBid, currentTime, currentTime);
-                this.getPreparedStatement(conn, updateItem, i_current_price, currentTime, item_id, seller_id);
+                this.getPreparedStatement(conn, insertItemBid, newBidId,
+                                                               item_id,
+                                                               seller_id,
+                                                               buyer_id,
+                                                               i_current_price,
+                                                               newBid,
+                                                               currentTime,
+                                                               currentTime).executeUpdate();
+                this.getPreparedStatement(conn, updateItem, i_current_price,
+                                                            currentTime,
+                                                            item_id,
+                                                            seller_id).executeUpdate();
+                
+                // This has to be done after we insert the ITEM_BID record to make sure
+                // that the HSQLDB test cases work
+                if (updateMaxBid) {
+                    this.getPreparedStatement(conn, updateItemMaxBid, newBidId,
+                                                                      item_id,
+                                                                      seller_id,
+                                                                      currentTime,
+                                                                      item_id,
+                                                                      seller_id).executeUpdate();
+                    if (debug) LOG.debug(String.format("Changing new highest bidder of Item %d to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
+                                         item_id, UserId.toString(buyer_id), newBid, currentBidMax));
+                }
             }
         }
         // There is no existing max bid record, therefore we can just insert ourselves
         else {
-            this.getPreparedStatement(conn, insertItemBid, newBidId, item_id, seller_id, buyer_id, i_initial_price, newBid, currentTime, currentTime).execute();
-            this.getPreparedStatement(conn, insertItemMaxBid, item_id, seller_id, newBidId, item_id, seller_id, currentTime, currentTime).execute();
-            this.getPreparedStatement(conn, updateItem, i_current_price, currentTime, item_id, seller_id).execute();
+            this.getPreparedStatement(conn, insertItemBid, newBidId,
+                                                           item_id,
+                                                           seller_id,
+                                                           buyer_id,
+                                                           i_initial_price,
+                                                           newBid,
+                                                           currentTime,
+                                                           currentTime).executeUpdate();
+            this.getPreparedStatement(conn, insertItemMaxBid, item_id,
+                                                              seller_id,
+                                                              newBidId,
+                                                              item_id,
+                                                              seller_id,
+                                                              currentTime,
+                                                              currentTime).executeUpdate();
+            this.getPreparedStatement(conn, updateItem, i_current_price,
+                                                        currentTime,
+                                                        item_id,
+                                                        seller_id).execute();
             if (debug) LOG.debug(String.format("Creating the first bid record for Item %d and setting %s as highest bidder at %.2f",
                                                item_id, buyer_id, i_current_price));
         }

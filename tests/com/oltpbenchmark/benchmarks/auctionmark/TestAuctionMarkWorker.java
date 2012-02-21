@@ -18,6 +18,7 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
     protected void setUp() throws Exception {
         super.setUp(AuctionMarkBenchmark.class, TestAuctionMarkBenchmark.PROC_CLASSES);
         AuctionMarkProfile.clearCachedProfile();
+        AuctionMarkConstants.CLOSE_AUCTIONS_ENABLE = false;
     }
     
     /**

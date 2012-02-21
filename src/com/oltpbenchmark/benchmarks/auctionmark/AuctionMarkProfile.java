@@ -353,7 +353,9 @@ public class AuctionMarkProfile {
                 
                 // Otherwise we have to go fetch everything again
                 LoadConfig proc = worker.getProcedure(LoadConfig.class);
-                ResultSet results[] = proc.run(worker.getConnection());
+                Connection conn = worker.getConnection();
+                ResultSet results[] = proc.run(conn);
+                conn.commit();
                 int result_idx = 0;
                 
                 // CONFIG_PROFILE

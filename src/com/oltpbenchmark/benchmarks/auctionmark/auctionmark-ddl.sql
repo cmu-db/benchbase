@@ -270,7 +270,7 @@ CREATE TABLE ITEM_BID (
     ib_i_id             BIGINT NOT NULL,
     ib_u_id             BIGINT NOT NULL,
     ib_buyer_id         BIGINT NOT NULL REFERENCES USERACCT (u_id),
-    ib_bid                FLOAT NOT NULL,
+    ib_bid              FLOAT NOT NULL,
     ib_max_bid          FLOAT NOT NULL,
     ib_created          TIMESTAMP,
     ib_updated          TIMESTAMP,
