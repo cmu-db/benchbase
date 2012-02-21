@@ -250,12 +250,14 @@ public abstract class Worker implements Runnable {
                     if (LOG.isDebugEnabled())
                         LOG.debug(next + " Aborted", ex);
                     
+                    /* PAVLO
                     Histogram<String> error_h = txnAbortMessages.get(next);
                     if (error_h == null) {
                         error_h = new Histogram<String>();
                         txnAbortMessages.put(next, error_h);
                     }
                     error_h.put(StringUtil.abbrv(ex.getMessage(), 20));
+                    */
                     
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);

@@ -327,7 +327,8 @@ public class AuctionMarkWorker extends Worker {
             throw new RuntimeException("Failed to initialize AuctionMarkWorker", ex);
         }
         if (this.closeAuctions_checker != null) this.closeAuctions_checker.start();
-        LOG.info("AuctionMarkProfile\n" + profile);
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("AuctionMarkProfile %03d\n%s", this.getId(), profile));
     }
     
     @Override
