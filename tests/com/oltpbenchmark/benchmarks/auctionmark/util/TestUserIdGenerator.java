@@ -57,7 +57,7 @@ public class TestUserIdGenerator extends TestCase {
     
     private static final int NUM_CLIENTS = 10;
     private static final int NUM_USERS = 1000;
-    private static final RandomGenerator rand = new RandomGenerator((int)System.currentTimeMillis());
+    private static final RandomGenerator rand = new RandomGenerator(0); // (int)System.currentTimeMillis());
     
     private static final Zipf randomNumItems = new Zipf(rand,
             AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN,
@@ -96,6 +96,7 @@ public class TestUserIdGenerator extends TestCase {
         // Then loop back through all of the User Ids and make sure that each UserId
         // is mappable to the expected client
         generator = new UserIdGenerator(users_per_item_count, num_clients);
+        int ctr = 0;
         for (UserId user_id : CollectionUtil.iterable(generator)) {
             assertNotNull(user_id);
             boolean found = false;
@@ -103,8 +104,9 @@ public class TestUserIdGenerator extends TestCase {
                 boolean expected = clientIds.get(client).contains(user_id);
                 if (expected) assertFalse(found);
                 boolean actual = clientGenerators.get(client).checkClient(user_id);
-                assertEquals(client + " / " + user_id.toString(), expected, actual); 
+                assertEquals(String.format("[%03d] %d / %s", ctr, client, user_id), expected, actual); 
                 found = (found || expected);
+                ctr++;
             } // FOR
             assertTrue(user_id.toString(), found);
         } // FOR

@@ -143,7 +143,7 @@ public class UserIdGenerator implements Iterator<UserId> {
         
         int tmp_count = 0;
         int tmp_position = 0;
-        while (tmp_count < this.maxItemCount) {
+        while (tmp_count <= this.maxItemCount) {
             int num_users = this.users_per_item_count[tmp_count];
             if (tmp_count == user_id.getItemCount()) {
                 tmp_position += (num_users - user_id.getOffset()) + 1;

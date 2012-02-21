@@ -85,7 +85,7 @@ public abstract class BenchmarkModule {
 
         this.benchmarkName = benchmarkName;
         this.workConf = workConf;
-        if(withCatalog)
+        if (withCatalog)
             this.catalog = new Catalog(this);
         else
             this.catalog=null;
