@@ -85,10 +85,7 @@ public abstract class BenchmarkModule {
 
         this.benchmarkName = benchmarkName;
         this.workConf = workConf;
-        if (withCatalog)
-            this.catalog = new Catalog(this);
-        else
-            this.catalog=null;
+        this.catalog = (withCatalog ? new Catalog(this) : null);
         File xmlFile = this.getSQLDialect();
         this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
     }

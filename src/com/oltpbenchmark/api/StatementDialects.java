@@ -3,8 +3,12 @@ package com.oltpbenchmark.api;
 import java.io.File;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -172,11 +176,20 @@ public class StatementDialects {
             throw new RuntimeException("Unable to initialize serializer", ex);
         }
         
+        List<Procedure> sorted = new ArrayList<Procedure>(procedures);
+        Collections.sort(sorted, new Comparator<Procedure>() {
+            @Override
+            public int compare(Procedure o1, Procedure o2) {
+                return (o1.getProcedureName().compareTo(o2.getProcedureName()));
+            }
+        });
         
         ObjectFactory factory = new ObjectFactory();
         DialectType dType = factory.createDialectType();
         dType.setType(dbType.name());
-        for (Procedure proc : procedures) {
+        for (Procedure proc : sorted) {
+            if (proc.getStatments().isEmpty()) continue;
+            
             ProcedureType pType = factory.createProcedureType();
             pType.setName(proc.getProcedureName());
             for (Entry<String, SQLStmt> e : proc.getStatments().entrySet()) {

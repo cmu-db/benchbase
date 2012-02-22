@@ -98,7 +98,7 @@
             <arg line="--clear ${clear}" />
             <arg line="--load ${load}" />
             <arg line="--execute ${execute}" />
-        	<arg line="${extra}" />
+            <arg line="${extra}" />
             <classpath refid='project.classpath' />
             <assertions><enable/></assertions>
         </java>
@@ -177,22 +177,47 @@
             message="JUnit had failures"
         />
     </target>
-	
-	<target name='junitclass' description="Run one junit suite">
+    
+    <target name='junitclass' description="Run one junit suite">
 
-	    <condition property="timeoutLength" value="${timeoutLength}" else='600000'>
-	        <isset property="timeoutLength"/>
-	    </condition>
-	    <run_junit timeout="${timeoutLength}" printsummary="yes" showoutput="yes">
-	        <formatters>
-	            <formatter usefile="false" type="plain"/>
-	        </formatters>
-	        <tests>
-	            <fileset dir='${build.tests.dir}'>
-	              <include name="**/${junitclass}.class"/>
-	            </fileset>
-	        </tests>
-	    </run_junit>
-	    <fail if="junit.failures" message="JUnit had failures" />
-	</target>
+        <condition property="timeoutLength" value="${timeoutLength}" else='600000'>
+            <isset property="timeoutLength"/>
+        </condition>
+        <run_junit timeout="${timeoutLength}" printsummary="yes" showoutput="yes">
+            <formatters>
+                <formatter usefile="false" type="plain"/>
+            </formatters>
+            <tests>
+                <fileset dir='${build.tests.dir}'>
+                    <include name="**/${junitclass}.class"/>
+                </fileset>
+            </tests>
+        </run_junit>
+        <fail if="junit.failures" message="JUnit had failures" />
+    </target>
+        
+    <!-- *************************************** UTILITY *************************************** -->
+
+    <target name="dialects-export"
+            description="Export all of the SQL for a given benchmark to a dialects file">
+        <condition property="benchmark" value="">
+            <not><isset property="benchmark"/></not>
+        </condition>
+        <condition property="config" value="">
+            <not><isset property="config"/></not>
+        </condition>
+        
+        <java fork="yes" failonerror="true" classname="com.oltpbenchmark.DBWorkload">
+            <jvmarg value="-Xmx1024m" />
+            <jvmarg value="-Dlog4j.configuration=${basedir}/log4j.properties"/>
+            <jvmarg value="-client" />
+            <arg line="-b ${benchmark}" />
+            <arg line="-c ${config}" />
+            <arg line="--dialects-export true" />
+            <classpath refid='project.classpath' />
+            <assertions><enable/></assertions>
+        </java>
+    </target>
+    
+    
 </project>

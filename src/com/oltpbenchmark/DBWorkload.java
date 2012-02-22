@@ -122,6 +122,7 @@ public class DBWorkload {
 		options.addOption("s", "sample", true, "Sampling window");
 		options.addOption("o", "output", true, "Output file (default System.out)");		
 		options.addOption(null, "histograms", false, "Print txn histograms");
+		options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
 
         // parse the command line arguments
         CommandLine argsLine = parser.parse(options, args);
@@ -225,6 +226,19 @@ public class DBWorkload {
         wrkld.setTransTypes(tt);
         LOG.debug("Using the following transaction types: " + tt);
 
+        // Export StatementDialects
+        if (isBooleanOptionSet(argsLine, "dialects-export")) {
+            if (bench.getStatementDialects() != null) {
+                LOG.info("Exporting StatementDialects for " + bench);
+                String xml = bench.getStatementDialects().export(wrkld.getDBType(),
+                                                                 bench.getProcedures().values());
+                System.out.println(xml);
+                System.exit(0);
+            }
+            throw new RuntimeException("No StatementDialects is available for " + bench);
+        }
+
+        
         @Deprecated
         boolean verbose = argsLine.hasOption("v");
 
