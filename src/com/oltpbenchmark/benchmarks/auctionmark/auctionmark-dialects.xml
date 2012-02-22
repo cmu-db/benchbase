@@ -20,6 +20,9 @@
             <statement name="getItemComments">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status,        ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created   FROM "ITEM", "ITEM_COMMENT" WHERE i_u_id = ? AND i_status = 0   AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL ORDER BY ic_created DESC LIMIT 25 </statement>
         </procedure>
         <procedure name="LoadConfig">
+            <statement name="deleteItemPurchases">DELETE FROM "ITEM_PURCHASE" WHERE ip_date &gt; ?</statement>
+            <statement name="resetItems">UPDATE "ITEM" SET i_status = ?, i_updated = ? WHERE i_status != ? AND i_end_date &gt; ? AND i_updated &gt; ?</statement>
+            <statement name="getBenchmarkStart">SELECT CFP_BENCHMARK_START FROM "CONFIG_PROFILE"</statement>
             <statement name="getConfigProfile">SELECT * FROM "CONFIG_PROFILE"</statement>
             <statement name="getItems">SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status   FROM "ITEM" WHERE i_status = ?  ORDER BY i_end_date ASC  LIMIT 5000</statement>
             <statement name="getPendingComments">SELECT ic_id, ic_i_id, ic_u_id, ic_buyer_id   FROM "ITEM_COMMENT" WHERE ic_response IS NULL</statement>

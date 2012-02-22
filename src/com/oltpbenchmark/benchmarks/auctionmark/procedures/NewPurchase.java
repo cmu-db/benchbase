@@ -155,7 +155,6 @@ public class NewPurchase extends Procedure {
         // Set item_purchase_id
         long ip_id = AuctionMarkUtil.getUniqueElementId(item_id, 1);
 
-        // Insert a new purchase
         updated = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime).executeUpdate();
         assert(updated == 1);
         

@@ -83,8 +83,12 @@ public abstract class AuctionMarkUtil {
      */
     public static Timestamp getProcTimestamp(Timestamp benchmarkTimes[]) {
         assert(benchmarkTimes.length == 2);
-        long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], new Timestamp(System.currentTimeMillis()));
-        return new Timestamp(timestamp);
+        
+        Timestamp tmp = new Timestamp(System.currentTimeMillis());
+        long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], tmp);
+        tmp.setTime(timestamp);
+        
+        return (tmp);
     }
     
     /**
