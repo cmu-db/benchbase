@@ -1,14 +1,17 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -18,6 +21,7 @@ import org.xml.sax.SAXException;
 
 import com.oltpbenchmark.api.dialects.DialectType;
 import com.oltpbenchmark.api.dialects.DialectsType;
+import com.oltpbenchmark.api.dialects.ObjectFactory;
 import com.oltpbenchmark.api.dialects.ProcedureType;
 import com.oltpbenchmark.api.dialects.StatementType;
 import com.oltpbenchmark.types.DatabaseType;
@@ -63,6 +67,10 @@ public class StatementDialects {
         
     }
     
+    /**
+     * Load in the assigned XML file and populate the internal dialects map
+     * @return
+     */
     protected boolean load() {
         if (this.xmlFile == null) {
             LOG.warn(String.format("SKIP - No SQL dialect file was given.", this.xmlFile));
@@ -100,7 +108,7 @@ public class StatementDialects {
         
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loading the SQL dialect file '%s' for %s",
-                                   this.xmlFile.getName(), this.dbType));
+                                    this.xmlFile.getName(), this.dbType));
 
         for (DialectType dialect : dialects.getDialect()) {
             assert(this.dbType != null);
@@ -140,6 +148,57 @@ public class StatementDialects {
         }
         
         return (true);
+    }
+    
+    /**
+     * Export the original SQL for all of the SQLStmt in the given list of Procedures
+     * @param dbType
+     * @param procedures
+     * @return A well-formed XML export of the SQL for the given Procedures
+     */
+    public String export(DatabaseType dbType, Collection<Procedure> procedures) {
+        assert(procedures.isEmpty() == false) : "No procedures passed";
+        Marshaller marshaller = null;
+        JAXBContext jc = null;
+                
+        try {
+            jc = JAXBContext.newInstance(this.xmlContext);
+            marshaller = jc.createMarshaller();
+            
+            SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = sf.newSchema(this.xmlSchemaURL);
+            marshaller.setSchema(schema);
+        } catch (Exception ex) {
+            throw new RuntimeException("Unable to initialize serializer", ex);
+        }
+        
+        
+        ObjectFactory factory = new ObjectFactory();
+        DialectType dType = factory.createDialectType();
+        dType.setType(dbType.name());
+        for (Procedure proc : procedures) {
+            ProcedureType pType = factory.createProcedureType();
+            pType.setName(proc.getProcedureName());
+            for (Entry<String, SQLStmt> e : proc.getStatments().entrySet()) {
+                StatementType sType = factory.createStatementType();
+                sType.setName(e.getKey());
+                sType.setValue(e.getValue().getOriginalSQL());
+                pType.getStatement().add(sType);
+            } // FOR (stmt)
+            dType.getProcedure().add(pType);
+        } // FOR
+        DialectsType dialects = factory.createDialectsType();
+        dialects.getDialect().add(dType);
+        
+        StringWriter st = new StringWriter();
+        try {
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(factory.createDialects(dialects), st);
+        } catch (JAXBException ex) {
+            throw new RuntimeException("Failed to generate XML", ex);
+        }
+        
+        return (st.toString());
     }
 
     /**

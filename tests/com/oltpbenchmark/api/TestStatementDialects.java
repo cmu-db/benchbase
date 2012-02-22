@@ -3,23 +3,19 @@ package com.oltpbenchmark.api;
 import java.io.File;
 import java.util.Collection;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark;
+import com.oltpbenchmark.benchmarks.epinions.TestEpinionsBenchmark;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.FileUtil;
 
-import junit.framework.TestCase;
-
-public class TestStatementDialects extends TestCase {
+public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
     
     static {
       org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
     }
     
-    private EpinionsBenchmark benchmark;
-    private WorkloadConfiguration workConf;
     private File xmlFile;
     
     private static final DatabaseType TARGET_DATABASE = DatabaseType.SQLITE;
@@ -40,10 +36,7 @@ public class TestStatementDialects extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
-        
-        this.workConf = new WorkloadConfiguration();
-        this.benchmark = new EpinionsBenchmark(this.workConf);
+        super.setUp(EpinionsBenchmark.class, TestEpinionsBenchmark.PROC_CLASSES);
         this.xmlFile = FileUtil.writeStringToTempFile(dialectXML, "xml");
     }
     
@@ -53,6 +46,29 @@ public class TestStatementDialects extends TestCase {
         
         if (this.xmlFile.exists()) {
             this.xmlFile.delete();
+        }
+    }
+    
+    /**
+     * testDumpXMLFile
+     */
+    public void testDumpXMLFile() throws Exception {
+        DatabaseType dbType = DatabaseType.POSTGRES;
+        StatementDialects dialects = new StatementDialects(dbType, xmlFile);
+        
+        String dump = dialects.export(dbType, this.benchmark.getProcedures().values());
+        assertNotNull(dump);
+        assertFalse(dump.isEmpty());
+        
+        System.err.println(dump);
+        
+        // Make sure that the dump has all our procedures and statements that
+        // we expect to be there
+        for (Procedure proc : this.benchmark.getProcedures().values()) {
+            assertTrue(proc.getProcedureName(), dump.contains(proc.getProcedureName()));
+            for (String stmtName : proc.getStatments().keySet()) {
+                assertTrue(proc.getProcedureName() + "." + stmtName, dump.contains(stmtName));
+            }
         }
     }
     
