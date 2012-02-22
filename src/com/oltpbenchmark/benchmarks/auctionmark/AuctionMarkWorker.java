@@ -463,16 +463,6 @@ public class AuctionMarkWorker extends Worker {
         return (i_id);
     }
     
-    public ItemId getNextItemId(UserId seller_id) {
-        Integer cnt = profile.seller_item_cnt.get(seller_id);
-        if (cnt == null || cnt == 0) {
-            cnt = seller_id.getItemCount();
-            profile.seller_item_cnt.put(seller_id, cnt);
-        }
-        profile.seller_item_cnt.put(seller_id);
-        return (new ItemId(seller_id, cnt.intValue()));
-    }
-    
     public Timestamp[] getTimestampParameterArray() {
         return new Timestamp[] { profile.getBenchmarkStartTime(),
                                  profile.getClientStartTime() };
@@ -771,7 +761,7 @@ public class AuctionMarkWorker extends Worker {
     protected boolean executeNewItem(NewItem proc) throws SQLException {
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         UserId sellerId = profile.getRandomSellerId(this.getId());
-        ItemId itemId = this.getNextItemId(sellerId);
+        ItemId itemId = profile.getNextItemId(sellerId);
 
         String name = profile.rng.astring(6, 32);
         String description = profile.rng.astring(50, 255);
@@ -805,10 +795,14 @@ public class AuctionMarkWorker extends Worker {
 
         Object results[] = null;
         try {
-            results = proc.run(conn, benchmarkTimes, itemId.encode(), sellerId.encode(),
+            long itemIdEncoded = itemId.encode();
+            results = proc.run(conn, benchmarkTimes, itemIdEncoded, sellerId.encode(),
                                                      categoryId, name, description,
                                                      duration, initial_price, attributes,
                                                      gag_ids, gav_ids, images);
+        } catch (AssertionError ex) {
+            System.err.println("TROUBLE!\n" + profile.seller_item_cnt);
+            throw ex;
         } catch (DuplicateItemIdException ex) {
             profile.seller_item_cnt.set(sellerId, ex.getItemCount());
             throw ex;

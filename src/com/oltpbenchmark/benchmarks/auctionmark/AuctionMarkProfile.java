@@ -328,6 +328,9 @@ public class AuctionMarkProfile {
             }
         } // FOR
         
+        if (LOG.isTraceEnabled())
+            LOG.trace("SellerItemCounts:\n" + this.seller_item_cnt);
+        
         return (this);
     }
     
@@ -674,6 +677,17 @@ public class AuctionMarkProfile {
     // ----------------------------------------------------------------
     // ITEM METHODS
     // ----------------------------------------------------------------
+    
+    
+    public ItemId getNextItemId(UserId seller_id) {
+        Integer cnt = this.seller_item_cnt.get(seller_id);
+        if (cnt == null || cnt == 0) {
+            cnt = seller_id.getItemCount();
+            this.seller_item_cnt.put(seller_id, cnt);
+        }
+        this.seller_item_cnt.put(seller_id);
+        return (new ItemId(seller_id, cnt.intValue()));
+    }
     
     private boolean addItem(LinkedList<ItemInfo> items, ItemInfo itemInfo) {
         boolean added = false;

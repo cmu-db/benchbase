@@ -103,8 +103,8 @@ public class CloseAuctions extends Procedure {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
 
-        int orig_isolation = conn.getTransactionIsolation();
-        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+//        int orig_isolation = conn.getTransactionIsolation();
+//        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
         
         if (debug)
             LOG.debug(String.format("startTime=%s, endTime=%s, currentTime=%s",
@@ -198,7 +198,7 @@ public class CloseAuctions extends Procedure {
 
         if (debug)
             LOG.debug(String.format("Updated Auctions - Closed=%d / Waiting=%d", closed_ctr, waiting_ctr));
-        conn.setTransactionIsolation(orig_isolation);
+//        conn.setTransactionIsolation(orig_isolation);
         return (output_rows);
     }
 }

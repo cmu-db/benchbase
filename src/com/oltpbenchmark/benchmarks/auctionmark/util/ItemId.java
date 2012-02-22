@@ -96,7 +96,7 @@ public class ItemId extends CompositeId {
     
     @Override
     public String toString() {
-        return ("ItemId<" + this.item_ctr + "-" + this.seller_id + ">");
+        return ("ItemId<" + this.item_ctr + "-" + this.seller_id + "/" + this.seller_id.encode() + ">");
     }
     
     public static String toString(long itemId) {

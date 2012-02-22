@@ -28,7 +28,6 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,6 +41,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdException;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import com.oltpbenchmark.util.SQLUtil;
 
 /**
  * NewItem
@@ -203,14 +203,14 @@ public class NewItem extends Procedure {
         results = stmt.executeQuery();
         boolean adv = results.next();
         assert(adv);
-        String category_name = results.getString(1);
+        String category_name = String.format("%s[%d]", results.getString(2), results.getInt(1));
         
         // CATEGORY PARENT
         stmt = this.getPreparedStatement(conn, getCategoryParent, category_id);
         results = stmt.executeQuery();
         String category_parent = null;
         if (results.next()) {
-            category_parent = results.getString(1);
+            category_parent = String.format("%s[%d]", results.getString(2), results.getInt(1)); 
         } else {
             category_parent = "<ROOT>";
         }
@@ -230,12 +230,15 @@ public class NewItem extends Procedure {
         // Eventually the client's internal cache will catch up with what's in the database
         try {
             updated = stmt.executeUpdate();
-        } catch (SQLIntegrityConstraintViolationException ex) {
-            results = this.getPreparedStatement(conn, getSellerItemCount, seller_id).executeQuery();
-            adv = results.next();
-            assert(adv);
-            int item_count = results.getInt(1);
-            throw new DuplicateItemIdException(item_id, seller_id, item_count, ex);
+        } catch (SQLException ex) {
+            if (SQLUtil.isDuplicateKeyException(ex)) {
+                conn.rollback();
+                results = this.getPreparedStatement(conn, getSellerItemCount, seller_id).executeQuery();
+                adv = results.next();
+                assert(adv);
+                int item_count = results.getInt(1);
+                throw new DuplicateItemIdException(item_id, seller_id, item_count, ex);
+            } else throw ex;
         }
         assert(updated == 1);
 

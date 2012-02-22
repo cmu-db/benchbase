@@ -3,6 +3,7 @@ package com.oltpbenchmark.util;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,6 +25,26 @@ public abstract class SQLUtil {
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
     };
 
+    /**
+     * Returns true if the given exception is because of a duplicate key error
+     * @param ex
+     * @return
+     */
+    public static boolean isDuplicateKeyException(Exception ex) {
+        // MYSQL
+        if (ex instanceof SQLIntegrityConstraintViolationException) {
+            return (true);
+        } else if (ex instanceof SQLException) {
+            SQLException sqlEx = (SQLException)ex;
+            
+            // POSTGRES
+            if (sqlEx.getSQLState().contains("23505")) {
+                return (true);
+            }
+        }
+        return (false);
+    }
+    
     public static int[] getColumnTypes(Table catalog_tbl) {
         int types[] = new int[catalog_tbl.getColumnCount()];
         for (Column catalog_col : catalog_tbl.getColumns()) {

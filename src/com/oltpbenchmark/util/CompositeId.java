@@ -62,8 +62,8 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
                 String.format("%s value at position %d is %d %s",
                               this.getClass().getSimpleName(), i, values[i], Arrays.toString(values));
             assert(values[i] < max_value) :
-                String.format("%s value at position %d is %d. Max value is %d",
-                              this.getClass().getSimpleName(), i, values[i], max_value);
+                String.format("%s value at position %d is %d. Max value is %d\n%s",
+                              this.getClass().getSimpleName(), i, values[i], max_value, this);
             
             id = (i == 0 ? values[i] : id | values[i]<<offset);
             offset += offset_bits[i];
