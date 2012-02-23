@@ -356,7 +356,6 @@ public class AuctionMarkWorker extends Worker {
             TransactionTypes txnTypes = this.getWorkloadConfiguration().getTransTypes(); 
             txnType = txnTypes.getType(txn.procClass);
             assert(txnType != null) : txnTypes;
-            LOG.info("Executing " + txn);
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
             assert(txn != null) :
@@ -465,7 +464,7 @@ public class AuctionMarkWorker extends Worker {
     }
     
     public Timestamp[] getTimestampParameterArray() {
-        return new Timestamp[] { profile.getBenchmarkStartTime(),
+        return new Timestamp[] { profile.getLoaderStartTime(),
                                  profile.getClientStartTime() };
     }
     
@@ -474,6 +473,7 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeCloseAuctions(CloseAuctions proc) throws SQLException {
+        LOG.info("Executing " + proc);
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         Timestamp startTime = profile.getLastCloseAuctionsTime();
         Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
@@ -488,6 +488,7 @@ public class AuctionMarkWorker extends Worker {
         } // WHILE
         profile.updateItemQueues();
         
+        LOG.info("Finished " + proc);
         return (true);
     }
     

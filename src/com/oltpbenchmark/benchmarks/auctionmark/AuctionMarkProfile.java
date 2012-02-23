@@ -50,6 +50,7 @@ import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
+import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
@@ -116,7 +117,13 @@ public class AuctionMarkProfile {
     /**
      * The start time used when creating the data for this benchmark
      */
-    protected Timestamp benchmarkStartTime;
+    private Timestamp loaderStartTime;
+    
+    /**
+     * The stop time for when the loader was finished
+     * We can reset anything that has a timestamp after this one
+     */
+    private Timestamp loaderStopTime;
     
     /**
      * A histogram for the number of users that have the number of items listed
@@ -233,6 +240,7 @@ public class AuctionMarkProfile {
         this.rng = rng;
         this.scale_factor = benchmark.getWorkloadConfiguration().getScaleFactor();
         this.num_clients = benchmark.getWorkloadConfiguration().getTerminals();
+        this.loaderStartTime = new Timestamp(System.currentTimeMillis());
 
         this.randomInitialPrice = new Zipf(this.rng,
                 AuctionMarkConstants.ITEM_INITIAL_PRICE_MIN,
@@ -276,13 +284,16 @@ public class AuctionMarkProfile {
     // -----------------------------------------------------------------
 
     protected final void saveProfile(Connection conn) throws SQLException {
+        this.loaderStopTime = new Timestamp(System.currentTimeMillis());
+        
         // CONFIG_PROFILE
         Table catalog_tbl = this.benchmark.getCatalog().getTable(AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
         assert(catalog_tbl != null);
         PreparedStatement stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
         int param_idx = 1;
         stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
-        stmt.setObject(param_idx++, this.benchmarkStartTime); // CFP_BENCHMARK_START
+        stmt.setObject(param_idx++, this.loaderStartTime); // CFP_LOADER_START
+        stmt.setObject(param_idx++, this.loaderStopTime); // CFP_LOADER_STOP
         stmt.setObject(param_idx++, this.users_per_item_count.toJSONString()); // CFP_USER_ITEM_HISTOGRAM
         int result = stmt.executeUpdate();
         assert(result == 1);
@@ -295,7 +306,8 @@ public class AuctionMarkProfile {
     private AuctionMarkProfile copyProfile(AuctionMarkWorker worker, AuctionMarkProfile other) {
         this.client_id = worker.getId();
         this.scale_factor = other.scale_factor;
-        this.benchmarkStartTime = other.benchmarkStartTime;
+        this.loaderStartTime = other.loaderStartTime;
+        this.loaderStopTime = other.loaderStopTime;
         this.users_per_item_count = other.users_per_item_count;
         this.item_category_histogram = other.item_category_histogram;
         this.gag_ids = other.gag_ids;
@@ -355,9 +367,12 @@ public class AuctionMarkProfile {
                 cachedProfile = new AuctionMarkProfile(this.benchmark, this.rng);
                 
                 // Otherwise we have to go fetch everything again
-                LoadConfig proc = worker.getProcedure(LoadConfig.class);
+                // So first we want to reset the database
                 Connection conn = worker.getConnection();
-                ResultSet results[] = proc.run(conn);
+                worker.getProcedure(ResetDatabase.class).run(conn);
+                
+                // Then invoke LoadConfig to pull down the profile information we need
+                ResultSet results[] = worker.getProcedure(LoadConfig.class).run(conn);
                 conn.commit();
                 int result_idx = 0;
                 
@@ -409,7 +424,8 @@ public class AuctionMarkProfile {
         assert(adv);
         int col = 1;
         profile.scale_factor = vt.getDouble(col++);
-        profile.benchmarkStartTime = vt.getTimestamp(col++);
+        profile.loaderStartTime = vt.getTimestamp(col++);
+        profile.loaderStopTime = vt.getTimestamp(col++);
         JSONUtil.fromJSONString(profile.users_per_item_count, vt.getString(col++));
         
         if (LOG.isDebugEnabled())
@@ -481,10 +497,10 @@ public class AuctionMarkProfile {
     private Timestamp getScaledCurrentTimestamp(Timestamp time) {
         assert(this.clientStartTime != null);
         tmp_now.setTime(System.currentTimeMillis());
-        time.setTime(AuctionMarkUtil.getScaledTimestamp(this.benchmarkStartTime, this.clientStartTime, tmp_now));
+        time.setTime(AuctionMarkUtil.getScaledTimestamp(this.loaderStartTime, this.clientStartTime, tmp_now));
         if (LOG.isTraceEnabled())
             LOG.trace(String.format("Scaled:%d / Now:%d / BenchmarkStart:%d / ClientStart:%d",
-                                   time.getTime(), tmp_now.getTime(), this.benchmarkStartTime.getTime(), this.clientStartTime.getTime()));
+                                   time.getTime(), tmp_now.getTime(), this.loaderStartTime.getTime(), this.clientStartTime.getTime()));
         return (time);
     }
     
@@ -497,13 +513,11 @@ public class AuctionMarkProfile {
         return this.currentTime;
     }
     
-    public Timestamp setAndGetBenchmarkStartTime() {
-        assert(this.benchmarkStartTime == null);
-        this.benchmarkStartTime = new Timestamp(System.currentTimeMillis());
-        return (this.benchmarkStartTime);
+    public Timestamp getLoaderStartTime() {
+        return (this.loaderStartTime);
     }
-    public Timestamp getBenchmarkStartTime() {
-        return (this.benchmarkStartTime);
+    public Timestamp getLoaderStopTime() {
+        return (this.loaderStopTime);
     }
 
     public Timestamp setAndGetClientStartTime() {
@@ -745,7 +759,7 @@ public class AuctionMarkProfile {
     
     public ItemStatus addItemToProperQueue(ItemInfo itemInfo, boolean is_loader) {
         // Calculate how much time is left for this auction
-        Timestamp baseTime = (is_loader ? this.getBenchmarkStartTime() : this.getCurrentTime());
+        Timestamp baseTime = (is_loader ? this.getLoaderStartTime() : this.getCurrentTime());
         assert(itemInfo.endDate != null);
         assert(baseTime != null) : "is_loader=" + is_loader;
         return addItemToProperQueue(itemInfo, baseTime);
@@ -972,7 +986,7 @@ public class AuctionMarkProfile {
     public String toString() {
         Map<String, Object> m = new ListOrderedMap<String, Object>();
         m.put("Scale Factor", this.scale_factor);
-        m.put("Benchmark Start", this.benchmarkStartTime);
+        m.put("Benchmark Start", this.loaderStartTime);
         m.put("Last CloseAuctions", (this.lastCloseAuctionsTime.getTime() > 0 ? this.lastCloseAuctionsTime : null));
         m.put("Client Start", this.clientStartTime);
         m.put("Current Time", this.currentTime);

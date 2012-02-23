@@ -106,7 +106,6 @@ public class AuctionMarkLoader extends Loader {
 
         // BenchmarkProfile
         profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
-        profile.setAndGetBenchmarkStartTime();
 
         File category_file = new File(benchmark.getDataDir().getAbsolutePath() + "/table.category.gz");
         
@@ -1042,7 +1041,7 @@ public class AuctionMarkLoader extends Loader {
             itemInfo.numWatches = numWatches;
             
             // The auction for this item has already closed
-            if (itemInfo.endDate.getTime() <= profile.getBenchmarkStartTime().getTime()) {
+            if (itemInfo.endDate.getTime() <= profile.getLoaderStartTime().getTime()) {
                 // Somebody won a bid and bought the item
                 if (itemInfo.numBids > 0) {
                     itemInfo.lastBidderId = profile.getRandomBuyerId(itemInfo.sellerId);
@@ -1097,6 +1096,8 @@ public class AuctionMarkLoader extends Loader {
             row[col++] = itemInfo.endDate;
             // I_STATUS
             row[col++] = itemInfo.status.ordinal();
+            // I_CREATED
+            row[col++] = profile.getLoaderStartTime();
             // I_UPDATED
             row[col++] = itemInfo.startDate;
 
@@ -1112,7 +1113,7 @@ public class AuctionMarkLoader extends Loader {
         }
         private Timestamp getRandomEndTimestamp() {
             int timeDiff = profile.randomTimeDiff.nextInt();
-            Timestamp time = new Timestamp(profile.getBenchmarkStartTime().getTime() + (timeDiff * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND));
+            Timestamp time = new Timestamp(profile.getLoaderStartTime().getTime() + (timeDiff * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND));
 //            LOG.info(timeDiff + " => " + sdf.format(time.asApproximateJavaDate()));
             return time;
         }
@@ -1265,7 +1266,7 @@ public class AuctionMarkLoader extends Loader {
                                                     profile.getRandomBuyerId(itemInfo.sellerId));
                 Timestamp endDate;
                 if (itemInfo.status == ItemStatus.OPEN) {
-                    endDate = profile.getBenchmarkStartTime();
+                    endDate = profile.getLoaderStartTime();
                 } else {
                     endDate = itemInfo.endDate;
                 }
@@ -1456,7 +1457,7 @@ public class AuctionMarkLoader extends Loader {
             // UF_RATING
             row[col++] = 1; // TODO
             // UF_DATE
-            row[col++] = profile.getBenchmarkStartTime(); // Does this matter?
+            row[col++] = profile.getLoaderStartTime(); // Does this matter?
             
             return (col);
         }

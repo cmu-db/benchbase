@@ -48,7 +48,8 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         copy.loadProfile(worker);
         
         assertEquals(orig.scale_factor, copy.scale_factor);
-        assertEquals(orig.benchmarkStartTime.toString(), copy.benchmarkStartTime.toString());
+        assertEquals(orig.getLoaderStartTime().toString(), copy.getLoaderStartTime().toString());
+        assertEquals(orig.getLoaderStopTime().toString(), copy.getLoaderStopTime().toString());
         assertEquals(orig.users_per_item_count, copy.users_per_item_count);
     }
     

@@ -106,7 +106,7 @@ public class NewBid extends Procedure {
     );
     
     public final SQLStmt insertItemBid = new SQLStmt(
-        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_BID + "(" +
+        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_BID + " (" +
         "ib_id, " +
         "ib_i_id, " +
         "ib_u_id, " + 
@@ -128,7 +128,7 @@ public class NewBid extends Procedure {
     );
 
     public final SQLStmt insertItemMaxBid = new SQLStmt(
-    	"INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + "(" +
+    	"INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + " (" +
     	"imb_i_id, " +
     	"imb_u_id, " +
     	"imb_ib_id, " +

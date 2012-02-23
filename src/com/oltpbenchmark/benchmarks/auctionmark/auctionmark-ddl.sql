@@ -34,9 +34,10 @@
 -- CONFIG_PROFILE
 -- ================================================================
 CREATE TABLE CONFIG_PROFILE (
-    CFP_SCALE_FACTOR            FLOAT NOT NULL,
-    CFP_BENCHMARK_START         TIMESTAMP NOT NULL,
-    CFP_USER_ITEM_HISTOGRAM     VARCHAR(12000) NOT NULL
+    cfp_scale_factor            FLOAT NOT NULL,
+    cfp_loader_start            TIMESTAMP NOT NULL,
+    cfp_loader_stop             TIMESTAMP NOT NULL,
+    cfp_user_item_histogram     VARCHAR(12000) NOT NULL
 );
 
 -- ================================================================
@@ -182,6 +183,7 @@ CREATE TABLE ITEM (
     i_start_date        TIMESTAMP,
     i_end_date          TIMESTAMP,
     i_status            INT DEFAULT 0,
+    i_created           TIMESTAMP,
     i_updated           TIMESTAMP,
     i_iattr0            BIGINT DEFAULT NULL,
     i_iattr1            BIGINT DEFAULT NULL,
@@ -209,7 +211,7 @@ CREATE TABLE ITEM_ATTRIBUTE (
     ia_gav_id           BIGINT NOT NULL,
     ia_gag_id           BIGINT NOT NULL,
     ia_sattr0           VARCHAR(64) DEFAULT NULL,
-    FOREIGN KEY (ia_i_id, ia_u_id) REFERENCES ITEM (i_id, i_u_id),
+    FOREIGN KEY (ia_i_id, ia_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     FOREIGN KEY (ia_gav_id, ia_gag_id) REFERENCES GLOBAL_ATTRIBUTE_VALUE (gav_id, gav_gag_id),
     PRIMARY KEY (ia_id, ia_i_id, ia_u_id)
 );
@@ -226,7 +228,7 @@ CREATE TABLE ITEM_IMAGE (
     ii_i_id             BIGINT NOT NULL,
     ii_u_id             BIGINT NOT NULL,
     ii_sattr0           VARCHAR(128) NOT NULL,
-    FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES ITEM (i_id, i_u_id),
+    FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ii_id, ii_i_id, ii_u_id)
 );
 
@@ -249,7 +251,7 @@ CREATE TABLE ITEM_COMMENT (
     ic_response         VARCHAR(128) DEFAULT NULL,
     ic_created          TIMESTAMP,
     ic_updated          TIMESTAMP,
-    FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id),
+    FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ic_id, ic_i_id, ic_u_id)
 ); 
 -- CREATE INDEX IDX_ITEM_COMMENT ON ITEM_COMMENT (ic_i_id, ic_u_id);
@@ -274,7 +276,7 @@ CREATE TABLE ITEM_BID (
     ib_max_bid          FLOAT NOT NULL,
     ib_created          TIMESTAMP,
     ib_updated          TIMESTAMP,
-    FOREIGN KEY (ib_i_id, ib_u_id) REFERENCES ITEM (i_id, i_u_id),
+    FOREIGN KEY (ib_i_id, ib_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ib_id, ib_i_id, ib_u_id)
 );
 
@@ -290,8 +292,8 @@ CREATE TABLE ITEM_MAX_BID (
     imb_ib_u_id         BIGINT NOT NULL,
     imb_created         TIMESTAMP,
     imb_updated         TIMESTAMP,
-    FOREIGN KEY (imb_i_id, imb_u_id) REFERENCES ITEM (i_id, i_u_id),
-    FOREIGN KEY (imb_ib_id, imb_ib_i_id, imb_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id),
+    FOREIGN KEY (imb_i_id, imb_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (imb_ib_id, imb_ib_i_id, imb_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
     PRIMARY KEY (imb_i_id, imb_u_id)
 );
 
@@ -308,9 +310,8 @@ CREATE TABLE ITEM_PURCHASE (
     ip_ib_i_id          BIGINT NOT NULL,
     ip_ib_u_id          BIGINT NOT NULL,
     ip_date             TIMESTAMP,
-    FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id),
-    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
-    UNIQUE (ip_ib_id, ip_ib_i_id, ip_ib_u_id)
+    FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
+    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
 );
 
 -- ================================================================
@@ -332,7 +333,7 @@ CREATE TABLE USERACCT_FEEDBACK (
     uf_rating           TINYINT NOT NULL,
     uf_date             TIMESTAMP,
     uf_sattr0           VARCHAR(80) NOT NULL,
-    FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id),
+    FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (uf_u_id, uf_i_id, uf_i_u_id, uf_from_id),
     CHECK (uf_u_id <> uf_from_id)
 );
@@ -350,8 +351,8 @@ CREATE TABLE USERACCT_ITEM (
     ui_ip_ib_i_id       BIGINT,
     ui_ip_ib_u_id       BIGINT,
     ui_created          TIMESTAMP,
-    FOREIGN KEY (ui_i_id, ui_i_u_id) REFERENCES ITEM (i_id, i_u_id),
-    FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id),
+    FOREIGN KEY (ui_i_id, ui_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ui_u_id, ui_i_id, ui_i_u_id)
 );
 -- CREATE INDEX IDX_USERACCT_ITEM_ID ON USERACCT_ITEM (ui_i_id);
@@ -365,6 +366,6 @@ CREATE TABLE USERACCT_WATCH (
     uw_i_id             BIGINT NOT NULL,
     uw_i_u_id           BIGINT NOT NULL,
     uw_created          TIMESTAMP,
-    FOREIGN KEY (uw_i_id, uw_i_u_id) REFERENCES ITEM (i_id, i_u_id),
+    FOREIGN KEY (uw_i_id, uw_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (uw_u_id, uw_i_id, uw_i_u_id)
 );

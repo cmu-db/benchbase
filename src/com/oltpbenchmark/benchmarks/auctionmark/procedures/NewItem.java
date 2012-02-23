@@ -71,6 +71,7 @@ public class NewItem extends Procedure {
         	"i_start_date," + 
         	"i_end_date," +
         	"i_status, " +
+        	"i_created," +
         	"i_updated," +
         	"i_iattr0" + 
         ") VALUES (" +
@@ -88,6 +89,7 @@ public class NewItem extends Procedure {
             "?," +  // i_start_date
             "?," +  // i_end_date
             "?," +  // i_status
+            "?," +  // i_created
             "?," +  // i_updated
             "1"  +  // i_attr0
         ")"
@@ -218,12 +220,23 @@ public class NewItem extends Procedure {
 
         // Insert new ITEM tuple
         stmt = this.getPreparedStatement(conn, insertItem,
-                                         item_id, seller_id, category_id,
-                                         name, description, attributes,
-                                         initial_price, initial_price, 0,
-                                         images.length, gav_ids.length,
-                                         currentTime, end_date,
-                                         ItemStatus.OPEN.ordinal(), currentTime);
+                                               item_id,         // i_id
+                                               seller_id,       // i_u_id
+                                               category_id,     // i_c_id
+                                               name,            // i_name
+                                               description,     // i_description
+                                               attributes,      // i_user_attributes
+                                               initial_price,   // i_initial_proce
+                                               initial_price,   // i_current_price
+                                               0,               // i_num_bids
+                                               images.length,   // i_num_images
+                                               gav_ids.length,  // i_num_global_attrs
+                                               currentTime,     // i_start_date 
+                                               end_date,        // i_end_date
+                                               ItemStatus.OPEN.ordinal(), // i_status
+                                               currentTime,     // i_created
+                                               currentTime      // i_updated
+       );
         // NOTE: This may fail with a duplicate entry exception because 
         // the client's internal count of the number of items that this seller 
         // already has is wrong. That's ok. We'll just abort and ignore the problem

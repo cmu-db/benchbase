@@ -42,6 +42,7 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
+import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomGenerator;
 
@@ -54,6 +55,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
 		
 		this.registerSupplementalProcedure(LoadConfig.class);
 		this.registerSupplementalProcedure(CloseAuctions.class);
+		this.registerSupplementalProcedure(ResetDatabase.class);
 	}
 	
 	public File getDataDir() {

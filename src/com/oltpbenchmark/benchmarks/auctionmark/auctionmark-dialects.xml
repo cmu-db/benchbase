@@ -20,9 +20,6 @@
             <statement name="getItemComments">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status,        ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created   FROM "ITEM", "ITEM_COMMENT" WHERE i_u_id = ? AND i_status = 0   AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL ORDER BY ic_created DESC LIMIT 25 </statement>
         </procedure>
         <procedure name="LoadConfig">
-            <statement name="deleteItemPurchases">DELETE FROM "ITEM_PURCHASE" WHERE ip_date &gt; ?</statement>
-            <statement name="resetItems">UPDATE "ITEM" SET i_status = ?, i_updated = ? WHERE i_status != ? AND i_end_date &gt; ? AND i_updated &gt; ?</statement>
-            <statement name="getBenchmarkStart">SELECT CFP_BENCHMARK_START FROM "CONFIG_PROFILE"</statement>
             <statement name="getConfigProfile">SELECT * FROM "CONFIG_PROFILE"</statement>
             <statement name="getItems">SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status   FROM "ITEM" WHERE i_status = ?  ORDER BY i_end_date ASC  LIMIT 5000</statement>
             <statement name="getPendingComments">SELECT ic_id, ic_i_id, ic_u_id, ic_buyer_id   FROM "ITEM_COMMENT" WHERE ic_response IS NULL</statement>
@@ -62,7 +59,7 @@
             <statement name="getCategoryParent">SELECT * FROM "CATEGORY" WHERE c_parent_id = ? </statement>
             <statement name="updateUserBalance">UPDATE "USERACCT" SET u_balance = u_balance - 1,     u_updated = ?  WHERE u_id = ?</statement>
             <statement name="getGlobalAttribute">SELECT gag_name, gav_name, gag_c_id FROM "GLOBAL_ATTRIBUTE_GROUP", "GLOBAL_ATTRIBUTE_VALUE" WHERE gav_id = ? AND gav_gag_id = ? AND gav_gag_id = gag_id</statement>
-            <statement name="insertItem">INSERT INTO "ITEM"(i_id,i_u_id,i_c_id,i_name,i_description,i_user_attributes,i_initial_price,i_current_price,i_num_bids,i_num_images,i_num_global_attrs,i_start_date,i_end_date,i_status, i_updated,i_iattr0) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)</statement>
+            <statement name="insertItem">INSERT INTO "ITEM"(i_id,i_u_id,i_c_id,i_name,i_description,i_user_attributes,i_initial_price,i_current_price,i_num_bids,i_num_images,i_num_global_attrs,i_start_date,i_end_date,i_status,i_created,i_updated,i_iattr0) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)</statement>
         </procedure>
         <procedure name="NewPurchase">
             <statement name="getItemMaxBid">SELECT * FROM "ITEM_MAX_BID" WHERE imb_i_id = ? AND imb_u_id = ?</statement>
@@ -75,6 +72,12 @@
             <statement name="insertUserItem">INSERT INTO "USERACCT_ITEM" (ui_u_id, ui_i_id, ui_i_u_id, ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id, ui_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)</statement>
             <statement name="updateUserItem">UPDATE "USERACCT_ITEM" SET ui_ip_id = ?,     ui_ip_ib_id = ?,     ui_ip_ib_i_id = ?,     ui_ip_ib_u_id = ? WHERE ui_u_id = ? AND ui_i_id = ? AND ui_i_u_id = ?</statement>
             <statement name="updateItem">UPDATE "ITEM" SET i_status = 3,     i_updated = ? WHERE i_id = ? AND i_u_id = ? </statement>
+        </procedure>
+        <procedure name="ResetDatabase">
+            <statement name="deleteItemPurchases">DELETE FROM "ITEM_PURCHASE" WHERE ip_date &gt; ?</statement>
+            <statement name="deleteItems">DELETE FROM "ITEM" WHERE i_created > &gt; ?</statement>
+            <statement name="resetItems">UPDATE "ITEM" SET i_status = ?, i_updated = ? WHERE i_status != ? AND i_updated &gt; ?</statement>
+            <statement name="getLoaderStop">SELECT cfp_loader_stop FROM "CONFIG_PROFILE"</statement>
         </procedure>
         <procedure name="UpdateItem">
             <statement name="getMaxItemAttributeId">SELECT MAX(ia_id) FROM "ITEM_ATTRIBUTE" WHERE ia_i_id = ? AND ia_u_id = ?</statement>
