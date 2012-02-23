@@ -51,9 +51,10 @@ IF OBJECT_ID('REGION') IS NOT NULL DROP table REGION;
 
 -- Create tables
 CREATE TABLE CONFIG_PROFILE (
-    CFP_SCALE_FACTOR            FLOAT NOT NULL,
-    CFP_BENCHMARK_START			DATETIME NOT NULL,
-    CFP_USER_ITEM_HISTOGRAM     TEXT NOT NULL
+    cfp_scale_factor            FLOAT NOT NULL,
+    cfp_loader_start            DATETIME NOT NULL,
+    cfp_loader_stop             DATETIME NOT NULL,
+    cfp_user_item_histogram     VARCHAR(12000) NOT NULL
 );
 
 CREATE TABLE REGION (
@@ -136,6 +137,7 @@ CREATE TABLE ITEM (
     i_start_date        DATETIME,
     i_end_date          DATETIME,
     i_status		    INT DEFAULT 0,
+    i_created           DATETIME,
     i_updated           DATETIME,
     i_iattr0            BIGINT DEFAULT NULL,
     i_iattr1            BIGINT DEFAULT NULL,

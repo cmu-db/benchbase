@@ -54,9 +54,10 @@ BEGIN EXECUTE IMMEDIATE 'DROP TABLE USERACCT_WATCH CASCADE CONSTRAINTS'; EXCEPTI
 -- CONFIG_PROFILE
 -- ================================================================
 CREATE TABLE CONFIG_PROFILE (
-    CFP_SCALE_FACTOR            FLOAT NOT NULL,
-    CFP_BENCHMARK_START			TIMESTAMP NOT NULL,
-    CFP_USER_ITEM_HISTOGRAM     CLOB NOT NULL
+    cfp_scale_factor            FLOAT NOT NULL,
+    cfp_loader_start            TIMESTAMP NOT NULL,
+    cfp_loader_stop             TIMESTAMP NOT NULL,
+    cfp_user_item_histogram     CLOB NOT NULL
 );
 
 -- ================================================================

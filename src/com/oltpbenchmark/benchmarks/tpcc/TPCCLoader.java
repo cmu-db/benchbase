@@ -42,7 +42,6 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configDistPerWhse;
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configItemCount;
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
@@ -55,7 +54,6 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.NClob;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
@@ -71,13 +69,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.oltpbenchmark.WorkloadConfiguration;
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.tpcc.jdbc.jdbcIO;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
@@ -89,9 +86,9 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
-import com.oltpbenchmark.catalog.Table;
 
 public class TPCCLoader extends Loader{
+    private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
 	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
 		super(benchmark, c);
@@ -132,11 +129,11 @@ public class TPCCLoader extends Loader{
 
 		FastPreparedStatement(String table, String path, String fieldNames,
 				int nfields) throws Exception {
-			System.out.println(path + " " + nfields);
+			LOG.debug(path + " " + nfields);
 			fields = new ArrayList<Object>(nfields);
 			for (int i = 0; i < nfields; i++)
 				fields.add(null);
-			System.out.println(fields.size());
+			LOG.debug(fields.size());
 
 			out = new PrintWriter(new FileWriter(path));
 
@@ -720,7 +717,7 @@ public class TPCCLoader extends Loader{
 			try {
 				conn.rollback();
 			} catch (SQLException se) {
-				System.out.println(se.getMessage());
+				LOG.debug(se.getMessage());
 			}
 		} else {
 			out.close();
@@ -732,7 +729,7 @@ public class TPCCLoader extends Loader{
 			try {
 				conn.commit();
 			} catch (SQLException se) {
-				System.out.println(se.getMessage());
+				LOG.debug(se.getMessage());
 				transRollback();
 			}
 		} else {
@@ -742,12 +739,12 @@ public class TPCCLoader extends Loader{
 
 	static void truncateTable(String strTable) {
 
-		System.out.println("Truncating '" + strTable + "' ...");
+		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
 			stmt.execute("TRUNCATE TABLE " + strTable);
 			transCommit();
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 		}
 
@@ -865,7 +862,7 @@ public class TPCCLoader extends Loader{
 			}
 
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 
 		} catch (Exception e) {
@@ -888,13 +885,13 @@ public class TPCCLoader extends Loader{
 
 			now = new java.util.Date();
 			t = itemKount;
-			System.out.println("\nStart Item Load for " + t + " Items @ " + now
+			LOG.debug("\nStart Item Load for " + t + " Items @ " + now
 					+ " ...");
 
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "item.csv"));
-				System.out.println("\nWriting Item file to: " + fileLocation
+				LOG.debug("\nWriting Item file to: " + fileLocation
 						+ "item.csv");
 			}
 
@@ -939,7 +936,7 @@ public class TPCCLoader extends Loader{
 						String etStr = "  Elasped Time(ms): "
 								+ ((tmpTime - lastTimeMS) / 1000.000)
 								+ "                    ";
-						System.out.println(etStr.substring(0, 30)
+						LOG.debug(etStr.substring(0, 30)
 								+ "  Writing record " + k + " of " + t);
 						lastTimeMS = tmpTime;
 						itemPrepStmt.executeBatch();
@@ -960,7 +957,7 @@ public class TPCCLoader extends Loader{
 						String etStr = "  Elasped Time(ms): "
 								+ ((tmpTime - lastTimeMS) / 1000.000)
 								+ "                    ";
-						System.out.println(etStr.substring(0, 30)
+						LOG.debug(etStr.substring(0, 30)
 								+ "  Writing record " + k + " of " + t);
 						lastTimeMS = tmpTime;
 					}
@@ -972,7 +969,7 @@ public class TPCCLoader extends Loader{
 			String etStr = "  Elasped Time(ms): "
 					+ ((tmpTime - lastTimeMS) / 1000.000)
 					+ "                    ";
-			System.out.println(etStr.substring(0, 30) + "  Writing record " + k
+			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
 					+ " of " + t);
 			lastTimeMS = tmpTime;
 
@@ -982,10 +979,10 @@ public class TPCCLoader extends Loader{
 
 			transCommit();
 			now = new java.util.Date();
-			System.out.println("End Item Load @  " + now);
+			LOG.debug("End Item Load @  " + now);
 
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1001,13 +998,13 @@ public class TPCCLoader extends Loader{
 		try {
 
 			now = new java.util.Date();
-			System.out.println("\nStart Whse Load for " + whseKount
+			LOG.debug("\nStart Whse Load for " + whseKount
 					+ " Whses @ " + now + " ...");
 
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "warehouse.csv"));
-				System.out.println("\nWriting Warehouse file to: "
+				LOG.debug("\nWriting Warehouse file to: "
 						+ fileLocation + "warehouse.csv");
 			}
 
@@ -1062,13 +1059,13 @@ public class TPCCLoader extends Loader{
 			now = new java.util.Date();
 
 			long tmpTime = new java.util.Date().getTime();
-			System.out.println("Elasped Time(ms): "
+			LOG.debug("Elasped Time(ms): "
 					+ ((tmpTime - lastTimeMS) / 1000.000));
 			lastTimeMS = tmpTime;
-			System.out.println("End Whse Load @  " + now);
+			LOG.debug("End Whse Load @  " + now);
 
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1091,13 +1088,13 @@ public class TPCCLoader extends Loader{
 
 			now = new java.util.Date();
 			t = (whseKount * itemKount);
-			System.out.println("\nStart Stock Load for " + t + " units @ "
+			LOG.debug("\nStart Stock Load for " + t + " units @ "
 					+ now + " ...");
 
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "stock.csv"));
-				System.out.println("\nWriting Stock file to: " + fileLocation
+				LOG.debug("\nWriting Stock file to: " + fileLocation
 						+ "stock.csv");
 			}
 
@@ -1167,7 +1164,7 @@ public class TPCCLoader extends Loader{
 							String etStr = "  Elasped Time(ms): "
 									+ ((tmpTime - lastTimeMS) / 1000.000)
 									+ "                    ";
-							System.out.println(etStr.substring(0, 30)
+							LOG.debug(etStr.substring(0, 30)
 									+ "  Writing record " + k + " of " + t);
 							lastTimeMS = tmpTime;
 							stckPrepStmt.executeBatch();
@@ -1200,7 +1197,7 @@ public class TPCCLoader extends Loader{
 							String etStr = "  Elasped Time(ms): "
 									+ ((tmpTime - lastTimeMS) / 1000.000)
 									+ "                    ";
-							System.out.println(etStr.substring(0, 30)
+							LOG.debug(etStr.substring(0, 30)
 									+ "  Writing record " + k + " of " + t);
 							lastTimeMS = tmpTime;
 						}
@@ -1214,7 +1211,7 @@ public class TPCCLoader extends Loader{
 			String etStr = "  Elasped Time(ms): "
 					+ ((tmpTime - lastTimeMS) / 1000.000)
 					+ "                    ";
-			System.out.println(etStr.substring(0, 30)
+			LOG.debug(etStr.substring(0, 30)
 					+ "  Writing final records " + k + " of " + t);
 			lastTimeMS = tmpTime;
 			if (outputFiles == false) {
@@ -1223,10 +1220,10 @@ public class TPCCLoader extends Loader{
 			transCommit();
 
 			now = new java.util.Date();
-			System.out.println("End Stock Load @  " + now);
+			LOG.debug("End Stock Load @  " + now);
 
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 
 		} catch (Exception e) {
@@ -1250,14 +1247,14 @@ public class TPCCLoader extends Loader{
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "district.csv"));
-				System.out.println("\nWriting District file to: "
+				LOG.debug("\nWriting District file to: "
 						+ fileLocation + "district.csv");
 			}
 
 			District district = new District();
 
 			t = (whseKount * distWhseKount);
-			System.out.println("\nStart District Data for " + t + " Dists @ "
+			LOG.debug("\nStart District Data for " + t + " Dists @ "
 					+ now + " ...");
 
 			for (int w = 1; w <= whseKount; w++) {
@@ -1322,15 +1319,15 @@ public class TPCCLoader extends Loader{
 			String etStr = "  Elasped Time(ms): "
 					+ ((tmpTime - lastTimeMS) / 1000.000)
 					+ "                    ";
-			System.out.println(etStr.substring(0, 30) + "  Writing record " + k
+			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
 					+ " of " + t);
 			lastTimeMS = tmpTime;
 			transCommit();
 			now = new java.util.Date();
-			System.out.println("End District Load @  " + now);
+			LOG.debug("End District Load @  " + now);
 
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1357,16 +1354,16 @@ public class TPCCLoader extends Loader{
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "customer.csv"));
-				System.out.println("\nWriting Customer file to: "
+				LOG.debug("\nWriting Customer file to: "
 						+ fileLocation + "customer.csv");
 				outHist = new PrintWriter(new FileOutputStream(fileLocation
 						+ "cust-hist.csv"));
-				System.out.println("\nWriting Customer History file to: "
+				LOG.debug("\nWriting Customer History file to: "
 						+ fileLocation + "cust-hist.csv");
 			}
 
 			t = (whseKount * distWhseKount * custDistKount * 2);
-			System.out.println("\nStart Cust-Hist Load for " + t
+			LOG.debug("\nStart Cust-Hist Load for " + t
 					+ " Cust-Hists @ " + now + " ...");
 
 			for (int w = 1; w <= whseKount; w++) {
@@ -1477,7 +1474,7 @@ public class TPCCLoader extends Loader{
 								String etStr = "  Elasped Time(ms): "
 										+ ((tmpTime - lastTimeMS) / 1000.000)
 										+ "                    ";
-								System.out.println(etStr.substring(0, 30)
+								LOG.debug(etStr.substring(0, 30)
 										+ "  Writing record " + k + " of " + t);
 								lastTimeMS = tmpTime;
 
@@ -1525,7 +1522,7 @@ public class TPCCLoader extends Loader{
 								String etStr = "  Elasped Time(ms): "
 										+ ((tmpTime - lastTimeMS) / 1000.000)
 										+ "                    ";
-								System.out.println(etStr.substring(0, 30)
+								LOG.debug(etStr.substring(0, 30)
 										+ "  Writing record " + k + " of " + t);
 								lastTimeMS = tmpTime;
 
@@ -1542,7 +1539,7 @@ public class TPCCLoader extends Loader{
 			String etStr = "  Elasped Time(ms): "
 					+ ((tmpTime - lastTimeMS) / 1000.000)
 					+ "                    ";
-			System.out.println(etStr.substring(0, 30) + "  Writing record " + k
+			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
 					+ " of " + t);
 			lastTimeMS = tmpTime;
 			custPrepStmt.executeBatch();
@@ -1554,10 +1551,10 @@ public class TPCCLoader extends Loader{
 			if (outputFiles == true) {
 				outHist.close();
 			}
-			System.out.println("End Cust-Hist Data Load @  " + now);
+			LOG.debug("End Cust-Hist Data Load @  " + now);
 
 		} catch (SQLException se) {
-			System.out.println(se.getMessage());
+			LOG.debug(se.getMessage());
 			transRollback();
 			if (outputFiles == true) {
 				outHist.close();
@@ -1586,15 +1583,15 @@ public class TPCCLoader extends Loader{
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "order.csv"));
-				System.out.println("\nWriting Order file to: " + fileLocation
+				LOG.debug("\nWriting Order file to: " + fileLocation
 						+ "order.csv");
 				outLine = new PrintWriter(new FileOutputStream(fileLocation
 						+ "order-line.csv"));
-				System.out.println("\nWriting Order Line file to: "
+				LOG.debug("\nWriting Order Line file to: "
 						+ fileLocation + "order-line.csv");
 				outNewOrder = new PrintWriter(new FileOutputStream(fileLocation
 						+ "new-order.csv"));
-				System.out.println("\nWriting New Order file to: "
+				LOG.debug("\nWriting New Order file to: "
 						+ fileLocation + "new-order.csv");
 			}
 
@@ -1606,9 +1603,9 @@ public class TPCCLoader extends Loader{
 
 			t = (whseKount * distWhseKount * custDistKount);
 			t = (t * 11) + (t / 3);
-			System.out.println("whse=" + whseKount + ", dist=" + distWhseKount
+			LOG.debug("whse=" + whseKount + ", dist=" + distWhseKount
 					+ ", cust=" + custDistKount);
-			System.out.println("\nStart Order-Line-New Load for approx " + t
+			LOG.debug("\nStart Order-Line-New Load for approx " + t
 					+ " rows @ " + now + " ...");
 
 			for (int w = 1; w <= whseKount; w++) {
@@ -1739,7 +1736,7 @@ public class TPCCLoader extends Loader{
 								String etStr = "  Elasped Time(ms): "
 										+ ((tmpTime - lastTimeMS) / 1000.000)
 										+ "                    ";
-								System.out.println(etStr.substring(0, 30)
+								LOG.debug(etStr.substring(0, 30)
 										+ "  Writing record " + k + " of " + t);
 								lastTimeMS = tmpTime;
 								if (outputFiles == false) {
@@ -1762,7 +1759,7 @@ public class TPCCLoader extends Loader{
 
 			} // end for [w]
 
-			System.out.println("  Writing final records " + k + " of " + t);
+			LOG.debug("  Writing final records " + k + " of " + t);
 			if (outputFiles == false) {
 				ordrPrepStmt.executeBatch();
 				nworPrepStmt.executeBatch();
@@ -1773,7 +1770,7 @@ public class TPCCLoader extends Loader{
 			}
 			transCommit();
 			now = new java.util.Date();
-			System.out.println("End Orders Load @  " + now);
+			LOG.debug("End Orders Load @  " + now);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1818,7 +1815,7 @@ public class TPCCLoader extends Loader{
 		// ######################### MAINLINE
 		// ######################################
 		startDate = new java.util.Date();
-		System.out.println("------------- LoadData Start Date = " + startDate
+		LOG.debug("------------- LoadData Start Date = " + startDate
 				+ "-------------");
 
 		long startTimeMS = new java.util.Date().getTime();
@@ -1840,7 +1837,7 @@ public class TPCCLoader extends Loader{
 			for (PreparedStatement ps : pss) {
 				FastPreparedStatement fps = (FastPreparedStatement) ps;
 				fps.close();
-				System.out.println("load data infile '" + fps.path
+				LOG.debug("load data infile '" + fps.path
 						+ "' into table " + fps.table + " " + fps.fieldNames);
 				stmt.execute("load data infile '" + fps.path + "' into table "
 						+ fps.table + " " + fps.fieldNames);
@@ -1850,18 +1847,16 @@ public class TPCCLoader extends Loader{
 
 		long runTimeMS = (new java.util.Date().getTime()) + 1 - startTimeMS;
 		endDate = new java.util.Date();
-		System.out.println("");
-		System.out
-				.println("------------- LoadJDBC Statistics --------------------");
-		System.out.println("     Start Time = " + startDate);
-		System.out.println("       End Time = " + endDate);
-		System.out.println("       Run Time = " + (int) runTimeMS / 1000
+		LOG.debug("");
+		LOG.debug("------------- LoadJDBC Statistics --------------------");
+		LOG.debug("     Start Time = " + startDate);
+		LOG.debug("       End Time = " + endDate);
+		LOG.debug("       Run Time = " + (int) runTimeMS / 1000
 				+ " Seconds");
-		System.out.println("    Rows Loaded = " + totalRows + " Rows");
-		System.out.println("Rows Per Second = "
+		LOG.debug("    Rows Loaded = " + totalRows + " Rows");
+		LOG.debug("Rows Per Second = "
 				+ (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
-		System.out
-				.println("------------------------------------------------------");
+		LOG.debug("------------------------------------------------------");
 	
 	}
 } // end LoadData Class
