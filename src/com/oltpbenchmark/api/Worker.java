@@ -270,8 +270,10 @@ public abstract class Worker implements Runnable {
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                                        
-                    //TODO: Handle acceptable error codes for every DBMS
-                    if(LOG.isDebugEnabled()) LOG.debug(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    // TODO: Handle acceptable error codes for every DBMS
+                    if (LOG.isDebugEnabled()) 
+                        LOG.debug(String.format("%s [%d] - %s",
+                                                ex.getMessage(), ex.getErrorCode(), ex.getSQLState()));
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);
                     } else {
