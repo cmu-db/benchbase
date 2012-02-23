@@ -67,7 +67,7 @@
             <statement name="getMaxBid">SELECT * FROM "ITEM_BID" WHERE imb_i_id = ? AND imb_u_id = ?  ORDER BY ib_bid DESC LIMIT 1</statement>
             <statement name="insertPurchase">INSERT INTO "ITEM_PURCHASE"(ip_id,ip_ib_id,ip_ib_i_id,ip_ib_u_id,ip_date) VALUES(?,?,?,?,?)</statement>
             <statement name="getBuyerInfo">SELECT u_id, u_balance   FROM "USERACCT" WHERE u_id = ? </statement>
-            <statement name="getItemInfo">SELECT i_num_bids, i_current_price, i_end_date,        ib_id, ib_buyer_id,        u_balance   FROM "ITEM", "ITEM_MAX_BID", "ITEM_BID", "USERACCT" WHERE i_id = ? AND i_u_id = ? AND i_status = 2   AND imb_i_id = i_id AND imb_u_id = i_u_id    AND imb_ib_id = ib_id AND imb_ib_i_id = ib_i_id AND imb_ib_u_id = ib_u_id    AND ib_buyer_id = u_id </statement>
+            <statement name="getItemInfo">SELECT i_num_bids, i_current_price, i_end_date,        ib_id, ib_buyer_id,        u_balance   FROM "ITEM", "ITEM_MAX_BID", "ITEM_BID", "USERACCT" WHERE i_id = ? AND i_u_id = ? AND imb_i_id = i_id AND imb_u_id = i_u_id    AND imb_ib_id = ib_id AND imb_ib_i_id = ib_i_id AND imb_ib_u_id = ib_u_id    AND ib_buyer_id = u_id </statement>
             <statement name="updateUserBalance">UPDATE "USERACCT" SET u_balance = u_balance + ?  WHERE u_id = ?</statement>
             <statement name="insertUserItem">INSERT INTO "USERACCT_ITEM" (ui_u_id, ui_i_id, ui_i_u_id, ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id, ui_created) VALUES (?, ?, ?, ?, ?, ?, ?, ?)</statement>
             <statement name="updateUserItem">UPDATE "USERACCT_ITEM" SET ui_ip_id = ?,     ui_ip_ib_id = ?,     ui_ip_ib_i_id = ?,     ui_ip_ib_u_id = ? WHERE ui_u_id = ? AND ui_i_id = ? AND ui_i_u_id = ?</statement>

@@ -300,9 +300,9 @@ CREATE TABLE ITEM_MAX_BID (
 -- ================================================================
 -- ITEM_PURCHASE
 -- Represents purchase transaction (buy_now bid or win bid)
--- ip_id            Purchase's ID
+-- ip_id               Purchase's ID
 -- ip_ib_id            Bid's ID
--- ip_date            Purchase's date
+-- ip_date             Purchase's date
 -- ================================================================
 CREATE TABLE ITEM_PURCHASE (
     ip_id               BIGINT NOT NULL,

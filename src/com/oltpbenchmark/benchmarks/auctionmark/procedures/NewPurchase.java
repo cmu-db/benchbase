@@ -89,7 +89,7 @@ public class NewPurchase extends Procedure {
 		            AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + ", " +
 		            AuctionMarkConstants.TABLENAME_ITEM_BID + ", " +
 		            AuctionMarkConstants.TABLENAME_USERACCT +
-        " WHERE i_id = ? AND i_u_id = ? AND i_status = " + ItemStatus.WAITING_FOR_PURCHASE.ordinal() +
+        " WHERE i_id = ? AND i_u_id = ? " +
         "   AND imb_i_id = i_id AND imb_u_id = i_u_id " +
         "   AND imb_ib_id = ib_id AND imb_ib_i_id = ib_i_id AND imb_ib_u_id = ib_u_id " +
         "   AND ib_buyer_id = u_id "

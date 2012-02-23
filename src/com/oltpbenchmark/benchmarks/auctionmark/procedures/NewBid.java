@@ -58,9 +58,7 @@ public class NewBid extends Procedure {
     public final SQLStmt getItem = new SQLStmt(
         "SELECT i_initial_price, i_current_price, i_num_bids, i_end_date, i_status " +
           "FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " + 
-         "WHERE i_id = ? AND i_u_id = ? " //+
-//         "  AND i_end_date > ? " +
-//         "  AND i_status = " + ItemStatus.OPEN
+         "WHERE i_id = ? AND i_u_id = ? "
     );
     
     public final SQLStmt getMaxBidId = new SQLStmt(

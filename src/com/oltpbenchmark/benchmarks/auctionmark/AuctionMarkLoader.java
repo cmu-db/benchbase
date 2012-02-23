@@ -981,7 +981,7 @@ public class AuctionMarkLoader extends Loader {
         public ItemGenerator() {
             super(AuctionMarkConstants.TABLENAME_ITEM,
                   AuctionMarkConstants.TABLENAME_USERACCT,
-                  AuctionMarkConstants.TABLENAME_CATEGORY);
+                  AuctionMarkConstants.TABLENAME_USERACCT, AuctionMarkConstants.TABLENAME_CATEGORY);
         }
         
         @Override

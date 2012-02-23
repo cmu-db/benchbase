@@ -100,8 +100,8 @@ public class AuctionMarkWorker extends Worker {
             
             long sleepTime = AuctionMarkConstants.CLOSE_AUCTIONS_INTERVAL / AuctionMarkConstants.TIME_SCALE_FACTOR;
             while (true) {
-//                if (LOG.isDebugEnabled())
-                    LOG.info(String.format("Sleeping for %d seconds", sleepTime));
+                if (LOG.isDebugEnabled())
+                    LOG.debug(String.format("Sleeping for %d seconds", sleepTime));
 
                 // Always sleep until the next time that we need to check
                 try {
@@ -473,7 +473,8 @@ public class AuctionMarkWorker extends Worker {
     // ----------------------------------------------------------------
     
     protected boolean executeCloseAuctions(CloseAuctions proc) throws SQLException {
-        LOG.info("Executing " + proc);
+        if (LOG.isDebugEnabled())
+            LOG.debug("Executing " + proc);
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         Timestamp startTime = profile.getLastCloseAuctionsTime();
         Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
@@ -488,7 +489,8 @@ public class AuctionMarkWorker extends Worker {
         } // WHILE
         profile.updateItemQueues();
         
-        LOG.info("Finished " + proc);
+        if (LOG.isDebugEnabled())
+            LOG.debug("Finished " + proc);
         return (true);
     }
     
@@ -824,7 +826,7 @@ public class AuctionMarkWorker extends Worker {
         long encodedItemId = itemInfo.itemId.encode();
         UserId sellerId = itemInfo.getSellerId();
         double buyer_credit = 0d;
-        long ip_id = AuctionMarkUtil.getUniqueElementId(encodedItemId, profile.rng.nextInt(1024));
+        long ip_id = AuctionMarkUtil.getUniqueElementId(encodedItemId, profile.rng.nextInt());
         
         // Whether the buyer will not have enough money
         if (itemInfo.hasCurrentPrice()) {
