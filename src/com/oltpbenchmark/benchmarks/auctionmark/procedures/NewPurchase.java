@@ -50,6 +50,37 @@ public class NewPurchase extends Procedure {
     // STATEMENTS
     // -----------------------------------------------------------------
     
+    public final SQLStmt getItemMaxBid = new SQLStmt(
+        "SELECT * FROM " + AuctionMarkConstants.TABLENAME_ITEM_MAX_BID +
+        " WHERE imb_i_id = ? AND imb_u_id = ?"
+    );
+    
+    public final SQLStmt getMaxBid = new SQLStmt(
+        "SELECT * FROM " + AuctionMarkConstants.TABLENAME_ITEM_BID +
+        " WHERE imb_i_id = ? AND imb_u_id = ? " +
+        " ORDER BY ib_bid DESC LIMIT 1" 
+    );
+    
+    public final SQLStmt insertItemMaxBid = new SQLStmt(
+        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + " (" +
+        "imb_i_id, " +
+        "imb_u_id, " +
+        "imb_ib_id, " +
+        "imb_ib_i_id, " +
+        "imb_ib_u_id, " +
+        "imb_created, " +
+        "imb_updated " +
+        ") VALUES (" +
+        "?, " + // imb_i_id
+        "?, " + // imb_u_id
+        "?, " + // imb_ib_id
+        "?, " + // imb_ib_i_id
+        "?, " + // imb_ib_u_id
+        "?, " + // imb_created
+        "? "  + // imb_updated
+        ")"
+    );
+    
     public final SQLStmt getItemInfo = new SQLStmt(
         "SELECT i_num_bids, i_current_price, i_end_date, " +
         "       ib_id, ib_buyer_id, " +
@@ -125,8 +156,32 @@ public class NewPurchase extends Procedure {
         PreparedStatement stmt = null;
         ResultSet results = null;
         int updated;
+        boolean adv;
+        
+        // HACK: Check whether we have an ITEM_MAX_BID record. If not, we'll insert one
+        stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
+        results = stmt.executeQuery();
+        if (results.next() == false) {
+            stmt = this.getPreparedStatement(conn, getMaxBid, item_id, seller_id);
+            results = stmt.executeQuery();
+            adv = results.next();
+            assert(adv);
+            long bid_id = results.getLong(1);
+
+            updated = this.getPreparedStatement(conn, insertItemMaxBid, item_id,
+                                                                        seller_id,
+                                                                        bid_id,
+                                                                        item_id,
+                                                                        seller_id,
+                                                                        currentTime,
+                                                                        currentTime).executeUpdate();
+            assert(updated == 1) :
+                String.format("Failed to update %s for Seller #%d's Item #%d",
+                              AuctionMarkConstants.TABLENAME_ITEM_MAX_BID, seller_id, item_id);
+        }
         
         // Get the ITEM_MAX_BID record so that we know what we need to process
+        // At this point we should always have an ITEM_MAX_BID record
         stmt = this.getPreparedStatement(conn, getItemInfo, item_id, seller_id);
         results = stmt.executeQuery();
         if (results.next() == false) {

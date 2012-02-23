@@ -259,7 +259,9 @@ public class AuctionMarkLoader extends Loader {
                 conn.commit();
                 stmt.clearBatch();
             } catch (SQLException ex) {
+                ex = ex.getNextException();
                 LOG.warn(tableName + " - " + ex.getMessage());
+                throw ex;
                 // SKIP
             }
             
@@ -1236,6 +1238,7 @@ public class AuctionMarkLoader extends Loader {
         private LoaderItemInfo.Bid bid = null;
         private float currentBidPriceAdvanceStep;
         private long currentCreateDateAdvanceStep;
+        private float currentPrice;
         private boolean new_item;
         
         public ItemBidGenerator() {
@@ -1267,11 +1270,14 @@ public class AuctionMarkLoader extends Loader {
                     endDate = itemInfo.endDate;
                 }
                 this.currentCreateDateAdvanceStep = (endDate.getTime() - itemInfo.startDate.getTime()) / (remaining + 1);
+//                this.currentBidPriceAdvanceStep = (itemInfo.currentPrice - itemInfo.initialPrice) * itemInfo.numBids;
                 this.currentBidPriceAdvanceStep = itemInfo.initialPrice * AuctionMarkConstants.ITEM_BID_PERCENT_STEP;
+                this.currentPrice = itemInfo.initialPrice;
             }
             // The last bid must always be the item's lastBidderId
             else if (remaining == 0) {
-                bidderId = itemInfo.lastBidderId; 
+                bidderId = itemInfo.lastBidderId;
+                this.currentPrice = itemInfo.currentPrice;
             }
             // The first bid for a two-bid item must always be different than the lastBidderId
             else if (itemInfo.numBids == 2) {
@@ -1285,6 +1291,7 @@ public class AuctionMarkLoader extends Loader {
                 assert(this.bid != null);
                 Histogram<UserId> bidderHistogram = itemInfo.getBidderHistogram();
                 bidderId = profile.getRandomBuyerId(bidderHistogram, this.bid.bidderId, itemInfo.sellerId);
+                this.currentPrice += this.currentBidPriceAdvanceStep;
             }
             assert(bidderId != null);
 
@@ -1296,7 +1303,8 @@ public class AuctionMarkLoader extends Loader {
             if (remaining == 0) {
                 this.bid.maxBid = itemInfo.currentPrice;
                 if (itemInfo.purchaseDate != null) {
-                    assert(itemInfo.getBidCount() == itemInfo.numBids) : String.format("%d != %d\n%s", itemInfo.getBidCount(), itemInfo.numBids, itemInfo);
+                    assert(itemInfo.getBidCount() == itemInfo.numBids) :
+                        String.format("%d != %d\n%s", itemInfo.getBidCount(), itemInfo.numBids, itemInfo);
                 }
             } else {
                 this.bid.maxBid = last_bid + this.currentBidPriceAdvanceStep;
@@ -1312,6 +1320,7 @@ public class AuctionMarkLoader extends Loader {
             row[col++] = this.bid.bidderId;
             // IB_BID
             row[col++] = this.bid.maxBid - (remaining > 0 ? (this.currentBidPriceAdvanceStep/2.0f) : 0);
+//            row[col++] = this.currentPrice;   
             // IB_MAX_BID
             row[col++] = this.bid.maxBid;
             // IB_CREATED

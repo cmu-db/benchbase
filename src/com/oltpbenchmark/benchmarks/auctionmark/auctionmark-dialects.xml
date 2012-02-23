@@ -65,6 +65,9 @@
             <statement name="insertItem">INSERT INTO "ITEM"(i_id,i_u_id,i_c_id,i_name,i_description,i_user_attributes,i_initial_price,i_current_price,i_num_bids,i_num_images,i_num_global_attrs,i_start_date,i_end_date,i_status, i_updated,i_iattr0) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)</statement>
         </procedure>
         <procedure name="NewPurchase">
+            <statement name="getItemMaxBid">SELECT * FROM "ITEM_MAX_BID" WHERE imb_i_id = ? AND imb_u_id = ?</statement>
+            <statement name="insertItemMaxBid">INSERT INTO "ITEM_MAX_BID" (imb_i_id, imb_u_id, imb_ib_id, imb_ib_i_id, imb_ib_u_id, imb_created, imb_updated ) VALUES (?, ?, ?, ?, ?, ?, ? )</statement>
+            <statement name="getMaxBid">SELECT * FROM "ITEM_BID" WHERE imb_i_id = ? AND imb_u_id = ?  ORDER BY ib_bid DESC LIMIT 1</statement>
             <statement name="insertPurchase">INSERT INTO "ITEM_PURCHASE"(ip_id,ip_ib_id,ip_ib_i_id,ip_ib_u_id,ip_date) VALUES(?,?,?,?,?)</statement>
             <statement name="getBuyerInfo">SELECT u_id, u_balance   FROM "USERACCT" WHERE u_id = ? </statement>
             <statement name="getItemInfo">SELECT i_num_bids, i_current_price, i_end_date,        ib_id, ib_buyer_id,        u_balance   FROM "ITEM", "ITEM_MAX_BID", "ITEM_BID", "USERACCT" WHERE i_id = ? AND i_u_id = ? AND i_status = 2   AND imb_i_id = i_id AND imb_u_id = i_u_id    AND imb_ib_id = ib_id AND imb_ib_i_id = ib_i_id AND imb_ib_u_id = ib_u_id    AND ib_buyer_id = u_id </statement>
