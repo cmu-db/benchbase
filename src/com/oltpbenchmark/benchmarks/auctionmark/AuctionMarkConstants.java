@@ -137,7 +137,7 @@ public abstract class AuctionMarkConstants {
     
     public static final int ITEM_ITEMS_PER_SELLER_MIN = 0;
     public static final int ITEM_ITEMS_PER_SELLER_MAX = 1000;
-    public static final double ITEM_ITEMS_PER_SELLER_SIGMA = 2.0;
+    public static final double ITEM_ITEMS_PER_SELLER_SIGMA = 1.5;
     
     public static final int ITEM_BIDS_PER_DAY_MIN = 0;
     public static final int ITEM_BIDS_PER_DAY_MAX = 10;

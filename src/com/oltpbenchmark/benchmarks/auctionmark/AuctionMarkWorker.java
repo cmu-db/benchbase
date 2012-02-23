@@ -58,6 +58,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewFeedback;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewItem;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewPurchase;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.UpdateItem;
+import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
@@ -800,9 +801,6 @@ public class AuctionMarkWorker extends Worker {
                                                      categoryId, name, description,
                                                      duration, initial_price, attributes,
                                                      gag_ids, gav_ids, images);
-        } catch (AssertionError ex) {
-            System.err.println("TROUBLE!\n" + profile.seller_item_cnt);
-            throw ex;
         } catch (DuplicateItemIdException ex) {
             profile.seller_item_cnt.set(sellerId, ex.getItemCount());
             throw ex;
@@ -822,8 +820,10 @@ public class AuctionMarkWorker extends Worker {
     protected boolean executeNewPurchase(NewPurchase proc) throws SQLException {
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomWaitForPurchaseItem();
+        long encodedItemId = itemInfo.itemId.encode();
         UserId sellerId = itemInfo.getSellerId();
         double buyer_credit = 0d;
+        long ip_id = AuctionMarkUtil.getUniqueElementId(encodedItemId, profile.rng.nextInt(1024));
         
         // Whether the buyer will not have enough money
         if (itemInfo.hasCurrentPrice()) {
@@ -835,8 +835,9 @@ public class AuctionMarkWorker extends Worker {
             }
         }
         
-        Object results[] = proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
+        Object results[] = proc.run(conn, benchmarkTimes, encodedItemId,
                                                           sellerId.encode(),
+                                                          ip_id,
                                                           buyer_credit);
         conn.commit();
         

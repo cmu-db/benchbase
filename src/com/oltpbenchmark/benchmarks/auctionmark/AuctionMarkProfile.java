@@ -314,7 +314,7 @@ public class AuctionMarkProfile {
             for (ItemInfo itemInfo : origList) {
                 UserId sellerId = itemInfo.getSellerId();
                 if (this.userIdGenerator.checkClient(sellerId)) {
-                    this.seller_item_cnt.put(sellerId, sellerId.getItemCount());
+                    this.seller_item_cnt.set(sellerId, sellerId.getItemCount());
                     list.add(itemInfo);
                 }
             } // FOR

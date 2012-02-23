@@ -71,7 +71,7 @@ public class NewPurchase extends Procedure {
     );
     
     public final SQLStmt insertPurchase = new SQLStmt(
-        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_PURCHASE + "(" +
+        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_PURCHASE + " (" +
         	"ip_id," +
         	"ip_ib_id," +
         	"ip_ib_i_id," +  
@@ -81,10 +81,9 @@ public class NewPurchase extends Procedure {
     );
     
     public final SQLStmt updateItem = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM + " " +
-        	"SET i_status = " + ItemStatus.CLOSED.ordinal() + ", " +
-        	"    i_updated = ? " +
-        "WHERE i_id = ? AND i_u_id = ? "
+        "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM +
+          " SET i_status = " + ItemStatus.CLOSED.ordinal() + ", i_updated = ? " +
+        " WHERE i_id = ? AND i_u_id = ? "
     );    
     
     public final SQLStmt updateUserItem = new SQLStmt(
@@ -120,7 +119,7 @@ public class NewPurchase extends Procedure {
     // -----------------------------------------------------------------
     
     public Object[] run(Connection conn, Timestamp benchmarkTimes[],
-                        long item_id, long seller_id, double buyer_credit) throws SQLException {
+                        long item_id, long seller_id, long ip_id, double buyer_credit) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         
         PreparedStatement stmt = null;
@@ -153,8 +152,6 @@ public class NewPurchase extends Procedure {
         }
 
         // Set item_purchase_id
-        long ip_id = AuctionMarkUtil.getUniqueElementId(item_id, 1);
-
         updated = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime).executeUpdate();
         assert(updated == 1);
         
