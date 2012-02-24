@@ -224,13 +224,17 @@ public abstract class SQLUtil {
      * @return
      */
     public static String getInsertSQL(Table catalog_tbl, int batchSize, int...exclude_columns) {
-        return getInsertSQL(catalog_tbl, false, batchSize, exclude_columns);
+        return getInsertSQL(catalog_tbl, false, true, batchSize, exclude_columns);
     }
     
     public static String getInsertSQL(Table catalog_tbl, boolean show_cols, int batchSize, int...exclude_columns) {
+        return getInsertSQL(catalog_tbl, false, true, batchSize, exclude_columns);
+    }
+    
+    public static String getInsertSQL(Table catalog_tbl, boolean show_cols, boolean escape_names, int batchSize, int...exclude_columns) {
     	StringBuilder sb = new StringBuilder();
     	sb.append("INSERT INTO ")
-    	  .append(catalog_tbl.getEscapedName());
+    	  .append(escape_names ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
     	
     	StringBuilder values = new StringBuilder();
     	boolean first;
@@ -251,7 +255,7 @@ public abstract class SQLUtil {
     			if (show_cols) sb.append(", ");
     			values.append(", ");
     		}
-    		if (show_cols) sb.append(catalog_col.getEscapedName());
+    		if (show_cols) sb.append(escape_names ? catalog_col.getEscapedName() : catalog_col.getName());
     		values.append("?");
     		first = false;
     	} // FOR

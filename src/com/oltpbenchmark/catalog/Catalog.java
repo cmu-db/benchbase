@@ -303,6 +303,10 @@ public final class Catalog {
 	public static void setSeparator(Connection c) throws SQLException {
 		Catalog.separator = c.getMetaData().getIdentifierQuoteString();
 	}
+	
+	public static void setSeparator(String separator) throws SQLException {
+        Catalog.separator = separator;
+    }
 
 	public static String getSeparator() {
 		return separator;

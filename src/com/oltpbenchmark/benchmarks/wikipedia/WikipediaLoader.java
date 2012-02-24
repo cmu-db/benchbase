@@ -15,9 +15,12 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
+import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
+import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.TimeUtil;
 
 public class WikipediaLoader extends Loader {
@@ -45,8 +48,9 @@ public class WikipediaLoader extends Loader {
     @Override
     public void load() {
         try {
-            this.LoadUsers();
-            this.LoadPages();
+            this.loadUsers();
+            this.loadPages();
+//            if (num_users > 0) return;
             this.LoadWatchlist();
             this.genTrace(this.workConf.getXmlConfig().getInt("traceOut", 0));
             this.LoadRevision();
@@ -56,39 +60,64 @@ public class WikipediaLoader extends Loader {
 
     }
 
-    private void LoadUsers() throws SQLException {
-
-        Table catalog_tbl = this.getTableCatalog("user");
+    /**
+     * Load Wikipedia USER table
+     */
+    private void loadUsers() throws SQLException {
+        Table catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         assert (catalog_tbl != null);
-        String sql = "INSERT INTO "+catalog_tbl.getEscapedName()+" (user_name,user_real_name,user_password,user_newpassword,user_newpass_time," +
-                     "user_email,user_options,user_touched,user_token,user_email_authenticated" +
-                     ",user_email_token,user_email_token_expires,user_registration,user_editcount) " +
-                     " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         
+        String sql = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
+                     "user_name, " +
+                     "user_real_name, " +
+                     "user_password, " +
+                     "user_newpassword, " +
+                     "user_newpass_time," +
+                     "user_email, " +
+                     "user_options, " +
+                     "user_touched, " +
+                     "user_token, " +
+                     "user_email_authenticated, " +
+                     "user_email_token, " +
+                     "user_email_token_expires, " +
+                     "user_registration, " +
+                     "user_editcount " +
+                     ") VALUES (" +
+                     "?,?,?,?,?,?,?,?,?,?,?,?,?,?" +
+                     ")";
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
+
+        FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
+        FlatHistogram<Integer> h_realNameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.REAL_NAME_LENGTH);
+        FlatHistogram<Integer> h_revCount = new FlatHistogram<Integer>(this.rng(), UserHistograms.REVISION_COUNT);
 
         int batch_size = 0;
         for (int i = 0; i < this.num_users; i++) {
-            String name = LoaderUtil.randomStr(WikipediaConstants.NAME);
+            String name = LoaderUtil.randomStr(h_nameLength.nextValue().intValue());
+            String realName = LoaderUtil.randomStr(h_realNameLength.nextValue().intValue());
+            int revCount = h_revCount.nextValue().intValue();
+            String password = StringUtil.repeat("*", rng().nextInt(32));
+            String email = LoaderUtil.randomStr(rng().nextInt(16)) + "@" + LoaderUtil.randomStr(rng().nextInt(16));
+            String token = LoaderUtil.randomStr(WikipediaConstants.TOKEN_LENGTH);
+            
             int col = 1;
-            userInsert.setString(col++, name);                  // name
-            userInsert.setString(col++, name);                  // real_name
-            userInsert.setString(col++, "***");                 // password
-            userInsert.setString(col++, "***");                 // password2
-            userInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // new_pass
-                                                                    // time
-            userInsert.setString(col++, "fake_email@test.me"); // user_email
-            userInsert.setString(col++, "fake_longoptionslist"); // user_options
+            userInsert.setString(col++, name);                      // user_name
+            userInsert.setString(col++, realName);                  // user_real_name
+            userInsert.setString(col++, password);                  // user_password
+            userInsert.setString(col++, password);                  // user_newpassword
+            userInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // user_newpass_time
+            userInsert.setString(col++, email);                     // user_email
+            userInsert.setString(col++, "fake_longoptionslist");    // user_options
             userInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // user_touched
-            userInsert.setString(col++, LoaderUtil.randomStr(WikipediaConstants.TOKEN)); // user_token
-            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_authenticated
-            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_token
-            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_email_token_expires
-            userInsert.setNull(col++, java.sql.Types.VARCHAR); // user_registration
-            userInsert.setInt(col++, 0); // user_editcount
+            userInsert.setString(col++, token);                     // user_token
+            userInsert.setNull(col++, java.sql.Types.VARCHAR);      // user_email_authenticated
+            userInsert.setNull(col++, java.sql.Types.VARCHAR);      // user_email_token
+            userInsert.setNull(col++, java.sql.Types.VARCHAR);      // user_email_token_expires
+            userInsert.setNull(col++, java.sql.Types.VARCHAR);      // user_registration
+            userInsert.setInt(col++, revCount);                     // user_editcount
             userInsert.addBatch();
             
-            if ((++batch_size % 100) == 0) {
+            if (++batch_size % 100 == 0) {
                 userInsert.executeBatch();
                 this.conn.commit();
                 userInsert.clearBatch();
@@ -106,7 +135,7 @@ public class WikipediaLoader extends Loader {
             LOG.debug("Users  % " + this.num_users);
     }
 
-    private void LoadPages() throws SQLException {
+    private void loadPages() throws SQLException {
 
         String sql = "INSERT INTO page (page_namespace,page_title,page_restrictions," +
                      "page_counter,page_is_redirect,page_is_new,page_random,page_touched," +

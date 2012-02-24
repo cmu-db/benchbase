@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.Random;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 
@@ -54,6 +55,10 @@ public abstract class Loader {
     
     public DatabaseType getDatabaseType() {
         return (this.workConf.getDBType());
+    }
+    
+    public Catalog getCatalog() {
+        return (this.benchmark.getCatalog());
     }
     
     /**

@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * oltpbenchmark.com
+ *  
+ *  Project Info:  http://oltpbenchmark.com
+ *  Project Members:    Carlo Curino <carlo.curino@gmail.com>
+ *              Evan Jones <ej@evanjones.ca>
+ *              DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
+ *              Andy Pavlo <pavlo@cs.brown.edu>
+ *              CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
+ *                  Yang Zhang <yaaang@gmail.com> 
+ * 
+ *  This library is free software; you can redistribute it and/or modify it under the terms
+ *  of the GNU General Public License as published by the Free Software Foundation;
+ *  either version 3.0 of the License, or (at your option) any later version.
+ * 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+ ******************************************************************************/
 package com.oltpbenchmark.benchmarks.wikipedia.procedures;
 
 import java.sql.Connection;
@@ -9,6 +28,7 @@ import java.util.ArrayList;
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 import com.oltpbenchmark.util.TimeUtil;
 
@@ -16,45 +36,71 @@ public class UpdatePage extends Procedure {
 	
 	// pretend we are changing something in the text
 	public SQLStmt insertText = new SQLStmt(
-	        "INSERT INTO text (old_page,old_text,old_flags) VALUES (?,?,'utf-8')"
+        "INSERT INTO " + WikipediaConstants.TABLENAME_USER + " (" +
+        "old_page,old_text,old_flags" + 
+        ") VALUES (" +
+        "?,?,'utf-8'" +
+        ")"
     ); 
 	public SQLStmt insertRevision = new SQLStmt(
-        "INSERT INTO revision " +
-		"(rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) " +
-		"VALUES (?, ?, ? ,'0',?, ?, ? ,'0',?,?)"
+        "INSERT INTO " + WikipediaConstants.TABLENAME_REVISION + " (" +
+		"rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user," +
+        "rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id" +
+		") VALUES (" +
+        "?, ?, ? ,'0',?, ?, ? ,'0',?,?" +
+		")"
 	);
 	public SQLStmt updatePage = new SQLStmt(
-        "UPDATE page SET page_latest = ? , page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?"
+        "UPDATE " + WikipediaConstants.TABLENAME_PAGE +
+        "   SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? " +
+        " WHERE page_id = ?"
     );
 	public SQLStmt insertRecentChanges = new SQLStmt(
-        "INSERT INTO recentchanges (rc_timestamp, rc_cur_time," +
-        "rc_namespace,rc_title,rc_type,rc_minor,rc_cur_id,rc_user,rc_user_text,rc_comment,rc_this_oldid," + "rc_last_oldid," + 
-        "rc_bot,rc_moved_to_ns,rc_moved_to_title,rc_ip,rc_patrolled, rc_new, rc_old_len, rc_new_len,rc_deleted, rc_logid," + 
-        "rc_log_type,rc_log_action,rc_params) " +
-        "VALUES (?, ?, ? , ? ,'0','0', ? , ? , ? ,'', ? , ? ,'0','0','',?,'1','0', ? , ? ,'0','0',NULL,'','')"
+        "INSERT INTO " + WikipediaConstants.TABLENAME_RECENTCHANGES + " (" + 
+	    "rc_timestamp, rc_cur_time, rc_namespace, rc_title, rc_type, " +
+        "rc_minor, rc_cur_id, rc_user, rc_user_text, rc_comment, rc_this_oldid, " +
+	    "rc_last_oldid, rc_bot, rc_moved_to_ns, rc_moved_to_title, rc_ip,rc_patrolled, " +
+        "rc_new, rc_old_len, rc_new_len,rc_deleted, rc_logid," + 
+        "rc_log_type,rc_log_action,rc_params" +
+        ") VALUES (" +
+        "?, ?, ? , ? ,'0','0', ? , ? , ? ,'', ? , ? ,'0','0','',?,'1','0', ? , ? ,'0','0',NULL,'',''" +
+        ")"
     );
 	public SQLStmt selectWatchList = new SQLStmt(
-        "SELECT wl_user FROM watchlist WHERE wl_title = ? AND wl_namespace = ? " +
-		"AND (wl_user != ?) AND (wl_notificationtimestamp IS NULL)"
+        "SELECT wl_user FROM " + WikipediaConstants.TABLENAME_WATCHLIST +
+        " WHERE wl_title = ?" +
+        "   AND wl_namespace = ?" +
+		"   AND wl_user != ?" +
+		"   AND wl_notificationtimestamp IS NULL"
     );
 	public SQLStmt updateWatchList = new SQLStmt(
-        "UPDATE watchlist SET wl_notificationtimestamp = ? " +
-	    " WHERE wl_title = ? AND wl_namespace = ? AND wl_user = ?"
+        "UPDATE " + WikipediaConstants.TABLENAME_WATCHLIST +
+        "   SET wl_notificationtimestamp = ? " +
+	    " WHERE wl_title = ?" +
+	    "   AND wl_namespace = ?" +
+	    "   AND wl_user = ?"
     );
 	public SQLStmt selectUser = new SQLStmt(
-        "SELECT  *  FROM user  WHERE user_id = ?"
+        "SELECT * FROM " + WikipediaConstants.TABLENAME_USER + " WHERE user_id = ?"
     );
 	public SQLStmt insertLogging = new SQLStmt(
-        "INSERT INTO logging (log_type,log_action,log_timestamp,log_user,log_user_text," +
-        "log_namespace,log_title,log_page,log_comment,log_params) " +
-		"VALUES ('patrol','patrol',?,?,?,?,?,?,'',?)"
+        "INSERT INTO " + WikipediaConstants.TABLENAME_LOGGING + " (" +
+		"log_type, log_action, log_timestamp, log_user, log_user_text, " +
+        "log_namespace, log_title, log_page, log_comment, log_params" +
+        ") VALUES (" +
+        "'patrol','patrol',?,?,?,?,?,?,'',?" +
+        ")"
     );
 	
 	public SQLStmt updateUserEdit = new SQLStmt(
-        "UPDATE user SET user_editcount=user_editcount+1 WHERE user_id = ?"
+        "UPDATE " + WikipediaConstants.TABLENAME_USER +
+        "   SET user_editcount=user_editcount+1" +
+        " WHERE user_id = ?"
     );
 	public SQLStmt updateUserTouched = new SQLStmt(
-        "UPDATE user SET user_touched = ? WHERE user_id = ?"
+        "UPDATE " + WikipediaConstants.TABLENAME_USER + 
+        "   SET user_touched = ?" +
+        " WHERE user_id = ?"
     );
 	
 	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {

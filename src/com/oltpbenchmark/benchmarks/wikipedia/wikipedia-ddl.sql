@@ -27,6 +27,29 @@ CREATE INDEX IDX_IPB_RANGE ON ipblocks (ipb_range_start,ipb_range_end);
 CREATE INDEX IDX_IPB_TIMESTAMP ON ipblocks (ipb_timestamp);
 CREATE INDEX IDX_IPB_EXPIRY ON ipblocks (ipb_expiry);
 
+-- TOOD: user_id auto_increment
+DROP TABLE IF EXISTS useracct;
+CREATE TABLE useracct (
+  user_id int NOT NULL,
+  user_name varbinary(255) NOT NULL,
+  user_real_name varbinary(255) NOT NULL,
+  user_password varbinary(1024) NOT NULL,
+  user_newpassword varbinary(1024) NOT NULL,
+  user_newpass_time binary(14) DEFAULT NULL,
+  user_email varbinary(1024) NOT NULL,
+  user_options varbinary(1024) NOT NULL,
+  user_touched binary(14) NOT NULL,
+  user_token binary(32) NOT NULL,
+  user_email_authenticated binary(14) DEFAULT NULL,
+  user_email_token binary(32) DEFAULT NULL,
+  user_email_token_expires binary(14) DEFAULT NULL,
+  user_registration binary(14) DEFAULT NULL,
+  user_editcount int DEFAULT NULL,
+  PRIMARY KEY (user_id),
+  UNIQUE (user_name)
+);
+CREATE INDEX IDX_USER_EMAIL_TOKEN ON useracct (user_email_token);
+
 -- TODO: log_id auto_increment
 DROP TABLE IF EXISTS logging;
 CREATE TABLE logging (
@@ -113,7 +136,7 @@ CREATE TABLE recentchanges (
   rc_id int NOT NULL,
   rc_timestamp varbinary(14) NOT NULL,
   rc_cur_time varbinary(14) NOT NULL,
-  rc_user int NOT NULL,
+  rc_user int NOT NULL REFERENCES useracct (user_id),
   rc_user_text varbinary(255) NOT NULL,
   rc_namespace int NOT NULL,
   rc_title varbinary(255) NOT NULL,
@@ -153,7 +176,7 @@ CREATE TABLE revision (
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment varbinary(1024) NOT NULL,
-  rev_user int NOT NULL,
+  rev_user int NOT NULL REFERENCES useracct (user_id),
   rev_user_text varbinary(255) NOT NULL,
   rev_timestamp binary(14) NOT NULL,
   rev_minor_edit tinyint NOT NULL,
@@ -178,32 +201,9 @@ CREATE TABLE text (
   PRIMARY KEY (old_id)
 );
 
--- TOOD: user_id auto_increment
-DROP TABLE IF EXISTS user;
-CREATE TABLE user (
-  user_id int NOT NULL,
-  user_name varbinary(255) NOT NULL,
-  user_real_name varbinary(255) NOT NULL,
-  user_password varbinary(1024) NOT NULL,
-  user_newpassword varbinary(1024) NOT NULL,
-  user_newpass_time binary(14) DEFAULT NULL,
-  user_email varbinary(1024) NOT NULL,
-  user_options varbinary(1024) NOT NULL,
-  user_touched binary(14) NOT NULL,
-  user_token binary(32) NOT NULL,
-  user_email_authenticated binary(14) DEFAULT NULL,
-  user_email_token binary(32) DEFAULT NULL,
-  user_email_token_expires binary(14) DEFAULT NULL,
-  user_registration binary(14) DEFAULT NULL,
-  user_editcount int DEFAULT NULL,
-  PRIMARY KEY (user_id),
-  UNIQUE (user_name)
-);
-CREATE INDEX IDX_USER_EMAIL_TOKEN ON user (user_email_token);
-
 DROP TABLE IF EXISTS user_groups;
 CREATE TABLE user_groups (
-  ug_user int NOT NULL,
+  ug_user int NOT NULL REFERENCES useracct (user_id),
   ug_group varbinary(16) NOT NULL,
   UNIQUE (ug_user,ug_group)
 );

@@ -252,16 +252,25 @@ public abstract class BenchmarkModule {
      * Invoke this benchmark's database loader
      */
     public final void loadDatabase() {
-        Connection conn = null;
         try {
-            conn = this.makeConnection();
+            Connection conn = this.makeConnection();
+            this.loadDatabase(conn);
+            conn.close();
+        } catch (SQLException ex) {
+            throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", this.benchmarkName), ex);
+        }
+    }
+    
+    /**
+     * Invoke this benchmark's database loader using the given Connection handle
+     * @param conn
+     */
+    protected final void loadDatabase(Connection conn) {
+        try {
             conn.setAutoCommit(false);
-            
             Loader loader = this.makeLoaderImpl(conn);
             if (loader != null) loader.load();
-
             conn.commit();
-            conn.close();
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", this.benchmarkName), ex);
         }

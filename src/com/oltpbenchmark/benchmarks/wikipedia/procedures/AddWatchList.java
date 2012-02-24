@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * oltpbenchmark.com
+ *  
+ *  Project Info:  http://oltpbenchmark.com
+ *  Project Members:    Carlo Curino <carlo.curino@gmail.com>
+ *              Evan Jones <ej@evanjones.ca>
+ *              DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
+ *              Andy Pavlo <pavlo@cs.brown.edu>
+ *              CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
+ *                  Yang Zhang <yaaang@gmail.com> 
+ * 
+ *  This library is free software; you can redistribute it and/or modify it under the terms
+ *  of the GNU General Public License as published by the Free Software Foundation;
+ *  either version 3.0 of the License, or (at your option) any later version.
+ * 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  See the GNU Lesser General Public License for more details.
+ ******************************************************************************/
 package com.oltpbenchmark.benchmarks.wikipedia.procedures;
 
 import java.sql.Connection;
@@ -7,15 +26,22 @@ import java.sql.SQLException;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.util.TimeUtil;
 
 public class AddWatchList extends Procedure {
 
     public SQLStmt insertWatchList = new SQLStmt(
-            "INSERT IGNORE INTO watchlist (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) " +
-            "VALUES (?,?,?,NULL)");
+        "INSERT IGNORE INTO " + WikipediaConstants.TABLENAME_WATCHLIST + " (" + 
+        "wl_user,wl_namespace,wl_title,wl_notificationtimestamp" +
+        ") VALUES (" +
+        "?,?,?,NULL" +
+        ")"
+    );
    
-    public SQLStmt setUserTouched = new SQLStmt("UPDATE user SET user_touched = ? WHERE user_id =  ?");    
+    public SQLStmt setUserTouched = new SQLStmt(
+        "UPDATE " + WikipediaConstants.TABLENAME_USER + " SET user_touched = ? WHERE user_id = ?"
+    );    
 	
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
         assert userId!=0;

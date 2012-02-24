@@ -20,11 +20,32 @@ CREATE TABLE ipblocks (
   PRIMARY KEY (ipb_id),
   UNIQUE (ipb_address,ipb_user,ipb_auto,ipb_anon_only)
 );
-
 CREATE INDEX IDX_IPB_USER ON ipblocks (ipb_user);
 CREATE INDEX IDX_IPB_RANGE ON ipblocks (ipb_range_start,ipb_range_end);
 CREATE INDEX IDX_IPB_TIMESTAMP ON ipblocks (ipb_timestamp);
 CREATE INDEX IDX_IPB_EXPIRY ON ipblocks (ipb_expiry);
+
+DROP TABLE IF EXISTS useracct;
+CREATE TABLE useracct (
+  user_id serial,
+  user_name varchar(255) NOT NULL DEFAULT '',
+  user_real_name varchar(255) NOT NULL DEFAULT '',
+  user_password varchar(255) NOT NULL,
+  user_newpassword varchar(255) NOT NULL,
+  user_newpass_time varchar(14) DEFAULT NULL,
+  user_email varchar(255) NOT NULL,
+  user_options varchar(255) NOT NULL,
+  user_touched varchar(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+  user_token varchar(32) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+  user_email_authenticated varchar(14) DEFAULT NULL,
+  user_email_token varchar(32) DEFAULT NULL,
+  user_email_token_expires varchar(14) DEFAULT NULL,
+  user_registration varchar(14) DEFAULT NULL,
+  user_editcount int DEFAULT NULL,
+  PRIMARY KEY (user_id),
+  UNIQUE (user_name)
+);
+CREATE INDEX IDX_USER_EMAIL_TOKEN ON useracct (user_email_token);
 
 DROP TABLE IF EXISTS logging;
 CREATE TABLE logging (
@@ -93,7 +114,7 @@ CREATE TABLE page_restrictions (
   pr_type varchar(60) NOT NULL,
   pr_level varchar(60) NOT NULL,
   pr_cascade smallint NOT NULL,
-  pr_user int DEFAULT NULL,
+  pr_user int DEFAULT NULL REFERENCES useracct (user_id),
   pr_expiry varchar(14) DEFAULT NULL,
   pr_id int NOT NULL,
   PRIMARY KEY (pr_id),
@@ -147,7 +168,7 @@ CREATE TABLE revision (
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment text NOT NULL,
-  rev_user int NOT NULL DEFAULT '0',
+  rev_user int NOT NULL DEFAULT '0' REFERENCES useracct (user_id),
   rev_user_text varchar(255) NOT NULL DEFAULT '',
   rev_timestamp varchar(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
   rev_minor_edit smallint NOT NULL DEFAULT '0',
@@ -171,31 +192,10 @@ CREATE TABLE text (
   PRIMARY KEY (old_id)
 );
 
-DROP TABLE IF EXISTS "user";
-CREATE TABLE "user" (
-  user_id serial,
-  user_name varchar(255) NOT NULL DEFAULT '',
-  user_real_name varchar(255) NOT NULL DEFAULT '',
-  user_password varchar(255) NOT NULL,
-  user_newpassword varchar(255) NOT NULL,
-  user_newpass_time varchar(14) DEFAULT NULL,
-  user_email varchar(255) NOT NULL,
-  user_options varchar(255) NOT NULL,
-  user_touched varchar(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-  user_token varchar(32) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-  user_email_authenticated varchar(14) DEFAULT NULL,
-  user_email_token varchar(32) DEFAULT NULL,
-  user_email_token_expires varchar(14) DEFAULT NULL,
-  user_registration varchar(14) DEFAULT NULL,
-  user_editcount int DEFAULT NULL,
-  PRIMARY KEY (user_id),
-  UNIQUE (user_name)
-);
-CREATE INDEX IDX_USER_EMAIL_TOKEN ON "user" (user_email_token);
 
 DROP TABLE IF EXISTS user_groups;
 CREATE TABLE user_groups (
-  ug_user int NOT NULL DEFAULT '0',
+  ug_user int NOT NULL DEFAULT '0' REFERENCES useracct (user_id),
   ug_group varchar(16) NOT NULL DEFAULT '',
   UNIQUE (ug_user,ug_group)
 );
@@ -209,7 +209,7 @@ CREATE TABLE value_backup (
 
 DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
-  wl_user int NOT NULL,
+  wl_user int NOT NULL REFERENCES useracct (user_id),
   wl_namespace int NOT NULL DEFAULT '0',
   wl_title varchar(255) NOT NULL DEFAULT '',
   wl_notificationtimestamp varchar(14) DEFAULT NULL,

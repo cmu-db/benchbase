@@ -8,14 +8,9 @@ public abstract class WikipediaConstants {
 	public static final int NAMESPACES = 10;
 
 	/**
-	 * Length of user's name
-	 */
-	public static final int NAME = 10;
-
-	/**
 	 * Length of the tokens
 	 */
-	public static final int TOKEN = 32;
+	public static final int TOKEN_LENGTH = 32;
 
 	/**
 	 * Number of baseline pages
@@ -59,4 +54,25 @@ public abstract class WikipediaConstants {
 			"veritatis et quasi architecto beatae vitae dicta sunt explicabo.pariatur. Excepteur sint occaecat cupidatat non proident, sunt in " +
 			"culpa qui officia deserunt mollit anim id est laborum Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium " +
 			"doloremque laudantium, ipsa ne que dal se quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.";
+	
+    // ----------------------------------------------------------------
+    // DATA SET INFORMATION
+    // ----------------------------------------------------------------
+    
+    /**
+     * Table Names
+     */
+	public static final String TABLENAME_IPBLOCKS          = "ipblocks";
+	public static final String TABLENAME_LOGGING           = "logging";
+	public static final String TABLENAME_PAGE              = "page";
+	public static final String TABLENAME_PAGE_BACKUP       = "page_backup";
+	public static final String TABLENAME_PAGE_RESTRICTIONS = "page_restrictions";
+	public static final String TABLENAME_RECENTCHANGES     = "recentchanges";
+	public static final String TABLENAME_REVISION          = "revision";
+	public static final String TABLENAME_TEXT              = "text";
+	public static final String TABLENAME_USER              = "useracct";
+	public static final String TABLENAME_USER_GROUPS       = "user_groups";
+	public static final String TABLENAME_VALUE_BACKUP      = "value_backup";
+	public static final String TABLENAME_WATCHLIST         = "watchlist";
+
 }
