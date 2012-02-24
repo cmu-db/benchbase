@@ -221,13 +221,14 @@ public abstract class AuctionMarkConstants {
      * query the item table. This must match the ordering expected
      * in AuctionMarkWorker.processItemRecord()
      */
-    public static final String ITEM_COLUMNS = StringUtil.join(", ", "i_id",
-                                                                    "i_u_id",
-                                                                    "i_name",
-                                                                    "i_current_price", 
-                                                                    "i_num_bids",
-                                                                    "i_end_date",
-                                                                    "i_status");
+    public static final String ITEM_COLUMNS[] = { "i_id",
+                                                  "i_u_id",
+                                                  "i_name",
+                                                  "i_current_price", 
+                                                  "i_num_bids",
+                                                  "i_end_date",
+                                                  "i_status" };
+    public static final String ITEM_COLUMNS_STR = StringUtil.join(", ", ITEM_COLUMNS);
     
     // ----------------------------------------------------------------
     // DEFAULT BATCH SIZES

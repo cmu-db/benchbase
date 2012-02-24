@@ -56,7 +56,7 @@ public class CloseAuctions extends Procedure {
     // -----------------------------------------------------------------
     
     public final SQLStmt getDueItems = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS + 
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR + 
          " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " + 
          "WHERE (i_start_date BETWEEN ? AND ?) " +
            "AND i_status = " + ItemStatus.OPEN.ordinal() + " " +

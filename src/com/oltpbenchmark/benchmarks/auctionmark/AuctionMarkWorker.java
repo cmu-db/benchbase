@@ -560,13 +560,6 @@ public class AuctionMarkWorker extends Worker {
         // USER
         vt = results[idx++];
         assert(vt != null);
-//        if (vt.size() == 0) {
-//            ResultSet rs = this.getConnection().prepareStatement("SELECT U_ID FROM USERACCT").executeQuery();
-//            while (rs.next()) {
-//                System.err.println(SQLUtil.debug(rs));
-//            }
-//            System.err.println(profile.users_per_item_count);
-//        }
         assert(vt.size() > 0) :
             "Failed to find user information for " + userId + " / " + userId.encode();
           
@@ -577,12 +570,15 @@ public class AuctionMarkWorker extends Worker {
         }
         idx++;
         
-        // ITEM_COMMENT
+        // ITEM_COMMENTS
         if (get_comments) {
             vt = results[idx];
             assert(vt != null);
             for (Object row[] : vt) {
-                ItemCommentResponse cr = new ItemCommentResponse((Long)row[0], (Long)row[1], (Long)row[2]);
+                Long commentId = (Long)row[AuctionMarkConstants.ITEM_COLUMNS.length + 1];
+                Long itemId = (Long)row[1];
+                Long sellerId = (Long)row[2];
+                ItemCommentResponse cr = new ItemCommentResponse(commentId, itemId, sellerId);
                 profile.addPendingItemCommentResponse(cr);
             } // FOR
         }

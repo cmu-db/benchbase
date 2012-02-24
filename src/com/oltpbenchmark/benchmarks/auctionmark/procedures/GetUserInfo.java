@@ -70,7 +70,7 @@ public class GetUserInfo extends Procedure {
     );
 
     public final SQLStmt getItemComments = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS + ", " +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR + ", " +
         "       ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created " +
         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " + 
                     AuctionMarkConstants.TABLENAME_ITEM_COMMENT +
@@ -80,14 +80,14 @@ public class GetUserInfo extends Procedure {
     );
     
     public final SQLStmt getSellerItems = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
          " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " +
          "WHERE i_u_id = ? " +
          "ORDER BY i_end_date DESC LIMIT 25 "
     );
     
     public final SQLStmt getBuyerItems = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
          " FROM " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM +
         " WHERE ui_u_id = ? " +
@@ -96,7 +96,7 @@ public class GetUserInfo extends Procedure {
     );
     
     public final SQLStmt getWatchedItems = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS + ", uw_u_id, uw_created " +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR + ", uw_u_id, uw_created " +
           "FROM " + AuctionMarkConstants.TABLENAME_USERACCT_WATCH + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM +
         " WHERE uw_u_id = ? " +
@@ -122,12 +122,12 @@ public class GetUserInfo extends Procedure {
      * @throws SQLException
      */
     public List<Object[]>[] run(Connection conn, Timestamp benchmarkTimes[],
-                          long user_id,
-                          boolean get_feedback,
-                          boolean get_comments,
-                          boolean get_seller_items,
-                          boolean get_buyer_items,
-                          boolean get_watched_items) throws SQLException {
+                                long user_id,
+                                boolean get_feedback,
+                                boolean get_comments,
+                                boolean get_seller_items,
+                                boolean get_buyer_items,
+                                boolean get_watched_items) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
         
         ResultSet results[] = new ResultSet[6];

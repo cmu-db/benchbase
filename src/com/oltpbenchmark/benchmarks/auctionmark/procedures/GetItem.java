@@ -50,7 +50,7 @@ public class GetItem extends Procedure {
     // -----------------------------------------------------------------
     
     public final SQLStmt getItem = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS +
+        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
          " FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
          " WHERE i_id = ? AND i_u_id = ? AND i_status = ?" 
     );
