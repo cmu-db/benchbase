@@ -979,10 +979,9 @@ public class SEATSLoader extends Loader {
             // Figure out how many flights that we want for each day
             this.today = new Timestamp(System.currentTimeMillis());
             
-            // Sometime there are more flights per day, and sometimes there are fewer 
-            Gaussian gaussian = new Gaussian(rng,
-                    SEATSConstants.FLIGHTS_PER_DAY_MIN,
-                    SEATSConstants.FLIGHTS_PER_DAY_MAX);
+            // Sometimes there are more flights per day, and sometimes there are fewer 
+            Gaussian gaussian = new Gaussian(rng, SEATSConstants.FLIGHTS_PER_DAY_MIN,
+                                                  SEATSConstants.FLIGHTS_PER_DAY_MAX);
             
             this.total = 0;
             boolean first = true;
@@ -993,7 +992,7 @@ public class SEATSLoader extends Loader {
                     this.start_date = timestamp;
                     first = false;
                 }
-                int num_flights = (int)Math.ceil(gaussian.nextInt() * workConf.getScaleFactor());
+                int num_flights = gaussian.nextInt();
                 this.flights_per_day.put(timestamp, num_flights);
                 this.total += num_flights;
             } // FOR
@@ -1006,10 +1005,9 @@ public class SEATSLoader extends Loader {
             for (long t = this.today.getTime(), last_date = this.today.getTime() + (days_future * SEATSConstants.MILLISECONDS_PER_DAY);
                  t <= last_date; t += SEATSConstants.MILLISECONDS_PER_DAY) {
                 Timestamp timestamp = new Timestamp(t);
-                int num_flights = (int)Math.ceil(gaussian.nextInt() * workConf.getScaleFactor());
+                int num_flights = gaussian.nextInt();
                 this.flights_per_day.put(timestamp, num_flights);
                 this.total += num_flights;
-                // System.err.println(new Timestamp(date).toString() + " -> " + num_flights);
             } // FOR
             
             // Update profile
