@@ -124,7 +124,7 @@ public abstract class PageHistograms {
     /**
      * The histogram of the PAGE_NAMESPACE column
      */
-    public static final Histogram<Integer> IS_NEW = new Histogram<Integer>() {
+    public static final Histogram<Integer> NAMESPACE = new Histogram<Integer>() {
         {
             this.put(0, 40847);
             this.put(1, 15304);

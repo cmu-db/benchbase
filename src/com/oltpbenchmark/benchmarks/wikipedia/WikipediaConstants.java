@@ -3,11 +3,6 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 public abstract class WikipediaConstants {
 
 	/**
-	 * Number of namespaces
-	 */
-	public static final int NAMESPACES = 10;
-
-	/**
 	 * Length of the tokens
 	 */
 	public static final int TOKEN_LENGTH = 32;
@@ -36,11 +31,6 @@ public abstract class WikipediaConstants {
      * Text size
      */
     public static final int TEXT = 20000;
-	
-	/**
-     * Commit count
-     */
-	public static final int configCommitCount = 1000;
 	
 	/**
 	 * Some random content
@@ -74,5 +64,7 @@ public abstract class WikipediaConstants {
 	public static final String TABLENAME_USER_GROUPS       = "user_groups";
 	public static final String TABLENAME_VALUE_BACKUP      = "value_backup";
 	public static final String TABLENAME_WATCHLIST         = "watchlist";
+	
+	public static final int BATCH_SIZE = 1000;
 
 }

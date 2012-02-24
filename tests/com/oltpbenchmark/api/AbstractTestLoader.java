@@ -52,21 +52,24 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
      * testLoad
      */
     public void testLoad() throws Exception {
+        Statement stmt = conn.createStatement();
+        ResultSet result = null;
+        String sql = null;
+        
+        
         // All we really can do here is just invoke the loader 
         // and then check to make sure that our tables aren't empty
-        this.benchmark.loadDatabase();
-        
+        this.benchmark.loadDatabase(this.conn);
         Histogram<String> tableSizes = new Histogram<String>();
         for (String tableName : this.catalog.getTableNames()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);
             
-            String sql = SQLUtil.getCountSQL(catalog_tbl);
-            Statement stmt = conn.createStatement();
-            ResultSet result = stmt.executeQuery(sql);
+            sql = SQLUtil.getCountSQL(catalog_tbl);
+            result = stmt.executeQuery(sql);
             assertNotNull(result);
             boolean adv = result.next();
-            assertTrue(adv);
+            assertTrue(sql, adv);
             int count = result.getInt(1);
             tableSizes.put(tableName, count);            
         } // FOR
