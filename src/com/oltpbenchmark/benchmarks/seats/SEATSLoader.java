@@ -759,11 +759,11 @@ public class SEATSLoader extends Loader {
             
             // Loop through for the total customers and figure out how many entries we 
             // should have for each one. This will be our new total;
-            long max_per_customer = Math.min(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX, flights_per_airline.getValueCount()); 
-            Zipf ff_zipf = new Zipf(rng,
-                    SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MIN,
-                    max_per_customer,
-                    SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_SIGMA);
+            long max_per_customer = Math.min(Math.round(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX * scaleFactor),
+                                             flights_per_airline.getValueCount()); 
+            Zipf ff_zipf = new Zipf(rng, SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MIN,
+                                         max_per_customer,
+                                         SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_SIGMA);
             long new_total = 0; 
             long total = profile.getCustomerIdCount();
             if (LOG.isDebugEnabled()) LOG.debug("Num of Customers: " + total);
@@ -1199,9 +1199,8 @@ public class SEATSLoader extends Loader {
          * We use a Gaussian distribution for determining how long a customer will stay at their
          * destination before needing to return to their original airport
          */
-        private final Gaussian rand_returns = new Gaussian(rng,
-                SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MIN,
-                SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MAX);
+        private final Gaussian rand_returns = new Gaussian(rng, SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MIN,
+                                                                SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MAX);
         
         private final LinkedBlockingDeque<Object[]> queue = new LinkedBlockingDeque<Object[]>(100);
         private Object current[] = null;

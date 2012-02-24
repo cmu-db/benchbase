@@ -84,9 +84,8 @@ public class TwitterLoader extends Loader {
         if (batchSize > 0) {
             userInsert.executeBatch();
             conn.commit();
+            userInsert.clearBatch();
         }
-        userInsert.executeBatch();
-        conn.commit();
         if (LOG.isDebugEnabled()) LOG.debug(String.format("Users Loaded [%d]", total));
     }
     
