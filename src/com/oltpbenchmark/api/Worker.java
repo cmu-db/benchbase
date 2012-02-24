@@ -19,6 +19,7 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
@@ -269,10 +270,8 @@ public abstract class Worker implements Runnable {
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                                        
-                    // TODO: Handle acceptable error codes for every DBMS
-                    if (LOG.isDebugEnabled()) 
-                        LOG.debug(String.format("%s [%d] - %s",
-                                                ex.getMessage(), ex.getErrorCode(), ex.getSQLState()));
+                    //TODO: Handle acceptable error codes for every DBMS
+                    if(LOG.isDebugEnabled()) LOG.debug(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);
                     } else {
@@ -301,9 +300,9 @@ public abstract class Worker implements Runnable {
                     
                     // UNKNOWN: Just keep going ..
                     else {
-//                        if (LOG.isDebugEnabled()) 
-                            LOG.warn(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
-                        //throw ex;
+                        if (LOG.isDebugEnabled()) LOG.debug(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
+                        //FIXME Disable this for now
+                        // throw ex;
                     }
                 }
     	    } // WHILE
