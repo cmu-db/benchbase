@@ -258,7 +258,7 @@ public class AuctionMarkLoader extends Loader {
                 conn.commit();
                 stmt.clearBatch();
             } catch (SQLException ex) {
-                ex = ex.getNextException();
+                if (ex.getNextException() != null) ex = ex.getNextException();
                 LOG.warn(tableName + " - " + ex.getMessage());
                 throw ex;
                 // SKIP
