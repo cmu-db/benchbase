@@ -522,9 +522,6 @@ public class AuctionMarkWorker extends Worker {
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         UserId userId = profile.getRandomBuyerId();
         int rand;
-//        System.err.println("============================================");
-//        System.err.println(profile);
-//        System.err.println(profile.users_per_item_count);
         
         // USER_FEEDBACK records
         rand = profile.rng.number(0, 100);
@@ -574,12 +571,27 @@ public class AuctionMarkWorker extends Worker {
         if (get_comments) {
             vt = results[idx];
             assert(vt != null);
+            Long vals[] = new Long[3];
+            int cols[] = { AuctionMarkConstants.ITEM_COLUMNS.length + 1, 1, 2 };
             for (Object row[] : vt) {
-                Long commentId = (Long)row[AuctionMarkConstants.ITEM_COLUMNS.length + 1];
-                Long itemId = (Long)row[1];
-                Long sellerId = (Long)row[2];
-                ItemCommentResponse cr = new ItemCommentResponse(commentId, itemId, sellerId);
-                profile.addPendingItemCommentResponse(cr);
+                boolean valid = true;
+                for (int i = 0; i < cols.length; i++) {
+                    if (row[i] == null) {
+                        valid = false;
+                        break;
+                    }
+                    Class<?> valClass = row[i].getClass();
+                    if (valClass.equals(Long.class) || valClass.equals(long.class)) {
+                        vals[i] = (Long)row[i];
+                    } else {
+                        valid = false;
+                        break;
+                    }
+                } // FOR
+                if (valid) {
+                    ItemCommentResponse cr = new ItemCommentResponse(vals[0], vals[1], vals[2]);
+                    profile.addPendingItemCommentResponse(cr);
+                }
             } // FOR
         }
         idx++;
