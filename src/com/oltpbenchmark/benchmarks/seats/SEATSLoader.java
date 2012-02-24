@@ -759,7 +759,7 @@ public class SEATSLoader extends Loader {
             
             // Loop through for the total customers and figure out how many entries we 
             // should have for each one. This will be our new total;
-            long max_per_customer = Math.min(Math.round(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX * scaleFactor),
+            long max_per_customer = Math.min(Math.round(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX * Math.max(1, scaleFactor)),
                                              flights_per_airline.getValueCount()); 
             Zipf ff_zipf = new Zipf(rng, SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MIN,
                                          max_per_customer,
