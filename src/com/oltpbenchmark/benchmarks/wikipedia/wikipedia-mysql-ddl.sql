@@ -171,8 +171,8 @@ CREATE TABLE text (
   PRIMARY KEY (old_id)
 );
 
-DROP TABLE IF EXISTS user;
-CREATE TABLE user (
+DROP TABLE IF EXISTS useracct;
+CREATE TABLE useracct (
   user_id int NOT NULL auto_increment,
   user_name varbinary(255) NOT NULL DEFAULT '',
   user_real_name varbinary(255) NOT NULL DEFAULT '',
@@ -191,7 +191,7 @@ CREATE TABLE user (
   PRIMARY KEY (user_id),
   UNIQUE (user_name)
 );
-CREATE INDEX IDX_USER_EMAIL_TOKEN ON user (user_email_token);
+CREATE INDEX IDX_USER_EMAIL_TOKEN ON useracct (user_email_token);
 
 DROP TABLE IF EXISTS user_groups;
 CREATE TABLE user_groups (

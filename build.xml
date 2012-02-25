@@ -89,7 +89,7 @@
         </condition>
         
         <java fork="yes" failonerror="true" classname="com.oltpbenchmark.DBWorkload">
-            <jvmarg value="-Xmx1024m" />
+            <jvmarg value="-Xmx2048m" />
             <jvmarg value="-Dlog4j.configuration=${basedir}/log4j.properties"/>
             <jvmarg value="-client" />
             <arg line="-b ${benchmark}" />

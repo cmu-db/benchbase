@@ -21,18 +21,24 @@ package com.oltpbenchmark.api;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Random;
+
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.SQLUtil;
 
 /**
  * 
  * @author pavlo
  */
 public abstract class Loader {
+    private static final Logger LOG = Logger.getLogger(Loader.class);
 
     protected final BenchmarkModule benchmark;
     protected final Connection conn;
@@ -97,4 +103,27 @@ public abstract class Loader {
      */
     public abstract void load() throws SQLException;
     
+    
+    
+    protected void updateAutoIncrement(Column catalog_col, int value) throws SQLException {
+        String sql = null;
+        switch (getDatabaseType()) {
+            case POSTGRES:
+                String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
+                assert(seqName != null);
+                sql = String.format("SELECT setval('%s', %d)", seqName.toLowerCase(), value);
+                break;
+            default:
+                // Nothing!
+        }
+        if (sql != null) {
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("Updating %s auto-increment counter with value '%d'",
+                                        catalog_col.fullName(), value));
+            Statement stmt = this.conn.createStatement();
+            boolean result = stmt.execute(sql);
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("[%s] %s", result, sql));
+        }
+    }
 }

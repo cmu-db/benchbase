@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
 
 public abstract class SQLUtil {
     private static final Logger LOG = Logger.getLogger(SQLUtil.class);
@@ -25,6 +26,24 @@ public abstract class SQLUtil {
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
     };
 
+    /**
+     * Return the internal sequence name for the given Column
+     * @param dbType
+     * @param catalog_col
+     * @return
+     */
+    public static String getSequenceName(DatabaseType dbType, Column catalog_col) {
+        Table catalog_tbl = catalog_col.getTable();
+        assert(catalog_tbl != null);
+        
+        switch (dbType) {
+            case POSTGRES:
+                return String.format("%s_%s_seq",
+                                     catalog_tbl.getName(), catalog_col.getName());
+        } // SWITCH
+        return (null);
+    }
+    
     /**
      * Returns true if the given exception is because of a duplicate key error
      * @param ex

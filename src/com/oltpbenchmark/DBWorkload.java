@@ -205,6 +205,7 @@ public class DBWorkload {
         initDebug.put("Driver", wrkld.getDBDriver());
         initDebug.put("URL", wrkld.getDBConnection());
         initDebug.put("Isolation", xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE [DEFAULT]"));
+        initDebug.put("Scale Factor", wrkld.getScaleFactor());
         INIT_LOG.info(SINGLE_LINE + "\n\n" + StringUtil.formatMaps(initDebug));
         INIT_LOG.info(SINGLE_LINE);
 
