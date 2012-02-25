@@ -175,9 +175,9 @@ CREATE TABLE revision (
   rev_id int NOT NULL,
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
-  rev_comment varbinary(1024) NOT NULL,
+  rev_comment varchar(1024) NOT NULL,
   rev_user int NOT NULL REFERENCES useracct (user_id),
-  rev_user_text varbinary(255) NOT NULL,
+  rev_user_text varchar(255) NOT NULL,
   rev_timestamp binary(14) NOT NULL,
   rev_minor_edit tinyint NOT NULL,
   rev_deleted tinyint NOT NULL,
@@ -195,8 +195,8 @@ CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 DROP TABLE IF EXISTS text;
 CREATE TABLE text (
   old_id int NOT NULL,
-  old_text varbinary(1024) NOT NULL,
-  old_flags varbinary(1024) NOT NULL,
+  old_text longvarchar  NOT NULL,
+  old_flags varchar(1024) NOT NULL,
   old_page int DEFAULT NULL,
   PRIMARY KEY (old_id)
 );

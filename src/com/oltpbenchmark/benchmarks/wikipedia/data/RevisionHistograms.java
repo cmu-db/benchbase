@@ -278,13 +278,4 @@ public abstract class RevisionHistograms {
         }
     };
     
-    /**
-     * The histogram of the REV_DELETED column
-     */
-    public static final Histogram<Integer> DELETED = new Histogram<Integer>() {
-        {
-            
-        }
-    };
-    
 }
