@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -37,6 +36,7 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class EpinionsWorker extends Worker {
 
@@ -116,7 +116,7 @@ public class EpinionsWorker extends Worker {
         UpdateUserName proc = this.getProcedure(UpdateUserName.class);
         assert (proc != null);
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
-        String name = LoaderUtil.randomStr(EpinionsConstants.NAME); // FIXME
+        String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH); // FIXME
         proc.run(conn, uid, name);
     }
 
@@ -124,7 +124,7 @@ public class EpinionsWorker extends Worker {
         UpdateItemTitle proc = this.getProcedure(UpdateItemTitle.class);
         assert (proc != null);
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
-        String title = LoaderUtil.randomStr(EpinionsConstants.TITLE); // FIXME
+        String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH); // FIXME
         proc.run(conn, iid, title);
     }
 

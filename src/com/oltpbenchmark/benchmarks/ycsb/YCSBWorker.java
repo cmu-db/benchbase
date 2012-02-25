@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -18,6 +17,7 @@ import com.oltpbenchmark.benchmarks.ycsb.procedures.UpdateRecord;
 import com.oltpbenchmark.distributions.CounterGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class YCSBWorker extends Worker {
 
@@ -104,7 +104,7 @@ public class YCSBWorker extends Worker {
     private HashMap<Integer, String> buildValues(int numVals) {
         HashMap<Integer, String> fields = new HashMap<Integer, String>();
         for (int i = 1; i <= numVals; i++) {
-            fields.put(i, LoaderUtil.randomStr(100));
+            fields.put(i, TextGenerator.randomStr(rng(), 100));
         }
         return fields;
     }

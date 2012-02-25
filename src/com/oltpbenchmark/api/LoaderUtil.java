@@ -29,6 +29,12 @@ public class LoaderUtil {
 		"ATION", "EING"
 	};
 	
+	/**
+	 * This is slow! Use TextGenerator.randomText()
+	 * @param strLen
+	 * @return
+	 */
+	@Deprecated
 	public static String randomStr(long strLen) {
 
 		char freshChar;
@@ -36,7 +42,6 @@ public class LoaderUtil {
 		freshString = "";
 
 		while (freshString.length() < (strLen - 1)) {
-
 			freshChar = (char) (Math.random() * 128);
 			if (Character.isLetter(freshChar)) {
 				freshString += freshChar;

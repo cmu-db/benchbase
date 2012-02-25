@@ -21,10 +21,8 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 import java.sql.SQLException;
 import java.sql.Time;
-import java.util.Random;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -37,13 +35,13 @@ import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
 import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class TwitterWorker extends Worker {
     private TransactionGenerator<TwitterOperation> generator;
 
     private final FlatHistogram<Integer> tweet_len_rng;
     private final int num_users;
-    private final Random random = new Random(); // FIXME
     
     public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
         super(benchmarkModule, id);
@@ -51,13 +49,13 @@ public class TwitterWorker extends Worker {
         this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());
         
         TweetHistogram tweet_h = new TweetHistogram();
-        this.tweet_len_rng = new FlatHistogram<Integer>(this.random, tweet_h);
+        this.tweet_len_rng = new FlatHistogram<Integer>(this.rng(), tweet_h);
     }
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         TwitterOperation t = generator.nextTransaction();
-        t.uid = this.random.nextInt(this.num_users); // HACK
+        t.uid = this.rng().nextInt(this.num_users); // HACK
         
         if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
             doSelect1Tweet(t.tweetid);
@@ -69,7 +67,7 @@ public class TwitterWorker extends Worker {
             doSelectTweetsForUid(t.uid);
         } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
             int len = this.tweet_len_rng.nextValue().intValue();
-            String text = LoaderUtil.randomStr(len);
+            String text = TextGenerator.randomStr(this.rng(), len);
             doInsertTweet(t.uid, text);
         }
         conn.commit();

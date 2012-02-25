@@ -27,13 +27,7 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.TERMINAL_MESSAGES;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 

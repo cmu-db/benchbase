@@ -35,7 +35,7 @@ public class BasicTest extends Test {
      * @return the type of the benchmark main entity class.
      */
     @Override
-    protected Class getEntityClass() {
+    protected Class<?> getEntityClass() {
         return Person.class;
     }
     

@@ -5,17 +5,14 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
@@ -28,6 +25,7 @@ import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
+import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.TimeUtil;
 
 public class WikipediaLoader extends Loader {
@@ -164,12 +162,16 @@ public class WikipediaLoader extends Loader {
         int types[] = catalog_tbl.getColumnTypes();
         int batch_size = 0;
         for (int i = 0; i < this.num_users; i++) {
-            String name = LoaderUtil.randomStr(h_nameLength.nextValue().intValue());
-            String realName = LoaderUtil.randomStr(h_realNameLength.nextValue().intValue());
+            String name = TextGenerator.randomStr(rng(), h_nameLength.nextValue().intValue());
+            String realName = TextGenerator.randomStr(rng(), h_realNameLength.nextValue().intValue());
             int revCount = h_revCount.nextValue().intValue();
             String password = StringUtil.repeat("*", rng().nextInt(32));
-            String email = LoaderUtil.randomStr(rng().nextInt(16)) + "@" + LoaderUtil.randomStr(rng().nextInt(16));
-            String token = LoaderUtil.randomStr(WikipediaConstants.TOKEN_LENGTH);
+            
+            char eChars[] = TextGenerator.randomChars(rng(), rng().nextInt(32) + 5);
+            eChars[4 + rng().nextInt(eChars.length-4)] = '@';
+            String email = new String(eChars);
+            
+            String token = TextGenerator.randomStr(rng(), WikipediaConstants.TOKEN_LENGTH);
             String userOptions = "fake_longoptionslist";
             String newPassTime = TimeUtil.getCurrentTimeString14();
             String touched = TimeUtil.getCurrentTimeString14();
@@ -244,7 +246,7 @@ public class WikipediaLoader extends Loader {
 
         int batch_size = 0;
         for (int i = 0; i < this.num_pages; i++) {
-            String title = LoaderUtil.randomStr(h_titleLength.nextValue().intValue());
+            String title = TextGenerator.randomStr(rng(), h_titleLength.nextValue().intValue());
             int namespace = h_namespace.nextValue().intValue();
             String restrictions = h_restrictions.nextValue();
             double pageRandom = rng().nextDouble();
@@ -391,7 +393,7 @@ public class WikipediaLoader extends Loader {
             
             // Generate what the new revision is going to be
             int old_text_length = h_textLength.nextValue().intValue();
-            String old_text = LoaderUtil.randomStr(old_text_length);
+            char old_text[] = TextGenerator.randomChars(rng(), old_text_length);
             
             for (int i = 0; i < num_revised; i++) {
                 // Generate the User who's doing the revision and the Page revised
@@ -404,27 +406,24 @@ public class WikipediaLoader extends Loader {
                     old_text_length = h_textLength.nextValue().intValue();
                     
                     // For now just make it a little bit bigger
-                    old_text += LoaderUtil.randomStr(rng().nextInt(100));
-                    old_text_length = old_text.length();
+                    old_text = TextGenerator.increaseText(rng(), old_text, rng().nextInt(100));
+                    old_text_length = old_text.length;
                     
-                    // And permute some of the text
-                    int rand = rng().nextInt(0);
-                    for (int idx = 0; idx < 32; idx++) {
-                        
-                    } // FOR
-                    
+                    // And permute it a little bit. This ensures that the text is slightly
+                    // different than the last revision
+                    old_text = TextGenerator.permuteText(rng(), old_text);
                 }
                 
-                String rev_comment = LoaderUtil.randomStr(h_commentLength.nextValue().intValue());
+                char rev_comment[] = TextGenerator.randomChars(rng(), h_commentLength.nextValue().intValue());
 
                 // The REV_USER_TEXT field is usually the username, but we'll just 
                 // put in gibberish for now
-                String user_text = LoaderUtil.randomStr(h_nameLength.nextValue().intValue());
+                char user_text[] = TextGenerator.randomChars(rng(), h_nameLength.nextValue().intValue());
                 
                 // Insert the text
                 int col = 1;
                 textInsert.setInt(col++, rev_id); // old_id
-                textInsert.setString(col++, old_text); // old_text
+                textInsert.setString(col++, new String(old_text)); // old_text
                 textInsert.setString(col++, "utf-8"); // old_flags
                 textInsert.setInt(col++, page_id); // old_page
                 textInsert.addBatch();
@@ -443,9 +442,9 @@ public class WikipediaLoader extends Loader {
                 revisionInsert.setInt(col++, rev_id); // rev_id
                 revisionInsert.setInt(col++, page_id); // rev_page
                 revisionInsert.setInt(col++, rev_id); // rev_text_id
-                revisionInsert.setString(col++, rev_comment); // rev_comment
+                revisionInsert.setString(col++, new String(rev_comment)); // rev_comment
                 revisionInsert.setInt(col++, user_id); // rev_user
-                revisionInsert.setString(col++, user_text); // rev_user_text
+                revisionInsert.setString(col++, new String(user_text)); // rev_user_text
                 revisionInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // rev_timestamp
                 revisionInsert.setInt(col++, h_minorEdit.nextValue().intValue()); // rev_minor_edit
                 revisionInsert.setInt(col++, 0); // rev_deleted

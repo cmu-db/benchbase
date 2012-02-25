@@ -3,8 +3,6 @@ package com.oltpbenchmark.benchmarks.ycsb.procedures;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.Map.Entry;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 

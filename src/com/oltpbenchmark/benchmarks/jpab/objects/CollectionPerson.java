@@ -24,6 +24,7 @@ import javax.persistence.*;
 
 import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.benchmarks.jpab.tests.Test;
+import com.oltpbenchmark.util.TextGenerator;
 
 /**
  * A simple entity class with a simple element collection.
@@ -65,24 +66,25 @@ public class CollectionPerson implements TestEntity {
     }
 
     public CollectionPerson(Test test) {
-    	firstName = LoaderUtil.randomStr(10);
-    	middleName = LoaderUtil.randomStr(10);
-    	lastName = LoaderUtil.randomStr(10);
-    	street = LoaderUtil.randomStr(10);
-    	city = LoaderUtil.randomStr(10);
-    	state = LoaderUtil.randomStr(10);
-    	zip = LoaderUtil.randomStr(10);
-    	country = LoaderUtil.randomStr(10);
+        Random rand = new Random(); // FIXME
+    	firstName = TextGenerator.randomStr(rand, 10);
+    	middleName = TextGenerator.randomStr(rand, 10);
+    	lastName = TextGenerator.randomStr(rand, 10);
+    	street = TextGenerator.randomStr(rand, 10);
+    	city = TextGenerator.randomStr(rand, 10);
+    	state = TextGenerator.randomStr(rand, 10);
+    	zip = TextGenerator.randomStr(rand, 10);
+    	country = TextGenerator.randomStr(rand, 10);
     	phones = new ArrayList<String>(4);
     	for (int i = LoaderUtil.randomNumber(1, 3, new Random()); i-- > 0; ) {
-    		phones.add(LoaderUtil.randomStr(10));
+    		phones.add(TextGenerator.randomStr(rand, 10));
     	}
-    	email = LoaderUtil.randomStr(10);;
+    	email = TextGenerator.randomStr(rand, 10);
     	Date[] dates = null;
     	birthDate = null;//dates[0];
     	joinDate =  null;//dates[1];
     	lastLoginDate = null;//dates[2]; 
-    	loginCount = LoaderUtil.randomNumber(1, 100, new Random());
+    	loginCount = LoaderUtil.randomNumber(1, 100, rand);
     }
 
 	// Methods:

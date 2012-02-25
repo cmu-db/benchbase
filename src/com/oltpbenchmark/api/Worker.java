@@ -6,6 +6,7 @@ import java.sql.Savepoint;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -19,7 +20,6 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.StringUtil;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
@@ -94,6 +94,9 @@ public abstract class Worker implements Runnable {
 	}
 	public Catalog getCatalog() {
 	    return (this.benchmarkModule.getCatalog());
+	}
+	public Random rng() {
+	    return (this.benchmarkModule.rng());
 	}
 	
 	public Connection getConnection() {

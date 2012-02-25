@@ -76,8 +76,7 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
         long values[] = new long[offset_bits.length];
         int offset = 0;
         for (int i = 0; i < values.length; i++) {
-            long max_value = offset_pows[i];
-            values[i] = (composite_id>>offset & max_value);
+            values[i] = (composite_id>>offset & offset_pows[i]);
             offset += offset_bits[i];
         } // FOR
         return (values);

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -73,6 +74,11 @@ public abstract class BenchmarkModule {
      * The last Connection that was created using this BenchmarkModule
      */
     private Connection last_connection;
+    
+    /**
+     * A single Random object that should be re-used by all a benchmark's components
+     */
+    private final Random rng = new Random();
     
     /**
      * Whether to use verbose output messages
@@ -151,6 +157,13 @@ public abstract class BenchmarkModule {
     // PUBLIC INTERFACE
     // --------------------------------------------------------------------------
 
+    /**
+     * Return the Random generator that should be used by all this benchmark's components
+     */
+    public Random rng() {
+        return (this.rng);
+    }
+    
     /**
      * 
      * @return

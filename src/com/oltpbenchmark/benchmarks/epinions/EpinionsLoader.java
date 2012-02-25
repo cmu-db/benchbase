@@ -10,11 +10,11 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class EpinionsLoader extends Loader {
 
@@ -27,8 +27,8 @@ public class EpinionsLoader extends Loader {
 
     public EpinionsLoader(EpinionsBenchmark benchmark, Connection c) {
         super(benchmark, c);
-        this.num_users = (int) Math.round(EpinionsConstants.USERS * this.scaleFactor);
-        this.num_items = (int) Math.round(EpinionsConstants.ITEMS * this.scaleFactor);
+        this.num_users = (int) Math.round(EpinionsConstants.NUM_USERS * this.scaleFactor);
+        this.num_items = (int) Math.round(EpinionsConstants.NUM_ITEMS * this.scaleFactor);
         this.num_reviews = (int) Math.round(EpinionsConstants.REVIEW * this.scaleFactor);
         this.num_trust = (int) Math.round(EpinionsConstants.TRUST * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
@@ -61,13 +61,13 @@ public class EpinionsLoader extends Loader {
         int total = 0;
         int batch = 0;
         for (int i = 0; i < num_users; i++) {
-            String name = LoaderUtil.randomStr(EpinionsConstants.NAME);
+            String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
             userInsert.setInt(1, i);
             userInsert.setString(2, name);
             userInsert.addBatch();
             total++;
 
-            if ((++batch % EpinionsConstants.configCommitCount) == 0) {
+            if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                 userInsert.executeBatch();
                 conn.commit();
                 batch = 0;
@@ -99,13 +99,13 @@ public class EpinionsLoader extends Loader {
         int total = 0;
         int batch = 0;
         for (int i = 0; i < num_items; i++) {
-            String title = LoaderUtil.randomStr(EpinionsConstants.TITLE);
+            String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH);
             itemInsert.setInt(1, i);
             itemInsert.setString(2, title);
             itemInsert.addBatch();
             total++;
             
-            if ((++batch % EpinionsConstants.configCommitCount) == 0) {
+            if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                 itemInsert.executeBatch();
                 conn.commit();
                 batch = 0;
@@ -160,7 +160,7 @@ public class EpinionsLoader extends Loader {
                     reviewers.add(u_id);
                     total++;
                     
-                    if ((++batch % EpinionsConstants.configCommitCount) == 0) {
+                    if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                         reviewInsert.executeBatch();
                         conn.commit();
                         batch = 0;
@@ -217,7 +217,7 @@ public class EpinionsLoader extends Loader {
                     trusted.add(u_id);
                     total++;
                     
-                    if ((++batch % EpinionsConstants.configCommitCount) == 0) {
+                    if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                         trustInsert.executeBatch();
                         conn.commit();
                         batch = 0;

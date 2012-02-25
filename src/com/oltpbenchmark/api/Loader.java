@@ -39,13 +39,6 @@ public abstract class Loader {
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
     
-    /**
-     * TODO: We need a way to set the seed value so that it is
-     * 		 uniform throughout the entire benchmark. We should probably
-     * 		 stick this in the BenchmarkModule base class.
-     */
-    private final Random rand = new Random();
-    
     public Loader(BenchmarkModule benchmark, Connection conn) {
         this.benchmark = benchmark;
     	this.conn = conn;
@@ -64,7 +57,9 @@ public abstract class Loader {
     protected final boolean isTesting() {
         return (this.workConf.getDBType() == DatabaseType.TEST_TYPE);
     }
-    
+    /**
+     * Return the database's catalog
+     */
     public Catalog getCatalog() {
         return (this.benchmark.getCatalog());
     }
@@ -93,7 +88,7 @@ public abstract class Loader {
      * @return
      */
     public Random rng() {
-    	return (this.rand);
+    	return (this.benchmark.rng());
     }
     
     /**

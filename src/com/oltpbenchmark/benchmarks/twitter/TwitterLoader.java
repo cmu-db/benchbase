@@ -17,6 +17,7 @@ import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class TwitterLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
@@ -59,7 +60,7 @@ public class TwitterLoader extends Loader {
         for (int i = 0; i <= this.num_users; i++) {
         	// Generate a random username for this user
         	int name_length = name_len_rng.nextValue().intValue();
-            String name = LoaderUtil.randomStr(name_length);
+            String name = TextGenerator.randomStr(rng(), name_length);
             
             userInsert.setInt(1, i); // ID
             userInsert.setString(2, name); // NAME
@@ -113,7 +114,7 @@ public class TwitterLoader extends Loader {
             int uid = zy.nextInt();
             tweetInsert.setLong(1, i);
             tweetInsert.setInt(2, uid);
-            tweetInsert.setString(3, LoaderUtil.randomStr(tweet_len_rng.nextValue()));
+            tweetInsert.setString(3, TextGenerator.randomStr(rng(), tweet_len_rng.nextValue()));
             tweetInsert.setNull(4, java.sql.Types.DATE);
             tweetInsert.addBatch();
             batchSize++;

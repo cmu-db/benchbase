@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class YCSBLoader extends Loader {
     private static final Logger LOG = Logger.getLogger(YCSBLoader.class);
@@ -35,7 +35,7 @@ public class YCSBLoader extends Loader {
         for (int i = 0; i < this.num_record; i++) {
             stmt.setInt(1, i);
             for (int j = 2; j <= 11; j++) {
-                stmt.setString(j, LoaderUtil.randomStr(100));
+                stmt.setString(j, TextGenerator.randomStr(rng(), 100));
             }
             stmt.addBatch();
             total++;
