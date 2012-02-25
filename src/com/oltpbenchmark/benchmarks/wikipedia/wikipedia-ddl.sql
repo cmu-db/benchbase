@@ -79,8 +79,8 @@ DROP TABLE IF EXISTS page;
 CREATE TABLE page (
   page_id int NOT NULL,
   page_namespace int NOT NULL,
-  page_title varbinary(255) NOT NULL,
-  page_restrictions varbinary(1024) NOT NULL,
+  page_title varchar(255) NOT NULL,
+  page_restrictions varchar(1024) NOT NULL,
   page_counter bigint NOT NULL,
   page_is_redirect tinyint NOT NULL,
   page_is_new tinyint NOT NULL,
@@ -99,8 +99,8 @@ DROP TABLE IF EXISTS page_backup;
 CREATE TABLE page_backup (
   page_id int NOT NULL,
   page_namespace int NOT NULL,
-  page_title varbinary(255) NOT NULL,
-  page_restrictions varbinary(1024) NOT NULL,
+  page_title varchar(255) NOT NULL,
+  page_restrictions varchar(1024) NOT NULL,
   page_counter bigint NOT NULL,
   page_is_redirect tinyint NOT NULL,
   page_is_new tinyint NOT NULL,
@@ -219,8 +219,8 @@ DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
   wl_user int NOT NULL,
   wl_namespace int NOT NULL,
-  wl_title varbinary(255) NOT NULL,
-  wl_notificationtimestamp varbinary(14) DEFAULT NULL,
+  wl_title varchar(255) NOT NULL,
+  wl_notificationtimestamp varchar(14) DEFAULT NULL,
   UNIQUE (wl_user,wl_namespace,wl_title)
 );
 CREATE INDEX IDX_WL_NAMESPACE_TITLE ON watchlist (wl_namespace, wl_title);

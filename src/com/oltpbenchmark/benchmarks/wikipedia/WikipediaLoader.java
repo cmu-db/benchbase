@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -21,7 +22,9 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
@@ -34,14 +37,41 @@ public class WikipediaLoader extends Loader {
     private final int num_users;
     private final int num_pages;
     private final int num_revisions;
+    
+    /**
+     * UserId -> # of Revisions
+     */
+    private final int user_revision_ctr[];
 
-    public List<String> titles = new ArrayList<String>();
+    /**
+     * PageId -> Last Revision Id
+     */
+    private final int page_last_rev_id[];
+    
+    /**
+     * PageId -> Last Revision Length
+     */
+    private final int page_last_rev_length[];
+    
+    /**
+     * Pair<PageNamespace, PageTitle>
+     */
+    private List<Pair<Integer, String>> titles = new ArrayList<Pair<Integer, String>>();
 
     public WikipediaLoader(WikipediaBenchmark benchmark, Connection c) {
         super(benchmark, c);
         this.num_users = (int) Math.round(WikipediaConstants.USERS * this.scaleFactor);
         this.num_pages = (int) Math.round(WikipediaConstants.PAGES * this.scaleFactor);
         this.num_revisions = (int) Math.round(WikipediaConstants.REVISIONS * this.scaleFactor);
+        
+        this.user_revision_ctr = new int[this.num_users];
+        Arrays.fill(this.user_revision_ctr, 0);
+        
+        this.page_last_rev_id = new int[this.num_pages];
+        Arrays.fill(this.page_last_rev_id, -1);
+        this.page_last_rev_length = new int[this.num_pages];
+        Arrays.fill(this.page_last_rev_length, -1);
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
             LOG.debug("# of PAGES: " + this.num_pages);
@@ -54,9 +84,10 @@ public class WikipediaLoader extends Loader {
         try {
             this.loadUsers();
             this.loadPages();
+            this.loadWatchlist();
             if (num_users > 0)
                 return;
-            this.loadWatchlist();
+
             this.genTrace(this.workConf.getXmlConfig().getInt("traceOut", 0));
             this.loadRevision();
         } catch (SQLException e) {
@@ -66,8 +97,32 @@ public class WikipediaLoader extends Loader {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
+    
+    private void genTrace(int trace) {
+        if (trace == 0) {
+            return;
+        }
+        assert(this.num_pages == this.titles.size());
+        ZipfianGenerator pages = new ZipfianGenerator(this.num_pages);
+        try {
+            LOG.info("Generating a " + trace + "k trace into > wikipedia-" + trace + "k.trace");
+            PrintStream ps = new PrintStream(new File("wikipedia-" + trace + "k.trace"));
+            for (int i = 0; i < trace * 1000; i++) {
+                int user_id = rng().nextInt(this.num_users);
+                // lets 10% be unauthenticated users
+                if (user_id % 10 == 0) {
+                    user_id = 0;
+                }
+                String title = this.titles.get(pages.nextInt()).getSecond();
+                ps.println(user_id + " " + title);
+            }
+            ps.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Generating the trace failed", e);
+        }
+    }
+    
 
     /**
      * Load Wikipedia USER table
@@ -105,7 +160,7 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<Integer> h_realNameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.REAL_NAME_LENGTH);
         FlatHistogram<Integer> h_revCount = new FlatHistogram<Integer>(this.rng(), UserHistograms.REVISION_COUNT);
 
-        int types[] = SQLUtil.getColumnTypes(catalog_tbl);
+        int types[] = catalog_tbl.getColumnTypes();
         int batch_size = 0;
         for (int i = 0; i < this.num_users; i++) {
             String name = LoaderUtil.randomStr(h_nameLength.nextValue().intValue());
@@ -119,7 +174,7 @@ public class WikipediaLoader extends Loader {
             String touched = TimeUtil.getCurrentTimeString14();
 
             int col = 1;
-            if (isTesting()) userInsert.setInt(col++, i);      // user_id
+            if (isTesting()) userInsert.setInt(col++, i); // user_id
             userInsert.setString(col++, name);          // user_name
             userInsert.setString(col++, realName);      // user_real_name
             userInsert.setString(col++, password);      // user_password
@@ -163,7 +218,7 @@ public class WikipediaLoader extends Loader {
 
         String sql = null;
         if (isTesting()) {
-            
+            sql = SQLUtil.getInsertSQL(catalog_tbl);
         } else {
             sql = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
                      "page_namespace, " +
@@ -195,6 +250,7 @@ public class WikipediaLoader extends Loader {
             String pageTouched = TimeUtil.getCurrentTimeString14();
             
             int col = 1;
+            if (isTesting()) pageInsert.setInt(col++, i); // page_id
             pageInsert.setInt(col++, namespace);        // page_namespace
             pageInsert.setString(col++, title);         // page_title
             pageInsert.setString(col++, restrictions);  // page_restrictions
@@ -206,7 +262,7 @@ public class WikipediaLoader extends Loader {
             pageInsert.setInt(col++, 0);                // page_latest
             pageInsert.setInt(col++, 0);                // page_len
             pageInsert.addBatch();
-            this.titles.add(namespace + " " + title);
+            this.titles.add(Pair.of(namespace, title));
 
             if (++batch_size % WikipediaConstants.BATCH_SIZE == 0) {
                 pageInsert.executeBatch();
@@ -240,20 +296,18 @@ public class WikipediaLoader extends Loader {
 
         int batchSize = 0;
         for (int user_id = 0; user_id < this.num_users; user_id++) {
-            int page = zipPages.nextInt();
-            String url[] = this.titles.get(page).split(" ");
-
+            Pair<Integer, String> page = this.titles.get(zipPages.nextInt());
+            
             int col = 1;
             watchInsert.setInt(col++, user_id); // wl_user
-            watchInsert.setInt(col++, Integer.parseInt(url[0])); // wl_namespace
-            watchInsert.setString(col++, url[1]); // wl_title
+            watchInsert.setInt(col++, page.getFirst()); // wl_namespace
+            watchInsert.setString(col++, page.getSecond()); // wl_title
             watchInsert.setNull(col++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
             watchInsert.addBatch();
 
             if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
                 watchInsert.executeBatch();
                 this.conn.commit();
-                watchInsert.clearBatch();
                 watchInsert.clearBatch();
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
@@ -263,185 +317,186 @@ public class WikipediaLoader extends Loader {
         } // FOR
         if (batchSize > 0) {
             watchInsert.executeBatch();
-            watchInsert.executeBatch();
+            watchInsert.clearBatch();
             this.conn.commit();
         }
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isDebugEnabled())
             LOG.debug("Watchlist Loaded");
-        }
     }
 
-    private void genTrace(int trace) {
-        if (trace == 0) {
-            return;
-        }
-        assert(this.num_pages == this.titles.size());
-        ZipfianGenerator pages = new ZipfianGenerator(this.num_pages);
-        try {
-            LOG.info("Generating a " + trace + "k trace into > wikipedia-" + trace + "k.trace");
-            PrintStream ps = new PrintStream(new File("wikipedia-" + trace + "k.trace"));
-            for (int i = 0; i < trace * 1000; i++) {
-                int user_id = rng().nextInt(this.num_users);
-                // lets 10% be unauthenticated users
-                if (user_id % 10 == 0) {
-                    user_id = 0;
-                }
-                String title = this.titles.get(pages.nextInt());
-                ps.println(user_id + " " + title);
-            }
-            ps.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Generating the trace failed", e);
-        }
-    }
-
+    /**
+     * REVISIONS
+     */
     private void loadRevision() throws SQLException {
-        // Loading revisions
-
+        
+        // TEXT
         Table catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
-        String textSQL = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
-        		         "old_text, old_flags, old_page" +
-        		         ") VALUES (?,?,?)";
-        PreparedStatement textInsert = null;
-
-        catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
-        String revSQL = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
-        		        "rev_page, " +
-        		        "rev_text_id, " +
-        		        "rev_comment, " +
-        		        "rev_user," +
-        		        "rev_user_text," +
-        		        "rev_timestamp," +
-        		        "rev_minor_edit," +
-        		        "rev_deleted," +
-        		        "rev_len," +
-        		        "rev_parent_id" +
-        		        ") VALUES (" +
-        		        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement revisionInsert = null;
-
-        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
-            textSQL += " ; SELECT currval('text_old_id_seq')";
-            revSQL += " ; SELECT currval('revision_rev_id_seq')";
-
-            textInsert = this.conn.prepareStatement(textSQL);
-            revisionInsert = this.conn.prepareStatement(revSQL);
+        String textSQL = null;
+        if (isTesting()) {
+            textSQL = SQLUtil.getInsertSQL(catalog_tbl);
         } else {
-            textInsert = this.conn.prepareStatement(textSQL, new int[] { 1 });
-            revisionInsert = this.conn.prepareStatement(revSQL, new int[] { 1 });
+            textSQL = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
+                      "old_text, " +
+                      "old_flags, " +
+                      "old_page" +
+                      ") VALUES (?,?,?)";
+            if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+                textSQL += " RETURNING old_id";
+            }
         }
+        PreparedStatement textInsert = new AutoIncrementPreparedStatement(
+                                                this.getDatabaseType(),
+                                                this.conn.prepareStatement(textSQL, new int[]{ 1 }));
 
-        catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
-        String updatePageSql = "UPDATE " + catalog_tbl.getEscapedName() + " SET page_latest = ?, page_touched = '" + TimeUtil.getCurrentTimeString14()
-                + "', page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
+        // REVISION
+        catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
+        String revSQL = null;
+        if (isTesting()) {
+            textSQL = SQLUtil.getInsertSQL(catalog_tbl);
+        } else {
+            revSQL = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
+        	         "rev_page, " +
+        		     "rev_text_id, " +
+        		     "rev_comment, " +
+        		     "rev_user," +
+        		     "rev_user_text," +
+        		     "rev_timestamp," +
+        		     "rev_minor_edit," +
+        		     "rev_deleted," +
+        		     "rev_len," +
+        		     "rev_parent_id" +
+    		         ") VALUES (" +
+    		         "?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+                textSQL += " RETURNING rev_id";
+            }
+        }
+        PreparedStatement revisionInsert = new AutoIncrementPreparedStatement(
+                                                this.getDatabaseType(),
+                                                this.conn.prepareStatement(revSQL, new int[]{ 1 }));
 
-        catalog_tbl = this.getTableCatalog("user");
-        String updateUserSql = "UPDATE " + catalog_tbl.getEscapedName() + " SET user_editcount=user_editcount+1, user_touched = '" + TimeUtil.getCurrentTimeString14() + "' WHERE user_id = ? ";
-        PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
-        PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
 
         int batchSize = 1;
-        ZipfianGenerator text_size = new ZipfianGenerator(100);
         ZipfianGenerator users = new ZipfianGenerator(this.num_users);
         ZipfianGenerator revisions = new ZipfianGenerator(this.num_revisions, 1.75);
         ResultSet rs = null;
+        boolean adv;
         
         FlatHistogram<Integer> h_textLength = new FlatHistogram<Integer>(this.rng(), TextHistograms.TEXT_LENGTH);
         FlatHistogram<Integer> h_commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
-            int revised = revisions.nextInt();
-            if (revised == 0) {
-                revised = 1; // unsure at least one revision by page
-            }
-            for (int i = 0; i < revised; i++) {
+            // There must be at least one revision per page
+            int num_revised = Math.max(1, revisions.nextInt());
+            
+            for (int i = 0; i < num_revised; i++) {
                 // Generate the User who's doing the revision and the Page revised
+                // Makes sure that we always update their counter
                 int user_id = users.nextInt();
-                String new_text = LoaderUtil.randomStr(h_textLength.nextValue().intValue());
+                this.user_revision_ctr[user_id]++;
+                
+                // Generate what the new revision is going to be
+                int old_text_length = h_textLength.nextValue().intValue();
+                String old_text = LoaderUtil.randomStr(old_text_length);
                 String rev_comment = LoaderUtil.randomStr(h_commentLength.nextValue().intValue());
 
                 // Insert the text
                 int col = 1;
-                textInsert.setString(col++, LoaderUtil.blockBuilder(WikipediaConstants.random_text, text_size.nextInt())); // old_text
+                textInsert.setString(col++, old_text); // old_text
                 textInsert.setString(col++, "utf-8"); // old_flags
                 textInsert.setInt(col++, page_id); // old_page
                 textInsert.execute();
-
-                // POSTGRES
-                // We can't use the auto-generated keys here
-                if (this.getDatabaseType() == DatabaseType.POSTGRES) {
-                    int nInserted = textInsert.getUpdateCount();
-                    assert (nInserted == 1);
-                    boolean more = textInsert.getMoreResults();
-                    assert (more);
-                    rs = textInsert.getResultSet();
-                } else {
-                    rs = textInsert.getGeneratedKeys();
-                }
-                if (rs.next() == false) {
-                    this.conn.rollback();
-                    throw new RuntimeException("Problem inserting new tuples in table `text`");
-                }
-                int nextTextId = rs.getInt(1);
+                rs = textInsert.getGeneratedKeys();
+                adv = rs.next();
+                assert(adv) : "Failed to retrieve auto increment key for " + WikipediaConstants.TABLENAME_TEXT;
+                int text_id = rs.getInt(1);
+                assert(text_id > 0) : "Invalid text_id '" + text_id + "'";
 
                 // Insert the revision
-                revisionInsert.setInt(1, page_id); // rev_page
-                revisionInsert.setInt(2, nextTextId); // rev_text_id
-                revisionInsert.setString(3, rev_comment); // rev_comment
-                revisionInsert.setInt(4, user_id); // rev_user
-                revisionInsert.setString(5, new_text); // rev_user_text
-                revisionInsert.setString(6, TimeUtil.getCurrentTimeString14()); // rev_timestamp
-                revisionInsert.setInt(7, 0); // rev_minor_edit
-                revisionInsert.setInt(8, 0); // rev_deleted
-                revisionInsert.setInt(9, 0); // rev_len
-                revisionInsert.setInt(10, 0); // rev_parent_id
+                col = 1;
+                revisionInsert.setInt(col++, page_id); // rev_page
+                revisionInsert.setInt(col++, text_id); // rev_text_id
+                revisionInsert.setString(col++, rev_comment); // rev_comment
+                revisionInsert.setInt(col++, user_id); // rev_user
+                revisionInsert.setString(col++, old_text); // rev_user_text
+                revisionInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // rev_timestamp
+                revisionInsert.setInt(col++, 0); // rev_minor_edit
+                revisionInsert.setInt(col++, 0); // rev_deleted
+                revisionInsert.setInt(col++, 0); // rev_len
+                revisionInsert.setInt(col++, 0); // rev_parent_id
                 revisionInsert.execute();
-
-                // POSTGRES
-                // We can't use the auto-generated keys here
-                if (this.getDatabaseType() == DatabaseType.POSTGRES) {
-                    int nInserted = revisionInsert.getUpdateCount();
-                    assert (nInserted == 1);
-                    boolean more = revisionInsert.getMoreResults();
-                    assert (more);
-                    rs = revisionInsert.getResultSet();
-                } else {
-                    rs = revisionInsert.getGeneratedKeys();
-                }
-                if (rs.next() == false) {
-                    this.conn.rollback();
-                    throw new RuntimeException("Problem inserting new tuples in table `revision`");
-                }
-                int nextRevID = rs.getInt(1);
-
-                pageUpdate.setInt(1, nextRevID);
-                pageUpdate.setInt(2, new_text.length());
-                pageUpdate.setInt(3, page_id);
-                pageUpdate.addBatch();
-
-                userUpdate.setInt(1, user_id);
-                userUpdate.addBatch();
-
-                if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
-                    pageUpdate.executeBatch();
-                    this.conn.commit();
-                    pageUpdate.clearBatch();
-                    batchSize = 0;
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Revisions made # " + batchSize + " - Pages revised % " + page_id + "/" + this.num_pages);
-                    }
-                }
+                rs = revisionInsert.getGeneratedKeys();
+                adv = rs.next();
+                assert(adv) : "Failed to retrieve auto increment key for " + WikipediaConstants.TABLENAME_REVISION;
+                int rev_id = rs.getInt(1);
+                assert(rev_id > 0) : "Invalid rev_id '" + rev_id + "'";
+                
+                // Update Last Revision Stuff
+                this.page_last_rev_id[page_id] = rev_id;
+                this.page_last_rev_length[page_id] = old_text_length;
+            } // FOR (revision)
+        } // FOR (page)
+        
+        // UPDATE USER
+        catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_USER);
+        String updateUserSql = "UPDATE " + catalog_tbl.getEscapedName() + 
+                               "   SET user_editcount = ?, " +
+                               "       user_touched = '" + TimeUtil.getCurrentTimeString14() + "'" +
+                               " WHERE user_id = ?";
+        PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
+        batchSize = 0;
+        for (int i = 0; i < this.num_users; i++) {
+            int col = 1;
+            userUpdate.setInt(col++, this.user_revision_ctr[i]);
+            userUpdate.setInt(col++, i+1); // ids start at 1
+            userUpdate.addBatch();
+            if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                userUpdate.executeBatch();
+                this.conn.commit();
+                userUpdate.clearBatch();
+                batchSize = 0;
+            }
+        } // FOR
+        if (batchSize > 0) {
+            userUpdate.executeBatch();
+            this.conn.commit();
+            userUpdate.clearBatch();
+        }
+        
+        // UPDATE PAGES
+        catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
+        String updatePageSql = "UPDATE " + catalog_tbl.getEscapedName() + 
+                               "   SET page_latest = ?, " +
+                               "       page_touched = '" + TimeUtil.getCurrentTimeString14() + "'" +
+                               "       page_is_new = 0, " +
+                               "       page_is_redirect = 0, " +
+                               "       page_len = ? " +
+                               " WHERE page_id = ?";
+        PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
+        batchSize = 0;
+        for (int i = 0; i < this.num_pages; i++) {
+            if (this.page_last_rev_id[i] == -1) continue;
+            
+            int col = 1;
+            pageUpdate.setInt(col++, this.page_last_rev_id[i]);
+            pageUpdate.setInt(col++, this.page_last_rev_length[i]);
+            pageUpdate.setInt(col++, i+1); // ids start at 1
+            pageUpdate.addBatch();
+            if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                pageUpdate.executeBatch();
+                this.conn.commit();
+                pageUpdate.clearBatch();
+                batchSize = 0;
             }
         } // FOR
         if (batchSize > 0) {
             pageUpdate.executeBatch();
             this.conn.commit();
             pageUpdate.clearBatch();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Revisions made # " + batchSize + " - Pages revised % " + this.num_pages + "/" + this.num_pages);
-            }
         }
+        
 
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("Revision loaded");
         }

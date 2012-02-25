@@ -166,7 +166,7 @@
                     <include name="**/Test*.class"/>
                     <exclude name="**/Test*$*.class"/>
                 	<exclude name="**/TestJPAB*.class"/>
-                	<exclude name="**/TestWikipediaLoader.class"/>
+                	<!-- <exclude name="**/TestWikipediaLoader.class"/> -->
                 </fileset>
             </tests>
         </run_junit>

@@ -310,7 +310,7 @@ public class SEATSLoader extends Loader {
         try {
             String insert_sql = SQLUtil.getInsertSQL(catalog_tbl);
             PreparedStatement insert_stmt = this.conn.prepareStatement(insert_sql);
-            int sqlTypes[] = SQLUtil.getColumnTypes(catalog_tbl);
+            int sqlTypes[] = catalog_tbl.getColumnTypes();
             
             for (Object tuple[] : iterable) {
                 assert(tuple[0] != null) : "The primary key for " + catalog_tbl.getName() + " is null";

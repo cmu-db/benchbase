@@ -229,7 +229,7 @@ public class AuctionMarkLoader extends Loader {
         final List<Object[]> volt_table = generator.getVoltTable();
         final String sql = SQLUtil.getInsertSQL(catalog_tbl);
         final PreparedStatement stmt = conn.prepareStatement(sql);
-        final int types[] = SQLUtil.getColumnTypes(catalog_tbl);
+        final int types[] = catalog_tbl.getColumnTypes();
         
         while (generator.hasMore()) {
             generator.generateBatch();

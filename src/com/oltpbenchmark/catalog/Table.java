@@ -93,6 +93,14 @@ public class Table extends AbstractCatalogObject {
         } // FOR
         return -1;
     }
+    
+    public int[] getColumnTypes() {
+        int types[] = new int[this.getColumnCount()];
+        for (Column catalog_col : this.getColumns()) {
+            types[catalog_col.getIndex()] = catalog_col.getType();
+        } // FOR
+        return (types);
+    }
 
     public Column getColumnByName(String colname) {
         int idx = getColumnIndex(colname);
