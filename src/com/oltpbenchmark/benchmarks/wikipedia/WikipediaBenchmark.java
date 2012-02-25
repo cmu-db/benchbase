@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -43,8 +42,6 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
 public class WikipediaBenchmark extends BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
-
 	protected final FlatHistogram<Integer> commentLength; 
 	
 	private final File traceInput;
@@ -57,8 +54,8 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		XMLConfiguration xml = workConf.getXmlConfig();
 		this.traceInput = (xml != null && xml.containsKey("tracefile") ? new File(xml.getString("tracefile")) : null);
 		if (xml.containsKey("traceOut")) {
-		    this.traceSize = xml.getInt("tracefile");
-		    this.traceOutput = new File("wikipedia-" + traceSize + "k.trace");
+		    this.traceSize = xml.getInt("traceOut");
+		    this.traceOutput = new File("wikipedia-" + this.traceSize + "k.trace");
 		} else {
 		    this.traceSize = 0;
 		    this.traceOutput = null;
@@ -67,11 +64,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 	}
 
-	public File getInputTraceFile() {
+	public File getTraceInput() {
 	    return (this.traceInput);
 	}
-	
-	public File getOutputTraceFile() {
+	public File getTraceOutput() {
 	    return (this.traceOutput);
 	}
 	public int getTraceSize() {

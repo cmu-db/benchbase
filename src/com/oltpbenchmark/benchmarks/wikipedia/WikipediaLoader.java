@@ -104,7 +104,7 @@ public class WikipediaLoader extends Loader {
     
     private File genTrace() throws Exception {
         WikipediaBenchmark b = (WikipediaBenchmark)this.benchmark;
-        File file = b.getOutputTraceFile();
+        File file = b.getTraceOutput();
         if (file == null || b.getTraceSize() == 0) return (null);
         
         assert(this.num_pages == this.titles.size());
