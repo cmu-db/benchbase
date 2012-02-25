@@ -25,11 +25,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import com.oltpbenchmark.api.LoaderUtil;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
-import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 import com.oltpbenchmark.util.TimeUtil;
 
 public class UpdatePage extends Procedure {
@@ -103,7 +101,7 @@ public class UpdatePage extends Procedure {
         " WHERE user_id = ?"
     );
 	
-	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace, String pageTitle, String revComment) throws SQLException {
+	public void run(Connection conn, int textId, int revisionId, int pageId, String pageText, String userIp, int userId, String userText, int nameSpace, String pageTitle, String revComment) throws SQLException {
 
 	    boolean adv;
 	    PreparedStatement ps = null;
@@ -113,8 +111,8 @@ public class UpdatePage extends Procedure {
 	    // INSERT NEW TEXT
 		ps = this.getPreparedStatementReturnKeys(conn, insertText, new int[]{1});
 		param = 1;
-		ps.setInt(param++, a.pageId);
-		ps.setString(param++, a.oldText);
+		ps.setInt(param++, pageId);
+		ps.setString(param++, pageText);
 		ps.execute();
 
 		rs = ps.getGeneratedKeys();
@@ -127,14 +125,14 @@ public class UpdatePage extends Procedure {
 		// INSERT NEW REVISION
 		ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1});
 		param = 1;
-		ps.setInt(param++, a.pageId);
+		ps.setInt(param++, pageId);
 		ps.setInt(param++, nextTextId);
 		ps.setString(param++, revComment);
 		ps.setInt(param++, userId);
-		ps.setString(param++, a.userText);
+		ps.setString(param++, userText);
 		ps.setString(param++, TimeUtil.getCurrentTimeString14());
-		ps.setInt(param++, a.oldText.length());
-		ps.setInt(param++, a.revisionId);
+		ps.setInt(param++, pageText.length());
+		ps.setInt(param++, revisionId);
 		ps.executeUpdate();
 		
 		rs = ps.getGeneratedKeys();
@@ -150,8 +148,8 @@ public class UpdatePage extends Procedure {
 		param = 1;
 		ps.setInt(param++, nextRevID);
 		ps.setString(param++, TimeUtil.getCurrentTimeString14());
-		ps.setInt(param++, a.oldText.length());
-		ps.setInt(param++, a.pageId);
+		ps.setInt(param++, pageText.length());
+		ps.setInt(param++, pageId);
 		int numUpdatePages = ps.executeUpdate();
 		assert(numUpdatePages == 1) : "WE ARE NOT UPDATING the page table!";
 
@@ -160,18 +158,18 @@ public class UpdatePage extends Procedure {
 		// st.addBatch(sql);
 
 		ps = this.getPreparedStatement(conn, insertRecentChanges);
-		ps.setString(1, TimeUtil.getCurrentTimeString14());
-		ps.setString(2, TimeUtil.getCurrentTimeString14());
-		ps.setInt(3, nameSpace);
-		ps.setString(4, pageTitle);
-		ps.setInt(5, a.pageId);
-		ps.setInt(6, userId);
-		ps.setString(7, a.userText);
-		ps.setInt(8,nextTextId);
-		ps.setInt(9, a.textId);
-		ps.setString(10, userIp);
-		ps.setInt(11, a.oldText.length());
-		ps.setInt(12, a.oldText.length());
+		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setInt(param++, nameSpace);
+		ps.setString(param++, pageTitle);
+		ps.setInt(param++, pageId);
+		ps.setInt(param++, userId);
+		ps.setString(param++, userText);
+		ps.setInt(param++, nextTextId);
+		ps.setInt(param++, textId);
+		ps.setString(param++, userIp);
+		ps.setInt(param++, pageText.length());
+		ps.setInt(param++, pageText.length());
 		int count = ps.executeUpdate();
 		assert(count == 1);
 
@@ -181,9 +179,10 @@ public class UpdatePage extends Procedure {
 
 		// SELECT WATCHING USERS
 		ps = this.getPreparedStatement(conn, selectWatchList);
-		ps.setString(1, pageTitle);
-		ps.setInt(2, nameSpace);
-		ps.setInt(3, userId);
+		param = 1;
+		ps.setString(param++, pageTitle);
+		ps.setInt(param++, nameSpace);
+		ps.setInt(param++, userId);
 		rs = ps.executeQuery();
 
 		ArrayList<String> wlUser = new ArrayList<String>();
@@ -224,7 +223,8 @@ public class UpdatePage extends Procedure {
 			// for each "watcher"
 			for (String t : wlUser) {
 				ps = this.getPreparedStatement(conn, selectUser);
-				ps.setString(1,t);
+				param = 1;
+				ps.setString(param++,t);
 				rs = ps.executeQuery();
 				rs.next();
 				rs.close();
@@ -235,22 +235,25 @@ public class UpdatePage extends Procedure {
 		// sometimes together with the previous one
 		
 		ps = this.getPreparedStatement(conn, insertLogging);
-		ps.setString(1, TimeUtil.getCurrentTimeString14());
-		ps.setInt(2, userId);
-		ps.setString(3, pageTitle);
-		ps.setInt(4, nameSpace);
-		ps.setString(5, a.userText);
-		ps.setInt(6, a.pageId);
-		ps.setString(7, nextRevID+"\n"+a.revisionId+"\n1");
+		param = 1;
+		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setInt(param++, userId);
+		ps.setString(param++, pageTitle);
+		ps.setInt(param++, nameSpace);
+		ps.setString(param++, userText);
+		ps.setInt(param++, pageId);
+		ps.setString(param++, String.format("%d\n%d\n%d", nextRevID, revisionId, 1));
 		ps.executeUpdate();
 
 		ps = this.getPreparedStatement(conn, updateUserEdit);
-		ps.setInt(1, userId);
+		param = 1;
+		ps.setInt(param++, userId);
 		ps.executeUpdate();
 		
 		ps = this.getPreparedStatement(conn, updateUserTouched);
-		ps.setString(1, TimeUtil.getCurrentTimeString14());
-		ps.setInt(2, userId);
+		param = 1;
+		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setInt(param++, userId);
 		ps.executeUpdate();
 	}
 }

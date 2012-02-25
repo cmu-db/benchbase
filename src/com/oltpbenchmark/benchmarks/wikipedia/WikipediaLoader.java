@@ -19,7 +19,6 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
@@ -92,9 +91,7 @@ public class WikipediaLoader extends Loader {
             this.loadRevision();
 
             // Generate Trace File
-            if (this.workConf.getXmlConfig() != null && this.workConf.getXmlConfig().containsKey("traceOut")) {
-                this.genTrace(this.workConf.getXmlConfig().getInt("traceOut", 0));
-            }
+            this.genTrace();
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -105,29 +102,25 @@ public class WikipediaLoader extends Loader {
         }
     }
     
-    private File genTrace(int trace) throws Exception {
-        if (trace == 0) return (null);
+    private File genTrace() throws Exception {
+        WikipediaBenchmark b = (WikipediaBenchmark)this.benchmark;
+        File file = b.getOutputTraceFile();
+        if (file == null || b.getTraceSize() == 0) return (null);
         
         assert(this.num_pages == this.titles.size());
         ZipfianGenerator pages = new ZipfianGenerator(this.num_pages);
         
-        File file = null;
-        if (isTesting()) {
-            file = FileUtil.getTempFile("wiki", true);
-        } else {
-            file = new File("wikipedia-" + trace + "k.trace");
-        }
-        LOG.info(String.format("Generating a %dk trace to '%s'", trace, file));
+        LOG.info(String.format("Generating a %dk traces to '%s'", b.getTraceSize(), file));
         
         PrintStream ps = new PrintStream(file);
-        for (int i = 0, cnt = (trace * 1000); i < cnt; i++) {
+        for (int i = 0, cnt = (b.getTraceSize() * 1000); i < cnt; i++) {
             int user_id = rng().nextInt(this.num_users);
             // lets 10% be unauthenticated users
             if (user_id % 10 == 0) {
                 user_id = 0;
             }
-            String title = this.titles.get(pages.nextInt()).getSecond();
-            ps.println(user_id + " " + title);
+            Pair<Integer, String> p = this.titles.get(pages.nextInt());
+            ps.println(String.format("%d %d %s", user_id, p.getFirst(), p.getSecond()));
         } // FOR
         ps.close();
         return (file);

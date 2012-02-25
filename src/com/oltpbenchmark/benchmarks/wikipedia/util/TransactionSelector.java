@@ -19,76 +19,54 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.wikipedia.util;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.regex.Pattern;
 
 import com.oltpbenchmark.api.TransactionTypes;
-
-import ch.ethz.ssh2.util.Tokenizer;
+import com.oltpbenchmark.util.FileUtil;
 
 public class TransactionSelector {
 
-	String filename;
-	DataInputStream dis = null;
-	Random r = null;
+    final Pattern p = Pattern.compile(" "); 
+	final File file;
+	BufferedReader reader = null;
 	TransactionTypes transTypes;
 	static final double READ_WRITE_RATIO = 11.8; // from
 													// http://www.globule.org/publi/WWADH_comnet2009.html
 
-	public TransactionSelector(String filename, TransactionTypes transTypes) throws FileNotFoundException {
-		this.transTypes = transTypes;
-		r = new Random();
-		this.filename = filename;
-
-		if(filename==null || filename.isEmpty())
+	public TransactionSelector(File file, TransactionTypes transTypes) throws FileNotFoundException {
+	    this.file = file;
+	    this.transTypes = transTypes;
+		
+	    if (this.file == null)
 			throw new FileNotFoundException("You must specify a filename to instantiate the TransactionSelector... (probably missing in your workload configuration?)");
 		
-		File file = new File(filename);
-		FileInputStream fis = null;
-		BufferedInputStream bis = null;
-		fis = new FileInputStream(file);
-
-		// Here BufferedInputStream is added for fast reading.
-		bis = new BufferedInputStream(fis);
-		dis = new DataInputStream(bis);
-		dis.mark(1024 * 1024 * 1024);
-
-	}
-
-	public synchronized WikipediaOperation nextTransaction() throws IOException {
-		if (dis.available() == 0)
-			dis.reset();
-
-		return readNextTransaction();
-	}
-
-	private WikipediaOperation readNextTransaction() throws IOException {
-		String line = dis.readLine();
-		String[] sa = Tokenizer.parseTokens(line, ' ');
-
-		int user = Integer.parseInt(sa[0]);
-
-		return new WikipediaOperation(user, Integer.parseInt(sa[1]), sa[2]);
+		BufferedReader r = null;
+		try {
+		    r = FileUtil.getReader(this.file);
+		} catch (IOException ex) {
+		    throw new RuntimeException("Failed to open file '" + file + "' for reading", ex);
+		}
+		assert(r != null);
+		this.reader = r;
 	}
 
 	public ArrayList<WikipediaOperation> readAll() throws IOException {
 		ArrayList<WikipediaOperation> transactions = new ArrayList<WikipediaOperation>();
+		while (this.reader.ready()) {
+		    String line = this.reader.readLine();
+	        String[] sa = p.split(line);
 
-		while (dis.available() > 0) {
-			transactions.add(readNextTransaction());
-		}
-
+	        int user = Integer.parseInt(sa[0]);
+	        int namespace = Integer.parseInt(sa[1]);
+	        String title = sa[2];
+	        transactions.add(new WikipediaOperation(user, namespace, title));
+		} // WHILE
+		this.reader.close();
 		return transactions;
 	}
-
-	public void close() throws IOException {
-		dis.close();
-	}
-
 }

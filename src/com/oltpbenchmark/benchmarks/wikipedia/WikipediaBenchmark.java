@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.oltpbenchmark.benchmarks.wikipedia;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -43,15 +45,39 @@ import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 public class WikipediaBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
 
-	private final WikipediaConfiguration wikiConf;
 	protected final FlatHistogram<Integer> commentLength; 
+	
+	private final File traceInput;
+	private final File traceOutput;
+	private final int traceSize;
 	
 	public WikipediaBenchmark(WorkloadConfiguration workConf) {		
 		super("wikipedia", workConf, true);
-		this.wikiConf = new WikipediaConfiguration(workConf);
+		
+		XMLConfiguration xml = workConf.getXmlConfig();
+		this.traceInput = (xml != null && xml.containsKey("tracefile") ? new File(xml.getString("tracefile")) : null);
+		if (xml.containsKey("traceOut")) {
+		    this.traceSize = xml.getInt("tracefile");
+		    this.traceOutput = new File("wikipedia-" + traceSize + "k.trace");
+		} else {
+		    this.traceSize = 0;
+		    this.traceOutput = null;
+		}
+		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 	}
 
+	public File getInputTraceFile() {
+	    return (this.traceInput);
+	}
+	
+	public File getOutputTraceFile() {
+	    return (this.traceOutput);
+	}
+	public int getTraceSize() {
+	    return (this.traceSize);
+	}
+	
 	@Override
 	protected Package getProcedurePackageImpl() {
 		return (AddWatchList.class.getPackage());
@@ -59,13 +85,8 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-	    if (LOG.isDebugEnabled())
-	        LOG.debug("Using trace:" + wikiConf.getTracefile());
-
-		TransactionSelector transSel = new TransactionSelector(wikiConf.getTracefile(), 
-				                                               workConf.getTransTypes());
+		TransactionSelector transSel = new TransactionSelector(this.traceInput, workConf.getTransTypes());
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
-		transSel.close();
 		
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		for (int i = 0; i < workConf.getTerminals(); ++i) {

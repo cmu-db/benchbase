@@ -84,8 +84,7 @@ public class GetPageAuthenticated extends Procedure {
             if (rs.next()) {
                 userText = rs.getString("user_name");
             } else {
-                LOG.warn("The used trace contains invalid users: " + userId);
-                throw new UserAbortException("Unknown user: " + userId);
+                throw new UserAbortException("Invalid UserId: " + userId);
             }
             // Fetch all groups the user might belong to (access control
             // information)

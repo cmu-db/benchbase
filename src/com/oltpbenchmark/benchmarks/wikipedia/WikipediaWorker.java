@@ -77,7 +77,12 @@ public class WikipediaWorker extends Worker {
         }
         // GetPageAuthenticated
         else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
-            getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
+            try {
+                getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
+            } catch (UserAbortException ex) {
+                System.err.println(t);
+                throw ex;
+            }
         }
         
         conn.commit();
@@ -137,11 +142,18 @@ public class WikipediaWorker extends Worker {
 		int revCommentLen = b.commentLength.nextValue().intValue();
 		String revComment = TextGenerator.randomStr(rng(), revCommentLen);
 		
+		// Permute the original text of the article
+		int newTextSize = a.oldText.length() + rng().nextInt(100);
+		char newText[] = new char[newTextSize];
+        a.oldText.getChars(0, a.oldText.length(), newText, 0);
+        TextGenerator.permuteText(rng(), newText);
 		
-	    if (LOG.isTraceEnabled())LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
+	    if (LOG.isTraceEnabled())
+	        LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
-        proc.run(conn, a, userIp, userId, nameSpace, pageTitle, revComment);
+        proc.run(conn, a.textId, a.revisionId, a.pageId, new String(newText),
+                       userIp, userId, a.userText, nameSpace, pageTitle, revComment);
 	}
 
 }
