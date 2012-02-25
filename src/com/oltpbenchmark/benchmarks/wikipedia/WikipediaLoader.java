@@ -161,7 +161,7 @@ public class WikipediaLoader extends Loader {
 
         int types[] = catalog_tbl.getColumnTypes();
         int batch_size = 0;
-        for (int i = 0; i < this.num_users; i++) {
+        for (int i = 1; i <= this.num_users; i++) {
             String name = TextGenerator.randomStr(rng(), h_nameLength.nextValue().intValue());
             String realName = TextGenerator.randomStr(rng(), h_realNameLength.nextValue().intValue());
             int revCount = h_revCount.nextValue().intValue();
@@ -245,7 +245,7 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<String> h_restrictions = new FlatHistogram<String>(this.rng(), PageHistograms.RESTRICTIONS);
 
         int batch_size = 0;
-        for (int i = 0; i < this.num_pages; i++) {
+        for (int i = 1; i <= this.num_pages; i++) {
             String title = TextGenerator.randomStr(rng(), h_titleLength.nextValue().intValue());
             int namespace = h_namespace.nextValue().intValue();
             String restrictions = h_restrictions.nextValue();
@@ -298,7 +298,7 @@ public class WikipediaLoader extends Loader {
         ZipfianGenerator zipPages = new ZipfianGenerator(this.num_pages);
 
         int batchSize = 0;
-        for (int user_id = 0; user_id < this.num_users; user_id++) {
+        for (int user_id = 1; user_id <= this.num_users; user_id++) {
             Pair<Integer, String> page = this.titles.get(zipPages.nextInt());
             
             int col = 1;
@@ -399,6 +399,7 @@ public class WikipediaLoader extends Loader {
                 // Generate the User who's doing the revision and the Page revised
                 // Makes sure that we always update their counter
                 int user_id = h_users.nextInt() + 1;
+                assert(user_id > 0 && user_id <= this.num_users) : "Invalid UserId '" + user_id + "'";
                 this.user_revision_ctr[user_id-1]++;
                 
                 // Generate what the new revision is going to be
@@ -531,8 +532,6 @@ public class WikipediaLoader extends Loader {
             this.conn.commit();
             pageUpdate.clearBatch();
         }
-        
-
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("Revision loaded");
