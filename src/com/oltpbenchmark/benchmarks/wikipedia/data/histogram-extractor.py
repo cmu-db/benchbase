@@ -61,12 +61,6 @@ def extractHistograms(histograms, tableName, len_fields=[], cnt_fields=[], custo
 ## DEF
 
 ## ==============================================
-## toJava
-## ==============================================
-
-## DEF
-
-## ==============================================
 ## main
 ## ==============================================
 if __name__ == '__main__':
@@ -106,12 +100,29 @@ if __name__ == '__main__':
     
     ## PAGE ATTRIBUTES
     len_fields = [ "page_title" ]
-    cnt_fields = [ "page_namespace", "page_is_redirect", "page_is_new", "page_restrictions" ]
+    cnt_fields = [ "page_namespace", "page_restrictions", "page_counter" ]
     extractHistograms(histograms, "page", len_fields, cnt_fields)
+    
+    ## REVISIONS PER PAGE
+    sql = "SELECT COUNT(rev_id), rev_page FROM revision GROUP BY rev_page"
+    c1.execute(sql)
+    f = "rev_per_page"
+    histograms[f] = Histogram()
+    for row in c1:
+        ## Round up
+        cnt = row[0]
+        if cnt >= 10000:
+            cnt = round(cnt / 1000) * 1000
+        elif cnt >= 1000:
+            cnt = round(cnt / 100) * 100
+        elif cnt >= 100:
+            cnt = round(cnt / 10) * 10
+        histograms[f].put(int(cnt))
+    ## FOR
     
     ## REVISION ATTRIBUTES
     len_fields = [ "rev_comment" ]
-    cnt_fields = [ "rev_minor_edit", "rev_deleted" ]
+    cnt_fields = [ "rev_minor_edit"  ]
     extractHistograms(histograms, "revision", len_fields, cnt_fields)
     
     ## TEXT ATTRIBUTES

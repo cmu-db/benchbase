@@ -376,32 +376,45 @@ public class WikipediaLoader extends Loader {
                                                 this.getDatabaseType(),
                                                 this.conn.prepareStatement(revSQL, new int[]{ 1 }));
 
-
         int batchSize = 1;
-        ZipfianGenerator users = new ZipfianGenerator(this.num_users);
-        ZipfianGenerator revisions = new ZipfianGenerator(this.num_revisions, 1.75);
-        ResultSet rs = null;
-        boolean adv;
-        
+        ZipfianGenerator h_users = new ZipfianGenerator(this.num_users);
         FlatHistogram<Integer> h_textLength = new FlatHistogram<Integer>(this.rng(), TextHistograms.TEXT_LENGTH);
         FlatHistogram<Integer> h_commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
         FlatHistogram<Integer> h_minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
+        FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
 
         int rev_id = 1;
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
             // There must be at least one revision per page
-            int num_revised = Math.max(1, revisions.nextInt());
+            int num_revised = h_numRevisions.nextValue().intValue();
+            
+            // Generate what the new revision is going to be
+            int old_text_length = h_textLength.nextValue().intValue();
+            String old_text = LoaderUtil.randomStr(old_text_length);
             
             for (int i = 0; i < num_revised; i++) {
                 // Generate the User who's doing the revision and the Page revised
                 // Makes sure that we always update their counter
-                int user_id = users.nextInt() + 1;
+                int user_id = h_users.nextInt() + 1;
                 this.user_revision_ctr[user_id-1]++;
                 
                 // Generate what the new revision is going to be
-                int old_text_length = h_textLength.nextValue().intValue();
-                String old_text = LoaderUtil.randomStr(old_text_length);
+                if (i > 0) {
+                    old_text_length = h_textLength.nextValue().intValue();
+                    
+                    // For now just make it a little bit bigger
+                    old_text += LoaderUtil.randomStr(rng().nextInt(100));
+                    old_text_length = old_text.length();
+                    
+                    // And permute some of the text
+                    int rand = rng().nextInt(0);
+                    for (int idx = 0; idx < 32; idx++) {
+                        
+                    } // FOR
+                    
+                }
+                
                 String rev_comment = LoaderUtil.randomStr(h_commentLength.nextValue().intValue());
 
                 // The REV_USER_TEXT field is usually the username, but we'll just 
@@ -410,26 +423,26 @@ public class WikipediaLoader extends Loader {
                 
                 // Insert the text
                 int col = 1;
-                if (isTesting()) textInsert.setInt(col++, rev_id); // old_id
+                textInsert.setInt(col++, rev_id); // old_id
                 textInsert.setString(col++, old_text); // old_text
                 textInsert.setString(col++, "utf-8"); // old_flags
                 textInsert.setInt(col++, page_id); // old_page
-                textInsert.execute();
+                textInsert.addBatch();
                 
-                int text_id = rev_id;
-                if (isTesting() == false) {
-                    rs = textInsert.getGeneratedKeys();
-                    adv = rs.next();
-                    assert(adv) : "Failed to retrieve auto increment key for " + WikipediaConstants.TABLENAME_TEXT;
-                    text_id = rs.getInt(1);
-                    assert(text_id > 0) : "Invalid text_id '" + text_id + "'";
-                }
+//                int text_id = rev_id;
+//                if (isTesting() == false) {
+//                    rs = textInsert.getGeneratedKeys();
+//                    adv = rs.next();
+//                    assert(adv) : "Failed to retrieve auto increment key for " + WikipediaConstants.TABLENAME_TEXT;
+//                    text_id = rs.getInt(1);
+//                    assert(text_id > 0) : "Invalid text_id '" + text_id + "'";
+//                }
 
                 // Insert the revision
                 col = 1;
-                if (isTesting()) revisionInsert.setInt(col++, rev_id); // rev_id
+                revisionInsert.setInt(col++, rev_id); // rev_id
                 revisionInsert.setInt(col++, page_id); // rev_page
-                revisionInsert.setInt(col++, text_id); // rev_text_id
+                revisionInsert.setInt(col++, rev_id); // rev_text_id
                 revisionInsert.setString(col++, rev_comment); // rev_comment
                 revisionInsert.setInt(col++, user_id); // rev_user
                 revisionInsert.setString(col++, user_text); // rev_user_text
@@ -438,21 +451,28 @@ public class WikipediaLoader extends Loader {
                 revisionInsert.setInt(col++, 0); // rev_deleted
                 revisionInsert.setInt(col++, 0); // rev_len
                 revisionInsert.setInt(col++, 0); // rev_parent_id
-                revisionInsert.execute();
+                revisionInsert.addBatch();
                 
-                if (isTesting() == false) {
-                    rs = revisionInsert.getGeneratedKeys();
-                    adv = rs.next();
-                    assert(adv) : "Failed to retrieve auto increment key for " + WikipediaConstants.TABLENAME_REVISION;
-                    rev_id = rs.getInt(1);
-                    assert(rev_id > 0) : "Invalid rev_id '" + rev_id + "'";
-                }
+//                if (isTesting() == false) {
+//                    rs = revisionInsert.getGeneratedKeys();
+//                    adv = rs.next();
+//                    assert(adv) : "Failed to retrieve auto increment key for " + WikipediaConstants.TABLENAME_REVISION;
+//                    rev_id = rs.getInt(1);
+//                    assert(rev_id > 0) : "Invalid rev_id '" + rev_id + "'";
+//                }
                 
                 // Update Last Revision Stuff
                 this.page_last_rev_id[page_id-1] = rev_id;
                 this.page_last_rev_length[page_id-1] = old_text_length;
                 rev_id++;
+                batchSize++;
             } // FOR (revision)
+            if (batchSize > WikipediaConstants.BATCH_SIZE) {
+                textInsert.executeBatch();
+                revisionInsert.executeBatch();
+                this.conn.commit();
+                batchSize = 0;
+            }
         } // FOR (page)
         
         // UPDATE USER
