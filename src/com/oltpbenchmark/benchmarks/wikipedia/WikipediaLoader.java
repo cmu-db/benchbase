@@ -76,7 +76,11 @@ public class WikipediaLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         assert(catalog_tbl != null);
 
-        String sql = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
+        String sql = null;
+        if (isTesting()) {
+            sql = SQLUtil.getInsertSQL(catalog_tbl);
+        } else {
+            sql = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
                      "user_name, " + 
                      "user_real_name, " + 
                      "user_password, " + 
@@ -94,6 +98,7 @@ public class WikipediaLoader extends Loader {
                      ") VALUES (" + 
                      "?,?,?,?,?,?,?,?,?,?,?,?,?,?" + 
                      ")";
+        }
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
 
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
@@ -114,6 +119,7 @@ public class WikipediaLoader extends Loader {
             String touched = TimeUtil.getCurrentTimeString14();
 
             int col = 1;
+            if (isTesting()) userInsert.setInt(col++, i);      // user_id
             userInsert.setString(col++, name);          // user_name
             userInsert.setString(col++, realName);      // user_real_name
             userInsert.setString(col++, password);      // user_password
@@ -155,7 +161,11 @@ public class WikipediaLoader extends Loader {
         Table catalog_tbl = this.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
         assert(catalog_tbl != null);
 
-        String sql = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
+        String sql = null;
+        if (isTesting()) {
+            
+        } else {
+            sql = "INSERT INTO " + catalog_tbl.getEscapedName() + " (" +
                      "page_namespace, " +
                      "page_title, " +
                      "page_restrictions, " +
@@ -169,6 +179,7 @@ public class WikipediaLoader extends Loader {
                      ") VALUES (" +
                      "?,?,?,?,?,?,?,?,?,?" +
                      ")";
+        }
         PreparedStatement pageInsert = this.conn.prepareStatement(sql);
         
         FlatHistogram<Integer> h_titleLength = new FlatHistogram<Integer>(this.rng(), PageHistograms.TITLE_LENGTH);

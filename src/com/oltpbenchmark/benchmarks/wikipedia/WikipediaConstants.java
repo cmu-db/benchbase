@@ -65,6 +65,6 @@ public abstract class WikipediaConstants {
 	public static final String TABLENAME_VALUE_BACKUP      = "value_backup";
 	public static final String TABLENAME_WATCHLIST         = "watchlist";
 	
-	public static final int BATCH_SIZE = 1000;
+	public static final int BATCH_SIZE = 1;
 
 }

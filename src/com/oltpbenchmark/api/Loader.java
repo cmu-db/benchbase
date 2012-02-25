@@ -57,6 +57,14 @@ public abstract class Loader {
         return (this.workConf.getDBType());
     }
     
+    /**
+     * Hackishly return true if we are using the same type as we use in our unit tests
+     * @return
+     */
+    protected final boolean isTesting() {
+        return (this.workConf.getDBType() == DatabaseType.TEST_TYPE);
+    }
+    
     public Catalog getCatalog() {
         return (this.benchmark.getCatalog());
     }

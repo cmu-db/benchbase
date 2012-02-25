@@ -12,7 +12,6 @@ public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> 
         
         // For some reason we have to do this for HSQLDB
         Catalog.setSeparator("");
-        
     }
 
 //    public void testHistograms() throws Exception {
