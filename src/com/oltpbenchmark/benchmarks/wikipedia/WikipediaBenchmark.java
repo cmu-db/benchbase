@@ -53,7 +53,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		
 		XMLConfiguration xml = workConf.getXmlConfig();
 		this.traceInput = (xml != null && xml.containsKey("tracefile") ? new File(xml.getString("tracefile")) : null);
-		if (xml.containsKey("traceOut")) {
+		if (xml != null && xml.containsKey("traceOut")) {
 		    this.traceSize = xml.getInt("traceOut");
 		    this.traceOutput = new File("wikipedia-" + this.traceSize + "k.trace");
 		} else {
