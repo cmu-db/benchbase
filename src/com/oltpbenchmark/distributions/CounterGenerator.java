@@ -54,4 +54,9 @@ public class CounterGenerator extends IntegerGenerator
 	public double mean() {
 		throw new UnsupportedOperationException("Can't compute mean of non-stationary distribution!");
 	}
+
+    public void reset() {
+        // TODO Auto-generated method stub
+        counter.set(0);
+    }
 }

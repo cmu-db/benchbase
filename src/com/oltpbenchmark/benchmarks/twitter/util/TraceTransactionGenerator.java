@@ -23,9 +23,10 @@ import java.util.List;
 import java.util.Random;
 
 import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.distributions.CounterGenerator;
 
 public class TraceTransactionGenerator implements TransactionGenerator<TwitterOperation> {
-	private final Random rng = new Random();
+    private static CounterGenerator nextInTrace;
 	private final List<TwitterOperation> transactions;
 
 	/**
@@ -34,11 +35,18 @@ public class TraceTransactionGenerator implements TransactionGenerator<TwitterOp
 	 */
 	public TraceTransactionGenerator(List<TwitterOperation> transactions) {
 		this.transactions = transactions;
+		nextInTrace= new CounterGenerator(transactions.size());
 	}
 
 	@Override
 	public TwitterOperation nextTransaction() {
-		int transactionIndex = rng.nextInt(transactions.size());
-		return transactions.get(transactionIndex);
+	    try{
+		return transactions.get(nextInTrace.nextInt());
+	    }
+	    catch(IndexOutOfBoundsException id)
+	    {
+	        nextInTrace.reset();
+	        return transactions.get(nextInTrace.nextInt());
+	    }
 	}
 }
