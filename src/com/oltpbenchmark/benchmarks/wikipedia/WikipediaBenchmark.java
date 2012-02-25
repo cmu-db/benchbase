@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -34,19 +33,23 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.util.TraceTransactionGenerator;
 import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
+import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
 public class WikipediaBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
 
 	private final WikipediaConfiguration wikiConf;
+	protected final FlatHistogram<Integer> commentLength; 
 	
 	public WikipediaBenchmark(WorkloadConfiguration workConf) {		
 		super("wikipedia", workConf, true);
 		this.wikiConf = new WikipediaConfiguration(workConf);
+		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 	}
 
 	@Override
@@ -64,12 +67,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		transSel.close();
 		
-		Random rand = new Random();
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
 			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(trace);
-			String ipAddress = String.format("%s.%d.%d", wikiConf.getBaseIP(), (i % 256), rand.nextInt(256));
-			WikipediaWorker worker = new WikipediaWorker(i, this, generator, ipAddress);
+			WikipediaWorker worker = new WikipediaWorker(i, this, generator);
 			workers.add(worker);
 		} // FOR
 		return workers;

@@ -103,16 +103,18 @@ public class UpdatePage extends Procedure {
         " WHERE user_id = ?"
     );
 	
-	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
+	public void run(Connection conn, Article a, String userIp, int userId, int nameSpace, String pageTitle, String revComment) throws SQLException {
 
 	    boolean adv;
 	    PreparedStatement ps = null;
 	    ResultSet rs = null;
+	    int param;
 	    
 	    // INSERT NEW TEXT
 		ps = this.getPreparedStatementReturnKeys(conn, insertText, new int[]{1});
-		ps.setInt(1, a.pageId);
-		ps.setString(2, a.oldText);
+		param = 1;
+		ps.setInt(param++, a.pageId);
+		ps.setString(param++, a.oldText);
 		ps.execute();
 
 		rs = ps.getGeneratedKeys();
@@ -124,14 +126,15 @@ public class UpdatePage extends Procedure {
 
 		// INSERT NEW REVISION
 		ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1});
-		ps.setInt(1, a.pageId);
-		ps.setInt(2, nextTextId);
-		ps.setString(3, LoaderUtil.randomStr(255));
-		ps.setInt(4, userId);
-		ps.setString(5, a.userText);
-		ps.setString(6, TimeUtil.getCurrentTimeString14());
-		ps.setInt(7, a.oldText.length());
-		ps.setInt(8, a.revisionId);
+		param = 1;
+		ps.setInt(param++, a.pageId);
+		ps.setInt(param++, nextTextId);
+		ps.setString(param++, revComment);
+		ps.setInt(param++, userId);
+		ps.setString(param++, a.userText);
+		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setInt(param++, a.oldText.length());
+		ps.setInt(param++, a.revisionId);
 		ps.executeUpdate();
 		
 		rs = ps.getGeneratedKeys();
@@ -144,10 +147,11 @@ public class UpdatePage extends Procedure {
 		// it creates sometimes problem with the data, and page_id is a PK
 		// anyway
 		ps = this.getPreparedStatement(conn, updatePage);
-		ps.setInt(1, nextRevID);
-		ps.setString(2, TimeUtil.getCurrentTimeString14());
-		ps.setInt(3, a.oldText.length());
-		ps.setInt(4, a.pageId);
+		param = 1;
+		ps.setInt(param++, nextRevID);
+		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setInt(param++, a.oldText.length());
+		ps.setInt(param++, a.pageId);
 		int numUpdatePages = ps.executeUpdate();
 		assert(numUpdatePages == 1) : "WE ARE NOT UPDATING the page table!";
 

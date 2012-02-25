@@ -18,7 +18,6 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
-import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.Pair;
@@ -88,7 +87,6 @@ public class WikipediaLoader extends Loader {
         try {
             // Load Data
             this.loadUsers();
-//            if (num_users > 0) return;
             this.loadPages();
             this.loadWatchlist();
             this.loadRevision();
@@ -100,7 +98,7 @@ public class WikipediaLoader extends Loader {
             
         } catch (SQLException e) {
             e.printStackTrace();
-            e = e.getNextException();
+            if (e.getNextException() != null) e = e.getNextException();
             throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -323,7 +321,7 @@ public class WikipediaLoader extends Loader {
         int batchSize = 1;
         ZipfianGenerator h_users = new ZipfianGenerator(this.num_users);
         FlatHistogram<Integer> h_textLength = new FlatHistogram<Integer>(this.rng(), TextHistograms.TEXT_LENGTH);
-        FlatHistogram<Integer> h_commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
+        FlatHistogram<Integer> h_commentLength = ((WikipediaBenchmark)this.benchmark).commentLength;
         FlatHistogram<Integer> h_minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);

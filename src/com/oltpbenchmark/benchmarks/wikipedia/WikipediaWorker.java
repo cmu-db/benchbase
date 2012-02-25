@@ -36,18 +36,23 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.TextGenerator;
 
 public class WikipediaWorker extends Worker {
     private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);
 	private final TransactionGenerator<WikipediaOperation> generator;
-	private final String userIp;
 
 	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule,
-	                       TransactionGenerator<WikipediaOperation> generator, String userIp) {
+	                       TransactionGenerator<WikipediaOperation> generator) {
 		super(benchmarkModule, id);
-
 		this.generator = generator;
-		this.userIp = userIp;
+	}
+	
+	private String generateUserIP() {
+	    return String.format("%d.%d.%d.%d", rng().nextInt(255)+1,
+	                                        rng().nextInt(256),
+	                                        rng().nextInt(256),
+	                                        rng().nextInt(256));
 	}
 
     @Override
@@ -64,15 +69,15 @@ public class WikipediaWorker extends Worker {
         }
         // UpdatePage
         else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
-            updatePage(userIp, t.userId, t.nameSpace, t.pageTitle);
+            updatePage(this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
         }
         // GetPageAnonymous
         else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
-            getPageAnonymous(true, userIp, t.nameSpace, t.pageTitle);
+            getPageAnonymous(true, this.generateUserIP(), t.nameSpace, t.pageTitle);
         }
         // GetPageAuthenticated
         else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
-            getPageAuthenticated(true, userIp, t.userId, t.nameSpace, t.pageTitle);
+            getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
         }
         
         conn.commit();
@@ -124,16 +129,19 @@ public class WikipediaWorker extends Worker {
 
 	public void updatePage(String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
 		Article a = getPageAnonymous(false, userIp, nameSpace, pageTitle);
-
-		if (a == null) {
-			// this would be an insert of a new page, that we don't support for
-			// now.
-			return;
-		}
-	    if(LOG.isTraceEnabled())LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
+		// TODO: If the Article is null, then we want to insert a new page.
+		//       But we don't support that right now.
+		if (a == null) return;
+		
+		WikipediaBenchmark b = this.getBenchmarkModule();
+		int revCommentLen = b.commentLength.nextValue().intValue();
+		String revComment = TextGenerator.randomStr(rng(), revCommentLen);
+		
+		
+	    if (LOG.isTraceEnabled())LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
-        proc.run(conn, a, userIp, userId, nameSpace, pageTitle);
+        proc.run(conn, a, userIp, userId, nameSpace, pageTitle, revComment);
 	}
 
 }
