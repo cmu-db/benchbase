@@ -3,6 +3,7 @@ package com.oltpbenchmark.api;
 import java.util.Map;
 
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
+import com.oltpbenchmark.types.DatabaseType;
 
 import junit.framework.TestCase;
 
@@ -36,7 +37,7 @@ public class TestProcedure extends TestCase {
      */
     public void testGetStatmentsConstructor() throws Exception {
         Procedure proc = new DeleteCallForwarding();
-        proc.initialize();
+        proc.initialize(DatabaseType.POSTGRES);
         
         // Make sure that procedure handle has the same
         // SQLStmts as what we get back from the static method

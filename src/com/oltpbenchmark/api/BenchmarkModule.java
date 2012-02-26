@@ -410,7 +410,7 @@ public abstract class BenchmarkModule {
                 Procedure proc = (Procedure)ClassUtil.newInstance(txn.getProcedureClass(),
                                                                   new Object[0],
                                                                   new Class<?>[0]);
-                proc.initialize();
+                proc.initialize(this.workConf.getDBType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
             } // FOR

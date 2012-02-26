@@ -55,6 +55,10 @@ public class LoadConfig extends Procedure {
         " LIMIT " + AuctionMarkConstants.ITEM_LOADCONFIG_LIMIT
     );
     
+    // -----------------------------------------------------------------
+    // RUN
+    // -----------------------------------------------------------------
+    
     public ResultSet[] run(Connection conn) throws SQLException {
         PreparedStatement stmt = null;
         

@@ -26,9 +26,11 @@ public abstract class WikipediaConstants {
 	// DISTRIBUTION CONSTANTS
     // ----------------------------------------------------------------
 
-	public static final double NUM_WATCHES_PER_USER_SIGMA = 1.0001d;
+	public static final double NUM_WATCHES_PER_USER_SIGMA = 1.75d;
 	
 	public static final double WATCHLIST_PAGE_SIGMA = 1.0001d;
+	
+	public static final double REVISION_USER_SIGMA = 1.0001d;
 	
     // ----------------------------------------------------------------
     // DATA SET INFORMATION

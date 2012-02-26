@@ -32,7 +32,10 @@ import com.oltpbenchmark.util.TimeUtil;
 
 public class UpdatePage extends Procedure {
 	
-	// pretend we are changing something in the text
+    // -----------------------------------------------------------------
+    // STATEMENTS
+    // -----------------------------------------------------------------
+    
 	public SQLStmt insertText = new SQLStmt(
         "INSERT INTO " + WikipediaConstants.TABLENAME_USER + " (" +
         "old_page,old_text,old_flags" + 
@@ -89,7 +92,6 @@ public class UpdatePage extends Procedure {
         "'patrol','patrol',?,?,?,?,?,?,'',?" +
         ")"
     );
-	
 	public SQLStmt updateUserEdit = new SQLStmt(
         "UPDATE " + WikipediaConstants.TABLENAME_USER +
         "   SET user_editcount=user_editcount+1" +
@@ -101,12 +103,20 @@ public class UpdatePage extends Procedure {
         " WHERE user_id = ?"
     );
 	
-	public void run(Connection conn, int textId, int revisionId, int pageId, String pageText, String userIp, int userId, String userText, int nameSpace, String pageTitle, String revComment) throws SQLException {
+    // -----------------------------------------------------------------
+    // RUN
+    // -----------------------------------------------------------------
+	
+	public void run(Connection conn, int textId, int pageId,
+	                                 String pageTitle, String pageText, int pageNamespace,
+	                                 int userId, String userIp, String userText,
+	                                 int revisionId, String revComment) throws SQLException {
 
 	    boolean adv;
 	    PreparedStatement ps = null;
 	    ResultSet rs = null;
 	    int param;
+	    final String timestamp = TimeUtil.getCurrentTimeString14();
 	    
 	    // INSERT NEW TEXT
 		ps = this.getPreparedStatementReturnKeys(conn, insertText, new int[]{1});
@@ -130,24 +140,25 @@ public class UpdatePage extends Procedure {
 		ps.setString(param++, revComment);
 		ps.setInt(param++, userId);
 		ps.setString(param++, userText);
-		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setString(param++, timestamp);
 		ps.setInt(param++, pageText.length());
 		ps.setInt(param++, revisionId);
 		ps.executeUpdate();
 		
 		rs = ps.getGeneratedKeys();
 		adv = rs.next();
-		int nextRevID = rs.getInt(1);
+		int nextRevId = rs.getInt(1);
+		System.err.println(this.getDatabaseType() + " NEXT: " + nextRevId);
 		rs.close();
-		assert(nextRevID >= 0) : "Invalid nextRevID (" + nextRevID + ")";
+		assert(nextRevId >= 0) : "Invalid nextRevID (" + nextRevId + ")";
 
 		// I'm removing AND page_latest = "+a.revisionId+" from the query, since
 		// it creates sometimes problem with the data, and page_id is a PK
 		// anyway
 		ps = this.getPreparedStatement(conn, updatePage);
 		param = 1;
-		ps.setInt(param++, nextRevID);
-		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setInt(param++, nextRevId);
+		ps.setString(param++, timestamp);
 		ps.setInt(param++, pageText.length());
 		ps.setInt(param++, pageId);
 		int numUpdatePages = ps.executeUpdate();
@@ -158,9 +169,9 @@ public class UpdatePage extends Procedure {
 		// st.addBatch(sql);
 
 		ps = this.getPreparedStatement(conn, insertRecentChanges);
-		ps.setString(param++, TimeUtil.getCurrentTimeString14());
-		ps.setString(param++, TimeUtil.getCurrentTimeString14());
-		ps.setInt(param++, nameSpace);
+		ps.setString(param++, timestamp);
+		ps.setString(param++, timestamp);
+		ps.setInt(param++, pageNamespace);
 		ps.setString(param++, pageTitle);
 		ps.setInt(param++, pageId);
 		ps.setInt(param++, userId);
@@ -181,7 +192,7 @@ public class UpdatePage extends Procedure {
 		ps = this.getPreparedStatement(conn, selectWatchList);
 		param = 1;
 		ps.setString(param++, pageTitle);
-		ps.setInt(param++, nameSpace);
+		ps.setInt(param++, pageNamespace);
 		ps.setInt(param++, userId);
 		rs = ps.executeQuery();
 
@@ -202,8 +213,8 @@ public class UpdatePage extends Procedure {
 			conn.commit();
 
 			ps = this.getPreparedStatement(conn, updateWatchList);
-			ps.setString(1, TimeUtil.getCurrentTimeString14());
-			ps.setInt(3, nameSpace);
+			ps.setString(1, timestamp);
+			ps.setInt(3, pageNamespace);
 			for (String t : wlUser) {
 				ps.setString(2, pageTitle);
 				ps.setString(4, t);
@@ -236,13 +247,13 @@ public class UpdatePage extends Procedure {
 		
 		ps = this.getPreparedStatement(conn, insertLogging);
 		param = 1;
-		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setString(param++, timestamp);
 		ps.setInt(param++, userId);
 		ps.setString(param++, pageTitle);
-		ps.setInt(param++, nameSpace);
+		ps.setInt(param++, pageNamespace);
 		ps.setString(param++, userText);
 		ps.setInt(param++, pageId);
-		ps.setString(param++, String.format("%d\n%d\n%d", nextRevID, revisionId, 1));
+		ps.setString(param++, String.format("%d\n%d\n%d", nextRevId, revisionId, 1));
 		ps.executeUpdate();
 
 		ps = this.getPreparedStatement(conn, updateUserEdit);
@@ -252,7 +263,7 @@ public class UpdatePage extends Procedure {
 		
 		ps = this.getPreparedStatement(conn, updateUserTouched);
 		param = 1;
-		ps.setString(param++, TimeUtil.getCurrentTimeString14());
+		ps.setString(param++, timestamp);
 		ps.setInt(param++, userId);
 		ps.executeUpdate();
 	}

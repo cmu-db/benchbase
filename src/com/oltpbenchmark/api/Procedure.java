@@ -13,10 +13,14 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
+import com.oltpbenchmark.types.DatabaseType;
+
 public abstract class Procedure {
     private static final Logger LOG = Logger.getLogger(Procedure.class);
 
     private final String procName;
+    private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
     private final Map<SQLStmt, String> stmt_name_xref = new HashMap<SQLStmt, String>();
     private final Map<SQLStmt, PreparedStatement> prepardStatements = new HashMap<SQLStmt, PreparedStatement>();
@@ -35,7 +39,8 @@ public abstract class Procedure {
      * @return
      */
     @SuppressWarnings("unchecked")
-    protected final <T extends Procedure> T initialize() {
+    protected final <T extends Procedure> T initialize(DatabaseType dbType) {
+        this.dbType = dbType;
         this.name_stmt_xref = Procedure.getStatments(this);
         for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
             this.stmt_name_xref.put(e.getValue(), e.getKey());
@@ -48,10 +53,17 @@ public abstract class Procedure {
     
     /**
      * Return the name of this Procedure
-     * @return
      */
     protected final String getProcedureName() {
         return (this.procName);
+    }
+
+    /**
+     * Return the runtime DatabaseType for this Procedure
+     * Users should avoid invoking this directly
+     */
+    protected final DatabaseType getDatabaseType() {
+        return (this.dbType);
     }
     
     /**
@@ -91,6 +103,12 @@ public abstract class Procedure {
             String sql = stmt.getSQL();
             pStmt = (is != null ? conn.prepareStatement(sql, is) :
                                   conn.prepareStatement(sql));
+            
+            // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
+            //       one that fakes the getGeneratedKeys().
+            if (this.dbType == DatabaseType.POSTGRES) {
+                pStmt = new AutoIncrementPreparedStatement(this.dbType, pStmt);
+            }
             this.prepardStatements.put(stmt, pStmt);
         }
         assert(pStmt != null) : "Unexpected null PreparedStatement for " + stmt;

@@ -31,8 +31,6 @@ public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
             "</procedure>\n" +
             "</dialect>\n" +
             "</dialects>";
-                
-    
     
     @Override
     protected void setUp() throws Exception {
@@ -115,7 +113,7 @@ public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
         assertTrue(ret);
         Procedure proc = ClassUtil.newInstance(TARGET_PROCEDURE, new Object[0], new Class<?>[0]);
         assertNotNull(proc);
-        proc.initialize();
+        proc.initialize(DatabaseType.POSTGRES);
         proc.loadSQLDialect(dialects);
         
         // And then check to see that our target SQLStmt got its SQL changed

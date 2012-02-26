@@ -19,7 +19,6 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.distributions.ZipFianDistribution;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.Pair;
@@ -282,6 +281,8 @@ public class WikipediaLoader extends Loader {
         Set<Integer> userPages = new HashSet<Integer>();
         for (int user_id = 1; user_id <= this.num_users; user_id++) {
             int num_watches = h_numWatches.nextInt();
+            if (LOG.isTraceEnabled())
+                LOG.trace(user_id + " => " + num_watches);
             
             userPages.clear();
             for (int i = 0; i < num_watches; i++) {
@@ -300,9 +301,10 @@ public class WikipediaLoader extends Loader {
                 watchInsert.setString(param++, page.getSecond()); // wl_title
                 watchInsert.setNull(param++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
                 watchInsert.addBatch();
+                batchSize++;
             } // FOR
 
-            if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+            if (batchSize >= WikipediaConstants.BATCH_SIZE) {
                 watchInsert.executeBatch();
                 this.conn.commit();
                 watchInsert.clearBatch();
@@ -339,7 +341,7 @@ public class WikipediaLoader extends Loader {
         PreparedStatement revisionInsert = this.conn.prepareStatement(revSQL);
 
         int batchSize = 1;
-        ZipfianGenerator h_users = new ZipfianGenerator(this.num_users);
+        Zipf h_users = new Zipf(this.rng(), 1, this.num_users, WikipediaConstants.REVISION_USER_SIGMA);
         FlatHistogram<Integer> h_textLength = new FlatHistogram<Integer>(this.rng(), TextHistograms.TEXT_LENGTH);
         FlatHistogram<Integer> h_commentLength = ((WikipediaBenchmark)this.benchmark).commentLength;
         FlatHistogram<Integer> h_minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
@@ -358,7 +360,7 @@ public class WikipediaLoader extends Loader {
             for (int i = 0; i < num_revised; i++) {
                 // Generate the User who's doing the revision and the Page revised
                 // Makes sure that we always update their counter
-                int user_id = h_users.nextInt() + 1;
+                int user_id = h_users.nextInt();
                 assert(user_id > 0 && user_id <= this.num_users) : "Invalid UserId '" + user_id + "'";
                 this.user_revision_ctr[user_id-1]++;
                 

@@ -152,8 +152,8 @@ public class WikipediaWorker extends Worker {
 	        LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
-        proc.run(conn, a.textId, a.revisionId, a.pageId, new String(newText),
-                       userIp, userId, a.userText, nameSpace, pageTitle, revComment);
+        proc.run(conn, a.textId, a.pageId, pageTitle, new String(newText),
+                       nameSpace, userId, userIp, a.userText, a.revisionId, revComment);
 	}
 
 }
