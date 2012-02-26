@@ -100,14 +100,19 @@ public abstract class Procedure {
         if (pStmt == null) {
             assert(this.stmt_name_xref.containsKey(stmt)) :
                 "Unexpected SQLStmt handle in " + this.getClass().getSimpleName() + "\n" + this.name_stmt_xref;
-            String sql = stmt.getSQL();
-            pStmt = (is != null ? conn.prepareStatement(sql, is) :
-                                  conn.prepareStatement(sql));
             
             // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
             //       one that fakes the getGeneratedKeys().
-            if (this.dbType == DatabaseType.POSTGRES) {
-                pStmt = new AutoIncrementPreparedStatement(this.dbType, pStmt);
+            if (is != null && this.dbType == DatabaseType.POSTGRES) {
+                pStmt = new AutoIncrementPreparedStatement(this.dbType, conn.prepareStatement(stmt.getSQL()));
+            }
+            // Everyone else can use the regular getGeneratedKeys() method
+            else if (is != null) {
+                pStmt = conn.prepareStatement(stmt.getSQL(), is);
+            }
+            // They don't care about keys
+            else {
+                pStmt = conn.prepareStatement(stmt.getSQL());
             }
             this.prepardStatements.put(stmt, pStmt);
         }

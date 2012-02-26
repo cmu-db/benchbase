@@ -143,8 +143,10 @@ public class WikipediaWorker extends Worker {
 		String revComment = TextGenerator.randomStr(rng(), revCommentLen);
 		
 		// Permute the original text of the article
+		// Important: We have to make sure that we fill in the entire array
 		int newTextSize = a.oldText.length() + rng().nextInt(100);
 		char newText[] = new char[newTextSize];
+		TextGenerator.randomChars(rng(), newText, a.oldText.length(), newTextSize); 
         a.oldText.getChars(0, a.oldText.length(), newText, 0);
         TextGenerator.permuteText(rng(), newText);
 		

@@ -38,7 +38,7 @@ public abstract class SQLUtil {
         
         switch (dbType) {
             case POSTGRES:
-                return String.format("%s_%s_seq",
+                return String.format("pg_get_serial_sequence('%s', '%s')",
                                      catalog_tbl.getName(), catalog_col.getName());
         } // SWITCH
         return (null);

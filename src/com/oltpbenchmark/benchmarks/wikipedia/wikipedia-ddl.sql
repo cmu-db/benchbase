@@ -195,7 +195,7 @@ CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 DROP TABLE IF EXISTS text;
 CREATE TABLE text (
   old_id int NOT NULL,
-  old_text longvarchar  NOT NULL,
+  old_text longvarchar NOT NULL,
   old_flags varchar(1024) NOT NULL,
   old_page int DEFAULT NULL,
   PRIMARY KEY (old_id)

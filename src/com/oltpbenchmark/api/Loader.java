@@ -117,7 +117,7 @@ public abstract class Loader {
             case POSTGRES:
                 String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
                 assert(seqName != null);
-                sql = String.format("SELECT setval('%s', %d)", seqName.toLowerCase(), value);
+                sql = String.format("SELECT setval(%s, %d)", seqName.toLowerCase(), value);
                 break;
             default:
                 // Nothing!
@@ -129,7 +129,7 @@ public abstract class Loader {
             Statement stmt = this.conn.createStatement();
             boolean result = stmt.execute(sql);
             if (LOG.isDebugEnabled())
-                LOG.debug(String.format("[%s] %s", result, sql));
+                LOG.debug(String.format("%s => [%s]", sql, result));
         }
     }
 }

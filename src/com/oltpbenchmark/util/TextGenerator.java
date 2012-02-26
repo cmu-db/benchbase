@@ -32,6 +32,13 @@ public abstract class TextGenerator {
         return (chars);
     }
     
+    public static char[] randomChars(Random rng, char chars[], int start, int stop) {
+        for (int i = start; i < stop; i++) {
+            chars[i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+        } // FOR
+        return (chars);
+    }
+    
     /**
      * Returns a new string filled with random text
      * @param rng

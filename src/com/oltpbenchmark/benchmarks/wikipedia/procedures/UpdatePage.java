@@ -37,10 +37,10 @@ public class UpdatePage extends Procedure {
     // -----------------------------------------------------------------
     
 	public SQLStmt insertText = new SQLStmt(
-        "INSERT INTO " + WikipediaConstants.TABLENAME_USER + " (" +
+        "INSERT INTO " + WikipediaConstants.TABLENAME_TEXT + " (" +
         "old_page,old_text,old_flags" + 
         ") VALUES (" +
-        "?,?,'utf-8'" +
+        "?,?,?" +
         ")"
     ); 
 	public SQLStmt insertRevision = new SQLStmt(
@@ -123,6 +123,7 @@ public class UpdatePage extends Procedure {
 		param = 1;
 		ps.setInt(param++, pageId);
 		ps.setString(param++, pageText);
+		ps.setString(param++, "utf-8");
 		ps.execute();
 
 		rs = ps.getGeneratedKeys();

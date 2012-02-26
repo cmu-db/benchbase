@@ -421,6 +421,11 @@ public class WikipediaLoader extends Loader {
                 batchSize = 0;
             }
         } // FOR (page)
+        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+            this.updateAutoIncrement(textTable.getColumn(0), rev_id);
+            this.updateAutoIncrement(revTable.getColumn(0), rev_id);
+        }
+        
         
         // UPDATE USER
         revTable = this.getTableCatalog(WikipediaConstants.TABLENAME_USER);
@@ -447,10 +452,6 @@ public class WikipediaLoader extends Loader {
             userUpdate.executeBatch();
             this.conn.commit();
             userUpdate.clearBatch();
-        }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
-            this.updateAutoIncrement(textTable.getColumn(0), this.num_pages);
-            this.updateAutoIncrement(revTable.getColumn(0), this.num_pages);
         }
         
         // UPDATE PAGES
