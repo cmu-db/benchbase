@@ -43,6 +43,21 @@ public abstract class TextGenerator {
     }
     
     /**
+     * Returns a new string filled with random text. The first characters
+     * of the string will be filled with the prefix
+     * @param rng
+     * @param strLen
+     * @param prefix
+     * @return
+     */
+    public static String randomStr(Random rng, int strLen, String prefix) {
+        // Generate the random chars and then add in our prefix
+        char chars[] = randomChars(rng, strLen);
+        prefix.getChars(0, Math.min(prefix.length(), strLen), chars, 0);
+        return new String(chars);
+    }
+    
+    /**
      * Increase the given block of text by the delta and add random characters
      * to the new space in the array. Returns a new character array
      * @param rng

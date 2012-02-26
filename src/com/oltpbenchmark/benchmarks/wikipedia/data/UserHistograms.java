@@ -697,5 +697,5 @@ public abstract class UserHistograms {
             this.put(9742, 1);
         }
     };
-    
+
 }

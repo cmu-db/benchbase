@@ -31,6 +31,7 @@ import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
 
 /**
@@ -44,12 +45,25 @@ public abstract class Loader {
     protected final Connection conn;
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
+    private final Histogram<String> tableSizes = new Histogram<String>(true); 
     
     public Loader(BenchmarkModule benchmark, Connection conn) {
         this.benchmark = benchmark;
     	this.conn = conn;
     	this.workConf = benchmark.getWorkloadConfiguration();
     	this.scaleFactor = workConf.getScaleFactor();
+    }
+    
+    public void setTableCount(String tableName, int size) {
+        this.tableSizes.set(tableName, size);
+    }
+    
+    public void addToTableCount(String tableName, int delta) {
+        this.tableSizes.put(tableName, delta);
+    }
+    
+    public Histogram<String> getTableCounts() {
+        return (this.tableSizes);
     }
     
     public DatabaseType getDatabaseType() {
@@ -70,14 +84,6 @@ public abstract class Loader {
         return (this.benchmark.getCatalog());
     }
     
-    /**
-     * Get the number of tables loaded from the catalog
-     * @return
-     */
-    public int getTableCount() {
-        return (this.benchmark.getCatalog().getTableCount());
-    }
-	
     /**
      * Get the catalog object for the given table name
      * @param tableName

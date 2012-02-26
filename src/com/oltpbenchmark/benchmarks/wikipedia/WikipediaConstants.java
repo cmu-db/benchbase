@@ -21,7 +21,15 @@ public abstract class WikipediaConstants {
 	 * Average revision per page
 	 */
 	public static final int REVISIONS = 15;
+	
+    // ----------------------------------------------------------------
+	// DISTRIBUTION CONSTANTS
+    // ----------------------------------------------------------------
 
+	public static final double NUM_WATCHES_PER_USER_SIGMA = 1.0001d;
+	
+	public static final double WATCHLIST_PAGE_SIGMA = 1.0001d;
+	
     // ----------------------------------------------------------------
     // DATA SET INFORMATION
     // ----------------------------------------------------------------

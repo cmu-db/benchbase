@@ -217,7 +217,7 @@ CREATE TABLE value_backup (
 
 DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
-  wl_user int NOT NULL,
+  wl_user int NOT NULL REFERENCES useracct (user_id),
   wl_namespace int NOT NULL,
   wl_title varchar(255) NOT NULL,
   wl_notificationtimestamp varchar(14) DEFAULT NULL,

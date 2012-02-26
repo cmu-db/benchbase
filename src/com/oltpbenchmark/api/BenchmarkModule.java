@@ -280,10 +280,16 @@ public abstract class BenchmarkModule {
      */
     protected final void loadDatabase(Connection conn) {
         try {
-            conn.setAutoCommit(false);
             Loader loader = this.makeLoaderImpl(conn);
-            if (loader != null) loader.load();
-            conn.commit();
+            if (loader != null) {
+                conn.setAutoCommit(false);
+                loader.load();
+                conn.commit();
+                
+                if (loader.getTableCounts().isEmpty() == false) {
+                    LOG.info("Table Counts:\n" + loader.getTableCounts());
+                }
+            }
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", this.benchmarkName), ex);
         }

@@ -418,7 +418,7 @@ public class SEATSLoader extends Loader {
         
         LOG.info(String.format("Finished loading all %d tuples for %s [%d / %d]",
                                row_idx, catalog_tbl.getName(),
-                                this.finished.incrementAndGet(), this.getTableCount()));
+                                this.finished.incrementAndGet(), this.getCatalog().getTableCount()));
         return;
     }
     
