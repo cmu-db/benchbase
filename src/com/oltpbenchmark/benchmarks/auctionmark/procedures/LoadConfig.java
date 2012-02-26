@@ -37,7 +37,16 @@ public class LoadConfig extends Procedure {
         " WHERE ic_response IS NULL"
     );
     
-    public final SQLStmt getItems = new SQLStmt(
+    public final SQLStmt getPastItems = new SQLStmt(
+        "SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
+        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " +
+                    AuctionMarkConstants.TABLENAME_CONFIG_PROFILE +
+        " WHERE i_status = ? AND i_end_date <= cfp_loader_start " +
+        " ORDER BY i_end_date ASC " +
+        " LIMIT " + AuctionMarkConstants.ITEM_LOADCONFIG_LIMIT
+    );
+    
+    public final SQLStmt getFutureItems = new SQLStmt(
         "SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " +
                     AuctionMarkConstants.TABLENAME_CONFIG_PROFILE +
@@ -59,7 +68,7 @@ public class LoadConfig extends Procedure {
             if (status.isInternal()) continue;
             // We have to create a new PreparedStatement to make sure that
             // the ResultSets don't get closed if we reuse the stmt handle
-            stmt = conn.prepareStatement(getItems.getSQL());
+            stmt = conn.prepareStatement((status == ItemStatus.OPEN ? getFutureItems : getPastItems).getSQL());
             stmt.setLong(1, status.ordinal());
             results.add(stmt.executeQuery());
         } // FOR

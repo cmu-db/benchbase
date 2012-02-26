@@ -21,10 +21,11 @@
         </procedure>
         <procedure name="LoadConfig">
             <statement name="getConfigProfile">SELECT * FROM "CONFIG_PROFILE"</statement>
-            <statement name="getItems">SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status   FROM "ITEM" WHERE i_status = ?  ORDER BY i_end_date ASC  LIMIT 5000</statement>
             <statement name="getPendingComments">SELECT ic_id, ic_i_id, ic_u_id, ic_buyer_id   FROM "ITEM_COMMENT" WHERE ic_response IS NULL</statement>
             <statement name="getCategoryCounts">SELECT i_c_id, COUNT(i_id) FROM "ITEM" GROUP BY i_c_id</statement>
             <statement name="getAttributes">SELECT gag_id FROM "GLOBAL_ATTRIBUTE_GROUP"</statement>
+            <statement name="getPastItems">SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status FROM "ITEM", "CONFIG_PROFILE" WHERE i_status = ? AND i_end_date &lt;= cfp_loader_start  ORDER BY i_end_date ASC  LIMIT 5000</statement>
+            <statement name="getFutureItems">SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status FROM "ITEM", "CONFIG_PROFILE" WHERE i_status = ? AND i_end_date &gt; cfp_loader_start  ORDER BY i_end_date ASC  LIMIT 5000</statement>
         </procedure>
         <procedure name="NewBid">
             <statement name="updateItemMaxBid">UPDATE "ITEM_MAX_BID"   SET imb_ib_id = ?,        imb_ib_i_id = ?,        imb_ib_u_id = ?,        imb_updated = ?  WHERE imb_i_id = ?    AND imb_u_id = ?</statement>
@@ -75,7 +76,6 @@
         </procedure>
         <procedure name="ResetDatabase">
             <statement name="deleteItemPurchases">DELETE FROM "ITEM_PURCHASE" WHERE ip_date &gt; ?</statement>
-            <statement name="deleteItems">DELETE FROM "ITEM" WHERE i_created > &gt; ?</statement>
             <statement name="resetItems">UPDATE "ITEM" SET i_status = ?, i_updated = ? WHERE i_status != ? AND i_updated &gt; ?</statement>
             <statement name="getLoaderStop">SELECT cfp_loader_stop FROM "CONFIG_PROFILE"</statement>
         </procedure>
@@ -88,22 +88,8 @@
     </dialect>
     <dialect type="SQLSERVER">
         <procedure name="LoadConfig">
-            <statement name="getItems">
-                SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status
-                FROM ITEM
-                WHERE i_status = ?
-                ORDER BY i_iattr0
-            </statement>
-        </procedure>
-    </dialect>
-    <dialect type="SQLSERVER">
-        <procedure name="LoadConfig">
-            <statement name="getItems">
-                SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status
-                FROM ITEM
-                WHERE i_status = ?
-                ORDER BY i_iattr0
-            </statement>
+            <statement name="getPastItems">SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status FROM ITEM, CONFIG_PROFILE WHERE i_status = ? AND i_end_date &lt;= cfp_loader_start  ORDER BY i_end_date ASC</statement>
+            <statement name="getFutureItems">SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status FROM ITEM, CONFIG_PROFILE WHERE i_status = ? AND i_end_date &gt; cfp_loader_start  ORDER BY i_end_date ASC</statement>
         </procedure>
     </dialect>
 </dialects>

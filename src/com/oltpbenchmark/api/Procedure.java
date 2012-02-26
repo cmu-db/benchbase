@@ -125,7 +125,7 @@ public abstract class Procedure {
             "There are no SQLStmts for Procedure " + this.procName + "?";
         for (String stmtName : stmtNames) {
             assert(this.name_stmt_xref.containsKey(stmtName)) :
-                String.format("Unexpected Statement %s in dialects for Procedure %s\n%s",
+                String.format("Unexpected Statement '%s' in dialects for Procedure %s\n%s",
                               stmtName, this.procName, this.stmt_name_xref.keySet());
 			String sql = dialects.getSQL(this.procName, stmtName);
 			assert(sql != null);
