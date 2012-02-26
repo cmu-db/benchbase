@@ -137,7 +137,8 @@ public class NewOrder extends Procedure {
 		int ol_supply_w_id, ol_i_id, ol_quantity;
 		int s_remote_cnt_increment;
 		float ol_amount, total_amount = 0;
-
+		try
+		{
 			stmtGetCustWhse.setInt(1, w_id);
 			stmtGetCustWhse.setInt(2, w_id);
 			stmtGetCustWhse.setInt(3, d_id);
@@ -181,7 +182,6 @@ public class NewOrder extends Procedure {
 						"Error!! Cannot update next_order_id on district for D_ID="
 								+ d_id + " D_W_ID=" + w_id);
 
-		
 			stmtInsertOOrder.setInt(1, o_id);
 			stmtInsertOOrder.setInt(2, d_id);
 			stmtInsertOOrder.setInt(3, w_id);
@@ -305,8 +305,6 @@ public class NewOrder extends Procedure {
 					break;
 				}
 
-				
-				
 				stmtInsertOrderLine.setInt(1, o_id);
 				stmtInsertOrderLine.setInt(2, d_id);
 				stmtInsertOrderLine.setInt(3, w_id);
@@ -322,13 +320,20 @@ public class NewOrder extends Procedure {
 
 			stmtInsertOrderLine.executeBatch();
 			stmtUpdateStock.executeBatch();
-			conn.commit();
-			stmtInsertOrderLine.clearBatch();
-			stmtUpdateStock.clearBatch();
 
 			total_amount *= (1 + w_tax + d_tax) * (1 - c_discount);
+		} catch(UserAbortException userEx)
+		{
+		    LOG.debug("Caught an expected error in New Order");
+		    throw userEx;
+		}
+	    finally {
+            if (stmtInsertOrderLine != null)
+                stmtInsertOrderLine.clearBatch();
+              if (stmtUpdateStock != null)
+                stmtUpdateStock.clearBatch();
+        }
 
 	}
-    
     
 }

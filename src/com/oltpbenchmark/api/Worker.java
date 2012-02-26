@@ -218,7 +218,7 @@ public abstract class Worker implements Runnable {
 	    final DatabaseType dbType = wrkld.getDBType();
 	    
 	    try {
-    	    while (status == TransactionStatus.RETRY && this.testState.getState() != State.DONE) {
+    	    while (status == TransactionStatus.RETRY) {
     	        if (next == null)
     	            next = transactionTypes.getType(phase.chooseTransaction());
     	        assert(next.isSupplemental() == false) :
@@ -238,11 +238,10 @@ public abstract class Worker implements Runnable {
         	            case SUCCESS:
         	                this.txnSuccess.put(next);
         	                if (LOG.isDebugEnabled()) 
-                                LOG.debug("Executed a new invocation of " + next);
+                                LOG.debug(this.id+" Executed a new invocation of " + next);
         	                break;
         	            case RETRY_DIFFERENT:
         	                this.txnRetry.put(next);
-        	                status = TransactionStatus.RETRY;
         	                next = null;
         	                continue;
         	            case RETRY:
@@ -255,8 +254,7 @@ public abstract class Worker implements Runnable {
     	        // User Abort Handling
     	        // These are not errors
         	    } catch (UserAbortException ex) {
-                    if (LOG.isDebugEnabled())
-                        LOG.debug(next + " Aborted", ex);
+                    if (LOG.isDebugEnabled()) LOG.debug(next + " Aborted", ex);
                     
                     /* PAVLO
                     Histogram<String> error_h = txnAbortMessages.get(next);
@@ -278,8 +276,11 @@ public abstract class Worker implements Runnable {
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                                        
-                    //TODO: Handle acceptable error codes for every DBMS
-                    if(LOG.isDebugEnabled()) LOG.debug(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    //TODO: Handle acceptable error codes for every DBMS     
+                    if (LOG.isDebugEnabled()) LOG.debug(this.id+" " + next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    //FIXME: Retry anyway !
+                    this.txnRetry.put(next);
+                    
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);
                     } else {
@@ -306,9 +307,9 @@ public abstract class Worker implements Runnable {
                         continue;
                     } 
                     
-                    // UNKNOWN: Just keep going ..
+                    // UNKNOWN: In this case .. Retry as well!
                     else {
-                        if (LOG.isDebugEnabled()) LOG.debug(ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
+                        continue;
                         //FIXME Disable this for now
                         // throw ex;
                     }
