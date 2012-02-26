@@ -136,7 +136,7 @@ CREATE TABLE recentchanges (
   rc_id int NOT NULL,
   rc_timestamp varbinary(14) NOT NULL,
   rc_cur_time varbinary(14) NOT NULL,
-  rc_user int NOT NULL REFERENCES useracct (user_id),
+  rc_user int NOT NULL,
   rc_user_text varbinary(255) NOT NULL,
   rc_namespace int NOT NULL,
   rc_title varbinary(255) NOT NULL,
@@ -176,7 +176,7 @@ CREATE TABLE revision (
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment varchar(1024) NOT NULL,
-  rev_user int NOT NULL REFERENCES useracct (user_id),
+  rev_user int NOT NULL,
   rev_user_text varchar(255) NOT NULL,
   rev_timestamp binary(14) NOT NULL,
   rev_minor_edit tinyint NOT NULL,
@@ -217,7 +217,7 @@ CREATE TABLE value_backup (
 
 DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
-  wl_user int NOT NULL REFERENCES useracct (user_id),
+  wl_user int NOT NULL,
   wl_namespace int NOT NULL,
   wl_title varchar(255) NOT NULL,
   wl_notificationtimestamp varchar(14) DEFAULT NULL,

@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
-import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.catalog.Table;
@@ -117,7 +116,7 @@ public class WikipediaLoader extends Loader {
         
         PrintStream ps = new PrintStream(file);
         for (int i = 0, cnt = (b.getTraceSize() * 1000); i < cnt; i++) {
-            int user_id = rng().nextInt(this.num_users);
+            int user_id = rng().nextInt(this.num_users) + 1;
             // lets 10% be unauthenticated users
             if (user_id % 10 == 0) {
                 user_id = 0;
@@ -344,7 +343,7 @@ public class WikipediaLoader extends Loader {
         Zipf h_users = new Zipf(this.rng(), 1, this.num_users, WikipediaConstants.REVISION_USER_SIGMA);
         FlatHistogram<Integer> h_textLength = new FlatHistogram<Integer>(this.rng(), TextHistograms.TEXT_LENGTH);
         FlatHistogram<Integer> h_commentLength = ((WikipediaBenchmark)this.benchmark).commentLength;
-        FlatHistogram<Integer> h_minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
+        FlatHistogram<Integer> h_minorEdit = ((WikipediaBenchmark)this.benchmark).minorEdit;
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
 

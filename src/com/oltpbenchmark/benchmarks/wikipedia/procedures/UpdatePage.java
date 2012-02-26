@@ -45,10 +45,18 @@ public class UpdatePage extends Procedure {
     ); 
 	public SQLStmt insertRevision = new SQLStmt(
         "INSERT INTO " + WikipediaConstants.TABLENAME_REVISION + " (" +
-		"rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user," +
-        "rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id" +
+		"rev_page, " +
+		"rev_text_id, " +
+		"rev_comment, " +
+		"rev_minor_edit, " +
+		"rev_user, " +
+        "rev_user_text, " +
+        "rev_timestamp, " +
+        "rev_deleted, " +
+        "rev_len, " +
+        "rev_parent_id" +
 		") VALUES (" +
-        "?, ?, ? ,'0',?, ?, ? ,'0',?,?" +
+        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
 		")"
 	);
 	public SQLStmt updatePage = new SQLStmt(
@@ -58,13 +66,26 @@ public class UpdatePage extends Procedure {
     );
 	public SQLStmt insertRecentChanges = new SQLStmt(
         "INSERT INTO " + WikipediaConstants.TABLENAME_RECENTCHANGES + " (" + 
-	    "rc_timestamp, rc_cur_time, rc_namespace, rc_title, rc_type, " +
-        "rc_minor, rc_cur_id, rc_user, rc_user_text, rc_comment, rc_this_oldid, " +
-	    "rc_last_oldid, rc_bot, rc_moved_to_ns, rc_moved_to_title, rc_ip,rc_patrolled, " +
-        "rc_new, rc_old_len, rc_new_len,rc_deleted, rc_logid," + 
-        "rc_log_type,rc_log_action,rc_params" +
+	    "rc_timestamp, " +
+	    "rc_cur_time, " +
+	    "rc_namespace, " +
+	    "rc_title, " +
+	    "rc_type, " +
+        "rc_minor, " +
+        "rc_cur_id, " +
+        "rc_user, " +
+        "rc_user_text, " +
+        "rc_comment, " +
+        "rc_this_oldid, " +
+	    "rc_last_oldid, " +
+	    "rc_bot, " +
+	    "rc_moved_to_ns, " +
+	    "rc_moved_to_title, " +
+	    "rc_ip, " +
+        "rc_old_len, " +
+        "rc_new_len " +
         ") VALUES (" +
-        "?, ?, ? , ? ,'0','0', ? , ? , ? ,'', ? , ? ,'0','0','',?,'1','0', ? , ? ,'0','0',NULL,'',''" +
+        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
         ")"
     );
 	public SQLStmt selectWatchList = new SQLStmt(
@@ -110,7 +131,7 @@ public class UpdatePage extends Procedure {
 	public void run(Connection conn, int textId, int pageId,
 	                                 String pageTitle, String pageText, int pageNamespace,
 	                                 int userId, String userIp, String userText,
-	                                 int revisionId, String revComment) throws SQLException {
+	                                 int revisionId, String revComment, int revMinorEdit) throws SQLException {
 
 	    boolean adv;
 	    PreparedStatement ps = null;
@@ -136,20 +157,26 @@ public class UpdatePage extends Procedure {
 		// INSERT NEW REVISION
 		ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1});
 		param = 1;
-		ps.setInt(param++, pageId);
-		ps.setInt(param++, nextTextId);
-		ps.setString(param++, revComment);
-		ps.setInt(param++, userId);
-		ps.setString(param++, userText);
-		ps.setString(param++, timestamp);
-		ps.setInt(param++, pageText.length());
-		ps.setInt(param++, revisionId);
-		ps.executeUpdate();
+		ps.setInt(param++, pageId);       // rev_page
+		ps.setInt(param++, nextTextId);   // rev_text_id
+		ps.setString(param++, revComment);// rev_comment
+		ps.setInt(param++, revMinorEdit); // rev_minor_edit
+		ps.setInt(param++, userId);       // rev_user
+		ps.setString(param++, userText);  // rev_user_text
+		ps.setString(param++, timestamp); // rev_timestamp
+		ps.setInt(param++, 0);            // rev_deleted
+		ps.setInt(param++, pageText.length()); // rev_len
+		ps.setInt(param++, revisionId);   // rev_parent_id
+		try {
+		    ps.execute();
+		} catch (SQLException ex) {
+		    System.err.println("UserId=" + userId);
+		    throw ex;
+		}
 		
 		rs = ps.getGeneratedKeys();
 		adv = rs.next();
 		int nextRevId = rs.getInt(1);
-		System.err.println(this.getDatabaseType() + " NEXT: " + nextRevId);
 		rs.close();
 		assert(nextRevId >= 0) : "Invalid nextRevID (" + nextRevId + ")";
 
@@ -170,18 +197,25 @@ public class UpdatePage extends Procedure {
 		// st.addBatch(sql);
 
 		ps = this.getPreparedStatement(conn, insertRecentChanges);
-		ps.setString(param++, timestamp);
-		ps.setString(param++, timestamp);
-		ps.setInt(param++, pageNamespace);
-		ps.setString(param++, pageTitle);
-		ps.setInt(param++, pageId);
-		ps.setInt(param++, userId);
-		ps.setString(param++, userText);
-		ps.setInt(param++, nextTextId);
-		ps.setInt(param++, textId);
-		ps.setString(param++, userIp);
-		ps.setInt(param++, pageText.length());
-		ps.setInt(param++, pageText.length());
+		param = 1;
+		ps.setString(param++, timestamp);     // rc_timestamp
+		ps.setString(param++, timestamp);     // rc_cur_time
+		ps.setInt(param++, pageNamespace);    // rc_namespace
+		ps.setString(param++, pageTitle);     // rc_title
+		ps.setInt(param++, 0);                // rc_type
+		ps.setInt(param++, 0);                // rc_minor
+		ps.setInt(param++, pageId);           // rc_cur_id
+		ps.setInt(param++, userId);           // rc_user
+		ps.setString(param++, userText);      // rc_user_text
+		ps.setString(param++, revComment);    // rc_comment
+		ps.setInt(param++, nextTextId);       // rc_this_oldid
+		ps.setInt(param++, textId);           // rc_last_oldid
+		ps.setInt(param++, 0);                // rc_bot
+		ps.setInt(param++, 0);                // rc_moved_to_ns
+		ps.setString(param++, "");            // rc_moved_to_title
+		ps.setString(param++, userIp);        // rc_ip
+		ps.setInt(param++, pageText.length());// rc_old_len
+        ps.setInt(param++, pageText.length());// rc_new_len
 		int count = ps.executeUpdate();
 		assert(count == 1);
 
@@ -197,9 +231,9 @@ public class UpdatePage extends Procedure {
 		ps.setInt(param++, userId);
 		rs = ps.executeQuery();
 
-		ArrayList<String> wlUser = new ArrayList<String>();
+		ArrayList<Integer> wlUser = new ArrayList<Integer>();
 		while (rs.next()) {
-			wlUser.add(rs.getString(1));
+			wlUser.add(rs.getInt(1));
 		}
 		rs.close();
 
@@ -214,13 +248,15 @@ public class UpdatePage extends Procedure {
 			conn.commit();
 
 			ps = this.getPreparedStatement(conn, updateWatchList);
-			ps.setString(1, timestamp);
-			ps.setInt(3, pageNamespace);
-			for (String t : wlUser) {
-				ps.setString(2, pageTitle);
-				ps.setString(4, t);
-				ps.executeUpdate();
-			}
+			param = 1;
+			ps.setString(param++, timestamp);
+			ps.setString(param++, pageTitle);
+			ps.setInt(param++, pageNamespace);
+			for (Integer otherUserId : wlUser) {
+				ps.setInt(param, otherUserId.intValue());
+				ps.addBatch();
+			} // FOR
+			ps.executeUpdate();
 
 			// NOTE: this commit is skipped if none is watching the page, and
 			// the transaction merge with the following one
@@ -233,14 +269,14 @@ public class UpdatePage extends Procedure {
 
 			// This seems to be executed only if the page is watched, and once
 			// for each "watcher"
-			for (String t : wlUser) {
-				ps = this.getPreparedStatement(conn, selectUser);
-				param = 1;
-				ps.setString(param++,t);
+			ps = this.getPreparedStatement(conn, selectUser);
+            param = 1;
+			for (Integer otherUserId : wlUser) {
+				ps.setInt(param, otherUserId.intValue());
 				rs = ps.executeQuery();
 				rs.next();
 				rs.close();
-			}
+			} // FOR
 		}
 
 		// This is always executed, sometimes as a separate transaction,

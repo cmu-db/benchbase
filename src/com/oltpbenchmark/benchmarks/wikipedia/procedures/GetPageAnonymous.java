@@ -31,6 +31,10 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
 public class GetPageAnonymous extends Procedure {
 	
+    // -----------------------------------------------------------------
+    // STATEMENTS
+    // -----------------------------------------------------------------
+    
 	public SQLStmt selectPage = new SQLStmt(
         "SELECT * FROM " + WikipediaConstants.TABLENAME_PAGE + 
         " WHERE page_namespace = ? AND page_title = ? LIMIT 1"
@@ -58,30 +62,32 @@ public class GetPageAnonymous extends Procedure {
         " WHERE old_id = ? LIMIT 1"
     );
 
-	public Article run(Connection conn, boolean forSelect, String userIp,
-			int nameSpace, String pageTitle) throws UserAbortException, SQLException {		
+	// -----------------------------------------------------------------
+    // RUN
+    // -----------------------------------------------------------------
 	
-		PreparedStatement st = this.getPreparedStatement(conn,selectPage);
-        st.setInt(1, nameSpace);
-        st.setString(2, pageTitle);
+	public Article run(Connection conn, boolean forSelect, String userIp,
+			                            int pageNamespace, String pageTitle) throws UserAbortException, SQLException {		
+	    int param = 1;
+	    
+		PreparedStatement st = this.getPreparedStatement(conn, selectPage);
+        st.setInt(param++, pageNamespace);
+        st.setString(param++, pageTitle);
         ResultSet rs = st.executeQuery();
-
         if (!rs.next()) {
-            throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
+            String msg = String.format("Invalid Page: Namespace:%d / Title:--%s--", pageNamespace, pageTitle);
+            throw new UserAbortException(msg);
         }
-        int pageId = rs.getInt("page_id");
-        assert !rs.next();
-        // st.close();
+        int pageId = rs.getInt(1);
         rs.close();
 
         st = this.getPreparedStatement(conn, selectPageRestriction);
         st.setInt(1, pageId);
         rs = st.executeQuery();
-        int restrictionsCount = 0;
         while (rs.next()) {
-            // byte[] pr_type = rs.getBytes(1);
-            restrictionsCount += 1;
-        }
+            byte[] pr_type = rs.getBytes(1);
+            assert(pr_type != null);
+        } // WHILE
         rs.close();
         // check using blocking of a user by either the IP address or the
         // user_name
@@ -89,20 +95,19 @@ public class GetPageAnonymous extends Procedure {
         st = this.getPreparedStatement(conn, selectIpBlocks);
 		st.setString(1, userIp);
         rs = st.executeQuery();
-        int blockCount = 0;
         while (rs.next()) {
-            // byte[] ipb_expiry = rs.getBytes(11);
-            blockCount += 1;
-        }
+            byte[] ipb_expiry = rs.getBytes(11);
+            assert(ipb_expiry != null);
+        } // WHILE
         rs.close();
-        // st.close();
 
         st = this.getPreparedStatement(conn, selectPageRevision);
         st.setInt(1, pageId);
         st.setInt(2, pageId);
         rs = st.executeQuery();
         if (!rs.next()) {
-            String msg = "No such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle; 
+            String msg = String.format("Invalid Page: Namespace:%d / Title:--%s-- / PageId:%d",
+                                       pageNamespace, pageTitle, pageId);
             throw new UserAbortException(msg);
         }
 
@@ -120,7 +125,7 @@ public class GetPageAnonymous extends Procedure {
         st.setInt(1, textId);
         rs = st.executeQuery();
         if (!rs.next()) {
-            String msg = "No such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle;
+            String msg = "No such text: " + textId + " for page_id:" + pageId + " page_namespace: " + pageNamespace + " page_title:" + pageTitle;
             throw new UserAbortException(msg);
         }
         Article a = null;

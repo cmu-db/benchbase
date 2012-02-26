@@ -114,7 +114,7 @@ CREATE TABLE page_restrictions (
   pr_type varchar(60) NOT NULL,
   pr_level varchar(60) NOT NULL,
   pr_cascade smallint NOT NULL,
-  pr_user int DEFAULT NULL REFERENCES useracct (user_id),
+  pr_user int DEFAULT NULL,
   pr_expiry varchar(14) DEFAULT NULL,
   pr_id int NOT NULL,
   PRIMARY KEY (pr_id),
@@ -168,7 +168,7 @@ CREATE TABLE revision (
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment text NOT NULL,
-  rev_user int NOT NULL DEFAULT '0' REFERENCES useracct (user_id),
+  rev_user int NOT NULL DEFAULT '0',
   rev_user_text varchar(255) NOT NULL DEFAULT '',
   rev_timestamp varchar(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
   rev_minor_edit smallint NOT NULL DEFAULT '0',
@@ -195,7 +195,7 @@ CREATE TABLE text (
 
 DROP TABLE IF EXISTS user_groups;
 CREATE TABLE user_groups (
-  ug_user int NOT NULL DEFAULT '0' REFERENCES useracct (user_id),
+  ug_user int NOT NULL DEFAULT '0',
   ug_group varchar(16) NOT NULL DEFAULT '',
   UNIQUE (ug_user,ug_group)
 );
@@ -209,7 +209,7 @@ CREATE TABLE value_backup (
 
 DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
-  wl_user int NOT NULL REFERENCES useracct (user_id),
+  wl_user int NOT NULL,
   wl_namespace int NOT NULL DEFAULT '0',
   wl_title varchar(255) NOT NULL DEFAULT '',
   wl_notificationtimestamp varchar(14) DEFAULT NULL,

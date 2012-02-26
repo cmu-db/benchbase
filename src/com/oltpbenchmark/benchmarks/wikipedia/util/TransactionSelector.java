@@ -63,7 +63,9 @@ public class TransactionSelector {
 
 	        int user = Integer.parseInt(sa[0]);
 	        int namespace = Integer.parseInt(sa[1]);
-	        String title = sa[2];
+	        
+	        int startIdx = sa[0].length() + sa[1].length() + 2;
+	        String title = line.substring(startIdx, startIdx + line.length()-startIdx);
 	        transactions.add(new WikipediaOperation(user, namespace, title));
 		} // WHILE
 		this.reader.close();
