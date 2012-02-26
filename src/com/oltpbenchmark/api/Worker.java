@@ -218,7 +218,7 @@ public abstract class Worker implements Runnable {
 	    final DatabaseType dbType = wrkld.getDBType();
 	    
 	    try {
-    	    while (status == TransactionStatus.RETRY) {
+    	    while (status == TransactionStatus.RETRY && this.testState.getState() != State.DONE) {
     	        if (next == null)
     	            next = transactionTypes.getType(phase.chooseTransaction());
     	        assert(next.isSupplemental() == false) :

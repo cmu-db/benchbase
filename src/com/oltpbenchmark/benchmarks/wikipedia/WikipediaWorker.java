@@ -61,10 +61,16 @@ public class WikipediaWorker extends Worker {
         
         // AddWatchList
         if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
+            if (t.userId == 0) {
+                return TransactionStatus.RETRY;
+            }
             addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
         }
         // RemoveWatchList
         else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
+            if (t.userId == 0) {
+                return TransactionStatus.RETRY;
+            }
             removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
         }
         // UpdatePage

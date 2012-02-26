@@ -31,20 +31,28 @@ import com.oltpbenchmark.util.TimeUtil;
 
 public class AddWatchList extends Procedure {
 
+    // -----------------------------------------------------------------
+    // STATEMENTS
+    // -----------------------------------------------------------------
+    
     public SQLStmt insertWatchList = new SQLStmt(
-        "INSERT IGNORE INTO " + WikipediaConstants.TABLENAME_WATCHLIST + " (" + 
-        "wl_user,wl_namespace,wl_title,wl_notificationtimestamp" +
+        "INSERT INTO " + WikipediaConstants.TABLENAME_WATCHLIST + " (" + 
+        "wl_user, wl_namespace, wl_title, wl_notificationtimestamp" +
         ") VALUES (" +
         "?,?,?,NULL" +
         ")"
     );
    
     public SQLStmt setUserTouched = new SQLStmt(
-        "UPDATE " + WikipediaConstants.TABLENAME_USER + " SET user_touched = ? WHERE user_id = ?"
-    );    
+        "UPDATE " + WikipediaConstants.TABLENAME_USER + 
+        "   SET user_touched = ? WHERE user_id = ?"
+    );
+    
+    // -----------------------------------------------------------------
+    // RUN
+    // -----------------------------------------------------------------
 	
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
-        assert userId!=0;
 		if (userId > 0) {
 		    // TODO: find a way to by pass Unique constraints in SQL server (Replace, Merge ..?)
 		    // Here I am simply catching the right excpetion and move on.
@@ -67,7 +75,7 @@ public class AddWatchList extends Procedure {
 		        {
     				// if regular page, also add a line of
     				// watchlist for the corresponding talk page
-    			    PreparedStatement ps =this.getPreparedStatement(conn, insertWatchList);
+    			    PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList);
     				ps.setInt(1, userId);
     				ps.setInt(2, 1);
     				ps.setString(3, pageTitle);
@@ -79,8 +87,8 @@ public class AddWatchList extends Procedure {
 	            }
 			}
 
-			PreparedStatement ps= this.getPreparedStatement(conn, setUserTouched);
-			ps.setString(1,TimeUtil.getCurrentTimeString14());
+			PreparedStatement ps = this.getPreparedStatement(conn, setUserTouched);
+			ps.setString(1, TimeUtil.getCurrentTimeString14());
 			ps.setInt(2, userId);
 			ps.executeUpdate();
 		}
