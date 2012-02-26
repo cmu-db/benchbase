@@ -725,7 +725,7 @@ public class AuctionMarkLoader extends Loader {
         public void init() {
             for (Category category : this.categoryMap.values()) {
                 if (category.isLeaf()) {
-                    profile.item_category_histogram.put((long)category.getCategoryID(), category.getItemCount());
+                    profile.items_per_category.put(category.getCategoryID(), category.getItemCount());
                 }
                 this.categories.add(category);
             } // FOR
@@ -888,11 +888,11 @@ public class AuctionMarkLoader extends Loader {
                        AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_SIGMA);
             for (long i = 0; i < this.tableSize; i++) {
                 long num_items = randomNumItems.nextInt();
-                profile.users_per_item_count.put(num_items);
+                profile.users_per_itemCount.put(num_items);
             } // FOR
              if (LOG.isDebugEnabled())
-                LOG.debug("Users Per Item Count:\n" + profile.users_per_item_count);
-            this.idGenerator = new UserIdGenerator(profile.users_per_item_count, benchmark.getWorkloadConfiguration().getTerminals());
+                LOG.debug("Users Per Item Count:\n" + profile.users_per_itemCount);
+            this.idGenerator = new UserIdGenerator(profile.users_per_itemCount, benchmark.getWorkloadConfiguration().getTerminals());
             assert(this.idGenerator.hasNext());
         }
         @Override
@@ -993,8 +993,8 @@ public class AuctionMarkLoader extends Loader {
         public void init() {
             super.init();
             this.tableSize = 0l;
-            for (Long size : profile.users_per_item_count.values()) {
-                this.tableSize += size.intValue() * profile.users_per_item_count.get(size);
+            for (Long size : profile.users_per_itemCount.values()) {
+                this.tableSize += size.intValue() * profile.users_per_itemCount.get(size);
             } // FOR
         }
         @Override

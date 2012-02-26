@@ -35,11 +35,6 @@ public class ResetDatabase extends Procedure {
         "   AND i_updated > ? "
     );
     
-    public final SQLStmt deleteItems = new SQLStmt(
-        "DELETE FROM " + AuctionMarkConstants.TABLENAME_ITEM +
-        " WHERE i_created > ?"
-    );
-    
     public final SQLStmt deleteItemPurchases = new SQLStmt(
         "DELETE FROM " + AuctionMarkConstants.TABLENAME_ITEM_PURCHASE +
         " WHERE ip_date > ?"
@@ -66,6 +61,7 @@ public class ResetDatabase extends Procedure {
         if (LOG.isDebugEnabled())
             LOG.debug(AuctionMarkConstants.TABLENAME_ITEM + " Reset: " + updated);
         
+        // Reset ITEM_PURCHASE
         stmt = this.getPreparedStatement(conn, deleteItemPurchases, loaderStop);
         updated = stmt.executeUpdate();
         if (LOG.isDebugEnabled())

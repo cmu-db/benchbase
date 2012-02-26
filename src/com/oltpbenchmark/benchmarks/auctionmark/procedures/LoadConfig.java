@@ -23,7 +23,8 @@ public class LoadConfig extends Procedure {
     );
     
     public final SQLStmt getCategoryCounts = new SQLStmt(
-        "SELECT i_c_id, COUNT(i_id) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " GROUP BY i_c_id"
+        "SELECT i_c_id, COUNT(i_id) FROM " + AuctionMarkConstants.TABLENAME_ITEM +
+        " GROUP BY i_c_id"
     );
     
     public final SQLStmt getAttributes = new SQLStmt(
@@ -38,8 +39,9 @@ public class LoadConfig extends Procedure {
     
     public final SQLStmt getItems = new SQLStmt(
         "SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status " +
-        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
-        " WHERE i_status = ? " +
+        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " +
+                    AuctionMarkConstants.TABLENAME_CONFIG_PROFILE +
+        " WHERE i_status = ? AND i_end_date > cfp_loader_start " +
         " ORDER BY i_end_date ASC " +
         " LIMIT " + AuctionMarkConstants.ITEM_LOADCONFIG_LIMIT
     );

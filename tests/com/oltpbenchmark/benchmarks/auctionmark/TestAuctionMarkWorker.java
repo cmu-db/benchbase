@@ -48,12 +48,12 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
             // Get the uninitialized profile
             AuctionMarkProfile profile = worker.getProfile();
             assertNotNull(profile);
-            assertTrue(profile.users_per_item_count.isEmpty());
+            assertTrue(profile.users_per_itemCount.isEmpty());
             
             // Then try to initialize it
             profile.loadProfile(worker);
-            assertFalse(profile.users_per_item_count.isEmpty());
-            int num_users = profile.users_per_item_count.getSampleCount();
+            assertFalse(profile.users_per_itemCount.isEmpty());
+            int num_users = profile.users_per_itemCount.getSampleCount();
             if (last_num_users != null)
                 assertEquals(last_num_users.intValue(), num_users);
             else {

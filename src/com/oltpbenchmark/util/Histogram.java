@@ -57,6 +57,7 @@ public class Histogram<X> implements JSONSerializable {
     
     protected final SortedMap<X, Integer> histogram = new TreeMap<X, Integer>();
     protected int num_samples = 0;
+    private transient boolean dirty = false;
     
     /**
      * 
@@ -154,12 +155,11 @@ public class Histogram<X> implements JSONSerializable {
                     if (this.histogram.get(key) == 0) {
                         it.remove();
                         ctr++;
+                        this.dirty = true;
                     }
                 } // WHILE
-                if (ctr > 0) {
+                if (ctr > 0)
                     LOG.debug("Removed " + ctr + " zero entries from histogram");
-                    this.calculateInternalValues();
-                }
             } // SYNCHRONIZED
         }
         this.keep_zero_entries = flag;
@@ -192,6 +192,7 @@ public class Histogram<X> implements JSONSerializable {
         } else {
             this.histogram.put(value, count);
         }
+        this.dirty = true;
     }
 
     /**
@@ -200,6 +201,8 @@ public class Histogram<X> implements JSONSerializable {
      */
     @SuppressWarnings("unchecked")
     private synchronized void calculateInternalValues() {
+        if (this.dirty == false) return;
+        
         // New Min/Max Counts
         // The reason we have to loop through and check every time is that our 
         // value may be the current min/max count and thus it may or may not still
@@ -234,6 +237,7 @@ public class Histogram<X> implements JSONSerializable {
                 this.max_count = cnt;
             }
         } // FOR
+        this.dirty = false;
     }
     
     
@@ -358,6 +362,7 @@ public class Histogram<X> implements JSONSerializable {
         if (this.max_count_values != null) this.max_count_values.clear();
         this.max_value = null;
         assert(this.histogram.isEmpty());
+        this.dirty = true;
     }
     
     /**
@@ -379,6 +384,7 @@ public class Histogram<X> implements JSONSerializable {
         } else {
             this.clear();
         }
+        this.dirty = true;
     }
     
     /**
@@ -484,7 +490,6 @@ public class Histogram<X> implements JSONSerializable {
         Integer cnt = this.histogram.get(value);
         if (cnt != null && cnt > 0) {
             this._put(value, cnt * -1);
-//            this.calculateInternalValues();
         }
     }
     
@@ -517,7 +522,6 @@ public class Histogram<X> implements JSONSerializable {
         for (Entry<X, Integer> e : other.histogram.entrySet()) {
             if (e.getValue() > 0) this._put(e.getKey(), -1 * e.getValue());
         } // FOR
-//        this.calculateInternalValues();
     }
 
     /**
@@ -528,7 +532,7 @@ public class Histogram<X> implements JSONSerializable {
      */
     public Integer get(X value) {
         Integer count = histogram.get(value); 
-        return (count); //  == null ? 0 : count);
+        return (count);
     }
     
     /**
@@ -697,6 +701,7 @@ public class Histogram<X> implements JSONSerializable {
             }
         } // FOR
         
+        this.dirty = true;
         this.calculateInternalValues();
     }
 }

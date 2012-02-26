@@ -27,20 +27,24 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 
+import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 
 public class UserIdGenerator implements Iterator<UserId> {
 
     private final int numClients;
     private final Integer clientId;
-    private final int users_per_item_count[];
-    private final int min_count;
+    private final int usersPerItemCounts[];
+    private final int minItemCount;
     private final int maxItemCount;
-    private final long totaUsers;
+    private final long totalUsers;
     
     private UserId next = null;
     private int currentItemCount = -1;
@@ -65,24 +69,22 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.numClients = numClients;
         this.clientId = clientId;
         
-        Long max_value = users_per_item_count.getMaxValue();
-        if (max_value == null) max_value = users_per_item_count.getMaxValue();
-        assert(max_value != null) :
+        Long temp = users_per_item_count.getMaxValue();
+        if (temp == null) temp = users_per_item_count.getMaxValue();
+        assert(temp != null) :
             "Invalid Users Per Item Histogram:\n" + users_per_item_count;
-        this.users_per_item_count = new int[max_value.intValue()+2];
-        for (int i = 0; i < this.users_per_item_count.length; i++) {
-            this.users_per_item_count[i] = users_per_item_count.get((long)i, 0); 
+        this.maxItemCount = temp.intValue();
+        this.usersPerItemCounts = new int[this.maxItemCount+2];
+        for (int i = 0; i < this.usersPerItemCounts.length; i++) {
+            this.usersPerItemCounts[i] = users_per_item_count.get((long)i, 0); 
         } // FOR
         
-        Long temp = users_per_item_count.getMinValue();
-        this.min_count = (temp != null ? temp.intValue() : 0);
+        temp = users_per_item_count.getMinValue();
+        this.minItemCount = (temp != null ? temp.intValue() : 0);
         
-        temp = users_per_item_count.getMaxValue();
-        this.maxItemCount = (temp != null ? temp.intValue() : 0);
+        this.totalUsers = users_per_item_count.getSampleCount();
         
-        this.totaUsers = users_per_item_count.getSampleCount();
-        
-        this.setCurrentItemCount(this.min_count);
+        this.setCurrentItemCount(this.minItemCount);
     }
 
     public UserIdGenerator(Histogram<Long> users_per_item_count, int numClients) {
@@ -91,7 +93,7 @@ public class UserIdGenerator implements Iterator<UserId> {
     
     
     public long getTotalUsers() {
-        return (this.totaUsers);
+        return (this.totalUsers);
     }
     
     public void setCurrentItemCount(int size) {
@@ -99,10 +101,10 @@ public class UserIdGenerator implements Iterator<UserId> {
         // so that we always get the same UserIds back per client
         this.currentPosition = 0;
         for (int i = 0; i < size; i++) {
-            this.currentPosition += this.users_per_item_count[i];
+            this.currentPosition += this.usersPerItemCounts[i];
         } // FOR
         this.currentItemCount = size;
-        this.currentOffset = this.users_per_item_count[this.currentItemCount];
+        this.currentOffset = this.usersPerItemCounts[this.currentItemCount];
     }
     
     public int getCurrentPosition() {
@@ -116,7 +118,7 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.currentPosition = 0;
         this.currentItemCount = 0;
         while (true) {
-            int num_users = this.users_per_item_count[this.currentItemCount];
+            int num_users = this.usersPerItemCounts[this.currentItemCount];
             
             if (this.currentPosition + num_users > position) {
                 this.next = null;
@@ -144,9 +146,9 @@ public class UserIdGenerator implements Iterator<UserId> {
         int tmp_count = 0;
         int tmp_position = 0;
         while (tmp_count <= this.maxItemCount) {
-            assert(tmp_count < this.users_per_item_count.length) :
+            assert(tmp_count < this.usersPerItemCounts.length) :
                 String.format("Unexpected itemCount '%d' [maxItemCount=%d]", tmp_count, this.maxItemCount);
-            int num_users = this.users_per_item_count[tmp_count];
+            int num_users = this.usersPerItemCounts[tmp_count];
             if (tmp_count == user_id.getItemCount()) {
                 tmp_position += (num_users - user_id.getOffset()) + 1;
                 break;
@@ -174,13 +176,12 @@ public class UserIdGenerator implements Iterator<UserId> {
                 // Otherwise we have to spin through and find one for our client
                 else if (this.currentPosition % this.numClients == this.clientId.intValue()) {
                     found = nextCtr;
-//                    System.err.print(this.currentPosition);
                     break;
                 }
             } // WHILE
             if (found != null) break;
             this.currentItemCount++;
-            this.currentOffset = this.users_per_item_count[this.currentItemCount];
+            this.currentOffset = this.usersPerItemCounts[this.currentItemCount];
         } // WHILE
         if (found == null) return (null);
         
@@ -208,5 +209,23 @@ public class UserIdGenerator implements Iterator<UserId> {
     @Override
     public void remove() {
         throw new NotImplementedException("Cannot call remove!!");
+    }
+    
+    @Override
+    public String toString() {
+        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        m.put("numClients", this.numClients);
+        m.put("clientId", this.clientId);
+        m.put("minItemCount", this.minItemCount);
+        m.put("maxItemCount", this.maxItemCount);
+        m.put("totalUsers", this.totalUsers);
+        m.put("currentItemCount", this.currentItemCount);
+        m.put("currentOffset", this.currentOffset);
+        m.put("currentPosition", this.currentPosition);
+        m.put("next", this.next);
+        m.put("users_per_item_count", String.format("[Length:%d] => %s",
+                                                    this.usersPerItemCounts.length,
+                                                    Arrays.toString(this.usersPerItemCounts)));
+        return StringUtil.formatMaps(m);
     }
 }

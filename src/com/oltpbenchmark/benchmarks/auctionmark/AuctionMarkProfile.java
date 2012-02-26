@@ -129,18 +129,17 @@ public class AuctionMarkProfile {
      * A histogram for the number of users that have the number of items listed
      * ItemCount -> # of Users
      */
-    protected Histogram<Long> users_per_item_count = new Histogram<Long>();
+    protected Histogram<Long> users_per_itemCount = new Histogram<Long>();
     
-
     // ----------------------------------------------------------------
     // TRANSIENT DATA MEMBERS
     // ----------------------------------------------------------------
-    
+
     /**
      * Histogram for number of items per category (stored as category_id)
      */
-    protected Histogram<Long> item_category_histogram = new Histogram<Long>();
-
+    protected transient Histogram<Integer> items_per_category = new Histogram<Integer>();
+    
     /**
      * Three status types for an item:
      *  (1) Available - The auction of this item is still open
@@ -189,7 +188,7 @@ public class AuctionMarkProfile {
     protected transient final Zipf randomNumComments;
     protected transient final Zipf randomInitialPrice;
 
-    private transient FlatHistogram<Long> randomCategory;
+    private transient FlatHistogram<Integer> randomCategory;
     private transient FlatHistogram<Long> randomItemCount;
     
     /**
@@ -276,7 +275,8 @@ public class AuctionMarkProfile {
                 AuctionMarkConstants.ITEM_NUM_COMMENTS_MAX,
                 AuctionMarkConstants.ITEM_NUM_COMMENTS_SIGMA);
 
-        LOG.debug("AuctionMarkBenchmarkProfile :: constructor");
+        if (LOG.isTraceEnabled())
+            LOG.trace("AuctionMarkBenchmarkProfile :: constructor");
     }
     
     // -----------------------------------------------------------------
@@ -294,7 +294,8 @@ public class AuctionMarkProfile {
         stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
         stmt.setObject(param_idx++, this.loaderStartTime); // CFP_LOADER_START
         stmt.setObject(param_idx++, this.loaderStopTime); // CFP_LOADER_STOP
-        stmt.setObject(param_idx++, this.users_per_item_count.toJSONString()); // CFP_USER_ITEM_HISTOGRAM
+        stmt.setObject(param_idx++, this.users_per_itemCount.toJSONString()); // CFP_USER_ITEM_HISTOGRAM
+        stmt.setObject(param_idx++, this.items_per_category.toJSONString()); // CFP_ITEM_CATEGORY_HISTOGRAM
         int result = stmt.executeUpdate();
         assert(result == 1);
 
@@ -308,8 +309,8 @@ public class AuctionMarkProfile {
         this.scale_factor = other.scale_factor;
         this.loaderStartTime = other.loaderStartTime;
         this.loaderStopTime = other.loaderStopTime;
-        this.users_per_item_count = other.users_per_item_count;
-        this.item_category_histogram = other.item_category_histogram;
+        this.users_per_itemCount = other.users_per_itemCount;
+        this.items_per_category = other.items_per_category;
         this.gag_ids = other.gag_ids;
         
         // Initialize the UserIdGenerator so we can figure out whether our 
@@ -369,7 +370,9 @@ public class AuctionMarkProfile {
                 // Otherwise we have to go fetch everything again
                 // So first we want to reset the database
                 Connection conn = worker.getConnection();
-                worker.getProcedure(ResetDatabase.class).run(conn);
+                if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
+                    worker.getProcedure(ResetDatabase.class).run(conn);
+                }
                 
                 // Then invoke LoadConfig to pull down the profile information we need
                 ResultSet results[] = worker.getProcedure(LoadConfig.class).run(conn);
@@ -383,10 +386,10 @@ public class AuctionMarkProfile {
                 // after we have loaded benchmarkStartTime
                 cachedProfile.setAndGetClientStartTime();
                 cachedProfile.updateAndGetCurrentTime();
-                
+    
                 // ITEM CATEGORY COUNTS
                 loadItemCategoryCounts(cachedProfile, results[result_idx++]);
-    
+                
                 // GLOBAL_ATTRIBUTE_GROUPS
                 loadGlobalAttributeGroups(cachedProfile, results[result_idx++]);
                 
@@ -406,15 +409,15 @@ public class AuctionMarkProfile {
             }
         } // SYNCH
         
-        if (LOG.isDebugEnabled()) LOG.debug("Using cached SEATSProfile");
+        if (LOG.isTraceEnabled()) LOG.trace("Using cached SEATSProfile");
         this.copyProfile(worker, cachedProfile);
 
     }
     
     private final void initializeUserIdGenerator(int clientId) {
-        assert(this.users_per_item_count != null);
-        assert(this.users_per_item_count.isEmpty() == false);
-        this.userIdGenerator = new UserIdGenerator(this.users_per_item_count,
+        assert(this.users_per_itemCount != null);
+        assert(this.users_per_itemCount.isEmpty() == false);
+        this.userIdGenerator = new UserIdGenerator(this.users_per_itemCount,
                                                    this.num_clients,
                                                    (clientId < 0 ? null : clientId));
     }
@@ -426,7 +429,7 @@ public class AuctionMarkProfile {
         profile.scale_factor = vt.getDouble(col++);
         profile.loaderStartTime = vt.getTimestamp(col++);
         profile.loaderStopTime = vt.getTimestamp(col++);
-        JSONUtil.fromJSONString(profile.users_per_item_count, vt.getString(col++));
+        JSONUtil.fromJSONString(profile.users_per_itemCount, vt.getString(col++));
         
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
@@ -437,11 +440,11 @@ public class AuctionMarkProfile {
             int col = 1;
             long i_c_id = vt.getLong(col++);
             int count = vt.getInt(col++);
-            profile.item_category_histogram.put(i_c_id, count);
+            profile.items_per_category.put((int)i_c_id, count);
         } // WHILE
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %d CATEGORY records from %s",
-                                    profile.item_category_histogram.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
+                                    profile.items_per_category.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
     }
     
     private static final void loadItems(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
@@ -506,7 +509,7 @@ public class AuctionMarkProfile {
     
     public synchronized Timestamp updateAndGetCurrentTime() {
         this.getScaledCurrentTimestamp(this.currentTime);
-        if (LOG.isDebugEnabled()) LOG.debug("CurrentTime: " + currentTime);
+        if (LOG.isTraceEnabled()) LOG.trace("CurrentTime: " + currentTime);
         return this.currentTime;
     }
     public Timestamp getCurrentTime() {
@@ -579,7 +582,7 @@ public class AuctionMarkProfile {
         // We use the UserIdGenerator to ensure that we always select the next UserId for
         // a given client from the same set of UserIds
         if (this.randomItemCount == null) {
-            this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_item_count);
+            this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_itemCount);
         }
         if (this.userIdGenerator == null) this.initializeUserIdGenerator(clientId);
         
@@ -975,21 +978,22 @@ public class AuctionMarkProfile {
         return gav_id;
     }
     
-    public long getRandomCategoryId() {
+    public int getRandomCategoryId() {
         if (this.randomCategory == null) {
-            this.randomCategory = new FlatHistogram<Long>(this.rng, this.item_category_histogram); 
+            this.randomCategory = new FlatHistogram<Integer>(this.rng, this.items_per_category); 
         }
-        return randomCategory.nextLong();
+        return randomCategory.nextInt();
     }
     
     @Override
     public String toString() {
         Map<String, Object> m = new ListOrderedMap<String, Object>();
         m.put("Scale Factor", this.scale_factor);
-        m.put("Benchmark Start", this.loaderStartTime);
+        m.put("Loader Start", this.loaderStartTime);
+        m.put("Loader Stop", this.loaderStopTime);
         m.put("Last CloseAuctions", (this.lastCloseAuctionsTime.getTime() > 0 ? this.lastCloseAuctionsTime : null));
         m.put("Client Start", this.clientStartTime);
-        m.put("Current Time", this.currentTime);
+        m.put("Current Virtual Time", this.currentTime);
         m.put("Pending ItemCommentResponses", this.pending_commentResponses.size());
         
         // Item Queues

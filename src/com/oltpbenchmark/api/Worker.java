@@ -20,6 +20,7 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
@@ -132,7 +133,7 @@ public abstract class Worker implements Runnable {
     }
     
     public final String getName() {
-        return String.format("worker%02d", this.getId());
+        return String.format("worker%03d", this.getId());
     }
     
 	@Override
@@ -145,7 +146,11 @@ public abstract class Worker implements Runnable {
 		boolean isRateLimited = testState.isRateLimited();
 
 		// Invoke the initialize callback
-		this.initialize();
+		try {
+		    this.initialize();
+		} catch (Throwable ex) {
+		    throw new RuntimeException("Unexpected error when initializing " + this.getName(), ex);
+		}
 		
 		// wait for start
 		testState.blockForStart();

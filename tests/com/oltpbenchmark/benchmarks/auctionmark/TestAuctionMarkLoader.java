@@ -38,10 +38,10 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         
         AuctionMarkProfile orig = loader.profile;
         assertNotNull(orig);
-        assertFalse(orig.users_per_item_count.isEmpty());
+        assertFalse(orig.users_per_itemCount.isEmpty());
         
         AuctionMarkProfile copy = new AuctionMarkProfile(this.benchmark, new RandomGenerator(0));
-        assertTrue(copy.users_per_item_count.isEmpty());
+        assertTrue(copy.users_per_itemCount.isEmpty());
         
         List<Worker> workers = this.benchmark.makeWorkers(false);
         AuctionMarkWorker worker = (AuctionMarkWorker)workers.get(0); 
@@ -50,7 +50,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         assertEquals(orig.scale_factor, copy.scale_factor);
         assertEquals(orig.getLoaderStartTime().toString(), copy.getLoaderStartTime().toString());
         assertEquals(orig.getLoaderStopTime().toString(), copy.getLoaderStopTime().toString());
-        assertEquals(orig.users_per_item_count, copy.users_per_item_count);
+        assertEquals(orig.users_per_itemCount, copy.users_per_itemCount);
     }
     
     /**

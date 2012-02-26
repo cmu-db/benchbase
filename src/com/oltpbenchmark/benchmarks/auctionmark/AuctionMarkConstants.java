@@ -79,6 +79,12 @@ public abstract class AuctionMarkConstants {
      */
     public static boolean CLOSE_AUCTIONS_SEPARATE_THREAD = false;
     
+    /**
+     * If set to true, then the first client will attempt to reset the database
+     * before starting the benchmark execution
+     */
+    public static final boolean RESET_DATABASE_ENABLE = true;
+    
     
     // ----------------------------------------------------------------
     // STORED PROCEDURE INFORMATION
