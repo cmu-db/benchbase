@@ -80,12 +80,15 @@ if __name__ == '__main__':
     ## USER ATTRIBUTES
     fields = [ "user_name", "user_real_name", ]
     sql = """
-        SELECT %s, COUNT(revision.rev_id) AS user_revisions FROM user
+        SELECT %s, COUNT(revision.rev_id) AS user_revisions, COUNT(watchlist.*) AS user_watches
+          FROM user
           LEFT OUTER JOIN revision ON user.user_id = revision.rev_user
+          LEFT OUTER JOIN watchlist ON user.user_id = watchlist.wl_user
          GROUP BY user_id
     """ % ",".join(fields)
     c1.execute(sql)
     fields.append("user_revisions")
+    fields.append("user_watches")
     num_fields = len(fields)
     for row in c1:
         for i in xrange(num_fields):
