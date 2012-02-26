@@ -358,8 +358,6 @@ public class AuctionMarkProfile {
         synchronized (AuctionMarkProfile.class) {
             // Check whether we have a cached Profile we can copy from
             if (cachedProfile == null) {
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Loading AuctionMarkProfile for the first time");
     
                 // Store everything in the cached profile.
                 // We can then copy from that and extract out only the records
@@ -370,10 +368,14 @@ public class AuctionMarkProfile {
                 // So first we want to reset the database
                 Connection conn = worker.getConnection();
                 if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("Reseting database from last execution run");
                     worker.getProcedure(ResetDatabase.class).run(conn);
                 }
                 
                 // Then invoke LoadConfig to pull down the profile information we need
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Loading AuctionMarkProfile for the first time");
                 ResultSet results[] = worker.getProcedure(LoadConfig.class).run(conn);
                 conn.commit();
                 int result_idx = 0;

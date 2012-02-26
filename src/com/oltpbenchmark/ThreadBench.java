@@ -26,9 +26,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
@@ -36,6 +38,7 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
+import com.oltpbenchmark.util.StringUtil;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = Logger.getLogger(ThreadBench.class);
@@ -44,17 +47,18 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     
     private BenchmarkState testState;
     private final List<? extends Worker> workers;
+    private final ArrayList<Thread> workerThreads;
     // private File profileFile;
     private static WorkloadConfiguration workConf;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 
     private ThreadBench(List<? extends Worker> workers) {
-        this.workers = workers;
+        this(workers, null);
     }
 
     public ThreadBench(List<? extends Worker> workers, File profileFile) {
         this.workers = workers;
-        // this.profileFile = profileFile;
+        this.workerThreads = new ArrayList<Thread>(workers.size());
     }
 
     public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {
@@ -148,23 +152,26 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    private ArrayList<Thread> createWorkerThreads(boolean isRateLimited) {
+    private void createWorkerThreads(boolean isRateLimited) {
         assert testState == null;
         testState = new BenchmarkState(workers.size() + 1, isRateLimited, RATE_QUEUE_LIMIT);
-        ArrayList<Thread> workerThreads = new ArrayList<Thread>(workers.size());
+        
         for (Worker worker : workers) {
             worker.setBenchmarkState(testState);
             Thread thread = new Thread(worker);
             thread.setUncaughtExceptionHandler(this);
             thread.start();
-            workerThreads.add(thread);
+            this.workerThreads.add(thread);
         }
-        return workerThreads;
+        return;
     }
 
     private int finalizeWorkers(ArrayList<Thread> workerThreads) throws InterruptedException {
         assert testState.getState() == State.DONE || testState.getState() == State.EXIT;
         int requests = 0;
+        
+        new WatchDogThread().start();
+        
         for (int i = 0; i < workerThreads.size(); ++i) {
 
             // FIXME not sure this is the best solution... ensure we don't hang
@@ -186,6 +193,30 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         testState = null;
         return requests;
     }
+    
+    private class WatchDogThread extends Thread {
+        {
+            this.setDaemon(true);
+        }
+        @Override
+        public void run() {
+            Map<String, Object> m = new ListOrderedMap<String, Object>();
+            LOG.info("Starting WatchDogThread");
+            while (true) {
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException ex) {
+                    return;
+                }
+                if (testState == null) return;
+                m.clear();
+                for (Thread t : workerThreads) {
+                    m.put(t.getName(), t.isAlive());
+                }
+                LOG.info("Worker Thread Status:\n" + StringUtil.formatMaps(m));
+            } // WHILE
+        }
+    } // CLASS
 
     /*
      * public static Results runRateLimitedBenchmark(List<Worker> workers, File
@@ -200,9 +231,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
-
-        ArrayList<Thread> workerThreads = createWorkerThreads(true);
-        testState.blockForStart();
+        this.createWorkerThreads(true);
+        this.testState.blockForStart();
 
         // long measureStart = start;
 
@@ -293,7 +323,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
 
         try {
-            int requests = finalizeWorkers(workerThreads);
+            int requests = finalizeWorkers(this.workerThreads);
 
             // Combine all the latencies together in the most disgusting way
             // possible: sorting!
