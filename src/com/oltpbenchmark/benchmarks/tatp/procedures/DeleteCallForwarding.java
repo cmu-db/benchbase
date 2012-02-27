@@ -48,7 +48,8 @@ public class DeleteCallForwarding extends Procedure {
 	);
 
     public final SQLStmt updateCallForwarding = new SQLStmt(
-        "DELETE FROM " + TATPConstants.TABLENAME_CALL_FORWARDING + " WHERE s_id = ? AND sf_type = ? AND start_time = ?"
+        "DELETE FROM " + TATPConstants.TABLENAME_CALL_FORWARDING + 
+        " WHERE s_id = ? AND sf_type = ? AND start_time = ?"
     );
 
     public long run(Connection conn, String sub_nbr, byte sf_type, byte start_time) throws SQLException {

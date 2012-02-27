@@ -80,11 +80,10 @@ if __name__ == '__main__':
     ## USER ATTRIBUTES
     fields = [ "user_name", "user_real_name", ]
     sql = """
-        SELECT %s, COUNT(revision.rev_id) AS user_revisions, COUNT(watchlist.*) AS user_watches
-          FROM user
-          LEFT OUTER JOIN revision ON user.user_id = revision.rev_user
-          LEFT OUTER JOIN watchlist ON user.user_id = watchlist.wl_user
-         GROUP BY user_id
+        SELECT %s, 
+            (SELECT COUNT(rev_id) FROM revision WHERE rev_user = user_id) AS user_revisions,
+            (SELECT COUNT(wl_title) FROM watchlist WHERE wl_user = user_id) AS user_watches
+          FROM user GROUP BY user_id
     """ % ",".join(fields)
     c1.execute(sql)
     fields.append("user_revisions")
@@ -94,7 +93,7 @@ if __name__ == '__main__':
         for i in xrange(num_fields):
             f = fields[i]
             if not f in histograms: histograms[f] = Histogram()
-            if i+1 != num_fields:
+            if i+2 < num_fields:
                 histograms[f].put(len(row[i]))
             else:
                 histograms[f].put(int(row[i]))
@@ -123,6 +122,31 @@ if __name__ == '__main__':
         histograms[f].put(int(cnt))
     ## FOR
     
+    ## REVISION SIZES PER PAGE
+    ## This one is kind of tricky because larger pages may larger changes
+    sql = "SELECT DISTINCT page_id FROM page"
+    c1.execute(sql)
+    f = "rev_size_diff"
+    histograms[f] = Histogram()
+    for row in c1:
+        last_len = None
+        
+        ## For each page record, get the ordered list of their changes
+        ## This will allow us to compute the differences in sizes
+        sql = """
+            SELECT FLOOR(LENGTH(old_text)/100.0)*100
+              FROM revision, text
+             WHERE rev_page = %d AND rev_text_id = old_id
+             ORDER BY rev_id ASC """ % (row[0])
+        c2.execute(sql)
+        for row2 in c2:
+            if last_len != None:
+                diff = last_len - int(row2[0])
+                histograms[f].put(diff)
+            last_len = int(row2[0])
+        ## FOR
+    ## FOR
+    
     ## REVISION ATTRIBUTES
     len_fields = [ "rev_comment" ]
     cnt_fields = [ "rev_minor_edit"  ]
@@ -134,6 +158,7 @@ if __name__ == '__main__':
     extractHistograms(histograms, "text", [], cnt_fields, custom_fields)
     
     c1.close()
+    c2.close()
     
     raw = { }
     for key in histograms.keys():

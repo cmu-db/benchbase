@@ -44,7 +44,8 @@ import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 public class WikipediaBenchmark extends BenchmarkModule {
 	
     protected final FlatHistogram<Integer> commentLength;
-    protected final FlatHistogram<Integer> minorEdit; 
+    protected final FlatHistogram<Integer> minorEdit;
+    protected final FlatHistogram<Integer> revisionDelta;
 	
 	private final File traceInput;
 	private final File traceOutput;
@@ -65,6 +66,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 		this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
+		this.revisionDelta = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.REVISION_DELTA);
 	}
 
 	public File getTraceInput() {

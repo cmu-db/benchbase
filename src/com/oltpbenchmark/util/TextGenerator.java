@@ -65,14 +65,16 @@ public abstract class TextGenerator {
     }
     
     /**
-     * Increase the given block of text by the delta and add random characters
+     * Resize the given block of text by the delta and add random characters
      * to the new space in the array. Returns a new character array
      * @param rng
      * @param orig
      * @param delta
      * @return
      */
-    public static char[] increaseText(Random rng, char orig[], int delta) {
+    public static char[] resizeText(Random rng, char orig[], int delta) {
+        assert(orig.length + delta > 0) :
+            String.format("Invalid resize (orig:%d, delta:%d)", orig.length, delta);
         char chars[] = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
             chars[i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];

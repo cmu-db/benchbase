@@ -339,14 +339,16 @@ public class WikipediaLoader extends Loader {
         String revSQL = SQLUtil.getInsertSQL(revTable);
         PreparedStatement revisionInsert = this.conn.prepareStatement(revSQL);
 
+        WikipediaBenchmark b = (WikipediaBenchmark)this.benchmark;
         int batchSize = 1;
         Zipf h_users = new Zipf(this.rng(), 1, this.num_users, WikipediaConstants.REVISION_USER_SIGMA);
         FlatHistogram<Integer> h_textLength = new FlatHistogram<Integer>(this.rng(), TextHistograms.TEXT_LENGTH);
-        FlatHistogram<Integer> h_commentLength = ((WikipediaBenchmark)this.benchmark).commentLength;
-        FlatHistogram<Integer> h_minorEdit = ((WikipediaBenchmark)this.benchmark).minorEdit;
+        FlatHistogram<Integer> h_commentLength = b.commentLength;
+        FlatHistogram<Integer> h_minorEdit = b.minorEdit;
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
-
+        FlatHistogram<Integer> h_revisionDelta = b.revisionDelta;
+        
         int rev_id = 1;
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
             // There must be at least one revision per page
@@ -365,10 +367,17 @@ public class WikipediaLoader extends Loader {
                 
                 // Generate what the new revision is going to be
                 if (i > 0) {
-                    old_text_length = h_textLength.nextValue().intValue();
-                    
-                    // For now just make it a little bit bigger
-                    old_text = TextGenerator.increaseText(rng(), old_text, rng().nextInt(100));
+                    // Figure out how much we are going to change
+                    // If the delta is greater than the length of the original
+                    // text, then we will just cut our length in half. Where is your god now?
+                    // There is probably some sort of minimal size that we should adhere to, but
+                    // it's 12:30am and I simply don't feel like dealing with that now
+                    int delta = h_revisionDelta.nextValue().intValue();
+                    if (old_text.length + delta <= 0) {
+                        delta = -1 * (old_text.length / 2);
+                        if (Math.abs(delta) == old_text.length) delta = 1;
+                    }
+                    old_text = TextGenerator.resizeText(rng(), old_text, delta);
                     old_text_length = old_text.length;
                     
                     // And permute it a little bit. This ensures that the text is slightly
@@ -424,7 +433,6 @@ public class WikipediaLoader extends Loader {
             this.updateAutoIncrement(textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(revTable.getColumn(0), rev_id);
         }
-        
         
         // UPDATE USER
         revTable = this.getTableCatalog(WikipediaConstants.TABLENAME_USER);

@@ -38,13 +38,26 @@ public class TestTextGenerator extends TestCase {
         assertNotNull(text);
         
         int delta = rng.nextInt(2048);
-        char newText[] = TextGenerator.increaseText(rng, text, delta);
+        char newText[] = TextGenerator.resizeText(rng, text, delta);
         assertEquals(text.length + delta, newText.length);
         
         // Make sure the first portion is the same
         for (int i = 0; i < text.length; i++) {
             assertEquals(text[i], newText[i]);
         } // FOR
+    }
+    
+    /**
+     * testDecreaseText
+     */
+    public void testDecreaseText() throws Exception {
+        int strLen = rng.nextInt(2048);
+        char text[] = TextGenerator.randomChars(rng, strLen);
+        assertNotNull(text);
+        
+        int delta = -1 * rng.nextInt(100);
+        char newText[] = TextGenerator.resizeText(rng, text, delta);
+        assertEquals(text.length + delta, newText.length);
     }
     
     /**

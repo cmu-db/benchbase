@@ -167,12 +167,7 @@ public class UpdatePage extends Procedure {
 		ps.setInt(param++, 0);            // rev_deleted
 		ps.setInt(param++, pageText.length()); // rev_len
 		ps.setInt(param++, revisionId);   // rev_parent_id
-		try {
-		    ps.execute();
-		} catch (SQLException ex) {
-		    System.err.println("UserId=" + userId);
-		    throw ex;
-		}
+	    ps.execute();
 		
 		rs = ps.getGeneratedKeys();
 		adv = rs.next();

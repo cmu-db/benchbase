@@ -15,14 +15,19 @@ public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> 
     }
 
 //    public void testHistograms() throws Exception {
-//        Collection<Integer> values = TextHistograms.TEXT_LENGTH.values();
+//        Collection<Integer> values = RevisionHistograms.REVISION_DELTA.values();
 //        Histogram<Integer> new_h = new Histogram<Integer>();
 //        for (Integer v : values) {
-//            Integer cnt = TextHistograms.TEXT_LENGTH.get(v);
-//            if (v >= 100000) {
+//            Integer cnt = RevisionHistograms.REVISION_DELTA.get(v);
+//            if (Math.abs(v) >= 100000) {
+//                int new_v = (int)Math.round(v / 10000.0d) * 10000;
+//                new_h.put(new_v, cnt);
+//            }
+//            else if (Math.abs(v) >= 10000) {
 //                int new_v = (int)Math.round(v / 1000.0d) * 1000;
 //                new_h.put(new_v, cnt);
-//            } else {
+//            }
+//            else {
 //                new_h.put(v, cnt);
 //            }
 //        }
