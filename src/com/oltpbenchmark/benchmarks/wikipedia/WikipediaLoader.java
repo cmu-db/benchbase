@@ -367,22 +367,8 @@ public class WikipediaLoader extends Loader {
                 
                 // Generate what the new revision is going to be
                 if (i > 0) {
-                    // Figure out how much we are going to change
-                    // If the delta is greater than the length of the original
-                    // text, then we will just cut our length in half. Where is your god now?
-                    // There is probably some sort of minimal size that we should adhere to, but
-                    // it's 12:30am and I simply don't feel like dealing with that now
-                    int delta = h_revisionDelta.nextValue().intValue();
-                    if (old_text.length + delta <= 0) {
-                        delta = -1 * (old_text.length / 2);
-                        if (Math.abs(delta) == old_text.length) delta = 1;
-                    }
-                    old_text = TextGenerator.resizeText(rng(), old_text, delta);
+                    old_text = b.generateRevisionText(old_text);
                     old_text_length = old_text.length;
-                    
-                    // And permute it a little bit. This ensures that the text is slightly
-                    // different than the last revision
-                    old_text = TextGenerator.permuteText(rng(), old_text);
                 }
                 
                 char rev_comment[] = TextGenerator.randomChars(rng(), h_commentLength.nextValue().intValue());

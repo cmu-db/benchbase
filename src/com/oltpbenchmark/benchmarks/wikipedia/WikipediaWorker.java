@@ -83,12 +83,7 @@ public class WikipediaWorker extends Worker {
         }
         // GetPageAuthenticated
         else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
-            try {
-                getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
-            } catch (UserAbortException ex) {
-                System.err.println(t);
-                throw ex;
-            }
+            getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
         }
         
         conn.commit();
@@ -151,11 +146,7 @@ public class WikipediaWorker extends Worker {
 		
 		// Permute the original text of the article
 		// Important: We have to make sure that we fill in the entire array
-		int newTextSize = a.oldText.length() + rng().nextInt(100);
-		char newText[] = new char[newTextSize];
-		TextGenerator.randomChars(rng(), newText, a.oldText.length(), newTextSize); 
-        a.oldText.getChars(0, a.oldText.length(), newText, 0);
-        TextGenerator.permuteText(rng(), newText);
+		char newText[] = b.generateRevisionText(a.oldText.toCharArray());
 		
 	    if (LOG.isTraceEnabled())
 	        LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);

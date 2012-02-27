@@ -39,6 +39,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.util.TraceTransactionGenerator;
 import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
+import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
 public class WikipediaBenchmark extends BenchmarkModule {
@@ -77,6 +78,31 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	}
 	public int getTraceSize() {
 	    return (this.traceSize);
+	}
+	
+	/**
+	 * 
+	 * @param orig_text
+	 * @return
+	 */
+	protected char[] generateRevisionText(char orig_text[]) {
+	    // Figure out how much we are going to change
+        // If the delta is greater than the length of the original
+        // text, then we will just cut our length in half. Where is your god now?
+        // There is probably some sort of minimal size that we should adhere to, but
+        // it's 12:30am and I simply don't feel like dealing with that now
+        int delta = revisionDelta.nextValue().intValue();
+        if (orig_text.length + delta <= 0) {
+            delta = -1 * (orig_text.length / 2);
+            if (Math.abs(delta) == orig_text.length) delta = 1;
+        }
+        orig_text = TextGenerator.resizeText(rng(), orig_text, delta);
+        
+        // And permute it a little bit. This ensures that the text is slightly
+        // different than the last revision
+        orig_text = TextGenerator.permuteText(rng(), orig_text);
+        
+        return (orig_text);
 	}
 	
 	@Override
