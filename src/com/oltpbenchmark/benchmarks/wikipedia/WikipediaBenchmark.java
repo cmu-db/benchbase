@@ -46,13 +46,14 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;
-    protected final FlatHistogram<Integer> revisionDelta;
+    private final FlatHistogram<Integer> revisionDeltas[];
 	
 	private final File traceInput;
 	private final File traceOutput;
 	private final int traceSize;
 	
-	public WikipediaBenchmark(WorkloadConfiguration workConf) {		
+	@SuppressWarnings("unchecked")
+    public WikipediaBenchmark(WorkloadConfiguration workConf) {		
 		super("wikipedia", workConf, true);
 		
 		XMLConfiguration xml = workConf.getXmlConfig();
@@ -67,7 +68,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 		this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
-		this.revisionDelta = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.REVISION_DELTA);
+		this.revisionDeltas = (FlatHistogram<Integer>[])new FlatHistogram[RevisionHistograms.REVISION_DELTA_SIZES.length];
+		for (int i = 0; i < this.revisionDeltas.length; i++) {
+		    this.revisionDeltas[i] = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
+		} // FOR
 	}
 
 	public File getTraceInput() {
@@ -91,7 +95,16 @@ public class WikipediaBenchmark extends BenchmarkModule {
         // text, then we will just cut our length in half. Where is your god now?
         // There is probably some sort of minimal size that we should adhere to, but
         // it's 12:30am and I simply don't feel like dealing with that now
-        int delta = revisionDelta.nextValue().intValue();
+	    FlatHistogram<Integer> h = null;
+	    for (int i = 0; i < this.revisionDeltas.length-1; i++) {
+	        if (orig_text.length <= RevisionHistograms.REVISION_DELTA_SIZES[i]) {
+	            h = this.revisionDeltas[i];
+	        }
+	    } // FOR
+	    if (h == null) h = this.revisionDeltas[this.revisionDeltas.length-1];
+	    assert(h != null);
+	    
+        int delta = h.nextValue().intValue();
         if (orig_text.length + delta <= 0) {
             delta = -1 * (orig_text.length / 2);
             if (Math.abs(delta) == orig_text.length) delta = 1;

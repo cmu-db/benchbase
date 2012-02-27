@@ -347,7 +347,6 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<Integer> h_minorEdit = b.minorEdit;
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
-        FlatHistogram<Integer> h_revisionDelta = b.revisionDelta;
         
         int rev_id = 1;
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
