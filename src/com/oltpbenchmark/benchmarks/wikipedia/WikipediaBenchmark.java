@@ -106,10 +106,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	    
         int delta = h.nextValue().intValue();
         if (orig_text.length + delta <= 0) {
-            delta = -1 * (orig_text.length / 2);
-            if (Math.abs(delta) == orig_text.length) delta = 1;
+            delta = -1 * (int)Math.round(orig_text.length / 1.5);
+            if (Math.abs(delta) == orig_text.length && delta < 0) delta /= 2;
         }
-        orig_text = TextGenerator.resizeText(rng(), orig_text, delta);
+        if (delta != 0) orig_text = TextGenerator.resizeText(rng(), orig_text, delta);
         
         // And permute it a little bit. This ensures that the text is slightly
         // different than the last revision
