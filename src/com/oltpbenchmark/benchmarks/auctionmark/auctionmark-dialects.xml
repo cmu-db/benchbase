@@ -9,7 +9,7 @@
         </procedure>
         <procedure name="GetItem">
             <statement name="getUser">SELECT u_id, u_rating, u_created, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name   FROM "USERACCT", "REGION" WHERE u_id = ? AND u_r_id = r_id</statement>
-            <statement name="getItem">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM "ITEM" WHERE i_id = ? AND i_u_id = ? AND i_status = ?</statement>
+            <statement name="getItem">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM "ITEM" WHERE i_id = ? AND i_u_id = ?</statement>
         </procedure>
         <procedure name="GetUserInfo">
             <statement name="getUser">SELECT u_id, u_rating, u_created, u_balance, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name FROM "USERACCT", "REGION" WHERE u_id = ? AND u_r_id = r_id</statement>
