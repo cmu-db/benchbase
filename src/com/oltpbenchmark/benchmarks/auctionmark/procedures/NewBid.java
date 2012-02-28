@@ -149,7 +149,8 @@ public class NewBid extends Procedure {
                         long item_id, long seller_id, long buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
-        if (debug) LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]", item_id, buyer_id, newBid));
+        if (debug) LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]",
+                                           item_id, buyer_id, newBid));
 
         PreparedStatement stmt = null;
         ResultSet results = null;
@@ -159,9 +160,7 @@ public class NewBid extends Procedure {
         stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id); // , currentTime);
         results = stmt.executeQuery();
         if (results.next() == false) {
-            if (debug) 
-                LOG.debug("The auction for item " + item_id + " has ended - " + currentTime);
-            throw new UserAbortException("Unable to bid on item: Auction has ended");
+            throw new UserAbortException("Invalid item " + item_id);
         }
         int col = 1;
         double i_initial_price = results.getDouble(col++);
@@ -172,12 +171,12 @@ public class NewBid extends Procedure {
         long newBidId = 0;
         long newBidMaxBuyerId = buyer_id;
         
-        if (i_end_date.compareTo(currentTime) < 0 || i_status != ItemStatus.OPEN) {
-            if (debug)
-                LOG.debug(String.format("The auction for item %d has ended [status=%s]\nCurrentTime:\t%s\nActualEndDate:\t%s\nEstimatedEndDate:\t%s",
-                                        item_id, i_status, currentTime, i_end_date, estimatedEndDate));
-            throw new UserAbortException("Unable to bid on item: Auction has ended");
-        }
+//        if (i_end_date.compareTo(currentTime) < 0 || i_status != ItemStatus.OPEN) {
+//            if (debug)
+//                LOG.debug(String.format("The auction for item %d has ended [status=%s]\nCurrentTime:\t%s\nActualEndDate:\t%s\nEstimatedEndDate:\t%s",
+//                                        item_id, i_status, currentTime, i_end_date, estimatedEndDate));
+//            throw new UserAbortException("Unable to bid on item: Auction has ended");
+//        }
         
         // If we existing bids, then we need to figure out whether we are the new highest
         // bidder or if the existing one just has their max_bid bumped up

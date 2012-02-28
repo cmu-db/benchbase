@@ -60,7 +60,7 @@
             <statement name="getCategoryParent">SELECT * FROM "CATEGORY" WHERE c_parent_id = ? </statement>
             <statement name="updateUserBalance">UPDATE "USERACCT" SET u_balance = u_balance - 1,     u_updated = ?  WHERE u_id = ?</statement>
             <statement name="getGlobalAttribute">SELECT gag_name, gav_name, gag_c_id FROM "GLOBAL_ATTRIBUTE_GROUP", "GLOBAL_ATTRIBUTE_VALUE" WHERE gav_id = ? AND gav_gag_id = ? AND gav_gag_id = gag_id</statement>
-            <statement name="insertItem">INSERT INTO "ITEM"(i_id,i_u_id,i_c_id,i_name,i_description,i_user_attributes,i_initial_price,i_current_price,i_num_bids,i_num_images,i_num_global_attrs,i_start_date,i_end_date,i_status,i_created,i_updated,i_iattr0) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)</statement>
+            <statement name="insertItem">INSERT INTO "ITEM" (i_id,i_u_id,i_c_id,i_name,i_description,i_user_attributes,i_initial_price,i_current_price,i_num_bids,i_num_images,i_num_global_attrs,i_start_date,i_end_date,i_status,i_created,i_updated,i_iattr0) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)</statement>
         </procedure>
         <procedure name="NewPurchase">
             <statement name="getItemMaxBid">SELECT * FROM "ITEM_MAX_BID" WHERE imb_i_id = ? AND imb_u_id = ?</statement>
@@ -81,9 +81,9 @@
         </procedure>
         <procedure name="UpdateItem">
             <statement name="getMaxItemAttributeId">SELECT MAX(ia_id) FROM "ITEM_ATTRIBUTE" WHERE ia_i_id = ? AND ia_u_id = ?</statement>
-            <statement name="insertItemAttribute">INSERT INTO "ITEM_ATTRIBUTE"(ia_id,ia_i_id,ia_u_id,ia_gav_id,ia_gag_id) VALUES(?, ?, ?, ?, ?)</statement>
+            <statement name="insertItemAttribute">INSERT INTO "ITEM_ATTRIBUTE" (ia_id,ia_i_id,ia_u_id,ia_gav_id,ia_gag_id) VALUES (?, ?, ?, ?, ?)</statement>
             <statement name="deleteItemAttribute">DELETE FROM "ITEM_ATTRIBUTE" WHERE ia_id = ? AND ia_i_id = ? AND ia_u_id = ?</statement>
-            <statement name="updateItem">UPDATE "ITEM"   SET i_description = ?,        i_updated = ?  WHERE i_id = ? AND i_u_id = ?    AND i_status = 0</statement>
+            <statement name="updateItem">UPDATE "ITEM" SET i_description = ?, i_updated = ? WHERE i_id = ? AND i_u_id = ?</statement>
         </procedure>
     </dialect>
     <dialect type="SQLSERVER">

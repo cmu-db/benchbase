@@ -28,16 +28,15 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 
 /**
  * UpdateItem
@@ -54,8 +53,8 @@ public class UpdateItem extends Procedure {
         "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM +
         "   SET i_description = ?, " +
         "       i_updated = ? " +
-        " WHERE i_id = ? AND i_u_id = ? " +
-        "   AND i_status = " + ItemStatus.OPEN.ordinal()
+        " WHERE i_id = ? AND i_u_id = ? "
+        // "   AND i_status = " + ItemStatus.OPEN.ordinal()
     );
     
     public final SQLStmt deleteItemAttribute = new SQLStmt(
@@ -69,13 +68,13 @@ public class UpdateItem extends Procedure {
     );
     
     public final SQLStmt insertItemAttribute = new SQLStmt(
-        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE + "(" +
+        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE + " (" +
             "ia_id," + 
             "ia_i_id," + 
             "ia_u_id," + 
             "ia_gav_id," + 
             "ia_gag_id" + 
-        ") VALUES(?, ?, ?, ?, ?)"
+        ") VALUES (?, ?, ?, ?, ?)"
     );
 
     // -----------------------------------------------------------------
