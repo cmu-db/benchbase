@@ -1,10 +1,12 @@
 package com.oltpbenchmark.benchmarks.ycsb;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
+import java.util.Map;
 
 import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -25,29 +27,36 @@ public class YCSBWorker extends Worker {
     private static CounterGenerator insertRecord;
     private ZipfianGenerator randScan;
 
+    private final Map<Integer, String> m = new HashMap<Integer, String>();
+    
     public YCSBWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
         super(benchmarkModule, id);
-        readRecord = new ZipfianGenerator(init_record_count);// pool for read
-                                                             // keys
-        insertRecord = new CounterGenerator(init_record_count);// we must know
-                                                               // where to start
-                                                               // inserting
+        readRecord = new ZipfianGenerator(init_record_count);// pool for read keys
         randScan = new ZipfianGenerator(YCSBConstants.MAX_SCAN);
+        
+        synchronized (YCSBWorker.class) {
+            // We must know where to start inserting
+            if (insertRecord == null) {
+                insertRecord = new CounterGenerator(init_record_count);
+            }
+        } // SYNCH
     }
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
-        if (nextTrans.getProcedureClass().equals(DeleteRecord.class)) {
+        Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
+        
+        if (procClass.equals(DeleteRecord.class)) {
             deleteRecord();
-        } else if (nextTrans.getProcedureClass().equals(InsertRecord.class)) {
+        } else if (procClass.equals(InsertRecord.class)) {
             insertRecord();
-        } else if (nextTrans.getProcedureClass().equals(ReadModifyWriteRecord.class)) {
+        } else if (procClass.equals(ReadModifyWriteRecord.class)) {
             readModifyWriteRecord();
-        } else if (nextTrans.getProcedureClass().equals(ReadRecord.class)) {
+        } else if (procClass.equals(ReadRecord.class)) {
             readRecord();
-        } else if (nextTrans.getProcedureClass().equals(ScanRecord.class)) {
+        } else if (procClass.equals(ScanRecord.class)) {
             scanRecord();
-        } else if (nextTrans.getProcedureClass().equals(UpdateRecord.class)) {
+        } else if (procClass.equals(UpdateRecord.class)) {
             updateRecord();
         }
         conn.commit();
@@ -58,7 +67,7 @@ public class YCSBWorker extends Worker {
         UpdateRecord proc = this.getProcedure(UpdateRecord.class);
         assert (proc != null);
         int keyname = readRecord.nextInt();
-        HashMap<Integer, String> values = buildValues(10);
+        Map<Integer, String> values = buildValues(10);
         proc.run(conn, keyname, values);
     }
 
@@ -67,7 +76,7 @@ public class YCSBWorker extends Worker {
         assert (proc != null);
         int keyname = readRecord.nextInt();
         int count = randScan.nextInt();
-        proc.run(conn, keyname, count, new Vector<HashMap<Integer, String>>());
+        proc.run(conn, keyname, count, new ArrayList<Map<Integer, String>>());
     }
 
     private void readRecord() throws SQLException {
@@ -81,8 +90,14 @@ public class YCSBWorker extends Worker {
         ReadModifyWriteRecord proc = this.getProcedure(ReadModifyWriteRecord.class);
         assert (proc != null);
         int keyname = readRecord.nextInt();
-        // System.out.println("[Thread " + this.id+"] RMW this:  "+ keyname);
-        proc.run(conn, keyname, new HashMap<Integer, String>());
+        
+        String fields[] = new String[10];
+        for (int i = 0; i < fields.length; i++) {
+            fields[i] = TextGenerator.randomStr(rng(), 100);
+        } // FOR
+        
+        this.m.clear();
+        proc.run(conn, keyname, fields, this.m);
     }
 
     private void insertRecord() throws SQLException {
@@ -90,7 +105,7 @@ public class YCSBWorker extends Worker {
         assert (proc != null);
         int keyname = insertRecord.nextInt();
         // System.out.println("[Thread " + this.id+"] insert this:  "+ keyname);
-        HashMap<Integer, String> values = buildValues(10);
+        Map<Integer, String> values = buildValues(10);
         proc.run(conn, keyname, values);
     }
 
@@ -101,11 +116,11 @@ public class YCSBWorker extends Worker {
         proc.run(conn, keyname);
     }
 
-    private HashMap<Integer, String> buildValues(int numVals) {
-        HashMap<Integer, String> fields = new HashMap<Integer, String>();
+    private Map<Integer, String> buildValues(int numVals) {
+        this.m.clear();
         for (int i = 1; i <= numVals; i++) {
-            fields.put(i, TextGenerator.randomStr(rng(), 100));
+            this.m.put(i, TextGenerator.randomStr(rng(), 100));
         }
-        return fields;
+        return this.m;
     }
 }
