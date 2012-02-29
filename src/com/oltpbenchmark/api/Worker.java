@@ -20,6 +20,7 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
@@ -39,9 +40,7 @@ public abstract class Worker implements Runnable {
 	private final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
 	private final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
 	private final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
-	
-	public static final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
-	
+	private final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
 	
 	private boolean seenDone = false;
 	
@@ -80,32 +79,38 @@ public abstract class Worker implements Runnable {
 	 * Get the BenchmarkModule managing this Worker
 	 */
 	@SuppressWarnings("unchecked")
-    public <T extends BenchmarkModule> T getBenchmarkModule() {
+    public final <T extends BenchmarkModule> T getBenchmarkModule() {
 	    return ((T)this.benchmarkModule);
 	}
 	/**
 	 * Get the unique thread id for this worker
 	 */
-	public int getId() {
+	public final int getId() {
 		return this.id;
 	}
-	public WorkloadConfiguration getWorkloadConfiguration() {
+	/**
+	 * Get the the total number of workers in this benchmark invocation
+	 */
+	public final int getNumWorkers() {
+	    return (this.benchmarkModule.getWorkloadConfiguration().getTerminals());
+	}
+	public final WorkloadConfiguration getWorkloadConfiguration() {
 	    return (this.benchmarkModule.getWorkloadConfiguration());
 	}
-	public Catalog getCatalog() {
+	public final Catalog getCatalog() {
 	    return (this.benchmarkModule.getCatalog());
 	}
-	public Random rng() {
+	public final Random rng() {
 	    return (this.benchmarkModule.rng());
 	}
 	
-	public Connection getConnection() {
+	public final Connection getConnection() {
 	    return (this.conn);
 	}
-	public int getRequests() {
+	public final int getRequests() {
         return latencies.size();
     }
-    public Iterable<LatencyRecord.Sample> getLatencyRecords() {
+    public final Iterable<LatencyRecord.Sample> getLatencyRecords() {
         return latencies;
     }
 	
@@ -130,7 +135,13 @@ public abstract class Worker implements Runnable {
     public final Histogram<TransactionType> getTransactionAbortHistogram() {
         return (this.txnAbort);
     }
+    public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
+        return (this.txnAbortMessages);
+    }
     
+    /**
+     * Get unique name for this worker's thread
+     */
     public final String getName() {
         return String.format("worker%03d", this.getId());
     }
@@ -215,6 +226,7 @@ public abstract class Worker implements Runnable {
 	    TransactionStatus status = TransactionStatus.RETRY; 
 	    Savepoint savepoint = null;
 	    final DatabaseType dbType = wrkld.getDBType();
+	    final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
 	    
 	    try {
     	    while (status == TransactionStatus.RETRY && this.testState.getState() != State.DONE) {
@@ -255,14 +267,15 @@ public abstract class Worker implements Runnable {
         	    } catch (UserAbortException ex) {
                     if (LOG.isDebugEnabled()) LOG.debug(next + " Aborted", ex);
                     
-                    /* PAVLO
-                    Histogram<String> error_h = txnAbortMessages.get(next);
-                    if (error_h == null) {
-                        error_h = new Histogram<String>();
-                        txnAbortMessages.put(next, error_h);
+                    /* PAVLO */
+                    if (recordAbortMessages) {
+                        Histogram<String> error_h = this.txnAbortMessages.get(next);
+                        if (error_h == null) {
+                            error_h = new Histogram<String>();
+                            this.txnAbortMessages.put(next, error_h);
+                        }
+                        error_h.put(StringUtil.abbrv(ex.getMessage(), 20));
                     }
-                    error_h.put(StringUtil.abbrv(ex.getMessage(), 20));
-                    */
                     
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);

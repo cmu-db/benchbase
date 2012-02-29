@@ -22,7 +22,9 @@ package com.oltpbenchmark;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.ThreadBench.TimeBucketIterable;
@@ -36,7 +38,8 @@ public final class Results {
     final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>(true);
     final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>(true);
     final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>(true);
-
+    final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
+    
     public final List<LatencyRecord.Sample> latencySamples;
 
     public Results(long nanoSeconds, int measuredRequests, DistributionStatistics latencyDistribution, final List<LatencyRecord.Sample> latencySamples) {
@@ -56,19 +59,18 @@ public final class Results {
 
     /**
      * Get a histogram of how often each transaction was executed
-     * 
-     * @return
      */
     public final Histogram<TransactionType> getTransactionSuccessHistogram() {
         return (this.txnSuccess);
     }
-
     public final Histogram<TransactionType> getTransactionRetryHistogram() {
         return (this.txnRetry);
     }
-
     public final Histogram<TransactionType> getTransactionAbortHistogram() {
         return (this.txnAbort);
+    }
+    public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
+        return (this.txnAbortMessages);
     }
 
     public double getRequestsPerSecond() {

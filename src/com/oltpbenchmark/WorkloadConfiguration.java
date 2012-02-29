@@ -52,6 +52,7 @@ public class WorkloadConfiguration {
 	private int numberOfPhases = 0;
 	private TransactionTypes transTypes = null;
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
+	private boolean recordAbortMessages = false;
 
 	public void addWork(int time, int rate, List<String> weights) {
 		works.add(new Phase(time, rate, weights));
@@ -112,7 +113,18 @@ public class WorkloadConfiguration {
 		return this.db_driver;
 	}
 	
-
+	public void setRecordAbortMessages(boolean recordAbortMessages) {
+        this.recordAbortMessages = recordAbortMessages;
+    }
+	
+	/**
+	 * Whether each worker should record the transaction's UserAbort messages
+	 * This primarily useful for debugging a benchmark
+	 */
+	public boolean getRecordAbortMessages() {
+        return (this.recordAbortMessages);
+    }
+	
 	/**
 	 * Set the scale factor for the database
 	 * A value of 1 means the default size.

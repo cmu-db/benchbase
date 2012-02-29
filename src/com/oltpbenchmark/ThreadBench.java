@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
 
@@ -355,6 +357,15 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 results.txnSuccess.putHistogram(w.getTransactionSuccessHistogram());
                 results.txnRetry.putHistogram(w.getTransactionRetryHistogram());
                 results.txnAbort.putHistogram(w.getTransactionAbortHistogram());
+                
+                for (Entry<TransactionType, Histogram<String>> e : w.getTransactionAbortMessageHistogram().entrySet()) {
+                    Histogram<String> h = results.txnAbortMessages.get(e.getKey());
+                    if (h == null) {
+                        h = new Histogram<String>(true);
+                        results.txnAbortMessages.put(e.getKey(), h);
+                    }
+                    h.putHistogram(e.getValue());
+                } // FOR
             } // FOR
 
             return (results);
