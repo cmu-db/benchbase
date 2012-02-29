@@ -139,6 +139,7 @@ CREATE TABLE CATEGORY (
     c_parent_id         NUMBER(19,0) REFERENCES CATEGORY (c_id),
     PRIMARY KEY (c_id)
 );
+CREATE INDEX IDX_CATEGORY_PARENT ON CATEGORY (c_parent_id);
 
 -- ================================================================
 -- GLOBAL_ATTRIBUTE_GROUP

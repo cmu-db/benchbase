@@ -124,6 +124,7 @@ CREATE TABLE "CATEGORY" (
     c_parent_id         BIGINT REFERENCES "CATEGORY" (c_id),
     PRIMARY KEY (c_id)
 );
+CREATE INDEX IDX_CATEGORY_PARENT ON "CATEGORY" (c_parent_id);
 
 -- ================================================================
 -- GLOBAL_ATTRIBUTE_GROUP

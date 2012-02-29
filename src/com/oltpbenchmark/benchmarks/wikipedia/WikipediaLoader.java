@@ -332,7 +332,7 @@ public class WikipediaLoader extends Loader {
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) user_id / (double) this.num_users) * 100);
-                    if (percent != lastPercent) LOG.debug("Watchlist " + percent + "%");
+                    if (percent != lastPercent) LOG.debug("WATCHLIST (" + percent + "%)");
                     lastPercent = percent;
                 }
             }
