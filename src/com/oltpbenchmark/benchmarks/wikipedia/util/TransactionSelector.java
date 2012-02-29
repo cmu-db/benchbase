@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.oltpbenchmark.api.TransactionTypes;
@@ -56,7 +57,7 @@ public class TransactionSelector {
 		this.reader = r;
 	}
 
-	public ArrayList<WikipediaOperation> readAll() throws IOException {
+	public List<WikipediaOperation> readAll() throws IOException {
 		ArrayList<WikipediaOperation> transactions = new ArrayList<WikipediaOperation>();
 		while (this.reader.ready()) {
 		    String line = this.reader.readLine();
@@ -67,6 +68,13 @@ public class TransactionSelector {
 	        
 	        int startIdx = sa[0].length() + sa[1].length() + 2;
 	        String title = line.substring(startIdx, startIdx + line.length()-startIdx);
+	        // HACK: Check whether they have a " - " at the end of the line
+	        // If they do, then that means that they are coming from a real trace and we need
+	        // to strip it out
+	        if (title.endsWith(" - ")) {
+	            title = title.substring(0, title.length()-3);
+	        }
+	        
 	        transactions.add(new WikipediaOperation(user, namespace, title));
 		} // WHILE
 		this.reader.close();
