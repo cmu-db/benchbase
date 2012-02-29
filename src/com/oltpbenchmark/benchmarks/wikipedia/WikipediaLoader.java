@@ -156,6 +156,7 @@ public class WikipediaLoader extends Loader {
 
         int types[] = catalog_tbl.getColumnTypes();
         int batchSize = 0;
+        int lastPercent = -1;
         for (int i = 1; i <= this.num_users; i++) {
             // The name will be prefixed with their UserId. This increases
             // the likelihood that all of our usernames are going to be unique
@@ -198,8 +199,11 @@ public class WikipediaLoader extends Loader {
                 userInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Users  % " + i);
+                if (LOG.isDebugEnabled()) {
+                    int percent = (int) (((double) i / (double) this.num_users) * 100);
+                    if (percent != lastPercent) LOG.debug("USERACCT (" + percent + "%)");
+                    lastPercent = percent;
+                }
             }
         } // FOR
         if (batchSize > 0) {
@@ -261,7 +265,7 @@ public class WikipediaLoader extends Loader {
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) i / (double) this.num_pages) * 100);
-                    if (percent != lastPercent) LOG.debug("Page  % " + percent);
+                    if (percent != lastPercent) LOG.debug("PAGE (" + percent + "%)");
                     lastPercent = percent;
                 }
             }
@@ -328,7 +332,7 @@ public class WikipediaLoader extends Loader {
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) user_id / (double) this.num_users) * 100);
-                    if (percent != lastPercent) LOG.debug("Watchlist  % " + percent);
+                    if (percent != lastPercent) LOG.debug("Watchlist " + percent + "%");
                     lastPercent = percent;
                 }
             }
@@ -436,7 +440,7 @@ public class WikipediaLoader extends Loader {
                 
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) page_id / (double) this.num_pages) * 100);
-                    if (percent != lastPercent) LOG.debug("Revisions  % " + percent);
+                    if (percent != lastPercent) LOG.debug("REVISIONS (" + percent + "%)");
                     lastPercent = percent;
                 }
             }
