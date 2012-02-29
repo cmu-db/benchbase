@@ -28,6 +28,58 @@ class Histogram(object):
 ## CLASS
 
 ## ==============================================
+## processTrace
+## ==============================================
+def processTrace(traceFile):
+    ## For the given trace, we want to build a histogram of what pages are accessed 
+    ## and what users modified them. We will normalize the user_ids using our own list
+    user_ids = { }
+    user_id_ctr = 1
+    user_h = Histogram()
+    page_h = Histogram()
+    
+    total = 0
+    with open(traceFile, "r") as f:
+        for line in f:
+            fields = line.split(" ")
+            assert len(fields) == 4, line
+            orig_user = int(fields[0])
+            namespace = int(fields[1])
+            title = fields[2].strip()
+            
+            new_user = None
+            if orig_user == 0:
+                new_user = orig_user
+            else:
+                if not orig_user in user_ids:
+                    new_user = user_id_ctr
+                    user_ids[orig_user] = user_id_ctr
+                    user_id_ctr += 1
+                else:
+                    new_user = user_ids[orig_user]
+            ## IF
+            assert new_user != None
+            
+            user_h.put(new_user)
+            page_h.put(title)
+            total += 1
+        ## FOR
+    ## WITH
+    
+    print "Anonymous Updates: %d / %d [%f]" % (user_h.get(0), total, user_h.get(0) / float(total))
+    
+    ## Now reverse them
+    updates_per_user = Histogram()
+    for x, cnt in user_h.data.items():
+        if x == 0: continue
+        updates_per_user.put(cnt)
+    ## FOR
+    
+    pprint(updates_per_user.data)
+    #pprint(page_h.data)
+## DEF
+
+## ==============================================
 ## extractHistograms
 ## ==============================================
 def extractHistograms(histograms, tableName, len_fields=[], cnt_fields=[], custom_fields={}):
@@ -65,11 +117,18 @@ def extractHistograms(histograms, tableName, len_fields=[], cnt_fields=[], custo
 ## ==============================================
 if __name__ == '__main__':
     aparser = argparse.ArgumentParser()
-    aparser.add_argument('--host', type=str, required=True, help='MySQL host name')
-    aparser.add_argument('--name', type=str, required=True, help='MySQL database name')
-    aparser.add_argument('--user', type=str, required=True, help='MySQL username')
-    aparser.add_argument('--pass', type=str, required=True, help='MySQL password')
+    aparser.add_argument('--host', type=str, required=False, help='MySQL host name')
+    aparser.add_argument('--name', type=str, required=False, help='MySQL database name')
+    aparser.add_argument('--user', type=str, required=False, help='MySQL username')
+    aparser.add_argument('--pass', type=str, required=False, help='MySQL password')
+    aparser.add_argument('--trace', type=str, required=False, help='MySQL password')
     args = vars(aparser.parse_args())
+    
+    if args['trace']:
+        processTrace(args['trace'])
+        #print h.toJava()
+        sys.exit(0)
+    ## IF
     
     mysql_conn = mdb.connect(host=args['host'], db=args['name'], user=args['user'], passwd=args['pass'])
     c1 = mysql_conn.cursor()

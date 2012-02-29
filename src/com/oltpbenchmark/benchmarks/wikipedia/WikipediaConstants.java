@@ -2,6 +2,18 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 
 public abstract class WikipediaConstants {
 
+    /**
+     * The percentage of page updates that are made by anonymous users [0%-100%]
+     */
+    public static final int ANONYMOUS_PAGE_UPDATE_PROB = 26; 
+    
+    /**
+     * 
+     */
+    public static final int ANONYMOUS_USER_ID = 0;
+    
+    public static final double USER_ID_SIGMA = 1.0001d;
+    
 	/**
 	 * Length of the tokens
 	 */
@@ -52,6 +64,6 @@ public abstract class WikipediaConstants {
 	public static final String TABLENAME_VALUE_BACKUP      = "value_backup";
 	public static final String TABLENAME_WATCHLIST         = "watchlist";
 	
-	public static final int BATCH_SIZE = 100;
+	public static final int BATCH_SIZE = 1000;
 
 }

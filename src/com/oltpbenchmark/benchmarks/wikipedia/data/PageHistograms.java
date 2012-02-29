@@ -127,8 +127,8 @@ public abstract class PageHistograms {
      */
     public static final Histogram<Integer> REVISIONS_PER_PAGE = new Histogram<Integer>() {
         {
-            this.put(1, 20000);  // XXX 39401
-            this.put(2, 10000); // XXX 16869
+            this.put(1, 39401);  // XXX 39401
+            this.put(2, 16869); // XXX 16869
             this.put(3, 8127);
             this.put(4, 5229);
             this.put(5, 3621);
@@ -315,7 +315,7 @@ public abstract class PageHistograms {
             this.put(970, 1);
             this.put(980, 3);
             this.put(990, 2);
-            this.put(1000, 16);
+            this.put(1000, 1);
         }
     };
     

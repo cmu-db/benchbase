@@ -17,6 +17,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
+import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.DatabaseType;
@@ -110,19 +111,31 @@ public class WikipediaLoader extends Loader {
         if (file == null || b.getTraceSize() == 0) return (null);
         
         assert(this.num_pages == this.titles.size());
-        ZipfianGenerator pages = new ZipfianGenerator(this.num_pages);
-        
         LOG.info(String.format("Generating a %dk traces to '%s'", b.getTraceSize(), file));
+        
+        Zipf z_users = new Zipf(rng(), 1, this.num_users, WikipediaConstants.USER_ID_SIGMA);
+        Zipf z_pages = new Zipf(rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
         
         PrintStream ps = new PrintStream(file);
         for (int i = 0, cnt = (b.getTraceSize() * 1000); i < cnt; i++) {
-            int user_id = rng().nextInt(this.num_users) + 1;
-            // lets 10% be unauthenticated users
-            if (user_id % 10 == 0) {
-                user_id = 0;
+            int user_id = -1;
+            
+            // Check whether this should be an anonymous update
+            if (rng().nextInt(100) < WikipediaConstants.ANONYMOUS_PAGE_UPDATE_PROB) {
+                user_id = WikipediaConstants.ANONYMOUS_USER_ID;
             }
-            Pair<Integer, String> p = this.titles.get(pages.nextInt());
-            ps.println(String.format("%d %d %s", user_id, p.getFirst(), p.getSecond()));
+            // Otherwise figure out what user is updating this page
+            else {
+                user_id = z_users.nextInt();
+            }
+            assert(user_id != -1);
+            
+            // Figure out what page they're going to update
+            int page_id = z_pages.nextInt();
+            Pair<Integer, String> p = this.titles.get(page_id);
+            assert(p != null);
+            
+            TransactionSelector.writeEntry(ps, user_id, p.getFirst(), p.getSecond());
         } // FOR
         ps.close();
         return (file);
@@ -277,6 +290,7 @@ public class WikipediaLoader extends Loader {
         Zipf h_pageId = new Zipf(rng(), 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
         int batchSize = 0;
+        int lastPercent = -1;
         Set<Integer> userPages = new HashSet<Integer>();
         for (int user_id = 1; user_id <= this.num_users; user_id++) {
             int num_watches = h_numWatches.nextInt();
@@ -310,7 +324,9 @@ public class WikipediaLoader extends Loader {
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Watchlist  % " + (int) (((double) user_id / (double) this.num_users) * 100));
+                    int percent = (int) (((double) user_id / (double) this.num_users) * 100);
+                    if (percent != lastPercent) LOG.debug("Watchlist  % " + percent);
+                    lastPercent = percent;
                 }
             }
         } // FOR

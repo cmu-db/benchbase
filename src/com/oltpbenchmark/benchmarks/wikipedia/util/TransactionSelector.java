@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -70,5 +71,9 @@ public class TransactionSelector {
 		} // WHILE
 		this.reader.close();
 		return transactions;
+	}
+	
+	public static void writeEntry(OutputStream out, int userId, int pageNamespace, String pageTitle) throws IOException {
+	    out.write(String.format("%d %d %s\n", userId, pageNamespace, pageTitle).getBytes());
 	}
 }
