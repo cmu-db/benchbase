@@ -156,6 +156,7 @@ public class DBWorkload {
         wrkld.setTerminals(xmlConfig.getInt("terminals"));
         wrkld.setIsolationMode(xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE"));
         wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
+        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
 
         int size = xmlConfig.configurationsAt("works.work").size();
         for (int i = 0; i < size; i++) {

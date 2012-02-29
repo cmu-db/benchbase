@@ -19,7 +19,6 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
@@ -231,6 +230,7 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<String> h_restrictions = new FlatHistogram<String>(this.rng(), PageHistograms.RESTRICTIONS);
 
         int batchSize = 0;
+        int lastPercent = -1;
         for (int i = 1; i <= this.num_pages; i++) {
             String title = TextGenerator.randomStr(rng(), h_titleLength.nextValue().intValue());
             int namespace = h_namespace.nextValue().intValue();
@@ -259,8 +259,11 @@ public class WikipediaLoader extends Loader {
                 pageInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Page  % " + batchSize);
+                if (LOG.isDebugEnabled()) {
+                    int percent = (int) (((double) i / (double) this.num_pages) * 100);
+                    if (percent != lastPercent) LOG.debug("Page  % " + percent);
+                    lastPercent = percent;
+                }
             }
         } // FOR
         if (batchSize > 0) {
@@ -365,12 +368,14 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
         
         int rev_id = 1;
+        int lastPercent = -1;
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
             // There must be at least one revision per page
             int num_revised = h_numRevisions.nextValue().intValue();
             
             // Generate what the new revision is going to be
             int old_text_length = h_textLength.nextValue().intValue();
+            assert(old_text_length > 0);
             char old_text[] = TextGenerator.randomChars(rng(), old_text_length);
             
             for (int i = 0; i < num_revised; i++) {
@@ -428,6 +433,12 @@ public class WikipediaLoader extends Loader {
                 this.addToTableCount(textTable.getName(), batchSize);
                 this.addToTableCount(revTable.getName(), batchSize);
                 batchSize = 0;
+                
+                if (LOG.isDebugEnabled()) {
+                    int percent = (int) (((double) page_id / (double) this.num_pages) * 100);
+                    if (percent != lastPercent) LOG.debug("Revisions  % " + percent);
+                    lastPercent = percent;
+                }
             }
         } // FOR (page)
         if (this.getDatabaseType() == DatabaseType.POSTGRES) {

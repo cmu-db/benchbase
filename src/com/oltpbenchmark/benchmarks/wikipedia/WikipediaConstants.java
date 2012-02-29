@@ -28,11 +28,6 @@ public abstract class WikipediaConstants {
 	 * Number of baseline Users
 	 */
 	public static final int USERS = 2000;
-
-	/**
-	 * Average revision per page
-	 */
-	public static final int REVISIONS = 15;
 	
     // ----------------------------------------------------------------
 	// DISTRIBUTION CONSTANTS

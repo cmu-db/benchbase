@@ -24,15 +24,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
 public class GetPageAuthenticated extends Procedure {
-    private static final Logger LOG = Logger.getLogger(GetPageAuthenticated.class);
 	
     // -----------------------------------------------------------------
     // STATEMENTS
@@ -142,7 +139,6 @@ public class GetPageAuthenticated extends Procedure {
         st.setInt(2, pageId);
         rs = st.executeQuery();
         if (!rs.next()) {
-            LOG.warn("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
             throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
 
@@ -160,7 +156,6 @@ public class GetPageAuthenticated extends Procedure {
         st.setInt(1, textId);
         rs = st.executeQuery();
         if (!rs.next()) {
-            LOG.warn("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
             throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
         Article a = null;
