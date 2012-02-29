@@ -83,7 +83,7 @@ public abstract class AuctionMarkConstants {
      * If set to true, then the first client will attempt to reset the database
      * before starting the benchmark execution
      */
-    public static final boolean RESET_DATABASE_ENABLE = true;
+    public static final boolean RESET_DATABASE_ENABLE = false;
     
     
     // ----------------------------------------------------------------

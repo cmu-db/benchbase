@@ -59,7 +59,7 @@ public class CloseAuctions extends Procedure {
         "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR + 
          " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " + 
          "WHERE (i_start_date BETWEEN ? AND ?) " +
-           "AND i_status = " + ItemStatus.OPEN.ordinal() + " " +
+         "AND ? " +
          "ORDER BY i_id ASC " +
          "LIMIT " + AuctionMarkConstants.CLOSE_AUCTIONS_ITEMS_PER_ROUND
     );
@@ -127,6 +127,7 @@ public class CloseAuctions extends Procedure {
             param = 1;
             dueItemsStmt.setTimestamp(param++, startTime);
             dueItemsStmt.setTimestamp(param++, endTime);
+            dueItemsStmt.setInt(param++, ItemStatus.OPEN.ordinal());
             dueItemsTable = dueItemsStmt.executeQuery();
             boolean adv = dueItemsTable.next();
             if (adv == false) break;

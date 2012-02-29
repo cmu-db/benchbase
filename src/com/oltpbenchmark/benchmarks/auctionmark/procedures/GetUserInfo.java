@@ -74,7 +74,7 @@ public class GetUserInfo extends Procedure {
         "       ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created " +
         "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + ", " + 
                     AuctionMarkConstants.TABLENAME_ITEM_COMMENT +
-        " WHERE i_u_id = ? AND i_status = " + ItemStatus.OPEN.ordinal() + 
+        " WHERE i_u_id = ? AND i_status = ? "+ 
         "   AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL " +
         " ORDER BY ic_created DESC LIMIT 25 "
     );
@@ -149,7 +149,7 @@ public class GetUserInfo extends Procedure {
         // And any pending ITEM_COMMENTS that need a response
         if (get_comments) {
             if (debug) LOG.debug("Grabbing ITEM_COMMENT records: " + user_id);
-            stmt = this.getPreparedStatement(conn, getItemComments, user_id);
+            stmt = this.getPreparedStatement(conn, getItemComments, user_id, ItemStatus.OPEN.ordinal());
             results[result_idx] = stmt.executeQuery();
         }
         result_idx++;
