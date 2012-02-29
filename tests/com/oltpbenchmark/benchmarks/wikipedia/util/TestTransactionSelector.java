@@ -30,7 +30,8 @@ public class TestTransactionSelector extends TestCase {
         for (int i = 0; i < NUM_TRACES; i++) {
             int userId = rng.nextInt(NUM_USERS-1)+1;
             int pageNamespace = rng.nextInt(NUM_NAMESPACES);
-            String title = TextGenerator.randomStr(rng, rng.nextInt(100));
+            // Use special barriers to make sure that we get everything
+            String title = TextGenerator.randomStr(rng, rng.nextInt(100)) + "<<";
             if (appendHyphen) title += " - ";
             TransactionSelector.writeEntry(ps, userId, pageNamespace, title);
         } // FOR
@@ -45,7 +46,7 @@ public class TestTransactionSelector extends TestCase {
             assertNotNull(o);
             assertTrue(o.toString(), o.userId > 0);
             assertNotNull(o.toString(), o.pageTitle);
-            assertFalse(o.toString(), o.pageTitle.endsWith(" - "));
+            assertTrue(o.toString(), o.pageTitle.endsWith("<<"));
         } // FOR
     }
     
