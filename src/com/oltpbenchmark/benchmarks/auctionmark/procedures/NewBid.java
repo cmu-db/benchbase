@@ -168,6 +168,7 @@ public class NewBid extends Procedure {
         long i_num_bids = results.getLong(col++);
         Timestamp i_end_date = results.getTimestamp(col++);
         ItemStatus i_status = ItemStatus.get(results.getLong(col++));
+        results.close();
         long newBidId = 0;
         long newBidMaxBuyerId = buyer_id;
         
@@ -188,6 +189,7 @@ public class NewBid extends Procedure {
             boolean advanceRow = results.next();
             assert (advanceRow);
             newBidId = results.getLong(1) + 1;
+            results.close();
             
             // Get the current max bid record for this item
             stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
@@ -199,6 +201,8 @@ public class NewBid extends Procedure {
             double currentBidAmount = results.getDouble(col++);
             double currentBidMax = results.getDouble(col++);
             long currentBuyerId = results.getLong(col++);
+            results.close();
+            
             boolean updateMaxBid = false;
             assert((int)currentBidAmount == (int)i_current_price) :
                 String.format("%.2f == %.2f", currentBidAmount, i_current_price);

@@ -405,6 +405,8 @@ public class AuctionMarkProfile {
                     result_idx++;
                 } // FOR
                 
+                for (ResultSet r : results) r.close();
+                
                 if (LOG.isDebugEnabled())
                     LOG.debug("Loaded profile:\n" + cachedProfile.toString());
             }

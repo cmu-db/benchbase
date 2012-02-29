@@ -179,6 +179,7 @@ public class NewPurchase extends Procedure {
                 String.format("Failed to update %s for Seller #%d's Item #%d",
                               AuctionMarkConstants.TABLENAME_ITEM_MAX_BID, seller_id, item_id);
         }
+        results.close();
         
         // Get the ITEM_MAX_BID record so that we know what we need to process
         // At this point we should always have an ITEM_MAX_BID record
@@ -196,6 +197,7 @@ public class NewPurchase extends Procedure {
         long ib_id = results.getLong(col++);
         long ib_buyer_id = results.getLong(col++);
         double u_balance = results.getDouble(col++);
+        results.close();
         
         // Make sure that the buyer has enough money to cover this charge
         // We can add in a credit for the buyer's account

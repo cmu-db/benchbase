@@ -168,6 +168,7 @@ public class CloseAuctions extends Procedure {
                     updated = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime).executeUpdate();
                     assert(updated == 1);
                     itemStatus = ItemStatus.WAITING_FOR_PURCHASE;
+                    maxBidResults.close();
                 }
                 // No bid on this item - set status to CLOSED
                 else {

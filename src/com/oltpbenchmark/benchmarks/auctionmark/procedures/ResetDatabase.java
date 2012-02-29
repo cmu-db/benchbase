@@ -51,6 +51,7 @@ public class ResetDatabase extends Procedure {
         assert(adv);
         Timestamp loaderStop = rs.getTimestamp(1);
         assert(loaderStop != null);
+        rs.close();
         
         // Reset ITEM information
         stmt = this.getPreparedStatement(conn, resetItems, ItemStatus.OPEN.ordinal(),

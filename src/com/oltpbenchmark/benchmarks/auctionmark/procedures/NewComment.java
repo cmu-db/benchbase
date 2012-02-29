@@ -94,8 +94,15 @@ public class NewComment extends Procedure {
         if (results.next()) {
             ic_id = results.getLong(1) + 1;
         }
+        results.close();
 
-        this.getPreparedStatement(conn, insertItemComment, ic_id, item_id, seller_id, buyer_id, question, currentTime, currentTime).executeUpdate();
+        this.getPreparedStatement(conn, insertItemComment, ic_id,
+                                                           item_id,
+                                                           seller_id,
+                                                           buyer_id,
+                                                           question,
+                                                           currentTime,
+                                                           currentTime).executeUpdate();
         this.getPreparedStatement(conn, updateItemComments, item_id, seller_id).executeUpdate();
         this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
 

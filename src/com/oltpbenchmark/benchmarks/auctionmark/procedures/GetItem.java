@@ -28,15 +28,14 @@
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 
 /**
  * Get Item Information
@@ -77,16 +76,22 @@ public class GetItem extends Procedure {
         for (int i = 0; i < item_row.length; i++) {
             item_row[i] = item_results.getObject(i+1);
         } // FOR
+        item_results.close();
         
         PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id);
         ResultSet user_results = user_stmt.executeQuery();
-        if (user_results.next() == false) {
-            throw new UserAbortException("Invalid user id " + seller_id);
+        Object user_row[] = null;
+        try {
+            if (user_results.next() == false) {
+                throw new UserAbortException("Invalid user id " + seller_id);
+            }
+            user_row = new Object[user_results.getMetaData().getColumnCount()];
+            for (int i = 0; i < user_row.length; i++) {
+                user_row[i] = user_results.getObject(i+1);
+            } // FOR
+        } finally {
+            user_results.close();
         }
-        Object user_row[] = new Object[user_results.getMetaData().getColumnCount()];
-        for (int i = 0; i < user_row.length; i++) {
-            user_row[i] = user_results.getObject(i+1);
-        } // FOR
         
         return (new Object[][]{ item_row, user_row });
     }

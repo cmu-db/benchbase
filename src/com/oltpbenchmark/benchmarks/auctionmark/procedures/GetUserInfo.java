@@ -198,6 +198,7 @@ public class GetUserInfo extends Procedure {
                 } // WHILE
             }
             final_results[result_idx] = inner;
+            results[result_idx].close();
         } // FOR
         
         return (final_results);

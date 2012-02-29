@@ -119,6 +119,7 @@ public class UpdateItem extends Procedure {
             } else {
                 ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
             }
+            results.close();
             assert(ia_id > 0);
 
             stmt = this.getPreparedStatement(conn, insertItemAttribute, ia_id, item_id, seller_id, gag_id, gav_id);

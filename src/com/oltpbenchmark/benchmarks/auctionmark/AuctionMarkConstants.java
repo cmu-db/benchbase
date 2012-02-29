@@ -64,7 +64,7 @@ public abstract class AuctionMarkConstants {
     // EXECUTION CONFIGURATION
     // ----------------------------------------------------------------
     
-    public static boolean CLOSE_AUCTIONS_ENABLE = true;
+    public static boolean CLOSE_AUCTIONS_ENABLE = false;
     
     /**
      * How often to execute CLOSE_AUCTIONS in virtual seconds

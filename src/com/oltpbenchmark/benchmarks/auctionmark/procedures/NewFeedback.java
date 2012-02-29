@@ -96,9 +96,21 @@ public class NewFeedback extends Procedure {
         if (rs.next()) {
             throw new UserAbortException("Trying to add feedback for item " + i_id + " twice");
         }
+        rs.close();
 
-        this.getPreparedStatement(conn, insertFeedback, user_id, i_id, seller_id, from_id, rating, currentTime, comment).executeUpdate();
-        this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
+        stmt = this.getPreparedStatement(conn, insertFeedback, user_id,
+                                                               i_id,
+                                                               seller_id,
+                                                               from_id,
+                                                               rating,
+                                                               currentTime,
+                                                               comment);
+        int updated = stmt.executeUpdate();
+        assert(updated == 1) :
+            "Failed to add feedback for Item #" + i_id;
+        updated = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
+        assert(updated == 1) :
+            "Failed to updated User #" + user_id;
 
         return;
     }

@@ -198,6 +198,7 @@ public class NewItem extends Procedure {
                 col = 1;
                 description += String.format(" * %s -> %s\n", results.getString(col++), results.getString(col++));
             }
+            results.close();
         } // FOR
         
         // CATEGORY
@@ -206,6 +207,7 @@ public class NewItem extends Procedure {
         boolean adv = results.next();
         assert(adv);
         String category_name = String.format("%s[%d]", results.getString(2), results.getInt(1));
+        results.close();
         
         // CATEGORY PARENT
         stmt = this.getPreparedStatement(conn, getCategoryParent, category_id);
@@ -217,6 +219,7 @@ public class NewItem extends Procedure {
             category_parent = "<ROOT>";
         }
         description += String.format("\nCATEGORY: %s >> %s", category_parent, category_name);
+        results.close();
 
         // Insert new ITEM tuple
         stmt = this.getPreparedStatement(conn, insertItem,
