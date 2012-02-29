@@ -54,7 +54,7 @@ CREATE TABLE CONFIG_PROFILE (
     cfp_scale_factor            FLOAT NOT NULL,
     cfp_loader_start            DATETIME NOT NULL,
     cfp_loader_stop             DATETIME NOT NULL,
-    cfp_user_item_histogram     VARCHAR(12000) NOT NULL
+    cfp_user_item_histogram     TEXT NOT NULL
 );
 
 CREATE TABLE REGION (
@@ -106,7 +106,6 @@ CREATE TABLE CATEGORY (
     c_parent_id         BIGINT REFERENCES CATEGORY (c_id),
     PRIMARY KEY (c_id)
 );
-CREATE INDEX IDX_CATEGORY_PARENT ON CATEGORY (c_parent_id);
 
 CREATE TABLE GLOBAL_ATTRIBUTE_GROUP (
     gag_id              BIGINT NOT NULL,
