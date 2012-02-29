@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -43,7 +44,8 @@ import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
 public class WikipediaBenchmark extends BenchmarkModule {
-	
+    private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
+    
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;
     private final FlatHistogram<Integer> revisionDeltas[];
@@ -125,6 +127,8 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+	    LOG.info(String.format("Initializing %d %s using '%s' as the input trace file",
+                               workConf.getTerminals(), WikipediaWorker.class.getSimpleName(), this.traceInput));
 		TransactionSelector transSel = new TransactionSelector(this.traceInput, workConf.getTransTypes());
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		
