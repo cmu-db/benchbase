@@ -200,8 +200,8 @@ public abstract class Worker implements Runnable {
 
 			TransactionType type = invalidTT;
 			if (phase != null) type = doWork(measure, phase);
-			assert(type != null) :
-			    "Unexpected null TransactionType returned from doWork";
+//			assert(type != null) :
+//			    "Unexpected null TransactionType returned from doWork\n" + this.transactionTypes;
 			
 			if (measure && type !=null) {
 				long end = System.nanoTime();
@@ -249,7 +249,7 @@ public abstract class Worker implements Runnable {
         	            case SUCCESS:
         	                this.txnSuccess.put(next);
         	                if (LOG.isDebugEnabled()) 
-                                LOG.debug(this.id+" Executed a new invocation of " + next);
+                                LOG.debug("Executed a new invocation of " + next);
         	                break;
         	            case RETRY_DIFFERENT:
         	                this.txnRetry.put(next);
@@ -289,7 +289,7 @@ public abstract class Worker implements Runnable {
                 } catch (SQLException ex) {
                                        
                     //TODO: Handle acceptable error codes for every DBMS     
-                    if (LOG.isDebugEnabled()) LOG.debug(this.id+" " + next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
+                    if (LOG.isDebugEnabled()) LOG.debug(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
                     //FIXME: Retry anyway !
                     this.txnRetry.put(next);
                     
