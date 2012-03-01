@@ -31,7 +31,6 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -437,22 +436,10 @@ public class AuctionMarkWorker extends Worker {
         ItemId i_id = new ItemId(SQLUtil.getLong(row[col++]));  // i_id
         long i_u_id = SQLUtil.getLong(row[col++]);              // i_u_id
         String i_name = (String)row[col++];                     // i_name
-        
-        double i_current_price;                                 // i_current_price
-        if (row[col] instanceof Float) {
-            i_current_price = ((Float)row[col++]).doubleValue();
-        } else {
-            i_current_price = (Double)row[col++];
-        }
+        double i_current_price = SQLUtil.getDouble(row[col++]); // i_current_price
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
-        Timestamp i_end_date = null;                            // i_end_date
-        if (row[col] instanceof Timestamp) {
-            i_end_date = (Timestamp)row[col++];
-        } else {
-            assert(false);
-            // i_end_date = (Date)row[col++];
-        }
-        ItemStatus i_status = ItemStatus.get((Integer)row[col++]); // i_status
+        Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
+        ItemStatus i_status = ItemStatus.get(SQLUtil.getInteger(row[col++])); // i_status
         
         ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, (int)i_num_bids);
         itemInfo.status = i_status;

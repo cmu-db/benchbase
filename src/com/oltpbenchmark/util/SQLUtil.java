@@ -1,10 +1,12 @@
 package com.oltpbenchmark.util;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -28,6 +30,24 @@ public abstract class SQLUtil {
     };
 
     /**
+     * Return a Integer from the given object
+     * Handles the different cases from the various DBMSs
+     * @param obj
+     * @return
+     */
+    public static Integer getInteger(Object obj) {
+        if (obj == null) return (null);
+        
+        if (obj instanceof Integer || obj.getClass().equals(int.class)) {
+            return (Integer)obj;
+        }
+        else if (obj instanceof BigDecimal) {
+             return ((BigDecimal)obj).intValue();
+        }
+        return (null);
+    }
+    
+    /**
      * Return a long from the given object
      * Handles the different cases from the various DBMSs
      * @param obj
@@ -45,9 +65,48 @@ public abstract class SQLUtil {
         else if (obj instanceof BigDecimal) {
              return ((BigDecimal)obj).longValue();
         }
-         
-        // HACK
-        return (null); // Long.parseLong(obj.toString());
+        return (null);
+    }
+    
+    /**
+     * Return a double from the given object
+     * Handles the different cases from the various DBMSs
+     * @param obj
+     * @return
+     */
+    public static Double getDouble(Object obj) {
+        if (obj == null) return (null);
+        
+        if (obj instanceof Double || obj.getClass().equals(double.class)) {
+            return (Double)obj;
+        }
+        else if (obj instanceof Float || obj.getClass().equals(float.class)) {
+            return ((Float)obj).doubleValue();
+        }
+        else if (obj instanceof BigDecimal) {
+             return ((BigDecimal)obj).doubleValue();
+        }
+        return (null);
+    }
+    
+    /**
+     * Return a double from the given object
+     * Handles the different cases from the various DBMSs
+     * @param obj
+     * @return
+     */
+    public static Timestamp getTimestamp(Object obj) {
+        if (obj == null) return (null);
+        
+        if (obj instanceof Timestamp) {
+            return (Timestamp)obj;
+        }
+        else if (obj instanceof Date) {
+            return new Timestamp(((Date)obj).getTime());
+        }
+        
+        Long timestamp = SQLUtil.getLong(obj);
+        return (timestamp != null ? new Timestamp(timestamp) : null);
     }
     
     /**
