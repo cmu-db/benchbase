@@ -1,5 +1,6 @@
 package com.oltpbenchmark.util;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -26,6 +27,29 @@ public abstract class SQLUtil {
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
     };
 
+    /**
+     * Return a long from the given object
+     * Handles the different cases from the various DBMSs
+     * @param obj
+     * @return
+     */
+    public static Long getLong(Object obj) {
+        if (obj == null) return (null);
+        
+        if (obj instanceof Long) {
+            return (Long)obj;
+        }
+        else if (obj.getClass().equals(long.class)) {
+            return (Long)obj;
+        }
+        else if (obj instanceof BigDecimal) {
+             return ((BigDecimal)obj).longValue();
+        }
+         
+        // HACK
+        return (null); // Long.parseLong(obj.toString());
+    }
+    
     /**
      * Return the internal sequence name for the given Column
      * @param dbType

@@ -31,6 +31,7 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemCommentResponse;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class AuctionMarkWorker extends Worker {
     private static final Logger LOG = Logger.getLogger(AuctionMarkWorker.class);
@@ -432,8 +434,8 @@ public class AuctionMarkWorker extends Worker {
     @SuppressWarnings("unused")
     public ItemId processItemRecord(Object row[]) {
         int col = 0;
-        ItemId i_id = new ItemId((Long)row[col++]);             // i_id
-        long i_u_id = (Long)row[col++];                         // i_u_id
+        ItemId i_id = new ItemId(SQLUtil.getLong(row[col++]));  // i_id
+        long i_u_id = SQLUtil.getLong(row[col++]);              // i_u_id
         String i_name = (String)row[col++];                     // i_name
         
         double i_current_price;                                 // i_current_price
@@ -442,7 +444,7 @@ public class AuctionMarkWorker extends Worker {
         } else {
             i_current_price = (Double)row[col++];
         }
-        long i_num_bids = (Long)row[col++];                     // i_num_bids
+        long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = null;                            // i_end_date
         if (row[col] instanceof Timestamp) {
             i_end_date = (Timestamp)row[col++];
@@ -580,10 +582,8 @@ public class AuctionMarkWorker extends Worker {
                         valid = false;
                         break;
                     }
-                    Class<?> valClass = row[i].getClass();
-                    if (valClass.equals(Long.class) || valClass.equals(long.class)) {
-                        vals[i] = (Long)row[i];
-                    } else {
+                    vals[i] = SQLUtil.getLong(row[i]);
+                    if (vals[i] == null) {
                         valid = false;
                         break;
                     }
@@ -701,9 +701,9 @@ public class AuctionMarkWorker extends Worker {
         conn.commit();
         assert(results != null);
         
-        profile.pending_commentResponses.add(new ItemCommentResponse((Long)results[0],
-                                                                     (Long)results[1],
-                                                                     (Long)results[2]));
+        profile.pending_commentResponses.add(new ItemCommentResponse(SQLUtil.getLong(results[0]),
+                                                                     SQLUtil.getLong(results[1]),
+                                                                     SQLUtil.getLong(results[2])));
         return (true);
     }
     
