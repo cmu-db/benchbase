@@ -236,7 +236,7 @@ public class UpdatePage extends Procedure {
 		// UPDATING WATCHLIST: txn3 (not always, only if someone is watching the
 		// page, might be part of txn2)
 		// =====================================================================
-		if (!wlUser.isEmpty()) {
+		if (wlUser.isEmpty() == false) {
 
 			// NOTE: this commit is skipped if none is watching the page, and
 			// the transaction merge with the following one

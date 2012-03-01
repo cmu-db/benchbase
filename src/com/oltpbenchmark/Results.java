@@ -38,6 +38,7 @@ public final class Results {
     final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>(true);
     final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>(true);
     final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>(true);
+    final Histogram<TransactionType> txnErrors = new Histogram<TransactionType>(true);
     final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
     
     public final List<LatencyRecord.Sample> latencySamples;
@@ -68,6 +69,9 @@ public final class Results {
     }
     public final Histogram<TransactionType> getTransactionAbortHistogram() {
         return (this.txnAbort);
+    }
+    public final Histogram<TransactionType> getTransactionErrorHistogram() {
+        return (this.txnErrors);
     }
     public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
         return (this.txnAbortMessages);

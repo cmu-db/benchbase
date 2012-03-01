@@ -40,6 +40,7 @@ public abstract class Worker implements Runnable {
 	private final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
 	private final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
 	private final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
+	private final Histogram<TransactionType> txnErrors = new Histogram<TransactionType>();
 	private final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
 	
 	private boolean seenDone = false;
@@ -134,6 +135,9 @@ public abstract class Worker implements Runnable {
     }
     public final Histogram<TransactionType> getTransactionAbortHistogram() {
         return (this.txnAbort);
+    }
+    public final Histogram<TransactionType> getTransactionErrorHistogram() {
+        return (this.txnErrors);
     }
     public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
         return (this.txnAbortMessages);
@@ -254,6 +258,7 @@ public abstract class Worker implements Runnable {
         	            case RETRY_DIFFERENT:
         	                this.txnRetry.put(next);
         	                next = null;
+        	                status = TransactionStatus.RETRY;
         	                continue;
         	            case RETRY:
         	                continue;
@@ -289,9 +294,10 @@ public abstract class Worker implements Runnable {
                 } catch (SQLException ex) {
                                        
                     //TODO: Handle acceptable error codes for every DBMS     
-                    if (LOG.isDebugEnabled()) LOG.debug(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
-                    //FIXME: Retry anyway !
-                    this.txnRetry.put(next);
+//                    if (LOG.isDebugEnabled()) 
+                        LOG.warn(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
+
+                    this.txnErrors.put(next);
                     
                     if (savepoint != null) {
                         this.conn.rollback(savepoint);

@@ -314,6 +314,7 @@ public class DBWorkload {
                 EXEC_LOG.info("Completed Transactions:\n" + r.getTransactionSuccessHistogram() + "\n");
                 EXEC_LOG.info("Aborted Transactions:\n" + r.getTransactionAbortHistogram() + "\n");
                 EXEC_LOG.info("Rejected Transactions:\n" + r.getTransactionRetryHistogram());
+                EXEC_LOG.info("Unexpected Errors:\n" + r.getTransactionErrorHistogram());
                 if (r.getTransactionAbortMessageHistogram().isEmpty() == false)
                     EXEC_LOG.info("User Aborts:\n" + StringUtil.formatMaps(r.getTransactionAbortMessageHistogram()));
             } else if (EXEC_LOG.isDebugEnabled()) {

@@ -24,6 +24,7 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
@@ -57,32 +58,41 @@ public class WikipediaWorker extends Worker {
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
-        WikipediaOperation t = generator.nextTransaction();
+        WikipediaOperation t = null;
+        
+        Class<? extends Procedure> procClass = nextTransaction.getProcedureClass();
+        boolean needUser = (procClass.equals(AddWatchList.class) ||
+                            procClass.equals(RemoveWatchList.class) ||
+                            procClass.equals(GetPageAuthenticated.class));    
+        while (t == null) {
+            t = this.generator.nextTransaction();
+            if (needUser && t.userId == 0) {
+                t = null;
+            }
+        } // WHILE
+        assert(t != null);
         
         // AddWatchList
-        if (nextTransaction.getProcedureClass().equals(AddWatchList.class)) {
-            if (t.userId == 0) {
-                return TransactionStatus.RETRY_DIFFERENT;
-            }
+        if (procClass.equals(AddWatchList.class)) {
+            assert(t.userId > 0);
             addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
         }
         // RemoveWatchList
-        else if (nextTransaction.getProcedureClass().equals(RemoveWatchList.class)) {
-            if (t.userId == 0) {
-                return TransactionStatus.RETRY_DIFFERENT;
-            }
+        else if (procClass.equals(RemoveWatchList.class)) {
+            assert(t.userId > 0);
             removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
         }
         // UpdatePage
-        else if (nextTransaction.getProcedureClass().equals(UpdatePage.class)) {
+        else if (procClass.equals(UpdatePage.class)) {
             updatePage(this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
         }
         // GetPageAnonymous
-        else if (nextTransaction.getProcedureClass().equals(GetPageAnonymous.class)) {
+        else if (procClass.equals(GetPageAnonymous.class)) {
             getPageAnonymous(true, this.generateUserIP(), t.nameSpace, t.pageTitle);
         }
         // GetPageAuthenticated
-        else if (nextTransaction.getProcedureClass().equals(GetPageAuthenticated.class)) {
+        else if (procClass.equals(GetPageAuthenticated.class)) {
+            assert(t.userId > 0);
             getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
         }
         
@@ -107,21 +117,20 @@ public class WikipediaWorker extends Worker {
 	 * @throws UnknownHostException
 	 */
 	public Article getPageAnonymous(boolean forSelect, String userIp,
-			int nameSpace, String pageTitle) throws SQLException {
+			                        int nameSpace, String pageTitle) throws SQLException {
 		GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);
         assert (proc != null);
         return proc.run(conn, forSelect, userIp, nameSpace, pageTitle);
 	}
 
 	public Article getPageAuthenticated(boolean forSelect, String userIp, int userId,
-			int nameSpace, String pageTitle) throws SQLException {
+			                            int nameSpace, String pageTitle) throws SQLException {
 		GetPageAuthenticated proc = this.getProcedure(GetPageAuthenticated.class);
         assert (proc != null);
         return proc.run(conn, forSelect, userIp, userId, nameSpace, pageTitle);
 	}
 	
-	public void addToWatchlist(int userId, int nameSpace, String pageTitle)
-			throws SQLException {
+	public void addToWatchlist(int userId, int nameSpace, String pageTitle) throws SQLException {
 		AddWatchList proc = this.getProcedure(AddWatchList.class);
         assert (proc != null);
         proc.run(conn, userId, nameSpace, pageTitle);
@@ -135,6 +144,8 @@ public class WikipediaWorker extends Worker {
 
 	public void updatePage(String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
 		Article a = getPageAnonymous(false, userIp, nameSpace, pageTitle);
+		conn.commit();
+		
 		// TODO: If the Article is null, then we want to insert a new page.
 		//       But we don't support that right now.
 		if (a == null) return;
