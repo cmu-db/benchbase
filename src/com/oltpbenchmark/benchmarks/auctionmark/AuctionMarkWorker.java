@@ -440,7 +440,10 @@ public class AuctionMarkWorker extends Worker {
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
         if (i_end_date == null) throw new RuntimeException("DJELLEL IS THE MAN! --> " + row[col-1] + " / " + row[col-1].getClass());
-        ItemStatus i_status = ItemStatus.get(SQLUtil.getInteger(row[col++])); // i_status
+        
+        Integer temp = SQLUtil.getInteger(row[col++]);
+        if (temp == null) throw new RuntimeException("DJELLEL IS STILL THE MAN! --> " + row[col-1] + " / " + row[col-1].getClass());
+        ItemStatus i_status = ItemStatus.get(temp); // i_status
         
         ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, (int)i_num_bids);
         itemInfo.status = i_status;
