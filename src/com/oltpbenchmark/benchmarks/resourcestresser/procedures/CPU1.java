@@ -13,12 +13,12 @@ public class CPU1 extends Procedure {
 
     public final SQLStmt cpuSelect;
     { 
-        String complexClause = "passwd";
+        String complexClause = "'passwd'";
         for (int i = 1; i <= ResourceStresserWorker.CPU1_nestedLevel; ++i) {
             complexClause = "md5(concat(" + complexClause +",?))";
         } // FOR
         cpuSelect = new SQLStmt(
-            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 1 AND empid <= 100)"
+            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 1 AND empid <= 100) AS T1"
         );
     }
     

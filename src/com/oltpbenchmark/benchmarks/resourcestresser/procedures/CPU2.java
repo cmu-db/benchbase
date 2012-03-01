@@ -18,7 +18,7 @@ public class CPU2 extends Procedure {
             complexClause = "md5(concat(" + complexClause +",?))";
         } // FOR
         cpuSelect = new SQLStmt(
-            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 1 AND empid <= 100) " 
+            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 1 AND empid <= 100) AS T2" 
         );
     }
     
