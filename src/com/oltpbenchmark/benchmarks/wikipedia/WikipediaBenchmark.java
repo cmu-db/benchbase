@@ -131,6 +131,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
                                workConf.getTerminals(), WikipediaWorker.class.getSimpleName(), this.traceInput));
 		TransactionSelector transSel = new TransactionSelector(this.traceInput, workConf.getTransTypes());
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
+		LOG.info("Total Number of Sample Operations: " + trace.size());
 		
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 		for (int i = 0; i < workConf.getTerminals(); ++i) {

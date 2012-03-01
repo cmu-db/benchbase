@@ -21,6 +21,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.Pair;
+import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import com.oltpbenchmark.util.SQLUtil;
@@ -112,7 +113,7 @@ public class WikipediaLoader extends Loader {
         assert(this.num_pages == this.titles.size());
         LOG.info(String.format("Generating a %dk traces to '%s'", b.getTraceSize(), file));
         
-        Zipf z_users = new Zipf(rng(), 1, this.num_users, WikipediaConstants.USER_ID_SIGMA);
+        Flat z_users = new Flat(rng(), 1, this.num_users);
         Zipf z_pages = new Zipf(rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
         
         PrintStream ps = new PrintStream(file);

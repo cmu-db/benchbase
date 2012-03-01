@@ -25,7 +25,7 @@ import com.oltpbenchmark.api.Operation;
 /** Immutable class containing information about transactions. */
 public final class WikipediaOperation extends Operation {
 	
-	public final int userId;
+	public int userId;
 	public final int nameSpace;
 	public final String pageTitle;
 

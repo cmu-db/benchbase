@@ -38,15 +38,21 @@ import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
+import com.oltpbenchmark.util.RandomDistribution.Flat;
 
 public class WikipediaWorker extends Worker {
     private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);
 	private final TransactionGenerator<WikipediaOperation> generator;
 
+	final Flat usersRng;
+	final int num_users;
+	
 	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule,
 	                       TransactionGenerator<WikipediaOperation> generator) {
 		super(benchmarkModule, id);
 		this.generator = generator;
+		this.num_users = (int) Math.round(WikipediaConstants.USERS * this.getWorkloadConfiguration().getScaleFactor());
+		this.usersRng = new Flat(rng(), 1, this.num_users);
 	}
 	
 	private String generateUserIP() {
@@ -71,6 +77,7 @@ public class WikipediaWorker extends Worker {
             }
         } // WHILE
         assert(t != null);
+        if (t.userId != 0) t.userId = this.usersRng.nextInt();
         
         // AddWatchList
         if (procClass.equals(AddWatchList.class)) {
