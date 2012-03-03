@@ -26,6 +26,7 @@ public class ReadModifyWriteRecord extends Procedure {
         	for (int i = 1; i < 11; i++)
         	    results.put(i, r.getString(i));
         }
+        r.close();
         stmt= this.getPreparedStatement(conn, updateAllStmt);
         stmt.setInt(11, keyname);
         

@@ -70,6 +70,7 @@ public class GetItem extends Procedure {
         PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
         ResultSet item_results = item_stmt.executeQuery();
         if (item_results.next() == false) {
+            item_results.close();
             throw new UserAbortException("Invalid item " + item_id);
         }
         Object item_row[] = new Object[item_results.getMetaData().getColumnCount()];

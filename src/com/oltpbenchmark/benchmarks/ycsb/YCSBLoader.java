@@ -53,6 +53,7 @@ public class YCSBLoader extends Loader {
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
         }
+        stmt.close();
         if (LOG.isDebugEnabled()) LOG.debug("Finished loading " + catalog_tbl.getName());
     }
 }

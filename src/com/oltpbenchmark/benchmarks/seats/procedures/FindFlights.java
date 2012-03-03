@@ -113,6 +113,7 @@ public class FindFlights extends Procedure {
                 if (debug) LOG.debug("DEPART NEARBY: " + aid + " distance=" + aid_distance + " miles");
                 arrive_aids.add(aid);
             } // WHILE
+            nearby_results.close();
         }
         
         // H-Store doesn't support IN clauses, so we'll only get nearby flights to nearby arrival cities
@@ -167,6 +168,7 @@ public class FindFlights extends Procedure {
                 row[r++] = ai_results.getString(2);     // [05] DEPART_AP_NAME
                 row[r++] = ai_results.getString(3);     // [06] DEPART_AP_CITY
                 row[r++] = ai_results.getString(7);     // [07] DEPART_AP_COUNTRY
+                ai_results.close();
                 
                 // ARRIVAL AIRPORT
                 ai_stmt.setLong(1, f_arrive_airport);
@@ -178,12 +180,14 @@ public class FindFlights extends Procedure {
                 row[r++] = ai_results.getString(2);     // [10] ARRIVE_AP_NAME
                 row[r++] = ai_results.getString(3);     // [11] ARRIVE_AP_CITY
                 row[r++] = ai_results.getString(7);     // [12] ARRIVE_AP_COUNTRY
+                ai_results.close();
                 
                 finalResults.add(row);
                 if (debug)
                     LOG.debug(String.format("Flight %d / %s /  %s -> %s / %s",
                                             row[0], row[2], row[4], row[9], row[03]));
             } // WHILE
+            flightResults.close();
         }
         if (debug) {
             LOG.debug("Flight Information:\n" + finalResults);

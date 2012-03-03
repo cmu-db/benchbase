@@ -71,6 +71,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             boolean adv = result.next();
             assertTrue(sql, adv);
             int count = result.getInt(1);
+            result.close();
             tableSizes.put(tableName, count);            
         } // FOR
         System.err.println(tableSizes);

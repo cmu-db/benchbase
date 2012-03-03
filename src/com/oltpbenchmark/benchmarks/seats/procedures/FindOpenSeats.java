@@ -99,16 +99,11 @@ public class FindOpenSeats extends Procedure {
            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         assert(seatmap.length == SEATSConstants.FLIGHTS_NUM_SEATS);
         
+        // First calculate the seat price using the flight's base price
+        // and the number of seats that remaining
         PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight);
         f_stmt.setLong(1, f_id);
         ResultSet f_results = f_stmt.executeQuery();
-        
-        PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats);
-        s_stmt.setLong(1, f_id);
-        ResultSet s_results = s_stmt.executeQuery();
-        
-        // First calculate the seat price using the flight's base price
-        // and the number of seats that remaining
         boolean adv = f_results.next();
         assert(adv);
         // long status = results[0].getLong(0);
@@ -116,14 +111,23 @@ public class FindOpenSeats extends Procedure {
         long seats_total = f_results.getLong(3);
         long seats_left = f_results.getLong(4);
         double seat_price = f_results.getDouble(5);
+        f_results.close();
         
         // TODO: Figure out why this doesn't match the SQL
+        //   Possible explanation: Floating point numbers are approximations;
+        //                         there is no exact representation of (for example) 0.01.
+        //                         Some databases (like PostgreSQL) will use exact types,
+        //                         such as numeric, for intermediate values.  (This is
+        //                         more-or-less equivalent to java.math.BigDecimal.)
         double _seat_price = base_price + (base_price * (1.0 - (seats_left/(double)seats_total)));
         if (debug) 
             LOG.debug(String.format("Flight %d - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
                                     f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
         
         // Then build the seat map of the remaining seats
+        PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats);
+        s_stmt.setLong(1, f_id);
+        ResultSet s_results = s_stmt.executeQuery();
         while (s_results.next()) {
             long r_id = s_results.getLong(1);
             int seatnum = s_results.getInt(3);
@@ -131,6 +135,7 @@ public class FindOpenSeats extends Procedure {
             assert(seatmap[seatnum] == -1) : "Duplicate seat reservation: R_ID=" + r_id;
             seatmap[seatnum] = 1;
         } // WHILE
+        s_results.close();
 
         int ctr = 0;
         Object[][] returnResults = new Object[SEATSConstants.FLIGHTS_NUM_SEATS][];

@@ -213,6 +213,7 @@ public class WikipediaLoader extends Loader {
             this.conn.commit();
             userInsert.clearBatch();
         }
+        userInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES) {
             this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_users);
         }
@@ -277,6 +278,7 @@ public class WikipediaLoader extends Loader {
             pageInsert.clearBatch();
             this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
+        pageInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES) {
             this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_pages);
         }
@@ -344,6 +346,7 @@ public class WikipediaLoader extends Loader {
             this.conn.commit();
             this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
+        watchInsert.close();
         if (LOG.isDebugEnabled())
             LOG.debug("Watchlist Loaded");
     }
@@ -446,6 +449,8 @@ public class WikipediaLoader extends Loader {
                 }
             }
         } // FOR (page)
+        revisionInsert.close();
+        textInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES) {
             this.updateAutoIncrement(textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(revTable.getColumn(0), rev_id);
@@ -477,6 +482,7 @@ public class WikipediaLoader extends Loader {
             this.conn.commit();
             userUpdate.clearBatch();
         }
+        userUpdate.close();
         
         // UPDATE PAGES
         revTable = this.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
@@ -510,6 +516,7 @@ public class WikipediaLoader extends Loader {
             this.conn.commit();
             pageUpdate.clearBatch();
         }
+        pageUpdate.close();
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("Revision loaded");

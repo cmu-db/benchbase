@@ -36,10 +36,12 @@ public class CPU1 extends Procedure {
                 stmt.setString(i, Double.toString(randNoise));
             } // FOR
 
+            // TODO: Is this the right place to sleep?  With rs open???
             ResultSet rs = stmt.executeQuery();
             try {
                 Thread.sleep(sleepLength);
             } catch (InterruptedException e) {
+                rs.close();
                 throw new SQLException("Unexpected interupt while sleeping!");
             }
             rs.close();

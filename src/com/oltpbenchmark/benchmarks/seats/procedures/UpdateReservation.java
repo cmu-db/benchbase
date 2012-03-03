@@ -95,6 +95,7 @@ public class UpdateReservation extends Procedure {
         final boolean debug = LOG.isDebugEnabled();
         assert(attr_idx >= 0);
         assert(attr_idx < ReserveSeats.length);
+        boolean found;
         
         PreparedStatement stmt = null;
         ResultSet results = null;
@@ -102,14 +103,18 @@ public class UpdateReservation extends Procedure {
         // Check if Seat is Available
         stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
         results = stmt.executeQuery();
-        if (results.next()) {
+        found = results.next();
+        results.close();
+        if (found) {
             throw new UserAbortException(ErrorType.SEAT_ALREADY_RESERVED +
                                          String.format(" Seat %d is already reserved on flight #%d", seatnum, f_id));
         }
         // Check if the Customer already has a seat on this flight
         stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
         results = stmt.executeQuery();
-        if (results.next() == false) {
+        found = results.next();
+        results.close();
+        if (found == false) {
             throw new UserAbortException(ErrorType.CUSTOMER_ALREADY_HAS_SEAT +
                                          String.format(" Customer %d does not have an existing reservation on flight #%d", c_id, f_id));
         }

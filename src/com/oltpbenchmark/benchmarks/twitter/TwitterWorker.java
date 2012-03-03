@@ -77,7 +77,7 @@ public class TwitterWorker extends Worker {
     public void doSelect1Tweet(int tweet_id) throws SQLException {
         GetTweet proc = this.getProcedure(GetTweet.class);
         assert (proc != null);
-        proc.run(conn, tweet_id);
+        proc.run(conn, tweet_id).close();
     }
 
     public void doSelectTweetsFromPplIFollow(int uid) throws SQLException {
@@ -95,7 +95,7 @@ public class TwitterWorker extends Worker {
     public void doSelectTweetsForUid(int uid) throws SQLException {
         GetUserTweets proc = this.getProcedure(GetUserTweets.class);
         assert (proc != null);
-        proc.run(conn, uid);
+        proc.run(conn, uid).close();
     }
 
     public void doInsertTweet(int uid, String text) throws SQLException {

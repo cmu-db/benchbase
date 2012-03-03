@@ -29,5 +29,6 @@ public class ScanRecord extends Procedure{
         		m.put(i, r.getString(i));
         	results.add(m);
         }
+        r.close();
     }
 }

@@ -111,9 +111,11 @@ public class DeleteReservation extends Procedure {
                 c_id = results.getLong(1);
                 if (has_al_id) ff_al_id = results.getLong(2);
             } else {
+                results.close();
                 throw new UserAbortException(String.format("No Customer record was found [c_id_str=%s, ff_c_id_str=%s, ff_al_id=%s]",
                                                            c_id_str, ff_c_id_str, ff_al_id));
             }
+            results.close();
         }
 
         // Now get the result of the information that we need
@@ -124,12 +126,14 @@ public class DeleteReservation extends Procedure {
         stmt.setLong(2, f_id);
         ResultSet results = stmt.executeQuery();
         if (results.next() == false) {
+            results.close();
             throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
         }
         long c_iattr00 = results.getLong(4) + 1;
         long seats_left = results.getLong(8); 
         long r_id = results.getLong(9);
         double r_price = results.getDouble(11);
+        results.close();
         int updated = 0;
         
         // Now delete all of the flights that they have on this flight

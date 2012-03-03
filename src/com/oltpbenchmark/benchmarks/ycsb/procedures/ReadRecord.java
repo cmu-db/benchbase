@@ -24,6 +24,7 @@ public class ReadRecord extends Procedure{
         	for(int i=1;i<11;i++)
         		results.put(i, r.getString(i));
         }
+        r.close();
     }
 
 }

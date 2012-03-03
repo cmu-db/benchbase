@@ -39,6 +39,13 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 
 public class TPCCUtil {
 
+    /**
+     * Creates a Customer object from the current row in the given ResultSet.
+     * The caller is responsible for closing the ResultSet.
+     * @param rs an open ResultSet positioned to the desired row
+     * @return the newly created Customer object
+     * @throws SQLException for problems getting data from row
+     */
 	public static Customer newCustomerFromResults(ResultSet rs)
 			throws SQLException {
 		Customer c = new Customer();

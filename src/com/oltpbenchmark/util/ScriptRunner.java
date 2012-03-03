@@ -191,6 +191,7 @@ public class ScriptRunner {
     							}
     							println("");
     						}
+    						rs.close();
     					}
 					}
 

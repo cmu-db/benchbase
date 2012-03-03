@@ -160,6 +160,7 @@ public class NewBid extends Procedure {
         stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id); // , currentTime);
         results = stmt.executeQuery();
         if (results.next() == false) {
+            results.close();
             throw new UserAbortException("Invalid item " + item_id);
         }
         int col = 1;

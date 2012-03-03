@@ -61,7 +61,9 @@ public class MysqlGetStats {
 				.executeQuery("SHOW GLOBAL STATUS WHERE Variable_name=\"" + t
 						+ "\" ");
 		res.next();
-		return res.getLong(2);
+		long value = res.getLong(2);
+		res.close();
+		return value;
 	}
 
 	public long getSpeed() throws SQLException {
@@ -75,6 +77,7 @@ public class MysqlGetStats {
 		long sel = res.getLong(2);
 		res.next();
 		long up = res.getLong(2);
+		res.close();
 
 		return del + ins + up;
 	}

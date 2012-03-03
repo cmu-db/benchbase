@@ -271,6 +271,7 @@ public class AuctionMarkLoader extends Loader {
             // insert first for foreign-key relationships
             generator.releaseHoldsToSubTableGenerators();
         } // WHILE
+        stmt.close();
         
         // Mark as finished
         if (this.fail == false) {

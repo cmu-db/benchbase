@@ -253,6 +253,7 @@ public class NewItem extends Procedure {
                 adv = results.next();
                 assert(adv);
                 int item_count = results.getInt(1);
+                results.close();
                 throw new DuplicateItemIdException(item_id, seller_id, item_count, ex);
             } else throw ex;
         }

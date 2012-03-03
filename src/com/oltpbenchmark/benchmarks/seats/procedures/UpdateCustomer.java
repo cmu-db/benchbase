@@ -92,22 +92,27 @@ public class UpdateCustomer extends Procedure {
             if (rs.next()) {
                 c_id = rs.getLong(1);
             } else {
+                rs.close();
                 throw new UserAbortException(String.format("No Customer information record found for string '%s'", c_id_str));
             }
+            rs.close();
         }
         assert(c_id != null);
         
         ResultSet rs = this.getPreparedStatement(conn, GetCustomer, c_id).executeQuery();
         if (rs.next() == false) {
+            rs.close();
             throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
         }
         assert(c_id == rs.getLong(1));
         long base_airport = rs.getLong(3);
+        rs.close();
         
         // Get their airport information
         // TODO: Do something interesting with this data
         ResultSet airport_results = this.getPreparedStatement(conn, GetBaseAirport, base_airport).executeQuery();
         boolean adv = airport_results.next();
+        airport_results.close();
         assert(adv);
         
         if (update_ff != null) {
@@ -116,6 +121,7 @@ public class UpdateCustomer extends Procedure {
                 long ff_al_id = ff_results.getLong(2); 
                 this.getPreparedStatement(conn, UpdatFrequentFlyers, attr0, attr1, c_id, ff_al_id).executeUpdate();
             } // WHILE
+            ff_results.close();
         }
         
         int updated = this.getPreparedStatement(conn, UpdateCustomer, attr0, attr1, c_id).executeUpdate();

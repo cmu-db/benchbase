@@ -195,6 +195,7 @@ public class CloseAuctions extends Procedure {
                 };
                 output_rows.add(row);
             } // WHILE
+            dueItemsTable.close();
             if (round > 0) conn.commit();
         } // WHILE
 

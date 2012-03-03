@@ -81,6 +81,7 @@ public class EpinionsLoader extends Loader {
             conn.commit();
             userInsert.clearBatch();
         }
+        userInsert.close();
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Users Loaded [%d]", total));
     }
@@ -119,6 +120,7 @@ public class EpinionsLoader extends Loader {
             conn.commit();
             itemInsert.clearBatch();
         }
+        itemInsert.close();
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Items Loaded [%d]", total));
     }
@@ -177,6 +179,7 @@ public class EpinionsLoader extends Loader {
             conn.commit();
             reviewInsert.clearBatch();
         }
+        reviewInsert.close();
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Reviews Loaded [%d]", total));
     }
@@ -234,6 +237,7 @@ public class EpinionsLoader extends Loader {
             conn.commit();
             trustInsert.clearBatch();
         }
+        trustInsert.close();
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Trust Loaded [%d]", total));
     }

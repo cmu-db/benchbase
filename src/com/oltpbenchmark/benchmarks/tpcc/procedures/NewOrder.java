@@ -203,6 +203,7 @@ public class NewOrder extends Procedure {
 					// expected new order rollback
 					assert ol_number == o_ol_cnt;
 					assert ol_i_id == jTPCCConfig.INVALID_ITEM_ID;
+					rs.close();
 					throw new UserAbortException(
 							"EXPECTED new order rollback: I_ID=" + ol_i_id
 									+ " not found!");

@@ -181,6 +181,7 @@ public final class Catalog {
                                             table_name, col_name, col_typename, col_type));
                 catalog_tbl.addColumn(catalog_col);
             } // WHILE
+            col_rs.close();
             
             // PRIMARY KEYS
             if (LOG.isDebugEnabled())
@@ -199,6 +200,7 @@ public final class Catalog {
                 assert(pkey_cols.containsKey(col_idx) == false);
                 pkey_cols.put(col_idx, col_name);
             } // WHILE
+            pkey_rs.close();
             catalog_tbl.setPrimaryKeyColumns(pkey_cols.values());
             
             // INDEXES
@@ -228,6 +230,7 @@ public final class Catalog {
                 assert (catalog_idx != null);
                 catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
             } // WHILE
+            idx_rs.close();
             
             // FOREIGN KEYS
             if (LOG.isDebugEnabled())
@@ -245,9 +248,11 @@ public final class Catalog {
                 
                 foreignKeys.get(table_name).put(colName, Pair.of(fk_tableName, fk_colName));
             } // WHILE
+            fk_rs.close();
             
             tables.put(table_name, catalog_tbl);
         } // WHILE
+        table_rs.close();
         
         // FOREIGN KEYS
         if (LOG.isDebugEnabled())

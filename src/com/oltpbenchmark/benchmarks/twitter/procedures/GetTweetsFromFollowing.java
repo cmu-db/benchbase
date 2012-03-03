@@ -54,6 +54,7 @@ public class GetTweetsFromFollowing extends Procedure {
             stmt.setLong(ctr, last);
             
         } // WHILE
+        rs.close();
         if (ctr > 0) {
             while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
                 stmt.setLong(ctr, last);

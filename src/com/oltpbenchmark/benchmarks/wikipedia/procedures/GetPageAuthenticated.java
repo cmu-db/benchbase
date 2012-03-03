@@ -88,8 +88,10 @@ public class GetPageAuthenticated extends Procedure {
             if (rs.next()) {
                 userText = rs.getString("user_name");
             } else {
+                rs.close();
                 throw new UserAbortException("Invalid UserId: " + userId);
             }
+            rs.close();
             // Fetch all groups the user might belong to (access control
             // information)
             st = this.getPreparedStatement(conn, selectGroup);
@@ -108,6 +110,7 @@ public class GetPageAuthenticated extends Procedure {
         ResultSet rs = st.executeQuery();
 
         if (!rs.next()) {
+            rs.close();
             throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
         }
         int pageId = rs.getInt("page_id");
@@ -139,6 +142,7 @@ public class GetPageAuthenticated extends Procedure {
         st.setInt(2, pageId);
         rs = st.executeQuery();
         if (!rs.next()) {
+            rs.close();
             throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
 
@@ -156,6 +160,7 @@ public class GetPageAuthenticated extends Procedure {
         st.setInt(1, textId);
         rs = st.executeQuery();
         if (!rs.next()) {
+            rs.close();
             throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
         Article a = null;

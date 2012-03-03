@@ -87,6 +87,7 @@ public class TwitterLoader extends Loader {
             conn.commit();
             userInsert.clearBatch();
         }
+        userInsert.close();
         if (LOG.isDebugEnabled()) LOG.debug(String.format("Users Loaded [%d]", total));
     }
     
@@ -133,6 +134,7 @@ public class TwitterLoader extends Loader {
             tweetInsert.executeBatch();
             conn.commit();
         }
+        tweetInsert.close();
         if (LOG.isDebugEnabled()) 
             LOG.debug("[Tweets Loaded] "+ this.num_tweets);
     }
@@ -202,6 +204,8 @@ public class TwitterLoader extends Loader {
             followersInsert.executeBatch();
             conn.commit();
         }
+        followsInsert.close();
+        followersInsert.close();
         if (LOG.isDebugEnabled()) LOG.debug("[Follows Loaded] "+total);
     }
 

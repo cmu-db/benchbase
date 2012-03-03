@@ -125,16 +125,20 @@ public class NewReservation extends Procedure {
     
     public void run(Connection conn, long r_id, long c_id, long f_id, long seatnum, double price, long attrs[]) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
+        boolean found;
         
         // Flight Information
         PreparedStatement stmt = this.getPreparedStatement(conn, GetFlight, f_id);
         ResultSet results = stmt.executeQuery();
-        if (results.next() == false) {
+        found = results.next();
+        if (found == false) {
+            results.close();
             throw new UserAbortException(ErrorType.INVALID_FLIGHT_ID +
                                          String.format(" Invalid flight #%d", f_id));
         }
         long airline_id = results.getLong(1);
         long seats_left = results.getLong(2);
+        results.close();
         if (seats_left <= 0) {
             throw new UserAbortException(ErrorType.NO_MORE_SEATS +
                                          String.format(" No more seats available for flight #%d", f_id));
@@ -142,21 +146,27 @@ public class NewReservation extends Procedure {
         // Check if Seat is Available
         stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
         results = stmt.executeQuery();
-        if (results.next()) {
+        found = results.next();
+        results.close();
+        if (found) {
             throw new UserAbortException(ErrorType.SEAT_ALREADY_RESERVED +
                                          String.format(" Seat %d is already reserved on flight #%d", seatnum, f_id));
         }
         // Check if the Customer already has a seat on this flight
         stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
         results = stmt.executeQuery();
-        if (results.next()) {
+        found = results.next();
+        results.close();
+        if (found) {
             throw new UserAbortException(ErrorType.CUSTOMER_ALREADY_HAS_SEAT +
                                          String.format(" Customer %d already owns on a reservations on flight #%d", c_id, f_id));
         }
         // Get Customer Information
         stmt = this.getPreparedStatement(conn, GetCustomer, c_id);
         results = stmt.executeQuery();
-        if (results.next() == false) {
+        found = results.next();
+        results.close();
+        if (found == false) {
             throw new UserAbortException(ErrorType.INVALID_CUSTOMER_ID + 
                                          String.format(" Invalid customer id: %d / %s", c_id, new CustomerId(c_id)));
         }

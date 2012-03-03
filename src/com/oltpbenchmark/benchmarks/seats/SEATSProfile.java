@@ -231,6 +231,7 @@ public class SEATSProfile {
         stmt.setObject(param_idx++, this.num_reservations);              // CFP_NUM_RESERVATIONS
         stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
         int result = stmt.executeUpdate();
+        stmt.close();
         assert(result == 1);
         if (LOG.isDebugEnabled())
             LOG.debug("Saved profile information into " + catalog_tbl.getName());
@@ -257,6 +258,7 @@ public class SEATSProfile {
             result = stmt.executeUpdate();
             assert(result == 1);
         } // FOR
+        stmt.close();
         if (LOG.isDebugEnabled())
             LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
 
@@ -319,6 +321,8 @@ public class SEATSProfile {
             
             // CACHED FLIGHT IDS
             this.loadCachedFlights(results[result_idx++]);
+            
+            for (ResultSet rs : results) rs.close();
             
             if (LOG.isDebugEnabled())
                 LOG.debug("Loaded profile:\n" + this.toString());

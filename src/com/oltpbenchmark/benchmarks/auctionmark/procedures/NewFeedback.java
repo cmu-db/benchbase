@@ -94,6 +94,7 @@ public class NewFeedback extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, checkUserFeedback, user_id, i_id, seller_id, from_id);
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
+            rs.close();
             throw new UserAbortException("Trying to add feedback for item " + i_id + " twice");
         }
         rs.close();

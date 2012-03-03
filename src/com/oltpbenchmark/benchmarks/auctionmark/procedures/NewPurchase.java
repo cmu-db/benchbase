@@ -162,6 +162,7 @@ public class NewPurchase extends Procedure {
         stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
         results = stmt.executeQuery();
         if (results.next() == false) {
+            results.close();
             stmt = this.getPreparedStatement(conn, getMaxBid, item_id, seller_id);
             results = stmt.executeQuery();
             adv = results.next();

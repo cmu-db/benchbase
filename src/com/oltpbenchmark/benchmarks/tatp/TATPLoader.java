@@ -185,6 +185,7 @@ public class TATPLoader extends Loader {
             int results[] = pstmt.executeBatch();
             assert(results != null);
         }
+        pstmt.close();
     }
 
     /**
@@ -228,6 +229,7 @@ public class TATPLoader extends Loader {
             assert(results != null);
             conn.commit();
         }
+        pstmt.close();
     }
 
     /**
@@ -308,5 +310,7 @@ public class TATPLoader extends Loader {
             
             conn.commit();
         }
+        cal_pstmt.close();
+        spe_pstmt.close();
     }
 }

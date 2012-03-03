@@ -62,6 +62,7 @@ public class DeleteCallForwarding extends Procedure {
     	{
     	    s_id = results.getLong(1);
     	}
+    	results.close();
     	assert s_id!=-1; 
         stmt = this.getPreparedStatement(conn, updateCallForwarding);
         stmt.setLong(1, s_id);

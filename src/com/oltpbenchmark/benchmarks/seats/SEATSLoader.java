@@ -405,6 +405,7 @@ public class SEATSLoader extends Loader {
                 insert_stmt.executeBatch();
                 conn.commit();
             }
+            insert_stmt.close();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load table " + catalog_tbl.getName(), ex);
         }
