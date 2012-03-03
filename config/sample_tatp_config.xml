@@ -1,10 +1,28 @@
 <?xml version="1.0"?>
 <parameters>
-    <driver>org.sqlite.JDBC</driver>
-    <DBUrl>jdbc:sqlite:/tmp/tatp.db</DBUrl>
-    <DBName>tatp</DBName>
-    <terminals>1</terminals>
+
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://server:3306/tatp</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+        
+    <!-- Scalefactor in Twitter scales by *500 the number of users-->
+    <scalefactor>100</scalefactor>
+    
+    <!-- The workload -->
+    <terminals>10</terminals>
+    <works>
+        <work>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>30,20,10,10,10,10,10</weights>
+        </work>
+    </works>
   
+	<!-- Twitter Procedures declaration -->
     <transactiontypes>
         <transactiontype>
                 <name>DeleteCallForwarding</name>
@@ -28,13 +46,4 @@
                 <name>UpdateSubscriberData</name>
         </transactiontype>
     </transactiontypes>
-    
-    <works>
-        <work>
-            <time>10</time>
-            <rate>200</rate>
-<!--             <weights>0, 0, 0, 0, 100, 0, 0</weights> -->
-            <weights>2, 35, 10, 35, 2, 14, 2</weights>
-        </work>
-    </works>
 </parameters>

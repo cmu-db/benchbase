@@ -1,10 +1,28 @@
 <?xml version="1.0"?>
 <parameters>
-    <driver>org.sqlite.JDBC</driver>
-    <DBUrl>jdbc:sqlite:/tmp/auctionmark.db</DBUrl>
-    <DBName>auctionmark</DBName>
-    <terminals>1</terminals>
-  
+	
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://server:3306/auctionmark</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
+    <scalefactor>10</scalefactor>
+
+    <!-- The workload -->
+    <terminals>10</terminals>
+    <works>
+        <work>
+          <time>300</time>
+          <rate>10000</rate>
+          <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
+        </work>
+    </works>
+    
+    <!-- AuctionMark Procedures declaration -->
     <transactiontypes>
         <transactiontype>
                 <name>GetItem</name>
@@ -34,12 +52,4 @@
                 <name>UpdateItem</name>
         </transactiontype>
     </transactiontypes>
-    
-    <works>
-        <work>
-            <time>10</time>
-            <rate>200</rate>
-            <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
-        </work>
-    </works>
 </parameters>

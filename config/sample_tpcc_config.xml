@@ -1,46 +1,43 @@
 <?xml version="1.0"?>
 <parameters>
 	
-	<!-- General Workload configuration -->
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/tpcc</DBUrl>
-    <DBName>tpcc</DBName>
-    <username>root</username>
-    <password>mypass</password>
-    <terminals>10</terminals>
+    <DBUrl>jdbc:mysql://server:3306/ycsb</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
     
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>32</scalefactor>
+    
+    <!-- The workload -->
+    <terminals>200</terminals>
     <works>
         <work>
-          <time>10</time>
-          <rate>10</rate>
+          <time>300</time>
+          <rate>10000</rate>
           <weights>45,43,4,4,4</weights>
         </work>
 	</works>
 	
 	<!-- TPCC specific -->  
-        <scalefactor>10</scalefactor>
-   	<dialect>config/dialects/tpcc_dialects.xml</dialect>
-   	<isolation>TRANSACTION_SERIALIZABLE</isolation>
    	<transactiontypes>
     	<transactiontype>
     		<name>NewOrder</name>
-    		<id>1</id>
     	</transactiontype>
     	<transactiontype>
     		<name>Payment</name>
-    		<id>2</id>
     	</transactiontype>
     	<transactiontype>
     		<name>OrderStatus</name>
-    		<id>3</id>
     	</transactiontype>
     	<transactiontype>
     		<name>Delivery</name>
-    		<id>4</id>
     	</transactiontype>
     	<transactiontype>
     		<name>StockLevel</name>
-    		<id>5</id>
     	</transactiontype>
    	</transactiontypes>	
 </parameters>

@@ -1,12 +1,28 @@
 <?xml version="1.0"?>
 <parameters>
-    <driver>org.sqlite.JDBC</driver>
-    <DBUrl>jdbc:sqlite:/tmp/seats.db</DBUrl>
-    <DBName>seats</DBName>
-    <dbtype>sqlite</dbtype>
-    <scalefactor>0.1</scalefactor>
-    <terminals>1</terminals>
-  
+
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://server:3306/seats</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>10</terminals>
+    <works>
+        <work>
+          <time>300</time>
+          <rate>10000</rate>
+          <weights>10, 10, 35, 20, 10, 15</weights>
+        </work>
+    </works>
+
+    <!-- SEATS Procedures declaration -->
     <transactiontypes>
         <transactiontype>
                 <name>DeleteReservation</name>
@@ -27,12 +43,4 @@
                 <name>UpdateReservation</name>
         </transactiontype>
     </transactiontypes>
-    
-    <works>
-        <work>
-            <time>100</time>
-            <rate>200</rate>
-            <weights>10, 10, 35, 20, 10, 15</weights>
-        </work>
-    </works>
 </parameters>

@@ -1,57 +1,55 @@
 <?xml version="1.0"?>
 <parameters>
+
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/epinions</DBUrl>
-    <DBName>epinions</DBName>
-    <username>root</username>
-    <password>hello</password>
-    <terminals>2</terminals>
-        
+    <DBUrl>jdbc:mysql://server:3306/epinions</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Scalefactor in Epinions scales by *2000 the number of users-->
+    <scalefactor>100</scalefactor>
+
+    <!-- The workload -->
+    <terminals>10</terminals>
     <works>
         <work>
-          <time>10</time>
-          <rate>20</rate>
+          <time>300</time>
+          <rate>10000</rate>
           <weights>10,10,10,10,10,10,10,10,20</weights>
         </work>
     </works>
-    
-    <!-- Epinions Specific -->
+
+    <!-- Epinions Procedures Declaration -->
     <transactiontypes>
         <transactiontype>
             <name>GetReviewItemById</name>
-            <id>1</id>
         </transactiontype>
         <transactiontype>
             <name>GetReviewsByUser</name>
-            <id>2</id>
         </transactiontype>
         <transactiontype>
             <name>GetAverageRatingByTrustedUser</name>
-            <id>3</id>
         </transactiontype>
         <transactiontype>
             <name>GetItemAverageRating</name>
-            <id>4</id>
         </transactiontype>
         <transactiontype>
             <name>GetItemReviewsByTrustedUser</name>
-            <id>5</id>
         </transactiontype>
         <transactiontype>
             <name>UpdateUserName</name>
-            <id>6</id>
         </transactiontype>
         <transactiontype>
             <name>UpdateItemTitle</name>
-            <id>7</id>
         </transactiontype>
         <transactiontype>
             <name>UpdateReviewRating</name>
-            <id>8</id>
         </transactiontype>
         <transactiontype>
             <name>UpdateTrustRating</name>
-            <id>9</id>
         </transactiontype>
-    </transactiontypes>
+    </transactiontypes>	
 </parameters>

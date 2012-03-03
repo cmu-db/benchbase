@@ -1,57 +1,45 @@
 <?xml version="1.0"?>
 <parameters>
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://127.0.0.1:3306/hibernate</DBUrl>
-    <DBName>hibernate</DBName>
-    <username>root</username>
-    <password>hello</password>
-    <terminals>1</terminals>
-    <scalefactor>1</scalefactor>
+    <DBUrl>jdbc:mysql://server:3306/jpab</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Number of Initial Objects -->
+    <scalefactor>1000000</scalefactor>
+    
+    <!-- Hibernate configuration -->
+    <persistence-unit>Hibernate-MySQL-server</persistence-unit>
+    
+    <!-- Type of Objects -->
+    <testClass>BasicTest</testClass>
       
+    <!-- The workload -->  
+    <terminals>10</terminals>  
     <works>
         <work>
             <time>10</time>
-            <rate>100</rate>
-            <weights>20,20,20,20,20</weights>
-        </work>
-        <work>
-            <time>10</time>
-            <rate>200</rate>
-            <weights>20,20,20,20,20</weights>
-        </work>
-        <work>
-            <time>10</time>
-            <rate>400</rate>
-            <weights>20,20,20,20,20</weights>
-        </work>
-        <work>
-            <time>10</time>
-            <rate>800</rate>
-            <weights>20,20,20,20,20</weights>
-        </work>
-        <work>
-            <time>10</time>
-            <rate>1600</rate>
-            <weights>20,20,20,20,20</weights>
+            <rate>10000</rate>
+            <weights>25,25,25,25</weights>
         </work>
     </works>
     
-    <!-- JPAB Specific -->
+    <!-- JPAB Procedures Declaration -->
     <transactiontypes>
         <transactiontype>
-                <name>BasicTest</name>
-        </transactiontype>
-		<transactiontype>
-                <name>CollectionTest</name>
+                <name>Persist</name>
         </transactiontype>
         <transactiontype>
-                <name>ExtTest</name>
+                <name>Retrieve</name>
         </transactiontype>
         <transactiontype>
-                <name>IndexTest</name>
+                <name>Update</name>
         </transactiontype>
         <transactiontype>
-                <name>NodeTest</name>
+                <name>Delete</name>
         </transactiontype>
     </transactiontypes>
 </parameters>
