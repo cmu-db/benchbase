@@ -62,7 +62,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		this.traceInput = (xml != null && xml.containsKey("tracefile") ? new File(xml.getString("tracefile")) : null);
 		if (xml != null && xml.containsKey("traceOut")) {
 		    this.traceSize = xml.getInt("traceOut");
-		    this.traceOutput = new File("wikipedia-" + this.traceSize + "k.trace");
+		    this.traceOutput = new File(xml.getString("tracefile"));
 		} else {
 		    this.traceSize = 0;
 		    this.traceOutput = null;
