@@ -79,7 +79,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
 		int numTerminals = workConf.getTerminals();
-		assert (numTerminals <= 0 || numTerminals >= jTPCCConfig.configDistPerWhse * numWarehouses) :
+		assert (numTerminals >= numWarehouses) :
 		    String.format("Insufficient number of terminals '%d' [numWarehouses=%d]",
 		                  numTerminals, numWarehouses);
 
