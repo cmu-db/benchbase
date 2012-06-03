@@ -109,7 +109,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 			final double districtsPerTerminal = jTPCCConfig.configDistPerWhse
 					/ (double) numWarehouseTerminals;
 			assert districtsPerTerminal >= 1 :
-			    String.format("Insufficient number of terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%.2f]",
+			    String.format("Insufficient number of terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
 			                  districtsPerTerminal, numWarehouseTerminals);
 			for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
 				int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
