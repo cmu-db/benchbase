@@ -77,10 +77,12 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
 		int numTerminals = workConf.getTerminals();
-		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses);
+		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses) :
+		    String.format("Invalid number of terminals '%d' [numWarehouses=%d]",
+		                  numTerminals, numWarehouses);
 
 		String[] terminalNames = new String[numTerminals];
-		// TODO: This is currenly broken: fix it!
+		// TODO: This is currently broken: fix it!
 		int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
 		assert warehouseOffset == 1;
 
