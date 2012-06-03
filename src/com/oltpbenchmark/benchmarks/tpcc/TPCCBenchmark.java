@@ -27,6 +27,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -36,6 +38,7 @@ import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
+    private static final Logger LOG = Logger.getLogger(TPCCBenchmark.class);
 
 	public TPCCBenchmark(WorkloadConfiguration workConf) {
 		super("tpcc", workConf, true);
@@ -52,7 +55,6 @@ public class TPCCBenchmark extends BenchmarkModule {
 	@Override
 	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
-		this.verbose = !verbose;
 		jTPCCConfig.TERMINAL_MESSAGES = false;
 		ArrayList<Worker> workers = new ArrayList<Worker>();
 
@@ -77,8 +79,8 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 		int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
 		int numTerminals = workConf.getTerminals();
-		assert (numTerminals <= 0 || numTerminals > 10 * numWarehouses) :
-		    String.format("Invalid number of terminals '%d' [numWarehouses=%d]",
+		assert (numTerminals <= 0 || numTerminals >= jTPCCConfig.configDistPerWhse * numWarehouses) :
+		    String.format("Insufficient number of terminals '%d' [numWarehouses=%d]",
 		                  numTerminals, numWarehouses);
 
 		String[] terminalNames = new String[numTerminals];
@@ -103,13 +105,13 @@ public class TPCCBenchmark extends BenchmarkModule {
 				upperTerminalId = numTerminals;
 			int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
-			// System.out.println("w_id " + w_id + " = " +
-			// numWarehouseTerminals +" terminals");
+			LOG.info(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
+			                       w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
 
 			final double districtsPerTerminal = jTPCCConfig.configDistPerWhse
 					/ (double) numWarehouseTerminals;
 			assert districtsPerTerminal >= 1 :
-			    String.format("Insufficient number of terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
+			    String.format("Too many terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
 			                  districtsPerTerminal, numWarehouseTerminals);
 			for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
 				int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
