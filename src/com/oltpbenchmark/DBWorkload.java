@@ -289,7 +289,14 @@ public class DBWorkload {
         // Execute Workload
         if (isBooleanOptionSet(argsLine, "execute")) {
             // Bombs away!
-            Results r = runWorkload(bench, verbose);
+            Results r = null;
+            try {
+                r = runWorkload(bench, verbose);
+            } catch (Throwable ex) {
+                LOG.error("Unexpected error when running " + bench, ex);
+                System.exit(1);
+            }
+            assert(r != null);
 
             PrintStream ps = System.out;
             PrintStream rs = System.out;
