@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<parameters>
+	
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
+    <username>tpcc</username>
+    <password>tpcc</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>2</scalefactor>
+    
+    <!-- The workload -->
+    <terminals>2</terminals>
+    <works>
+        <work>
+          <time>60</time>
+          <rate>10000</rate>
+          <weights>45,43,4,4,4</weights>
+        </work>
+	</works>
+	
+	<!-- TPCC specific -->  
+   	<transactiontypes>
+    	<transactiontype>
+    		<name>Q1</name>
+    	</transactiontype>
+   	</transactiontypes>	
+</parameters>

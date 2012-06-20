@@ -10,4 +10,5 @@
     <plugin name="jpab">com.oltpbenchmark.benchmarks.jpab.JPABBenchmark</plugin>
     <plugin name="seats">com.oltpbenchmark.benchmarks.seats.SEATSBenchmark</plugin>
     <plugin name="auctionmark">com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark</plugin>
+    <plugin name="chbenchmark">com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark</plugin>
 </plugins>

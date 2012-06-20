@@ -1,0 +1,2 @@
+mysqladmin -u root -p  drop tpcc
+mysqladmin -u root -p  create tpcc

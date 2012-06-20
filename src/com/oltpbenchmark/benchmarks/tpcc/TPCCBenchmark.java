@@ -43,6 +43,12 @@ public class TPCCBenchmark extends BenchmarkModule {
 	public TPCCBenchmark(WorkloadConfiguration workConf) {
 		super("tpcc", workConf, true);
 	}
+	
+// >>> CH-benCHmark
+	public TPCCBenchmark(String benchmarkName, WorkloadConfiguration workConf) {
+		super(benchmarkName, workConf, true);
+	}
+// <<< CH-benCHmark
 
 	@Override
 	protected Package getProcedurePackageImpl() {

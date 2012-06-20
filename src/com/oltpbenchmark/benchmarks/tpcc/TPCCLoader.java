@@ -97,7 +97,7 @@ public class TPCCLoader extends Loader{
         outputFiles= false;
 	}
 
-	static boolean fastLoad;
+	protected static boolean fastLoad;
 	static String fastLoaderBaseDir;
 
 	/**
@@ -685,8 +685,8 @@ public class TPCCLoader extends Loader{
 	}
 
 	// *********** JDBC specific variables ***********************
-	private static Connection conn = null;
-	private static Statement stmt = null;
+	protected static Connection conn = null;
+	protected static Statement stmt = null;
 	private static Timestamp sysdate = null;
 	private static PreparedStatement custPrepStmt;
 	private static PreparedStatement distPrepStmt;
@@ -699,20 +699,20 @@ public class TPCCLoader extends Loader{
 	private static PreparedStatement whsePrepStmt;
 
 	// ********** general vars **********************************
-	private static java.util.Date now = null;
+	protected static java.util.Date now = null;
 	private static java.util.Date startDate = null;
 	private static java.util.Date endDate = null;
 
 	private static Random gen;
 	private static int numWarehouses = 0;
-	private static String fileLocation = "";
-	private static boolean outputFiles = false;
-	private static PrintWriter out = null;
-	private static long lastTimeMS = 0;
+	protected static String fileLocation = "";
+	protected static boolean outputFiles = false;
+	protected static PrintWriter out = null;
+	protected static long lastTimeMS = 0;
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
 
-	static void transRollback() {
+	protected static void transRollback() {
 		if (outputFiles == false) {
 			try {
 				conn.rollback();
@@ -724,7 +724,7 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	static void transCommit() {
+	protected static void transCommit() {
 		if (outputFiles == false) {
 			try {
 				conn.commit();
@@ -737,7 +737,7 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	static void truncateTable(String strTable) {
+	protected static void truncateTable(String strTable) {
 
 		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
@@ -749,7 +749,7 @@ public class TPCCLoader extends Loader{
 		}
 
 	}
-
+	
 	static void initJDBC() {
 
 		try {
@@ -1821,14 +1821,7 @@ public class TPCCLoader extends Loader{
 		long startTimeMS = new java.util.Date().getTime();
 		lastTimeMS = startTimeMS;
 
-		long totalRows = loadWhse(numWarehouses);
-		totalRows += loadItem(configItemCount);
-		totalRows += loadStock(numWarehouses, configItemCount);
-		totalRows += loadDist(numWarehouses, configDistPerWhse);
-		totalRows += loadCust(numWarehouses, configDistPerWhse,
-				configCustPerDist);
-		totalRows += loadOrder(numWarehouses, configDistPerWhse,
-				configCustPerDist);
+		long totalRows = loadHelper();
 
 		if (fastLoad) {
 			PreparedStatement[] pss = new PreparedStatement[] { custPrepStmt,
@@ -1858,5 +1851,17 @@ public class TPCCLoader extends Loader{
 				+ (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
 		LOG.debug("------------------------------------------------------");
 	
+	}
+
+	protected long loadHelper() {
+		long totalRows = loadWhse(numWarehouses);
+		totalRows += loadItem(configItemCount);
+		totalRows += loadStock(numWarehouses, configItemCount);
+		totalRows += loadDist(numWarehouses, configDistPerWhse);
+		totalRows += loadCust(numWarehouses, configDistPerWhse,
+				configCustPerDist);
+		totalRows += loadOrder(numWarehouses, configDistPerWhse,
+				configCustPerDist);
+		return totalRows;
 	}
 } // end LoadData Class
