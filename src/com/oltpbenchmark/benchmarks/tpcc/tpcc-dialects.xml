@@ -16,6 +16,22 @@
             </statement>
         </procedure>
     </dialect>
+    <dialect type="DB2">
+        <procedure name="Delivery">
+            <statement name="delivGetOrderIdSQL">
+                SELECT no_o_id 
+                    FROM new_order 
+                    WHERE no_d_id = ? AND no_w_id = ? ORDER BY no_o_id ASC FETCH FIRST 1 ROWS ONLY
+            </statement>
+        </procedure>
+        <procedure name="OrderStatus">
+            <statement name="ordStatGetNewestOrdSQL">
+                SELECT o_id, o_carrier_id, o_entry_d 
+                        FROM oorder
+                        WHERE o_w_id = ? AND o_d_id = ? AND o_c_id = ? ORDER BY o_id DESC FETCH FIRST 1 ROWS ONLY
+            </statement>
+        </procedure>
+    </dialect>
     <dialect type="SQLSERVER">
         <procedure name="Delivery">
             <statement name="delivGetOrderIdSQL">
