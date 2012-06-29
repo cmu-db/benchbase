@@ -315,6 +315,10 @@ public abstract class Worker implements Runnable {
                     if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
                         // SQLServerException Deadlock
                         continue;
+                    }
+                    if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
+                        // DB2Exception Deadlock
+                        continue;
                     } 
                     if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
