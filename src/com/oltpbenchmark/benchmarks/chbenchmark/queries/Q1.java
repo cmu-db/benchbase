@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmarkWorker;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
 public class Q1 extends Procedure {
@@ -32,7 +33,7 @@ public class Q1 extends Procedure {
     public ResultSet run(Connection conn, Random gen,
 			int terminalWarehouseID, int numWarehouses,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
-			TPCCWorker w) throws SQLException {
+			CHBenCHmarkWorker w) throws SQLException {
     
     	
 		

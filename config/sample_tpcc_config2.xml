@@ -5,8 +5,8 @@
     <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
     <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
-    <username>tpcc</username>
-    <password>tpcc</password>
+    <username>root</username>
+    <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
@@ -18,7 +18,7 @@
         <work>
           <time>60</time>
           <rate>10000</rate>
-          <weights>45,43,4,4,4</weights>
+          <weights>100</weights>
         </work>
 	</works>
 	
