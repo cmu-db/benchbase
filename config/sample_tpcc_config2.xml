@@ -18,7 +18,7 @@
         <work>
           <time>60</time>
           <rate>10000</rate>
-          <weights>15, 15, 15, 15, 10, 10, 10, 10</weights>
+          <weights>15, 15, 10, 10, 10, 10, 10, 10, 10</weights>
         </work>
 	</works>
 	
@@ -47,6 +47,9 @@
     	</transactiontype>
     	<transactiontype>
     		<name>Q9</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q10</name>
     	</transactiontype>
    	</transactiontypes>	
 </parameters>
