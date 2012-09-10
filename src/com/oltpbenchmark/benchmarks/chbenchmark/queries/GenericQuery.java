@@ -45,10 +45,7 @@ public abstract class GenericQuery extends Procedure {
 	}
 	
     
-    public ResultSet run(Connection conn, Random gen,
-			int terminalWarehouseID, int numWarehouses,
-			int terminalDistrictLowerID, int terminalDistrictUpperID,
-			CHBenCHmarkWorker w) throws SQLException {
+    public ResultSet run(Connection conn) throws SQLException {
     
     	
 		
