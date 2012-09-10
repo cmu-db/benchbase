@@ -19,7 +19,6 @@ public abstract class GenericQuery extends Procedure {
     
     private static final Logger LOG = Logger.getLogger(GenericQuery.class);
 
-    protected abstract SQLStmt getStmtSQL();
     
     protected static SQLStmt query_stmt;
 
@@ -54,7 +53,7 @@ public abstract class GenericQuery extends Procedure {
     	
 		
 		//initializing all prepared statements
-    	stmt=this.getPreparedStatement(conn, getStmtSQL());
+    	stmt=this.getPreparedStatement(conn, query_stmt);
 
 
     	ResultSet rs = stmt.executeQuery();

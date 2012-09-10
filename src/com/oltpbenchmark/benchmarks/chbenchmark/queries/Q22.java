@@ -1,7 +1,5 @@
 package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
-import com.oltpbenchmark.api.SQLStmt;
-
 public class Q22 extends GenericQuery {
 	
 	static {

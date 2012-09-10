@@ -18,8 +18,7 @@
         <work>
           <time>60</time>
           <rate>10000</rate>
-          <!--<weights>10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>-->
-          <weights>100</weights>
+          <weights>10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
 	</works>
 	
