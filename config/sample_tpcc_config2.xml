@@ -18,7 +18,8 @@
         <work>
           <time>60</time>
           <rate>10000</rate>
-          <weights>15, 15, 10, 10, 10, 10, 10, 10, 10</weights>
+          <!--<weights>10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>-->
+          <weights>100</weights>
         </work>
 	</works>
 	
@@ -27,6 +28,11 @@
     	<transactiontype>
     		<name>Q1</name>
     	</transactiontype>
+    	<!-- Doesn't work with MysQL
+    	<transactiontype>
+    		<name>Q2</name>
+    	</transactiontype>
+    	-->
     	<transactiontype>
     		<name>Q3</name>
     	</transactiontype>
@@ -50,6 +56,47 @@
     	</transactiontype>
     	<transactiontype>
     		<name>Q10</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q11</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q12</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q13</name>
+    	</transactiontype>    	
+    	<transactiontype>
+    		<name>Q14</name>
+    	</transactiontype>      
+    	<transactiontype>
+    	<!-- Needs optimization -->
+    		<name>Q15</name>
+    	</transactiontype>   
+    	<transactiontype>
+    		<name>Q16</name>
+    	</transactiontype>
+    	<!-- Doesn't work with MySQL
+    	<transactiontype>
+    		<name>Q17</name>
+    	</transactiontype>   
+    	-->
+    	<transactiontype>
+    		<name>Q18</name>
+    	</transactiontype>   
+    	<transactiontype>
+    		<name>Q19</name>
+    	</transactiontype>
+    	<!--   
+    	<transactiontype>
+    		<name>Q20</name>
+    	</transactiontype>
+    	-->   
+    	<transactiontype>
+    		<name>Q21</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q22</name>
     	</transactiontype>
    	</transactiontypes>	
 </parameters>

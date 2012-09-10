@@ -4,6 +4,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class Q17 extends GenericQuery {
 
+	//doens't work with MySQL
 	@Override
 	protected SQLStmt getStmtSQL() {
 		return new SQLStmt(

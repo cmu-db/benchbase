@@ -1,5 +1,8 @@
 package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,9 +19,31 @@ public abstract class GenericQuery extends Procedure {
     
     private static final Logger LOG = Logger.getLogger(GenericQuery.class);
 
-    protected abstract SQLStmt getStmtSQL(); 
+    protected abstract SQLStmt getStmtSQL();
+    
+    protected static SQLStmt query_stmt;
 
 	private PreparedStatement stmt; 
+	
+	protected static void initSQLStmt(String queryFile) {
+		String query = "";
+		
+		try{
+			
+			FileReader input = new FileReader("src/com/oltpbenchmark/benchmarks/chbenchmark/queries/" + queryFile);
+			BufferedReader reader = new BufferedReader(input);
+			String line = reader.readLine();
+			while (line != null) {
+				query += line;
+				query += " ";
+				line = reader.readLine();
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		query_stmt = new SQLStmt(query);
+	}
 	
     
     public ResultSet run(Connection conn, Random gen,
