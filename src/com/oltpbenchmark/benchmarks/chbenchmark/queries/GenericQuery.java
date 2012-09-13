@@ -43,11 +43,8 @@ public abstract class GenericQuery extends Procedure {
 		}		
 		query_stmt = new SQLStmt(query);
 	}
-	
     
     public ResultSet run(Connection conn) throws SQLException {
-    
-    	
 		
 		//initializing all prepared statements
     	stmt=this.getPreparedStatement(conn, query_stmt);

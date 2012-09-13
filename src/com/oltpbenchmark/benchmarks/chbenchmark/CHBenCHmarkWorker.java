@@ -1,7 +1,6 @@
 package com.oltpbenchmark.benchmarks.chbenchmark;
 
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -9,28 +8,6 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.GenericQuery;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q2;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q3;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q4;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q5;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q6;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q7;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q8;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q9;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q10;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q11;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q12;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q13;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q14;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q15;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q16;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q17;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q18;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q19;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q20;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q21;
-import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q22;
 
 import com.oltpbenchmark.types.TransactionStatus;
 
@@ -44,12 +21,18 @@ private static final AtomicInteger terminalId = new AtomicInteger(0);
 	@Override
 	protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
 		try {
-        	GenericQuery proc = (GenericQuery)this.getProcedure(Q1.class);
+        	GenericQuery proc = (GenericQuery) nextTransaction.getProcedureClass().newInstance();
 			proc.run(conn);
 		} catch (ClassCastException e) {
         	System.err.println("We have been invoked with an INVALID transactionType?!");
         	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
-        };
+        } catch (InstantiationException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Could not instantiate query.");
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Run method of the query seems to be private.");
+		};
 		
         conn.commit();
         return (TransactionStatus.SUCCESS);
