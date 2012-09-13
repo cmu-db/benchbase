@@ -86,7 +86,7 @@
     	<transactiontype>
     		<name>Q19</name>
     	</transactiontype>
-    	<!--   
+    	<!-- Doesn't work with MySQL
     	<transactiontype>
     		<name>Q20</name>
     	</transactiontype>
