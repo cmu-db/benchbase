@@ -35,8 +35,7 @@ import com.oltpbenchmark.util.StringUtil;
 
 public class WorkloadConfiguration {
 
-    // XXX: Why is this static?
-    private static Iterator<Phase> phaseIterator;
+    private Iterator<Phase> phaseIterator;
     
 	private DatabaseType db_type;	
 	private String db_connection;
@@ -46,6 +45,8 @@ public class WorkloadConfiguration {
 	private String db_driver;	
 	private double scaleFactor = 1.0;
 	private int terminals;
+	private int numTxnTypes;
+
 	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
@@ -83,6 +84,14 @@ public class WorkloadConfiguration {
 	
 	public void setDBName(String dbname) {
 		this.db_name = dbname;
+	}
+	
+	public int getNumTxnTypes() {
+		return numTxnTypes;
+	}
+	
+	public void setNumTxnTypes(int numTxnTypes) {
+		this.numTxnTypes = numTxnTypes;
 	}
 	
 	public String getDBName() {

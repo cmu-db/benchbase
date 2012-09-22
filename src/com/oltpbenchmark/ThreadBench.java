@@ -51,15 +51,16 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private final List<? extends Worker> workers;
     private final ArrayList<Thread> workerThreads;
     // private File profileFile;
-    private static WorkloadConfiguration workConf;
+    private WorkloadConfiguration workConf;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 
-    private ThreadBench(List<? extends Worker> workers) {
-        this(workers, null);
+    private ThreadBench(List<? extends Worker> workers, WorkloadConfiguration workConf) {
+        this(workers, null, workConf);
     }
 
-    public ThreadBench(List<? extends Worker> workers, File profileFile) {
+    public ThreadBench(List<? extends Worker> workers, File profileFile, WorkloadConfiguration workConf) {
         this.workers = workers;
+        this.workConf = workConf;
         this.workerThreads = new ArrayList<Thread>(workers.size());
     }
 
@@ -227,8 +228,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * bench.runRateLimitedFromFile(); }
      */
 
-    public static Results runRateLimitedBenchmark(List<Worker> workers) throws QueueLimitException, IOException {
-        ThreadBench bench = new ThreadBench(workers);
+    public static Results runRateLimitedBenchmark(List<Worker> workers, WorkloadConfiguration workConf) throws QueueLimitException, IOException {
+        ThreadBench bench = new ThreadBench(workers, workConf);
         return bench.runRateLimitedMultiPhase();
     }
 
@@ -402,11 +403,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
          * wait for)
          */
 
-    }
-
-    public static void setWorkConf(WorkloadConfiguration workConfig) {
-        // TODO Auto-generated method stub
-        workConf = workConfig;
     }
 
 }

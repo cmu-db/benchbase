@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
@@ -138,101 +140,128 @@ public class DBWorkload {
             printUsage(options);
             return;
         }
+        
+//       -------------------------------------------------------------------
+//        GET PLUGIN LIST
+//       -------------------------------------------------------------------
+        
+        String plugins = argsLine.getOptionValue("b");
+        
+        String[] pluginList = plugins.split(",");
 
         // ----------------------------------------------------------------
         // WORKLOAD CONFIGURATION
         // ----------------------------------------------------------------
-
-        WorkloadConfiguration wrkld = new WorkloadConfiguration();
+        
+        Map<String, WorkloadConfiguration> wrkldMap = new HashMap<String, WorkloadConfiguration>();
         String configFile = argsLine.getOptionValue("c");
         XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
-        wrkld.setXmlConfig(xmlConfig);
-        wrkld.setDBType(DatabaseType.get(xmlConfig.getString("dbtype")));
-        wrkld.setDBDriver(xmlConfig.getString("driver"));
-        wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
-        wrkld.setDBName(xmlConfig.getString("DBName"));
-        wrkld.setDBUsername(xmlConfig.getString("username"));
-        wrkld.setDBPassword(xmlConfig.getString("password"));
-        wrkld.setTerminals(xmlConfig.getInt("terminals"));
-        wrkld.setIsolationMode(xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE"));
-        wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
-        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
-
-        int size = xmlConfig.configurationsAt("works.work").size();
-        for (int i = 0; i < size; i++) {
-            if ((int) xmlConfig.getInt("works.work(" + i + ").rate") < 1) {
-                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment");
-                System.exit(-1);
-            }
-            wrkld.addWork(xmlConfig.getInt("works.work(" + i + ").time"),
-                          xmlConfig.getInt("works.work(" + i + ").rate"),
-                          xmlConfig.getList("works.work(" + i + ").weights"));
-        } // FOR
-
-        final int numTxnTypes = xmlConfig.configurationsAt("transactiontypes.transactiontype").size();
-
-        // CHECKING INPUT PHASES
-        int j = 0;
-        for (Phase p : wrkld.getAllPhases()) {
-            j++;
-            if (p.getWeightCount() != numTxnTypes) {
-                LOG.fatal(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types",
-                                        j, p.getWeightCount(), numTxnTypes));
-                System.exit(-1);
-            }
-        } // FOR
-
-        // Generate the dialect map
-        wrkld.init();
-
-        assert (numTxnTypes >= 0);
-        assert (xmlConfig != null);
+        xmlConfig.setExpressionEngine(new XPathExpressionEngine());
+        
+        for (String plugin : pluginList) {
+        	String pluginTest = "[@bench='" + plugin + "']";
+	        WorkloadConfiguration wrkld = new WorkloadConfiguration();
+	        wrkld.setXmlConfig(xmlConfig);
+	        wrkld.setDBType(DatabaseType.get(xmlConfig.getString("dbtype")));
+	        wrkld.setDBDriver(xmlConfig.getString("driver"));
+	        wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
+	        wrkld.setDBName(xmlConfig.getString("DBName"));
+	        wrkld.setDBUsername(xmlConfig.getString("username"));
+	        wrkld.setDBPassword(xmlConfig.getString("password"));
+	        wrkld.setTerminals(xmlConfig.getInt("terminals"));
+	        wrkld.setIsolationMode(xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE"));
+	        wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
+	        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
+	        
+	        String works_xpath = "/works" + pluginTest;
+	        int size = xmlConfig.configurationsAt("/works" + pluginTest + "/work").size();
+	        for (int i = 1; i < size + 1; i++) {
+	            if ((int) xmlConfig.getInt("works" + pluginTest + "/work[" + i + "]/rate") < 1) {
+	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment");
+	                System.exit(-1);
+	            }
+	            wrkld.addWork(xmlConfig.getInt("works" + pluginTest + "/work[" + i + "]/time"),
+	                          xmlConfig.getInt("works" + pluginTest + "/work[" + i + "]/rate"),
+	                          xmlConfig.getList("works" + pluginTest + "/work[" + i + "]/weights"));
+	        } // FOR
+	
+	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());
+	
+	        // CHECKING INPUT PHASES
+	        int j = 0;
+	        for (Phase p : wrkld.getAllPhases()) {
+	            j++;
+	            if (p.getWeightCount() != wrkld.getNumTxnTypes()) {
+	                LOG.fatal(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types",
+	                                        j, p.getWeightCount(), wrkld.getNumTxnTypes()));
+	                System.exit(-1);
+	            }
+	        } // FOR
+	
+	        // Generate the dialect map
+	        wrkld.init();
+	
+	        assert (wrkld.getNumTxnTypes() >= 0);
+	        assert (xmlConfig != null);
+	        wrkldMap.put(plugin, wrkld);
+        }
 
         // ----------------------------------------------------------------
         // BENCHMARK MODULE
         // ----------------------------------------------------------------
-        String plugin = argsLine.getOptionValue("b");
-        String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
+        List<BenchmarkModule> benchList = new ArrayList<BenchmarkModule>();
+        
+        for (String plugin : pluginList) {
+        	String pluginTest = "[@bench='" + plugin + "']";
+	       	String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
+	       	WorkloadConfiguration wrkld = wrkldMap.get(plugin);
+	
+	        if (classname == null)
+	            throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
+				BenchmarkModule bench = ClassUtil.newInstance(classname, new Object[] { wrkld }, new Class<?>[] { WorkloadConfiguration.class });
+		        assert (benchList.get(0) != null);
+	
+	        Map<String, Object> initDebug = new ListOrderedMap<String, Object>();
+	        initDebug.put("Benchmark", String.format("%s {%s}", plugin.toUpperCase(), classname));
+	        initDebug.put("Configuration", configFile);
+	        initDebug.put("Type", wrkld.getDBType());
+	        initDebug.put("Driver", wrkld.getDBDriver());
+	        initDebug.put("URL", wrkld.getDBConnection());
+	        initDebug.put("Isolation", xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE [DEFAULT]"));
+	        initDebug.put("Scale Factor", wrkld.getScaleFactor());
+	        INIT_LOG.info(SINGLE_LINE + "\n\n" + StringUtil.formatMaps(initDebug));
+	        INIT_LOG.info(SINGLE_LINE);
 
-        if (classname == null)
-            throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
-        BenchmarkModule bench = ClassUtil.newInstance(classname, new Object[] { wrkld }, new Class<?>[] { WorkloadConfiguration.class });
-        assert (bench != null);
+        
 
-        Map<String, Object> initDebug = new ListOrderedMap<String, Object>();
-        initDebug.put("Benchmark", String.format("%s {%s}", plugin.toUpperCase(), classname));
-        initDebug.put("Configuration", configFile);
-        initDebug.put("Type", wrkld.getDBType());
-        initDebug.put("Driver", wrkld.getDBDriver());
-        initDebug.put("URL", wrkld.getDBConnection());
-        initDebug.put("Isolation", xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE [DEFAULT]"));
-        initDebug.put("Scale Factor", wrkld.getScaleFactor());
-        INIT_LOG.info(SINGLE_LINE + "\n\n" + StringUtil.formatMaps(initDebug));
-        INIT_LOG.info(SINGLE_LINE);
-
-        // Load TransactionTypes
-        List<TransactionType> ttypes = new ArrayList<TransactionType>();
-
-        // Always add an INVALID type for Carlo
-        ttypes.add(TransactionType.INVALID);
-        for (int i = 0; i < numTxnTypes; i++) {
-            String key = "transactiontypes.transactiontype(" + i + ")";
-            String txnName = xmlConfig.getString(key + ".name");
-            int txnId = i + 1;
-            if (xmlConfig.containsKey(key + ".id")) {
-                txnId = xmlConfig.getInt(key + ".id");
-            }
-            ttypes.add(bench.initTransactionType(txnName, txnId));
-        } // FOR
-        TransactionTypes tt = new TransactionTypes(ttypes);
-        wrkld.setTransTypes(tt);
-        LOG.debug("Using the following transaction types: " + tt);
+	        // Load TransactionTypes
+	        List<TransactionType> ttypes = new ArrayList<TransactionType>();
+	
+	        // Always add an INVALID type for Carlo
+	        ttypes.add(TransactionType.INVALID);
+	        for (int i = 1; i < wrkld.getNumTxnTypes() + 1; i++) {
+	            String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
+	            String txnName = xmlConfig.getString(key + "/name");
+	            int txnId = i + 1;
+	            if (xmlConfig.containsKey(key + "/id")) {
+	                txnId = xmlConfig.getInt(key + "/id");
+	            }
+	            ttypes.add(bench.initTransactionType(txnName, txnId));
+	        } // FOR
+	        TransactionTypes tt = new TransactionTypes(ttypes);
+	        wrkld.setTransTypes(tt);
+	        LOG.debug("Using the following transaction types: " + tt);
+	        
+	        benchList.add(bench);
+        }
+        
+        BenchmarkModule bench = benchList.get(0);
 
         // Export StatementDialects
         if (isBooleanOptionSet(argsLine, "dialects-export")) {
             if (bench.getStatementDialects() != null) {
                 LOG.info("Exporting StatementDialects for " + bench);
-                String xml = bench.getStatementDialects().export(wrkld.getDBType(),
+                String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDBType(),
                                                                  bench.getProcedures().values());
                 System.out.println(xml);
                 System.exit(0);
@@ -358,8 +387,7 @@ public class DBWorkload {
         // EXEC_LOG.info("done.");
         EXEC_LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
                                     bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
-        ThreadBench.setWorkConf(bench.getWorkloadConfiguration());
-        Results r = ThreadBench.runRateLimitedBenchmark(workers);
+        Results r = ThreadBench.runRateLimitedBenchmark(workers, bench.getWorkloadConfiguration());
         EXEC_LOG.info(SINGLE_LINE);
         EXEC_LOG.info("Rate limited reqs/s: " + r);
         return r;
