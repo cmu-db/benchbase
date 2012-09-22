@@ -75,6 +75,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.tpcc.jdbc.jdbcIO;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
@@ -90,7 +91,7 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 public class TPCCLoader extends Loader{
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
-	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
+	public TPCCLoader(BenchmarkModule benchmark, Connection c) {
 		super(benchmark, c);
 		conn = c;
         numWarehouses = (int)Math.round(configWhseCount * this.scaleFactor);
