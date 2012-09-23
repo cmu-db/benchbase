@@ -36,6 +36,7 @@ import com.oltpbenchmark.util.StringUtil;
 public class WorkloadConfiguration {
 
     private Iterator<Phase> phaseIterator;
+    private Phase currentState = null;
     
 	private DatabaseType db_type;	
 	private String db_connection;
@@ -50,6 +51,7 @@ public class WorkloadConfiguration {
 	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
+
 	private int numberOfPhases = 0;
 	private TransactionTypes transTypes = null;
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
@@ -64,6 +66,14 @@ public class WorkloadConfiguration {
 		if (phaseIterator.hasNext())
 			return phaseIterator.next();
 		return null;
+	}
+	
+	public Phase getCurrentState() {
+		return currentState;
+	}
+	
+	public void switchToNextPhase() {
+		this.currentState = this.getNextPhase();
 	}
 	
 	public void setDBType(DatabaseType dbType) {

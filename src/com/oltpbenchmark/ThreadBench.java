@@ -47,20 +47,20 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     private static final int RATE_QUEUE_LIMIT = 10000;
     
-    private BenchmarkState testState;
+    private static BenchmarkState testState;
     private final List<? extends Worker> workers;
     private final ArrayList<Thread> workerThreads;
     // private File profileFile;
-    private WorkloadConfiguration workConf;
+    private List<WorkloadConfiguration> workConfs;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 
-    private ThreadBench(List<? extends Worker> workers, WorkloadConfiguration workConf) {
-        this(workers, null, workConf);
+    private ThreadBench(List<? extends Worker> workers, List<WorkloadConfiguration> workConfs) {
+        this(workers, null, workConfs);
     }
 
-    public ThreadBench(List<? extends Worker> workers, File profileFile, WorkloadConfiguration workConf) {
+    public ThreadBench(List<? extends Worker> workers, File profileFile, List<WorkloadConfiguration> workConfs) {
         this.workers = workers;
-        this.workConf = workConf;
+        this.workConfs = workConfs;
         this.workerThreads = new ArrayList<Thread>(workers.size());
     }
 
@@ -156,8 +156,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     private void createWorkerThreads(boolean isRateLimited) {
-        assert testState == null;
-        testState = new BenchmarkState(workers.size() + 1, isRateLimited, RATE_QUEUE_LIMIT);
         
         for (Worker worker : workers) {
             worker.setBenchmarkState(testState);
@@ -228,22 +226,30 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * bench.runRateLimitedFromFile(); }
      */
 
-    public static Results runRateLimitedBenchmark(List<Worker> workers, WorkloadConfiguration workConf) throws QueueLimitException, IOException {
-        ThreadBench bench = new ThreadBench(workers, workConf);
+    public static Results runRateLimitedBenchmark(List<Worker> workers, List<WorkloadConfiguration> workConfs) throws QueueLimitException, IOException {
+        if (testState == null) {
+        	testState = new BenchmarkState(workers.size() + 1, true, RATE_QUEUE_LIMIT);
+        }
+        ThreadBench bench = new ThreadBench(workers, workConfs);
         return bench.runRateLimitedMultiPhase();
     }
 
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
         this.createWorkerThreads(true);
-        this.testState.blockForStart();
+        testState.blockForStart();
 
         // long measureStart = start;
 
         long start = System.nanoTime();
         long measureEnd = -1;
-
-        Phase phase = workConf.getNextPhase();
-        testState.setCurrentPhase(phase);
+        
+        Phase phase = null;
+        
+        for (WorkloadConfiguration workConf : this.workConfs) {
+        	workConf.switchToNextPhase();
+        	phase = workConf.getCurrentState();
+        }
+        
         LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
 
         long intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
@@ -286,10 +292,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // reset the queues so that the new phase is not affected by the
                 // queue of the previous one
                 resetQueues = true;
-
+                
                 // Fetch a new Phase
-                phase = workConf.getNextPhase();
-                testState.setCurrentPhase(phase);
+                for (WorkloadConfiguration workConf : workConfs) {
+                	workConf.switchToNextPhase();
+                	phase = workConf.getCurrentState();
+                }
                 if (phase == null) {
                     // Last phase
                     lastEntry = true;
@@ -347,7 +355,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             Results results = new Results(measureEnd - start, requests, stats, samples);
 
             // Compute transaction histogram
-            Set<TransactionType> txnTypes = new HashSet<TransactionType>(workConf.getTransTypes());
+            Set<TransactionType> txnTypes = new HashSet<TransactionType>();
+            for (WorkloadConfiguration workConf : workConfs) {
+            	txnTypes.addAll(workConf.getTransTypes());
+            }
             txnTypes.remove(TransactionType.INVALID);
 
             results.txnSuccess.putAll(txnTypes, 0);

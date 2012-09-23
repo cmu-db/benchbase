@@ -187,7 +187,7 @@ public abstract class Worker implements Runnable {
 				// re-reads the state because it could have changed if we
 				// blocked
 				state = testState.fetchWork();
-				phase = testState.fetchWorkType();
+				phase = this.getBenchmarkModule().getWorkloadConfiguration().getCurrentState();
 			}
 
 			boolean measure = state == State.MEASURE;

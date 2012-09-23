@@ -1,5 +1,7 @@
 package com.oltpbenchmark;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,7 +40,7 @@ public final class BenchmarkState {
 	public void setCurrentPhase(Phase currentPhase) {
 		this.currentPhase = currentPhase;
 	}
-
+	
 	/**
 	 * 
 	 * @param numThreads

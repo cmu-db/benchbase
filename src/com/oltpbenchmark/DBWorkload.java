@@ -148,18 +148,23 @@ public class DBWorkload {
         String plugins = argsLine.getOptionValue("b");
         
         String[] pluginList = plugins.split(",");
-
-        // ----------------------------------------------------------------
-        // WORKLOAD CONFIGURATION
-        // ----------------------------------------------------------------
+        List<BenchmarkModule> benchList = new ArrayList<BenchmarkModule>();
         
-        Map<String, WorkloadConfiguration> wrkldMap = new HashMap<String, WorkloadConfiguration>();
         String configFile = argsLine.getOptionValue("c");
         XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
         xmlConfig.setExpressionEngine(new XPathExpressionEngine());
-        
+
         for (String plugin : pluginList) {
-        	String pluginTest = "[@bench='" + plugin + "']";
+        	
+        	// ----------------------------------------------------------------
+        	// WORKLOAD CONFIGURATION
+        	// ----------------------------------------------------------------
+        	
+        	String pluginTest = "";
+        	if (pluginList.length > 1) {
+        		pluginTest = "[@bench='" + plugin + "']";
+        	}
+        	
 	        WorkloadConfiguration wrkld = new WorkloadConfiguration();
 	        wrkld.setXmlConfig(xmlConfig);
 	        wrkld.setDBType(DatabaseType.get(xmlConfig.getString("dbtype")));
@@ -203,18 +208,12 @@ public class DBWorkload {
 	
 	        assert (wrkld.getNumTxnTypes() >= 0);
 	        assert (xmlConfig != null);
-	        wrkldMap.put(plugin, wrkld);
-        }
 
         // ----------------------------------------------------------------
         // BENCHMARK MODULE
         // ----------------------------------------------------------------
-        List<BenchmarkModule> benchList = new ArrayList<BenchmarkModule>();
         
-        for (String plugin : pluginList) {
-        	String pluginTest = "[@bench='" + plugin + "']";
 	       	String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
-	       	WorkloadConfiguration wrkld = wrkldMap.get(plugin);
 	
 	        if (classname == null)
 	            throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
@@ -320,7 +319,7 @@ public class DBWorkload {
             // Bombs away!
             Results r = null;
             try {
-                r = runWorkload(bench, verbose);
+                r = runWorkload(benchList, verbose);
             } catch (Throwable ex) {
                 LOG.error("Unexpected error when running " + bench, ex);
                 System.exit(1);
@@ -381,13 +380,19 @@ public class DBWorkload {
         bench.loadDatabase();
     }
 
-    private static Results runWorkload(BenchmarkModule bench, boolean verbose) throws QueueLimitException, IOException {
-        EXEC_LOG.info("Creating " + bench.getWorkloadConfiguration().getTerminals() + " virtual terminals...");
-        List<Worker> workers = bench.makeWorkers(verbose);
-        // EXEC_LOG.info("done.");
-        EXEC_LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
-                                    bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
-        Results r = ThreadBench.runRateLimitedBenchmark(workers, bench.getWorkloadConfiguration());
+    private static Results runWorkload(List<BenchmarkModule> benchList, boolean verbose) throws QueueLimitException, IOException {
+    	List<Worker> workers = new ArrayList<Worker>();
+    	List<WorkloadConfiguration> workConfs = new ArrayList<WorkloadConfiguration>();
+    	for (BenchmarkModule bench : benchList) {
+    		EXEC_LOG.info("Creating " + bench.getWorkloadConfiguration().getTerminals() + " virtual terminals...");
+    		workers.addAll(bench.makeWorkers(verbose));
+    		// EXEC_LOG.info("done.");
+    		EXEC_LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
+    				bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
+    		workConfs.add(bench.getWorkloadConfiguration());
+    		
+    	}
+        Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs);
         EXEC_LOG.info(SINGLE_LINE);
         EXEC_LOG.info("Rate limited reqs/s: " + r);
         return r;
