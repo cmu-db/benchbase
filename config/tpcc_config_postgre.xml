@@ -23,7 +23,7 @@
 	</works>
 	
 	<!-- TPCC specific -->  
-   	<transactiontypes bench="tpcc">
+   	<transactiontypes>
     	<transactiontype>
     		<name>NewOrder</name>
     	</transactiontype>
