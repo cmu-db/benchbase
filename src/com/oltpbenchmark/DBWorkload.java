@@ -187,32 +187,11 @@ public class DBWorkload {
 	                System.exit(-1);
 	            }
 	            SubnodeConfiguration work = xmlConfig.configurationAt("works/work[" + i + "]");
+	            List<String> weight_strings;
 	            
-	            List<String> weight_strings = new LinkedList<String>();
-	            if (pluginTest.length() > 1) {
-		            
-		            // buggy piece of shit Java XPath implementation made me do it 
-		            // replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
-		            List<SubnodeConfiguration> weights = work.configurationsAt("weights");
-		            boolean weights_started = false;
-		            
-		            for (SubnodeConfiguration weight : weights) {
-		            	int j = weight.getRootNode().getAttributeCount();
-		            	
-		            	// stop if second attributed node encountered
-		            	if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
-		            		break;
-		            	}
-		            	//start adding node values, if node with attribute equal to current plugin encountered
-		            	if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
-		            		weights_started = true;
-		            	}
-		            	if (weights_started) {
-		            		weight_strings.add(weight.getString(""));
-		            	}
-		            	
-		            }
-	            } else {
+	            if (pluginTest.length() > 1)
+					weight_strings = get_weights(plugin, work);
+				else {
 	            	weight_strings = work.getList("weights");
 	            }
 	            
@@ -398,6 +377,35 @@ public class DBWorkload {
             EXEC_LOG.info("Skipping benchmark workload execution");
         }
     }
+
+	/* buggy piece of shit of Java XPath implementation made me do it 
+	   replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
+	 */
+	private static List<String> get_weights(String plugin, SubnodeConfiguration work) {
+		    
+			List<String> weight_strings = new LinkedList<String>();
+		    @SuppressWarnings("unchecked")
+			List<SubnodeConfiguration> weights = work.configurationsAt("weights");
+		    boolean weights_started = false;
+		    
+		    for (SubnodeConfiguration weight : weights) {
+		    	int j = weight.getRootNode().getAttributeCount();
+		    	
+		    	// stop if second attributed node encountered
+		    	if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
+		    		break;
+		    	}
+		    	//start adding node values, if node with attribute equal to current plugin encountered
+		    	if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
+		    		weights_started = true;
+		    	}
+		    	if (weights_started) {
+		    		weight_strings.add(weight.getString(""));
+		    	}
+		    	
+		    }
+		    return weight_strings;
+	}
 	
     private static void runScript(BenchmarkModule bench, String script) {
         SCRIPT_LOG.debug(String.format("Running %s", script));
