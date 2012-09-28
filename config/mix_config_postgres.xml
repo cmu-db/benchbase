@@ -7,25 +7,19 @@
     <DBUrl>jdbc:postgresql://localhost:5432/tpcc</DBUrl>
     <username>tpcc</username>
     <password>tpcc</password>
-    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
     <scalefactor>2</scalefactor>
     
     <!-- The workload -->
     <terminals>2</terminals>
-    <works bench="tpcc">
+    <works >
         <work>
-          <time>60</time>
+          <time>10</time>
           <rate>10000</rate>
-          <weights>45,43,4,4,4</weights>
-        </work>
-	</works>
-    <works bench="chbenchmark">
-        <work>
-          <time>60</time>
-          <rate>10000</rate>
-          <weights>3, 2, 3, 2 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
+          <weights bench="tpcc">45,43,4,4,4</weights>
+          <weights bench="chbenchmark">3, 2, 3, 2 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
 	</works>
 	

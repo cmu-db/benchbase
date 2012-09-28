@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -178,16 +179,46 @@ public class DBWorkload {
 	        wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
 	        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
 	        
-	        String works_xpath = "/works" + pluginTest;
-	        int size = xmlConfig.configurationsAt("/works" + pluginTest + "/work").size();
+	        
+	        int size = xmlConfig.configurationsAt("/works/work").size();
 	        for (int i = 1; i < size + 1; i++) {
-	            if ((int) xmlConfig.getInt("works" + pluginTest + "/work[" + i + "]/rate") < 1) {
+	            if ((int) xmlConfig.getInt("works/work[" + i + "]/rate") < 1) {
 	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment");
 	                System.exit(-1);
 	            }
-	            wrkld.addWork(xmlConfig.getInt("works" + pluginTest + "/work[" + i + "]/time"),
-	                          xmlConfig.getInt("works" + pluginTest + "/work[" + i + "]/rate"),
-	                          xmlConfig.getList("works" + pluginTest + "/work[" + i + "]/weights"));
+	            SubnodeConfiguration work = xmlConfig.configurationAt("works/work[" + i + "]");
+	            
+	            List<String> weight_strings = new LinkedList<String>();
+	            if (pluginTest.length() > 1) {
+		            
+		            // buggy piece of shit Java XPath implementation made me do it 
+		            // replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
+		            List<SubnodeConfiguration> weights = work.configurationsAt("weights");
+		            boolean weights_started = false;
+		            
+		            for (SubnodeConfiguration weight : weights) {
+		            	int j = weight.getRootNode().getAttributeCount();
+		            	if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
+		            		break;
+		            	}
+		            	if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
+		            		weights_started = true;
+		            	}
+		            	if (weights_started) {
+		            		weight_strings.add(weight.getString(""));
+		            	}
+		            	
+		            }
+	            } else {
+	            	weight_strings = work.getList("weights");
+	            }
+	            
+	            
+	            
+	            		
+	            wrkld.addWork(xmlConfig.getInt("works/work[" + i + "]/time"),
+	                          xmlConfig.getInt("works/work[" + i + "]/rate"),
+	                          weight_strings);
 	        } // FOR
 	
 	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());
@@ -209,9 +240,9 @@ public class DBWorkload {
 	        assert (wrkld.getNumTxnTypes() >= 0);
 	        assert (xmlConfig != null);
 
-        // ----------------------------------------------------------------
-        // BENCHMARK MODULE
-        // ----------------------------------------------------------------
+	        // ----------------------------------------------------------------
+	        // BENCHMARK MODULE
+	        // ----------------------------------------------------------------
         
 	       	String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
 	
