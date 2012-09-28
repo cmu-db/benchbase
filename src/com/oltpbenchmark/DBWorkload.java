@@ -198,9 +198,12 @@ public class DBWorkload {
 		            
 		            for (SubnodeConfiguration weight : weights) {
 		            	int j = weight.getRootNode().getAttributeCount();
+		            	
+		            	// stop if second attributed node encountered
 		            	if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
 		            		break;
 		            	}
+		            	//start adding node values, if node with attribute equal to current plugin encountered
 		            	if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
 		            		weights_started = true;
 		            	}
