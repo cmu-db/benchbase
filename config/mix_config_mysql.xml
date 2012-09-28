@@ -14,18 +14,12 @@
     
     <!-- The workload -->
     <terminals>2</terminals>
-    <works bench="tpcc">
+    <works>
         <work>
           <time>60</time>
           <rate>10000</rate>
-          <weights>45,43,4,4,4</weights>
-        </work>
-	</works>
-    <works bench="chbenchmark">
-        <work>
-          <time>60</time>
-          <rate>10000</rate>
-          <weights>10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
+          <weights bench="tpcc">45,43,4,4,4</weights>
+          <weights bench="chbenchmark">10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
 	</works>
 	
