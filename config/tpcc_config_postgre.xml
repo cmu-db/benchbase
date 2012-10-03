@@ -7,7 +7,7 @@
     <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
     <username>root</username>
     <password></password>
-    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <isolation>TRANSACTION_READ_UNCOMMITTED</isolation>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
     <scalefactor>2</scalefactor>
