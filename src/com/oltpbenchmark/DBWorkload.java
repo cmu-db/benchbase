@@ -154,6 +154,7 @@ public class DBWorkload {
         String configFile = argsLine.getOptionValue("c");
         XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
         xmlConfig.setExpressionEngine(new XPathExpressionEngine());
+        int lastTxnId = 0;
 
         for (String plugin : pluginList) {
         	
@@ -251,6 +252,7 @@ public class DBWorkload {
 	
 	        // Always add an INVALID type for Carlo
 	        ttypes.add(TransactionType.INVALID);
+	        int txnIdOffset = lastTxnId;
 	        for (int i = 1; i < wrkld.getNumTxnTypes() + 1; i++) {
 	            String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
 	            String txnName = xmlConfig.getString(key + "/name");
@@ -258,7 +260,8 @@ public class DBWorkload {
 	            if (xmlConfig.containsKey(key + "/id")) {
 	                txnId = xmlConfig.getInt(key + "/id");
 	            }
-	            ttypes.add(bench.initTransactionType(txnName, txnId));
+	            ttypes.add(bench.initTransactionType(txnName, txnId + txnIdOffset));
+	            lastTxnId = i;
 	        } // FOR
 	        TransactionTypes tt = new TransactionTypes(ttypes);
 	        wrkld.setTransTypes(tt);
