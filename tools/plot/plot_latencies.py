@@ -57,7 +57,7 @@ if __name__ == '__main__':
     
     
     ax.set_xticks(x + width * 1.5)
-    ax.set_xticklabels(x.astype('I'))
+    ax.set_xticklabels(x.astype('I') - 1)
     
     if len(sys.argv) > 2:
         title = sys.argv[2]
