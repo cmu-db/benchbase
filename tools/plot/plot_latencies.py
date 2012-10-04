@@ -37,21 +37,32 @@ if __name__ == '__main__':
     
     fig = p.figure()
     
-    ax = fig.add_subplot(1,1,1)
+    ax = fig.add_subplot(111)
     
     x = result[:, 0]
     
     y = result[:, 2]
     
-    width = .5
+    width = .2
     
     
-    ax.bar(x, y, width=width, color='green')
+    ax.bar(x, y, width=width, color='yellow')
+    ax.bar(x+width, result[:, 3], width=width, color='green')
+    ax.bar(x+width*2, result[:, 4], width=width, color='red')    
     
-    ax.set_xticks(x+width)
+    ax.set_ylabel("Seconds")
+    ax.set_xlabel("Query Number")
+    
+    ax.set_ylim(ymax=1.5)
+    
+    
+    ax.set_xticks(x + width * 1.5)
     ax.set_xticklabels(x.astype('I'))
     
     if len(sys.argv) > 2:
-        p.savefig(sys.argv[2])
-    else:
-        p.show()
+        title = sys.argv[2]
+        ax.set_title(title)
+        p.savefig(title)
+        
+    p.show()
+    
