@@ -3,11 +3,11 @@
 	
     <!-- Connection details -->
     <dbtype>mysql</dbtype>
-    <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
-    <username>root</username>
-    <password></password>
-    <isolation>TRANSACTION_READ_UNCOMMITTED</isolation>
+    <driver>org.postgresql.Driver</driver>
+    <DBUrl>jdbc:postgresql://localhost:5432/tpcc</DBUrl>
+    <username>tpcc</username>
+    <password>tpcc</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
     <scalefactor>2</scalefactor>
