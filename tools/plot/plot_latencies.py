@@ -109,6 +109,7 @@ class ThroughputExtractor(object):
 
         return np.array(result)
 
+    ax.plot(x, data)
 
     def plot(self, data):
         """Takes throughput data and plots it"""
