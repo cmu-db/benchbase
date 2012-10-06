@@ -79,8 +79,8 @@ class LatencyExtractor(object):
             
         p.show()
 
-class TroughputExtractor(object):
-    """Analyser for output.raw for troughput data"""
+class ThroughputExtractor(object):
+    """Analyser for output.raw for throughput data"""
 
     def __init__(self, filename, output=None, interval=None):
         self.filename = filename
@@ -88,7 +88,7 @@ class TroughputExtractor(object):
         self.interval = interval
 
     def extract(self):
-        """Parses output.raw and returns troughput data"""
+        """Parses output.raw and returns throughput data"""
 
         raw = np.genfromtxt(self.filename, delimiter=',')
         # filter the invalid transaction
@@ -133,10 +133,13 @@ def main():
     """Script runner"""
     latency_extractor = LatencyExtractor(sys.argv[1],
                             sys.argv[2] if len(sys.argv) > 2 else None)
-   
     latency_data = latency_extractor.extract()
     ymax = latency_data[:, 4].max() + .1
     latency_extractor.plot(latency_data, ymax)
+
+    throughput_extractor = ThroughputExtractor(sys.argv[1],
+                            sys.argv[2] if len(sys.argv) > 2 else None)
+    throughput_extractor.plot(throughput_extractor.extract())
 
 if __name__ == '__main__':
     main()
