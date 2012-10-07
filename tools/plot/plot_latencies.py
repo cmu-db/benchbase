@@ -8,76 +8,89 @@ Created on Wed Oct  3 12:30:54 2012
 import numpy as np
 import pylab as p
 import sys
+from IPython import embed
 
 SLICE_SIZE = 5
+
 
 class LatencyExtractor(object):
     """Analyser for output.raw for latency data"""
 
-    CONVERT = 10 ** 6 # microseconds
+    CONVERT = 10 ** 6  # microseconds
 
     def __init__(self, filename, output=None):
         self.filename = filename
         self.output = output
-        self.interval = interval
+        self.raw = np.genfromtxt(self.filename, delimiter=',')
+        # remove first line as it is invalid
+        self.raw = self.raw[1:]
 
     def extract(self, interval=None):
         """Parses output.raw and extracts latency data"""
-        raw = np.genfromtxt(self.filename, delimiter=",")
-        # remove first line as it is invalid
-        raw = raw[1:]
-        queries_column = raw[:, 0]
+        queries_column = self.raw[:, 0]
         queries = np.unique(queries_column)
         if interval:
             first, last = interval
             interval_queries = xrange(first, last + 1)
-            assert set(interval_queries).issubset(queries)
-            queries = np.array(interval_queries)
-        
+            embed()
+            queries = set(interval_queries).intersection(queries)
+
         result = []
-        
+
         for query in queries:
             l_q = int(query)
-            query_lat = raw[:, 2][queries_column == query]
+            query_lat = self.raw[:, 2][queries_column == query]
             result.append([l_q] + self._get_data(query_lat))
 
         return np.array(result)
 
     def _get_data(self, data):
         """Returns count, mean, min and max from a array"""
-        return [len(data), data.mean() / self.CONVERT, 
+        return [len(data), data.mean() / self.CONVERT,
                 data.min() / self.CONVERT, data.max() / self.CONVERT]
+
+    def get_ymax(self):
+        """Get max latency value for deminsioning of the y axis"""
+        return self.raw[:, 2].max() / self.CONVERT + .1
 
     def plot(self, data, ymax=1.5):
         """Takes latency data and plots bar charts"""
         fig = p.figure()
-        
+
         subplot = fig.add_subplot(111)
-        
-        queries = data[:, 0]
-        
-        width = .2
-        
-        
-        subplot.bar(queries, data[:, 2], width=width, color='yellow')
-        subplot.bar(queries + width, data[:, 3], width=width, color='green')
-        subplot.bar(queries + width * 2, data[:, 4], width=width,
-             color='red')    
-        
-        subplot.set_ylabel("Seconds")
-        subplot.set_xlabel("Query Number")
-        
-        subplot.set_ylim(ymax=ymax)
-        
-        
-        subplot.set_xticks(queries + width * 1.5)
-        subplot.set_xticklabels(queries.astype('I') - 1)
-        
+
+        title = getattr(self, 'title', None)
+        LatencyExtractor.decorate_subplot(subplot, data, ymax, title)
+
         if self.output:
             subplot.set_title(self.output)
             p.savefig(self.output)
-            
+
         p.show()
+
+    @staticmethod
+    def decorate_subplot(subplot, data, ymax, title=None):
+        """Takes a subplot and adds a latency barchart to it"""
+        queries = data[:, 0]
+
+        width = .2
+
+        subplot.bar(queries, data[:, 2], width=width, color='yellow')
+        subplot.bar(queries + width, data[:, 3], width=width, color='green')
+        subplot.bar(queries + width * 2, data[:, 4], width=width,
+                    color='red')
+
+        subplot.set_ylabel("Seconds")
+        subplot.set_xlabel("Query Number")
+
+        subplot.set_ylim(ymax=ymax)
+
+        subplot.set_xticks(queries + width * 1.5)
+        subplot.set_xticklabels((queries - queries.min()).astype("I") + 1)
+
+        if title:
+            subplot.set_title(title)
+
 
 class ThroughputExtractor(object):
     """Analyser for output.raw for throughput data"""
@@ -85,6 +98,9 @@ class ThroughputExtractor(object):
     def __init__(self, filename, output=None):
         self.filename = filename
         self.output = output
+        raw = np.genfromtxt(self.filename, delimiter=',')
+        # filter the invalid transaction
+        self.raw = raw[1:]
 
     def extract(self, interval=None):
         """Parses output.raw and returns throughput data"""
@@ -94,51 +110,62 @@ class ThroughputExtractor(object):
         raw = raw[1:]
         if interval:
             first, last = interval
-            raw = raw[(raw[:, 0] >= first) & (raw[:, 0] <= last)]
+            raw = self.raw[(self.raw[:, 0] >= first) & (self.raw[:, 0] <= last)]
+        else:
+            raw = self.raw
         test_start = raw[:, 1].min()
         result = []
 
         for time in xrange(0, 61, 5):
             start = time
             end = time + SLICE_SIZE
-            time_slice = raw[(raw[:, 1] >= start + test_start) 
-                                & (raw[:, 1] < end + test_start)][:, 2]
+            time_slice = raw[(raw[:, 1] >= start + test_start)
+                             & (raw[:, 1] < end + test_start)][:, 2]
             throughput = len(time_slice) / SLICE_SIZE
             result.append(throughput)
 
         return np.array(result)
 
-    ax.plot(x, data)
 
     def plot(self, data):
         """Takes throughput data and plots it"""
         fig = p.figure()
+        title = getattr(self, 'title', None)
 
         subplot = fig.add_subplot(111)
+        ThroughputExtractor.decorate_subplot(subplot, data, title)
+
+        if title:
+            p.savefig(self.output)
+
+        p.show()
+
+    @staticmethod
+    def decorate_subplot(subplot, data, title=None):
+        """Takes a subplot and adds graph to it"""
 
         time_intervals = np.arange(len(data))
 
         subplot.plot(time_intervals, data)
 
         subplot.set_xticks(time_intervals)
-        subplot.set_xticklabels([time_interval * 5 \
+        subplot.set_xticklabels([time_interval * 5
                     for time_interval in time_intervals])
-        if self.output:
-            subplot.title(self.output)
-            p.savefig(self.output)
+        if title:
+            subplot.set_title(title)
 
         p.show()
 
 def main():
     """Script runner"""
     latency_extractor = LatencyExtractor(sys.argv[1],
-                            sys.argv[2] if len(sys.argv) > 2 else None)
+                    sys.argv[2] if len(sys.argv) > 2 else None)
     latency_data = latency_extractor.extract()
-    ymax = latency_data[:, 4].max() + .1
+    ymax = latency_extractor.get_ymax()
     latency_extractor.plot(latency_data, ymax)
 
     throughput_extractor = ThroughputExtractor(sys.argv[1],
-                            sys.argv[2] if len(sys.argv) > 2 else None)
+                    sys.argv[2] if len(sys.argv) > 2 else None)
     throughput_extractor.plot(throughput_extractor.extract())
 
 if __name__ == '__main__':
