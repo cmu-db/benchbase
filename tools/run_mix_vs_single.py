@@ -4,16 +4,20 @@ from subprocess import check_call, STDOUT, Popen
 import os, sys
 
 PATH_TO_OLTP = ".."
-PATH_TO_PLOTTER = os.path.abspath("plot/plot_latencies.py")
+PATH_TO_PLOTTER = os.path.abspath("plot/")
+sys.path.insert(0, PATH_TO_PLOTTER)
+from plot_latencies import ThroughputExtractor, LatencyExtractor
 
-if __name__ == "__main__":
-    configs = [('tpcc', 'config/tpcc_config_postgre.xml'),
-                ('chbenchmark', 'config/hc_config_postgres.xml'),
+def main():
+    """Main runner"""
+    configs = [#('tpcc', 'config/tpcc_config_postgre.xml'),
+                #('chbenchmark', 'config/hc_config_postgres.xml'),
                 ('tpcc,chbenchmark', 'config/mix_config_postgres.xml'),
                 ]
 
     old_dir = os.getcwd()
     os.chdir(PATH_TO_OLTP)
+    results = []
     
     for config in configs:
         call_args = ["./oltpbenchmark",
@@ -27,12 +31,13 @@ if __name__ == "__main__":
         '--histograms']
         print check_call(call_args)
         
-        Popen([PATH_TO_PLOTTER,
-                    "output.raw",
-                    "{0}.png".format(config[1].split("/")[-1].split(".")[0]),
-                    ])
+        throughput_extractor = ThroughputExtractor("output.raw")
+        latency_extranctor = LatencyExtractor("output.raw")
+        results.append((throughput_extractor, latency_extranctor))
                     
 
     raw_input("Press enter to EXIT")
     sys.exit(0)
 
+if __name__ == "__main__":
+    main()    

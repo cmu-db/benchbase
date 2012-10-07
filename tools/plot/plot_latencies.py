@@ -16,20 +16,20 @@ class LatencyExtractor(object):
 
     CONVERT = 10 ** 6 # microseconds
 
-    def __init__(self, filename, output=None, interval=None):
+    def __init__(self, filename, output=None):
         self.filename = filename
         self.output = output
         self.interval = interval
 
-    def extract(self):
+    def extract(self, interval=None):
         """Parses output.raw and extracts latency data"""
         raw = np.genfromtxt(self.filename, delimiter=",")
         # remove first line as it is invalid
         raw = raw[1:]
         queries_column = raw[:, 0]
         queries = np.unique(queries_column)
-        if self.interval:
-            first, last = self.interval
+        if interval:
+            first, last = interval
             interval_queries = xrange(first, last + 1)
             assert set(interval_queries).issubset(queries)
             queries = np.array(interval_queries)
@@ -82,19 +82,18 @@ class LatencyExtractor(object):
 class ThroughputExtractor(object):
     """Analyser for output.raw for throughput data"""
 
-    def __init__(self, filename, output=None, interval=None):
+    def __init__(self, filename, output=None):
         self.filename = filename
         self.output = output
-        self.interval = interval
 
-    def extract(self):
+    def extract(self, interval=None):
         """Parses output.raw and returns throughput data"""
 
         raw = np.genfromtxt(self.filename, delimiter=',')
         # filter the invalid transaction
         raw = raw[1:]
-        if self.interval:
-            first, last = self.interval
+        if interval:
+            first, last = interval
             raw = raw[(raw[:, 0] >= first) & (raw[:, 0] <= last)]
         test_start = raw[:, 1].min()
         result = []
