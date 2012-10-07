@@ -7,9 +7,11 @@ Created on Wed Oct  3 12:30:54 2012
 """
 import numpy as np
 import pylab as p
+from matplotlib.ticker import MaxNLocator
 import sys
 
 SLICE_SIZE = 5
+MAX_THROUGHPUT_TICKS = 2
 
 
 class LatencyExtractor(object):
@@ -113,14 +115,15 @@ class ThroughputExtractor(object):
         else:
             raw = self.raw
         test_start = raw[:, 1].min()
+        test_finish = raw[:, 1].max()
         result = []
 
-        for time in xrange(0, 60, 5):
+        for time in xrange(0, int(test_finish - test_start), 5):
             start = time
             end = time + SLICE_SIZE
             time_slice = raw[(raw[:, 1] >= start + test_start)
                              & (raw[:, 1] < end + test_start)][:, 2]
-            throughput = len(time_slice) / SLICE_SIZE
+            throughput = float(len(time_slice)) / SLICE_SIZE
             result.append(throughput)
 
         return np.array(result)
@@ -143,13 +146,16 @@ class ThroughputExtractor(object):
     def decorate_subplot(subplot, data, title=None, label=None):
         """Takes a subplot and adds graph to it"""
 
-        time_intervals = np.arange(len(data))
+        time_intervals = (np.arange(len(data)) * SLICE_SIZE).astype("I")
 
         subplot.plot(time_intervals, data, label=label)
 
         subplot.set_xticks(time_intervals)
-        subplot.set_xticklabels([time_interval * 5
-                    for time_interval in time_intervals])
+
+        subplot.xaxis.set_major_locator(MaxNLocator(MAX_THROUGHPUT_TICKS))
+
+        subplot.set_xlabel("Seconds")
+        subplot.set_ylabel("Requests/s")
 
         subplot.legend(*subplot.get_legend_handles_labels())
         if title:
