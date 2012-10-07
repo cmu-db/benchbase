@@ -96,12 +96,12 @@ def main():
     os.chdir(PATH_TO_OLTP)
     results = dict([(name, run_test(config)) \
                     for name, config in CONFIGS.items()])
+    os.chdir(old_dir)
 
     create_latency_diagrams(results)
     create_throughput_diagrams(results)
 
     raw_input("Press enter to EXIT")
-    os.chdir(old_dir)
     sys.exit(0)
 
 if __name__ == "__main__":
