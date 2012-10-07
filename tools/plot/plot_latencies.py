@@ -8,7 +8,6 @@ Created on Wed Oct  3 12:30:54 2012
 import numpy as np
 import pylab as p
 import sys
-from IPython import embed
 
 SLICE_SIZE = 5
 
@@ -32,7 +31,6 @@ class LatencyExtractor(object):
         if interval:
             first, last = interval
             interval_queries = xrange(first, last + 1)
-            embed()
             queries = set(interval_queries).intersection(queries)
 
         result = []
@@ -110,13 +108,14 @@ class ThroughputExtractor(object):
         raw = raw[1:]
         if interval:
             first, last = interval
-            raw = self.raw[(self.raw[:, 0] >= first) & (self.raw[:, 0] <= last)]
+            raw = self.raw[(self.raw[:, 0] >= first) & \
+                            (self.raw[:, 0] <= last)]
         else:
             raw = self.raw
         test_start = raw[:, 1].min()
         result = []
 
-        for time in xrange(0, 61, 5):
+        for time in xrange(0, 60, 5):
             start = time
             end = time + SLICE_SIZE
             time_slice = raw[(raw[:, 1] >= start + test_start)
@@ -141,16 +140,18 @@ class ThroughputExtractor(object):
         p.show()
 
     @staticmethod
-    def decorate_subplot(subplot, data, title=None):
+    def decorate_subplot(subplot, data, title=None, label=None):
         """Takes a subplot and adds graph to it"""
 
         time_intervals = np.arange(len(data))
 
-        subplot.plot(time_intervals, data)
+        subplot.plot(time_intervals, data, label=label)
 
         subplot.set_xticks(time_intervals)
         subplot.set_xticklabels([time_interval * 5
                     for time_interval in time_intervals])
+
+        subplot.legend(*subplot.get_legend_handles_labels())
         if title:
             subplot.set_title(title)
 
