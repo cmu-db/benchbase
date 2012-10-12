@@ -183,8 +183,8 @@ public class DBWorkload {
 	        
 	        int size = xmlConfig.configurationsAt("/works/work").size();
 	        for (int i = 1; i < size + 1; i++) {
-	            if ((int) xmlConfig.getInt("works/work[" + i + "]/rate") < 1) {
-	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment");
+	            if ((int) xmlConfig.getInt("works/work[" + i + "]/rate") < 0) {
+	                LOG.fatal("Negative TPS do not make any sense");
 	                System.exit(-1);
 	            }
 	            SubnodeConfiguration work = xmlConfig.configurationAt("works/work[" + i + "]");
@@ -195,12 +195,14 @@ public class DBWorkload {
 				else {
 	            	weight_strings = work.getList("weights");
 	            }
-	            
-	            
-	            
-	            		
-	            wrkld.addWork(xmlConfig.getInt("works/work[" + i + "]/time"),
-	                          xmlConfig.getInt("works/work[" + i + "]/rate"),
+	            int rate;
+	            if (work.containsKey("/rate" + pluginTest)) {
+	            	rate = work.getInt("/rate" + pluginTest);
+	            } else {
+	            	rate = work.getInt("/rate");
+	            }
+	            wrkld.addWork(work.getInt("/time"),
+	            			  rate,
 	                          weight_strings);
 	        } // FOR
 	
