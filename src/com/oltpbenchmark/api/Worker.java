@@ -150,6 +150,10 @@ public abstract class Worker implements Runnable {
         return String.format("worker%03d", this.getId());
     }
     
+    public boolean isRateLimited() {
+    	return testState.isRateLimited();
+    }
+    
 	@Override
 	public final void run() {
 	    Thread t = Thread.currentThread();
@@ -157,7 +161,6 @@ public abstract class Worker implements Runnable {
 	    
 		// In case of reuse reset the measurements
 		latencies = new LatencyRecord(testState.getTestStartNs());
-		boolean isRateLimited = testState.isRateLimited();
 
 		// Invoke the initialize callback
 		try {
@@ -183,7 +186,7 @@ public abstract class Worker implements Runnable {
 			}
 			Phase phase = null;
 			// apply load
-			if (isRateLimited) {
+			if (isRateLimited()) {
 				// re-reads the state because it could have changed if we
 				// blocked
 				state = testState.fetchWork();
