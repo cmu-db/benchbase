@@ -201,9 +201,13 @@ public class DBWorkload {
 	            } else {
 	            	rate = work.getInt("/rate");
 	            }
+	            boolean rateLimited;
+	            rateLimited = work.getBoolean("rateLimited", true);
+	            rateLimited = work.getBoolean("ratelimited" + pluginTest, rateLimited);
 	            wrkld.addWork(work.getInt("/time"),
 	            			  rate,
-	                          weight_strings);
+	                          weight_strings,
+	                          rateLimited);
 	        } // FOR
 	
 	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());

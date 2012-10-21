@@ -155,7 +155,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    private void createWorkerThreads(boolean isRateLimited) {
+    private void createWorkerThreads() {
         
         for (Worker worker : workers) {
             worker.setBenchmarkState(testState);
@@ -233,13 +233,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
         assert testState == null;
-        testState = new BenchmarkState(workers.size() + 1, true, RATE_QUEUE_LIMIT);
+        testState = new BenchmarkState(workers.size() + 1, RATE_QUEUE_LIMIT);
         
         for (WorkloadConfiguration workConf : this.workConfs) {
             workConf.setTestState(testState);
         }
         
-        this.createWorkerThreads(true);
+        this.createWorkerThreads();
         testState.blockForStart();
 
         // long measureStart = start;
@@ -252,7 +252,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (WorkloadConfiguration workConf : this.workConfs) {
         	workConf.switchToNextPhase();
         	phase = workConf.getCurrentPhase();
-        	LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
+        	LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]" + "[Rate limited= " + phase.rateLimited + "]");
         }
         
 

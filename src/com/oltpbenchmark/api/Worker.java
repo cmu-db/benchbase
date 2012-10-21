@@ -150,10 +150,6 @@ public abstract class Worker implements Runnable {
         return String.format("worker%03d", this.getId());
     }
     
-    protected boolean isRateLimited() {
-    	return testState.isRateLimited();
-    }
-    
 	@Override
 	public final void run() {
 	    Thread t = Thread.currentThread();
@@ -187,7 +183,7 @@ public abstract class Worker implements Runnable {
 			Phase phase = null;
 			// apply load
 			phase = this.wrkld.getCurrentPhase();
-			if (isRateLimited()) {
+			if (phase != null && phase.rateLimited) {
 				// re-reads the state because it could have changed if we
 				// blocked
 				state = testState.fetchWork();
