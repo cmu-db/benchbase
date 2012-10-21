@@ -11,11 +11,12 @@ public class Phase {
     public final int time;
     public final int rate;
     public final boolean rateLimited;
+    public final boolean disabled;
     private final List<Double> weights;
     private final int num_weights;
     
 
-    Phase(int t, int r, List<String> o, boolean rateLimited) {
+    Phase(int t, int r, List<String> o, boolean rateLimited, boolean disabled) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
@@ -25,6 +26,7 @@ public class Phase {
         this.weights = Collections.unmodifiableList(w);
         this.num_weights = this.weights.size();
         this.rateLimited = rateLimited;
+        this.disabled = disabled;
     }
 
     public int getWeightCount() {

@@ -202,12 +202,16 @@ public class DBWorkload {
 	            	rate = work.getInt("/rate");
 	            }
 	            boolean rateLimited;
-	            rateLimited = work.getBoolean("rateLimited", true);
+	            rateLimited = work.getBoolean("rateLimited[not(@bench)]", true);
 	            rateLimited = work.getBoolean("ratelimited" + pluginTest, rateLimited);
+	            boolean disabled;
+	            disabled = work.getBoolean("disabled[not(@bench)]", false);
+	            disabled = work.getBoolean("disabled" + pluginTest, disabled);
 	            wrkld.addWork(work.getInt("/time"),
 	            			  rate,
 	                          weight_strings,
-	                          rateLimited);
+	                          rateLimited,
+	                          disabled);
 	        } // FOR
 	
 	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());

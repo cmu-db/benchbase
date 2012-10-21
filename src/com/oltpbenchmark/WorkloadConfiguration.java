@@ -63,8 +63,8 @@ public class WorkloadConfiguration {
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 	private boolean recordAbortMessages = false;
 
-	public void addWork(int time, int rate, List<String> weights, boolean rateLimited) {
-		works.add(new Phase(time, rate, weights, rateLimited));
+	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled) {
+		works.add(new Phase(time, rate, weights, rateLimited, disabled));
 		numberOfPhases++;
 	}
 
@@ -81,7 +81,13 @@ public class WorkloadConfiguration {
 	}
 	
 	public void switchToNextPhase() {
-		this.currentPhase = this.getNextPhase();
+	    synchronized(this) {
+    	    boolean wakeUp = this.currentPhase != null && this.currentPhase.disabled;
+    		this.currentPhase = this.getNextPhase();
+    	    if (wakeUp) {
+    	        this.notifyAll();
+    	    }
+	    }
 	}
 	
 	public void setDBType(DatabaseType dbType) {
