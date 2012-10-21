@@ -186,7 +186,7 @@ public abstract class Worker implements Runnable {
 			}
 			Phase phase = null;
 			// apply load
-			phase = this.wrkld.getCurrentState();
+			phase = this.wrkld.getCurrentPhase();
 			if (isRateLimited()) {
 				// re-reads the state because it could have changed if we
 				// blocked

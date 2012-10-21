@@ -227,14 +227,18 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      */
 
     public static Results runRateLimitedBenchmark(List<Worker> workers, List<WorkloadConfiguration> workConfs) throws QueueLimitException, IOException {
-        if (testState == null) {
-        	testState = new BenchmarkState(workers.size() + 1, true, RATE_QUEUE_LIMIT);
-        }
         ThreadBench bench = new ThreadBench(workers, workConfs);
         return bench.runRateLimitedMultiPhase();
     }
 
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
+        assert testState == null;
+        testState = new BenchmarkState(workers.size() + 1, true, RATE_QUEUE_LIMIT);
+        
+        for (WorkloadConfiguration workConf : this.workConfs) {
+            workConf.setTestState(testState);
+        }
+        
         this.createWorkerThreads(true);
         testState.blockForStart();
 
@@ -247,10 +251,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         
         for (WorkloadConfiguration workConf : this.workConfs) {
         	workConf.switchToNextPhase();
-        	phase = workConf.getCurrentState();
+        	phase = workConf.getCurrentPhase();
+        	LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
         }
         
-        LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
 
         long intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
 
@@ -294,9 +298,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 resetQueues = true;
                 
                 // Fetch a new Phase
-                for (WorkloadConfiguration workConf : workConfs) {
-                	workConf.switchToNextPhase();
-                	phase = workConf.getCurrentState();
+                synchronized (testState) {
+                    for (WorkloadConfiguration workConf : workConfs) {
+                    	workConf.switchToNextPhase();
+                    	phase = workConf.getCurrentPhase();
+                    }
                 }
                 if (phase == null) {
                     // Last phase

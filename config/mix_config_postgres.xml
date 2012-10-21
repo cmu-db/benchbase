@@ -16,7 +16,7 @@
     <terminals>2</terminals>
     <works >
         <work>
-          <time>10</time>
+          <time>60</time>
           <rate>10000</rate>
           <weights bench="tpcc">45,43,4,4,4</weights>
           <weights bench="chbenchmark">3, 2, 3, 2 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>

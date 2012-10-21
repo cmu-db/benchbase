@@ -31,12 +31,13 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.StringUtil;
 
 public class WorkloadConfiguration {
 
     private Iterator<Phase> phaseIterator;
-    private Phase currentState = null;
+    private Phase currentPhase = null;
     
 	private DatabaseType db_type;	
 	private String db_connection;
@@ -51,8 +52,13 @@ public class WorkloadConfiguration {
 	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
+	private BenchmarkState testState;
 
-	private int numberOfPhases = 0;
+	public void setTestState(BenchmarkState testState) {
+        this.testState = testState;
+    }
+
+    private int numberOfPhases = 0;
 	private TransactionTypes transTypes = null;
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 	private boolean recordAbortMessages = false;
@@ -68,12 +74,14 @@ public class WorkloadConfiguration {
 		return null;
 	}
 	
-	public Phase getCurrentState() {
-		return currentState;
+	public Phase getCurrentPhase() {
+	    synchronized (testState){
+	        return currentPhase;
+	    }
 	}
 	
 	public void switchToNextPhase() {
-		this.currentState = this.getNextPhase();
+		this.currentPhase = this.getNextPhase();
 	}
 	
 	public void setDBType(DatabaseType dbType) {
