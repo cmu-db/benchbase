@@ -175,7 +175,8 @@ public class DBWorkload {
 	        wrkld.setDBName(xmlConfig.getString("DBName"));
 	        wrkld.setDBUsername(xmlConfig.getString("username"));
 	        wrkld.setDBPassword(xmlConfig.getString("password"));
-	        wrkld.setTerminals(xmlConfig.getInt("terminals"));
+	        int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
+	        wrkld.setTerminals(xmlConfig.getInt("terminals" + pluginTest, terminals));
 	        wrkld.setIsolationMode(xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE"));
 	        wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
 	        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
@@ -183,13 +184,17 @@ public class DBWorkload {
 	        
 	        int size = xmlConfig.configurationsAt("/works/work").size();
 	        for (int i = 1; i < size + 1; i++) {
-	            if ((int) xmlConfig.getInt("works/work[" + i + "]/rate") < 0) {
-	                LOG.fatal("Negative TPS do not make any sense");
-	                System.exit(-1);
-	            }
 	            SubnodeConfiguration work = xmlConfig.configurationAt("works/work[" + i + "]");
 	            List<String> weight_strings;
+	            if (work.containsKey("rate[@bench]")) {
+	                LOG.fatal("You can not specify rate for workloads separatelly.");
+	                System.exit(-1);
+	            }
 	            
+	            if ((int) work.getInt("rate") < 1) {
+	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment. Use <disabled> option.");
+	                System.exit(-1);
+	            }
 	            if (pluginTest.length() > 1)
 					weight_strings = get_weights(plugin, work);
 				else {
