@@ -302,17 +302,18 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     for (WorkloadConfiguration workConf : workConfs) {
                     	workConf.switchToNextPhase();
                     	phase = workConf.getCurrentPhase();
+                    	if (phase == null) {
+                    	    // Last phase
+                    	    lastEntry = true;
+                    	    break;
+                    	} else {
+                    	    delta += phase.time * 1000000000L;
+                    	    LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
+                    	    // update frequency in which we check according to wakeup
+                    	    // speed
+                    	    intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
+                    	}
                     }
-                }
-                if (phase == null) {
-                    // Last phase
-                    lastEntry = true;
-                } else {
-                    delta += phase.time * 1000000000L;
-                    LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
-                    // update frequency in which we check according to wakeup
-                    // speed
-                    intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
                 }
             }
 
