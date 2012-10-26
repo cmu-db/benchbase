@@ -280,10 +280,9 @@ public class DBWorkload {
 	        benchList.add(bench);
         }
         
-        BenchmarkModule bench = benchList.get(0);
-
         // Export StatementDialects
         if (isBooleanOptionSet(argsLine, "dialects-export")) {
+            BenchmarkModule bench = benchList.get(0);
             if (bench.getStatementDialects() != null) {
                 LOG.info("Exporting StatementDialects for " + bench);
                 String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDBType(),
@@ -300,10 +299,12 @@ public class DBWorkload {
 
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
-            CREATE_LOG.info("Creating new " + bench.getBenchmarkName().toUpperCase() + " database...");
-            runCreator(bench, verbose);
-            CREATE_LOG.info("Finished!");
-            CREATE_LOG.info(SINGLE_LINE);
+            for (BenchmarkModule benchmark : benchList) {
+                CREATE_LOG.info("Creating new " + benchmark.getBenchmarkName().toUpperCase() + " database...");
+                runCreator(benchmark, verbose);
+                CREATE_LOG.info("Finished!");
+                CREATE_LOG.info(SINGLE_LINE);
+            }
         } else if (CREATE_LOG.isDebugEnabled()) {
             CREATE_LOG.debug("Skipping creating benchmark database tables");
             CREATE_LOG.info(SINGLE_LINE);
@@ -311,10 +312,12 @@ public class DBWorkload {
 
         // Clear the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "clear")) {
-            CREATE_LOG.info("Resetting " + bench.getBenchmarkName().toUpperCase() + " database...");
-            bench.clearDatabase();
-            CREATE_LOG.info("Finished!");
-            CREATE_LOG.info(SINGLE_LINE);
+                for (BenchmarkModule benchmark : benchList) {
+                CREATE_LOG.info("Resetting " + benchmark.getBenchmarkName().toUpperCase() + " database...");
+                benchmark.clearDatabase();
+                CREATE_LOG.info("Finished!");
+                CREATE_LOG.info(SINGLE_LINE);
+            }
         } else if (CREATE_LOG.isDebugEnabled()) {
             CREATE_LOG.debug("Skipping creating benchmark database tables");
             CREATE_LOG.info(SINGLE_LINE);
@@ -322,10 +325,12 @@ public class DBWorkload {
 
         // Execute Loader
         if (isBooleanOptionSet(argsLine, "load")) {
-            LOAD_LOG.info("Loading data into " + bench.getBenchmarkName().toUpperCase() + " database...");
-            runLoader(bench, verbose);
-            LOAD_LOG.info("Finished!");
-            LOAD_LOG.info(SINGLE_LINE);
+            for (BenchmarkModule benchmark : benchList) {
+                LOAD_LOG.info("Loading data into " + benchmark.getBenchmarkName().toUpperCase() + " database...");
+                runLoader(benchmark, verbose);
+                LOAD_LOG.info("Finished!");
+                LOAD_LOG.info(SINGLE_LINE);
+            }
         } else if (LOAD_LOG.isDebugEnabled()) {
             LOAD_LOG.debug("Skipping loading benchmark database records");
             LOAD_LOG.info(SINGLE_LINE);
@@ -333,11 +338,13 @@ public class DBWorkload {
         
         // Execute a Script
         if (argsLine.hasOption("runscript")) {
-            String script = argsLine.getOptionValue("runscript");
-            SCRIPT_LOG.info("Running a SQL script: "+script);
-            runScript(bench, script);
-            SCRIPT_LOG.info("Finished!");
-            SCRIPT_LOG.info(SINGLE_LINE);
+            for (BenchmarkModule benchmark : benchList) {
+                String script = argsLine.getOptionValue("runscript");
+                SCRIPT_LOG.info("Running a SQL script: "+script);
+                runScript(benchmark, script);
+                SCRIPT_LOG.info("Finished!");
+                SCRIPT_LOG.info(SINGLE_LINE);
+            }
         }
 
         // Execute Workload
@@ -347,7 +354,7 @@ public class DBWorkload {
             try {
                 r = runWorkload(benchList, verbose);
             } catch (Throwable ex) {
-                LOG.error("Unexpected error when running " + bench, ex);
+                LOG.error("Unexpected error when running benchmarks.", ex);
                 System.exit(1);
             }
             assert(r != null);
