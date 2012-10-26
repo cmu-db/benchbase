@@ -252,7 +252,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (WorkloadConfiguration workConf : this.workConfs) {
         	workConf.switchToNextPhase();
         	phase = workConf.getCurrentPhase();
-        	LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]" + "[Rate limited= " + phase.rateLimited + "]");
+        	LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + (phase.rateLimited ? phase.rate : "unlimited") + "] [Ratios= " + phase.getWeights() + "]");
         }
         
 
@@ -308,7 +308,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     	    break;
                     	} else {
                     	    delta += phase.time * 1000000000L;
-                    	    LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + phase.rate + "] [Ratios= " + phase.getWeights() + "]");
+                    	    LOG.info("[Starting Phase] [Time= " + phase.time + "] [Rate= " + (phase.rateLimited ? phase.rate : "unlimited") + "] [Ratios= " + phase.getWeights() + "]");
                     	    // update frequency in which we check according to wakeup
                     	    // speed
                     	    intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
