@@ -31,7 +31,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.StringUtil;
 
 public class WorkloadConfiguration {

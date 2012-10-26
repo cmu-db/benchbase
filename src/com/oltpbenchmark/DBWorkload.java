@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -415,7 +414,6 @@ public class DBWorkload {
 		    boolean weights_started = false;
 		    
 		    for (SubnodeConfiguration weight : weights) {
-		    	int j = weight.getRootNode().getAttributeCount();
 		    	
 		    	// stop if second attributed node encountered
 		    	if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
