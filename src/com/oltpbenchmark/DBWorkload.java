@@ -168,6 +168,7 @@ public class DBWorkload {
         	}
         	
 	        WorkloadConfiguration wrkld = new WorkloadConfiguration();
+	        wrkld.setBenchmarkName(plugin);
 	        wrkld.setXmlConfig(xmlConfig);
 	        wrkld.setDBType(DatabaseType.get(xmlConfig.getString("dbtype")));
 	        wrkld.setDBDriver(xmlConfig.getString("driver"));

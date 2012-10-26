@@ -40,7 +40,16 @@ public class WorkloadConfiguration {
     private Phase currentPhase = null;
     
 	private DatabaseType db_type;	
-	private String db_connection;
+	private String benchmarkName;
+	public String getBenchmarkName() {
+        return benchmarkName;
+    }
+
+    public void setBenchmarkName(String benchmarkName) {
+        this.benchmarkName = benchmarkName;
+    }
+
+    private String db_connection;
 	private String db_name;
 	private String db_username;
 	private String db_password;
@@ -78,6 +87,10 @@ public class WorkloadConfiguration {
 	    synchronized (testState){
 	        return currentPhase;
 	    }
+	}
+	
+	public String currentPhaseString() {
+	    return "[Starting Phase] [Workload= " + benchmarkName + "] [Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "]";
 	}
 	
 	public void switchToNextPhase() {
