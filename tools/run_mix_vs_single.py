@@ -14,10 +14,10 @@ sys.path.insert(0, PATH_TO_PLOTTER)
 
 from plot_latencies import ThroughputExtractor, LatencyExtractor
 
-CONFIGS = {'TPCC': ('tpcc', 'config/tpcc_config_postgre.xml',
+CONFIGS = {'TPCC': ('tpcc', 'config/tpcc_config_postgres.xml',
                      {'OLTP': (2, 6)},
                  ),
-        'CH': ('chbenchmark', 'config/hc_config_postgres.xml',
+        'CH': ('chbenchmark', 'config/ch_config_postgres.xml',
                     {'OLAP': (2, 23)},
                 ),
         'MIXED': ('tpcc,chbenchmark', 'config/mix_config_postgres.xml',
