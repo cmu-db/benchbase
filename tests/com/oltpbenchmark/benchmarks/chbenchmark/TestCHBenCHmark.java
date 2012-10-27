@@ -1,9 +1,5 @@
 package com.oltpbenchmark.benchmarks.chbenchmark;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q2;
@@ -27,7 +23,6 @@ import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q19;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q20;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q21;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q22;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
 
 public class TestCHBenCHmark extends AbstractTestBenchmarkModule<CHBenCHmark>{
 	
