@@ -180,7 +180,7 @@ public abstract class Worker implements Runnable {
 				testState.signalDone();
 				break;
 			}
-			Phase phase = null;
+			Phase phase = testState.fetchWorkType();;
 			// apply load
 			phase = this.wrkld.getCurrentPhase();
 			// if the workload is disabled in this phase
