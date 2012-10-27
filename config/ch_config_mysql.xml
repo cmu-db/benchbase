@@ -3,11 +3,11 @@
 	
     <!-- Connection details -->
     <dbtype>mysql</dbtype>
-    <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/tpcc</DBUrl>
-    <username>tpcc</username>
-    <password>tpcc</password>
-    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <driver>com.mysql.jdbc.Driver</driver>
+    <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
+    <username>root</username>
+    <password></password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
     <scalefactor>2</scalefactor>
@@ -16,9 +16,9 @@
     <terminals>2</terminals>
     <works>
         <work>
-          <time>60</time>
+          <time>10</time>
           <rate>10000</rate>
-          <weights>3, 2, 3, 2 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
+          <weights>10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
 	</works>
 	
@@ -27,9 +27,11 @@
     	<transactiontype>
     		<name>Q1</name>
     	</transactiontype>
+    	<!-- Doesn't work with MysQL
     	<transactiontype>
     		<name>Q2</name>
     	</transactiontype>
+    	-->
     	<transactiontype>
     		<name>Q3</name>
     	</transactiontype>
@@ -73,18 +75,22 @@
     	<transactiontype>
     		<name>Q16</name>
     	</transactiontype>
+    	<!-- Doesn't work with MySQL
     	<transactiontype>
     		<name>Q17</name>
     	</transactiontype>   
+    	-->
     	<transactiontype>
     		<name>Q18</name>
     	</transactiontype>   
     	<transactiontype>
     		<name>Q19</name>
     	</transactiontype>
+    	<!-- Doesn't work with MySQL
     	<transactiontype>
     		<name>Q20</name>
     	</transactiontype>
+    	-->   
     	<transactiontype>
     		<name>Q21</name>
     	</transactiontype>
