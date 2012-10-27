@@ -89,7 +89,13 @@ public class WorkloadConfiguration {
 	}
 	
 	public String currentPhaseString() {
-	    return "[Starting Phase] [Workload= " + benchmarkName + "] [Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "]";
+	    String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";
+	    if (currentPhase.disabled){
+	        retString += "[Disabled= true]";
+	    } else {
+	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "]";
+	    }
+	    return retString;
 	}
 	
 	public void switchToNextPhase() {
