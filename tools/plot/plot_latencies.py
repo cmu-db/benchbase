@@ -11,7 +11,7 @@ from matplotlib.ticker import MaxNLocator
 import sys
 
 SLICE_SIZE = 5
-MAX_THROUGHPUT_TICKS = 2
+MAX_THROUGHPUT_TICKS = 10
 
 
 class LatencyExtractor(object):
