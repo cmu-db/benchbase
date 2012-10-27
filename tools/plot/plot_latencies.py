@@ -151,16 +151,11 @@ class ThroughputExtractor(object):
         subplot.plot(time_intervals, data, label=label)
 
         subplot.set_xticks(time_intervals)
-<<<<<<< Updated upstream
 
         subplot.xaxis.set_major_locator(MaxNLocator(MAX_THROUGHPUT_TICKS))
 
         subplot.set_xlabel("Seconds")
         subplot.set_ylabel("Requests/s")
-=======
-        subplot.set_xticklabels([time_interval * 5
-                    for time_interval in time_intervals])
->>>>>>> Stashed changes
 
         subplot.legend(*subplot.get_legend_handles_labels())
         if title:
