@@ -75,7 +75,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.tpcc.jdbc.jdbcIO;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
@@ -91,14 +90,14 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 public class TPCCLoader extends Loader{
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
-	public TPCCLoader(BenchmarkModule benchmark, Connection c) {
+	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
 		super(benchmark, c);
 		conn = c;
         numWarehouses = (int)Math.round(configWhseCount * this.scaleFactor);
         outputFiles= false;
 	}
 
-	protected static boolean fastLoad;
+	static boolean fastLoad;
 	static String fastLoaderBaseDir;
 
 	/**
@@ -686,8 +685,8 @@ public class TPCCLoader extends Loader{
 	}
 
 	// *********** JDBC specific variables ***********************
-	protected static Connection conn = null;
-	protected static Statement stmt = null;
+	private static Connection conn = null;
+	private static Statement stmt = null;
 	private static Timestamp sysdate = null;
 	private static PreparedStatement custPrepStmt;
 	private static PreparedStatement distPrepStmt;
@@ -700,20 +699,20 @@ public class TPCCLoader extends Loader{
 	private static PreparedStatement whsePrepStmt;
 
 	// ********** general vars **********************************
-	protected static java.util.Date now = null;
+	private static java.util.Date now = null;
 	private static java.util.Date startDate = null;
 	private static java.util.Date endDate = null;
 
 	private static Random gen;
 	private static int numWarehouses = 0;
-	protected static String fileLocation = "";
-	protected static boolean outputFiles = false;
-	protected static PrintWriter out = null;
-	protected static long lastTimeMS = 0;
+	private static String fileLocation = "";
+	private static boolean outputFiles = false;
+	private static PrintWriter out = null;
+	private static long lastTimeMS = 0;
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
 
-	protected static void transRollback() {
+	static void transRollback() {
 		if (outputFiles == false) {
 			try {
 				conn.rollback();
@@ -725,7 +724,7 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	protected static void transCommit() {
+	static void transCommit() {
 		if (outputFiles == false) {
 			try {
 				conn.commit();
@@ -738,7 +737,7 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	protected static void truncateTable(String strTable) {
+	static void truncateTable(String strTable) {
 
 		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
@@ -750,7 +749,7 @@ public class TPCCLoader extends Loader{
 		}
 
 	}
-	
+
 	static void initJDBC() {
 
 		try {
@@ -1822,7 +1821,14 @@ public class TPCCLoader extends Loader{
 		long startTimeMS = new java.util.Date().getTime();
 		lastTimeMS = startTimeMS;
 
-		long totalRows = loadHelper();
+		long totalRows = loadWhse(numWarehouses);
+		totalRows += loadItem(configItemCount);
+		totalRows += loadStock(numWarehouses, configItemCount);
+		totalRows += loadDist(numWarehouses, configDistPerWhse);
+		totalRows += loadCust(numWarehouses, configDistPerWhse,
+				configCustPerDist);
+		totalRows += loadOrder(numWarehouses, configDistPerWhse,
+				configCustPerDist);
 
 		if (fastLoad) {
 			PreparedStatement[] pss = new PreparedStatement[] { custPrepStmt,
@@ -1852,17 +1858,5 @@ public class TPCCLoader extends Loader{
 				+ (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
 		LOG.debug("------------------------------------------------------");
 	
-	}
-
-	protected long loadHelper() {
-		long totalRows = loadWhse(numWarehouses);
-		totalRows += loadItem(configItemCount);
-		totalRows += loadStock(numWarehouses, configItemCount);
-		totalRows += loadDist(numWarehouses, configDistPerWhse);
-		totalRows += loadCust(numWarehouses, configDistPerWhse,
-				configCustPerDist);
-		totalRows += loadOrder(numWarehouses, configDistPerWhse,
-				configCustPerDist);
-		return totalRows;
 	}
 } // end LoadData Class
