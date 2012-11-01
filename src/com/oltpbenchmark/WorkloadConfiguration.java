@@ -94,7 +94,7 @@ public class WorkloadConfiguration {
 	    if (currentPhase.disabled){
 	        retString += "[Disabled= true]";
 	    } else {
-	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "]";
+	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "] [Active Workers=" + currentPhase.getActive_terminals() + "]";
 	    }
 	    return retString;
 	}

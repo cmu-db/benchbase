@@ -36,6 +36,7 @@
           <disabled bench="chbenchmark">false</disabled>
           
           <!-- Specifies number of active terminals per workload in this phase -->
+          <!-- NOTE: TPCC workers won't be distributed evenly between warehouses if not all workers are active -->
           <active_terminals>3</active_terminals>
           <active_terminals bench="chbenchmark">1</active_terminals>
           
