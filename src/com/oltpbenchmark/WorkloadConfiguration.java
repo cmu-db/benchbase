@@ -55,6 +55,7 @@ public class WorkloadConfiguration {
 	private String db_driver;	
 	private double scaleFactor = 1.0;
 	private int terminals;
+	private int workerNeedSleep;
 	private int numTxnTypes;
 
 	private XMLConfiguration xmlConfig = null;
@@ -98,12 +99,33 @@ public class WorkloadConfiguration {
 	    return retString;
 	}
 	
+	/*
+	 * Called by workers to ask if they should stay awake in this phase
+	 */
+	public void stayAwake() {
+	    synchronized(this) {
+	        if (workerNeedSleep > 0 || (this.currentPhase != null && this.currentPhase.disabled)) {
+	            workerNeedSleep --;
+	            try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+	        }
+	    }
+	    
+	}
+	
 	public void switchToNextPhase() {
 	    synchronized(this) {
-    	    boolean wakeUp = this.currentPhase != null && this.currentPhase.disabled;
+    	    boolean wakeUp = this.currentPhase != null &&
+    	            (this.currentPhase.disabled || this.currentPhase.getActive_terminals() < this.terminals);
     		this.currentPhase = this.getNextPhase();
     	    if (wakeUp) {
     	        this.notifyAll();
+    	    }
+    	    if (this.currentPhase != null) {
+    	        workerNeedSleep = this.terminals - this.currentPhase.getActive_terminals();
     	    }
 	    }
 	}

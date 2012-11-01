@@ -182,18 +182,8 @@ public abstract class Worker implements Runnable {
 			}
 			// apply load
 			Phase phase = this.wrkld.getCurrentPhase();
-			// if the workload is disabled in this phase
-			// lay worker to sleep
-			if (phase != null && phase.disabled) {
-			    synchronized (wrkld) {
-			        try {
-                        wrkld.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-			        continue;
-			    }
-			}
+			// ask workload if we have to sleep
+			wrkld.stayAwake();
 			if (phase != null && phase.rateLimited) {
 				// re-reads the state because it could have changed if we
 				// blocked
