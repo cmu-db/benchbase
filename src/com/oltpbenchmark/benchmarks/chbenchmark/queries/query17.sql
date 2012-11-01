@@ -1,0 +1,10 @@
+SELECT SUM (ol_amount) / 2 . 0 AS avg_yearly
+FROM orderline,
+  (SELECT i_id, AVG (ol_quantity) AS a
+   FROM item,
+        orderline
+   WHERE i_data LIKE '%b'
+     AND ol_i_id = i_id
+   GROUP BY i_id) t
+WHERE ol_i_id = t.i_id
+  AND ol_quantity < t.a
