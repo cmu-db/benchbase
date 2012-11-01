@@ -212,11 +212,21 @@ public class DBWorkload {
 	            boolean disabled;
 	            disabled = work.getBoolean("disabled[not(@bench)]", false);
 	            disabled = work.getBoolean("disabled" + pluginTest, disabled);
+	            
+	            int active_terminals;
+	            active_terminals = work.getInt("active_terminals[not(@bench)]", terminals);
+	            active_terminals = work.getInt("active_terminals" + pluginTest, active_terminals);
+	            if (active_terminals > terminals) {
+	                System.out.println("Configuration error in work " + i + ": number of active terminals" + "" +
+	                		"is bigger than the total number of terminals");
+	                System.exit(-1);
+	            }
 	            wrkld.addWork(work.getInt("/time"),
 	            			  rate,
 	                          weight_strings,
 	                          rateLimited,
-	                          disabled);
+	                          disabled,
+	                          active_terminals);
 	        } // FOR
 	
 	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());
