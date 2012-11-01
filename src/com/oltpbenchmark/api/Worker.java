@@ -184,7 +184,7 @@ public abstract class Worker implements Runnable {
 			Phase phase = this.wrkld.getCurrentPhase();
 			// ask workload if we have to sleep
 			wrkld.stayAwake();
-			if (phase != null && phase.rateLimited) {
+			if (phase != null && phase.isRateLimited()) {
 				// re-reads the state because it could have changed if we
 				// blocked
 				state = testState.fetchWork();

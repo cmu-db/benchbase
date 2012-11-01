@@ -12,8 +12,8 @@ public class Phase {
     public final int rate;
 
 
-    public final boolean rateLimited;
-    public final boolean disabled;
+    private final boolean rateLimited;
+    private final boolean disabled;
     private final List<Double> weights;
     private final int num_weights;
     private int activeTerminals;
@@ -33,6 +33,14 @@ public class Phase {
         this.activeTerminals = activeTerminals;
     }
     
+    public boolean isRateLimited() {
+        return rateLimited;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
     public int getActiveTerminals() {
         return activeTerminals;
     }

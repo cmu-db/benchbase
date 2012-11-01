@@ -91,10 +91,10 @@ public class WorkloadConfiguration {
 	
 	public String currentPhaseString() {
 	    String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";
-	    if (currentPhase.disabled){
+	    if (currentPhase.isDisabled()){
 	        retString += "[Disabled= true]";
 	    } else {
-	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "] [Active Workers=" + currentPhase.getActiveTerminals() + "]";
+	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.isRateLimited() ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "] [Active Workers=" + currentPhase.getActiveTerminals() + "]";
 	    }
 	    return retString;
 	}
@@ -104,7 +104,7 @@ public class WorkloadConfiguration {
 	 */
 	public void stayAwake() {
 	    synchronized(this) {
-	        if (workerNeedSleep > 0 || (this.currentPhase != null && this.currentPhase.disabled)) {
+	        if (workerNeedSleep > 0 || (this.currentPhase != null && this.currentPhase.isDisabled())) {
 	            workerNeedSleep --;
 	            try {
                     this.wait();
@@ -119,7 +119,7 @@ public class WorkloadConfiguration {
 	public void switchToNextPhase() {
 	    synchronized(this) {
     	    boolean wakeUp = this.currentPhase != null &&
-    	            (this.currentPhase.disabled || this.currentPhase.getActiveTerminals() < this.terminals);
+    	            (this.currentPhase.isDisabled() || this.currentPhase.getActiveTerminals() < this.terminals);
     		this.currentPhase = this.getNextPhase();
     	    if (wakeUp) {
     	        this.notifyAll();
