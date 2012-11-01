@@ -71,8 +71,8 @@ public class WorkloadConfiguration {
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 	private boolean recordAbortMessages = false;
 
-	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_workers) {
-		works.add(new Phase(time, rate, weights, rateLimited, disabled));
+	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals) {
+		works.add(new Phase(time, rate, weights, rateLimited, disabled, active_terminals));
 		numberOfPhases++;
 	}
 
