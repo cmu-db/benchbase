@@ -213,10 +213,10 @@ public class DBWorkload {
 	            disabled = work.getBoolean("disabled[not(@bench)]", false);
 	            disabled = work.getBoolean("disabled" + pluginTest, disabled);
 	            
-	            int active_terminals;
-	            active_terminals = work.getInt("active_terminals[not(@bench)]", terminals);
-	            active_terminals = work.getInt("active_terminals" + pluginTest, active_terminals);
-	            if (active_terminals > terminals) {
+	            int activeTerminals;
+	            activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
+	            activeTerminals = work.getInt("active_terminals" + pluginTest, activeTerminals);
+	            if (activeTerminals > terminals) {
 	                System.out.println("Configuration error in work " + i + ": number of active terminals" + "" +
 	                		"is bigger than the total number of terminals");
 	                System.exit(-1);
@@ -226,7 +226,7 @@ public class DBWorkload {
 	                          weight_strings,
 	                          rateLimited,
 	                          disabled,
-	                          active_terminals);
+	                          activeTerminals);
 	        } // FOR
 	
 	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());

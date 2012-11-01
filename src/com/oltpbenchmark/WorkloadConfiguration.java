@@ -94,7 +94,7 @@ public class WorkloadConfiguration {
 	    if (currentPhase.disabled){
 	        retString += "[Disabled= true]";
 	    } else {
-	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "] [Active Workers=" + currentPhase.getActive_terminals() + "]";
+	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.rateLimited ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "] [Active Workers=" + currentPhase.getActiveTerminals() + "]";
 	    }
 	    return retString;
 	}
@@ -119,13 +119,13 @@ public class WorkloadConfiguration {
 	public void switchToNextPhase() {
 	    synchronized(this) {
     	    boolean wakeUp = this.currentPhase != null &&
-    	            (this.currentPhase.disabled || this.currentPhase.getActive_terminals() < this.terminals);
+    	            (this.currentPhase.disabled || this.currentPhase.getActiveTerminals() < this.terminals);
     		this.currentPhase = this.getNextPhase();
     	    if (wakeUp) {
     	        this.notifyAll();
     	    }
     	    if (this.currentPhase != null) {
-    	        workerNeedSleep = this.terminals - this.currentPhase.getActive_terminals();
+    	        workerNeedSleep = this.terminals - this.currentPhase.getActiveTerminals();
     	    }
 	    }
 	}

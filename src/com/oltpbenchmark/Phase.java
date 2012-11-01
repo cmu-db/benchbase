@@ -16,10 +16,10 @@ public class Phase {
     public final boolean disabled;
     private final List<Double> weights;
     private final int num_weights;
-    private int active_terminals;
+    private int activeTerminals;
     
 
-    Phase(int t, int r, List<String> o, boolean rateLimited, boolean disabled, int active_terminals) {
+    Phase(int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
@@ -30,11 +30,11 @@ public class Phase {
         this.num_weights = this.weights.size();
         this.rateLimited = rateLimited;
         this.disabled = disabled;
-        this.active_terminals = active_terminals;
+        this.activeTerminals = activeTerminals;
     }
     
-    public int getActive_terminals() {
-        return active_terminals;
+    public int getActiveTerminals() {
+        return activeTerminals;
     }
 
     public int getWeightCount() {
