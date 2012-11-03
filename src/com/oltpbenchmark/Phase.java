@@ -10,11 +10,16 @@ public class Phase {
     private final Random gen = new Random();
     public final int time;
     public final int rate;
+
+
+    private final boolean rateLimited;
+    private final boolean disabled;
     private final List<Double> weights;
     private final int num_weights;
+    private int activeTerminals;
     
 
-    Phase(int t, int r, List<String> o) {
+    Phase(int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
@@ -23,6 +28,21 @@ public class Phase {
         this.rate = r;
         this.weights = Collections.unmodifiableList(w);
         this.num_weights = this.weights.size();
+        this.rateLimited = rateLimited;
+        this.disabled = disabled;
+        this.activeTerminals = activeTerminals;
+    }
+    
+    public boolean isRateLimited() {
+        return rateLimited;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public int getActiveTerminals() {
+        return activeTerminals;
     }
 
     public int getWeightCount() {

@@ -353,10 +353,13 @@ public abstract class BenchmarkModule {
      */
     @SuppressWarnings("unchecked")
     public final TransactionType initTransactionType(String procName, int id) {
-        assert (id != TransactionType.INVALID_ID) :
-            String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
+        if (id == TransactionType.INVALID_ID) {
+            LOG.error(String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
                            this.benchmarkName, procName, id,
-                           TransactionType.INVALID.getClass().getSimpleName());
+                           TransactionType.INVALID.getClass().getSimpleName()));
+            return null;
+        }
+        
         Package pkg = this.getProcedurePackageImpl();
         assert (pkg != null) : "Null Procedure package for " + this.benchmarkName;
         String fullName = pkg.getName() + "." + procName;

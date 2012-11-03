@@ -1,0 +1,3 @@
+Mixed postgre doesn't work with "TRANSACTION_SERIALIZABLE" (TRANSACTION_READ_COMMITTED is ok.)
+
+http://www.postgresql.org/docs/9.1/static/transaction-iso.html

@@ -4,19 +4,19 @@
     <!-- Connection details -->
     <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://server:3306/ycsb</DBUrl>
-    <username>user</username>
-    <password>password</password>
+    <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
+    <username>root</username>
+    <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
-    <scalefactor>32</scalefactor>
+    <scalefactor>2</scalefactor>
     
     <!-- The workload -->
-    <terminals>200</terminals>
+    <terminals>2</terminals>
     <works>
         <work>
-          <time>300</time>
+          <time>60</time>
           <rate>10000</rate>
           <weights>45,43,4,4,4</weights>
         </work>

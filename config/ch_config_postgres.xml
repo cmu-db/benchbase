@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<parameters>
+	
+    <!-- Connection details -->
+    <dbtype>mysql</dbtype>
+    <driver>org.postgresql.Driver</driver>
+    <DBUrl>jdbc:postgresql://localhost:5432/tpcc</DBUrl>
+    <username>tpcc</username>
+    <password>tpcc</password>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>2</scalefactor>
+    
+    <!-- The workload -->
+    <terminals>2</terminals>
+    <works>
+        <work>
+          <time>10</time>
+          <ratelimited>false</ratelimited>
+          <rate>10000</rate>
+          <weights>3, 2, 3, 2 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
+        </work>
+	</works>
+	
+	<!-- TPCC specific -->  
+   	<transactiontypes>
+    	<transactiontype>
+    		<name>Q1</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q2</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q3</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q4</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q5</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q6</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q7</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q8</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q9</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q10</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q11</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q12</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q13</name>
+    	</transactiontype>    	
+    	<transactiontype>
+    		<name>Q14</name>
+    	</transactiontype>      
+    	<transactiontype>
+    	<!-- Needs optimization -->
+    		<name>Q15</name>
+    	</transactiontype>   
+    	<transactiontype>
+    		<name>Q16</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q17</name>
+    	</transactiontype>   
+    	<transactiontype>
+    		<name>Q18</name>
+    	</transactiontype>   
+    	<transactiontype>
+    		<name>Q19</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q20</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q21</name>
+    	</transactiontype>
+    	<transactiontype>
+    		<name>Q22</name>
+    	</transactiontype>
+   	</transactiontypes>	
+</parameters>

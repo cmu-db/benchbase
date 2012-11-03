@@ -1,0 +1,5 @@
+bin/
+/build/
+output.raw
+output.res
+.classpath

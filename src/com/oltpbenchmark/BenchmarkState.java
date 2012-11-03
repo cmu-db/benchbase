@@ -38,7 +38,7 @@ public final class BenchmarkState {
 	public void setCurrentPhase(Phase currentPhase) {
 		this.currentPhase = currentPhase;
 	}
-
+	
 	/**
 	 * 
 	 * @param numThreads
@@ -47,18 +47,13 @@ public final class BenchmarkState {
 	 * @param rateLimited
 	 * @param queueLimit
 	 */
-	public BenchmarkState(int numThreads, boolean rateLimited,
+	public BenchmarkState(int numThreads,
 			int queueLimit) {
 		this.queueLimit = queueLimit;
 		startBarrier = new CountDownLatch(numThreads);
 		notDoneCount = new AtomicInteger(numThreads);
 	
 		assert numThreads > 0;
-		if (!rateLimited) {
-			workAvailable = -1;
-		} else {
-			assert queueLimit > 0;
-		}
 
 		testStartNs = System.nanoTime();
 	}
