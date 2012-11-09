@@ -198,7 +198,7 @@ public class DBWorkload {
 	            if (pluginTest.length() > 1)
 					weight_strings = get_weights(plugin, work);
 				else {
-	            	weight_strings = work.getList("weights");
+	            	weight_strings = work.getList("weights[not(@bench)]");
 	            }
 	            int rate;
 	            if (work.containsKey("/rate" + pluginTest)) {
