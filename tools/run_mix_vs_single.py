@@ -4,6 +4,7 @@
 workload
 """
 from subprocess import check_call
+from contextlib import contextmanager
 import os
 import sys
 import pylab as p
@@ -88,21 +89,27 @@ def create_throughput_diagrams(data):
     p.savefig("OLTP.svg")
     p.show()
 
+@contextmanager
+def chdir(dest):
+    old_dir = os.getcwd()
+    os.chdir(dest)
+    yield
+    os.chdir(old_dir)
+
+
 
 def main():
     """Main runner"""
 
-    old_dir = os.getcwd()
-    os.chdir(PATH_TO_OLTP)
-    results = {}
-    for name, config in CONFIGS.items():
-        run_test(name, config)
-        results[name] = {'LATENCY': LatencyExtractor(name + ".res"),
-                        'THROUGHPUT': ThroughputExtractor(name + ".res")}
-    os.chdir(old_dir)
+    with chdir(PATH_TO_OLTP):
+        results = {}
+        for name, config in CONFIGS.items():
+            # run_test(name, config)
+            results[name] = {'LATENCY': LatencyExtractor(name + ".res"),
+                            'THROUGHPUT': ThroughputExtractor(name + ".res")}
 
-    create_latency_diagrams(results)
-    create_throughput_diagrams(results)
+        create_latency_diagrams(results)
+        create_throughput_diagrams(results)
 
     raw_input("Press enter to EXIT")
     sys.exit(0)
