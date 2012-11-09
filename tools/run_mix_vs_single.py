@@ -7,6 +7,7 @@ from subprocess import check_call
 import os
 import sys
 import pylab as p
+import shutil
 
 PATH_TO_OLTP = ".."
 PATH_TO_PLOTTER = os.path.abspath("plot/")
@@ -28,9 +29,10 @@ CONFIGS = {'TPCC': ('tpcc', 'config/tpcc_config_postgres.xml',
             }
 
 
-def run_test(config):
+def run_test(name, config):
     """Runs tpcc and returns throughput and latency extractor objects"""
 
+    print config
     check_call(["./oltpbenchmark",
                     '-b', config[0],
                     '-c', config[1],
@@ -42,9 +44,7 @@ def run_test(config):
                     '--histograms',
                     ])
 
-    return {'THROUGHPUT': ThroughputExtractor("output.raw"),
-            'LATENCY': LatencyExtractor("output.raw"),
-            }
+    shutil.copyfile("output.raw", name + ".res")
 
 
 def create_latency_diagrams(data):
@@ -94,8 +94,11 @@ def main():
 
     old_dir = os.getcwd()
     os.chdir(PATH_TO_OLTP)
-    results = dict([(name, run_test(config)) \
-                    for name, config in CONFIGS.items()])
+    results = {}
+    for name, config in CONFIGS.items():
+        run_test(name, config)
+        results[name] = {'LATENCY': LatencyExtractor(name + ".res"),
+                        'THROUGHPUT': ThroughputExtractor(name + ".res")}
     os.chdir(old_dir)
 
     create_latency_diagrams(results)
