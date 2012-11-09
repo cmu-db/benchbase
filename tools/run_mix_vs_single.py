@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Wrapper for testing mixed workload vs pure OLTP and OLAP
-workload
+"""
+Wrapper for testing mixed workload vs pure OLTP and OLAP
+workload.
+
+Usage:
+ ./run_mix_vs_single [--no-test]
+ ./run_mix_vs_single -h | --help
+
+Options:
+    --no-test       Don't run oltpbenchmark,
+                    use existing saved .res files.
+    -h --help     Show this screen.
 """
 from subprocess import check_call
 from contextlib import contextmanager
@@ -9,6 +19,12 @@ import os
 import sys
 import pylab as p
 import shutil
+
+try:
+    from docopt import docopt
+except ImportError:
+    print "You need docopt to specify options"
+    pass
 
 PATH_TO_OLTP = ".."
 PATH_TO_PLOTTER = os.path.abspath("plot/")
@@ -33,7 +49,6 @@ CONFIGS = {'TPCC': ('tpcc', 'config/tpcc_config_postgres.xml',
 def run_test(name, config):
     """Runs tpcc and returns throughput and latency extractor objects"""
 
-    print config
     check_call(["./oltpbenchmark",
                     '-b', config[0],
                     '-c', config[1],
@@ -89,6 +104,7 @@ def create_throughput_diagrams(data):
     p.savefig("OLTP.svg")
     p.show()
 
+
 @contextmanager
 def chdir(dest):
     old_dir = os.getcwd()
@@ -97,14 +113,23 @@ def chdir(dest):
     os.chdir(old_dir)
 
 
-
 def main():
     """Main runner"""
 
+    if "docopt" in globals():
+        arguments = docopt(__doc__)
+        print "found"
+        print arguments
+    else:
+        arguments = {}
+    if arguments.get("--help"):
+        print __doc__
+        sys.exit(0)
     with chdir(PATH_TO_OLTP):
         results = {}
         for name, config in CONFIGS.items():
-            # run_test(name, config)
+            if not arguments.get("--no-test"):
+                run_test(name, config)
             results[name] = {'LATENCY': LatencyExtractor(name + ".res"),
                             'THROUGHPUT': ThroughputExtractor(name + ".res")}
 
