@@ -24,7 +24,6 @@ try:
     from docopt import docopt
 except ImportError:
     print "You need docopt to specify options"
-    pass
 
 PATH_TO_OLTP = ".."
 PATH_TO_PLOTTER = os.path.abspath("plot/")
@@ -32,16 +31,26 @@ sys.path.insert(0, PATH_TO_PLOTTER)
 
 from plot_latencies import ThroughputExtractor, LatencyExtractor
 
-CONFIGS = {'TPCC': ('tpcc', 'config/tpcc_config_postgres.xml',
+class WorkloadConfig(object):
+    """Contains information on workload"""
+
+    def __init__(self, workloads, config_path, query_ranges={}):
+        self.workloads = workloads
+        self.config_path = config_path
+        self.query_ranges = query_ranges
+
+
+CONFIGS = {'TPCC': WorkloadConfig('tpcc', 'config/tpcc_config_postgres.xml',
                      {'OLTP': (2, 6)},
-                 ),
-        'CH': ('chbenchmark', 'config/ch_config_postgres.xml',
+                ),
+        'CH': WorkloadConfig('chbenchmark', 'config/ch_config_postgres.xml',
                     {'OLAP': (2, 23)},
                 ),
-        'MIXED': ('tpcc,chbenchmark', 'config/mix_config_postgres.xml',
-                    {'OLTP': (2, 6),
-                    'OLAP': (7, 28),
-                    },
+        'MIXED': WorkloadConfig('tpcc,chbenchmark',
+                         'config/mix_config_postgres.xml',
+                            {'OLTP': (2, 6),
+                             'OLAP': (7, 28),
+                            },
                 ),
             }
 
@@ -50,8 +59,8 @@ def run_test(name, config):
     """Runs tpcc and returns throughput and latency extractor objects"""
 
     check_call(["./oltpbenchmark",
-                    '-b', config[0],
-                    '-c', config[1],
+                    '-b', config.workloads,
+                    '-c', config.config_path,
                     '--create=false',
                     '--load=false',
                     '--execute=true',
@@ -73,7 +82,8 @@ def create_latency_diagrams(data):
 
         subplot = latency_figure.add_subplot(1, 2, number + 1)
         latency_results = \
-                     data[config_name]['LATENCY'].extract(config[2]['OLAP'])
+                     data[config_name]['LATENCY'].\
+                        extract(config.query_ranges['OLAP'])
 
         LatencyExtractor.decorate_subplot(subplot,
                                  latency_results,
@@ -94,7 +104,8 @@ def create_throughput_diagrams(data):
         config = CONFIGS[config_name]
 
         throughput_data = \
-                data[config_name]['THROUGHPUT'].extract(config[2]['OLTP'])
+                data[config_name]['THROUGHPUT'].\
+                    extract(config.query_ranges['OLTP'])
 
         ThroughputExtractor.decorate_subplot(subplot,
                                             throughput_data,
@@ -107,6 +118,7 @@ def create_throughput_diagrams(data):
 
 @contextmanager
 def chdir(dest):
+    """To the dest and back again"""
     old_dir = os.getcwd()
     os.chdir(dest)
     yield
@@ -119,9 +131,9 @@ def main():
     if "docopt" in globals():
         arguments = docopt(__doc__)
         print "found"
-        print arguments
     else:
         arguments = {}
+        
     if arguments.get("--help"):
         print __doc__
         sys.exit(0)
