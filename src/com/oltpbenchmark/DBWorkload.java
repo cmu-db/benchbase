@@ -162,8 +162,12 @@ public class DBWorkload {
         	// ----------------------------------------------------------------
         	
         	String pluginTest = "";
-        	if (pluginList.length > 1) {
-        		pluginTest = "[@bench='" + plugin + "']";
+        	
+        	if (pluginList.length == 1) {
+        	    pluginTest = "[@bench='" + plugin + "' or not(@bench)]";
+//        	    pluginTest = "[not(@bench)]"; 
+        	} else {
+        	    pluginTest = "[@bench='" + plugin + "']";
         	}
         	
 	        WorkloadConfiguration wrkld = new WorkloadConfiguration();
@@ -195,17 +199,14 @@ public class DBWorkload {
 	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment. Use <disabled> option.");
 	                System.exit(-1);
 	            }
-	            if (pluginTest.length() > 1)
+	            // use a workaround if there multiple workloads or single
+	            // attributed workload
+	            if (pluginList.length > 1 || work.containsKey("weights[@bench]")) {
 					weight_strings = get_weights(plugin, work);
-				else {
-	            	weight_strings = work.getList("weights[not(@bench)]");
-	            }
-	            int rate;
-	            if (work.containsKey("/rate" + pluginTest)) {
-	            	rate = work.getInt("/rate" + pluginTest);
 	            } else {
-	            	rate = work.getInt("/rate");
+	            	weight_strings = work.getList("weights" + pluginTest);
 	            }
+	            int rate = work.getInt("/rate");
 	            boolean rateLimited;
 	            rateLimited = work.getBoolean("rateLimited[not(@bench)]", true);
 	            rateLimited = work.getBoolean("ratelimited" + pluginTest, rateLimited);
