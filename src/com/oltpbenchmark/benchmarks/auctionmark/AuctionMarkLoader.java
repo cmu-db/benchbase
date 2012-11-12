@@ -169,7 +169,7 @@ public class AuctionMarkLoader extends Loader {
                 fail = true;
                 for (Thread thread : threads)
                     thread.interrupt();
-                t.getSecond().printStackTrace();
+                t.second.printStackTrace();
             }
         });
         
@@ -696,7 +696,7 @@ public class AuctionMarkLoader extends Loader {
             int col = 0;
 
             // R_ID
-            row[col++] = new Integer((int) this.count);
+            row[col++] = Integer.valueOf((int) this.count);
             // R_NAME
             row[col++] = profile.rng.astring(6, 32);
             
@@ -1025,8 +1025,8 @@ public class AuctionMarkLoader extends Loader {
             assert(p != null);
 
             // Calculate the number of bids and watches for this item
-            short numBids = (short)p.getFirst().nextInt();
-            short numWatches = (short)p.getSecond().nextInt();
+            short numBids = (short)p.first.nextInt();
+            short numWatches = (short)p.second.nextInt();
             
             // Create the ItemInfo object that we will use to cache the local data 
             // for this item. This will get garbage collected once all the derivative
@@ -1205,7 +1205,7 @@ public class AuctionMarkLoader extends Loader {
             int col = 0;
 
             // IC_ID
-            row[col++] = new Integer((int) this.count);
+            row[col++] = Integer.valueOf((int) this.count);
             // IC_I_ID
             row[col++] = itemInfo.itemId;
             // IC_U_ID
@@ -1313,7 +1313,7 @@ public class AuctionMarkLoader extends Loader {
             }
             
             // IB_ID
-            row[col++] = new Long(this.bid.id);
+            row[col++] = Long.valueOf(this.bid.id);
             // IB_I_ID
             row[col++] = itemInfo.itemId;
             // IB_U_ID

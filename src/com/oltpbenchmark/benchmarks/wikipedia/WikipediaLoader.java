@@ -135,7 +135,7 @@ public class WikipediaLoader extends Loader {
             Pair<Integer, String> p = this.titles.get(page_id);
             assert(p != null);
             
-            TransactionSelector.writeEntry(ps, user_id, p.getFirst(), p.getSecond());
+            TransactionSelector.writeEntry(ps, user_id, p.first, p.second);
         } // FOR
         ps.close();
         return (file);
@@ -320,8 +320,8 @@ public class WikipediaLoader extends Loader {
                 
                 int param = 1;
                 watchInsert.setInt(param++, user_id); // wl_user
-                watchInsert.setInt(param++, page.getFirst()); // wl_namespace
-                watchInsert.setString(param++, page.getSecond()); // wl_title
+                watchInsert.setInt(param++, page.first); // wl_namespace
+                watchInsert.setString(param++, page.second); // wl_title
                 watchInsert.setNull(param++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
                 watchInsert.addBatch();
                 batchSize++;

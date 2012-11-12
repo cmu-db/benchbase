@@ -105,11 +105,23 @@ public class UserId extends CompositeId {
     
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UserId) {
-            UserId o = (UserId)obj;
-            return (this.itemCount == o.itemCount &&
-                    this.offset == o.offset);
-        }
-        return (false);
+        if (this == obj)
+            return true;
+        
+        if (!(obj instanceof UserId) || obj == null)
+            return false;
+                
+        UserId o = (UserId)obj;
+        return (this.itemCount == o.itemCount 
+              && this.offset == o.offset);       
+    }
+    
+    @Override
+    public int hashCode() {        
+        int prime = 11;
+        int result = 1;
+        result = prime * result + itemCount;
+        result = prime * result + offset;
+        return result;
     }
 }

@@ -66,16 +66,16 @@ public class CategoryParser {
 	public void extractCategory(String s){
 		String[] tokens = s.split("\t");
 		int itemCount = Integer.parseInt(tokens[5]);
-		String categoryName = "";
-		
+		StringBuilder sb = new StringBuilder();
 		for(int i=0; i<=4; i++){
-			if(!tokens[i].equals("")){
-				categoryName += tokens[i] + "/";	
+			if(!tokens[i].trim().isEmpty()){
+				sb.append(tokens[i].trim())
+				  .append("/");	
 			} else {
 				break;
 			}
 		}
-		
+		String categoryName = sb.toString();
 		if(categoryName.length() > 0){
 			categoryName = categoryName.substring(0, categoryName.length() - 1);
 		}
@@ -102,7 +102,7 @@ public class CategoryParser {
 		*/
 		if(_categoryMap.containsKey(parentCategoryName)){
 			parentCategory = _categoryMap.get(parentCategoryName);
-		} else if(!parentCategoryName.equals("")){
+		} else if(!parentCategoryName.isEmpty()){
 			parentCategory = addNewCategory(parentCategoryName, 0, false);
 		}
 		

@@ -111,7 +111,7 @@ public class TableDataIterable implements Iterable<Object[]> {
             for (int col_idx = 0; col_idx < types.length; col_idx++) {
                 // Auto-generate first column
                 if (col_idx == 0 && auto_generate_first_column) {
-                    tuple[col_idx] = new Long(line_ctr) ;
+                    tuple[col_idx] = Long.valueOf(line_ctr) ;
                 }
                 // Null Values
                 else if (row_idx >= row.length) {

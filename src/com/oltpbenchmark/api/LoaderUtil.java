@@ -30,33 +30,32 @@ public class LoaderUtil {
 	};
 	
 	/**
-	 * This is slow! Use TextGenerator.randomText()
+	 * This is slow! Use TextGenerator.randomStr()
 	 * @param strLen
 	 * @return
 	 */
 	@Deprecated
 	public static String randomStr(long strLen) {
 
-		char freshChar;
-		String freshString;
-		freshString = "";
-
-		while (freshString.length() < (strLen - 1)) {
+		char freshChar;		
+		StringBuilder sb = new StringBuilder();
+		
+		while (sb.length() < (strLen - 1)) {
 			freshChar = (char) (Math.random() * 128);
 			if (Character.isLetter(freshChar)) {
-				freshString += freshChar;
+				sb.append(freshChar);
 			}
 		}
 
-		return (freshString);
+		return sb.toString();
 
 	} // end randomStr
 
 	public static String blockBuilder(String piece, int repeat){
-	    String r="<HTML>";
-	    for (int i=0;i<repeat;i++)
-	        r+=piece;
-	    return r+"</HTML>";
+	    StringBuilder sb = new StringBuilder("<HTML>");
+	    for (int i=0;i<repeat;i++) sb.append(piece);
+	    sb.append("</HTML>");
+	    return sb.toString();
 	}
 	
 	public static String randomNStr(Random r, int stringLength) {

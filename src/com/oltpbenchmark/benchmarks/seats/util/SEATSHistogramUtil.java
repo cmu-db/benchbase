@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -56,8 +57,9 @@ public abstract class SEATSHistogramUtil {
     
     public static Histogram<String> collapseAirportFlights(Map<String, Histogram<String>> m) {
         Histogram<String> h = new Histogram<String>();
-        for (String depart : m.keySet()) {
-            Histogram<String> depart_h = m.get(depart);
+        for (Entry<String, Histogram<String>> e : m.entrySet()) {
+            String depart = e.getKey();
+            Histogram<String> depart_h = e.getValue();
             for (String arrive : depart_h.values()) {
                 String key = depart + "-" + arrive;
                 h.put(key, depart_h.get(arrive));

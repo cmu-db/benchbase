@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
@@ -284,8 +286,9 @@ public abstract class CollectionUtil {
     public static <T, U extends Comparable<U>> T getGreatest(Map<T, U> map) {
         T max_key = null;
         U max_value = null;
-        for (T key : map.keySet()) {
-            U value = map.get(key);
+        for (Entry<T, U> e:map.entrySet()) {
+            T key = e.getKey();
+            U value = e.getValue();
             if (max_value == null || value.compareTo(max_value) > 0) {
                 max_value = value;
                 max_key = key;
@@ -385,8 +388,8 @@ public abstract class CollectionUtil {
      */
     public static <K extends Comparable<?>, V> List<V> getSortedList(SortedMap<K, Collection<V>> map) {
         List<V> ret = new ArrayList<V>();
-        for (K key : map.keySet()) {
-            ret.addAll(map.get(key));
+        for (Collection<V> col : map.values()) {
+           ret.addAll(col);
         } // FOR
         return (ret);
     }
@@ -418,11 +421,13 @@ public abstract class CollectionUtil {
                     }
                     @Override
                     public T next() {
-                        return (values[this.idx++]);
+                        if (this.idx == values.length)
+                            throw new NoSuchElementException();
+                        return values[this.idx++];
                     }
                     @Override
                     public void remove() {
-                        throw new NotImplementedException();
+                        throw new UnsupportedOperationException();
                     }
                 };
             }

@@ -23,7 +23,7 @@ public abstract class GenericQuery extends Procedure {
 	private PreparedStatement stmt; 
 	
 	protected static void initSQLStmt(String queryFile) {
-		String query = "";
+		StringBuilder query = new StringBuilder();
 		
 		try{
 			
@@ -31,15 +31,15 @@ public abstract class GenericQuery extends Procedure {
 			BufferedReader reader = new BufferedReader(input);
 			String line = reader.readLine();
 			while (line != null) {
-				query += line;
-				query += " ";
+				query.append(line);
+				query.append(" ");
 				line = reader.readLine();
 			}
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-		query_stmt = new SQLStmt(query);
+		query_stmt = new SQLStmt(query.toString());
 	}
     
     public ResultSet run(Connection conn) throws SQLException {

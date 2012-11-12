@@ -63,11 +63,12 @@ public final class SQLStmt {
         this.orig_sql = sql;
         for (int ctr : this.substitutions) {
             assert(ctr > 0);
-            String replace = "";
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < ctr; i++) {
-                replace += (i > 0 ? ", " : "") + "?";
+                sb.append((i > 0 ? ", " : "") + "?");
             } // FOR
             Matcher m = SUBSTITUTION_PATTERN.matcher(sql);
+            String replace = sb.toString();
             sql = m.replaceFirst(replace);
         } // FOR
         this.sql = sql;

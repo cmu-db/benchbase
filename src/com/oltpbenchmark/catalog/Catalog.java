@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -259,18 +260,19 @@ public final class Catalog {
             LOG.debug("Foreign Key Mappings:\n" + StringUtil.formatMaps(foreignKeys));
         for (Table catalog_tbl : tables.values()) {
             Map<String, Pair<String, String>> fk = foreignKeys.get(catalog_tbl.getName());
-            for (String colName : fk.keySet()) {
+            for (Entry<String, Pair<String, String>> e: fk.entrySet()){
+                String colName = e.getKey();                
                 Column catalog_col = catalog_tbl.getColumnByName(colName);
                 assert(catalog_col != null);
                 
-                Pair<String, String> fkey = fk.get(colName);
+                Pair<String, String> fkey = e.getValue();
                 assert(fkey != null);
                 
-                Table fkey_tbl = tables.get(fkey.getFirst());
+                Table fkey_tbl = tables.get(fkey.first);
                 if (fkey_tbl == null) {
                     throw new RuntimeException("Unexpected foreign key parent table " + fkey); 
                 }
-                Column fkey_col = fkey_tbl.getColumnByName(fkey.getSecond());
+                Column fkey_col = fkey_tbl.getColumnByName(fkey.second);
                 if (fkey_col == null) {
                     throw new RuntimeException("Unexpected foreign key parent column " + fkey); 
                 }

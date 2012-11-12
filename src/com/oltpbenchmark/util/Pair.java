@@ -24,14 +24,14 @@ package com.oltpbenchmark.util;
  */
 public class Pair<T, U> implements Comparable<Pair<T, U>> {
 
-    private final T m_first;
-    private final U m_second;
-    private transient Integer m_hash;
+    public final T first;
+    public final U second;
+    private transient Integer hash;
 
     public Pair(T first, U second, boolean precomputeHash) {
-        m_first = first;
-        m_second = second;
-        m_hash = (precomputeHash ? this.computeHashCode() : null);
+        this.first = first;
+        this.second = second;
+        hash = (precomputeHash ? this.computeHashCode() : null);
     }
 
     public Pair(T first, U second) {
@@ -39,27 +39,27 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
     }
 
     private int computeHashCode() {
-        return (m_first == null ? 0 : m_first.hashCode() * 31) +
-               (m_second == null ? 0 : m_second.hashCode());
+        return (first == null ? 0 : first.hashCode() * 31) +
+               (second == null ? 0 : second.hashCode());
     }
     
     public int hashCode() {
-        if (m_hash != null) return (m_hash.intValue());
+        if (hash != null) return (hash.intValue());
         return (this.computeHashCode());
     }
 
     public String toString() {
-        return String.format("<%s, %s>", m_first, m_second);
+        return String.format("<%s, %s>", first, second);
     }
     
     @Override
     public int compareTo(Pair<T, U> other) {
-        return (other.m_hash - this.m_hash);
+        return (other.hash - this.hash);
     }
     
     public Object get(int idx) {
-        if (idx == 0) return m_first;
-        else if (idx == 1) return m_second;
+        if (idx == 0) return first;
+        else if (idx == 1) return second;
         return null;
     }
 
@@ -68,39 +68,26 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
      * @return Is the object equal to a value in the pair.
      */
     public boolean contains(Object o) {
-        if ((m_first != null) && (m_first.equals(o))) return true;
-        if ((m_second != null) && (m_second.equals(o))) return true;
+        if ((first != null) && (first.equals(o))) return true;
+        if ((second != null) && (second.equals(o))) return true;
         if (o != null) return false;
-        return ((m_first == null) || (m_second == null));
+        return ((first == null) || (second == null));
     }
 
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || !(getClass().isInstance(o))) {
+        
+        if (o == null || !(o instanceof Pair)) {
             return false;
         }
 
         @SuppressWarnings("unchecked")
         Pair<T, U> other = (Pair<T, U>) o;
 
-        return (m_first == null ? other.m_first == null : m_first.equals(other.m_first))
-                && (m_second == null ? other.m_second == null : m_second.equals(other.m_second));
-    }
-
-    /**
-     * @return the first
-     */
-    public T getFirst() {
-        return m_first;
-    }
-
-    /**
-     * @return the second
-     */
-    public U getSecond() {
-        return m_second;
+        return (first == null ? other.first == null : first.equals(other.first))
+                && (second == null ? other.second == null : second.equals(other.second));
     }
 
     /**

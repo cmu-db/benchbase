@@ -255,9 +255,9 @@ public abstract class BenchmarkModule {
             runner.runScript(scriptFile);
             conn.close();
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to run: %", script), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to run: %s", script), ex);
         } catch (IOException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to open: %", script), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to open: %s", script), ex);
         }
     }
     

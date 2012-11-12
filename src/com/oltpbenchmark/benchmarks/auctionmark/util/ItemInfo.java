@@ -87,10 +87,13 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     }
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ItemInfo) {
-            return (this.itemId == obj || this.equals(((ItemInfo)obj).itemId));
-        }
-        return (false);
+        if (this == obj) 
+            return true;
+        
+        if (!(obj instanceof ItemInfo) || obj == null)
+            return false;
+        
+        return (this.itemId == obj || this.equals(((ItemInfo)obj).itemId));
     }
     
     // -----------------------------------------------------------------

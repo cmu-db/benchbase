@@ -93,12 +93,14 @@ public class MeasureTargetSystem implements Runnable {
 	private static String buildoutString(String phase, double nextTargetTPS,
 			double[] t) {
 
-		String outt = phase + "\t " + nextTargetTPS;
+	    StringBuilder outt = new StringBuilder();
+		outt.append(phase + "\t " + nextTargetTPS);
 
 		for (int i = 0; i < t.length; i++)
-			outt += "\t" + t[i];
+			outt.append("\t" + t[i]);
 
-		return outt + "\n";
+		outt.append(outt + "\n");
+		return outt.toString();
 
 	}
 

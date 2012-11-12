@@ -105,13 +105,23 @@ public class ItemId extends CompositeId {
     
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ItemId) {
-            ItemId o = (ItemId)obj;
-            return (
-                this.item_ctr == o.item_ctr &&
-                this.seller_id.equals(o.seller_id)
-            );
-        }
-        return (false);
+        if (this == obj)
+            return true;
+        
+        if (!(obj instanceof ItemId) || obj == null)
+            return false;
+        
+        ItemId o = (ItemId)obj;
+        return this.item_ctr == o.item_ctr &&
+                this.seller_id.equals(o.seller_id);
+    }
+    
+    @Override
+    public int hashCode() {
+        int prime = 11;
+        int result = 1;
+        result = prime * result + item_ctr;
+        result = prime * result + seller_id.hashCode();
+        return result;
     }
 }

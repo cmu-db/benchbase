@@ -88,13 +88,16 @@ public class ReturnFlight implements Comparable<ReturnFlight> {
     
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ReturnFlight) {
-            ReturnFlight o = (ReturnFlight)obj;
-            return (this.customer_id.equals(o.customer_id) &&
-                    this.return_airport_id == o.return_airport_id &&
-                    this.return_date.equals(o.return_date));
-        }
-        return (false);
+        if (this == obj)
+            return true;
+        
+        if (!(obj instanceof ReturnFlight) || obj == null)
+            return false;
+        
+        ReturnFlight o = (ReturnFlight)obj;
+        return (this.customer_id.equals(o.customer_id) &&
+                 this.return_airport_id == o.return_airport_id &&
+                 this.return_date.equals(o.return_date));
     }
 
     @Override

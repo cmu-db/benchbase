@@ -58,7 +58,7 @@ public abstract class DistanceUtil {
      * @return
      */
     public static double distance(Pair<Double, Double> loc0, Pair<Double, Double> loc1) {
-        return (DistanceUtil.distance(loc0.getFirst(), loc0.getSecond(), loc1.getFirst(), loc1.getSecond()));
+        return (DistanceUtil.distance(loc0.first, loc0.second, loc1.first, loc1.second));
     }
 
     private static double deg2rad(double deg) {

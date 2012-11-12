@@ -167,14 +167,28 @@ public class FlightId extends CompositeId {
     }
     
     @Override
+    public int hashCode() {
+        int prime = 17;
+        int result = 1;
+        result = prime * result + airline_id;
+        result = prime * result + depart_airport_id;
+        result = prime * result + arrive_airport_id;
+        result = prime * result + depart_date;
+        return result;
+    }
+    
+    @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FlightId) {
-            FlightId o = (FlightId)obj;
-            return (this.airline_id == o.airline_id &&
-                    this.depart_airport_id == o.depart_airport_id &&
-                    this.arrive_airport_id == o.arrive_airport_id &&
-                    this.depart_date == o.depart_date);
-        }
-        return (false);
+        if (this == obj)
+            return true;
+        
+        if (!(obj instanceof FlightId) || obj == null)
+            return false;
+             
+        FlightId o = (FlightId)obj;
+        return (this.airline_id == o.airline_id &&
+                 this.depart_airport_id == o.depart_airport_id &&
+                 this.arrive_airport_id == o.arrive_airport_id &&
+                 this.depart_date == o.depart_date);
     }
 }

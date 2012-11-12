@@ -376,7 +376,7 @@ public abstract class StringUtil {
      */
     public static String box(String str, String mark, Integer max_len) {
         String lines[] = LINE_SPLIT.split(str);
-        if (lines.length == 0) return ("");
+        if (lines.length == 0) return "";
         
         if (max_len == null) {
             for (String line : lines) {
@@ -405,7 +405,7 @@ public abstract class StringUtil {
      */
     public static String prefix(String str, String prefix) {
         String lines[] = LINE_SPLIT.split(str);
-        if (lines.length == 0) return ("");
+        if (lines.length == 0) return "";
         
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
@@ -535,7 +535,7 @@ public abstract class StringUtil {
             sb.append(x != null ? x.toString() : x).append(delimiter);
             i++;
         }
-        if (i == 0) return ("");
+        if (i == 0) return "";
         sb.delete(sb.length() - delimiter.length(), sb.length());
      
         return sb.toString();

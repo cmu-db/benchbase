@@ -244,16 +244,29 @@ public class SEATSWorker extends Worker {
         }
         
         @Override
+        public int hashCode() {
+            int prime = 7;
+            int result = 1;
+            result = prime * result + seatnum;
+            result = prime * result + flight_id.hashCode();
+            result = prime * result + customer_id.hashCode();
+            
+            return result;
+        }
+        
+        @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Reservation) {
-                Reservation r = (Reservation)obj;
-                // Ignore id!
-                return (this.seatnum == r.seatnum &&
-                        this.flight_id.equals(r.flight_id) &&
-                        this.customer_id.equals(r.customer_id));
-                        
-            }
-            return (false);
+            if (this == obj)
+                return true;
+            
+            if (!(obj instanceof SEATSWorker) || obj == null)
+                return false;
+            
+            Reservation r = (Reservation)obj;
+            // Ignore id!
+            return (this.seatnum == r.seatnum &&
+                     this.flight_id.equals(r.flight_id) &&
+                     this.customer_id.equals(r.customer_id));
         }
         
         @Override

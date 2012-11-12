@@ -333,12 +333,12 @@ public class SEATSLoader extends Loader {
                     int col_lat_idx = catalog_tbl.getColumnByName("AP_LATITUDE").getIndex();
                     int col_lon_idx = catalog_tbl.getColumnByName("AP_LONGITUDE").getIndex();
                     Pair<Double, Double> coords = Pair.of((Double)tuple[col_lat_idx], (Double)tuple[col_lon_idx]);
-                    if (coords.getFirst() == null || coords.getSecond() == null) {
+                    if (coords.first == null || coords.second == null) {
                         LOG.error(Arrays.toString(tuple));
                     }
-                    assert(coords.getFirst() != null) :
+                    assert(coords.first != null) :
                         String.format("Unexpected null latitude for airport '%s' [%d]", tuple[col_code_idx], col_lat_idx);
-                    assert(coords.getSecond() != null) :
+                    assert(coords.second != null) :
                         String.format("Unexpected null longitude for airport '%s' [%d]", tuple[col_code_idx], col_lon_idx);
                     this.airport_locations.put(tuple[col_code_idx].toString(), coords);
                     if (LOG.isTraceEnabled())
@@ -628,7 +628,7 @@ public class SEATSLoader extends Loader {
 
                         // Id column (always first unless overridden in special) 
                         } else if (i == 0) {
-                            data[i] = new Long(last_id);
+                            data[i] = Long.valueOf(last_id);
 
                         // Strings
                         } else if (SQLUtil.isStringType(types[i])) {
@@ -1166,7 +1166,7 @@ public class SEATSLoader extends Loader {
                         if (!this.seatIsOccupied()) continue;
                         SEATSLoader.this.decrementFlightSeat(this.flight_id);
                     } // FOR
-                    value = new Long(SEATSLoader.this.getFlightRemainingSeats(this.flight_id));
+                    value = Long.valueOf(SEATSLoader.this.getFlightRemainingSeats(this.flight_id));
                     if (LOG.isTraceEnabled()) LOG.trace(this.flight_id + " SEATS REMAINING: " + value);
                     break;
                 }
