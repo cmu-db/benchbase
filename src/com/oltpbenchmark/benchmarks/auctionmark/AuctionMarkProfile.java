@@ -428,7 +428,8 @@ public class AuctionMarkProfile {
     
     private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         boolean adv = vt.next();
-        assert(adv);
+        assert(adv) : 
+            String.format("Failed to get data from %s\n%s", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE, vt);
         int col = 1;
         profile.scale_factor = vt.getDouble(col++);
         profile.loaderStartTime = vt.getTimestamp(col++);
