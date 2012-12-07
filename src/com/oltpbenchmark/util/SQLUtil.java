@@ -14,8 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 
-import oracle.sql.TIMESTAMP;
-
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.catalog.Column;
