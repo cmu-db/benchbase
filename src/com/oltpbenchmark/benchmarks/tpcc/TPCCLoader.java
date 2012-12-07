@@ -681,6 +681,14 @@ public class TPCCLoader extends Loader{
 		public <T> T unwrap(Class<T> arg0) throws SQLException {
 			throw new NotImplementedException();
 		}
+		
+		// Java7 Fixes
+		public void closeOnCompletion() throws SQLException {
+		    throw new SQLException();
+		}
+		public boolean isCloseOnCompletion() throws SQLException {
+		    throw new SQLException();
+		}
 
 	}
 
@@ -1851,11 +1859,9 @@ public class TPCCLoader extends Loader{
 		LOG.debug("------------- LoadJDBC Statistics --------------------");
 		LOG.debug("     Start Time = " + startDate);
 		LOG.debug("       End Time = " + endDate);
-		LOG.debug("       Run Time = " + (int) runTimeMS / 1000
-				+ " Seconds");
+		LOG.debug("       Run Time = " + (int) runTimeMS / 1000 + " Seconds");
 		LOG.debug("    Rows Loaded = " + totalRows + " Rows");
-		LOG.debug("Rows Per Second = "
-				+ (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
+		LOG.debug("Rows Per Second = " + (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
 		LOG.debug("------------------------------------------------------");
 	
 	}

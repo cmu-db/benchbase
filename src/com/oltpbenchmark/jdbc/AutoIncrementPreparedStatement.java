@@ -533,6 +533,14 @@ public class AutoIncrementPreparedStatement implements PreparedStatement {
     public void setNClob(int parameterIndex, Reader reader) throws SQLException {
         this.stmt.setNClob(parameterIndex, reader);
     }
+    
+    // Java7 Fixes
+    public void closeOnCompletion() throws SQLException {
+        throw new SQLException();
+    }
+    public boolean isCloseOnCompletion() throws SQLException {
+        throw new SQLException();
+    }
 
 
 }
