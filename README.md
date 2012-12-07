@@ -18,7 +18,7 @@ Together with the framework we provide the following OLTP/Web benchmarks:
   * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
   * SEATS
   * [YCSB](https://github.com/brianfrankcooper/YCSB)
-  * JPAB (Hibernate)
+  * [JPAB](http://www.jpab.org) (Hibernate)
   * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CH-benCHmark)
 
 This framework is design to allow easy extension, we provide stub code that a contributor can use to include a new
