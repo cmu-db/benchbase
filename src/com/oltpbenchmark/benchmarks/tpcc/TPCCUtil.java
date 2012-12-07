@@ -70,18 +70,19 @@ public class TPCCUtil {
 
 	public static String randomStr(long strLen) {
 
-		char freshChar;		
-		StringBuilder freshString = new StringBuilder();
-		freshString.setLength(((int)strLen) - 1);
+		char freshChar;
+		String freshString;
+		freshString = "";
+
 		while (freshString.length() < (strLen - 1)) {
 
 			freshChar = (char) (Math.random() * 128);
 			if (Character.isLetter(freshChar)) {
-				freshString.append(freshChar);
+				freshString += freshChar;
 			}
 		}
 
-		return freshString.toString();
+		return (freshString);
 
 	} // end randomStr
 
