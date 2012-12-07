@@ -426,25 +426,26 @@ public class AuctionMarkProfile {
                                                    (clientId < 0 ? null : clientId));
     }
     
-    private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
-        boolean adv = vt.next();
+    private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet rs) throws SQLException {
+        boolean adv = rs.next();
         assert(adv) : 
-            String.format("Failed to get data from %s\n%s", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE, vt);
+            String.format("Failed to get data from %s\n%s",
+                          AuctionMarkConstants.TABLENAME_CONFIG_PROFILE, SQLUtil.debug(rs));
         int col = 1;
-        profile.scale_factor = vt.getDouble(col++);
-        profile.loaderStartTime = vt.getTimestamp(col++);
-        profile.loaderStopTime = vt.getTimestamp(col++);
-        JSONUtil.fromJSONString(profile.users_per_itemCount, vt.getString(col++));
+        profile.scale_factor = rs.getDouble(col++);
+        profile.loaderStartTime = rs.getTimestamp(col++);
+        profile.loaderStopTime = rs.getTimestamp(col++);
+        JSONUtil.fromJSONString(profile.users_per_itemCount, rs.getString(col++));
         
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
     }
     
-    private static final void loadItemCategoryCounts(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
-        while (vt.next()) {
+    private static final void loadItemCategoryCounts(AuctionMarkProfile profile, ResultSet rs) throws SQLException {
+        while (rs.next()) {
             int col = 1;
-            long i_c_id = vt.getLong(col++);
-            int count = vt.getInt(col++);
+            long i_c_id = rs.getLong(col++);
+            int count = rs.getInt(col++);
             profile.items_per_category.put((int)i_c_id, count);
         } // WHILE
         if (LOG.isDebugEnabled())
