@@ -19,6 +19,7 @@ Together with the framework we provide the following OLTP/Web benchmarks:
   * SEATS
   * [YCSB](https://github.com/brianfrankcooper/YCSB)
   * JPAB (Hibernate)
+  * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CH-benCHmark)
 
 This framework is design to allow easy extension, we provide stub code that a contributor can use to include a new
 benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
