@@ -163,12 +163,7 @@ public class DBWorkload {
         	
         	String pluginTest = "";
         	
-        	if (pluginList.length == 1) {
-        	    pluginTest = "[@bench='" + plugin + "' or not(@bench)]";
-//        	    pluginTest = "[not(@bench)]"; 
-        	} else {
-        	    pluginTest = "[@bench='" + plugin + "']";
-        	}
+    	    pluginTest = "[@bench='" + plugin + "']";
         	
 	        WorkloadConfiguration wrkld = new WorkloadConfiguration();
 	        wrkld.setBenchmarkName(plugin);
@@ -180,7 +175,8 @@ public class DBWorkload {
 	        wrkld.setDBUsername(xmlConfig.getString("username"));
 	        wrkld.setDBPassword(xmlConfig.getString("password"));
 	        int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
-	        wrkld.setTerminals(xmlConfig.getInt("terminals" + pluginTest, terminals));
+	        terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
+	        wrkld.setTerminals(terminals);
 	        wrkld.setIsolationMode(xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE"));
 	        wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
 	        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
@@ -204,7 +200,7 @@ public class DBWorkload {
 	            if (pluginList.length > 1 || work.containsKey("weights[@bench]")) {
 					weight_strings = get_weights(plugin, work);
 	            } else {
-	            	weight_strings = work.getList("weights" + pluginTest);
+	            	weight_strings = work.getList("weights[not(@bench)]"); 
 	            }
 	            int rate = work.getInt("/rate");
 	            boolean rateLimited;
@@ -230,7 +226,13 @@ public class DBWorkload {
 	                          activeTerminals);
 	        } // FOR
 	
-	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());
+	        int numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
+	        if (numTxnTypes == 0 && pluginList.length == 1) {
+	            //if it is a single workload run, <transactiontypes /> w/o attribute is used
+	            pluginTest = "[not(@bench)]";
+	            numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
+	        }
+	        wrkld.setNumTxnTypes(numTxnTypes);
 	
 	        // CHECKING INPUT PHASES
 	        int j = 0;
