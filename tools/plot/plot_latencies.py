@@ -161,7 +161,6 @@ class ThroughputExtractor(object):
         if title:
             subplot.set_title(title)
 
-        p.show()
 
 def main():
     """Script runner"""

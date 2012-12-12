@@ -162,9 +162,8 @@ public class DBWorkload {
         	// ----------------------------------------------------------------
         	
         	String pluginTest = "";
-        	if (pluginList.length > 1) {
-        		pluginTest = "[@bench='" + plugin + "']";
-        	}
+        	
+    	    pluginTest = "[@bench='" + plugin + "']";
         	
 	        WorkloadConfiguration wrkld = new WorkloadConfiguration();
 	        wrkld.setBenchmarkName(plugin);
@@ -176,7 +175,8 @@ public class DBWorkload {
 	        wrkld.setDBUsername(xmlConfig.getString("username"));
 	        wrkld.setDBPassword(xmlConfig.getString("password"));
 	        int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
-	        wrkld.setTerminals(xmlConfig.getInt("terminals" + pluginTest, terminals));
+	        terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
+	        wrkld.setTerminals(terminals);
 	        wrkld.setIsolationMode(xmlConfig.getString("isolation", "TRANSACTION_SERIALIZABLE"));
 	        wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
 	        wrkld.setRecordAbortMessages(xmlConfig.getBoolean("recordabortmessages", false));
@@ -195,17 +195,14 @@ public class DBWorkload {
 	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment. Use <disabled> option.");
 	                System.exit(-1);
 	            }
-	            if (pluginTest.length() > 1)
+	            // use a workaround if there multiple workloads or single
+	            // attributed workload
+	            if (pluginList.length > 1 || work.containsKey("weights[@bench]")) {
 					weight_strings = get_weights(plugin, work);
-				else {
-	            	weight_strings = work.getList("weights");
-	            }
-	            int rate;
-	            if (work.containsKey("/rate" + pluginTest)) {
-	            	rate = work.getInt("/rate" + pluginTest);
 	            } else {
-	            	rate = work.getInt("/rate");
+	            	weight_strings = work.getList("weights[not(@bench)]"); 
 	            }
+	            int rate = work.getInt("/rate");
 	            boolean rateLimited;
 	            rateLimited = work.getBoolean("rateLimited[not(@bench)]", true);
 	            rateLimited = work.getBoolean("ratelimited" + pluginTest, rateLimited);
@@ -229,7 +226,13 @@ public class DBWorkload {
 	                          activeTerminals);
 	        } // FOR
 	
-	        wrkld.setNumTxnTypes(xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size());
+	        int numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
+	        if (numTxnTypes == 0 && pluginList.length == 1) {
+	            //if it is a single workload run, <transactiontypes /> w/o attribute is used
+	            pluginTest = "[not(@bench)]";
+	            numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
+	        }
+	        wrkld.setNumTxnTypes(numTxnTypes);
 	
 	        // CHECKING INPUT PHASES
 	        int j = 0;
