@@ -6,10 +6,10 @@ FROM stock,
      item
 WHERE i_id = s_i_id
   AND i_data NOT LIKE 'zz%'
-  AND (mod((s_w_id * s_i_id),10000)) NOT IN
+  AND (mod((s_w_id * s_i_id),10000) NOT IN
     (SELECT su_suppkey
      FROM supplier
-     WHERE su_comment LIKE '%bad%')
+     WHERE su_comment LIKE '%bad%'))
 GROUP BY i_name,
          substr(i_data, 1, 3),
          i_price
