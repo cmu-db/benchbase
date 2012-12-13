@@ -138,3 +138,4 @@ CREATE TABLE warehouse (
   w_zip char(9) NOT NULL,
   PRIMARY KEY (w_id)
 );
+

@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
@@ -21,27 +22,27 @@ public class Payment extends Procedure {
 
     private static final Logger LOG = Logger.getLogger(Payment.class);
 	
-	public SQLStmt payUpdateWhseSQL = new SQLStmt("UPDATE warehouse SET w_ytd = w_ytd + ?  WHERE w_id = ? ");
+	public SQLStmt payUpdateWhseSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE + " SET w_ytd = w_ytd + ?  WHERE w_id = ? ");
 	public SQLStmt payGetWhseSQL = new SQLStmt("SELECT w_street_1, w_street_2, w_city, w_state, w_zip, w_name"
-			+ " FROM warehouse WHERE w_id = ?");
-	public SQLStmt payUpdateDistSQL = new SQLStmt("UPDATE district SET d_ytd = d_ytd + ? WHERE d_w_id = ? AND d_id = ?");
+			+ " FROM " + TPCCConstants.TABLENAME_WAREHOUSE + " WHERE w_id = ?");
+	public SQLStmt payUpdateDistSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_DISTRICT + " SET d_ytd = d_ytd + ? WHERE d_w_id = ? AND d_id = ?");
 	public SQLStmt payGetDistSQL = new SQLStmt("SELECT d_street_1, d_street_2, d_city, d_state, d_zip, d_name"
-			+ " FROM district WHERE d_w_id = ? AND d_id = ?");
+			+ " FROM " + TPCCConstants.TABLENAME_DISTRICT + " WHERE d_w_id = ? AND d_id = ?");
 	public SQLStmt payGetCustSQL = new SQLStmt("SELECT c_first, c_middle, c_last, c_street_1, c_street_2, "
 			+ "c_city, c_state, c_zip, c_phone, c_credit, c_credit_lim, "
-			+ "c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_since FROM customer WHERE "
+			+ "c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_since FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE "
 			+ "c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payGetCustCdataSQL = new SQLStmt("SELECT c_data FROM customer WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt("UPDATE customer SET c_balance = ?, c_ytd_payment = ?, "
+	public SQLStmt payGetCustCdataSQL = new SQLStmt("SELECT c_data FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
+	public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET c_balance = ?, c_ytd_payment = ?, "
 			+ "c_payment_cnt = ?, c_data = ? "
 			+ "WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payUpdateCustBalSQL = new SQLStmt("UPDATE customer SET c_balance = ?, c_ytd_payment = ?, "
+	public SQLStmt payUpdateCustBalSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET c_balance = ?, c_ytd_payment = ?, "
 			+ "c_payment_cnt = ? WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payInsertHistSQL = new SQLStmt("INSERT INTO history (h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) "
+	public SQLStmt payInsertHistSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_HISTORY + " (h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) "
 			+ " VALUES (?,?,?,?,?,?,?,?)");
 	public SQLStmt customerByNameSQL = new SQLStmt("SELECT c_first, c_middle, c_id, c_street_1, c_street_2, c_city, "
 			+ "c_state, c_zip, c_phone, c_credit, c_credit_lim, c_discount, "
-			+ "c_balance, c_ytd_payment, c_payment_cnt, c_since FROM customer "
+			+ "c_balance, c_ytd_payment, c_payment_cnt, c_since FROM " + TPCCConstants.TABLENAME_CUSTOMER + " "
 			+ "WHERE c_w_id = ? AND c_d_id = ? AND c_last = ? ORDER BY c_first");
 	
 	

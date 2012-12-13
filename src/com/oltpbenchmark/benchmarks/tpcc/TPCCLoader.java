@@ -43,35 +43,12 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configItemCount;
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.Date;
-import java.sql.NClob;
-import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
-import java.sql.Ref;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.RowId;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.SQLXML;
-import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -86,625 +63,20 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class TPCCLoader extends Loader{
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
 	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
 		super(benchmark, c);
-		conn = c;
         numWarehouses = (int)Math.round(configWhseCount * this.scaleFactor);
         outputFiles= false;
 	}
 
 	static boolean fastLoad;
 	static String fastLoaderBaseDir;
-
-	/**
-	 * slow load: 1m38.463s
-	 */
-	public static class FastPreparedStatementConn {
-		static Pattern pat = Pattern
-				.compile("INSERT INTO (\\w+) +(\\([^\\)]+\\)) +VALUES +.+");
-		String baseDir;
-
-		public FastPreparedStatementConn(String baseDir) {
-			this.baseDir = baseDir;
-		}
-
-		FastPreparedStatement prepareStatement(String s) throws Exception {
-			Matcher m = pat.matcher(s);
-			if (!m.matches())
-				throw new Exception();
-			return new FastPreparedStatement(m.group(1), baseDir + m.group(1),
-					m.group(2), s.replaceAll("[^\\?]+", "").length());
-		}
-	}
-
-	public static class FastPreparedStatement implements PreparedStatement {
-
-		ArrayList<Object> fields;
-		String table, path, fieldNames;
-		PrintWriter out;
-
-		FastPreparedStatement(String table, String path, String fieldNames,
-				int nfields) throws Exception {
-			LOG.debug(path + " " + nfields);
-			fields = new ArrayList<Object>(nfields);
-			for (int i = 0; i < nfields; i++)
-				fields.add(null);
-			LOG.debug(fields.size());
-
-			out = new PrintWriter(new FileWriter(path));
-
-			this.table = table;
-			this.path = path;
-			this.fieldNames = fieldNames;
-		}
-
-		private void set(int pos, Object obj) {
-			fields.set(pos - 1, obj);
-		}
-
-		@Override
-		public void addBatch() throws SQLException {
-			// write it out immediately
-			StringBuilder builder = new StringBuilder();
-			for (Object field : fields) {
-				if (field == null) {
-					field = "\\N";
-				} else if (field instanceof String) {
-					field = ((String) field).replaceAll("\n", "\\\\\n")
-							.replaceAll("\t", "\\\\\t")
-							.replaceAll("\0", "\\\\0")
-							.replaceAll("\\\\", "\\\\\\\\");
-				}
-				builder.append(field).append('\t');
-			}
-			out.println(builder.deleteCharAt(builder.length() - 1));
-		}
-
-		@Override
-		public void clearParameters() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean execute() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public ResultSet executeQuery() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int executeUpdate() throws SQLException {
-			// write it out immediately
-			StringBuilder builder = new StringBuilder();
-			for (Object field : fields) {
-				if (field == null) {
-					field = "\\N";
-				} else if (field instanceof String) {
-					field = ((String) field).replaceAll("\n", "\\\\\n")
-							.replaceAll("\t", "\\\\\t")
-							.replaceAll("\0", "\\\\0")
-							.replaceAll("\\\\", "\\\\\\\\");
-				}
-				builder.append(field).append('\t');
-			}
-			out.println(builder.deleteCharAt(builder.length() - 1));
-			return 0;
-		}
-
-		@Override
-		public ResultSetMetaData getMetaData() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public ParameterMetaData getParameterMetaData() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setArray(int arg0, Array arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setAsciiStream(int arg0, InputStream arg1, int arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setAsciiStream(int arg0, InputStream arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setAsciiStream(int arg0, InputStream arg1)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBigDecimal(int arg0, BigDecimal arg1)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBinaryStream(int arg0, InputStream arg1, int arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBinaryStream(int arg0, InputStream arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBinaryStream(int arg0, InputStream arg1)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBlob(int arg0, Blob arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBlob(int arg0, InputStream arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBlob(int arg0, InputStream arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBoolean(int arg0, boolean arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setByte(int arg0, byte arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setBytes(int arg0, byte[] arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setCharacterStream(int arg0, Reader arg1, int arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setCharacterStream(int arg0, Reader arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setCharacterStream(int arg0, Reader arg1)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setClob(int arg0, Clob arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setClob(int arg0, Reader arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setClob(int arg0, Reader arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setDate(int arg0, Date arg1, Calendar arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setDate(int arg0, Date arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setDouble(int arg0, double arg1) throws SQLException {
-			set(arg0, arg1);
-		}
-
-		@Override
-		public void setFloat(int arg0, float arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setInt(int arg0, int arg1) throws SQLException {
-			set(arg0, arg1);
-		}
-
-		@Override
-		public void setLong(int arg0, long arg1) throws SQLException {
-			set(arg0, arg1);
-		}
-
-		@Override
-		public void setNCharacterStream(int arg0, Reader arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNCharacterStream(int arg0, Reader arg1)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNClob(int arg0, NClob arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNClob(int arg0, Reader arg1, long arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNClob(int arg0, Reader arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNString(int arg0, String arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNull(int arg0, int arg1, String arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setNull(int arg0, int arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setObject(int arg0, Object arg1, int arg2, int arg3)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setObject(int arg0, Object arg1, int arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setObject(int arg0, Object arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setRef(int arg0, Ref arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setRowId(int arg0, RowId arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setShort(int arg0, short arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setSQLXML(int arg0, SQLXML arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setString(int arg0, String arg1) throws SQLException {
-			set(arg0, arg1);
-		}
-
-		@Override
-		public void setTime(int arg0, Time arg1, Calendar arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setTime(int arg0, Time arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setTimestamp(int arg0, Timestamp arg1, Calendar arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setTimestamp(int arg0, Timestamp arg1) throws SQLException {
-			set(arg0, arg1);
-		}
-
-		@Override
-		public void setUnicodeStream(int arg0, InputStream arg1, int arg2)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setURL(int arg0, URL arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void addBatch(String arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void cancel() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void clearBatch() throws SQLException {
-			// nothing to clear
-		}
-
-		@Override
-		public void clearWarnings() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void close() throws SQLException {
-			out.close();
-		}
-
-		@Override
-		public boolean execute(String arg0, int arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean execute(String arg0, int[] arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean execute(String arg0, String[] arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean execute(String arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int[] executeBatch() throws SQLException {
-			// already written in addBatch()
-			return null;
-		}
-
-		@Override
-		public ResultSet executeQuery(String arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int executeUpdate(String arg0, int arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int executeUpdate(String arg0, int[] arg1) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int executeUpdate(String arg0, String[] arg1)
-				throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int executeUpdate(String arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public Connection getConnection() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getFetchDirection() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getFetchSize() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public ResultSet getGeneratedKeys() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getMaxFieldSize() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getMaxRows() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean getMoreResults() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean getMoreResults(int arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getQueryTimeout() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public ResultSet getResultSet() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getResultSetConcurrency() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getResultSetHoldability() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getResultSetType() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public int getUpdateCount() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public SQLWarning getWarnings() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean isClosed() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean isPoolable() throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setCursorName(String arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setEscapeProcessing(boolean arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setFetchDirection(int arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setFetchSize(int arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setMaxFieldSize(int arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setMaxRows(int arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setPoolable(boolean arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void setQueryTimeout(int arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public boolean isWrapperFor(Class<?> arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public <T> T unwrap(Class<T> arg0) throws SQLException {
-			throw new NotImplementedException();
-		}
-		
-		// Java7 Fixes
-		public void closeOnCompletion() throws SQLException {
-		    throw new SQLException();
-		}
-		public boolean isCloseOnCompletion() throws SQLException {
-		    throw new SQLException();
-		}
-
-	}
-
-	// *********** JDBC specific variables ***********************
-	private static Connection conn = null;
-	private static Statement stmt = null;
-	private static Timestamp sysdate = null;
-	private static PreparedStatement custPrepStmt;
-	private static PreparedStatement distPrepStmt;
-	private static PreparedStatement histPrepStmt;
-	private static PreparedStatement itemPrepStmt;
-	private static PreparedStatement nworPrepStmt;
-	private static PreparedStatement ordrPrepStmt;
-	private static PreparedStatement orlnPrepStmt;
-	private static PreparedStatement stckPrepStmt;
-	private static PreparedStatement whsePrepStmt;
 
 	// ********** general vars **********************************
 	private static java.util.Date now = null;
@@ -719,8 +91,16 @@ public class TPCCLoader extends Loader{
 	private static long lastTimeMS = 0;
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
+	
+	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
+        Table catalog_tbl = this.getTableCatalog(tableName);
+        assert(catalog_tbl != null);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        PreparedStatement stmt = this.conn.prepareStatement(sql);
+        return stmt;
+	}
 
-	static void transRollback() {
+	protected void transRollback() {
 		if (outputFiles == false) {
 			try {
 				conn.rollback();
@@ -732,7 +112,7 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	static void transCommit() {
+	protected void transCommit() {
 		if (outputFiles == false) {
 			try {
 				conn.commit();
@@ -745,11 +125,11 @@ public class TPCCLoader extends Loader{
 		}
 	}
 
-	static void truncateTable(String strTable) {
+	protected void truncateTable(String strTable) {
 
 		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
-			stmt.execute("TRUNCATE TABLE " + strTable);
+			this.conn.createStatement().execute("TRUNCATE TABLE " + strTable);
 			transCommit();
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -758,138 +138,17 @@ public class TPCCLoader extends Loader{
 
 	}
 
-	static void initJDBC() {
-
-		try {
-
-			// Create Statement
-			stmt = conn.createStatement();
-			
-			if (fastLoad) {
-				FastPreparedStatementConn conn = new FastPreparedStatementConn(fastLoaderBaseDir);
-				distPrepStmt = conn
-						.prepareStatement("INSERT INTO district "
-								+ " (d_id, d_w_id, d_ytd, d_tax, d_next_o_id, d_name, d_street_1, d_street_2, d_city, d_state, d_zip) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				itemPrepStmt = conn.prepareStatement("INSERT INTO item "
-						+ " (i_id, i_name, i_price, i_data, i_im_id) "
-						+ "VALUES (?, ?, ?, ?, ?)");
-
-				custPrepStmt = conn
-						.prepareStatement("INSERT INTO customer "
-								+ " (c_id, c_d_id, c_w_id, "
-								+ "c_discount, c_credit, c_last, c_first, c_credit_lim, "
-								+ "c_balance, c_ytd_payment, c_payment_cnt, c_delivery_cnt, "
-								+ "c_street_1, c_street_2, c_city, c_state, c_zip, "
-								+ "c_phone, c_since, c_middle, c_data) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				histPrepStmt = conn.prepareStatement("INSERT INTO history "
-						+ " (h_c_id, h_c_d_id, h_c_w_id, " + "h_d_id, h_w_id, "
-						+ "h_date, h_amount, h_data) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-				ordrPrepStmt = conn.prepareStatement("INSERT INTO oorder "
-						+ " (o_id, o_w_id,  o_d_id, o_c_id, "
-						+ "o_carrier_id, o_ol_cnt, o_all_local, o_entry_d) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-				orlnPrepStmt = conn
-						.prepareStatement("INSERT INTO order_line "
-								+ " (ol_w_id, ol_d_id, ol_o_id, "
-								+ "ol_number, ol_i_id, ol_delivery_d, "
-								+ "ol_amount, ol_supply_w_id, ol_quantity, ol_dist_info) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				nworPrepStmt = conn.prepareStatement("INSERT INTO new_order "
-						+ " (no_w_id, no_d_id, no_o_id) " + "VALUES (?, ?, ?)");
-
-				stckPrepStmt = conn
-						.prepareStatement("INSERT INTO stock "
-								+ " (s_i_id, s_w_id, s_quantity, s_ytd, s_order_cnt, s_remote_cnt, s_data, "
-								+ "s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
-								+ "s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				whsePrepStmt = conn
-						.prepareStatement("INSERT INTO warehouse "
-								+ " (w_id, w_ytd, w_tax, w_name, w_street_1, w_street_2, w_city, w_state, w_zip) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-			} else {
-
-				distPrepStmt = conn
-						.prepareStatement("INSERT INTO district "
-								+ " (d_id, d_w_id, d_ytd, d_tax, d_next_o_id, d_name, d_street_1, d_street_2, d_city, d_state, d_zip) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				itemPrepStmt = conn.prepareStatement("INSERT INTO item "
-						+ " (i_id, i_name, i_price, i_data, i_im_id) "
-						+ "VALUES (?, ?, ?, ?, ?)");
-
-				custPrepStmt = conn
-						.prepareStatement("INSERT INTO customer "
-								+ " (c_id, c_d_id, c_w_id, "
-								+ "c_discount, c_credit, c_last, c_first, c_credit_lim, "
-								+ "c_balance, c_ytd_payment, c_payment_cnt, c_delivery_cnt, "
-								+ "c_street_1, c_street_2, c_city, c_state, c_zip, "
-								+ "c_phone, c_since, c_middle, c_data) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				histPrepStmt = conn.prepareStatement("INSERT INTO history "
-						+ " (h_c_id, h_c_d_id, h_c_w_id, " + "h_d_id, h_w_id, "
-						+ "h_date, h_amount, h_data) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-				ordrPrepStmt = conn.prepareStatement("INSERT INTO oorder "
-						+ " (o_id, o_w_id,  o_d_id, o_c_id, "
-						+ "o_carrier_id, o_ol_cnt, o_all_local, o_entry_d) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-				orlnPrepStmt = conn
-						.prepareStatement("INSERT INTO order_line "
-								+ " (ol_w_id, ol_d_id, ol_o_id, "
-								+ "ol_number, ol_i_id, ol_delivery_d, "
-								+ "ol_amount, ol_supply_w_id, ol_quantity, ol_dist_info) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				nworPrepStmt = conn.prepareStatement("INSERT INTO new_order "
-						+ " (no_w_id, no_d_id, no_o_id) " + "VALUES (?, ?, ?)");
-
-				stckPrepStmt = conn
-						.prepareStatement("INSERT INTO stock "
-								+ " (s_i_id, s_w_id, s_quantity, s_ytd, s_order_cnt, s_remote_cnt, s_data, "
-								+ "s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
-								+ "s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-				whsePrepStmt = conn
-						.prepareStatement("INSERT INTO warehouse "
-								+ " (w_id, w_ytd, w_tax, w_name, w_street_1, w_street_2, w_city, w_state, w_zip) "
-								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-			}
-
-		} catch (SQLException se) {
-			LOG.debug(se.getMessage());
-			transRollback();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			transRollback();
-
-		} // end try
-
-	} // end initJDBC()
-
-	static int loadItem(int itemKount) {
+	protected int loadItem(int itemKount) {
 
 		int k = 0;
 		int t = 0;
 		int randPct = 0;
 		int len = 0;
 		int startORIGINAL = 0;
+		
 
 		try {
+		    PreparedStatement itemPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ITEM);
 
 			now = new java.util.Date();
 			t = itemKount;
@@ -1001,9 +260,11 @@ public class TPCCLoader extends Loader{
 
 	} // end loadItem()
 
-	static int loadWhse(int whseKount) {
+	protected int loadWhse(int whseKount) {
 
 		try {
+		    
+		    PreparedStatement whsePrepStmt = getInsertStatement(TPCCConstants.TABLENAME_WAREHOUSE);
 
 			now = new java.util.Date();
 			LOG.debug("\nStart Whse Load for " + whseKount
@@ -1084,7 +345,7 @@ public class TPCCLoader extends Loader{
 
 	} // end loadWhse()
 
-	static int loadStock(int whseKount, int itemKount) {
+	protected int loadStock(int whseKount, int itemKount) {
 
 		int k = 0;
 		int t = 0;
@@ -1093,6 +354,8 @@ public class TPCCLoader extends Loader{
 		int startORIGINAL = 0;
 
 		try {
+		    
+		    PreparedStatement stckPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_STOCK);
 
 			now = new java.util.Date();
 			t = (whseKount * itemKount);
@@ -1149,8 +412,8 @@ public class TPCCLoader extends Loader{
 
 					k++;
 					if (outputFiles == false) {
-						stckPrepStmt.setLong(1, stock.s_i_id);
-						stckPrepStmt.setLong(2, stock.s_w_id);
+						stckPrepStmt.setLong(1, stock.s_w_id);
+						stckPrepStmt.setLong(2, stock.s_i_id);
 						stckPrepStmt.setLong(3, stock.s_quantity);
 						stckPrepStmt.setDouble(4, stock.s_ytd);
 						stckPrepStmt.setLong(5, stock.s_order_cnt);
@@ -1243,13 +506,16 @@ public class TPCCLoader extends Loader{
 
 	} // end loadStock()
 
-	static int loadDist(int whseKount, int distWhseKount) {
+	protected int loadDist(int whseKount, int distWhseKount) {
 
 		int k = 0;
 		int t = 0;
 
 		try {
 
+		    String sql = SQLUtil.getInsertSQL(this.getTableCatalog(TPCCConstants.TABLENAME_DISTRICT));
+		    PreparedStatement distPrepStmt = this.conn.prepareStatement(sql);
+		    
 			now = new java.util.Date();
 
 			if (outputFiles == true) {
@@ -1268,7 +534,8 @@ public class TPCCLoader extends Loader{
 			for (int w = 1; w <= whseKount; w++) {
 
 				for (int d = 1; d <= distWhseKount; d++) {
-
+				    
+				    
 					district.d_id = d;
 					district.d_w_id = w;
 					district.d_ytd = 30000;
@@ -1291,8 +558,8 @@ public class TPCCLoader extends Loader{
 
 					k++;
 					if (outputFiles == false) {
-						distPrepStmt.setLong(1, district.d_id);
-						distPrepStmt.setLong(2, district.d_w_id);
+						distPrepStmt.setLong(1, district.d_w_id);
+						distPrepStmt.setLong(2, district.d_id);
 						distPrepStmt.setDouble(3, district.d_ytd);
 						distPrepStmt.setDouble(4, district.d_tax);
 						distPrepStmt.setLong(5, district.d_next_o_id);
@@ -1346,7 +613,7 @@ public class TPCCLoader extends Loader{
 
 	} // end loadDist()
 
-	static int loadCust(int whseKount, int distWhseKount, int custDistKount) {
+	protected int loadCust(int whseKount, int distWhseKount, int custDistKount) {
 
 		int k = 0;
 		int t = 0;
@@ -1356,6 +623,8 @@ public class TPCCLoader extends Loader{
 		PrintWriter outHist = null;
 
 		try {
+		    PreparedStatement custPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_CUSTOMER);
+		    PreparedStatement histPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_HISTORY);
 
 			now = new java.util.Date();
 
@@ -1380,7 +649,7 @@ public class TPCCLoader extends Loader{
 
 					for (int c = 1; c <= custDistKount; c++) {
 
-						sysdate = new java.sql.Timestamp(
+						Timestamp sysdate = new java.sql.Timestamp(
 								System.currentTimeMillis());
 
 						customer.c_id = c;
@@ -1440,9 +709,9 @@ public class TPCCLoader extends Loader{
 
 						k = k + 2;
 						if (outputFiles == false) {
-							custPrepStmt.setLong(1, customer.c_id);
+							custPrepStmt.setLong(1, customer.c_w_id);
 							custPrepStmt.setLong(2, customer.c_d_id);
-							custPrepStmt.setLong(3, customer.c_w_id);
+							custPrepStmt.setLong(3, customer.c_id);
 							custPrepStmt.setDouble(4, customer.c_discount);
 							custPrepStmt.setString(5, customer.c_credit);
 							custPrepStmt.setString(6, customer.c_last);
@@ -1579,7 +848,7 @@ public class TPCCLoader extends Loader{
 
 	} // end loadCust()
 
-	static int loadOrder(int whseKount, int distWhseKount, int custDistKount) {
+	protected int loadOrder(int whseKount, int distWhseKount, int custDistKount) {
 
 		int k = 0;
 		int t = 0;
@@ -1587,6 +856,9 @@ public class TPCCLoader extends Loader{
 		PrintWriter outNewOrder = null;
 
 		try {
+		    PreparedStatement ordrPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_OPENORDER);
+		    PreparedStatement nworPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_NEWORDER);
+		    PreparedStatement orlnPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ORDERLINE);
 
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
@@ -1768,14 +1040,6 @@ public class TPCCLoader extends Loader{
 			} // end for [w]
 
 			LOG.debug("  Writing final records " + k + " of " + t);
-			if (outputFiles == false) {
-				ordrPrepStmt.executeBatch();
-				nworPrepStmt.executeBatch();
-				orlnPrepStmt.executeBatch();
-			} else {
-				outLine.close();
-				outNewOrder.close();
-			}
 			transCommit();
 			now = new java.util.Date();
 			LOG.debug("End Orders Load @  " + now);
@@ -1797,24 +1061,24 @@ public class TPCCLoader extends Loader{
 	// but I don't get why...
 	public static final class NotImplementedException extends
 			UnsupportedOperationException {
+
+        private static final long serialVersionUID = 1958656852398867984L;
 	}
 
 	@Override
 	public void load() throws SQLException {
 
 		if (outputFiles == false) {
-			initJDBC();
-
 			// Clearout the tables
-			truncateTable("item");
-			truncateTable("warehouse");
-			truncateTable("stock");
-			truncateTable("district");
-			truncateTable("customer");
-			truncateTable("history");
-			truncateTable("oorder");
-			truncateTable("order_line");
-			truncateTable("new_order");
+			truncateTable(TPCCConstants.TABLENAME_ITEM);
+			truncateTable(TPCCConstants.TABLENAME_WAREHOUSE);
+			truncateTable(TPCCConstants.TABLENAME_STOCK);
+			truncateTable(TPCCConstants.TABLENAME_DISTRICT);
+			truncateTable(TPCCConstants.TABLENAME_CUSTOMER);
+			truncateTable(TPCCConstants.TABLENAME_HISTORY);
+			truncateTable(TPCCConstants.TABLENAME_OPENORDER);
+			truncateTable(TPCCConstants.TABLENAME_ORDERLINE);
+			truncateTable(TPCCConstants.TABLENAME_NEWORDER);
 		}
 
 		// seed the random number generator
@@ -1837,21 +1101,6 @@ public class TPCCLoader extends Loader{
 				configCustPerDist);
 		totalRows += loadOrder(numWarehouses, configDistPerWhse,
 				configCustPerDist);
-
-		if (fastLoad) {
-			PreparedStatement[] pss = new PreparedStatement[] { custPrepStmt,
-					distPrepStmt, histPrepStmt, itemPrepStmt, nworPrepStmt,
-					ordrPrepStmt, orlnPrepStmt, stckPrepStmt, whsePrepStmt };
-			for (PreparedStatement ps : pss) {
-				FastPreparedStatement fps = (FastPreparedStatement) ps;
-				fps.close();
-				LOG.debug("load data infile '" + fps.path
-						+ "' into table " + fps.table + " " + fps.fieldNames);
-				stmt.execute("load data infile '" + fps.path + "' into table "
-						+ fps.table + " " + fps.fieldNames);
-				transCommit();
-			}
-		}
 
 		long runTimeMS = (new java.util.Date().getTime()) + 1 - startTimeMS;
 		endDate = new java.util.Date();
