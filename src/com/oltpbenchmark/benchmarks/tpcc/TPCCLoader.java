@@ -94,6 +94,7 @@ public class TPCCLoader extends Loader{
 	
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
         Table catalog_tbl = this.getTableCatalog(tableName);
+        assert(catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         return stmt;
@@ -1039,14 +1040,6 @@ public class TPCCLoader extends Loader{
 			} // end for [w]
 
 			LOG.debug("  Writing final records " + k + " of " + t);
-			if (outputFiles == false) {
-				ordrPrepStmt.executeBatch();
-				nworPrepStmt.executeBatch();
-				orlnPrepStmt.executeBatch();
-			} else {
-				outLine.close();
-				outNewOrder.close();
-			}
 			transCommit();
 			now = new java.util.Date();
 			LOG.debug("End Orders Load @  " + now);

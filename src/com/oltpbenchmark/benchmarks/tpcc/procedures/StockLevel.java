@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
@@ -20,7 +21,7 @@ public class StockLevel extends Procedure {
 	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT d_next_o_id FROM district WHERE d_w_id = ? AND d_id = ?");
 	
 	public SQLStmt stockGetCountStockSQL = new SQLStmt("SELECT COUNT(DISTINCT (s_i_id)) AS stock_count"
-			+ " FROM order_line, stock"
+			+ " FROM " + TPCCConstants.TABLENAME_ORDERLINE + ", " + TPCCConstants.TABLENAME_STOCK
 			+ " WHERE ol_w_id = ?"
 			+ " AND ol_d_id = ?"
 			+ " AND ol_o_id < ?"

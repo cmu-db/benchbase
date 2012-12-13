@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
@@ -21,26 +22,26 @@ public class OrderStatus extends Procedure {
 
     private static final Logger LOG = Logger.getLogger(OrderStatus.class);
 	
-	public SQLStmt ordStatGetNewestOrdSQL = new SQLStmt("SELECT o_id, o_carrier_id, o_entry_d FROM oorder"
+	public SQLStmt ordStatGetNewestOrdSQL = new SQLStmt("SELECT o_id, o_carrier_id, o_entry_d FROM " + TPCCConstants.TABLENAME_OPENORDER
 			+ " WHERE o_w_id = ?"
 			+ " AND o_d_id = ? AND o_c_id = ? ORDER BY o_id DESC LIMIT 1");
 	
 	public SQLStmt ordStatGetOrderLinesSQL = new SQLStmt("SELECT ol_i_id, ol_supply_w_id, ol_quantity,"
 			+ " ol_amount, ol_delivery_d"
-			+ " FROM order_line"
+			+ " FROM " + TPCCConstants.TABLENAME_ORDERLINE
 			+ " WHERE ol_o_id = ?"
 			+ " AND ol_d_id =?"
 			+ " AND ol_w_id = ?");
 	
 	public SQLStmt payGetCustSQL = new SQLStmt("SELECT c_first, c_middle, c_last, c_street_1, c_street_2, "
 			+ "c_city, c_state, c_zip, c_phone, c_credit, c_credit_lim, "
-			+ "c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_since FROM customer WHERE "
+			+ "c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_since FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE "
 			+ "c_w_id = ? AND c_d_id = ? AND c_id = ?");
 	
 	public SQLStmt customerByNameSQL = new SQLStmt("SELECT c_first, c_middle, c_id, c_street_1, c_street_2, c_city, "
 			+ "c_state, c_zip, c_phone, c_credit, c_credit_lim, c_discount, "
-			+ "c_balance, c_ytd_payment, c_payment_cnt, c_since FROM customer "
-			+ "WHERE c_w_id = ? AND c_d_id = ? AND c_last = ? ORDER BY c_first");
+			+ "c_balance, c_ytd_payment, c_payment_cnt, c_since FROM " + TPCCConstants.TABLENAME_CUSTOMER
+			+ " WHERE c_w_id = ? AND c_d_id = ? AND c_last = ? ORDER BY c_first");
 
 	private PreparedStatement ordStatGetNewestOrd = null;
 	private PreparedStatement ordStatGetOrderLines = null;

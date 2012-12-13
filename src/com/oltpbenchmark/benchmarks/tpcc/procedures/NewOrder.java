@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
@@ -21,33 +22,33 @@ public class NewOrder extends Procedure {
 
     public final SQLStmt stmtGetCustWhseSQL = new SQLStmt(
     		"SELECT c_discount, c_last, c_credit, w_tax"
-			+ "  FROM customer, warehouse"
+			+ "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + ", " + TPCCConstants.TABLENAME_WAREHOUSE
 			+ " WHERE w_id = ? AND c_w_id = ?"
 			+ " AND c_d_id = ? AND c_id = ?");
     
     public final SQLStmt stmtGetDistSQL = new SQLStmt(
-    		"SELECT d_next_o_id, d_tax FROM district"
+    		"SELECT d_next_o_id, d_tax FROM " + TPCCConstants.TABLENAME_DISTRICT
 					+ " WHERE d_w_id = ? AND d_id = ? FOR UPDATE"
     				);
     
-	public final SQLStmt  stmtInsertNewOrderSQL = new SQLStmt("INSERT INTO new_order (no_o_id, no_d_id, no_w_id) VALUES ( ?, ?, ?)");
+	public final SQLStmt  stmtInsertNewOrderSQL = new SQLStmt("INSERT INTO "+ TPCCConstants.TABLENAME_NEWORDER + " (no_o_id, no_d_id, no_w_id) VALUES ( ?, ?, ?)");
 	
-	public final SQLStmt  stmtUpdateDistSQL = new SQLStmt("UPDATE district SET d_next_o_id = d_next_o_id + 1 WHERE d_w_id = ? AND d_id = ?");
+	public final SQLStmt  stmtUpdateDistSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_DISTRICT + " SET d_next_o_id = d_next_o_id + 1 WHERE d_w_id = ? AND d_id = ?");
 	
-	public final SQLStmt  stmtInsertOOrderSQL = new SQLStmt("INSERT INTO oorder "
+	public final SQLStmt  stmtInsertOOrderSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_OPENORDER
 			+ " (o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_ol_cnt, o_all_local)"
 			+ " VALUES (?, ?, ?, ?, ?, ?, ?)");
 	
-	public final SQLStmt  stmtGetItemSQL = new SQLStmt("SELECT i_price, i_name , i_data FROM item WHERE i_id = ?");
+	public final SQLStmt  stmtGetItemSQL = new SQLStmt("SELECT i_price, i_name , i_data FROM " + TPCCConstants.TABLENAME_ITEM + " WHERE i_id = ?");
 
 	public final SQLStmt  stmtGetStockSQL = new SQLStmt("SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
 			+ "       s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10"
-			+ " FROM stock WHERE s_i_id = ? AND s_w_id = ? FOR UPDATE");
+			+ " FROM " + TPCCConstants.TABLENAME_STOCK + " WHERE s_i_id = ? AND s_w_id = ? FOR UPDATE");
 	
-	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE stock SET s_quantity = ? , s_ytd = s_ytd + ?, s_remote_cnt = s_remote_cnt + ? "
+	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_STOCK + " SET s_quantity = ? , s_ytd = s_ytd + ?, s_remote_cnt = s_remote_cnt + ? "
 			+ " WHERE s_i_id = ? AND s_w_id = ?");
 	
-	public final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO order_line (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
+	public final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_ORDERLINE + " (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
 			+ "  ol_quantity, ol_amount, ol_dist_info) VALUES (?,?,?,?,?,?,?,?,?)");
     
 
