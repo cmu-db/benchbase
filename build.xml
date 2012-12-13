@@ -174,7 +174,7 @@
                     --> 
                     <exclude name="**/TestJPAB*.class"/>
                     <exclude name="**/TestAuctionMarkLoader.class"/>
-                    <exclude name="**/TestTPCCLoader.class"/>
+<!--                     <exclude name="**/TestTPCCLoader.class"/> -->
                 </fileset>
             </tests>
         </run_junit>
