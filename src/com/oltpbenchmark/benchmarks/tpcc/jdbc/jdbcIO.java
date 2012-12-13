@@ -42,9 +42,9 @@ public class jdbcIO {
 
 		try {
 
-			ordrPrepStmt.setInt(1, oorder.o_id);
-			ordrPrepStmt.setInt(2, oorder.o_w_id);
-			ordrPrepStmt.setInt(3, oorder.o_d_id);
+			ordrPrepStmt.setInt(1, oorder.o_w_id);
+			ordrPrepStmt.setInt(2, oorder.o_d_id);
+			ordrPrepStmt.setInt(3, oorder.o_id);
 			ordrPrepStmt.setInt(4, oorder.o_c_id);
 			if (oorder.o_carrier_id != null) {
 				ordrPrepStmt.setInt(5, oorder.o_carrier_id);

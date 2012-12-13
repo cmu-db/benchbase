@@ -43,35 +43,12 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configItemCount;
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.Date;
-import java.sql.NClob;
-import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
-import java.sql.Ref;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.RowId;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.SQLXML;
-import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -86,7 +63,6 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
-import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -435,8 +411,8 @@ public class TPCCLoader extends Loader{
 
 					k++;
 					if (outputFiles == false) {
-						stckPrepStmt.setLong(1, stock.s_i_id);
-						stckPrepStmt.setLong(2, stock.s_w_id);
+						stckPrepStmt.setLong(1, stock.s_w_id);
+						stckPrepStmt.setLong(2, stock.s_i_id);
 						stckPrepStmt.setLong(3, stock.s_quantity);
 						stckPrepStmt.setDouble(4, stock.s_ytd);
 						stckPrepStmt.setLong(5, stock.s_order_cnt);
@@ -581,8 +557,8 @@ public class TPCCLoader extends Loader{
 
 					k++;
 					if (outputFiles == false) {
-						distPrepStmt.setLong(1, district.d_id);
-						distPrepStmt.setLong(2, district.d_w_id);
+						distPrepStmt.setLong(1, district.d_w_id);
+						distPrepStmt.setLong(2, district.d_id);
 						distPrepStmt.setDouble(3, district.d_ytd);
 						distPrepStmt.setDouble(4, district.d_tax);
 						distPrepStmt.setLong(5, district.d_next_o_id);
@@ -732,9 +708,9 @@ public class TPCCLoader extends Loader{
 
 						k = k + 2;
 						if (outputFiles == false) {
-							custPrepStmt.setLong(1, customer.c_id);
+							custPrepStmt.setLong(1, customer.c_w_id);
 							custPrepStmt.setLong(2, customer.c_d_id);
-							custPrepStmt.setLong(3, customer.c_w_id);
+							custPrepStmt.setLong(3, customer.c_id);
 							custPrepStmt.setDouble(4, customer.c_discount);
 							custPrepStmt.setString(5, customer.c_credit);
 							custPrepStmt.setString(6, customer.c_last);
@@ -1092,6 +1068,8 @@ public class TPCCLoader extends Loader{
 	// but I don't get why...
 	public static final class NotImplementedException extends
 			UnsupportedOperationException {
+
+        private static final long serialVersionUID = 1958656852398867984L;
 	}
 
 	@Override
