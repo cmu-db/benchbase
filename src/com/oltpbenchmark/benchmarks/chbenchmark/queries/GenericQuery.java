@@ -10,6 +10,7 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.DBWorkload;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
@@ -17,12 +18,9 @@ public abstract class GenericQuery extends Procedure {
     
     private static final Logger LOG = Logger.getLogger(GenericQuery.class);
 
-    
-    protected static SQLStmt query_stmt;
-
-	private PreparedStatement stmt; 
+	private PreparedStatement stmt;
 	
-	protected static void initSQLStmt(String queryFile) {
+	protected static SQLStmt initSQLStmt(String queryFile) {
 		StringBuilder query = new StringBuilder();
 		
 		try{
@@ -39,13 +37,15 @@ public abstract class GenericQuery extends Procedure {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-		query_stmt = new SQLStmt(query.toString());
+		return new SQLStmt(query.toString());
 	}
+	
+	protected abstract SQLStmt get_query();
     
     public ResultSet run(Connection conn) throws SQLException {
 		
 		//initializing all prepared statements
-    	stmt=this.getPreparedStatement(conn, query_stmt);
+    	stmt=this.getPreparedStatement(conn, get_query());
 
 
     	ResultSet rs = stmt.executeQuery();
