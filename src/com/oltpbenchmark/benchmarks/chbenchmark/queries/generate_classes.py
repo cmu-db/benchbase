@@ -6,12 +6,20 @@ Generates query java class stubs to load sql.
 """
 template = """package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
+import com.oltpbenchmark.api.SQLStmt;
+
 public class Q{0} extends GenericQuery {{
 	
+    protected static SQLStmt query_stmt;
+    
 	static {{
 		final String queryFile = "query{0}.sql";
 		
-		initSQLStmt(queryFile);
+		query_stmt = initSQLStmt(queryFile);
+	}}
+	
+		protected SQLStmt get_query() {{
+	    return query_stmt;
 	}}
 }}
 """
