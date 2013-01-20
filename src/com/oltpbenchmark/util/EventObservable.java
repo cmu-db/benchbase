@@ -43,7 +43,7 @@ public class EventObservable<T> {
         public EventObservable<T> getEventObservable() {
             return (EventObservable.this);
         }
-    };
+    }
     
     private final InnerObservable observable;
     private int observer_ctr = 0;
