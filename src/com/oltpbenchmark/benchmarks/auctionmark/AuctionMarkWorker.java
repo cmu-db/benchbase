@@ -708,7 +708,7 @@ public class AuctionMarkWorker extends Worker {
         ItemCommentResponse cr = profile.pending_commentResponses.remove(idx);
         assert(cr != null);
         
-        long commentId = cr.commentId.longValue();;
+        long commentId = cr.commentId.longValue();
         ItemId itemId = new ItemId(cr.itemId.longValue());
         UserId sellerId = itemId.getSellerId();
         assert(sellerId.encode() == cr.sellerId);
