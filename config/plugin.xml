@@ -11,4 +11,5 @@
     <plugin name="seats">com.oltpbenchmark.benchmarks.seats.SEATSBenchmark</plugin>
     <plugin name="auctionmark">com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark</plugin>
     <plugin name="chbenchmark">com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark</plugin>
+    <plugin name="voter">com.oltpbenchmark.benchmarks.voter.VoterBenchmark</plugin>
 </plugins>
