@@ -294,7 +294,7 @@ public abstract class Worker implements Runnable {
                 } catch (SQLException ex) {
                                        
                     //TODO: Handle acceptable error codes for every DBMS     
-//                    if (LOG.isDebugEnabled()) 
+                    if (LOG.isDebugEnabled()) 
                         LOG.warn(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
 
                     this.txnErrors.put(next);
