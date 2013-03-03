@@ -45,7 +45,7 @@ public class NewOrder extends Procedure {
 			+ "       s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10"
 			+ " FROM " + TPCCConstants.TABLENAME_STOCK + " WHERE s_i_id = ? AND s_w_id = ? FOR UPDATE");
 	
-	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_STOCK + " SET s_quantity = ? , s_ytd = s_ytd + ?, s_remote_cnt = s_remote_cnt + ? "
+	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_STOCK + " SET s_quantity = ? , s_ytd = s_ytd + ?, s_order_cnt = s_order_cnt + 1, s_remote_cnt = s_remote_cnt + ? "
 			+ " WHERE s_i_id = ? AND s_w_id = ?");
 	
 	public final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_ORDERLINE + " (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
