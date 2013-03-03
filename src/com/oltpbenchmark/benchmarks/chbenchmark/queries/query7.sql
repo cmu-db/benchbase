@@ -20,12 +20,11 @@ WHERE ol_supply_w_id = s_w_id
   AND c_w_id = o_w_id
   AND c_d_id = o_d_id
   AND su_nationkey = n1.n_nationkey
-  AND ascii(substr(c_state, 1 , 1)) = n2.n_nationkey
+  AND ascii(substr(c_state, 1 , 1)) - 64 = n2.n_nationkey
   AND ((n1.n_name = 'Germany'
         AND n2.n_name = 'Cambodia')
        OR (n1.n_name = 'Cambodia'
            AND n2.n_name = 'Germany'))
-  AND ol_delivery_d BETWEEN '2007-01-02 00:00:00.000000' AND '2012-01-02 00:00:00.000000'
 GROUP BY su_nationkey,
          substr(c_state, 1 , 1),
          extract(YEAR

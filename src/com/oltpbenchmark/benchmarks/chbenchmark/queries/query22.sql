@@ -10,7 +10,7 @@ WHERE substr(c_phone,1,1) IN ('1',
                               '6',
                               '7')
   AND c_balance >
-    (SELECT avg(c_BALANCE)
+    (SELECT avg(c_balance)
      FROM customer
      WHERE c_balance > 0.00
        AND substr(c_phone,1,1) IN ('1',
