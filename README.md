@@ -20,6 +20,7 @@ Together with the framework we provide the following OLTP/Web benchmarks:
   * [YCSB](https://github.com/brianfrankcooper/YCSB)
   * [JPAB](http://www.jpab.org) (Hibernate)
   * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CH-benCHmark)
+  * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
 
 This framework is design to allow easy extension, we provide stub code that a contributor can use to include a new
 benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
