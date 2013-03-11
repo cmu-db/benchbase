@@ -46,22 +46,22 @@ public class Vote extends Procedure {
 	
     // Checks if the vote is for a valid contestant
     public final SQLStmt checkContestantStmt = new SQLStmt(
-	   "SELECT contestant_number FROM contestants WHERE contestant_number = ?;"
+	   "SELECT contestant_number FROM CONTESTANTS WHERE contestant_number = ?;"
     );
 	
     // Checks if the voter has exceeded their allowed number of votes
     public final SQLStmt checkVoterStmt = new SQLStmt(
-		"SELECT COUNT(*) FROM votes WHERE phone_number = ?;"
+		"SELECT COUNT(*) FROM VOTES WHERE phone_number = ?;"
     );
 	
     // Checks an area code to retrieve the corresponding state
     public final SQLStmt checkStateStmt = new SQLStmt(
-		"SELECT state FROM area_code_state WHERE area_code = ?;"
+		"SELECT state FROM AREA_CODE_STATE WHERE area_code = ?;"
     );
 	
     // Records a vote
     public final SQLStmt insertVoteStmt = new SQLStmt(
-		"INSERT INTO votes (vote_id, phone_number, state, contestant_number, created) " +
+		"INSERT INTO VOTES (vote_id, phone_number, state, contestant_number, created) " +
     "VALUES (?, ?, ?, ?, NOW());"
     );
 	
