@@ -1,9 +1,7 @@
 SELECT o_ol_cnt,
        count(*) AS order_count
 FROM oorder
-WHERE o_entry_d >= '2007-01-02 00:00:00.000000'
-  AND o_entry_d < '2012-01-02 00:00:00.000000'
-  AND exists
+WHERE exists
     (SELECT *
      FROM order_line
      WHERE o_id = ol_o_id
