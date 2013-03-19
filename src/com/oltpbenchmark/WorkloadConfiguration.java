@@ -73,7 +73,7 @@ public class WorkloadConfiguration {
 	private boolean recordAbortMessages = false;
 
 	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals) {
-		works.add(new Phase(time, rate, weights, rateLimited, disabled, active_terminals));
+		works.add(new Phase(numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals));
 		numberOfPhases++;
 	}
 

@@ -8,6 +8,7 @@ import java.util.Random;
 public class Phase {
 
     private final Random gen = new Random();
+    public final int id;
     public final int time;
     public final int rate;
 
@@ -19,11 +20,12 @@ public class Phase {
     private int activeTerminals;
     
 
-    Phase(int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
+    Phase(int id, int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
 
+        this.id = id;
         this.time = t;
         this.rate = r;
         this.weights = Collections.unmodifiableList(w);

@@ -116,10 +116,10 @@ public final class Results {
         double offset = x - y;
 
         // long startNs = latencySamples.get(0).startNs;
-        out.println("transaction type (index in config file), start time (microseconds),latency (microseconds)");
+        out.println("transaction type (index in config file), start time (microseconds),latency (microseconds),worker id(start number), phase id(index in config file)");
         for (Sample s : latencySamples) {
             double startUs = ((double) s.startNs / (double) 1000000000);
-            out.println(s.tranType + "," + String.format("%10.6f", startUs - offset) + "," + s.latencyUs);
+            out.println(s.tranType + "," + String.format("%10.6f", startUs - offset) + "," + s.latencyUs + "," + s.workerId + "," + s.phaseId);
         }
     }
 
