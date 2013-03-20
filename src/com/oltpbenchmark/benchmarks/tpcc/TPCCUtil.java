@@ -67,22 +67,26 @@ public class TPCCUtil {
 		c.c_since = rs.getTimestamp("c_since");
 		return c;
 	}
+	private static final char[] symbols = new char[52];
+	private static final Random random = new Random();
+    
+    static {
+        for (int i = 0; i < 26; i++)
+            symbols[i] = (char) ('A' + i);
+        for (int i = 0; i < 26; i++)
+            symbols[i + 26] = (char) ('a' + i);
+    }
 
-	public static String randomStr(long strLen) {
+	public static String randomStr(int strLen) {
 
-		char freshChar;
-		String freshString;
-		freshString = "";
-
-		while (freshString.length() < (strLen - 1)) {
-
-			freshChar = (char) (Math.random() * 128);
-			if (Character.isLetter(freshChar)) {
-				freshString += freshChar;
-			}
-		}
-
-		return (freshString);
+	    if (strLen < 1)
+	        return "";
+	    char[] buf = new char[strLen];
+	                
+	    for (int i = 0; i < buf.length; i++) {
+            buf[i] = symbols[random.nextInt(symbols.length)];
+        }
+        return new String(buf);
 
 	} // end randomStr
 
