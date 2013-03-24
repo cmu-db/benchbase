@@ -36,6 +36,7 @@ import java.sql.SQLException;
 import java.util.Random;
 
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
+import com.oltpbenchmark.util.RandomGenerator;
 
 public class TPCCUtil {
 
@@ -67,37 +68,20 @@ public class TPCCUtil {
 		c.c_since = rs.getTimestamp("c_since");
 		return c;
 	}
-	private static final char[] symbols = new char[52];
-	private static final Random random = new Random();
-    
-    static {
-        for (int i = 0; i < 26; i++)
-            symbols[i] = (char) ('A' + i);
-        for (int i = 0; i < 26; i++)
-            symbols[i + 26] = (char) ('a' + i);
-    }
+	private static final RandomGenerator ran = new RandomGenerator(0);
 
 	public static String randomStr(int strLen) {
-
-	    if (strLen < 1)
+	    if (strLen > 1) 
+	        return ran.astring(strLen - 1, strLen - 1);
+	    else
 	        return "";
-	    char[] buf = new char[strLen];
-	                
-	    for (int i = 0; i < buf.length; i++) {
-            buf[i] = symbols[random.nextInt(symbols.length)];
-        }
-        return new String(buf);
-
 	} // end randomStr
 
-	public static String randomNStr(Random r, int stringLength) {
-		StringBuilder output = new StringBuilder();
-		char base = '0';
-		while (output.length() < stringLength) {
-			char next = (char) (base + r.nextInt(10));
-			output.append(next);
-		}
-		return output.toString();
+	public static String randomNStr(int stringLength) {
+		if (stringLength > 0)
+		    return ran.nstring(stringLength, stringLength);
+		else
+		    return "";
 	}
 
 	public static String getCurrentTime() {
