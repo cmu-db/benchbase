@@ -47,7 +47,7 @@ public abstract class GenericQuery extends Procedure {
 		//initializing all prepared statements
     	stmt=this.getPreparedStatement(conn, get_query());
 
-
+    	LOG.debug(this.getClass());
     	ResultSet rs = stmt.executeQuery();
     	while (rs.next()) {
     		//do nothing

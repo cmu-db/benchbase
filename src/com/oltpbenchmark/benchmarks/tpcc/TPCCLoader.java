@@ -688,9 +688,9 @@ public class TPCCLoader extends Loader{
 								.randomNumber(10, 20, gen));
 						customer.c_state = TPCCUtil.randomStr(3).toUpperCase();
 						// TPC-C 4.3.2.7: 4 random digits + "11111"
-						customer.c_zip = TPCCUtil.randomNStr(gen, 4) + "11111";
+						customer.c_zip = TPCCUtil.randomNStr(4) + "11111";
 
-						customer.c_phone = TPCCUtil.randomNStr(gen, 16);
+						customer.c_phone = TPCCUtil.randomNStr(16);
 
 						customer.c_since = sysdate;
 						customer.c_middle = "OE";
