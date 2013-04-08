@@ -65,7 +65,7 @@ public class Phase {
             total += d;
         return total;
     }
-
+    
     /**
      * This simply computes the next transaction by randomly selecting one based
      * on the weights of this phase.

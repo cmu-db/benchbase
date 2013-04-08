@@ -306,14 +306,16 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     	if (phase == null) {
                     	    // Last phase
                     	    lastEntry = true;
-                    	    // Loop through the rest of workConfs to wake up sleeping workers
+                    	    break;
                     	} else {
-                    	    delta += phase.time * 1000000000L;
                     	    LOG.info(workConf.currentPhaseString());
-                    	    // update frequency in which we check according to wakeup
-                    	    // speed
-                    	    intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
                     	}
+                    }
+                    if (phase != null) {
+                        // update frequency in which we check according to wakeup
+                        // speed
+                        intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
+                        delta += phase.time * 1000000000L;
                     }
                 }
             }

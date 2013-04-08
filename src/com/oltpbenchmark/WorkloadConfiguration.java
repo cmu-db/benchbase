@@ -174,6 +174,11 @@ public class WorkloadConfiguration {
 	    }
 	}
 	
+    /**
+     * Returns a string for logging purposes when entering the phase
+     * 
+     * @return Loggin String
+     */
 	public String currentPhaseString() {
 	    String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";
 	    if (currentPhase.isDisabled()){
