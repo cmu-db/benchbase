@@ -177,7 +177,7 @@ public abstract class Worker implements Runnable {
 				// This is the first time we have observed that the test is
 				// done notify the global test state, then continue applying load
 				seenDone = true;
-				testState.signalDone();
+				wrkld.signalDone();
 				break;
 			}
 			// apply load
@@ -187,7 +187,7 @@ public abstract class Worker implements Runnable {
 			if (phase != null && phase.isRateLimited()) {
 				// re-reads the state because it could have changed if we
 				// blocked
-				state = testState.fetchWork();
+				state = wrkld.fetchWork();
 			}
 
 			boolean measure = state == State.MEASURE;

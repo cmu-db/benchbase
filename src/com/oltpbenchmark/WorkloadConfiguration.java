@@ -25,15 +25,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.configuration.XMLConfiguration;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
 
 public class WorkloadConfiguration {
+    
+    private static final int RATE_QUEUE_LIMIT = 10000;
 
     private Iterator<Phase> phaseIterator;
     private Phase currentPhase = null;
@@ -57,20 +62,100 @@ public class WorkloadConfiguration {
 	private int terminals;
 	private int workerNeedSleep;
 	private int numTxnTypes;
-
+	
+	private int workAvailable = 0;
+    private int workersWaiting = 0;
+    
 	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
-	private BenchmarkState testState;
+	private BenchmarkState benchmarkState;
 
-	public void setTestState(BenchmarkState testState) {
-        this.testState = testState;
+	public void setTestState(BenchmarkState benchmarkState) {
+        this.benchmarkState = benchmarkState;
     }
 
     private int numberOfPhases = 0;
 	private TransactionTypes transTypes = null;
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 	private boolean recordAbortMessages = false;
+	
+     /**
+     * Add a request to do work.
+     * 
+     * @throws QueueLimitException
+     */
+    public void addToQueue(int amount, boolean resetQueues) throws QueueLimitException {
+        assert amount > 0;
+
+        synchronized (this) {
+            assert workAvailable >= 0;
+
+            if (resetQueues)
+                workAvailable = amount;
+            else
+                workAvailable += amount;
+
+            if (workAvailable > RATE_QUEUE_LIMIT) {
+                // TODO: Deal with this appropriately. For now, we are
+                // ignoring it.
+                workAvailable = RATE_QUEUE_LIMIT;
+                // throw new QueueLimitException("Work queue limit ("
+                // + queueLimit
+                // + ") exceeded; Cannot keep up with desired rate");
+            }
+
+            if (workersWaiting <= amount) {
+                // Wake all waiting waiters
+                for (int i = 0; i < workersWaiting; i++) {
+                    this.notify();
+                }
+            } else {
+                // Only wake the correct number of waiters
+                assert workersWaiting > amount;
+                for (int i = 0; i < amount; ++i) {
+                    this.notify();
+                }
+            }
+        }
+    }
+    
+    public void signalDone() {
+        int current = this.benchmarkState.signalDone();
+        if (current == 0) {
+            synchronized (this) {
+                if (workersWaiting > 0) {
+                    this.notifyAll();
+                }
+            }
+        }
+    }
+    
+    /** Called by ThreadPoolThreads when waiting for work. */
+    public State fetchWork() {
+        synchronized (this) {
+            if (workAvailable == 0) {
+                workersWaiting += 1;
+                while (workAvailable == 0) {
+                    if (this.benchmarkState.getState() == State.EXIT) {
+                        return State.EXIT;
+                    }
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                workersWaiting -= 1;
+            }
+
+            assert workAvailable > 0;
+            workAvailable -= 1;
+
+            return this.benchmarkState.getState();
+        }
+    }
+ 
 
 	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals) {
 		works.add(new Phase(numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals));
@@ -84,7 +169,7 @@ public class WorkloadConfiguration {
 	}
 	
 	public Phase getCurrentPhase() {
-	    synchronized (testState){
+	    synchronized (benchmarkState){
 	        return currentPhase;
 	    }
 	}

@@ -45,7 +45,6 @@ import com.oltpbenchmark.util.StringUtil;
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = Logger.getLogger(ThreadBench.class);
 
-    private static final int RATE_QUEUE_LIMIT = 10000;
     
     private static BenchmarkState testState;
     private final List<? extends Worker> workers;
@@ -233,7 +232,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
         assert testState == null;
-        testState = new BenchmarkState(workers.size() + 1, RATE_QUEUE_LIMIT);
+        testState = new BenchmarkState(workers.size() + 1);
         
         for (WorkloadConfiguration workConf : this.workConfs) {
             workConf.setTestState(testState);
@@ -270,8 +269,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // posting new work... and reseting the queue in case we have new
             // portion of the workload...
-
-            testState.addWork(nextToAdd, resetQueues);
+            
+            for (WorkloadConfiguration workConf : this.workConfs) {
+                workConf.addToQueue(nextToAdd, resetQueues);                
+            }
             resetQueues = false;
 
             // Wait until the interval expires, which may be "don't wait"
