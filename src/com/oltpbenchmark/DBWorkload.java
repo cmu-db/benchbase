@@ -186,15 +186,7 @@ public class DBWorkload {
 	        for (int i = 1; i < size + 1; i++) {
 	            SubnodeConfiguration work = xmlConfig.configurationAt("works/work[" + i + "]");
 	            List<String> weight_strings;
-	            if (work.containsKey("rate[@bench]")) {
-	                LOG.fatal("You can not specify rate for workloads separatelly.");
-	                System.exit(-1);
-	            }
 	            
-	            if ((int) work.getInt("rate") < 1) {
-	                LOG.fatal("You cannot use less than 1 TPS in a Phase of your expeirment. Use <disabled> option.");
-	                System.exit(-1);
-	            }
 	            // use a workaround if there multiple workloads or single
 	            // attributed workload
 	            if (pluginList.length > 1 || work.containsKey("weights[@bench]")) {
@@ -202,13 +194,19 @@ public class DBWorkload {
 	            } else {
 	            	weight_strings = work.getList("weights[not(@bench)]"); 
 	            }
-	            int rate = work.getInt("/rate");
+	            int rate;
+	            rate = work.getInt("rate[not(@bench)]", 0);
+	            rate = work.getInt("rate" + pluginTest, rate);
 	            boolean rateLimited;
 	            rateLimited = work.getBoolean("rateLimited[not(@bench)]", true);
 	            rateLimited = work.getBoolean("ratelimited" + pluginTest, rateLimited);
 	            boolean disabled;
 	            disabled = work.getBoolean("disabled[not(@bench)]", false);
 	            disabled = work.getBoolean("disabled" + pluginTest, disabled);
+	            if (rate < 1 && !(disabled) && !(rateLimited)) {
+	                LOG.fatal("Please specify a rate of 1 TPS or more or use <disabled> option. Alternatively set rateLimited to false.");
+	                System.exit(-1);
+	            }
 	            
 	            int activeTerminals;
 	            activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
