@@ -51,6 +51,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private final ArrayList<Thread> workerThreads;
     // private File profileFile;
     private List<WorkloadConfiguration> workConfs;
+    private List<WorkloadState> workStates;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
 
     private ThreadBench(List<? extends Worker> workers, List<WorkloadConfiguration> workConfs) {
@@ -157,7 +158,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private void createWorkerThreads() {
         
         for (Worker worker : workers) {
-            worker.setBenchmarkState(testState);
+            worker.initializeState();
             Thread thread = new Thread(worker);
             thread.setUncaughtExceptionHandler(this);
             thread.start();
@@ -233,9 +234,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
         assert testState == null;
         testState = new BenchmarkState(workers.size() + 1);
+        workStates = new ArrayList<WorkloadState>();
         
-        for (WorkloadConfiguration workConf : this.workConfs) {
-            workConf.setTestState(testState);
+        for (WorkloadConfiguration workState : this.workConfs) {
+            workStates.add(workState.initializeState(testState));
         }
         
         this.createWorkerThreads();
@@ -245,20 +247,27 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         long start = System.nanoTime();
         long measureEnd = -1;
+        //used to determine the longest sleep interval
+        int lowestRate = Integer.MAX_VALUE;
         
         Phase phase = null;
         
-        for (WorkloadConfiguration workConf : this.workConfs) {
-        	workConf.switchToNextPhase();
-        	phase = workConf.getCurrentPhase();
-        	LOG.info(workConf.currentPhaseString());
+        
+        for (WorkloadState workState : this.workStates) {
+        	workState.switchToNextPhase();
+        	phase = workState.getCurrentPhase();
+        	LOG.info(phase.currentPhaseString());
+        	if (phase.rate < lowestRate) {
+        	    lowestRate = phase.rate;
+        	}
         }
         
 
-        long intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
+        long intervalNs = (long) (1000000000. / (double) lowestRate + 0.5);
 
         long nextInterval = start + intervalNs;
         int nextToAdd = 1;
+        int rateFactor;
 
         boolean resetQueues = true;
 
@@ -270,8 +279,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // posting new work... and reseting the queue in case we have new
             // portion of the workload...
             
-            for (WorkloadConfiguration workConf : this.workConfs) {
-                workConf.addToQueue(nextToAdd, resetQueues);                
+            for (WorkloadState workState : this.workStates) {
+                if (workState.getCurrentPhase() != null) {
+                    rateFactor = workState.getCurrentPhase().rate / lowestRate;
+                } else {
+                    rateFactor = 1;
+                }
+                    workState.addToQueue(nextToAdd * rateFactor, resetQueues);
             }
             resetQueues = false;
 
@@ -300,21 +314,25 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 
                 // Fetch a new Phase
                 synchronized (testState) {
-                    for (WorkloadConfiguration workConf : workConfs) {
-                    	workConf.switchToNextPhase();
-                    	phase = workConf.getCurrentPhase();
+                    for (WorkloadState workState : workStates) {
+                    	workState.switchToNextPhase();
+                    	lowestRate = Integer.MAX_VALUE;
+                    	phase = workState.getCurrentPhase();
                     	if (phase == null) {
                     	    // Last phase
                     	    lastEntry = true;
                     	    break;
                     	} else {
-                    	    LOG.info(workConf.currentPhaseString());
+                    	    LOG.info(phase.currentPhaseString());
+                            if (phase.rate < lowestRate) {
+                                lowestRate = phase.rate;
+                            }
                     	}
                     }
                     if (phase != null) {
                         // update frequency in which we check according to wakeup
                         // speed
-                        intervalNs = (long) (1000000000. / (double) phase.rate + 0.5);
+                        intervalNs = (long) (1000000000. / (double) lowestRate + 0.5);
                         delta += phase.time * 1000000000L;
                     }
                 }
