@@ -87,7 +87,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
 		int samples = (values.size() - 1) * (BLOCK_SIZE / 5);
 
 		// Samples stored in the last not full chunk
-		samples += nextIndex / 2;
+		samples += nextIndex / 5;
 		return samples;
 	}
 

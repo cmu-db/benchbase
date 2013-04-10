@@ -22,7 +22,6 @@ package com.oltpbenchmark;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +33,6 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.StringUtil;
 
 public class WorkloadConfiguration {
-
-    private Iterator<Phase> phaseIterator;
-    private Phase currentPhase = null;
     
 	private DatabaseType db_type;	
 	private String benchmarkName;
@@ -55,16 +51,24 @@ public class WorkloadConfiguration {
 	private String db_driver;	
 	private double scaleFactor = 1.0;
 	private int terminals;
-	private int workerNeedSleep;
 	private int numTxnTypes;
-
+    
 	private XMLConfiguration xmlConfig = null;
 
 	private List<Phase> works = new ArrayList<Phase>();
-	private BenchmarkState testState;
+	private WorkloadState workloadState;
 
-	public void setTestState(BenchmarkState testState) {
-        this.testState = testState;
+	public WorkloadState getWorkloadState() {
+        return workloadState;
+    }
+	
+	/**
+	 * Initiate a new benchmark and workload state
+	 */
+    public WorkloadState initializeState(BenchmarkState benchmarkState) {
+        assert (workloadState == null);
+        workloadState = new WorkloadState(benchmarkState, works, terminals);
+        return workloadState;
     }
 
     private int numberOfPhases = 0;
@@ -72,62 +76,11 @@ public class WorkloadConfiguration {
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 	private boolean recordAbortMessages = false;
 
-	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals) {
-		works.add(new Phase(numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals));
-		numberOfPhases++;
-	}
+ 
 
-	public Phase getNextPhase() {
-		if (phaseIterator.hasNext())
-			return phaseIterator.next();
-		return null;
-	}
-	
-	public Phase getCurrentPhase() {
-	    synchronized (testState){
-	        return currentPhase;
-	    }
-	}
-	
-	public String currentPhaseString() {
-	    String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";
-	    if (currentPhase.isDisabled()){
-	        retString += "[Disabled= true]";
-	    } else {
-	        retString += "[Time= " + currentPhase.time + "] [Rate= " + (currentPhase.isRateLimited() ? currentPhase.rate : "unlimited") + "] [Ratios= " + currentPhase.getWeights() + "] [Active Workers=" + currentPhase.getActiveTerminals() + "]";
-	    }
-	    return retString;
-	}
-	
-	/*
-	 * Called by workers to ask if they should stay awake in this phase
-	 */
-	public void stayAwake() {
-	    synchronized(this) {
-	        if (workerNeedSleep > 0 || (this.currentPhase != null && this.currentPhase.isDisabled())) {
-	            workerNeedSleep --;
-	            try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-	        }
-	    }
-	    
-	}
-	
-	public void switchToNextPhase() {
-	    synchronized(this) {
-    	    boolean wakeUp = this.currentPhase != null &&
-    	            (this.currentPhase.isDisabled() || this.currentPhase.getActiveTerminals() < this.terminals);
-    		this.currentPhase = this.getNextPhase();
-    	    if (wakeUp) {
-    	        this.notifyAll();
-    	    }
-    	    if (this.currentPhase != null) {
-    	        workerNeedSleep = this.terminals - this.currentPhase.getActiveTerminals();
-    	    }
-	    }
+	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals) {
+		works.add(new Phase(benchmarkName, numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals));
+		numberOfPhases++;
 	}
 	
 	public void setDBType(DatabaseType dbType) {
@@ -233,9 +186,6 @@ public class WorkloadConfiguration {
 	    } catch (ClassNotFoundException ex) {
 	        throw new RuntimeException("Failed to initialize JDBC driver '" + this.db_driver + "'", ex);
 	    }
-	    
-		// initialize the phase iterator
-		phaseIterator = works.iterator();
 	}
 
 	public void setTerminals(int terminals) {

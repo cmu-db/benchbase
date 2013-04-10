@@ -10,10 +10,10 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.BenchmarkState;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.WorkloadState;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.types.DatabaseType;
@@ -25,7 +25,7 @@ import com.oltpbenchmark.util.StringUtil;
 public abstract class Worker implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
 
-	private BenchmarkState testState;
+	private WorkloadState wrkldState;
 	private LatencyRecord latencies;
 	
 	private final int id;
@@ -49,6 +49,7 @@ public abstract class Worker implements Runnable {
 		this.id = id;
 		this.benchmarkModule = benchmarkModule;
 		this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
+		this.wrkldState = this.wrkld.getWorkloadState();
 		this.transactionTypes = this.wrkld.getTransTypes();
 		assert(this.transactionTypes != null) :
 		    "The TransactionTypes from the WorkloadConfiguration is null!";
@@ -56,7 +57,7 @@ public abstract class Worker implements Runnable {
 		try {
 		    this.conn = this.benchmarkModule.makeConnection();
 		    this.conn.setAutoCommit(false);
-		    conn.setTransactionIsolation(wrkld.getIsolationMode());
+		    conn.setTransactionIsolation(this.wrkld.getIsolationMode());
 		} catch (SQLException ex) {
 		    throw new RuntimeException("Failed to connect to database", ex);
 		}
@@ -156,7 +157,7 @@ public abstract class Worker implements Runnable {
 	    t.setName(this.getName());
 	    
 		// In case of reuse reset the measurements
-		latencies = new LatencyRecord(testState.getTestStartNs());
+		latencies = new LatencyRecord(wrkldState.getTestStartNs());
 
 		// Invoke the initialize callback
 		try {
@@ -166,8 +167,8 @@ public abstract class Worker implements Runnable {
 		}
 		
 		// wait for start
-		testState.blockForStart();
-		State state = testState.getState();
+		wrkldState.blockForStart();
+		State state = wrkldState.getGlobalState();
 		
 		TransactionType invalidTT = TransactionType.INVALID;
 		assert(invalidTT != null);
@@ -177,17 +178,17 @@ public abstract class Worker implements Runnable {
 				// This is the first time we have observed that the test is
 				// done notify the global test state, then continue applying load
 				seenDone = true;
-				testState.signalDone();
+				wrkldState.signalDone();
 				break;
 			}
 			// apply load
-			Phase phase = this.wrkld.getCurrentPhase();
+			Phase phase = this.wrkldState.getCurrentPhase();
 			// ask workload if we have to sleep
-			wrkld.stayAwake();
+			wrkldState.stayAwake();
 			if (phase != null && phase.isRateLimited()) {
 				// re-reads the state because it could have changed if we
 				// blocked
-				state = testState.fetchWork();
+				state = wrkldState.fetchWork();
 			}
 
 			boolean measure = state == State.MEASURE;
@@ -211,11 +212,10 @@ public abstract class Worker implements Runnable {
 				long end = System.nanoTime();
 				latencies.addLatency(type.getId(), start, end, this.id, phase.id);
 			}
-			state = testState.getState();
+			state = wrkldState.getGlobalState();
 		}
 
 		tearDown(false);
-		testState = null;
 	}
 
 	/**
@@ -233,7 +233,7 @@ public abstract class Worker implements Runnable {
 	    final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
 	    
 	    try {
-    	    while (status == TransactionStatus.RETRY && this.testState.getState() != State.DONE) {
+    	    while (status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
     	        if (next == null)
     	            next = transactionTypes.getType(phase.chooseTransaction());
     	        assert(next.isSupplemental() == false) :
@@ -375,8 +375,8 @@ public abstract class Worker implements Runnable {
 		}
 	}
 
-	public void setBenchmarkState(BenchmarkState testState) {
-		assert this.testState == null;
-		this.testState = testState;
+	public void initializeState() {
+	    assert (this.wrkldState == null);
+	    this.wrkldState = this.wrkld.getWorkloadState();
 	}
 }

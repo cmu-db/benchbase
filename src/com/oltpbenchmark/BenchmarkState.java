@@ -11,7 +11,6 @@ import com.oltpbenchmark.util.QueueLimitException;
 public final class BenchmarkState {
     
     private static final Logger LOG = Logger.getLogger(BenchmarkState.class);
-	private final int queueLimit;
 
 	private volatile State state = State.WARMUP;
 
@@ -27,18 +26,7 @@ public final class BenchmarkState {
 	private AtomicInteger notDoneCount;
 
 	// Protected by this
-	private int workAvailable = 0;
-	private int workersWaiting = 0;
-	private volatile Phase currentPhase;
 
-	public Phase getCurrentPhase() {
-		return currentPhase;
-	}
-
-	public void setCurrentPhase(Phase currentPhase) {
-		this.currentPhase = currentPhase;
-	}
-	
 	/**
 	 * 
 	 * @param numThreads
@@ -47,9 +35,7 @@ public final class BenchmarkState {
 	 * @param rateLimited
 	 * @param queueLimit
 	 */
-	public BenchmarkState(int numThreads,
-			int queueLimit) {
-		this.queueLimit = queueLimit;
+	public BenchmarkState(int numThreads) {
 		startBarrier = new CountDownLatch(numThreads);
 		notDoneCount = new AtomicInteger(numThreads);
 	
@@ -59,7 +45,9 @@ public final class BenchmarkState {
 	}
 
 	public State getState() {
-		return state;
+	    synchronized (this) {
+	        return state;
+        }
 	}
 
 	/**
@@ -92,101 +80,18 @@ public final class BenchmarkState {
 	}
 
 	/** Notify that this thread has entered the done state. */
-	public void signalDone() {
+	public int signalDone() {
 		assert state == State.DONE;
 		int current = notDoneCount.decrementAndGet();
 		assert current >= 0;
 		if (LOG.isDebugEnabled())
 		    LOG.debug(String.format("%d workers are not done. Waiting until they finish", current));
 		if (current == 0) {
-			// We are the last thread to notice that we are done: wake any
-			// blocked workers
-			state = State.EXIT;
-			synchronized (this) {
-				if (workersWaiting > 0) {
-					this.notifyAll();
-				}
-			}
+            // We are the last thread to notice that we are done: wake any
+            // blocked workers
+		    this.state = State.EXIT;
 		}
-	}
-
-	public boolean isRateLimited() {
-		// Should be thread-safe due to only being used during
-		// initialization
-		return workAvailable != -1;
-	}
-
-	/**
-	 * Add a request to do work.
-	 * 
-	 * @throws QueueLimitException
-	 */
-	public void addWork(int amount, boolean resetQueues) throws QueueLimitException {
-		assert amount > 0;
-
-		synchronized (this) {
-			assert workAvailable >= 0;
-
-	        if (resetQueues)
-	            workAvailable = amount;
-	        else
-	            workAvailable += amount;
-
-			if (workAvailable > queueLimit) {
-				// TODO: Deal with this appropriately. For now, we are
-				// ignoring it.
-				workAvailable = queueLimit;
-				// throw new QueueLimitException("Work queue limit ("
-				// + queueLimit
-				// + ") exceeded; Cannot keep up with desired rate");
-			}
-
-			if (workersWaiting <= amount) {
-				// Wake all waiters
-				this.notifyAll();
-			} else {
-				// Only wake the correct number of waiters
-				assert workersWaiting > amount;
-				for (int i = 0; i < amount; ++i) {
-					this.notify();
-				}
-			}
-			int wakeCount = (workersWaiting < amount) ? workersWaiting
-					: amount;
-			assert wakeCount <= workersWaiting;
-		}
-	}
-
-	/** Called by ThreadPoolThreads when waiting for work. */
-	public State fetchWork() {
-		synchronized (this) {
-			if (workAvailable == 0) {
-				workersWaiting += 1;
-				while (workAvailable == 0) {
-					if (state == State.EXIT) {
-						return State.EXIT;
-					}
-					try {
-						this.wait();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				workersWaiting -= 1;
-			}
-
-			assert workAvailable > 0;
-			workAvailable -= 1;
-
-			return state;
-		}
-	}
-
-	/** Called by ThreadPoolThreads when waiting for work. */
-	public Phase fetchWorkType() {
-		synchronized (this) {
-			return currentPhase;
-		}
+		return current;
 	}
 
 }

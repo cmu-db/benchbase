@@ -72,6 +72,10 @@ public class TPCCLoader extends Loader{
 	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
 		super(benchmark, c);
         numWarehouses = (int)Math.round(configWhseCount * this.scaleFactor);
+        if (numWarehouses == 0) {
+            //where would be fun in that?
+            numWarehouses = 1;
+        }
         outputFiles= false;
 	}
 

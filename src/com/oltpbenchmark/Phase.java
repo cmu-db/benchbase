@@ -8,6 +8,7 @@ import java.util.Random;
 public class Phase {
 
     private final Random gen = new Random();
+    public final String benchmarkName;
     public final int id;
     public final int time;
     public final int rate;
@@ -20,11 +21,12 @@ public class Phase {
     private int activeTerminals;
     
 
-    Phase(int id, int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
+    Phase(String benchmarkName, int id, int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
 
+        this.benchmarkName = benchmarkName;
         this.id = id;
         this.time = t;
         this.rate = r;
@@ -65,7 +67,7 @@ public class Phase {
             total += d;
         return total;
     }
-
+    
     /**
      * This simply computes the next transaction by randomly selecting one based
      * on the weights of this phase.
@@ -83,6 +85,21 @@ public class Phase {
         } // FOR
 
         return -1;
+    }
+    
+    /**
+     * Returns a string for logging purposes when entering the phase
+     * 
+     * @return Loggin String
+     */
+    public String currentPhaseString() {
+        String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";
+        if (isDisabled()){
+            retString += "[Disabled= true]";
+        } else {
+            retString += "[Time= " + time + "] [Rate= " + (isRateLimited() ? rate : "unlimited") + "] [Ratios= " + getWeights() + "] [Active Workers=" + getActiveTerminals() + "]";
+        }
+        return retString;
     }
 
 }

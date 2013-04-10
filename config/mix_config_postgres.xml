@@ -26,11 +26,12 @@
         <work>
           <time>10</time>
           <rate>200</rate>
-          
+          <rate bench="chbenchmark">1</rate>
+
           <!-- Specifies rate limiting for all workloads. Default true. -->
           <ratelimited>true</ratelimited>
           <!-- Workload-specific rate limiting -->
-          <ratelimited bench="chbenchmark">false</ratelimited>
+          <ratelimited bench="chbenchmark">true</ratelimited>
           
           <!-- Disables individual workloads. Default false. -->
           <disabled bench="chbenchmark">false</disabled>
