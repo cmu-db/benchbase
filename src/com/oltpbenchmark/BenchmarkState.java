@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.types.State;
-import com.oltpbenchmark.util.QueueLimitException;
 
 public final class BenchmarkState {
     

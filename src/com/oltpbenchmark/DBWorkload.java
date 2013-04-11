@@ -203,6 +203,10 @@ public class DBWorkload {
 	            boolean disabled;
 	            disabled = work.getBoolean("disabled[not(@bench)]", false);
 	            disabled = work.getBoolean("disabled" + pluginTest, disabled);
+	            Phase.Arrival arrival=Phase.Arrival.REGULAR;
+	            String arrive=work.getString("@arrival","regular");
+	            if(arrive.toUpperCase().equals("POISSON"))
+	                arrival=Phase.Arrival.POISSON;
 	            if (rate < 1 && !(disabled) && !(rateLimited)) {
 	                LOG.fatal("Please specify a rate of 1 TPS or more or use <disabled> option. Alternatively set rateLimited to false.");
 	                System.exit(-1);
@@ -221,7 +225,8 @@ public class DBWorkload {
 	                          weight_strings,
 	                          rateLimited,
 	                          disabled,
-	                          activeTerminals);
+	                          activeTerminals,
+	                          arrival);
 	        } // FOR
 	
 	        int numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();

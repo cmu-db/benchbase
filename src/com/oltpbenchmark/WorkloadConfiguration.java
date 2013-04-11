@@ -78,8 +78,8 @@ public class WorkloadConfiguration {
 
  
 
-	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals) {
-		works.add(new Phase(benchmarkName, numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals));
+	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals, Phase.Arrival arrival) {
+		works.add(new Phase(benchmarkName, numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals, arrival));
 		numberOfPhases++;
 	}
 	

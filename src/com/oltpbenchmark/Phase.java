@@ -6,12 +6,16 @@ import java.util.List;
 import java.util.Random;
 
 public class Phase {
+    public enum Arrival {
+        REGULAR,POISSON,
+    }
 
     private final Random gen = new Random();
     public final String benchmarkName;
     public final int id;
     public final int time;
     public final int rate;
+    public final Arrival arrival;
 
 
     private final boolean rateLimited;
@@ -21,7 +25,7 @@ public class Phase {
     private int activeTerminals;
     
 
-    Phase(String benchmarkName, int id, int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals) {
+    Phase(String benchmarkName, int id, int t, int r, List<String> o, boolean rateLimited, boolean disabled, int activeTerminals, Arrival a) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
@@ -35,6 +39,7 @@ public class Phase {
         this.rateLimited = rateLimited;
         this.disabled = disabled;
         this.activeTerminals = activeTerminals;
+        this.arrival=a;
     }
     
     public boolean isRateLimited() {
@@ -97,7 +102,7 @@ public class Phase {
         if (isDisabled()){
             retString += "[Disabled= true]";
         } else {
-            retString += "[Time= " + time + "] [Rate= " + (isRateLimited() ? rate : "unlimited") + "] [Ratios= " + getWeights() + "] [Active Workers=" + getActiveTerminals() + "]";
+            retString += "[Time= " + time + "] [Rate= " + (isRateLimited() ? rate : "unlimited") + "] [Arrival= " + arrival + "] [Ratios= " + getWeights() + "] [Active Workers=" + getActiveTerminals() + "]";
         }
         return retString;
     }
