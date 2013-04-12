@@ -274,7 +274,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         boolean lastEntry = false;
 
         while (true) {
-            System.out.println(intervalNs);
             // posting new work... and reseting the queue in case we have new
             // portion of the workload...
             
