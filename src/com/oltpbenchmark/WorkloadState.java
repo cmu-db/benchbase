@@ -42,34 +42,38 @@ public class WorkloadState {
     */
    public void addToQueue(int amount, boolean resetQueues) throws QueueLimitException {
        assert amount > 0;
-
+       if (resetQueues) {
+           workAvailable = 0;
+       }
+       
        synchronized (this) {
-           assert workAvailable >= 0;
-
-           if (resetQueues)
-               workAvailable = amount;
-           else
+           // don't increment workAvailable if the current phase is disabled
+           // we still need to do it a last time when currentPhase is null
+           if (currentPhase == null || !currentPhase.isDisabled()) {
+               assert workAvailable >= 0;
+    
                workAvailable += amount;
-
-           if (workAvailable > RATE_QUEUE_LIMIT) {
-               // TODO: Deal with this appropriately. For now, we are
-               // ignoring it.
-               workAvailable = RATE_QUEUE_LIMIT;
-               // throw new QueueLimitException("Work queue limit ("
-               // + queueLimit
-               // + ") exceeded; Cannot keep up with desired rate");
-           }
-
-           if (workersWaiting <= amount) {
-               // Wake all waiting waiters
-               for (int i = 0; i < workersWaiting; i++) {
-                   this.notify();
+    
+               if (workAvailable > RATE_QUEUE_LIMIT) {
+                   // TODO: Deal with this appropriately. For now, we are
+                   // ignoring it.
+                   workAvailable = RATE_QUEUE_LIMIT;
+                   // throw new QueueLimitException("Work queue limit ("
+                   // + queueLimit
+                   // + ") exceeded; Cannot keep up with desired rate");
                }
-           } else {
-               // Only wake the correct number of waiters
-               assert workersWaiting > amount;
-               for (int i = 0; i < amount; ++i) {
-                   this.notify();
+    
+               if (workersWaiting <= amount) {
+                   // Wake all waiting waiters
+                   for (int i = 0; i < workersWaiting; i++) {
+                       this.notify();
+                   }
+               } else {
+                   // Only wake the correct number of waiters
+                   assert workersWaiting > amount;
+                   for (int i = 0; i < amount; ++i) {
+                       this.notify();
+                   }
                }
            }
        }
