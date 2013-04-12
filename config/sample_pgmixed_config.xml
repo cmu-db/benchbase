@@ -26,16 +26,7 @@
         <work>
           <time>10</time>
           <rate>200</rate>
-          
-          <!-- Specifies rate limiting for all workloads. Default true. -->
-          <ratelimited>true</ratelimited>
-          <!-- Workload-specific rate limiting -->
-          <ratelimited bench="chbenchmark">false</ratelimited>
-          
-          <!-- Disables individual workloads. Default false. -->
-          <disabled bench="chbenchmark">false</disabled>
-          
-          <!-- Specifies number of active terminals per workload in this phase -->
+          <rate bench="chbenchmark">disabled</rate>
           <!-- NOTE: TPCC workers won't be distributed evenly between warehouses if not all workers are active -->
           <active_terminals>3</active_terminals>
           <active_terminals bench="chbenchmark">1</active_terminals>
@@ -48,8 +39,7 @@
         <work>
           <time>10</time>
           <rate>100</rate>
-          <ratelimited bench="chbenchmark">true</ratelimited>
-          <disabled bench="tpcc">false</disabled>
+          <rate bench="chbenchmark">unlimited</rate>
           <weights bench="tpcc">45,43,4,4,4</weights>
           <weights bench="chbenchmark">3, 2, 3, 2 , 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
