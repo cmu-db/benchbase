@@ -59,6 +59,9 @@ public class DBWorkload {
     
     private static final String SINGLE_LINE = "**********************************************************************************";
     
+    private static final String RATE_DISABLED = "disabled";
+    private static final String RATE_UNLIMITED = "unlimited";
+    
 	/**
 	 * @param args
 	 * @throws Exception 
@@ -194,23 +197,37 @@ public class DBWorkload {
 	            } else {
 	            	weight_strings = work.getList("weights[not(@bench)]"); 
 	            }
-	            int rate;
-	            rate = work.getInt("rate[not(@bench)]", 0);
-	            rate = work.getInt("rate" + pluginTest, rate);
-	            boolean rateLimited;
-	            rateLimited = work.getBoolean("rateLimited[not(@bench)]", true);
-	            rateLimited = work.getBoolean("ratelimited" + pluginTest, rateLimited);
-	            boolean disabled;
-	            disabled = work.getBoolean("disabled[not(@bench)]", false);
-	            disabled = work.getBoolean("disabled" + pluginTest, disabled);
+	            int rate = 1;
+	            boolean rateLimited = true;
+	            boolean disabled = false;
+
+	            // can be "disabled", "unlimited" or a number
+	            String rate_string;
+	            rate_string = work.getString("rate[not(@bench)]", "");
+	            rate_string = work.getString("rate" + pluginTest, rate_string);
+	            if (rate_string.equals(RATE_DISABLED)) {
+	                disabled = true;
+	            } else if (rate_string.equals(RATE_UNLIMITED)) {
+	                rateLimited = false;
+	            } else if (rate_string.isEmpty()) {
+	                LOG.fatal(String.format("Please specify the rate for phase %d and workload %s", i, plugin));
+	                System.exit(-1);
+	            } else {
+	                try {
+	                    rate = Integer.parseInt(rate_string);
+	                    if (rate < 1) {
+	                        LOG.fatal("Rate limit must be at least 1. Use unlimited or disabled values instead.");
+	                        System.exit(-1);
+	                    }
+	                } catch (NumberFormatException e) {
+	                    LOG.fatal(String.format("Rate string must be '%s', '%s' or a number", RATE_DISABLED, RATE_UNLIMITED));
+	                    System.exit(-1);
+	                }
+	            }
 	            Phase.Arrival arrival=Phase.Arrival.REGULAR;
 	            String arrive=work.getString("@arrival","regular");
 	            if(arrive.toUpperCase().equals("POISSON"))
 	                arrival=Phase.Arrival.POISSON;
-	            if (rate < 1 && !(disabled) && !(rateLimited)) {
-	                LOG.fatal("Please specify a rate of 1 TPS or more or use <disabled> option. Alternatively set rateLimited to false.");
-	                System.exit(-1);
-	            }
 	            
 	            int activeTerminals;
 	            activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
