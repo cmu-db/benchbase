@@ -39,6 +39,7 @@ import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.Payment;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel;
+import com.oltpbenchmark.benchmarks.tpcc.procedures.TPCCProcedure;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.SimplePrinter;
 
@@ -85,31 +86,14 @@ public class TPCCWorker extends Worker {
 	 */
 	@Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
-	    try {
-            if (nextTransaction.getProcedureClass().equals(NewOrder.class)) {
-            	NewOrder proc = (NewOrder) this.getProcedure(NewOrder.class);
-    			proc.run(conn, gen, terminalWarehouseID, numWarehouses,
-    					terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(Payment.class)) {
-    			Payment proc2 = (Payment) this.getProcedure(Payment.class);
-    			proc2.run(conn, gen, terminalWarehouseID, numWarehouses,
-    					terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(StockLevel.class)) {
-            	StockLevel proc3 = (StockLevel) this.getProcedure(StockLevel.class);
-            	proc3.run(conn, gen, terminalWarehouseID, numWarehouses, 
-            			terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(OrderStatus.class)) {
-            	OrderStatus proc4 = (OrderStatus) this.getProcedure(OrderStatus.class);
-            	proc4.run(conn, gen, terminalWarehouseID, numWarehouses, 
-            			terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else if (nextTransaction.getProcedureClass().equals(Delivery.class)) {
-            	Delivery proc5 = (Delivery) this.getProcedure(Delivery.class);
-    			proc5.run(conn, gen, terminalWarehouseID, numWarehouses, 
-    					terminalDistrictLowerID, terminalDistrictUpperID, this);
-            } else {
-            	System.err.println("We have been invoked with an INVALID transactionType?!");
-            	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
-            }
+        try {
+            TPCCProcedure proc = (TPCCProcedure) this.getProcedure(nextTransaction.getProcedureClass());
+            proc.run(conn, gen, terminalWarehouseID, numWarehouses,
+                    terminalDistrictLowerID, terminalDistrictUpperID, this);
+        } catch (ClassCastException ex){
+            //fail gracefully
+        	System.err.println("We have been invoked with an INVALID transactionType?!");
+        	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
 	    } catch (RuntimeException ex) {
 	        conn.rollback();
 	        return (TransactionStatus.RETRY_DIFFERENT);

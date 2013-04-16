@@ -8,13 +8,12 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
-public class StockLevel extends Procedure {
+public class StockLevel extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(StockLevel.class);
 	

@@ -7,13 +7,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Random;
 
-import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
-public class Delivery extends Procedure {
+public class Delivery extends TPCCProcedure {
 
 	
 	public SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT no_o_id FROM " + TPCCConstants.TABLENAME_NEWORDER + " WHERE no_d_id = ?"
