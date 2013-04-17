@@ -10,15 +10,13 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 
-public class OrderStatus extends Procedure {
+public class OrderStatus extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(OrderStatus.class);
 	
