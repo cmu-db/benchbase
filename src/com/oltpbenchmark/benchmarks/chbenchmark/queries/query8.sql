@@ -20,7 +20,7 @@ WHERE i_id = s_i_id
   AND c_id = o_c_id
   AND c_w_id = o_w_id
   AND c_d_id = o_d_id
-  AND n1.n_nationkey = ascii(substr(c_state, 1 , 1)) - 64
+  AND n1.n_nationkey = ascii(substr(c_state, 1 , 1))
   AND n1.n_regionkey = r_regionkey
   AND ol_i_id < 1000
   AND r_name = 'Europe'
