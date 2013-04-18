@@ -33,6 +33,20 @@ public class CHBenCHmarkLoader extends Loader {
 	private static long lastTimeMS;
 	private static Connection conn;
 	
+	//create possible keys for n_nationkey ([a-zA-Z0-9])
+	private static final int[] nationkeys = new int[62];
+	static {
+	    for (char i = 0; i < 10; i++) {
+	        nationkeys[i] = (char)('0') + i;
+	    }
+	    for (char i = 0; i < 26; i++) {
+	        nationkeys[i + 10] = (char)('A') + i;
+	    }
+	    for (char i = 0; i < 26; i++) {
+            nationkeys[i + 36] = (char)('a') + i;
+        }
+	}
+	
 	public CHBenCHmarkLoader(BenchmarkModule benchmark, Connection c) {
 		super(benchmark, c);
 		conn =c;
@@ -270,7 +284,7 @@ public class CHBenCHmarkLoader extends Loader {
 				supplier.su_suppkey = index;
 				supplier.su_name = ran.astring(25, 25);
 				supplier.su_address = ran.astring(20, 40);
-				supplier.su_nationkey = ran.number(1, 62);
+				supplier.su_nationkey = nationkeys[ran.number(0, 61)];
 				supplier.su_phone = ran.nstring(15, 15);
 				supplier.su_acctbal = (float) ran.fixedPoint(2, 10000., 1000000000.);
 				supplier.su_comment = ran.astring(51, 101);
