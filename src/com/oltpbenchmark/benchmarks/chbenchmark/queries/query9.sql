@@ -16,7 +16,7 @@ WHERE ol_i_id = s_i_id
   AND ol_o_id = o_id
   AND ol_i_id = i_id
   AND su_nationkey = n_nationkey
-  AND i_data LIKE '%BB'
+  AND i_data LIKE '%bb'
 GROUP BY n_name,
          extract(YEAR
                  FROM o_entry_d)
