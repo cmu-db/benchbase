@@ -5,6 +5,7 @@
 + [Djellel Eddine Difallah](http://diuf.unifr.ch/main/xi/node/24)
 + [Andy Pavlo](http://www.cs.brown.edu/~pavlo)
 + [Philippe Cudre-Maroux](http://diuf.unifr.ch/main/xi/)
++ [Dimitri Vorona](http://www.mz.itsz.tum.de/team/dmytro-vorona/)
 
 ## Early Contributors
 + [Visawee Angkanawaraphan](https://plus.google.com/100168643080449926875/)
@@ -17,6 +18,5 @@
 
 We also acknowledge contributions from the following collaborators:
 
-+ Dimitri Vorona
 + [Florian Funke](http://www3.in.tum.de/~funkef/)
 + [Michael Seibold](http://www3.in.tum.de/~seibold/)
