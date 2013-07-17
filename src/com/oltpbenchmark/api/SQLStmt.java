@@ -59,7 +59,7 @@ public final class SQLStmt {
      * @param sql
      * @param substitutions
      */
-    protected final void setSQL(String sql) {
+    public final void setSQL(String sql) {
         this.orig_sql = sql;
         for (int ctr : this.substitutions) {
             assert(ctr > 0);

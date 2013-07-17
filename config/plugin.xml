@@ -12,4 +12,5 @@
     <plugin name="auctionmark">com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark</plugin>
     <plugin name="chbenchmark">com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark</plugin>
     <plugin name="voter">com.oltpbenchmark.benchmarks.voter.VoterBenchmark</plugin>
+    <plugin name="linkbench">com.oltpbenchmark.benchmarks.linkbench.LinkBenchBenchmark</plugin>
 </plugins>

@@ -278,9 +278,11 @@ public class DBWorkload {
 	       	String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
 	
 	        if (classname == null)
+	        {
 	            throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
-				BenchmarkModule bench = ClassUtil.newInstance(classname, new Object[] { wrkld }, new Class<?>[] { WorkloadConfiguration.class });
-		        assert (benchList.get(0) != null);
+	        }
+	        BenchmarkModule bench = ClassUtil.newInstance(classname, new Object[] { wrkld }, new Class<?>[] { WorkloadConfiguration.class });
+		    assert (benchList.get(0) != null);
 	
 	        Map<String, Object> initDebug = new ListOrderedMap<String, Object>();
 	        initDebug.put("Benchmark", String.format("%s {%s}", plugin.toUpperCase(), classname));
