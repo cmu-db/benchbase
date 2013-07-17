@@ -49,37 +49,37 @@ public abstract class BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 
     protected final String benchmarkName;
-    
+
     /**
      * The workload configuration for this benchmark invocation
      */
     protected final WorkloadConfiguration workConf;
-    
+
     /**
      * These are the variations of the Procedure's Statment SQL
      */
     protected final StatementDialects dialects;
-    
+
     /**
      * Database Catalog
      */
     protected final Catalog catalog;
-    
+
     /**
      * Supplemental Procedures
      */
     private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<Class<? extends Procedure>>();
-    
+
     /**
      * The last Connection that was created using this BenchmarkModule
      */
     private Connection last_connection;
-    
+
     /**
      * A single Random object that should be re-used by all a benchmark's components
      */
     private final Random rng = new Random();
-    
+
     /**
      * Whether to use verbose output messages
      * @deprecated
@@ -95,7 +95,7 @@ public abstract class BenchmarkModule {
         File xmlFile = this.getSQLDialect();
         this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
     }
-    
+
     // --------------------------------------------------------------------------
     // DATABASE CONNETION
     // --------------------------------------------------------------------------
@@ -107,13 +107,13 @@ public abstract class BenchmarkModule {
      */
     protected final Connection makeConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(workConf.getDBConnection(),
-                                                      workConf.getDBUsername(),
-                                                      workConf.getDBPassword());
+                workConf.getDBUsername(),
+                workConf.getDBPassword());
         Catalog.setSeparator(conn);
         this.last_connection = conn;
         return (conn);
     }
-    
+
     /**
      * Return the last Connection handle created by this BenchmarkModule
      * @return
@@ -163,7 +163,7 @@ public abstract class BenchmarkModule {
     public Random rng() {
         return (this.rng);
     }
-    
+
     /**
      * 
      * @return
@@ -171,7 +171,7 @@ public abstract class BenchmarkModule {
     public File getDatabaseDDL() {
         return (this.getDatabaseDDL(this.workConf.getDBType()));
     }
-    
+
     /**
      * Return the File handle to the DDL used to load the benchmark's database
      * schema.
@@ -179,18 +179,18 @@ public abstract class BenchmarkModule {
      * @throws SQLException 
      */
     public File getDatabaseDDL(DatabaseType db_type) {
-    	String ddlNames[] = {
-			this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
-			this.benchmarkName + "-ddl.sql",
-    	};
-    	
-    	for (String ddlName : ddlNames) {
-    	    if (ddlName == null) continue;
-	        URL ddlURL = this.getClass().getResource(ddlName);
-	        if (ddlURL != null) return new File(ddlURL.getPath());
-    	} // FOR
-    	LOG.error("Failed to find DDL file for " + this.benchmarkName);
-    	return null;
+        String ddlNames[] = {
+                this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
+                this.benchmarkName + "-ddl.sql",
+        };
+
+        for (String ddlName : ddlNames) {
+            if (ddlName == null) continue;
+            URL ddlURL = this.getClass().getResource(ddlName);
+            if (ddlURL != null) return new File(ddlURL.getPath());
+        } // FOR
+        LOG.error("Failed to find DDL file for " + this.benchmarkName);
+        return null;
     }
 
     /**
@@ -199,18 +199,18 @@ public abstract class BenchmarkModule {
      * @return
      */
     public File getSQLDialect() {
-    	String xmlName = this.benchmarkName + "-dialects.xml";
-    	URL ddlURL = this.getClass().getResource(xmlName);
-    	if (ddlURL != null) return new File(ddlURL.getPath());
-    	if (LOG.isDebugEnabled())
-    	    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
-    	return (null);
+        String xmlName = this.benchmarkName + "-dialects.xml";
+        URL ddlURL = this.getClass().getResource(xmlName);
+        if (ddlURL != null) return new File(ddlURL.getPath());
+        if (LOG.isDebugEnabled())
+            LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
+        return (null);
     }
 
     public final List<Worker> makeWorkers(boolean verbose) throws IOException {
         return (this.makeWorkersImpl(verbose));
     }
-    
+
     /**
      * Create the Benchmark Database
      * This is the main method used to create all the database 
@@ -243,7 +243,7 @@ public abstract class BenchmarkModule {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
         }
     }
-    
+
     /**
      * Run a script on a Database
      */
@@ -260,7 +260,7 @@ public abstract class BenchmarkModule {
             throw new RuntimeException(String.format("Unexpected error when trying to open: %s", script), ex);
         }
     }
-    
+
     /**
      * Invoke this benchmark's database loader
      */
@@ -273,7 +273,7 @@ public abstract class BenchmarkModule {
             throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", this.benchmarkName), ex);
         }
     }
-    
+
     /**
      * Invoke this benchmark's database loader using the given Connection handle
      * @param conn
@@ -285,7 +285,7 @@ public abstract class BenchmarkModule {
                 conn.setAutoCommit(false);
                 loader.load();
                 conn.commit();
-                
+
                 if (loader.getTableCounts().isEmpty() == false) {
                     LOG.info("Table Counts:\n" + loader.getTableCounts());
                 }
@@ -355,11 +355,11 @@ public abstract class BenchmarkModule {
     public final TransactionType initTransactionType(String procName, int id) {
         if (id == TransactionType.INVALID_ID) {
             LOG.error(String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
-                           this.benchmarkName, procName, id,
-                           TransactionType.INVALID.getClass().getSimpleName()));
+                    this.benchmarkName, procName, id,
+                    TransactionType.INVALID.getClass().getSimpleName()));
             return null;
         }
-        
+
         Package pkg = this.getProcedurePackageImpl();
         assert (pkg != null) : "Null Procedure package for " + this.benchmarkName;
         String fullName = pkg.getName() + "." + procName;
@@ -367,7 +367,7 @@ public abstract class BenchmarkModule {
         assert (procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;
         return new TransactionType(procClass, id);
     }
-    
+
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.workConf);
     }
@@ -399,7 +399,7 @@ public abstract class BenchmarkModule {
     public Map<TransactionType, Procedure> getProcedures() {
         Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
         TransactionTypes txns = this.workConf.getTransTypes();
-        
+
         if (txns != null) {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
@@ -408,11 +408,11 @@ public abstract class BenchmarkModule {
                     txns.add(txn);
                 }
             } // FOR
-            
+
             for (TransactionType txn : txns) {
                 Procedure proc = (Procedure)ClassUtil.newInstance(txn.getProcedureClass(),
-                                                                  new Object[0],
-                                                                  new Class<?>[0]);
+                        new Object[0],
+                        new Class<?>[0]);
                 proc.initialize(this.workConf.getDBType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
@@ -423,7 +423,7 @@ public abstract class BenchmarkModule {
         }
         return (proc_xref);
     }
-    
+
     /**
      * 
      * @param procClass
