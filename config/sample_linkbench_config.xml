@@ -16,10 +16,10 @@
 	<configfile>config/extras/LinkBenchConfiguration.properties</configfile>
 
 	<!-- The workload -->
-	<terminals>100</terminals>
+	<terminals>50</terminals>
 	<works>
 		<work>
-			<time>100</time>
+			<time>2500</time>
 			<rate>unlimited</rate>
 			<weights>8.9886601,2.9907664,8.0122125,4.8863567,0.5261142,50.7119145,12.9326683,2.5732789,7.366437,1.0115914
 			</weights>
