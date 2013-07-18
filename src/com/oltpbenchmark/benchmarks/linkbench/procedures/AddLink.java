@@ -2,14 +2,9 @@ package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;

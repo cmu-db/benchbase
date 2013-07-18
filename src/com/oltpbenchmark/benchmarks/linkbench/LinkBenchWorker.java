@@ -224,7 +224,8 @@ public class LinkBenchWorker extends Worker {
         assert (proc != null);
         long idToFetch = chooseRequestID(DistributionType.NODE_READS,
                 lastNodeId);
-        proc.run(conn, LinkBenchConstants.DEFAULT_NODE_TYPE, idToFetch);
+        Node fetched = proc.run(conn, LinkBenchConstants.DEFAULT_NODE_TYPE, idToFetch);
+        lastNodeId = idToFetch;
     }
     private void deleteNode() throws SQLException {
         DeleteNode proc = this.getProcedure(DeleteNode.class);

@@ -82,6 +82,8 @@ public class DeleteLink extends Procedure{
             visibility = result.getInt("visibility");
             found = true;
           }
+          assert(!result.next()); // check done
+          result.close();
 
           if (LOG.isDebugEnabled()) {
               LOG.trace(String.format("(%d, %d, %d) visibility = %d",

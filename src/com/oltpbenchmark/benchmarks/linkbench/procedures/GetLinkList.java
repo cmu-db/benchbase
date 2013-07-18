@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
@@ -70,6 +69,8 @@ public class GetLinkList extends Procedure{
           links[i] = l;
           i++;
         }
+        assert(!rs.next()); // check done
+        rs.close();
         assert(i == count);
         return links;
     }

@@ -58,6 +58,8 @@ public class GetLink extends Procedure{
           }
           results[i++] = l;
         }
+        assert(!rs.next()); // check done
+        rs.close();
         return results;
     }
     
