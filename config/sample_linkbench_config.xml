@@ -4,10 +4,9 @@
 	<!-- Connection details -->
 	<dbtype>mysql</dbtype>
 	<driver>com.mysql.jdbc.Driver</driver>
-	<DBUrl>jdbc:mysql://localhost:3306/linkdb?elideSetAutoCommits=true&amp;useLocalTransactionState=true&amp;allowMultiQueries=true&amp;useLocalSessionState=true&amp;useAffectedRows=true
-	</DBUrl>
+	<DBUrl>jdbc:mysql://localhost:3306/linkdb?elideSetAutoCommits=true&amp;useLocalTransactionState=true&amp;allowMultiQueries=true&amp;useLocalSessionState=true&amp;useAffectedRows=true</DBUrl>
 	<username>root</username>
-	<password>hello</password>
+	<password>pwd</password>
 
 	<isolation>TRANSACTION_REPEATABLE_READ</isolation>
 
@@ -17,7 +16,7 @@
 	<configfile>config/extras/LinkBenchConfiguration.properties</configfile>
 
 	<!-- The workload -->
-	<terminals>1</terminals>
+	<terminals>100</terminals>
 	<works>
 		<work>
 			<time>100</time>
