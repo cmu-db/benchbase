@@ -208,7 +208,7 @@ public abstract class Worker implements Runnable {
 //			assert(type != null) :
 //			    "Unexpected null TransactionType returned from doWork\n" + this.transactionTypes;
 			
-			if (measure && type !=null) {
+			if (phase !=null && measure && type !=null) {
 				long end = System.nanoTime();
 				latencies.addLatency(type.getId(), start, end, this.id, phase.id);
 			}
