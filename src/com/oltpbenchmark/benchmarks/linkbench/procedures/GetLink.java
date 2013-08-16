@@ -22,7 +22,7 @@ public class GetLink extends Procedure{
             " where id1 = ? and link_type = ? " +
             " and id2 in (?)"
     );
-
+    
     public Link[] run(Connection conn, long id1, long link_type, long[] id2s) throws SQLException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("getLink : " + id1 + " " + link_type + " " + id2s);
@@ -60,6 +60,7 @@ public class GetLink extends Procedure{
         }
         assert(!rs.next()); // check done
         rs.close();
+        stmt.close();
         return results;
     }
     

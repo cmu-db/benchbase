@@ -84,7 +84,7 @@ public class DeleteLink extends Procedure{
           }
           assert(!result.next()); // check done
           result.close();
-
+          stmt.close();
           if (LOG.isDebugEnabled()) {
               LOG.trace(String.format("(%d, %d, %d) visibility = %d",
                       id1, link_type, id2, visibility));
@@ -112,7 +112,7 @@ public class DeleteLink extends Procedure{
             }
 
             stmt.executeUpdate();
-
+            stmt.close();
             // update count table
             // * if found (id1, link_type) in count table, set
             //   count = (count == 1) ? 0) we decrease the value of count
@@ -131,6 +131,7 @@ public class DeleteLink extends Procedure{
             }
 
             stmt.executeUpdate();
+            stmt.close();
           }
           conn.commit();
           return found;

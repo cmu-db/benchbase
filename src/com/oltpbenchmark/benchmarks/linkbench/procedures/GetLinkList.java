@@ -71,6 +71,7 @@ public class GetLinkList extends Procedure{
         }
         assert(!rs.next()); // check done
         rs.close();
+        stmt.close();
         assert(i == count);
         return links;
     }

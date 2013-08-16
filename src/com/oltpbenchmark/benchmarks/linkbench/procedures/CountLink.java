@@ -38,7 +38,7 @@ public class CountLink extends Procedure{
         
         assert(!rs.next()); // check done
         rs.close();
-
+        stmt.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Count result: " + id1 + "," + link_type +
                              " is " + found + " and " + count);

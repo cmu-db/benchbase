@@ -34,6 +34,7 @@ public class UpdateNode extends Procedure{
         stmt.setLong(3, node.id);
         stmt.setInt(4, node.type);
         int rows = stmt.executeUpdate();
+        stmt.close();
         if (rows == 1) return true;
         else if (rows == 0) return false;
         else throw new SQLException("Did not expect " + rows +  "affected rows: only "

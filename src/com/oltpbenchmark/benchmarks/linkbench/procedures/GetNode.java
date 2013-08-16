@@ -36,6 +36,7 @@ public class GetNode extends Procedure{
             // Check that multiple rows weren't returned
             assert(rs.next() == false);
             rs.close();
+            stmt.close();
             if (res.type != type) {
               return null;
             } else {

@@ -53,7 +53,7 @@ public class AddNode extends Procedure{
 
         assert(!rs.next()); // check done
         rs.close();
-
+        stmt.close();
         return newIds[0];
     }
 }

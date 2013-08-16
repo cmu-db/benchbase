@@ -62,7 +62,7 @@ public class AddLink extends Procedure{
             LOG.trace(insertNoCount+ " " +StringUtil.stringLiteral(l.data));
         }
         int nrows = stmt.executeUpdate();
-    
+        stmt.close();
         // Note: at this point, we have an exclusive lock on the link
         // row until the end of the transaction, so can safely do
         // further updates without concurrency issues.
@@ -112,7 +112,7 @@ public class AddLink extends Procedure{
                 LOG.error("SQL Error: " + msg);
                 throw new RuntimeException(msg);
         }
-
+        
         if (update_count != 0) {
             int base_count = update_count < 0 ? 0 : 1;
             // query to update counttable
@@ -135,6 +135,7 @@ public class AddLink extends Procedure{
                 LOG.trace(updateCount);
             }
             stmt.executeUpdate();
+            stmt.close();
         }
 
         if (update_data) {
@@ -152,6 +153,7 @@ public class AddLink extends Procedure{
                 LOG.trace(updateData);
             }
             stmt.executeUpdate();
+            stmt.close();
         }
         return row_found;        
     }
