@@ -13,6 +13,8 @@ public class DeleteNode extends Procedure{
 
     private static final Logger LOG = Logger.getLogger(DeleteNode.class);
 
+    private PreparedStatement stmt = null;
+    
     public final SQLStmt deleteStmt = new SQLStmt(
             "DELETE FROM nodetable " +
             "WHERE id= ? and type = ?; commit;"
@@ -22,11 +24,10 @@ public class DeleteNode extends Procedure{
         if (LOG.isDebugEnabled()) {
             LOG.debug("deleteNode : " + id + "." + type);
         }
-        PreparedStatement stmt = this.getPreparedStatement(conn, deleteStmt);   
+        stmt = (stmt == null ? this.getPreparedStatement(conn, deleteStmt): stmt);   
         stmt.setLong(1, id); 
         stmt.setInt(2, type); 
         int rows = stmt.executeUpdate();
-        stmt.close();
         if (rows == 0) {
             return false;
         } else if (rows == 1) {

@@ -22,6 +22,8 @@ public class AddNode extends Procedure{
             "VALUES (?,?,?,HEXDATA); commit;"
     );
     
+    private PreparedStatement stmt= null;
+    
 	//FIXME: The value in ysqb is a byteiterator
     public long run(Connection conn, Node node) throws SQLException {    
         
@@ -31,7 +33,7 @@ public class AddNode extends Procedure{
         //gross hack
         addNode.setSQL(addNode.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));
       
-        PreparedStatement stmt = this.getPreparedStatementReturnKeys(conn, addNode, new int[]{1});
+        stmt = (stmt == null ? this.getPreparedStatementReturnKeys(conn, addNode, new int[]{1}) : stmt);
         stmt.setLong(1, node.type);          
         stmt.setLong(2, node.version);          
         stmt.setInt(3, node.time);
@@ -53,7 +55,6 @@ public class AddNode extends Procedure{
 
         assert(!rs.next()); // check done
         rs.close();
-        stmt.close();
         return newIds[0];
     }
 }

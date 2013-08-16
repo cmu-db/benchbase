@@ -16,6 +16,8 @@ public class GetLinkList extends Procedure{
 
     private static final Logger LOG = Logger.getLogger(GetLinkList.class);
 
+    private PreparedStatement stmt = null;
+    
     public final SQLStmt getLinkListsStmt = new SQLStmt(
             "select id1, id2, link_type," +
                     " visibility, data, time," +
@@ -31,7 +33,7 @@ public class GetLinkList extends Procedure{
     public Link[] run(Connection conn, long id1, long link_type,
             long minTimestamp, long maxTimestamp,
             int offset, int limit) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getLinkListsStmt);
+        stmt = (stmt == null ? this.getPreparedStatement(conn, getLinkListsStmt):stmt);
         stmt.setLong(1, id1);          
         stmt.setLong(2, link_type);          
         stmt.setLong(3, minTimestamp);          
@@ -71,7 +73,6 @@ public class GetLinkList extends Procedure{
         }
         assert(!rs.next()); // check done
         rs.close();
-        stmt.close();
         assert(i == count);
         return links;
     }

@@ -18,9 +18,11 @@ public class CountLink extends Procedure{
             "select count from counttable where id = ? and link_type = ?"
     );
     
+    private PreparedStatement stmt = null;
+    
     public long run(Connection conn, long id1, long link_type) throws SQLException {
         long count = 0;
-        PreparedStatement stmt = this.getPreparedStatement(conn, countStmt);
+        stmt = (stmt == null ? this.getPreparedStatement(conn, countStmt) : stmt);
         stmt.setLong(1, id1);                  
         stmt.setLong(2, link_type);   
         ResultSet rs = stmt.executeQuery();
@@ -38,12 +40,10 @@ public class CountLink extends Procedure{
         
         assert(!rs.next()); // check done
         rs.close();
-        stmt.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Count result: " + id1 + "," + link_type +
                              " is " + found + " and " + count);
         }
-
         return count;
     }
 

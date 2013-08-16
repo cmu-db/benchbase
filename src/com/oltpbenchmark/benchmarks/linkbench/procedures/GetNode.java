@@ -15,6 +15,8 @@ public class GetNode extends Procedure{
 
     private static final Logger LOG = Logger.getLogger(GetNode.class);
 
+    private PreparedStatement stmt = null;
+    
     public final SQLStmt getNodeStmt = new SQLStmt(
             "SELECT id, type, version, time, data " +
             "FROM nodetable " +
@@ -26,7 +28,7 @@ public class GetNode extends Procedure{
         if (LOG.isDebugEnabled()) {
             LOG.debug("getNode : " + type + " " + id);
         }
-        PreparedStatement stmt = this.getPreparedStatement(conn, getNodeStmt);
+        stmt = (stmt == null ? this.getPreparedStatement(conn, getNodeStmt):stmt);
         stmt.setLong(1, id);          
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
@@ -36,7 +38,6 @@ public class GetNode extends Procedure{
             // Check that multiple rows weren't returned
             assert(rs.next() == false);
             rs.close();
-            stmt.close();
             if (res.type != type) {
               return null;
             } else {

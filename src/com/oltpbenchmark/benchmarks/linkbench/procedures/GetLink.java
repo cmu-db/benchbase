@@ -15,6 +15,8 @@ public class GetLink extends Procedure{
 
     private static final Logger LOG = Logger.getLogger(GetLink.class);
 
+    private PreparedStatement stmt = null;
+    
     public final SQLStmt getLinkStmt = new SQLStmt(
             " select id1, id2, link_type," +
             " visibility, data, time, " +
@@ -37,7 +39,7 @@ public class GetLink extends Procedure{
             }
             ids+=id2;
           }
-        PreparedStatement stmt = this.getPreparedStatement(conn, getLinkStmt);
+        stmt = (stmt == null ? this.getPreparedStatement(conn, getLinkStmt) : stmt);
         stmt.setLong(1, id1);          
         stmt.setLong(2, link_type);          
         stmt.setString(3, ids);          
@@ -60,7 +62,6 @@ public class GetLink extends Procedure{
         }
         assert(!rs.next()); // check done
         rs.close();
-        stmt.close();
         return results;
     }
     

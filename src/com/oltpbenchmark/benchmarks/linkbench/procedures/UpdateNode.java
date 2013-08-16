@@ -15,6 +15,8 @@ public class UpdateNode extends Procedure{
     
     private static final Logger LOG = Logger.getLogger(UpdateNode.class);
     
+    private PreparedStatement stmt = null;
+    
     public final SQLStmt updateNodeStmt = new SQLStmt(
             "UPDATE nodetable " +
             "SET version= ? , time= ? , data= HEXDATA " +
@@ -28,13 +30,12 @@ public class UpdateNode extends Procedure{
         //gross hack
         updateNodeStmt.setSQL(updateNodeStmt.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));
       
-        PreparedStatement stmt = this.getPreparedStatement(conn, updateNodeStmt);
+        stmt = (stmt == null ? this.getPreparedStatement(conn, updateNodeStmt) : stmt);
         stmt.setLong(1, node.version);          
         stmt.setInt(2, node.time);                   
         stmt.setLong(3, node.id);
         stmt.setInt(4, node.type);
         int rows = stmt.executeUpdate();
-        stmt.close();
         if (rows == 1) return true;
         else if (rows == 0) return false;
         else throw new SQLException("Did not expect " + rows +  "affected rows: only "

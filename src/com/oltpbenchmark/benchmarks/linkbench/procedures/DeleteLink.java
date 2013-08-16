@@ -16,6 +16,10 @@ public class DeleteLink extends Procedure{
     
     private static final Logger LOG = Logger.getLogger(DeleteLink.class);
     
+    private PreparedStatement stmt1 = null;
+    private PreparedStatement stmt2 = null;
+    private PreparedStatement stmt3 = null;
+
     public final SQLStmt selectLink = new SQLStmt(
             "SELECT visibility" +
                        " FROM linktable "+
@@ -65,16 +69,16 @@ public class DeleteLink extends Procedure{
           // a concurrent transaction could also see the link as visible and
           // we would double-decrement the link count.
         
-          PreparedStatement stmt= this.getPreparedStatement(conn, selectLink);
-          stmt.setLong(1, id1);          
-          stmt.setLong(2, id2);          
-          stmt.setLong(3, link_type);          
+          stmt1= (stmt1 == null ? this.getPreparedStatement(conn, selectLink) : stmt1);
+          stmt1.setLong(1, id1);          
+          stmt1.setLong(2, id2);          
+          stmt1.setLong(3, link_type);          
           
           if (LOG.isTraceEnabled()) {
               LOG.trace(selectLink);
           }
 
-          ResultSet result = stmt.executeQuery();
+          ResultSet result = stmt1.executeQuery();
 
           int visibility = -1;
           boolean found = false;
@@ -84,7 +88,6 @@ public class DeleteLink extends Procedure{
           }
           assert(!result.next()); // check done
           result.close();
-          stmt.close();
           if (LOG.isDebugEnabled()) {
               LOG.trace(String.format("(%d, %d, %d) visibility = %d",
                       id1, link_type, id2, visibility));
@@ -102,17 +105,16 @@ public class DeleteLink extends Procedure{
 
             // either delete or mark the link as hidden
             if (!expunge) {
-                stmt= this.getPreparedStatement(conn, hideLink);
+                stmt2= (stmt2 == null ? this.getPreparedStatement(conn, hideLink): stmt2);
             } else {
-                stmt= this.getPreparedStatement(conn, deleteLink);
+                stmt2= (stmt2 == null ? this.getPreparedStatement(conn, deleteLink): stmt2);
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.trace(stmt);
+                LOG.trace(stmt1);
             }
 
-            stmt.executeUpdate();
-            stmt.close();
+            stmt2.executeUpdate();
             // update count table
             // * if found (id1, link_type) in count table, set
             //   count = (count == 1) ? 0) we decrease the value of count
@@ -120,18 +122,17 @@ public class DeleteLink extends Procedure{
             // * otherwise, insert new link with count column = 0
             // The update happens atomically, with the latest count and version
             long currentTime = (new Date()).getTime();
-            stmt= this.getPreparedStatement(conn, updateLink);
-            stmt.setLong(1, id1);          
-            stmt.setLong(2, link_type);          
-            stmt.setLong(3, currentTime);          
-            stmt.setLong(4, currentTime);          
+            stmt3= (stmt3==null ? this.getPreparedStatement(conn, updateLink):stmt3);
+            stmt3.setLong(1, id1);          
+            stmt3.setLong(2, link_type);          
+            stmt3.setLong(3, currentTime);          
+            stmt3.setLong(4, currentTime);          
             
             if (LOG.isDebugEnabled()) {
                 LOG.trace(updateLink);
             }
-
-            stmt.executeUpdate();
-            stmt.close();
+            
+            stmt3.executeUpdate();
           }
           conn.commit();
           return found;
