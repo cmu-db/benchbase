@@ -578,7 +578,7 @@ public class LinkBenchWorker extends Worker {
         return links == null ? 0 : links.length;
     }
     Link[] multigetLinks(long id1, long link_type, long id2s[]) throws SQLException {
-        GetLink proc= new GetLink();
+        GetLink proc= this.getProcedure(GetLink.class);
         Link links[] = proc.run(conn, id1, link_type, id2s);
         if (LOG.isDebugEnabled()) {
             LOG.trace("getLinkList(id1=" + id1 + ", link_type="  + link_type
@@ -597,7 +597,7 @@ public class LinkBenchWorker extends Worker {
         return links;
     }
     Link[] getLinkList(long id1, long link_type) throws SQLException {
-        GetLinkList proc= new GetLinkList();
+        GetLinkList proc= this.getProcedure(GetLinkList.class);
         Link links[] = proc.run(conn, id1, link_type);
         if (LOG.isDebugEnabled()) {
            LOG.trace("getLinkList(id1=" + id1 + ", link_type="  + link_type
@@ -616,7 +616,7 @@ public class LinkBenchWorker extends Worker {
         return links;
       }
     Link[] getLinkListTail() throws SQLException {
-        GetLinkList proc = new GetLinkList();
+        GetLinkList proc = this.getProcedure(GetLinkList.class);
         assert(!listTailHistoryIndex.isEmpty());
         assert(!listTailHistory.isEmpty());
         int choice = rng.nextInt(listTailHistory.size());
