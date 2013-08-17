@@ -33,7 +33,9 @@ public class AddNode extends Procedure{
         //gross hack
         addNode.setSQL(addNode.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));
       
-        stmt = (stmt == null ? this.getPreparedStatementReturnKeys(conn, addNode, new int[]{1}) : stmt);
+        if(stmt == null)
+            this.getPreparedStatementReturnKeys(conn, addNode, new int[]{1});
+        
         stmt.setLong(1, node.type);          
         stmt.setLong(2, node.version);          
         stmt.setInt(3, node.time);

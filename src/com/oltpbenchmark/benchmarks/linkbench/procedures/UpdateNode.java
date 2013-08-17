@@ -30,7 +30,8 @@ public class UpdateNode extends Procedure{
         //gross hack
         updateNodeStmt.setSQL(updateNodeStmt.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));
       
-        stmt = (stmt == null ? this.getPreparedStatement(conn, updateNodeStmt) : stmt);
+        if(stmt == null)
+            this.getPreparedStatement(conn, updateNodeStmt);
         stmt.setLong(1, node.version);          
         stmt.setInt(2, node.time);                   
         stmt.setLong(3, node.id);

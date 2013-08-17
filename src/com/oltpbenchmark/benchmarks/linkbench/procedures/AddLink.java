@@ -53,7 +53,9 @@ public class AddLink extends Procedure{
         
         // if the link is already there then update its visibility
         // only update visibility; skip updating time, version, etc. 
-        stmt1= (stmt1==null ? this.getPreparedStatement(conn, insertNoCount):stmt1);
+        if(stmt1==null)
+            this.getPreparedStatement(conn, insertNoCount);
+        
         stmt1.setLong(1, l.id1);          
         stmt1.setLong(2, l.id2);          
         stmt1.setLong(3, l.link_type);          
@@ -127,7 +129,8 @@ public class AddLink extends Procedure{
             if (!update_data) {
                 updateCount.setSQL(updateCount.getSQL()+"; commit;");
             }
-            stmt2 = (stmt2==null ? this.getPreparedStatement(conn, updateCount) : stmt2);
+            if(stmt2 ==null)
+                this.getPreparedStatement(conn, updateCount);
             stmt2.setLong(1, l.id1);          
             stmt2.setLong(2, l.link_type);          
             stmt2.setInt (3, base_count);          
@@ -144,7 +147,8 @@ public class AddLink extends Procedure{
             //gross hack
             updateData.setSQL(updateData.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(l.data)));
             // query to update link data (the first query only updates visibility)
-            stmt3 =  (stmt3==null ? this.getPreparedStatement(conn, updateData) :stmt3);
+            if(stmt3 ==null)
+                this.getPreparedStatement(conn, updateData);
             stmt3.setByte(1, l.visibility);          
             stmt3.setLong(2, l.time); 
             stmt3.setInt(3, l.version); 

@@ -22,7 +22,10 @@ public class CountLink extends Procedure{
     
     public long run(Connection conn, long id1, long link_type) throws SQLException {
         long count = 0;
-        stmt = (stmt == null ? this.getPreparedStatement(conn, countStmt) : stmt);
+        
+        if(stmt == null)
+            this.getPreparedStatement(conn, countStmt);
+        
         stmt.setLong(1, id1);                  
         stmt.setLong(2, link_type);   
         ResultSet rs = stmt.executeQuery();

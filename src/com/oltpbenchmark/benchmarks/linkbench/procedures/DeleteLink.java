@@ -19,6 +19,7 @@ public class DeleteLink extends Procedure{
     private PreparedStatement stmt1 = null;
     private PreparedStatement stmt2 = null;
     private PreparedStatement stmt3 = null;
+    private PreparedStatement stmt4 = null;
 
     public final SQLStmt selectLink = new SQLStmt(
             "SELECT visibility" +
@@ -69,7 +70,9 @@ public class DeleteLink extends Procedure{
           // a concurrent transaction could also see the link as visible and
           // we would double-decrement the link count.
         
-          stmt1= (stmt1 == null ? this.getPreparedStatement(conn, selectLink) : stmt1);
+          if(stmt1 == null)
+              this.getPreparedStatement(conn, selectLink);
+          
           stmt1.setLong(1, id1);          
           stmt1.setLong(2, id2);          
           stmt1.setLong(3, link_type);          
@@ -104,17 +107,23 @@ public class DeleteLink extends Procedure{
             boolean updateCount = (visibility != LinkBenchConstants.VISIBILITY_HIDDEN);
 
             // either delete or mark the link as hidden
+            if(stmt2 == null) 
+                this.getPreparedStatement(conn, hideLink);
+            if(stmt3 == null) 
+                this.getPreparedStatement(conn, deleteLink);
+            
+            PreparedStatement p;
             if (!expunge) {
-                stmt2= (stmt2 == null ? this.getPreparedStatement(conn, hideLink): stmt2);
+                p = stmt2;
             } else {
-                stmt2= (stmt2 == null ? this.getPreparedStatement(conn, deleteLink): stmt2);
+                p = stmt3;
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.trace(stmt1);
+                LOG.trace(p);
             }
 
-            stmt2.executeUpdate();
+            p.executeUpdate();
             // update count table
             // * if found (id1, link_type) in count table, set
             //   count = (count == 1) ? 0) we decrease the value of count
@@ -122,17 +131,18 @@ public class DeleteLink extends Procedure{
             // * otherwise, insert new link with count column = 0
             // The update happens atomically, with the latest count and version
             long currentTime = (new Date()).getTime();
-            stmt3= (stmt3==null ? this.getPreparedStatement(conn, updateLink):stmt3);
-            stmt3.setLong(1, id1);          
-            stmt3.setLong(2, link_type);          
-            stmt3.setLong(3, currentTime);          
-            stmt3.setLong(4, currentTime);          
+            if(stmt4==null)
+                this.getPreparedStatement(conn, updateLink);
+            stmt4.setLong(1, id1);          
+            stmt4.setLong(2, link_type);          
+            stmt4.setLong(3, currentTime);          
+            stmt4.setLong(4, currentTime);          
             
             if (LOG.isDebugEnabled()) {
                 LOG.trace(updateLink);
             }
             
-            stmt3.executeUpdate();
+            stmt4.executeUpdate();
           }
           conn.commit();
           return found;
