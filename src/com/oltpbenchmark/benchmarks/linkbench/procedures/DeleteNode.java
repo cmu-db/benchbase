@@ -25,7 +25,7 @@ public class DeleteNode extends Procedure{
             LOG.debug("deleteNode : " + id + "." + type);
         }
         if(stmt == null)
-            this.getPreparedStatement(conn, deleteStmt);   
+          stmt = this.getPreparedStatement(conn, deleteStmt);   
         stmt.setLong(1, id); 
         stmt.setInt(2, type); 
         int rows = stmt.executeUpdate();

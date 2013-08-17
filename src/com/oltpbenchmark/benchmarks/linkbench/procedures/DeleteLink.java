@@ -71,7 +71,7 @@ public class DeleteLink extends Procedure{
           // we would double-decrement the link count.
         
           if(stmt1 == null)
-              this.getPreparedStatement(conn, selectLink);
+              stmt1 = this.getPreparedStatement(conn, selectLink);
           
           stmt1.setLong(1, id1);          
           stmt1.setLong(2, id2);          
@@ -108,9 +108,9 @@ public class DeleteLink extends Procedure{
 
             // either delete or mark the link as hidden
             if(stmt2 == null) 
-                this.getPreparedStatement(conn, hideLink);
+                stmt2 = this.getPreparedStatement(conn, hideLink);
             if(stmt3 == null) 
-                this.getPreparedStatement(conn, deleteLink);
+                stmt3 = this.getPreparedStatement(conn, deleteLink);
             
             PreparedStatement p;
             if (!expunge) {
@@ -132,7 +132,7 @@ public class DeleteLink extends Procedure{
             // The update happens atomically, with the latest count and version
             long currentTime = (new Date()).getTime();
             if(stmt4==null)
-                this.getPreparedStatement(conn, updateLink);
+              stmt4 = this.getPreparedStatement(conn, updateLink);
             stmt4.setLong(1, id1);          
             stmt4.setLong(2, link_type);          
             stmt4.setLong(3, currentTime);          

@@ -34,7 +34,7 @@ public class AddNode extends Procedure{
         addNode.setSQL(addNode.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));
       
         if(stmt == null)
-            this.getPreparedStatementReturnKeys(conn, addNode, new int[]{1});
+            stmt = this.getPreparedStatementReturnKeys(conn, addNode, new int[]{1});
         
         stmt.setLong(1, node.type);          
         stmt.setLong(2, node.version);          

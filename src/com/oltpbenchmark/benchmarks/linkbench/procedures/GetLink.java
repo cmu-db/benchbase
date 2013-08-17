@@ -40,7 +40,7 @@ public class GetLink extends Procedure{
             ids+=id2;
           }
         if(stmt == null)
-            this.getPreparedStatement(conn, getLinkStmt);
+          stmt = this.getPreparedStatement(conn, getLinkStmt);
         stmt.setLong(1, id1);          
         stmt.setLong(2, link_type);          
         stmt.setString(3, ids);          

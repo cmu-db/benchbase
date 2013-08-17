@@ -29,7 +29,7 @@ public class GetNode extends Procedure{
             LOG.debug("getNode : " + type + " " + id);
         }
         if(stmt == null)
-            this.getPreparedStatement(conn, getNodeStmt);
+            stmt = this.getPreparedStatement(conn, getNodeStmt);
         stmt.setLong(1, id);          
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {

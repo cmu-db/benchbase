@@ -24,7 +24,7 @@ public class CountLink extends Procedure{
         long count = 0;
         
         if(stmt == null)
-            this.getPreparedStatement(conn, countStmt);
+            stmt = this.getPreparedStatement(conn, countStmt);
         
         stmt.setLong(1, id1);                  
         stmt.setLong(2, link_type);   
