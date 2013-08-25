@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.linkbench.generators;
+package com.facebook.LinkBench.generators;
 
 import java.util.Properties;
 import java.util.Random;

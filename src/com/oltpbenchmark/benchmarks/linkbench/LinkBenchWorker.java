@@ -8,18 +8,18 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import com.facebook.LinkBench.distributions.AccessDistributions;
+import com.facebook.LinkBench.distributions.ID2Chooser;
+import com.facebook.LinkBench.distributions.LogNormalDistribution;
+import com.facebook.LinkBench.distributions.ProbabilityDistribution;
+import com.facebook.LinkBench.distributions.AccessDistributions.AccessDistribution;
+import com.facebook.LinkBench.distributions.RealDistribution.DistributionType;
+import com.facebook.LinkBench.generators.DataGenerator;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.linkbench.distributions.AccessDistributions;
-import com.oltpbenchmark.benchmarks.linkbench.distributions.ID2Chooser;
-import com.oltpbenchmark.benchmarks.linkbench.distributions.LogNormalDistribution;
-import com.oltpbenchmark.benchmarks.linkbench.distributions.ProbabilityDistribution;
-import com.oltpbenchmark.benchmarks.linkbench.distributions.AccessDistributions.AccessDistribution;
-import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.DistributionType;
-import com.oltpbenchmark.benchmarks.linkbench.generators.DataGenerator;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Node;
 import com.oltpbenchmark.benchmarks.linkbench.procedures.AddLink;
