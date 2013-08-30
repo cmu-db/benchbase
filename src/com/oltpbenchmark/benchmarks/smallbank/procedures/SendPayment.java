@@ -58,11 +58,11 @@ public class SendPayment extends Procedure {
         final VoltTable acctResults[] = voltExecuteSQL();
         if (acctResults[0].getRowCount() != 1) {
             String msg = "Invalid sender account '" + sendAcct + "'";
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         else if (acctResults[1].getRowCount() != 1) {
             String msg = "Invalid destination account '" + destAcct + "'";
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         
         // Get the sender's account balance
@@ -72,7 +72,7 @@ public class SendPayment extends Procedure {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_SAVINGS, 
                                        sendAcct);
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         balResults[0].advanceRow();
         double balance = balResults[0].getDouble(0);
@@ -80,7 +80,7 @@ public class SendPayment extends Procedure {
         if (balance < amount) {
             String msg = String.format("Insufficient %s funds for customer #%d",
                                        SmallBankConstants.TABLENAME_CHECKING, sendAcct);
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         
         // Debt

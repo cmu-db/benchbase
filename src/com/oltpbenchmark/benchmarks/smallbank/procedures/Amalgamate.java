@@ -80,11 +80,11 @@ public class Amalgamate extends Procedure {
         final VoltTable acctResults[] = voltExecuteSQL();
         if (acctResults[0].getRowCount() != 1) {
             String msg = "Invalid account '" + acctId0 + "'\n" + acctResults[0]; 
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         if (acctResults[1].getRowCount() != 1) {
             String msg = "Invalid account '" + acctId1 + "'\n" + acctResults[1];
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         
         // Get Balance Information
@@ -101,7 +101,7 @@ public class Amalgamate extends Procedure {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_CHECKING, 
                                        acctId0);
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         balResults[0].advanceRow();
         balResults[1].advanceRow();
@@ -117,7 +117,7 @@ public class Amalgamate extends Procedure {
 //            String msg = String.format("Negative %s balance for customer #%d",
 //                                       SmallBankConstants.TABLENAME_SAVINGS, 
 //                                       acctId);
-//            throw new VoltAbortException(msg);
+//            throw new UserAbortException(msg);
 //        }
 //        
 //        voltQueueSQL(UpdateSavingsBalance, amount);

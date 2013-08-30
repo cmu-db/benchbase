@@ -57,7 +57,7 @@ public class DepositChecking extends Procedure {
         
         if (results[0].getRowCount() != 1) {
             String msg = "Invalid account name '" + acctId + "'";
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         // long acctId = results[0].asScalarLong();
         

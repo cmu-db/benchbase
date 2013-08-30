@@ -60,7 +60,7 @@ public class Balance extends Procedure {
         
         if (results[0].getRowCount() != 1) {
             String msg = "Invalid account '" + acctId + "'";
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         // long acctId = results[0].asScalarLong();
         
@@ -72,13 +72,13 @@ public class Balance extends Procedure {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_SAVINGS, 
                                        acctId);
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         if (results[1].getRowCount() != 1) {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_CHECKING, 
                                        acctId);
-            throw new VoltAbortException(msg);
+            throw new UserAbortException(msg);
         }
         results[0].advanceRow();
         results[1].advanceRow();
