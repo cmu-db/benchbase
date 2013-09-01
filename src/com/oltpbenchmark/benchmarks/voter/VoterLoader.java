@@ -66,8 +66,8 @@ public class VoterLoader extends Loader {
         Table tbl = getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
         PreparedStatement ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
         for (int i = 0; i < numContestants; i++) {
-            ps.setString(1, contestants[i]);
-            ps.setInt(2, i + 1);
+            ps.setInt(1, i + 1);
+            ps.setString(2, contestants[i]);
             ps.addBatch();
         }
         ps.executeBatch();
