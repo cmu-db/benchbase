@@ -5,15 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class VoterLoader extends Loader {
-
-    // Inserts an area code/state mapping
-    private final SQLStmt insertACSStmt = new SQLStmt("INSERT INTO area_code_state VALUES (?,?);");
-
-    // Inserts a contestant
-    private final SQLStmt insertContestantStmt = new SQLStmt("INSERT INTO contestants (contestant_name, contestant_number) VALUES (?, ?);");
 
     // Domain data: matching lists of Area codes and States
     private static final short[] areaCodes = new short[]{
@@ -68,7 +63,8 @@ public class VoterLoader extends Loader {
         
         int numContestants = ((VoterBenchmark)this.benchmark).numContestants;
         
-        PreparedStatement ps = conn.prepareStatement(insertContestantStmt.getSQL());
+        Table tbl = getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
+        PreparedStatement ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
         for (int i = 0; i < numContestants; i++) {
             ps.setString(1, contestants[i]);
             ps.setInt(2, i + 1);
@@ -76,7 +72,8 @@ public class VoterLoader extends Loader {
         }
         ps.executeBatch();
         
-        ps = conn.prepareStatement(insertACSStmt.getSQL());
+        tbl = getTableCatalog(VoterConstants.TABLENAME_LOCATIONS);
+        ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
         for (int i = 0; i < areaCodes.length; i++) {
             ps.setShort(1, areaCodes[i]);
             ps.setString(2, states[i]);
