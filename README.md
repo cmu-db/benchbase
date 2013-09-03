@@ -21,6 +21,10 @@ Together with the framework we provide the following OLTP/Web benchmarks:
   * [JPAB](http://www.jpab.org) (Hibernate)
   * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CH-benCHmark)
   * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
+  * [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf) (Snapshot Isolation)
+  * [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
+  * [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
+  * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CH-benCHmark/)
 
 This framework is design to allow easy extension, we provide stub code that a contributor can use to include a new
 benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
