@@ -20,7 +20,6 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import java.sql.SQLException;
-import java.sql.ResultSet;
 import java.sql.Time;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
@@ -84,18 +83,13 @@ public class TwitterWorker extends Worker {
     public void doSelectTweetsFromPplIFollow(int uid) throws SQLException {
         GetTweetsFromFollowing proc = this.getProcedure(GetTweetsFromFollowing.class);
         assert (proc != null);
-        ResultSet rs = proc.run(conn, uid);
-        if (rs != null) {
-            rs.close();
-        }
+        proc.run(conn, uid);
     }
 
     public void doSelectNamesOfPplThatFollowMe(int uid) throws SQLException {
         GetFollowers proc = this.getProcedure(GetFollowers.class);
         assert (proc != null);
-        ResultSet rs = proc.run(conn, uid);
-        if (rs != null)
-            rs.close();
+        proc.run(conn, uid);
     }
 
     public void doSelectTweetsForUid(int uid) throws SQLException {
