@@ -378,7 +378,6 @@ public class AuctionMarkProfile {
                 if (LOG.isDebugEnabled())
                     LOG.debug("Loading AuctionMarkProfile for the first time");
                 ResultSet results[] = worker.getProcedure(LoadConfig.class).run(conn);
-                conn.commit();
                 int result_idx = 0;
                 
                 // CONFIG_PROFILE
@@ -407,6 +406,8 @@ public class AuctionMarkProfile {
                 } // FOR
                 
                 for (ResultSet r : results) r.close();
+
+                conn.commit();
                 
                 if (LOG.isDebugEnabled())
                     LOG.debug("Loaded profile:\n" + cachedProfile.toString());
