@@ -48,12 +48,12 @@ public class GetAccessData extends Procedure {
          " WHERE s_id = ? AND ai_type = ?"
      );
 
-     public ResultSet run(Connection conn, long s_id, byte ai_type) throws SQLException {
+     public void run(Connection conn, long s_id, byte ai_type) throws SQLException {
     	 PreparedStatement stmt = this.getPreparedStatement(conn, getAccessInfo);
     	 stmt.setLong(1, s_id);
     	 stmt.setByte(2, ai_type);
     	 ResultSet results = stmt.executeQuery();
     	 assert(results != null);
-    	 return (results);
+    	 results.close();
      }
 }
