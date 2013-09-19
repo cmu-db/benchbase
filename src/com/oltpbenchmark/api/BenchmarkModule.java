@@ -168,17 +168,17 @@ public abstract class BenchmarkModule {
      * 
      * @return
      */
-    public File getDatabaseDDL() {
+    public URL getDatabaseDDL() {
         return (this.getDatabaseDDL(this.workConf.getDBType()));
     }
 
     /**
-     * Return the File handle to the DDL used to load the benchmark's database
+     * Return the URL handle to the DDL used to load the benchmark's database
      * schema.
      * @param conn 
      * @throws SQLException 
      */
-    public File getDatabaseDDL(DatabaseType db_type) {
+    public URL getDatabaseDDL(DatabaseType db_type) {
         String ddlNames[] = {
                 this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
                 this.benchmarkName + "-ddl.sql",
@@ -187,7 +187,7 @@ public abstract class BenchmarkModule {
         for (String ddlName : ddlNames) {
             if (ddlName == null) continue;
             URL ddlURL = this.getClass().getResource(ddlName);
-            if (ddlURL != null) return new File(ddlURL.getPath());
+            if (ddlURL != null) return ddlURL;
         } // FOR
         LOG.error("Failed to find DDL file for " + this.benchmarkName);
         return null;
@@ -233,11 +233,10 @@ public abstract class BenchmarkModule {
      */
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
-            File ddl = this.getDatabaseDDL(dbType);
+            URL ddl = this.getDatabaseDDL(dbType);
             assert(ddl != null) : "Failed to get DDL for " + this;
-            assert(ddl.exists()) : "The file '" + ddl + "' does not exist";
             ScriptRunner runner = new ScriptRunner(conn, true, true);
-            if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl.getName() + "'");
+            if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl + "'");
             runner.runScript(ddl);
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
@@ -252,7 +251,7 @@ public abstract class BenchmarkModule {
             Connection conn = this.makeConnection();
             ScriptRunner runner = new ScriptRunner(conn, true, true);
             File scriptFile= new File(script);
-            runner.runScript(scriptFile);
+            runner.runScript(scriptFile.toURI().toURL());
             conn.close();
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to run: %s", script), ex);
@@ -370,24 +369,6 @@ public abstract class BenchmarkModule {
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.workConf);
-    }
-
-    /**
-     * Execute a SQL file using the ScriptRunner
-     * @param c
-     * @param path
-     * @return
-     */
-    protected final boolean executeFile(Connection c, File path) {
-        ScriptRunner runner = new ScriptRunner(c, true, false);
-        try {
-            runner.runScript(path);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.error("Failed to execute script '" + path + "'", ex);
-            return (false);
-        }
-        return (true);
     }
 
     /**

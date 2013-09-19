@@ -19,7 +19,8 @@
  ******************************************************************************/
 package com.oltpbenchmark.catalog;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -36,11 +37,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.apache.commons.io.IOUtils;
 
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
-import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
@@ -289,8 +290,13 @@ public final class Catalog {
     protected Map<String, String> getOriginalTableNames() {
         Map<String, String> origTableNames = new HashMap<String, String>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
-        File ddl = this.benchmark.getDatabaseDDL(DatabaseType.HSQLDB);
-        String ddlContents = FileUtil.readFile(ddl);
+        URL ddl = this.benchmark.getDatabaseDDL(DatabaseType.HSQLDB);
+        String ddlContents;
+        try {
+            ddlContents = IOUtils.toString(ddl);
+        } catch(IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
         assert(ddlContents.isEmpty() == false);
         Matcher m = p.matcher(ddlContents);
         while (m.find()) {
