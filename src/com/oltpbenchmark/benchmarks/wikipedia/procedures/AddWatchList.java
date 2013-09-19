@@ -23,7 +23,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
@@ -64,7 +63,7 @@ public class AddWatchList extends Procedure {
     			ps.setString(3, pageTitle);
     			ps.executeUpdate();
 		    }
-		    catch (SQLServerException ex) {
+		    catch (SQLException ex) {
                 if (ex.getErrorCode() != 2627 || !ex.getSQLState().equals("23000"))
                     throw new RuntimeException("Unique Key Problem in this DBMS");
             }
@@ -81,7 +80,7 @@ public class AddWatchList extends Procedure {
     				ps.setString(3, pageTitle);
     				ps.executeUpdate();
 		        }
-	            catch (SQLServerException ex) {
+	            catch (SQLException ex) {
 	                if (ex.getErrorCode() != 2627 || !ex.getSQLState().equals("23000"))
 	                    throw new RuntimeException("Unique Key Problem in this DBMS");
 	            }
