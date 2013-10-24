@@ -187,7 +187,9 @@ public class FindFlights extends Procedure {
                     LOG.debug(String.format("Flight %d / %s /  %s -> %s / %s",
                                             row[0], row[2], row[4], row[9], row[03]));
             } // WHILE
+            ai_stmt.close();
             flightResults.close();
+            f_stmt.close();
         }
         if (debug) {
             LOG.debug("Flight Information:\n" + finalResults);
