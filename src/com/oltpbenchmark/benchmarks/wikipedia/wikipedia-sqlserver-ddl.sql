@@ -9,7 +9,7 @@ IF OBJECT_ID('recentchanges') IS NOT NULL DROP table recentchanges;
 IF OBJECT_ID('revision') IS NOT NULL DROP table revision;
 IF OBJECT_ID('page_restrictions') IS NOT NULL DROP table page_restrictions;
 IF OBJECT_ID('text') IS NOT NULL DROP table text;
-IF OBJECT_ID('[user]') IS NOT NULL DROP table [user];
+IF OBJECT_ID('useracct') IS NOT NULL DROP table useracct;
 IF OBJECT_ID('user_groups') IS NOT NULL DROP table user_groups;
 IF OBJECT_ID('value_backup') IS NOT NULL DROP table value_backup;
 IF OBJECT_ID('watchlist') IS NOT NULL DROP table watchlist;
@@ -17,7 +17,7 @@ IF OBJECT_ID('watchlist') IS NOT NULL DROP table watchlist;
 -- Create tables
 
 CREATE TABLE ipblocks (
-  ipb_id int NOT NULL identity(1,1),
+  ipb_id int NOT NULL,
   ipb_address varchar(15) NOT NULL,
   ipb_user int NOT NULL DEFAULT '0',
   ipb_by int NOT NULL DEFAULT '0',
@@ -37,14 +37,13 @@ CREATE TABLE ipblocks (
   PRIMARY KEY (ipb_id),
   UNIQUE (ipb_address,ipb_user,ipb_auto,ipb_anon_only)
 )
-
 CREATE INDEX IDX_IPB_USER ON ipblocks (ipb_user);
 CREATE INDEX IDX_IPB_RANGE ON ipblocks (ipb_range_start,ipb_range_end);
 CREATE INDEX IDX_IPB_TIMESTAMP ON ipblocks (ipb_timestamp);
 CREATE INDEX IDX_IPB_EXPIRY ON ipblocks (ipb_expiry);
 
 CREATE TABLE logging (
-  log_id int NOT NULL identity(1,1),
+  log_id int NOT NULL,
   log_type varchar(32) NOT NULL,
   log_action varchar(32) NOT NULL,
   log_timestamp varchar(14) NOT NULL DEFAULT '19700101000000',
@@ -66,7 +65,7 @@ CREATE INDEX IDX_LOG_USER_TYPE_TIME ON logging (log_user,log_type,log_timestamp)
 CREATE INDEX IDX_LOG_PAGE_ID_TIME ON logging (log_page,log_timestamp);
 
 CREATE TABLE page (
-  page_id int NOT NULL identity(1,1),
+  page_id int NOT NULL,
   page_namespace int NOT NULL,
   page_title varchar(255) NOT NULL,
   page_restrictions varchar(255) NOT NULL,
@@ -84,7 +83,7 @@ CREATE INDEX IDX_PAGE_RANDOM ON page (page_random);
 CREATE INDEX IDX_PAGE_LEN ON page (page_len);
 
 CREATE TABLE page_backup (
-  page_id int NOT NULL identity(1,1),
+  page_id int NOT NULL,
   page_namespace int NOT NULL,
   page_title varchar(255) NOT NULL,
   page_restrictions varbinary NOT NULL,
@@ -117,7 +116,7 @@ CREATE INDEX IDX_PR_LEVEL ON page_restrictions (pr_level);
 CREATE INDEX IDX_PR_CASCADE ON page_restrictions (pr_cascade);
 
 CREATE TABLE recentchanges (
-  rc_id int NOT NULL identity(1,1),
+  rc_id int NOT NULL,
   rc_timestamp varchar(14) NOT NULL DEFAULT '',
   rc_cur_time varchar(14) NOT NULL DEFAULT '',
   rc_user int NOT NULL DEFAULT '0',
@@ -154,7 +153,7 @@ CREATE INDEX IDX_RC_NS_USERTEXT ON recentchanges (rc_namespace,rc_user_text);
 CREATE INDEX IDX_RC_USER_TEXT ON recentchanges (rc_user_text,rc_timestamp);
 
 CREATE TABLE revision (
-  rev_id int NOT NULL identity(1,1),
+  rev_id int NOT NULL,
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
   rev_comment varchar(255) NOT NULL,
@@ -174,15 +173,15 @@ CREATE INDEX IDX_USER_TIMESTAMP ON revision (rev_user,rev_timestamp);
 CREATE INDEX IDX_USERTEXT_TIMESTAMP ON revision (rev_user_text,rev_timestamp);
 
 CREATE TABLE text (
-  old_id int NOT NULL identity(1,1),
+  old_id int NOT NULL,
   old_text varchar(max) NOT NULL,
   old_flags varchar(255) NOT NULL,
   old_page int DEFAULT NULL,
   PRIMARY KEY (old_id)
 );
 
-CREATE TABLE [user] (
-  user_id int NOT NULL identity(1,1),
+CREATE TABLE useracct (
+  user_id int NOT NULL,
   user_name varchar(255) NOT NULL DEFAULT '',
   user_real_name varchar(255) NOT NULL DEFAULT '',
   user_password varchar(255) NOT NULL,
@@ -200,7 +199,7 @@ CREATE TABLE [user] (
   PRIMARY KEY (user_id),
   UNIQUE (user_name)
 );
-CREATE INDEX IDX_USER_EMAIL_TOKEN ON [user] (user_email_token);
+CREATE INDEX IDX_USER_EMAIL_TOKEN ON useracct (user_email_token);
 
 CREATE TABLE user_groups (
   ug_user int NOT NULL DEFAULT '0',
