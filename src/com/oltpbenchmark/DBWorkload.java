@@ -19,9 +19,7 @@
  ******************************************************************************/
 package com.oltpbenchmark;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,7 +99,7 @@ public class DBWorkload {
 	            "create",
                 true,
                 "Initialize the database for this benchmark");
-      options.addOption(
+        options.addOption(
                 null,
                 "clear",
                 true,
@@ -121,7 +119,12 @@ public class DBWorkload {
                 "runscript",
                 true,
                 "Run an SQL script");
-		
+        options.addOption(
+                null,
+                "upload",
+                true,
+                "Upload the result");
+
 		options.addOption("v", "verbose", false, "Display Messages");
 		options.addOption("h", "help", false, "Print this help");
 		options.addOption("s", "sample", true, "Sampling window");
@@ -433,8 +436,72 @@ public class DBWorkload {
             ps.close();
             rs.close();
 
+            if (isBooleanOptionSet(argsLine, "upload")) {
+                uploadResult(r, xmlConfig, plugins, Integer.parseInt(argsLine.getOptionValue("s")));
+            }
+
         } else {
             EXEC_LOG.info("Skipping benchmark workload execution");
+        }
+    }
+
+    private static void uploadResult(Results r, XMLConfiguration conf, String benchType, int windowSize) {
+        LOG.info("Uploading results");
+
+        String code = conf.getString("uploadCode");
+        String url = conf.getString("uploadUrl");
+        String dbType = conf.getString("dbtype");
+
+        XMLConfiguration expConf = (XMLConfiguration) conf.clone();
+        expConf.clearProperty("DBUrl");
+        expConf.clearProperty("username");
+        expConf.clearProperty("password");
+        expConf.clearProperty("uploadCode");
+        expConf.clearProperty("uploadUrl");
+
+        try {
+            File expConfFile = File.createTempFile("expConf", ".tmp");
+            File sampleFile = File.createTempFile("sample", ".tmp");
+            File summaryFile = File.createTempFile("summary", ".tmp");
+
+            PrintStream confOut = new PrintStream(new FileOutputStream(expConfFile));
+            expConf.save(confOut);
+            confOut.close();
+
+            confOut = new PrintStream(new FileOutputStream(sampleFile));
+            r.writeCSV(windowSize, confOut);
+            confOut.close();
+
+            confOut = new PrintStream(new FileOutputStream(summaryFile));
+            confOut.println(dbType);
+            confOut.println(benchType);
+            confOut.println(r.latencyDistribution.toString());
+            confOut.println(r.getRequestsPerSecond());
+            confOut.close();
+
+            Process proc = Runtime.getRuntime().exec(new String[]{
+                    "tools/upload.sh",
+                    expConfFile.getAbsolutePath(),
+                    sampleFile.getAbsolutePath(),
+                    summaryFile.getAbsolutePath(),
+                    code,
+                    url,
+                    dbType,
+            });
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String s;
+            while ((s = stdInput.readLine()) != null) {
+                LOG.info(s);
+            }
+
+            proc.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ConfigurationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 
