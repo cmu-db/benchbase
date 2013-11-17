@@ -6,6 +6,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -47,8 +56,6 @@ public class ResultUploader {
 
         Map<String, String> dbConf = collector.collect(dbUrl, username, password);
 
-        LOG.info("Uploading results");
-
         XMLConfiguration expConf = (XMLConfiguration) conf.clone();
         for (String key: IGNORE_CONF) {
             expConf.clearProperty(key);
@@ -59,6 +66,7 @@ public class ResultUploader {
             File sampleFile = File.createTempFile("sample", ".tmp");
             File summaryFile = File.createTempFile("summary", ".tmp");
             File dbConfFile = File.createTempFile("dbConf", ".tmp");
+            File rawDataFile = File.createTempFile("raw", ".tmp");
 
             PrintStream confOut = new PrintStream(new FileOutputStream(expConfFile));
             expConf.save(confOut);
@@ -84,29 +92,85 @@ public class ResultUploader {
             }
             confOut.close();
 
-            Process proc = Runtime.getRuntime().exec(new String[]{
-                    "tools/upload.sh",
-                    expConfFile.getAbsolutePath(),
-                    sampleFile.getAbsolutePath(),
-                    summaryFile.getAbsolutePath(),
-                    dbConfFile.getAbsolutePath(),
-                    uploadCode,
-                    uploadUrl,
-            });
+            confOut = new PrintStream(new FileOutputStream(rawDataFile));
+            r.writeAllCSVAbsoluteTiming(confOut);
+            confOut.close();
 
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String s;
-            while ((s = stdInput.readLine()) != null) {
-                LOG.info(s);
+            byte[] buf = new byte[1024];
+            File uploadFile = File.createTempFile("upload", ".tmp");
+            confOut= new PrintStream(new FileOutputStream(uploadFile));
+            confOut.println(count(dbConfFile.getAbsolutePath()));
+            confOut.println(count(expConfFile.getAbsolutePath()));
+            confOut.println(count(summaryFile.getAbsolutePath()));
+
+            InputStream in = new FileInputStream(dbConfFile);
+            int b = 0;
+            while ( (b = in.read(buf)) >= 0) {
+                confOut.write(buf, 0, b);
             }
+            in.close();
 
-            proc.waitFor();
+            in = new FileInputStream(expConfFile);
+            while ( (b = in.read(buf)) >= 0) {
+                confOut.write(buf, 0, b);
+            }
+            in.close();
+
+            in = new FileInputStream(summaryFile);
+            while ( (b = in.read(buf)) >= 0) {
+                confOut.write(buf, 0, b);
+            }
+            in.close();
+
+            confOut.close();
+
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            HttpPost httppost = new HttpPost(uploadUrl);
+            FileBody bin = new FileBody(uploadFile);
+
+            HttpEntity reqEntity = MultipartEntityBuilder.create()
+                    .addTextBody("upload_code", uploadCode)
+                    .addPart("data", bin)
+                    .addPart("raw_data", new FileBody(rawDataFile))
+                    .addPart("sample_data", new FileBody(sampleFile))
+                    .build();
+
+            httppost.setEntity(reqEntity);
+
+            LOG.info("executing request " + httppost.getRequestLine());
+            CloseableHttpResponse response = httpclient.execute(httppost);
+            try {
+                HttpEntity resEntity = response.getEntity();
+                LOG.info(IOUtils.toString(resEntity.getContent()));
+                EntityUtils.consume(resEntity);
+            } finally {
+                response.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (ConfigurationException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
+    static protected int count(String filename) throws IOException {
+        InputStream is = new BufferedInputStream(new FileInputStream(filename));
+        try {
+            byte[] c = new byte[1024];
+            int count = 0;
+            int readChars;
+            boolean empty = true;
+            while ((readChars = is.read(c)) != -1) {
+                empty = false;
+                for (int i = 0; i < readChars; ++i) {
+                    if (c[i] == '\n') {
+                        ++count;
+                    }
+                }
+            }
+            return (count == 0 && !empty) ? 1 : count;
+        } finally {
+            is.close();
         }
     }
 }
@@ -150,9 +214,8 @@ class POSTGRESCollector implements DBParameterCollector {
     @Override
     public Map<String, String> collect(String oriDBUrl, String username, String password) {
         Map<String, String> results = new TreeMap<String, String>();
-        String dbUrl = oriDBUrl;
         try {
-            Connection conn = DriverManager.getConnection(dbUrl, username, password);
+            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
             Catalog.setSeparator(conn);
             Statement s = conn.createStatement();
             ResultSet out = s.executeQuery("SHOW ALL;");
