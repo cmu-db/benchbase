@@ -14,4 +14,7 @@
     <plugin name="voter">com.oltpbenchmark.benchmarks.voter.VoterBenchmark</plugin>
     <plugin name="linkbench">com.oltpbenchmark.benchmarks.linkbench.LinkBenchBenchmark</plugin>
     <plugin name="sibench">com.oltpbenchmark.benchmarks.sibench.SIBenchmark</plugin>
+
+    <plugin name="collector-mysql">com.oltpbenchmark.util.MYSQLCollector</plugin>
+    <plugin name="collector-postgres">com.oltpbenchmark.util.POSTGRESCollector</plugin>
 </plugins>
