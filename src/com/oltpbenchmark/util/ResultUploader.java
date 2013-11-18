@@ -21,6 +21,7 @@ import java.io.*;
 import java.sql.*;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.GZIPOutputStream;
 
 public class ResultUploader {
     private static final Logger LOG = Logger.getLogger(ResultUploader.class);
@@ -66,7 +67,7 @@ public class ResultUploader {
             File sampleFile = File.createTempFile("sample", ".tmp");
             File summaryFile = File.createTempFile("summary", ".tmp");
             File dbConfFile = File.createTempFile("dbConf", ".tmp");
-            File rawDataFile = File.createTempFile("raw", ".tmp");
+            File rawDataFile = File.createTempFile("raw", ".gz");
 
             PrintStream confOut = new PrintStream(new FileOutputStream(expConfFile));
             expConf.save(confOut);
@@ -92,7 +93,7 @@ public class ResultUploader {
             }
             confOut.close();
 
-            confOut = new PrintStream(new FileOutputStream(rawDataFile));
+            confOut = new PrintStream(new GZIPOutputStream(new FileOutputStream(rawDataFile)));
             r.writeAllCSVAbsoluteTiming(confOut);
             confOut.close();
 
