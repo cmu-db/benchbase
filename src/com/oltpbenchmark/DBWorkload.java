@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 import com.oltpbenchmark.util.ResultUploader;
 import org.apache.commons.cli.CommandLine;
@@ -405,12 +406,14 @@ public class DBWorkload {
 
             PrintStream ps = System.out;
             PrintStream rs = System.out;
+            PrintStream ss = System.out;
             if (argsLine.hasOption("o")) {
                 ps = new PrintStream(new File(argsLine.getOptionValue("o") + ".res"));
                 EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o") + ".res");
-
-                rs = new PrintStream(new File(argsLine.getOptionValue("o") + ".raw"));
-                EXEC_LOG.info("Output Raw data into file: " + argsLine.getOptionValue("o") + ".raw");
+                rs = new PrintStream(new GZIPOutputStream(new FileOutputStream(new File(argsLine.getOptionValue("o") + ".raw.gz"))));
+                EXEC_LOG.info("Output Raw data into file: " + argsLine.getOptionValue("o") + ".raw.gz");
+                ss = new PrintStream(new File(argsLine.getOptionValue("o") + ".summary"));
+                EXEC_LOG.info("Output Summary data into file: " + argsLine.getOptionValue("o") + ".summary");
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.debug("No output file specified");
             }
@@ -418,6 +421,10 @@ public class DBWorkload {
                 int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
                 EXEC_LOG.info("Grouped into Buckets of " + windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
+
+                if (isBooleanOptionSet(argsLine, "upload")) {
+                    ResultUploader.uploadResult(r, xmlConfig, pluginConfig, argsLine);
+                }
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
@@ -434,13 +441,13 @@ public class DBWorkload {
             }
 
             r.writeAllCSVAbsoluteTiming(rs);
+
+            ss.println(r.latencyDistribution.toString());
+            ss.println(r.getRequestsPerSecond());
+
+            ss.close();
             ps.close();
             rs.close();
-
-            if (isBooleanOptionSet(argsLine, "upload")) {
-                ResultUploader.uploadResult(r, xmlConfig, pluginConfig, argsLine);
-            }
-
         } else {
             EXEC_LOG.info("Skipping benchmark workload execution");
         }
