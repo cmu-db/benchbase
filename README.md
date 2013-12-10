@@ -1,5 +1,7 @@
 # OLTPBench
 
+[![Build Status](https://travis-ci.org/oltpbench/oltpbench.png)](https://travis-ci.org/oltpbench/oltpbench)
+
 Benchmarking is incredibly useful, yet endlessly painful. This benchmark suite is the result of a group of
 Phd/post-docs/professors getting together and combining their workloads/frameworks/experiences/efforts. We hope this
 will save other people's time, and will provide an extensible platform, that can be grown in an open-source fashion. 
