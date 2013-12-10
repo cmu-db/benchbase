@@ -46,6 +46,7 @@ import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
+import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
 
@@ -402,11 +403,16 @@ public class DBWorkload {
             PrintStream ps = System.out;
             PrintStream rs = System.out;
             if (argsLine.hasOption("o")) {
-                ps = new PrintStream(new File(argsLine.getOptionValue("o") + ".res"));
-                EXEC_LOG.info("Output into file: " + argsLine.getOptionValue("o") + ".res");
+                
+                // Increment the filename for new results
+                String nextName = FileUtil.getNextFilename(argsLine.getOptionValue("o") + ".res");
+                ps = new PrintStream(new File(nextName));
+                EXEC_LOG.info("Output into file: " + nextName);
 
-                rs = new PrintStream(new File(argsLine.getOptionValue("o") + ".raw"));
-                EXEC_LOG.info("Output Raw data into file: " + argsLine.getOptionValue("o") + ".raw");
+                nextName = FileUtil.getNextFilename(argsLine.getOptionValue("o") + ".raw");
+                rs = new PrintStream(new File(nextName));
+                EXEC_LOG.info("Output Raw data into file: " + nextName);
+                
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.debug("No output file specified");
             }
