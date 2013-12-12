@@ -41,6 +41,27 @@ public abstract class FileUtil {
     private static final Logger LOG = Logger.getLogger(FileUtil.class);
 
     private static final Pattern EXT_SPLIT = Pattern.compile("\\.");
+    
+    
+    /**
+     * Join path components
+     * @param args
+     * @return
+     */
+    public static String joinPath(String... args) {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (String a : args) {
+            if (a != null && a.length() > 0) {
+                if (!first) {
+                    result.append("/");
+                }
+                result.append(a);
+                first = false;
+            }
+        }
+        return result.toString();
+    }
 
     /**
      * Given a basename for a file, find the next possible filename if this file
@@ -57,8 +78,7 @@ public abstract class FileUtil {
         
         File f = new File(basename);
         if (f != null && f.isFile()) {
-            
-            String parts[] = EXT_SPLIT.split(f.getName());
+            String parts[] = EXT_SPLIT.split(basename);
             
             // Check how many files already exist
             int counter = 1;
@@ -69,6 +89,7 @@ public abstract class FileUtil {
             }
             return nextName;
         }
+        
 
         // Should we throw instead??
         return null;

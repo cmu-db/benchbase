@@ -40,6 +40,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
 
+import com.edb.jdbc2.TimestampUtils;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
@@ -49,6 +50,7 @@ import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
+import com.oltpbenchmark.util.TimeUtil;
 
 public class DBWorkload {
     private static final Logger LOG = Logger.getLogger(DBWorkload.class);
@@ -126,7 +128,10 @@ public class DBWorkload {
 		options.addOption("v", "verbose", false, "Display Messages");
 		options.addOption("h", "help", false, "Print this help");
 		options.addOption("s", "sample", true, "Sampling window");
-		options.addOption("o", "output", true, "Output file (default System.out)");		
+		options.addOption("ss", false, "Verbose Sampling per Transaction");
+		options.addOption("o", "output", true, "Output file (default System.out)");
+		options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
+		options.addOption("t", "timestamp", false, "Each result file is prepended with a timestamp for the beginning of the experiment");
 		options.addOption(null, "histograms", false, "Print txn histograms");
 		options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
 
@@ -145,6 +150,19 @@ public class DBWorkload {
             return;
         }
         
+        // If an output directory is used, store the information
+        String outputDirectory = "";
+        if (argsLine.hasOption("d")) {
+            outputDirectory = argsLine.getOptionValue("d");
+        }
+        
+        String timestampValue = "";
+        if (argsLine.hasOption("t")) {
+            timestampValue = String.valueOf(TimeUtil.getCurrentTime().getTime()) + "_";
+        }
+                
+        
+        
 //       -------------------------------------------------------------------
 //        GET PLUGIN LIST
 //       -------------------------------------------------------------------
@@ -153,6 +171,11 @@ public class DBWorkload {
         
         String[] pluginList = plugins.split(",");
         List<BenchmarkModule> benchList = new ArrayList<BenchmarkModule>();
+        
+        
+        // Use this list for filtering of the output
+        List<TransactionType> activeTXTypes = new ArrayList<TransactionType>();
+
         
         String configFile = argsLine.getOptionValue("c");
         XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
@@ -297,10 +320,9 @@ public class DBWorkload {
 	        INIT_LOG.info(SINGLE_LINE);
 
         
-
 	        // Load TransactionTypes
 	        List<TransactionType> ttypes = new ArrayList<TransactionType>();
-	
+
 	        // Always add an INVALID type for Carlo
 	        ttypes.add(TransactionType.INVALID);
 	        int txnIdOffset = lastTxnId;
@@ -311,7 +333,11 @@ public class DBWorkload {
 	            if (xmlConfig.containsKey(key + "/id")) {
 	                txnId = xmlConfig.getInt(key + "/id");
 	            }
-	            ttypes.add(bench.initTransactionType(txnName, txnId + txnIdOffset));
+	            TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset);
+	            // Keep a reference for filtering
+	            activeTXTypes.add(tmpType);
+	            // Add a reference for the active TTypes in this benchmark
+	            ttypes.add(tmpType);
 	            lastTxnId = i;
 	        } // FOR
 	        TransactionTypes tt = new TransactionTypes(ttypes);
@@ -404,22 +430,50 @@ public class DBWorkload {
             PrintStream rs = System.out;
             if (argsLine.hasOption("o")) {
                 
+                // Check if directory needs to be created
+                if (outputDirectory.length() > 0) {
+                    FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
+                }
+                
+                // Build the complex path
+                String baseFile = timestampValue + argsLine.getOptionValue("o");
+                
                 // Increment the filename for new results
-                String nextName = FileUtil.getNextFilename(argsLine.getOptionValue("o") + ".res");
+                String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
                 ps = new PrintStream(new File(nextName));
                 EXEC_LOG.info("Output into file: " + nextName);
 
-                nextName = FileUtil.getNextFilename(argsLine.getOptionValue("o") + ".raw");
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".raw"));
                 rs = new PrintStream(new File(nextName));
                 EXEC_LOG.info("Output Raw data into file: " + nextName);
                 
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.debug("No output file specified");
             }
+            
             if (argsLine.hasOption("s")) {
                 int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
                 EXEC_LOG.info("Grouped into Buckets of " + windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
+                
+                // Allow more detailed reporting by transaction to make it easier to check
+                if (argsLine.hasOption("ss")) {
+                    
+                    for (TransactionType t : activeTXTypes) {
+                        PrintStream ts = ps;
+                        
+                        if (ts != System.out) {
+                            // Get the actual filename for the output
+                            String baseFile = timestampValue + argsLine.getOptionValue("o") + "_" + t.getName();
+                            String prepended = outputDirectory + timestampValue;
+                            String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));                            
+                            ts = new PrintStream(new File(nextName));
+                            r.writeCSV(windowSize, ts, t);
+                            ts.close();
+                        }
+                    }
+                }
+                
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
