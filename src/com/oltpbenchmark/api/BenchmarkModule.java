@@ -301,16 +301,12 @@ public abstract class BenchmarkModule {
     public final void clearDatabase() {
         try {
             Connection conn = this.makeConnection();
-            conn.setAutoCommit(false);
-            conn.setTransactionIsolation(workConf.getIsolationMode());
-            Statement st = conn.createStatement();
-            for (Table catalog_tbl : this.catalog.getTables()) {
-                LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
-                String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
-                st.execute(sql);
-            } // FOR
-            conn.commit();
-
+            Loader loader = this.makeLoaderImpl(conn);
+            if (loader != null) {
+                conn.setAutoCommit(false);
+                loader.unload(this.catalog);
+                conn.commit();
+            }
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", this.benchmarkName), ex);
         }
