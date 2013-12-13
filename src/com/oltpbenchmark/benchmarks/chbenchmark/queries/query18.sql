@@ -1,8 +1,9 @@
 SELECT c_last,
-       c_id o_id,
+       c_id,
+       o_id,
        o_entry_d,
        o_ol_cnt,
-       sum(ol_amount)
+       sum(ol_amount) AS amount_sum
 FROM customer,
      oorder,
      order_line
@@ -19,4 +20,4 @@ GROUP BY o_id,
          c_last,
          o_entry_d,
          o_ol_cnt HAVING sum(ol_amount) > 200
-ORDER BY sum(ol_amount) DESC, o_entry_d
+ORDER BY amount_sum DESC, o_entry_d;

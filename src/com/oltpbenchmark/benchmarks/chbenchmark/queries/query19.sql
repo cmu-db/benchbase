@@ -24,4 +24,4 @@ WHERE (ol_i_id = i_id
       AND i_price BETWEEN 1 AND 400000
       AND ol_w_id IN (1,
                       5,
-                      3))
+                      3));
