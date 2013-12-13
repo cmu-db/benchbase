@@ -18,6 +18,7 @@ public enum DatabaseType {
     ASSCLOWN,
     HSQLDB,
     H2,
+    MONETDB,
     ;
     
     public static final DatabaseType TEST_TYPE = DatabaseType.HSQLDB; 

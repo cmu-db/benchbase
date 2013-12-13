@@ -67,6 +67,14 @@ public abstract class Procedure {
     }
     
     /**
+     * Flush all PreparedStatements, requiring us to rebuild them the next time
+     * we try to run one.
+     */
+    public void resetPreparedStatements() {
+        prepardStatements.clear();
+    }
+
+    /**
      * Return a PreparedStatement for the given SQLStmt handle
      * The underlying Procedure API will make sure that the proper SQL
      * for the target DBMS is used for this SQLStmt. 
