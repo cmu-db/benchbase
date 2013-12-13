@@ -1064,7 +1064,6 @@ public class TPCCLoader extends Loader{
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            LOG.debug(se.getNextException().getMessage());
             se.printStackTrace();
             transRollback();
 		} catch (Exception e) {
