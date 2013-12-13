@@ -25,7 +25,7 @@ public class Warehouse implements Serializable {
 
 	public int w_id; // PRIMARY KEY
 	public float w_ytd;
-	public float w_tax;
+    public double w_tax;
 	public String w_name;
 	public String w_street_1;
 	public String w_street_2;

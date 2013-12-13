@@ -1,6 +1,7 @@
 package com.oltpbenchmark.api;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Phase;
+import com.oltpbenchmark.SubmittedProcedure;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.WorkloadState;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
@@ -27,6 +29,7 @@ public abstract class Worker implements Runnable {
 
 	private WorkloadState wrkldState;
 	private LatencyRecord latencies;
+    private Statement currStatement;
 	
 	private final int id;
 	private final BenchmarkModule benchmarkModule;
@@ -50,6 +53,7 @@ public abstract class Worker implements Runnable {
 		this.benchmarkModule = benchmarkModule;
 		this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
 		this.wrkldState = this.wrkld.getWorkloadState();
+        this.currStatement = null;
 		this.transactionTypes = this.wrkld.getTransTypes();
 		assert(this.transactionTypes != null) :
 		    "The TransactionTypes from the WorkloadConfiguration is null!";
@@ -144,6 +148,22 @@ public abstract class Worker implements Runnable {
         return (this.txnAbortMessages);
     }
     
+    synchronized public void setCurrStatement(Statement s) {
+        this.currStatement = s;
+    }
+
+    /**
+     * Stop executing the current statement.
+     */
+    synchronized public void cancelStatement() {
+        try {
+            if (this.currStatement != null)
+                this.currStatement.cancel();
+        } catch(SQLException e) {
+            LOG.error("Failed to cancel statement: " + e.getMessage());
+        }
+    }
+
     /**
      * Get unique name for this worker's thread
      */
@@ -154,6 +174,7 @@ public abstract class Worker implements Runnable {
 	@Override
 	public final void run() {
 	    Thread t = Thread.currentThread();
+        SubmittedProcedure pieceOfWork;
 	    t.setName(this.getName());
 	    
 		// In case of reuse reset the measurements
@@ -168,51 +189,124 @@ public abstract class Worker implements Runnable {
 		
 		// wait for start
 		wrkldState.blockForStart();
-		State state = wrkldState.getGlobalState();
+        State preState, postState;
+        Phase phase;
 		
 		TransactionType invalidTT = TransactionType.INVALID;
 		assert(invalidTT != null);
 		
+work:
 		while (true) {
-			if (state == State.DONE && !seenDone) {
-				// This is the first time we have observed that the test is
-				// done notify the global test state, then continue applying load
+
+            // PART 1: Init and check if done
+
+            preState = wrkldState.getGlobalState();
+            phase = this.wrkldState.getCurrentPhase();
+
+            switch (preState) {
+                case DONE:
+                    if (!seenDone) {
+                        // This is the first time we have observed that the
+                        // test is done notify the global test state, then
+                        // continue applying load
 				seenDone = true;
 				wrkldState.signalDone();
+                        break work;
+                    }
 				break;
 			}
-			// apply load
-			Phase phase = this.wrkldState.getCurrentPhase();
-			// ask workload if we have to sleep
+
+            // PART 2: Wait for work
+
+            // Sleep if there's nothing to do.
 			wrkldState.stayAwake();
-			if (phase != null && phase.isRateLimited()) {
-				// re-reads the state because it could have changed if we
-				// blocked
-				state = wrkldState.fetchWork();
+            phase = this.wrkldState.getCurrentPhase();
+            if (phase == null)
+                continue work;
+
+            // Grab some work and update the state, in case it changed while we
+            // waited.
+            pieceOfWork = wrkldState.fetchWork();
+            preState = wrkldState.getGlobalState();
+
+            phase = this.wrkldState.getCurrentPhase();
+            if (phase == null)
+                continue work;
+
+            switch (preState) {
+                case DONE:
+                case EXIT:
+                case LATENCY_COMPLETE:
+                    // Once a latency run is complete, we wait until the next
+                    // phase or until DONE.
+                    continue work;
 			}
 
-			boolean measure = state == State.MEASURE;
+            // PART 3: Execute work
 
 			// TODO: Measuring latency when not rate limited is ... a little
-			// weird because
-			// if you add more simultaneous clients, you will increase
-			// latency (queue delay)
-			// but we do this anyway since it is useful sometimes
-			long start = 0;
-			if (measure) {
-				start = System.nanoTime();
-			}
+            // weird because if you add more simultaneous clients, you will
+            // increase latency (queue delay) but we do this anyway since it is
+            // useful sometimes
+
+            long start = pieceOfWork.getStartTime();
 
 			TransactionType type = invalidTT;
-			if (phase != null) type = doWork(measure, phase);
-//			assert(type != null) :
-//			    "Unexpected null TransactionType returned from doWork\n" + this.transactionTypes;
+            try {
+                type = doWork(preState == State.MEASURE, pieceOfWork);
+            } catch (IndexOutOfBoundsException e) {
+                if (phase.isThroughputRun()) {
+                    LOG.error("Thread tried executing disabled phase!");
+                    throw e;
+                }
+                if (phase.id == this.wrkldState.getCurrentPhase().id) {
+                    switch (preState) {
+                        case WARMUP:
+                        // Don't quit yet: we haven't even begun!
+                            phase.resetSerial();
+                            break;
+                        case COLD_QUERY:
+                        case MEASURE:
+                            // The serial phase is over. Finish the run early.
+                            wrkldState.signalLatencyComplete();
+                            LOG.info("[Serial] Serial execution of all"
+                                     + " transactions complete.");
+                            break;
+                        default:
+                            throw e;
+                    }
+                }
+            }
+
+            // PART 4: Record results
 			
-			if (phase !=null && measure && type !=null) {
 				long end = System.nanoTime();
-				latencies.addLatency(type.getId(), start, end, this.id, phase.id);
+            postState = wrkldState.getGlobalState();
+
+            switch(postState) {
+                case MEASURE:
+                    // Non-serial measurement. Only measure if the state both
+                    // before and after was MEASURE, and the phase hasn't
+                    // changed, otherwise we're recording results for a query
+                    // that either started during the warmup phase or ended
+                    // after the timer went off.
+                    if (preState == State.MEASURE && type != null
+                        && this.wrkldState.getCurrentPhase().id == phase.id) {
+                        latencies.addLatency(type.getId(), start, end, this.id
+                                , phase.id);
+                    }
+                    if (phase.isLatencyRun())
+                        this.wrkldState.startColdQuery();
+                    break;
+                case COLD_QUERY:
+                    // No recording for cold runs, but next time we will since
+                    // it'll be a hot run.
+                    if (preState == State.COLD_QUERY)
+                        this.wrkldState.startHotQuery();
+                    break;
 			}
-			state = wrkldState.getGlobalState();
+
+            wrkldState.finishedWork();
 		}
 
 		tearDown(false);
@@ -225,7 +319,7 @@ public abstract class Worker implements Runnable {
 	 * 
 	 * @param llr
 	 */
-	protected final TransactionType doWork(boolean measure, Phase phase) {
+    protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
 	    TransactionType next = null;
 	    TransactionStatus status = TransactionStatus.RETRY; 
 	    Savepoint savepoint = null;
@@ -234,8 +328,9 @@ public abstract class Worker implements Runnable {
 	    
 	    try {
     	    while (status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
-    	        if (next == null)
-    	            next = transactionTypes.getType(phase.chooseTransaction());
+                if (next == null) {
+                    next = transactionTypes.getType(pieceOfWork.getType());
+                }
     	        assert(next.isSupplemental() == false) :
     	            "Trying to select a supplemental transaction " + next;
     	        
@@ -249,24 +344,6 @@ public abstract class Worker implements Runnable {
 //        	        }
         	        
         	        status = this.executeWork(next);
-        	        switch (status) {
-        	            case SUCCESS:
-        	                this.txnSuccess.put(next);
-        	                if (LOG.isDebugEnabled()) 
-                                LOG.debug("Executed a new invocation of " + next);
-        	                break;
-        	            case RETRY_DIFFERENT:
-        	                this.txnRetry.put(next);
-        	                next = null;
-        	                status = TransactionStatus.RETRY;
-        	                continue;
-        	            case RETRY:
-        	                continue;
-    	                default:
-    	                    assert(false) :
-    	                        String.format("Unexpected status '%s' for %s", status, next);
-        	        } // SWITCH
-        	        
     	        // User Abort Handling
     	        // These are not errors
         	    } catch (UserAbortException ex) {
@@ -294,8 +371,7 @@ public abstract class Worker implements Runnable {
                 } catch (SQLException ex) {
                                        
                     //TODO: Handle acceptable error codes for every DBMS     
-                    if (LOG.isDebugEnabled()) 
-                        LOG.warn(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState(), ex);
+                    LOG.debug(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());
 
                     this.txnErrors.put(next);
                     
@@ -304,38 +380,75 @@ public abstract class Worker implements Runnable {
                     } else {
                         this.conn.rollback();
                     }
-                    if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
+
+                    if (ex.getSQLState() == null) {
+                        continue;
+                    }
+                    else if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
                         // MySQLTransactionRollbackException
                         continue;
                     } 
-                    if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("4100")) {
+                    else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("41000")) {
                         // MySQL Lock timeout
                         continue;
                     } 
-                    if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
+                    else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
                         // SQLServerException Deadlock
                         continue;
                     }
-                    if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
+                    else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
                         // DB2Exception Deadlock
                         continue;
                     } 
-                    if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
+                    else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
                         continue;
                     } 
-                    if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
+                    else if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
                         // ORA-08177: Oracle Serialization
                         continue;
                     } 
-                    
-                    // UNKNOWN: In this case .. Retry as well!
+                    else if (   (ex.getErrorCode() == 0 && ex.getSQLState().equals("57014"))
+                        || (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014")) // DB2
+                       )
+                    {
+                        // Query cancelled by benchmark because we changed
+                        // state. That's fine! We expected/caused this.
+                        status = TransactionStatus.RETRY_DIFFERENT;
+                        continue;
+                    }
+                    else if (ex.getErrorCode() == 0 && ex.getSQLState().equals("02000")) {
+                        // No results returned. That's okay, we can proceed to
+                        // a different query. But we should send out a warning,
+                        // too, since this is unusual.
+                        status = TransactionStatus.RETRY_DIFFERENT;
+                        continue;
+                    }
                     else {
+                        // UNKNOWN: In this case .. Retry as well!
                         continue;
                         //FIXME Disable this for now
                         // throw ex;
                     }
                 }
+                finally {
+                    switch (status) {
+                        case SUCCESS:
+                            this.txnSuccess.put(next);
+                            LOG.debug("Executed a new invocation of " + next);
+                            break;
+                        case RETRY_DIFFERENT:
+                            this.txnRetry.put(next);
+                            return null;
+                        case RETRY:
+                            LOG.debug("Retrying transaction...");
+                            continue;
+                        default:
+                            assert(false) :
+                                String.format("Unexpected status '%s' for %s", status, next);
+                    } // SWITCH
+                }
+
     	    } // WHILE
 	    } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error in %s when executing %s [%s]",

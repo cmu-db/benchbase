@@ -20,17 +20,12 @@ private static final AtomicInteger terminalId = new AtomicInteger(0);
 	@Override
 	protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
 		try {
-        	GenericQuery proc = (GenericQuery) nextTransaction.getProcedureClass().newInstance();
+            GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
+            proc.setOwner(this);
 			proc.run(conn);
 		} catch (ClassCastException e) {
         	System.err.println("We have been invoked with an INVALID transactionType?!");
         	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
-        } catch (InstantiationException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Could not instantiate query.");
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Run method of the query seems to be private.");
 		}
 
         conn.commit();

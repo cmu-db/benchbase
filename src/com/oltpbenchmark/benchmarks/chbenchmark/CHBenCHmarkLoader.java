@@ -87,7 +87,7 @@ public class CHBenCHmarkLoader extends Loader {
 
         LOG.debug("Truncating '" + strTable + "' ...");
         try {
-            conn.createStatement().execute("TRUNCATE TABLE " + strTable + " CASCADE");
+            conn.createStatement().execute("DELETE FROM " + strTable);
             conn.commit();
         } catch (SQLException se) {
             LOG.debug(se.getMessage());

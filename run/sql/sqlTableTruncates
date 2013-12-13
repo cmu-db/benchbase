@@ -1,18 +1,18 @@
 
-truncate table warehouse;
+delete warehouse;
 
-truncate table item;
+delete item;
 
-truncate table stock;
+delete stock;
 
-truncate table district;
+delete district;
 
-truncate table customer;
+delete customer;
 
-truncate table history;
+delete history;
 
-truncate table oorder;
+delete oorder;
 
-truncate table order_line;
+delete order_line;
 
-truncate table new_order;
+delete new_order;

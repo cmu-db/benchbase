@@ -41,7 +41,7 @@ public abstract class Loader {
     private static final Logger LOG = Logger.getLogger(Loader.class);
 
     protected final BenchmarkModule benchmark;
-    protected final Connection conn;
+    protected Connection conn;
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
     private final Histogram<String> tableSizes = new Histogram<String>(true);

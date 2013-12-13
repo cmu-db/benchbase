@@ -22,4 +22,4 @@ WHERE ol_o_id = o_id
   AND su_nationkey = n_nationkey
   AND n_name = 'Germany'
 GROUP BY su_name
-ORDER BY numwait DESC, su_name
+ORDER BY numwait DESC, su_name;

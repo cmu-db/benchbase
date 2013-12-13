@@ -14,4 +14,4 @@ WHERE su_suppkey IN
               s_quantity HAVING 2*s_quantity > sum(ol_quantity))
   AND su_nationkey = n_nationkey
   AND n_name = 'Germany'
-ORDER BY su_name
+ORDER BY su_name;

@@ -94,6 +94,9 @@ public class jdbcIO {
 			Timestamp delivery_d = null;
 			if (order_line.ol_delivery_d != null)
 				delivery_d = new Timestamp(order_line.ol_delivery_d);
+            if (delivery_d == null)
+                orlnPrepStmt.setNull(6, 0);
+            else
 			orlnPrepStmt.setTimestamp(6, delivery_d);
 
 			orlnPrepStmt.setDouble(7, order_line.ol_amount);

@@ -4,5 +4,5 @@
 package com.oltpbenchmark.types;
 
 public enum State {
-	WARMUP, MEASURE, DONE, EXIT,
+    WARMUP, MEASURE, COLD_QUERY, LATENCY_COMPLETE, DONE, EXIT,
 }

@@ -7,4 +7,4 @@ SELECT ol_number,
 FROM order_line
 WHERE ol_delivery_d > '2007-01-02 00:00:00.000000'
 GROUP BY ol_number
-ORDER BY ol_number
+ORDER BY ol_number;

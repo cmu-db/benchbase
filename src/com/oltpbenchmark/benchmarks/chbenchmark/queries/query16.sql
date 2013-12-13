@@ -1,5 +1,5 @@
 SELECT i_name,
-       substr(i_data, 1, 3) AS brand,
+       substring(i_data from  1 for 3) AS brand,
        i_price,
        count(DISTINCT (mod((s_w_id * s_i_id),10000))) AS supplier_cnt
 FROM stock,
@@ -11,6 +11,6 @@ WHERE i_id = s_i_id
      FROM supplier
      WHERE su_comment LIKE '%bad%'))
 GROUP BY i_name,
-         substr(i_data, 1, 3),
+         brand,
          i_price
-ORDER BY supplier_cnt DESC
+ORDER BY supplier_cnt DESC;
