@@ -19,14 +19,14 @@
  ******************************************************************************/
 package com.oltpbenchmark;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
+import com.oltpbenchmark.util.ResultUploader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -104,7 +104,7 @@ public class DBWorkload {
 	            "create",
                 true,
                 "Initialize the database for this benchmark");
-      options.addOption(
+        options.addOption(
                 null,
                 "clear",
                 true,
@@ -124,7 +124,12 @@ public class DBWorkload {
                 "runscript",
                 true,
                 "Run an SQL script");
-		
+        options.addOption(
+                null,
+                "upload",
+                true,
+                "Upload the result");
+
 		options.addOption("v", "verbose", false, "Display Messages");
 		options.addOption("h", "help", false, "Print this help");
 		options.addOption("s", "sample", true, "Sampling window");
@@ -428,8 +433,9 @@ public class DBWorkload {
 
             PrintStream ps = System.out;
             PrintStream rs = System.out;
+            ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
+
             if (argsLine.hasOption("o")) {
-                
                 // Check if directory needs to be created
                 if (outputDirectory.length() > 0) {
                     FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
@@ -446,7 +452,24 @@ public class DBWorkload {
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".raw"));
                 rs = new PrintStream(new File(nextName));
                 EXEC_LOG.info("Output Raw data into file: " + nextName);
-                
+
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
+                PrintStream ss = new PrintStream(new File(nextName));
+                EXEC_LOG.info("Output summary data into file: " + nextName);
+                ru.writeSummary(ss);
+                ss.close();
+
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
+                ss = new PrintStream(new File(nextName));
+                EXEC_LOG.info("Output db config into file: " + nextName);
+                ru.writeDBParameters(ss);
+                ss.close();
+
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
+                ss = new PrintStream(new File(nextName));
+                EXEC_LOG.info("Output benchmark config into file: " + nextName);
+                ru.writeBenchmarkConf(ss);
+                ss.close();
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.debug("No output file specified");
             }
@@ -455,7 +478,11 @@ public class DBWorkload {
                 int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
                 EXEC_LOG.info("Grouped into Buckets of " + windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
-                
+
+                if (isBooleanOptionSet(argsLine, "upload")) {
+                    ru.uploadResult();
+                }
+
                 // Allow more detailed reporting by transaction to make it easier to check
                 if (argsLine.hasOption("ss")) {
                     
@@ -473,7 +500,6 @@ public class DBWorkload {
                         }
                     }
                 }
-                
             } else if (EXEC_LOG.isDebugEnabled()) {
                 EXEC_LOG.warn("No bucket size specified");
             }
@@ -490,9 +516,9 @@ public class DBWorkload {
             }
 
             r.writeAllCSVAbsoluteTiming(rs);
+
             ps.close();
             rs.close();
-
         } else {
             EXEC_LOG.info("Skipping benchmark workload execution");
         }
