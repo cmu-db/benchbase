@@ -23,7 +23,6 @@ class POSTGRESCollector implements DBParameterCollector {
             ResultSet out = s.executeQuery("SHOW ALL;");
             while(out.next()) {
                 results.put(out.getString("name"), out.getString("setting"));
-                System.out.println(out.getString("name") + ":" + out.getString("setting"));
             }
         } catch (SQLException e) {
             LOG.debug("Error while collecting DB parameters: " + e.getMessage());
