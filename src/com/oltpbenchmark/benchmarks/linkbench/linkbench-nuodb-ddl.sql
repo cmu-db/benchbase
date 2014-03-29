@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS linktable;
-DROP TABLE IF EXISTS counttable;
-DROP TABLE IF EXISTS nodetable;
+DROP TABLE IF EXISTS linktable CASCADE;
+DROP TABLE IF EXISTS counttable CASCADE;
+DROP TABLE IF EXISTS nodetable CASCADE;
 
 CREATE TABLE linktable (
   id1 bigint NOT NULL,
