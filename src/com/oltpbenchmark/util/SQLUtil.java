@@ -317,6 +317,18 @@ public abstract class SQLUtil {
     }
     
     /**
+     * Automatically generate the 'INSERT' SQL string to insert
+     * one record into this table, with a flag to escape names or not
+     * 
+     * @param catalog_tbl Table affected
+     * @param escape_names Flag to escape object names
+     * @return
+     */
+    public static String getInsertSQL(Table catalog_tbl, boolean escape_names, int...exclude_columns) {
+        return getInsertSQL(catalog_tbl, false, false, 1, exclude_columns);
+    }
+    
+    /**
      * Automatically generate the 'INSERT' SQL string for this table
      * The batchSize parameter specifies the number of sets of parameters
      * that should be included in the insert 

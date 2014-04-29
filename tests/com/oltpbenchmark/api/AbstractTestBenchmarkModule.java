@@ -20,6 +20,9 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
+import java.net.URL;
+
+import org.apache.commons.io.IOUtils;
 
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
@@ -33,9 +36,9 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      * testGetDatabaseDDL
      */
     public void testGetDatabaseDDL() throws Exception {
-        File ddl = this.benchmark.getDatabaseDDL();
+        URL ddl = this.benchmark.getDatabaseDDL();
         assertNotNull(ddl);
-        assert (ddl.exists());
+        assertNotNull (IOUtils.toString(ddl));
     }
 
     /**

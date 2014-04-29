@@ -1,0 +1,4 @@
+language: java
+install: echo "Done"
+before_script: echo "Done"
+script: ant junit

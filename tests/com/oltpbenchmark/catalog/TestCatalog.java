@@ -6,8 +6,9 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
+
 import com.oltpbenchmark.api.MockBenchmark;
-import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.SQLUtil;
 
 public class TestCatalog extends TestCase {
@@ -51,7 +52,7 @@ public class TestCatalog extends TestCase {
      */
     public void testInit() throws Exception {
         // Count the number of CREATE TABLEs in our test file
-        String contents = FileUtil.readFile(this.benchmark.getDatabaseDDL());
+        String contents = IOUtils.toString(this.benchmark.getDatabaseDDL());
         assertFalse(contents.isEmpty());
         int offset = 0;
         int num_tables = 0;

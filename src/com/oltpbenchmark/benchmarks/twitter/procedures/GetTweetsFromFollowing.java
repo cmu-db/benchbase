@@ -41,7 +41,7 @@ public class GetTweetsFromFollowing extends Procedure {
         " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS
     );
     
-    public ResultSet run(Connection conn, int uid) throws SQLException {
+    public void run(Connection conn, int uid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getFollowing);
         stmt.setLong(1, uid);
         ResultSet rs = stmt.executeQuery();
@@ -59,12 +59,12 @@ public class GetTweetsFromFollowing extends Procedure {
             while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
                 stmt.setLong(ctr, last);
             } // WHILE     
-            return stmt.executeQuery();
+            rs = stmt.executeQuery();
+            rs.close();
         }
         else 
         {
             // LOG.debug("No followers for user: "+uid); // so what .. ?
-            return (null);
         }
     }
     

@@ -6,7 +6,7 @@
 	<driver>com.mysql.jdbc.Driver</driver>
 	<DBUrl>jdbc:mysql://localhost:3306/linkdb?elideSetAutoCommits=true&amp;useLocalTransactionState=true&amp;allowMultiQueries=true&amp;useLocalSessionState=true&amp;useAffectedRows=true</DBUrl>
 	<username>root</username>
-	<password>pwd</password>
+	<password>hello</password>
 
 	<isolation>TRANSACTION_REPEATABLE_READ</isolation>
 
@@ -19,7 +19,7 @@
 	<terminals>50</terminals>
 	<works>
 		<work>
-			<time>2500</time>
+			<time>100</time>
 			<rate>unlimited</rate>
 			<weights>8.9886601,2.9907664,8.0122125,4.8863567,0.5261142,50.7119145,12.9326683,2.5732789,7.366437,1.0115914
 			</weights>

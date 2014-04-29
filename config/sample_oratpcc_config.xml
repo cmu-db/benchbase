@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <parameters>
 	<!-- General Workload configuration -->
+    <dbtype>oracle</dbtype>
     <driver>oracle.jdbc.driver.OracleDriver</driver>
     <DBUrl>jdbc:oracle:thin:@ec2-107-20-2-159.compute-1.amazonaws.com:1521:ded</DBUrl>
     <DBName>tpcc</DBName>
