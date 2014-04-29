@@ -825,7 +825,8 @@ public class AuctionMarkWorker extends Worker {
         long encodedItemId = itemInfo.itemId.encode();
         UserId sellerId = itemInfo.getSellerId();
         double buyer_credit = 0d;
-        long ip_id = AuctionMarkUtil.getUniqueElementId(encodedItemId, profile.rng.nextInt());
+        long ip_id = AuctionMarkUtil.getUniqueElementId(encodedItemId,
+                                                        profile.rng.number(0, 128)); // HACK
         
         // Whether the buyer will not have enough money
         if (itemInfo.hasCurrentPrice()) {
