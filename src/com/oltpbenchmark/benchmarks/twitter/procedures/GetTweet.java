@@ -15,9 +15,10 @@ public class GetTweet extends Procedure {
         "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE id = ?"
     );
 
-    public ResultSet run(Connection conn, long tweet_id) throws SQLException{
+    public void run(Connection conn, long tweet_id) throws SQLException{
         PreparedStatement stmt = this.getPreparedStatement(conn, getTweet);
         stmt.setLong(1, tweet_id);
-        return (stmt.executeQuery());
+        ResultSet rs = stmt.executeQuery();
+        rs.close();
     }
 }

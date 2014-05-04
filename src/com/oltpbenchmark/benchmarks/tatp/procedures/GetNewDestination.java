@@ -56,7 +56,7 @@ public class GetNewDestination extends Procedure {
          "   AND cf.end_time > ?"
      );
 
-     public ResultSet run(Connection conn, long s_id, byte sf_type, byte start_time, byte end_time) throws SQLException {
+     public void run(Connection conn, long s_id, byte sf_type, byte start_time, byte end_time) throws SQLException {
     	 PreparedStatement stmt = this.getPreparedStatement(conn, getNewDestination);
     	 stmt.setLong(1, s_id);
     	 stmt.setByte(2, sf_type);
@@ -64,6 +64,6 @@ public class GetNewDestination extends Procedure {
     	 stmt.setByte(4, end_time);
     	 ResultSet results = stmt.executeQuery();
     	 assert(results != null);
-    	 return (results);
+    	 results.close();
      }
 }

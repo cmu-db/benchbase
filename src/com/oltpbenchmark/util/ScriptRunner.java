@@ -20,8 +20,8 @@
  */
 package com.oltpbenchmark.util;
 
-import java.io.File;
-import java.io.FileReader;
+import java.net.URL;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
@@ -91,8 +91,8 @@ public class ScriptRunner {
 	 * @param reader
 	 *            - the source of the script
 	 */
-	public void runScript(File file) throws IOException, SQLException {
-		Reader reader = new FileReader(file);
+	public void runScript(URL resource) throws IOException, SQLException {
+		Reader reader = new InputStreamReader(resource.openStream());
 		try {
 			boolean originalAutoCommit = connection.getAutoCommit();
 			try {
