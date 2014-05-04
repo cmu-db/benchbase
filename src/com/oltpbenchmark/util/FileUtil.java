@@ -181,6 +181,7 @@ public abstract class FileUtil {
     }
     
     public static String readFile(File path) {
+	System.out.println(path);
         return (readFile(path.getAbsolutePath()));
     }
     

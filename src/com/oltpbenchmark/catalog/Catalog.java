@@ -290,6 +290,7 @@ public final class Catalog {
         Map<String, String> origTableNames = new HashMap<String, String>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
         File ddl = this.benchmark.getDatabaseDDL(DatabaseType.HSQLDB);
+        System.out.println(ddl);
         String ddlContents = FileUtil.readFile(ddl);
         assert(ddlContents.isEmpty() == false);
         Matcher m = p.matcher(ddlContents);
