@@ -32,7 +32,7 @@ import com.oltpbenchmark.util.CompositeId;
 public class UserId extends CompositeId {
     
     private static final int COMPOSITE_BITS[] = {
-        24, // ITEM_COUNT
+        16, // ITEM_COUNT
         24, // OFFSET
     };
     private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);

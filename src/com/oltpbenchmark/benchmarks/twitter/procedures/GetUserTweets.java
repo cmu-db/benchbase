@@ -16,9 +16,10 @@ public class GetUserTweets extends Procedure {
         " WHERE uid = ? LIMIT " + TwitterConstants.LIMIT_TWEETS_FOR_UID
     );
     
-    public ResultSet run(Connection conn, long uid) throws SQLException {
+    public void run(Connection conn, long uid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getTweets);
         stmt.setLong(1, uid);
-        return (stmt.executeQuery());
+        ResultSet rs = stmt.executeQuery();
+        rs.close();
     }
 }

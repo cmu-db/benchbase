@@ -30,12 +30,12 @@ public class MockBenchmark extends BenchmarkModule {
         return null;
     }
     @Override
-    public File getDatabaseDDL(DatabaseType db_type) {
+    public URL getDatabaseDDL(DatabaseType db_type) {
         // Get our sample DDL file
         URL testDDLURL = MockBenchmark.class.getResource("test-ddl.sql");
         assert(testDDLURL != null);
         File testDDL = new File(testDDLURL.getPath());
         assert(testDDL.exists()) : testDDL.getAbsolutePath();
-        return (testDDL);
+        return (testDDLURL);
     }
 } // END CLASS

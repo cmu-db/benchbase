@@ -47,11 +47,11 @@ public class GetSubscriberData extends Procedure {
         "SELECT * FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE s_id = ?"
     );
 
-    public ResultSet run(Connection conn, long s_id) throws SQLException {
+    public void run(Connection conn, long s_id) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
     	stmt.setLong(1, s_id);
     	ResultSet results = stmt.executeQuery();
     	assert(results != null);
-    	return (results);
+    	results.close();
     }
 }

@@ -22,7 +22,7 @@ public class GetFollowers extends Procedure {
         " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS
     );
     
-    public ResultSet run(Connection conn, long uid) throws SQLException {
+    public void run(Connection conn, long uid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getFollowers);
         stmt.setLong(1, uid);
         ResultSet rs = stmt.executeQuery();
@@ -39,10 +39,10 @@ public class GetFollowers extends Procedure {
             while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
                 stmt.setLong(ctr, last);
             } // WHILE
-            return stmt.executeQuery();
+            rs = stmt.executeQuery();
+            rs.close();
         }
         // LOG.warn("No followers for user : "+uid); //... so what ? 
-        return (null);
     }
 
 }
