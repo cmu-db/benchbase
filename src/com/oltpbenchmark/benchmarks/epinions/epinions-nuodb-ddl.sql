@@ -1,18 +1,18 @@
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS user CASCADE;
 CREATE TABLE user (
   u_id int NOT NULL,
   name string DEFAULT NULL,
   PRIMARY KEY (u_id)
 );
 
-DROP TABLE IF EXISTS item;
+DROP TABLE IF EXISTS item CASCADE;
 CREATE TABLE item (
   i_id int NOT NULL,
   title string DEFAULT NULL,
   PRIMARY KEY (i_id)
 );
 
-DROP TABLE IF EXISTS review;
+DROP TABLE IF EXISTS review CASCADE;
 CREATE TABLE review (
   a_id int NOT NULL,
   u_id int NOT NULL REFERENCES user (u_id),
@@ -24,7 +24,7 @@ CREATE INDEX IDX_RATING_UID ON review (u_id);
 CREATE INDEX IDX_RATING_AID ON review (a_id);
 CREATE INDEX IDX_RATING_IID ON review (i_id);
 
-DROP TABLE IF EXISTS review_rating;
+DROP TABLE IF EXISTS review_rating CASCADE;
 CREATE TABLE review_rating (
   u_id int NOT NULL REFERENCES user (u_id),
   a_id int NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE review_rating (
 CREATE INDEX IDX_REVIEW_RATING_UID ON review_rating (u_id);
 CREATE INDEX IDX_REVIEW_RATING_AID ON review_rating (a_id);
 
-DROP TABLE IF EXISTS trust;
+DROP TABLE IF EXISTS trust CASCADE;
 CREATE TABLE trust (
   source_u_id int NOT NULL REFERENCES user (u_id),
   target_u_id int NOT NULL REFERENCES user (u_id),

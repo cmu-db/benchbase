@@ -38,7 +38,7 @@ import com.oltpbenchmark.util.CompositeId;
 public class ItemId extends CompositeId {
 
     private static final int COMPOSITE_BITS[] = {
-        48, // SELLER_ID
+        40, // SELLER_ID
         16, // ITEM_CTR
     };
     private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);

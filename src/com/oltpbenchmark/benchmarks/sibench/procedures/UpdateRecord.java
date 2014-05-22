@@ -15,6 +15,7 @@ public class UpdateRecord extends Procedure{
         PreparedStatement stmt = this.getPreparedStatement(conn, updateStmt);
         stmt.setInt(1, id);
         stmt.executeUpdate();
+	conn.commit();
     }
 
 }

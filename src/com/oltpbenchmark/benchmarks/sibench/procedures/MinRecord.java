@@ -25,6 +25,7 @@ public class MinRecord extends Procedure{
         	minId = r.getInt(1);
         }
         r.close();
+	conn.commit();
         return minId;
     }
 }

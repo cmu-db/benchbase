@@ -179,10 +179,8 @@ public class DBWorkload {
         String[] pluginList = plugins.split(",");
         List<BenchmarkModule> benchList = new ArrayList<BenchmarkModule>();
         
-        
         // Use this list for filtering of the output
         List<TransactionType> activeTXTypes = new ArrayList<TransactionType>();
-
         
         String configFile = argsLine.getOptionValue("c");
         XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
@@ -233,7 +231,9 @@ public class DBWorkload {
 
             if (classname == null)
                 throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
-            BenchmarkModule bench = ClassUtil.newInstance(classname, new Object[] { wrkld }, new Class<?>[] { WorkloadConfiguration.class });
+	        BenchmarkModule bench = ClassUtil.newInstance(classname,
+	                                                      new Object[] { wrkld },
+	                                                      new Class<?>[] { WorkloadConfiguration.class });
             assert (benchList.get(0) != null);
 
             Map<String, Object> initDebug = new ListOrderedMap<String, Object>();
@@ -475,6 +475,8 @@ public class DBWorkload {
 	        assert (xmlConfig != null);
 
         }
+        assert(benchList.isEmpty() == false);
+        assert (benchList.get(0) != null);
         
         // Export StatementDialects
         if (isBooleanOptionSet(argsLine, "dialects-export")) {
