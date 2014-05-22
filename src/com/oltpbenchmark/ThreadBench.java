@@ -188,6 +188,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         return;
     }
 
+    private void interruptWorkers() {
+        for (Worker worker : workers) {
+            worker.cancelStatement();
+        }
+    }
+
     private int finalizeWorkers(ArrayList<Thread> workerThreads) throws InterruptedException {
         assert testState.getState() == State.DONE || testState.getState() == State.EXIT;
         int requests = 0;
@@ -326,7 +332,34 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
             assert diff <= 0;
 
-            if (start + delta < System.nanoTime() && !lastEntry) {
+            boolean phaseComplete = false;
+            if (phase != null) {
+                TraceReader tr = workConfs.get(0).getTraceReader();
+                if (tr != null) {
+                    // If a trace script is present, the phase complete iff the
+                    // trace reader has no more 
+                    for (WorkloadConfiguration workConf : workConfs) {
+                        phaseComplete = false;
+                        tr = workConf.getTraceReader();
+                        assert workConf.getTraceReader() != null;
+                        if (!workConf.getWorkloadState().getScriptPhaseComplete()) {
+                            break;
+                        }
+                        phaseComplete = true;
+                    }
+                }
+                else if (phase.isLatencyRun())
+                    // Latency runs (serial run through each query) have their own
+                    // state to mark completion
+                    phaseComplete = testState.getState()
+                                    == State.LATENCY_COMPLETE;
+                else
+                    phaseComplete = testState.getState() == State.MEASURE
+                                    && (start + delta <= now);
+            }
+
+            // Go to next phase if this one is complete
+            if (phaseComplete && !lastEntry) {
                 // enters here after each phase of the test
                 // reset the queues so that the new phase is not affected by the
                 // queue of the previous one
@@ -334,20 +367,29 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
                 // Fetch a new Phase
                 synchronized (testState) {
+                    if (phase.isLatencyRun()) {
+                        testState.ackLatencyComplete();
+                    }
                     for (WorkloadState workState : workStates) {
-                        workState.switchToNextPhase();
-                        lowestRate = Integer.MAX_VALUE;
-                        phase = workState.getCurrentPhase();
-                        if (phase == null) {
-                            // Last phase
-                            lastEntry = true;
-                            break;
-                        } else {
-                            LOG.info(phase.currentPhaseString());
+                        synchronized (workState) {
+                            workState.switchToNextPhase();
+                            lowestRate = Integer.MAX_VALUE;
+                            phase = workState.getCurrentPhase();
+                            interruptWorkers();
+                            if (phase == null && !lastEntry) {
+                                // Last phase
+                                lastEntry = true;
+                                testState.startCoolDown();
+                                measureEnd = now;
+                                LOG.info("[Terminate] Waiting for all terminals to finish ..");
+                            } else if (phase != null) {
+                                phase.resetSerial();
+                                LOG.info(phase.currentPhaseString());
                             if (phase.rate < lowestRate) {
                                 lowestRate = phase.rate;
                             }
                         }
+                    }
                     }
                     if (phase != null) {
                         // update frequency in which we check according to
@@ -375,13 +417,23 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Update the test state appropriately
             State state = testState.getState();
             if (state == State.WARMUP && now >= start) {
+                synchronized(testState) {
+                    if (phase != null && phase.isLatencyRun())
+                        testState.startColdQuery();
+                    else
                 testState.startMeasure();
+                    interruptWorkers();
+                }
                 start = now;
+                LOG.info("[Measure] Warmup complete, starting measurements.");
                 // measureEnd = measureStart + measureSeconds * 1000000000L;
-            } else if (state == State.MEASURE && lastEntry && now >= start + delta) {
-                testState.startCoolDown();
-                LOG.info("[Terminate] Waiting for all terminals to finish ..");
-                measureEnd = now;
+
+                // For serial executions, we want to do every query exactly
+                // once, so we need to restart in case some of the queries
+                // began during the warmup phase.
+                // If we're not doing serial executions, this function has no
+                // effect and is thus safe to call regardless.
+                phase.resetSerial();
             } else if (state == State.EXIT) {
                 // All threads have noticed the done, meaning all measured
                 // requests have definitely finished.

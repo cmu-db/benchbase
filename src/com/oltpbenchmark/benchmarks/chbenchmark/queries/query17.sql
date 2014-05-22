@@ -7,4 +7,4 @@ FROM order_line,
      AND ol_i_id = i_id
    GROUP BY i_id) t
 WHERE ol_i_id = t.i_id
-  AND ol_quantity < t.a
+  AND ol_quantity < t.a;

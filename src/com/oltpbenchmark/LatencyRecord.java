@@ -48,7 +48,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
 
 	}
 
-	public void addLatency(int transType, long startNs, long endNs, int workerId, int phaseId) {
+    public void addLatency(int transType, long startNs, long endNs, int workerId, int phaseId) {
 		assert lastNs > 0;
 		assert lastNs - 500 <= startNs;
 		assert endNs >= startNs;
@@ -95,7 +95,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
 		public final int workerId;
 		public final int phaseId;
 
-		public Sample(int tranType, long startNs, int latencyUs, int workerId, int phaseId) {
+        public Sample(int tranType, long startNs, int latencyUs, int workerId, int phaseId) {
 			this.tranType = tranType;
 			this.startNs = startNs;
 			this.latencyUs = latencyUs;

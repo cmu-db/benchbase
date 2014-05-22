@@ -70,6 +70,26 @@ public final class BenchmarkState {
 		state = State.MEASURE;
 	}
 
+    public void startColdQuery() {
+        assert state == State.MEASURE;
+        state = State.COLD_QUERY;
+    }
+
+    public void startHotQuery() {
+        assert state == State.COLD_QUERY;
+        state = State.MEASURE;
+    }
+
+    public void signalLatencyComplete() {
+        assert state == State.MEASURE;
+        state = State.LATENCY_COMPLETE;
+    }
+
+    public void ackLatencyComplete() {
+        assert state == State.LATENCY_COMPLETE;
+        state = State.MEASURE;
+    }
+
 	public void startCoolDown() {
 		assert state == State.MEASURE;
 		state = State.DONE;

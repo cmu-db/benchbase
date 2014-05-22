@@ -45,6 +45,7 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -133,7 +134,7 @@ public class TPCCLoader extends Loader{
 
 		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
-			this.conn.createStatement().execute("TRUNCATE TABLE " + strTable);
+            this.conn.createStatement().execute("DELETE FROM " + strTable);
 			transCommit();
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -173,7 +174,7 @@ public class TPCCLoader extends Loader{
 				item.i_id = i;
 				item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14, 24,
 						gen));
-				item.i_price = (float) (TPCCUtil.randomNumber(100, 10000, gen) / 100.0);
+                item.i_price = (double) (TPCCUtil.randomNumber(100, 10000, gen) / 100.0);
 
 				// i_data
 				randPct = TPCCUtil.randomNumber(1, 100, gen);
@@ -254,6 +255,11 @@ public class TPCCLoader extends Loader{
 
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
+            se.printStackTrace();
+            SQLException next = se.getNextException();
+            if (next != null) {
+                LOG.debug(next.getMessage());
+            }
 			transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -288,7 +294,7 @@ public class TPCCLoader extends Loader{
 				warehouse.w_ytd = 300000;
 
 				// random within [0.0000 .. 0.2000]
-				warehouse.w_tax = (float) ((TPCCUtil.randomNumber(0, 2000, gen)) / 10000.0);
+                warehouse.w_tax = (double) ((TPCCUtil.randomNumber(0, 2000, gen)) / 10000.0);
 
 				warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6,
 						10, gen));
@@ -1056,6 +1062,10 @@ public class TPCCLoader extends Loader{
 			now = new java.util.Date();
 			LOG.debug("End Orders Load @  " + now);
 
+        } catch (SQLException se) {
+            LOG.debug(se.getMessage());
+            se.printStackTrace();
+            transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
 			transRollback();

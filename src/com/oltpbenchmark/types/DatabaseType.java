@@ -18,6 +18,7 @@ public enum DatabaseType {
     ASSCLOWN,
     HSQLDB,
     H2,
+    MONETDB,
     NUODB
     ;
     
