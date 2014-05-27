@@ -31,8 +31,11 @@ Together with the framework we provide the following OLTP/Web benchmarks:
 This framework is design to allow easy extension, we provide stub code that a contributor can use to include a new
 benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
 
-If you are using this benchmark for your papers or for your work, please cite us, and let us know so we can add you
-to our [list of publications](http://oltpbenchmark.com/wiki/index.php?title=Publications_Using_OLTPBenchmark).
+If you are using this benchmark for your papers or for your work, please cite the paper:
+
+[OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
+
+Also, let us know so we can add you to our [list of publications](http://oltpbenchmark.com/wiki/index.php?title=Publications_Using_OLTPBenchmark).
 
 Please visit the project homepage for anything other than source code: <http://oltpbenchmark.com>
 
