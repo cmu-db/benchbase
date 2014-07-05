@@ -232,7 +232,7 @@ public class Payment extends TPCCProcedure {
 
 				payUpdateCustBal.setFloat(1, c.c_balance);
 				payUpdateCustBal.setFloat(2, c.c_ytd_payment);
-				payUpdateCustBal.setFloat(3, c.c_payment_cnt);
+				payUpdateCustBal.setInt(3, c.c_payment_cnt);
 				payUpdateCustBal.setInt(4, c_w_id);
 				payUpdateCustBal.setInt(5, c_d_id);
 				payUpdateCustBal.setInt(6, c.c_id);
