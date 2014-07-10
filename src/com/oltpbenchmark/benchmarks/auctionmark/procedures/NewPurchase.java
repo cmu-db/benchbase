@@ -103,12 +103,18 @@ public class NewPurchase extends Procedure {
     
     public final SQLStmt insertPurchase = new SQLStmt(
         "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_PURCHASE + " (" +
-        	"ip_id," +
+//        	"ip_id," +
         	"ip_ib_id," +
         	"ip_ib_i_id," +  
         	"ip_ib_u_id," +  
-        	"ip_date" +     
-        ") VALUES(?,?,?,?,?)"
+        	"ip_date" +
+        ") VALUES(" +
+//        	"?," + // ip_id
+            "?," + // ip_ib_id
+        	"?," + // ip_ib_i_id
+        	"?," + // ip_ib_u_id
+        	"?" +  // ip_date
+        	")"
     );
     
     public final SQLStmt updateItem = new SQLStmt(
@@ -119,7 +125,8 @@ public class NewPurchase extends Procedure {
     
     public final SQLStmt updateUserItem = new SQLStmt(
         "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + " " +
-           "SET ui_ip_id = ?, " +
+           "SET " +
+           // "    ui_ip_id = ?, " +
            "    ui_ip_ib_id = ?, " +
            "    ui_ip_ib_i_id = ?, " +
            "    ui_ip_ib_u_id = ?" +
@@ -131,12 +138,21 @@ public class NewPurchase extends Procedure {
             "ui_u_id, " +
             "ui_i_id, " +
             "ui_i_u_id, " +
-            "ui_ip_id, " +
+//            "ui_ip_id, " +
             "ui_ip_ib_id, " +
             "ui_ip_ib_i_id, " +
             "ui_ip_ib_u_id, " +
             "ui_created" +     
-        ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        ") VALUES ( " +
+            "?, " + // ui_u_id
+            "?, " + // ui_i_id
+            "?, " + // ui_i_u_id
+//            "?, " + // ui_ip_id
+            "?, " + // ui_ip_ib_id
+            "?, " + // ui_ip_ib_i_id
+            "?, " + // ui_ip_ib_u_id
+            "?" +   // ui_created
+            ")"
     );
     
     public final SQLStmt updateUserBalance = new SQLStmt(
@@ -210,7 +226,8 @@ public class NewPurchase extends Procedure {
         }
 
         // Set item_purchase_id
-        updated = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime).executeUpdate();
+        updated = this.getPreparedStatement(conn, insertPurchase, // ip_id,
+                                            ib_id, item_id, seller_id, currentTime).executeUpdate();
         assert(updated == 1);
         
         // Update item status to close
@@ -221,11 +238,13 @@ public class NewPurchase extends Procedure {
         
         // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
         // If we don't have a record to update, just go ahead and create it
-        updated = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id,
-                                                                  ib_buyer_id, item_id, seller_id).executeUpdate();
+        updated = this.getPreparedStatement(conn, updateUserItem, // ip_id,
+                                                  ib_id, item_id, seller_id,
+                                                  ib_buyer_id, item_id, seller_id).executeUpdate();
         if (updated == 0) {
             updated = this.getPreparedStatement(conn, insertUserItem, ib_buyer_id, item_id, seller_id,
-                                                                      ip_id, ib_id, item_id, seller_id,
+                                                                      // ip_id,
+                                                                      ib_id, item_id, seller_id,
                                                                       currentTime).executeUpdate();
         }
         assert(updated == 1) :

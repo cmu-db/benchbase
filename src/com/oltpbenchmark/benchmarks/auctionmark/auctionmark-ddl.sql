@@ -306,13 +306,14 @@ CREATE TABLE ITEM_MAX_BID (
 -- ip_date             Purchase's date
 -- ================================================================
 CREATE TABLE ITEM_PURCHASE (
-    ip_id               BIGINT NOT NULL,
+    -- ip_id               BIGINT NOT NULL,
     ip_ib_id            BIGINT NOT NULL,
     ip_ib_i_id          BIGINT NOT NULL,
     ip_ib_u_id          BIGINT NOT NULL,
     ip_date             TIMESTAMP,
     FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
-    PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
+    -- PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
+    PRIMARY KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id)
 );
 
 -- ================================================================
@@ -347,13 +348,14 @@ CREATE TABLE USERACCT_ITEM (
     ui_u_id             BIGINT NOT NULL REFERENCES USERACCT (u_id),
     ui_i_id             BIGINT NOT NULL,
     ui_i_u_id           BIGINT NOT NULL,
-    ui_ip_id            BIGINT,
+    -- ui_ip_id            BIGINT,
     ui_ip_ib_id         BIGINT,
     ui_ip_ib_i_id       BIGINT,
     ui_ip_ib_u_id       BIGINT,
     ui_created          TIMESTAMP,
     FOREIGN KEY (ui_i_id, ui_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
-    FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id) ON DELETE CASCADE,
+    -- FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_ib_id, ip_ib_i_id, ip_ib_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ui_u_id, ui_i_id, ui_i_u_id)
 );
 -- CREATE INDEX IDX_USERACCT_ITEM_ID ON USERACCT_ITEM (ui_i_id);
