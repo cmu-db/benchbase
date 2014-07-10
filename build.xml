@@ -30,7 +30,7 @@
     <target name="build"
             description="Build the entire framework">
         <fileset dir="${src.dir}" excludes="**/*.launch, **/*.java"/>
-        <echo message="${ant.project.name}: ${ant.file}"/>
+        <!-- <echo message="${ant.project.name}: ${ant.file}"/> -->
         
         <mkdir dir="${build.dir}/META-INF"/>
         <copy file="${src.dir}/META-INF/persistence.xml" todir="${build.dir}/META-INF"/>
