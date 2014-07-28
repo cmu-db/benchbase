@@ -77,7 +77,10 @@ public class ExecJDBC {
 			// make connection
 			conn = DriverManager.getConnection(ini.getProperty("conn"),
 					ini.getProperty("user"), ini.getProperty("password"));
-			conn.setAutoCommit(true);
+
+			// woonhak, change autocommit = false for activate foreign key constraints
+			//conn.setAutoCommit(true);
+			conn.setAutoCommit(false);
 
 			// Create Statement
 			stmt = conn.createStatement();

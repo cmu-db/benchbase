@@ -166,14 +166,9 @@ public class NewOrder extends TPCCProcedure {
 			d_tax = rs.getFloat("D_TAX");
 			rs.close();
 			rs = null;
-			o_id = d_next_o_id;
 
-
-			stmtInsertNewOrder.setInt(1, o_id);
-			stmtInsertNewOrder.setInt(2, d_id);
-			stmtInsertNewOrder.setInt(3, w_id);
-			stmtInsertNewOrder.executeUpdate();
-
+			//woonhak, need to change order because of foreign key constraints
+			//update next_order_id first, but it might doesn't matter
 			stmtUpdateDist.setInt(1, w_id);
 			stmtUpdateDist.setInt(2, d_id);
 			int result = stmtUpdateDist.executeUpdate();
@@ -182,6 +177,10 @@ public class NewOrder extends TPCCProcedure {
 						"Error!! Cannot update next_order_id on district for D_ID="
 								+ d_id + " D_W_ID=" + w_id);
 
+			o_id = d_next_o_id;
+
+			// woonhak, need to change order, because of foreign key constraints
+			//[[insert ooder first
 			stmtInsertOOrder.setInt(1, o_id);
 			stmtInsertOOrder.setInt(2, d_id);
 			stmtInsertOOrder.setInt(3, w_id);
@@ -191,6 +190,27 @@ public class NewOrder extends TPCCProcedure {
 			stmtInsertOOrder.setInt(6, o_ol_cnt);
 			stmtInsertOOrder.setInt(7, o_all_local);
 			stmtInsertOOrder.executeUpdate();
+			//insert ooder first]]
+			/*TODO: add error checking */
+
+			stmtInsertNewOrder.setInt(1, o_id);
+			stmtInsertNewOrder.setInt(2, d_id);
+			stmtInsertNewOrder.setInt(3, w_id);
+			stmtInsertNewOrder.executeUpdate();
+			/*TODO: add error checking */
+
+
+			/* woonhak, [[change order				 
+			stmtInsertOOrder.setInt(1, o_id);
+			stmtInsertOOrder.setInt(2, d_id);
+			stmtInsertOOrder.setInt(3, w_id);
+			stmtInsertOOrder.setInt(4, c_id);
+			stmtInsertOOrder.setTimestamp(5,
+					new Timestamp(System.currentTimeMillis()));
+			stmtInsertOOrder.setInt(6, o_ol_cnt);
+			stmtInsertOOrder.setInt(7, o_all_local);
+			stmtInsertOOrder.executeUpdate();
+			change order]]*/
 
 			for (int ol_number = 1; ol_number <= o_ol_cnt; ol_number++) {
 				ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
