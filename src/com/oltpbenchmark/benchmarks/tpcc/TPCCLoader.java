@@ -67,6 +67,10 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
+//woonhak, for postgres (make insert statement wihtout escaped char), 
+//need to know current dbType 
+import com.oltpbenchmark.types.DatabaseType;
+
 public class TPCCLoader extends Loader{
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
@@ -100,7 +104,15 @@ public class TPCCLoader extends Loader{
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
         Table catalog_tbl = this.getTableCatalog(tableName);
         assert(catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+
+				//woonhak, if current dbType is postgres then make insertSQL without escaped character.
+				String sql = null;
+
+				if(this.getDatabaseType()== DatabaseType.POSTGRES )
+					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
+				else
+					sql = SQLUtil.getInsertSQL(catalog_tbl);
+
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         return stmt;
 	}
