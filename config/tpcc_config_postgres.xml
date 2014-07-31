@@ -2,7 +2,7 @@
 <parameters>
 	
     <!-- Connection details -->
-    <dbtype>mysql</dbtype>
+    <dbtype>postgres</dbtype>
     <driver>org.postgresql.Driver</driver>
     <DBUrl>jdbc:postgresql://localhost:5432/tpcc</DBUrl>
     <username>tpcc</username>

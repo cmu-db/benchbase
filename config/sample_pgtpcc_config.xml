@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <parameters>
+    <dbtype>postgres</dbtype>
     <driver>org.postgresql.Driver</driver>
     <DBUrl>jdbc:postgresql://diuflx01:5432/tpcc/</DBUrl>
     <DBName>tpcc</DBName>
