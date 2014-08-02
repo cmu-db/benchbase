@@ -1,4 +1,78 @@
 -- TODO: c_since ON UPDATE CURRENT_TIMESTAMP,
+
+DROP TABLE IF EXISTS order_line;
+CREATE TABLE order_line (
+  ol_w_id int NOT NULL,
+  ol_d_id int NOT NULL,
+  ol_o_id int NOT NULL,
+  ol_number int NOT NULL,
+  ol_i_id int NOT NULL,
+  ol_delivery_d timestamp NULL DEFAULT NULL,
+  ol_amount decimal(6,2) NOT NULL,
+  ol_supply_w_id int NOT NULL,
+  ol_quantity decimal(2,0) NOT NULL,
+  ol_dist_info char(24) NOT NULL,
+  PRIMARY KEY (ol_w_id,ol_d_id,ol_o_id,ol_number)
+);
+
+DROP TABLE IF EXISTS new_order;
+CREATE TABLE new_order (
+  no_w_id int NOT NULL,
+  no_d_id int NOT NULL,
+  no_o_id int NOT NULL,
+  PRIMARY KEY (no_w_id,no_d_id,no_o_id)
+);
+
+DROP TABLE IF EXISTS stock;
+CREATE TABLE stock (
+  s_w_id int NOT NULL,
+  s_i_id int NOT NULL,
+  s_quantity decimal(4,0) NOT NULL,
+  s_ytd decimal(8,2) NOT NULL,
+  s_order_cnt int NOT NULL,
+  s_remote_cnt int NOT NULL,
+  s_data varchar(50) NOT NULL,
+  s_dist_01 char(24) NOT NULL,
+  s_dist_02 char(24) NOT NULL,
+  s_dist_03 char(24) NOT NULL,
+  s_dist_04 char(24) NOT NULL,
+  s_dist_05 char(24) NOT NULL,
+  s_dist_06 char(24) NOT NULL,
+  s_dist_07 char(24) NOT NULL,
+  s_dist_08 char(24) NOT NULL,
+  s_dist_09 char(24) NOT NULL,
+  s_dist_10 char(24) NOT NULL,
+  PRIMARY KEY (s_w_id,s_i_id)
+);
+
+-- TODO: o_entry_d  ON UPDATE CURRENT_TIMESTAMP
+DROP TABLE IF EXISTS oorder;
+CREATE TABLE oorder (
+  o_w_id int NOT NULL,
+  o_d_id int NOT NULL,
+  o_id int NOT NULL,
+  o_c_id int NOT NULL,
+  o_carrier_id int DEFAULT NULL,
+  o_ol_cnt decimal(2,0) NOT NULL,
+  o_all_local decimal(1,0) NOT NULL,
+  o_entry_d timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (o_w_id,o_d_id,o_id),
+  UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
+);
+
+-- TODO: h_date ON UPDATE CURRENT_TIMESTAMP
+DROP TABLE IF EXISTS history;
+CREATE TABLE history (
+  h_c_id int NOT NULL,
+  h_c_d_id int NOT NULL,
+  h_c_w_id int NOT NULL,
+  h_d_id int NOT NULL,
+  h_w_id int NOT NULL,
+  h_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  h_amount decimal(6,2) NOT NULL,
+  h_data varchar(24) NOT NULL
+);
+
 DROP TABLE IF EXISTS customer;
 CREATE TABLE customer (
   c_w_id int NOT NULL,
@@ -41,18 +115,6 @@ CREATE TABLE district (
   PRIMARY KEY (d_w_id,d_id)
 );
 
--- TODO: h_date ON UPDATE CURRENT_TIMESTAMP
-DROP TABLE IF EXISTS history;
-CREATE TABLE history (
-  h_c_id int NOT NULL,
-  h_c_d_id int NOT NULL,
-  h_c_w_id int NOT NULL,
-  h_d_id int NOT NULL,
-  h_w_id int NOT NULL,
-  h_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  h_amount decimal(6,2) NOT NULL,
-  h_data varchar(24) NOT NULL
-);
 
 DROP TABLE IF EXISTS item;
 CREATE TABLE item (
@@ -62,66 +124,6 @@ CREATE TABLE item (
   i_data varchar(50) NOT NULL,
   i_im_id int NOT NULL,
   PRIMARY KEY (i_id)
-);
-
-DROP TABLE IF EXISTS new_order;
-CREATE TABLE new_order (
-  no_w_id int NOT NULL,
-  no_d_id int NOT NULL,
-  no_o_id int NOT NULL,
-  PRIMARY KEY (no_w_id,no_d_id,no_o_id)
-);
-
--- TODO: o_entry_d  ON UPDATE CURRENT_TIMESTAMP
-DROP TABLE IF EXISTS oorder;
-CREATE TABLE oorder (
-  o_w_id int NOT NULL,
-  o_d_id int NOT NULL,
-  o_id int NOT NULL,
-  o_c_id int NOT NULL,
-  o_carrier_id int DEFAULT NULL,
-  o_ol_cnt decimal(2,0) NOT NULL,
-  o_all_local decimal(1,0) NOT NULL,
-  o_entry_d timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (o_w_id,o_d_id,o_id),
-  UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
-);
-
-DROP TABLE IF EXISTS order_line;
-CREATE TABLE order_line (
-  ol_w_id int NOT NULL,
-  ol_d_id int NOT NULL,
-  ol_o_id int NOT NULL,
-  ol_number int NOT NULL,
-  ol_i_id int NOT NULL,
-  ol_delivery_d timestamp NULL DEFAULT NULL,
-  ol_amount decimal(6,2) NOT NULL,
-  ol_supply_w_id int NOT NULL,
-  ol_quantity decimal(2,0) NOT NULL,
-  ol_dist_info char(24) NOT NULL,
-  PRIMARY KEY (ol_w_id,ol_d_id,ol_o_id,ol_number)
-);
-
-DROP TABLE IF EXISTS stock;
-CREATE TABLE stock (
-  s_w_id int NOT NULL,
-  s_i_id int NOT NULL,
-  s_quantity decimal(4,0) NOT NULL,
-  s_ytd decimal(8,2) NOT NULL,
-  s_order_cnt int NOT NULL,
-  s_remote_cnt int NOT NULL,
-  s_data varchar(50) NOT NULL,
-  s_dist_01 char(24) NOT NULL,
-  s_dist_02 char(24) NOT NULL,
-  s_dist_03 char(24) NOT NULL,
-  s_dist_04 char(24) NOT NULL,
-  s_dist_05 char(24) NOT NULL,
-  s_dist_06 char(24) NOT NULL,
-  s_dist_07 char(24) NOT NULL,
-  s_dist_08 char(24) NOT NULL,
-  s_dist_09 char(24) NOT NULL,
-  s_dist_10 char(24) NOT NULL,
-  PRIMARY KEY (s_w_id,s_i_id)
 );
 
 DROP TABLE IF EXISTS warehouse;
