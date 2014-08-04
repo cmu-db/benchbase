@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <parameters>
+    <dbtype>sqlserver</dbtype>
     <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
     <DBUrl>jdbc:sqlserver://ec2-184-73-83-246.compute-1.amazonaws.com:1433;databaseName=tpcc</DBUrl>
     <DBName>tpcc</DBName>
