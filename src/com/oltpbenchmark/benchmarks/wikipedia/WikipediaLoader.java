@@ -108,6 +108,7 @@ public class WikipediaLoader extends Loader {
     private File genTrace() throws Exception {
         WikipediaBenchmark b = (WikipediaBenchmark)this.benchmark;
         File file = b.getTraceOutput();
+        File filedebug = b.getTraceOutputDebug();
         if (file == null || b.getTraceSize() == 0) return (null);
         
         assert(this.num_pages == this.titles.size());
@@ -117,6 +118,7 @@ public class WikipediaLoader extends Loader {
         Zipf z_pages = new Zipf(rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
         
         PrintStream ps = new PrintStream(file);
+        PrintStream psdebug = new PrintStream(filedebug);
         for (int i = 0, cnt = (b.getTraceSize() * 1000); i < cnt; i++) {
             int user_id = -1;
             
@@ -134,10 +136,11 @@ public class WikipediaLoader extends Loader {
             int page_id = z_pages.nextInt();
             Pair<Integer, String> p = this.titles.get(page_id);
             assert(p != null);
-            
             TransactionSelector.writeEntry(ps, user_id, p.first, p.second);
+            TransactionSelector.writeEntryDebug(psdebug, user_id, p.first, p.second, page_id+1);
         } // FOR
         ps.close();
+        psdebug.close();
         return (file);
     }
     
@@ -455,7 +458,14 @@ public class WikipediaLoader extends Loader {
                 // Update Last Revision Stuff
                 this.page_last_rev_id[page_id-1] = rev_id;
                 this.page_last_rev_length[page_id-1] = old_text_length;
-                rev_id++;
+                rev_id++;             
+                PreparedStatement text_seq=this.conn.prepareStatement("select text_seq.nextval from dual");
+                text_seq.execute();
+                text_seq.close();
+                PreparedStatement revision_seq=this.conn.prepareStatement("select revision_seq.nextval from dual");
+                revision_seq.execute();
+                revision_seq.close();
+               
                 batchSize++;
             } // FOR (revision)
             if (batchSize > WikipediaConstants.BATCH_SIZE) {

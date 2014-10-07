@@ -50,7 +50,10 @@ public abstract class SEATSConstants {
      * The different distances that we can look-up for nearby airports
      * This is similar to the customer selecting a dropdown when looking for flights 
      */
-    public static final int DISTANCES[] = { 5 }; // , 10, 25, 50, 100 };
+   // public static final int DISTANCES[] = { 5 }; // , 10, 25, 50, 100 };
+    
+    // Zhenwu made the changes. The original code is above
+    public static final int DISTANCES[] = { 5, 10, 25, 50, 100 };
     
     /**
      * The number of days in the past and future that we will generate flight information for
