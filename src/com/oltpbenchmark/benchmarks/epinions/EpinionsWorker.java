@@ -37,7 +37,6 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
 import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
-import com.oltpbenchmark.benchmarks.seats.SEATSWorker;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 
