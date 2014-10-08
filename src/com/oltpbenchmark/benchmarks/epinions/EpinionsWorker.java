@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
