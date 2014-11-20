@@ -157,14 +157,14 @@ CREATE INDEX IDX_CUSTOMER_NAME ON CUSTOMER (C_W_ID,C_D_ID,C_LAST,C_FIRST);
 -- and add constraints and make indexes later aretoo slow when running a single thread.
 -- so I just add create index and foreign key constraints before loading data.
 
---already created
---CREATE INDEX IDX_CUSTOMER ON CUSTOMER (C_W_ID,C_D_ID,C_LAST,C_FIRST);
+-- already created
+-- CREATE INDEX IDX_CUSTOMER ON CUSTOMER (C_W_ID,C_D_ID,C_LAST,C_FIRST);
 CREATE INDEX IDX_ORDER ON OORDER (O_W_ID,O_D_ID,O_C_ID,O_ID);
 -- tpcc-mysql create two indexes for the foreign key constraints, Is it really necessary?
 -- CREATE INDEX FKEY_STOCK_2 ON STOCK (S_I_ID);
 -- CREATE INDEX FKEY_ORDER_LINE_2 ON ORDER_LINE (OL_SUPPLY_W_ID,OL_I_ID);
 
---add 'ON DELETE CASCADE'  to clear table work correctly
+-- add 'ON DELETE CASCADE'  to clear table work correctly
 
 ALTER TABLE DISTRICT  ADD CONSTRAINT FKEY_DISTRICT_1 FOREIGN KEY(D_W_ID) REFERENCES WAREHOUSE(W_ID) ON DELETE CASCADE;
 ALTER TABLE CUSTOMER ADD CONSTRAINT FKEY_CUSTOMER_1 FOREIGN KEY(C_W_ID,C_D_ID) REFERENCES DISTRICT(D_W_ID,D_ID)  ON DELETE CASCADE ;
