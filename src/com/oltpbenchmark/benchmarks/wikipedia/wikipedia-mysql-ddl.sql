@@ -146,7 +146,7 @@ CREATE TABLE revision (
   rev_id int NOT NULL auto_increment,
   rev_page int NOT NULL,
   rev_text_id int NOT NULL,
-  rev_comment nvchar(255) NOT NULL,
+  rev_comment nvarchar(255) NOT NULL,
   rev_user int NOT NULL DEFAULT '0',
   rev_user_text varbinary(255) NOT NULL DEFAULT '',
   rev_timestamp binary(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
