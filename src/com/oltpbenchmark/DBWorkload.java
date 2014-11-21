@@ -548,7 +548,12 @@ public class DBWorkload {
 
             PrintStream ps = System.out;
             PrintStream rs = System.out;
-            ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
+            
+            // Special result uploader
+            ResultUploader ru = null;
+            if (xmlConfig.containsKey("uploadCode") && xmlConfig.containsKey("uploadUrl")) {
+                ru = new ResultUploader(r, xmlConfig, argsLine);
+            }
 
             if (argsLine.hasOption("o")) {
                 // Check if directory needs to be created
@@ -571,19 +576,19 @@ public class DBWorkload {
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
                 PrintStream ss = new PrintStream(new File(nextName));
                 LOG.info("Output summary data into file: " + nextName);
-                ru.writeSummary(ss);
+                if (ru != null) ru.writeSummary(ss);
                 ss.close();
 
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
                 ss = new PrintStream(new File(nextName));
                 LOG.info("Output db config into file: " + nextName);
-                ru.writeDBParameters(ss);
+                if (ru != null) ru.writeDBParameters(ss);
                 ss.close();
 
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
                 ss = new PrintStream(new File(nextName));
                 LOG.info("Output benchmark config into file: " + nextName);
-                ru.writeBenchmarkConf(ss);
+                if (ru != null) ru.writeBenchmarkConf(ss);
                 ss.close();
             } else if (LOG.isDebugEnabled()) {
                 LOG.debug("No output file specified");
@@ -594,7 +599,7 @@ public class DBWorkload {
                 LOG.info("Grouped into Buckets of " + windowSize + " seconds");
                 r.writeCSV(windowSize, ps);
 
-                if (isBooleanOptionSet(argsLine, "upload")) {
+                if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
                     ru.uploadResult();
                 }
 
