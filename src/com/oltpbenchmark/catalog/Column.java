@@ -81,6 +81,7 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     }
 
     /**
+     * Return the max size of this column
      * @return the size
      */
     public Integer getSize() {
