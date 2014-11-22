@@ -233,7 +233,7 @@ public class WikipediaLoader extends Loader {
         assert(catalog_tbl != null);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
-        if(this.getDatabaseType() == DatabaseType.ORACLE) {
+        if (this.getDatabaseType() == DatabaseType.ORACLE) {
             // Oracle handles quoted object identifiers differently, do not escape names
             sql = SQLUtil.getInsertSQL(catalog_tbl, false);
         }
@@ -246,7 +246,10 @@ public class WikipediaLoader extends Loader {
         int batchSize = 0;
         int lastPercent = -1;
         for (int i = 1; i <= this.num_pages; i++) {
-            String title = TextGenerator.randomStr(rng(), h_titleLength.nextValue().intValue());
+            // HACK: Always append the page id to the title so that it's guaranteed
+            // to be unique. Otherwise we can get collisions with larger scale factors.
+            int titleLength = h_titleLength.nextValue().intValue();
+            String title = TextGenerator.randomStr(rng(), titleLength) + " [" + i + "]";
             int namespace = h_namespace.nextValue().intValue();
             String restrictions = h_restrictions.nextValue();
             while (restrictions == "" && this.getDatabaseType() == DatabaseType.ORACLE) {
