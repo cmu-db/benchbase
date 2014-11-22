@@ -312,7 +312,8 @@ public class WikipediaLoader extends Loader {
         }
         PreparedStatement watchInsert = this.conn.prepareStatement(sql);
         
-        Zipf h_numWatches = new Zipf(rng(), 0, WikipediaConstants.MAX_WATCHES_PER_USER, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
+        int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
+        Zipf h_numWatches = new Zipf(rng(), 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
         Zipf h_pageId = new Zipf(rng(), 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
         // Use a large max batch size for tables with smaller tuples
@@ -329,10 +330,17 @@ public class WikipediaLoader extends Loader {
             
             userPages.clear();
             for (int i = 0; i < num_watches; i++) {
-                int pageId = h_pageId.nextInt();
-                while (userPages.contains(pageId)) {
+                int pageId = -1;
+                // HACK: Work around for testing with small database sizes
+                if (num_watches == max_watches_per_user) {
+                    pageId = i + 1;
+                } else {
                     pageId = h_pageId.nextInt();
-                } // WHILE
+                    while (userPages.contains(pageId)) {
+                        pageId = h_pageId.nextInt();
+                    } // WHILE
+                }
+                assert(pageId > 0);
                 userPages.add(pageId);
                 
                 Pair<Integer, String> page = this.titles.get(pageId);

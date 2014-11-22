@@ -25,7 +25,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
 public class TestWikipediaBenchmark extends AbstractTestBenchmarkModule<WikipediaBenchmark> {
 
     static {
-        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
+//         org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/oltpbench/log4j.properties");
     }
     
     public static final Class<?> PROC_CLASSES[] = {
