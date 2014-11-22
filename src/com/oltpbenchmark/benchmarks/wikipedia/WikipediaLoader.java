@@ -426,7 +426,8 @@ public class WikipediaLoader extends Loader {
                     old_text_length = old_text.length;
                 }
                 
-                String rev_comment = TextGenerator.randomStr(rng(), h_commentLength.nextValue().intValue()+1);
+                int rev_comment_len = Math.max(255, h_commentLength.nextValue().intValue()+1); // HACK
+                String rev_comment = TextGenerator.randomStr(rng(), rev_comment_len);
 
                 // The REV_USER_TEXT field is usually the username, but we'll just 
                 // put in gibberish for now
