@@ -380,7 +380,7 @@ public class WikipediaLoader extends Loader {
         // TEXT
         Table textTable = this.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
         String textSQL = SQLUtil.getInsertSQL(textTable);
-        if(this.getDatabaseType() == DatabaseType.ORACLE) {
+        if (this.getDatabaseType() == DatabaseType.ORACLE) {
             // Oracle handles quoted object identifiers differently, do not escape names
             textSQL = SQLUtil.getInsertSQL(textTable, false);
         }
@@ -389,7 +389,7 @@ public class WikipediaLoader extends Loader {
         // REVISION
         Table revTable = this.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
         String revSQL = SQLUtil.getInsertSQL(revTable);
-        if(this.getDatabaseType() == DatabaseType.ORACLE) {
+        if (this.getDatabaseType() == DatabaseType.ORACLE) {
             // Oracle handles quoted object identifiers differently, do not escape names
             revSQL = SQLUtil.getInsertSQL(revTable, false);
         }
@@ -404,7 +404,7 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
         
-        final int rev_max_size = revTable.getColumnByName("rev_comment").getSize();
+        final int rev_comment_max = revTable.getColumnByName("rev_comment").getSize();
         int rev_id = 1;
         int lastPercent = -1;
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
@@ -429,9 +429,9 @@ public class WikipediaLoader extends Loader {
                     old_text_length = old_text.length;
                 }
                 
-                int rev_comment_len = Math.min(rev_max_size, h_commentLength.nextValue().intValue()+1); // HACK
+                int rev_comment_len = Math.min(rev_comment_max, h_commentLength.nextValue().intValue()+1); // HACK
                 String rev_comment = TextGenerator.randomStr(rng(), rev_comment_len);
-                assert(rev_comment.length() <= rev_max_size) : 
+                assert(rev_comment.length() <= rev_comment_max) : 
                     String.format("[len=%d] ==> %s", rev_comment.length(), rev_comment); 
 
                 // The REV_USER_TEXT field is usually the username, but we'll just 

@@ -87,7 +87,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	}
 	
 	/**
-	 * 
+	 * Special function that takes in a char field that represents the last
+	 * version of the page and then do some permutation on it. This ensures
+	 * that each revision looks somewhat similar to previous one so that we
+	 * just don't have a bunch of random text fields for the same page.
 	 * @param orig_text
 	 * @return
 	 */
