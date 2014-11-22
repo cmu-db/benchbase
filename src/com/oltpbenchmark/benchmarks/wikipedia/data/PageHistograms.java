@@ -350,7 +350,10 @@ public abstract class PageHistograms {
      */
     public static final Histogram<String> RESTRICTIONS = new Histogram<String>() {
         {
-            this.put("", 99917);
+            // HACK: Normally MediaWiki just uses an empty field if there are no restrictions.
+            //       But Oracle handles "" as NULL, so we need to make sure that our
+            //       restrictions are never empty. 
+            this.put("none", 99917); // HACK for Oracle
             this.put("edit=autoconfirmed:move=autoconfirmed", 20);
             this.put("edit=autoconfirmed:move=sysop", 8);
             this.put("edit=sysop:move=sysop", 23);

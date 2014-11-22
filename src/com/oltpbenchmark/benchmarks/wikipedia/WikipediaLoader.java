@@ -252,10 +252,7 @@ public class WikipediaLoader extends Loader {
             String title = TextGenerator.randomStr(rng(), titleLength) + " [" + i + "]";
             int namespace = h_namespace.nextValue().intValue();
             String restrictions = h_restrictions.nextValue();
-            while (restrictions == "" && this.getDatabaseType() == DatabaseType.ORACLE) {
-                // Oracle handles "" as NULL, get new value
-                restrictions = h_restrictions.nextValue();
-            }
+            assert(restrictions.isEmpty() == false); // Check for Oracle
             double pageRandom = rng().nextDouble();
             String pageTouched = TimeUtil.getCurrentTimeString14();
             
@@ -315,9 +312,12 @@ public class WikipediaLoader extends Loader {
         }
         PreparedStatement watchInsert = this.conn.prepareStatement(sql);
         
-        Zipf h_numWatches = new Zipf(rng(), 0, this.num_pages, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
+        Zipf h_numWatches = new Zipf(rng(), 0, WikipediaConstants.MAX_WATCHES_PER_USER, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
         Zipf h_pageId = new Zipf(rng(), 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
+        // Use a large max batch size for tables with smaller tuples
+        int maxBatchSize = WikipediaConstants.BATCH_SIZE * 5;
+        
         int batchSize = 0;
         int lastPercent = -1;
         Set<Integer> userPages = new HashSet<Integer>();
@@ -325,6 +325,7 @@ public class WikipediaLoader extends Loader {
             int num_watches = h_numWatches.nextInt();
             if (LOG.isTraceEnabled())
                 LOG.trace(user_id + " => " + num_watches);
+            if (num_watches == 0) continue;
             
             userPages.clear();
             for (int i = 0; i < num_watches; i++) {
@@ -346,7 +347,7 @@ public class WikipediaLoader extends Loader {
                 batchSize++;
             } // FOR
 
-            if (batchSize >= WikipediaConstants.BATCH_SIZE) {
+            if (batchSize >= maxBatchSize) {
                 watchInsert.executeBatch();
                 this.conn.commit();
                 watchInsert.clearBatch();
@@ -359,6 +360,7 @@ public class WikipediaLoader extends Loader {
                 }
             }
         } // FOR
+        
         if (batchSize > 0) {
             watchInsert.executeBatch();
             watchInsert.clearBatch();
@@ -402,6 +404,7 @@ public class WikipediaLoader extends Loader {
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<Integer>(this.rng(), PageHistograms.REVISIONS_PER_PAGE);
         
+        final int rev_max_size = revTable.getColumnByName("rev_comment").getSize();
         int rev_id = 1;
         int lastPercent = -1;
         for (int page_id = 1; page_id <= this.num_pages; page_id++) {
@@ -426,8 +429,10 @@ public class WikipediaLoader extends Loader {
                     old_text_length = old_text.length;
                 }
                 
-                int rev_comment_len = Math.max(255, h_commentLength.nextValue().intValue()+1); // HACK
+                int rev_comment_len = Math.min(rev_max_size, h_commentLength.nextValue().intValue()+1); // HACK
                 String rev_comment = TextGenerator.randomStr(rng(), rev_comment_len);
+                assert(rev_comment.length() <= rev_max_size) : 
+                    String.format("[len=%d] ==> %s", rev_comment.length(), rev_comment); 
 
                 // The REV_USER_TEXT field is usually the username, but we'll just 
                 // put in gibberish for now
