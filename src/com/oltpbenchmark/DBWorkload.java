@@ -129,6 +129,7 @@ public class DBWorkload {
         options.addOption("v", "verbose", false, "Display Messages");
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
+        options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in Milliseconds (default 1000)");
         options.addOption("ss", false, "Verbose Sampling per Transaction");
         options.addOption("o", "output", true, "Output file (default System.out)");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
@@ -161,6 +162,12 @@ public class DBWorkload {
         String timestampValue = "";
         if (argsLine.hasOption("t")) {
             timestampValue = String.valueOf(TimeUtil.getCurrentTime().getTime()) + "_";
+        }
+        
+        // milliseconds
+        int intervalMonitor = 0;
+        if (argsLine.hasOption("im")) {
+            intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
         }
         
         // -------------------------------------------------------------------
@@ -539,7 +546,7 @@ public class DBWorkload {
             // Bombs away!
             Results r = null;
             try {
-                r = runWorkload(benchList, verbose);
+                r = runWorkload(benchList, verbose, intervalMonitor);
             } catch (Throwable ex) {
                 LOG.error("Unexpected error when running benchmarks.", ex);
                 System.exit(1);
@@ -685,7 +692,7 @@ public class DBWorkload {
         bench.loadDatabase();
     }
 
-    private static Results runWorkload(List<BenchmarkModule> benchList, boolean verbose) throws QueueLimitException, IOException {
+    private static Results runWorkload(List<BenchmarkModule> benchList, boolean verbose, int intervalMonitor) throws QueueLimitException, IOException {
         List<Worker> workers = new ArrayList<Worker>();
         List<WorkloadConfiguration> workConfs = new ArrayList<WorkloadConfiguration>();
         for (BenchmarkModule bench : benchList) {
@@ -697,7 +704,7 @@ public class DBWorkload {
             workConfs.add(bench.getWorkloadConfiguration());
             
         }
-        Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs);
+        Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, intervalMonitor);
         LOG.info(SINGLE_LINE);
         LOG.info("Rate limited reqs/s: " + r);
         return r;
