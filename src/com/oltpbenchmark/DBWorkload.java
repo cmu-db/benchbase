@@ -550,10 +550,7 @@ public class DBWorkload {
             PrintStream rs = System.out;
             
             // Special result uploader
-            ResultUploader ru = null;
-            if (xmlConfig.containsKey("uploadCode") && xmlConfig.containsKey("uploadUrl")) {
-                ru = new ResultUploader(r, xmlConfig, argsLine);
-            }
+            ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
 
             if (argsLine.hasOption("o")) {
                 // Check if directory needs to be created
@@ -575,6 +572,7 @@ public class DBWorkload {
 
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
                 PrintStream ss = new PrintStream(new File(nextName));
+                System.out.println("Our result uploader" + ru);
                 LOG.info("Output summary data into file: " + nextName);
                 if (ru != null) ru.writeSummary(ss);
                 ss.close();
