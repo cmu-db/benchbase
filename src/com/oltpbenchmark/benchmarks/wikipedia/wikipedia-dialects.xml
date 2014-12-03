@@ -66,7 +66,7 @@
                 INSERT /*+ ignore_row_on_dupkey_index(watchlist(wl_user,wl_namespace,wl_title)) */ INTO watchlist (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL)
             </statement>
             <statement name="setUserTouched">
-                UPDATE "useracct" SET user_touched = ? WHERE user_id =  ?
+                UPDATE useracct SET user_touched = ? WHERE user_id =  ?
             </statement>
         </procedure>
         <procedure name="RemoveWatchList">
@@ -74,7 +74,7 @@
                 DELETE FROM watchlist WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
             </statement>
             <statement name="setUserTouched">
-                UPDATE "useracct" SET user_touched = ? WHERE user_id =  ? 
+                UPDATE useracct SET user_touched = ? WHERE user_id =  ? 
             </statement>
         </procedure>
         <procedure name="GetPageAnonymous">
@@ -102,13 +102,13 @@
         		VALUES (recentchanges_seq.NEXTVAL,?, ?, ? , ? ,'0','0', ? , ? , ? ,'', ? , ? ,'0','0','',?,'1','0', ? , ? ,'0','0',NULL,'','')
         	</statement>
             <statement name="selectUser">
-                SELECT  *  FROM "useracct"  WHERE user_id = ?
+                SELECT  *  FROM useracct  WHERE user_id = ?
             </statement>
            <statement name="updateUserEdit">
-                UPDATE "useracct" SET user_editcount=user_editcount+1 WHERE user_id = ?
+                UPDATE useracct SET user_editcount=user_editcount+1 WHERE user_id = ?
             </statement>
             <statement name="updateUserTouched">
-                UPDATE  "useracct" SET user_touched = ? WHERE user_id = ?
+                UPDATE  useracct SET user_touched = ? WHERE user_id = ?
             </statement>
             <statement name="insertLogging">
                 INSERT INTO logging (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params)
@@ -117,7 +117,7 @@
         </procedure>
         <procedure name="GetPageAuthenticated">
             <statement name="selectUser">
-                SELECT * FROM "useracct"  WHERE user_id = ? AND ROWNUM = 1
+                SELECT * FROM useracct  WHERE user_id = ? AND ROWNUM = 1
             </statement>
             <statement name="selectPage">
                 SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1

@@ -88,4 +88,7 @@ public class TransactionSelector {
     public static void writeEntry(OutputStream out, int userId, int pageNamespace, String pageTitle) throws IOException {
         out.write(String.format("%d %d %s\n", userId, pageNamespace, pageTitle).getBytes());
     }
+    public static void writeEntryDebug(OutputStream out, int userId, int pageNamespace, String pageTitle, int pageid) throws IOException {
+        out.write(String.format("%d %d %s %d\n", userId, pageNamespace, pageTitle, pageid).getBytes());
+    }
 }
