@@ -475,14 +475,15 @@ public class WikipediaLoader extends Loader {
                 // Update Last Revision Stuff
                 this.page_last_rev_id[page_id-1] = rev_id;
                 this.page_last_rev_length[page_id-1] = old_text_length;
-                rev_id++;             
-                PreparedStatement text_seq=this.conn.prepareStatement("select text_seq.nextval from dual");
-                text_seq.execute();
-                text_seq.close();
-                PreparedStatement revision_seq=this.conn.prepareStatement("select revision_seq.nextval from dual");
-                revision_seq.execute();
-                revision_seq.close();
-               
+                rev_id++;  
+                if (this.getDatabaseType() == DatabaseType.ORACLE) {
+                    PreparedStatement text_seq=this.conn.prepareStatement("select text_seq.nextval from dual");
+                    text_seq.execute();
+                    text_seq.close();
+                    PreparedStatement revision_seq=this.conn.prepareStatement("select revision_seq.nextval from dual");
+                    revision_seq.execute();
+                    revision_seq.close();
+                }
                 batchSize++;
             } // FOR (revision)
             if (batchSize > WikipediaConstants.BATCH_SIZE) {
