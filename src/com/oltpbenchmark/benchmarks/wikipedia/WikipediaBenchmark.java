@@ -52,6 +52,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	private final File traceInput;
 	private final File traceOutput;
+	private final File traceOutputDebug;
 	private final int traceSize;
 	
 	@SuppressWarnings("unchecked")
@@ -63,9 +64,11 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		if (xml != null && xml.containsKey("traceOut")) {
 		    this.traceSize = xml.getInt("traceOut");
 		    this.traceOutput = new File(xml.getString("tracefile"));
+		    this.traceOutputDebug = new File(xml.getString("tracefiledebug"));
 		} else {
 		    this.traceSize = 0;
 		    this.traceOutput = null;
+		    this.traceOutputDebug = null;
 		}
 		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
@@ -82,6 +85,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	public File getTraceOutput() {
 	    return (this.traceOutput);
 	}
+	public File getTraceOutputDebug() {
+	    return (this.traceOutputDebug);
+	}
+	
 	public int getTraceSize() {
 	    return (this.traceSize);
 	}

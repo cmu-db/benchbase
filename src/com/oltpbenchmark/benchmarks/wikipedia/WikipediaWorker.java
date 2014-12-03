@@ -80,30 +80,42 @@ public class WikipediaWorker extends Worker {
         if (t.userId != 0) t.userId = this.usersRng.nextInt();
         
         // AddWatchList
+        try{
         if (procClass.equals(AddWatchList.class)) {
             assert(t.userId > 0);
             addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
+//            LOG.debug("AddWatchList Successful");
         }
         // RemoveWatchList
         else if (procClass.equals(RemoveWatchList.class)) {
             assert(t.userId > 0);
             removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
+//            LOG.debug("RemoveWatchList Successful");
         }
         // UpdatePage
         else if (procClass.equals(UpdatePage.class)) {
             updatePage(this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
+//            LOG.debug("UpdatePage Successful");
         }
         // GetPageAnonymous
         else if (procClass.equals(GetPageAnonymous.class)) {
             getPageAnonymous(true, this.generateUserIP(), t.nameSpace, t.pageTitle);
+//            LOG.debug("GetPageAnonymous Successful");
         }
         // GetPageAuthenticated
         else if (procClass.equals(GetPageAuthenticated.class)) {
             assert(t.userId > 0);
             getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
+//            LOG.debug("GetPageAuthenticated Successful");
         }
-        
         conn.commit();
+        }catch(SQLException esql)
+        {
+        	LOG.error("Caught SQL Exception in WikipediaWorker for procedure"+procClass.getName()+":"+esql, esql);
+        	throw esql;
+        }/*catch(Exception e) {
+        	LOG.error("caught Exception in WikipediaWorker for procedure "+procClass.getName() +":" + e, e);
+        }*/
         return (TransactionStatus.SUCCESS);
     }
     
@@ -159,7 +171,7 @@ public class WikipediaWorker extends Worker {
 		
 		WikipediaBenchmark b = this.getBenchmarkModule();
 		int revCommentLen = b.commentLength.nextValue().intValue();
-		String revComment = TextGenerator.randomStr(rng(), revCommentLen);
+		String revComment = TextGenerator.randomStr(rng(), revCommentLen+1);
 		int revMinorEdit = b.minorEdit.nextValue().intValue();
 		
 		// Permute the original text of the article
@@ -170,9 +182,26 @@ public class WikipediaWorker extends Worker {
 	        LOG.trace("UPDATING: Page: id:"+a.pageId+" ns:"+nameSpace +" title"+ pageTitle);
 		UpdatePage proc = this.getProcedure(UpdatePage.class);
         assert (proc != null);
-        proc.run(conn, a.textId, a.pageId, pageTitle, new String(newText),
-                       nameSpace, userId, userIp, a.userText,
-                       a.revisionId, revComment, revMinorEdit);
+        
+        proc.run(conn, a.textId, a.pageId, pageTitle, new String(
+				newText), nameSpace, userId, userIp, a.userText,
+				a.revisionId, revComment, revMinorEdit);
+//        
+//        boolean successful = false;
+//		while (!successful) {
+//			try {
+//				proc.run(conn, a.textId, a.pageId, pageTitle, new String(
+//						newText), nameSpace, userId, userIp, a.userText,
+//						a.revisionId, revComment, revMinorEdit);
+//				successful = true;
+//			} catch (SQLException esql) {
+//				int errorCode = esql.getErrorCode();
+//				if (errorCode == 8177)
+//					conn.rollback();
+//				else
+//					throw esql;
+//			}
+//		}
 	}
 
 }

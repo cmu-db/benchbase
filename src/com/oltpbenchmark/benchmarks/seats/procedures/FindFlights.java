@@ -95,6 +95,7 @@ public class FindFlights extends Procedure {
     public final SQLStmt GetFlights3 = new SQLStmt(BaseGetFlights, 3);
  
     public List<Object[]> run(Connection conn, long depart_aid, long arrive_aid, Timestamp start_date, Timestamp end_date, long distance) throws SQLException {
+        try {
         final boolean debug = LOG.isDebugEnabled();
         assert(start_date.equals(end_date) == false);
         
@@ -187,13 +188,20 @@ public class FindFlights extends Procedure {
                     LOG.debug(String.format("Flight %d / %s /  %s -> %s / %s",
                                             row[0], row[2], row[4], row[9], row[03]));
             } // WHILE
-            ai_stmt.close();
+            //ai_stmt.close();
             flightResults.close();
-            f_stmt.close();
+            //f_stmt.close();
         }
         if (debug) {
             LOG.debug("Flight Information:\n" + finalResults);
         }
         return (finalResults);
+        } catch(SQLException esql) {
+        	LOG.error("caught SQLException in FindFlights:" + esql, esql);
+        	throw esql;
+        }catch(Exception e) {
+        	LOG.error("caught Exception in FindFlights:" + e, e);
+        }
+        return null;
     }
 }

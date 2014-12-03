@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -39,6 +40,8 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 
 public class EpinionsWorker extends Worker {
+	
+	private static final Logger LOG = Logger.getLogger(EpinionsWorker.class);
 
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
@@ -52,26 +55,45 @@ public class EpinionsWorker extends Worker {
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
-        if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
-            reviewItemByID();
-        } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
-            reviewsByUser();
-        } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
-            averageRatingByTrustedUser();
-        } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
-            averageRatingOfItem();
-        } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
-            itemReviewsByTrustedUser();
-        } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
-            updateUserName();
-        } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
-            updateItemTitle();
-        } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
-            updateReviewRating();
-        } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
-            updateTrustRating();
-        }
-        conn.commit();
+        
+    	boolean successful = false;
+		while (!successful) {
+			try {
+				if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
+					reviewItemByID();
+				} else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
+					reviewsByUser();
+				} else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
+					averageRatingByTrustedUser();
+				} else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
+					averageRatingOfItem();
+				} else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
+					itemReviewsByTrustedUser();
+				} else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
+					updateUserName();
+				} else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
+					updateItemTitle();
+				} else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
+					updateReviewRating();
+				} else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
+					updateTrustRating();
+				}
+				conn.commit();
+				successful = true;
+			} catch (SQLException esql) {
+				int error_code = esql.getErrorCode();
+				if (error_code == 8177) {
+					conn.rollback();
+				} else {
+					LOG.error("caught sql error in Epinions Benchmark for the procedure "
+							+ nextTrans.getName() + ":" + esql);
+				}
+			} catch (Exception e) {
+				LOG.error("caught Exceptions in Epinions for the procedure "
+						+ nextTrans.getName() + ":" + e);
+			}
+		}
+
         return (TransactionStatus.SUCCESS);
     }
 
