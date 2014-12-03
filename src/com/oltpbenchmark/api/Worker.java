@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -30,6 +31,9 @@ public abstract class Worker implements Runnable {
 	private WorkloadState wrkldState;
 	private LatencyRecord latencies;
     private Statement currStatement;
+    
+    // Interval requests used by the monitor
+    private AtomicInteger intervalRequests = new AtomicInteger(0);
 	
 	private final int id;
 	private final BenchmarkModule benchmarkModule;
@@ -113,9 +117,15 @@ public abstract class Worker implements Runnable {
 	public final Connection getConnection() {
 	    return (this.conn);
 	}
+	
 	public final int getRequests() {
         return latencies.size();
     }
+	
+    public final int getAndResetIntervalRequests() {
+        return intervalRequests.getAndSet(0);
+    }
+    
     public final Iterable<LatencyRecord.Sample> getLatencyRecords() {
         return latencies;
     }
@@ -294,6 +304,7 @@ work:
                         && this.wrkldState.getCurrentPhase().id == phase.id) {
                         latencies.addLatency(type.getId(), start, end, this.id
                                 , phase.id);
+                        intervalRequests.incrementAndGet();
                     }
                     if (phase.isLatencyRun())
                         this.wrkldState.startColdQuery();

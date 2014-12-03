@@ -53,6 +53,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private List<WorkloadConfiguration> workConfs;
     private List<WorkloadState> workStates;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
+    private int intervalMonitor = 0;
 
     private ThreadBench(List<? extends Worker> workers, List<WorkloadConfiguration> workConfs) {
         this(workers, null, workConfs);
@@ -203,7 +204,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (int i = 0; i < workerThreads.size(); ++i) {
 
             // FIXME not sure this is the best solution... ensure we don't hang
-            // forever, however we might ignore
+            // forever, however we might ignore 
             // problems
             workerThreads.get(i).join(60000); // wait for 60second for threads
                                               // to terminate... hands otherwise
@@ -248,6 +249,38 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     } // CLASS
 
+    private class MonitorThread extends Thread {
+        private final int intervalMonitor;
+        {
+            this.setDaemon(true);
+        }
+        MonitorThread(int interval) {
+            this.intervalMonitor = interval;
+        }
+        @Override
+        public void run() {
+            LOG.info("Starting MonitorThread Interval[" + this.intervalMonitor + " seconds]");
+            while (true) {
+                try {
+                    Thread.sleep(this.intervalMonitor * 1000);
+                } catch (InterruptedException ex) {
+                    return;
+                }
+                if (testState == null)
+                    return;
+                // Compute the last throughput
+                long measuredRequests = 0;
+                synchronized (testState) {
+                    for (Worker w : workers) {
+                        measuredRequests += w.getAndResetIntervalRequests();
+                    }
+                }
+                double tps = (double) measuredRequests / (double) this.intervalMonitor;
+                LOG.info("Throughput: " + tps + " Tps");
+            } // WHILE
+        }
+    } // CLASS
+    
     /*
      * public static Results runRateLimitedBenchmark(List<Worker> workers, File
      * profileFile) throws QueueLimitException, IOException { ThreadBench bench
@@ -255,8 +288,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * bench.runRateLimitedFromFile(); }
      */
 
-    public static Results runRateLimitedBenchmark(List<Worker> workers, List<WorkloadConfiguration> workConfs) throws QueueLimitException, IOException {
+    public static Results runRateLimitedBenchmark(List<Worker> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) throws QueueLimitException, IOException {
         ThreadBench bench = new ThreadBench(workers, workConfs);
+        bench.intervalMonitor = intervalMonitoring;
         return bench.runRateLimitedMultiPhase();
     }
 
@@ -301,7 +335,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         long delta = phase.time * 1000000000L;
         boolean lastEntry = false;
 
-        while (true) {
+        // Initialize the Monitor
+        if(this.intervalMonitor > 0 ) {
+            new MonitorThread(this.intervalMonitor).start();
+        }
+
+        // Main Loop
+        while (true) {           
             // posting new work... and reseting the queue in case we have new
             // portion of the workload...
 
