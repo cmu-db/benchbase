@@ -46,6 +46,7 @@ public class ResultUploader {
     XMLConfiguration expConf;
     Results results;
     CommandLine argsLine;
+    DBParameterCollector collector;
 
     String dbUrl, dbType;
     String username, password;
@@ -66,14 +67,13 @@ public class ResultUploader {
         windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
         uploadCode = expConf.getString("uploadCode");
         uploadUrl = expConf.getString("uploadUrl");
+
+        this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
     }
 
     public void writeDBParameters(PrintStream os) {
-        DBParameterCollector collector = DBParameterCollectorGen.getCollector(dbType);
-        Map<String, String> dbConf = collector.collect(dbUrl, username, password);
-        for (Map.Entry<String, String> kv: dbConf.entrySet()) {
-            os.println(kv.getKey().toLowerCase() + "=" + kv.getValue().toLowerCase());
-        }
+        String dbConf = collector.collectParameters();
+        os.print(dbConf);
     }
 
     public void writeBenchmarkConf(PrintStream os) throws ConfigurationException {
@@ -89,6 +89,7 @@ public class ResultUploader {
         Date now = new Date();
         os.println(now.getTime() / 1000L);
         os.println(dbType);
+        os.println(collector.collectVersion());
         os.println(benchType);
         os.println(results.latencyDistribution.toString());
         os.println(results.getRequestsPerSecond());
