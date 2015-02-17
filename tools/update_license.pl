@@ -1,5 +1,14 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my $YEAR=`date +%Y`;
+chomp($YEAR);
+
+my $COPYRIGHT = <<END;
 /******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *  Copyright $YEAR by OLTPBenchmark Project                                   *
  *                                                                            *
  *  Licensed under the Apache License, Version 2.0 (the "License");           *
  *  you may not use this file except in compliance with the License.          *
@@ -14,36 +23,28 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark;
+END
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedList;
+die("ERROR: Missing target directory\n") unless ($#ARGV >= 0);
+my $TARGET_DIR = $ARGV[0];
+die("ERROR: Invalid target directory $TARGET_DIR\n") unless (-d $TARGET_DIR);
 
-import com.oltpbenchmark.types.State;
-import com.oltpbenchmark.util.QueueLimitException;
-import org.apache.log4j.Logger;
-
-/**
- * This class is used for keeping track of the procedures that have been
- * submitted to the system when running a rate-limited benchmark.
- * @author breilly
- */
-public class SubmittedProcedure {
-    private final int type;
-    private final long startTime;
-
-    SubmittedProcedure(int type) {
-        this.type = type;
-        this.startTime = System.nanoTime();
-    }
-
-    SubmittedProcedure(int type, long startTime) {
-        this.type = type;
-        this.startTime = startTime;
-    }
-
-    public int getType() { return type; }
-    public long getStartTime() { return startTime; }
-}
+foreach my $file (`find $TARGET_DIR -name "*.java" -type f`) {
+    chomp($file);
+    my $line = `head -n 20 $file`;
+    unless ($line =~ m/Copyright [\d]{4,4} .*?/) {
+        open(IN, "<$file") or die;
+        undef $/;
+        my $contents = <IN>;
+        close(IN);
+        $contents =~ s/^\/\*{20,}.*GNU General Public License.*\*{20,}\///s;
+        $contents =~ s/^\/\*{20,}\n \*.*H-Store Project.* \*{75}\///s;
+        $contents = $COPYRIGHT.$contents;
+        open(OUT, ">$file") or die;
+        print OUT $contents;
+        close(OUT);
+        print "Updated $file\n";
+    } ## UNLESS
+} # FOREACH
+# print `svn status $TARGET_DIR`;
+exit;
