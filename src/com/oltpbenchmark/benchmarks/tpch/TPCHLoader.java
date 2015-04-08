@@ -315,6 +315,10 @@ public class TPCHLoader extends Loader {
         
         private String getFileFormat(){
             String format = workConf.getXmlConfig().getString("fileFormat");
+            /*
+               Previouse configuration migh not have a fileFormat and assume
+                that the files are csv.
+            */
             if (format == null) return "csv";
             
             if((!"csv".equals(format) && !"tbl".equals(format))){
