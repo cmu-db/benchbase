@@ -315,8 +315,9 @@ public class TPCHLoader extends Loader {
         
         private String getFileFormat(){
             String format = workConf.getXmlConfig().getString("fileFormat");
-            if(format == null ||
-                    (!"csv".equals(format) && !"tbl".equals(format))){
+            if (format == null) return "csv";
+            
+            if((!"csv".equals(format) && !"tbl".equals(format))){
                 throw new IllegalArgumentException("Configuration doesent"
                         + " have a valid fileFormat");
             }
