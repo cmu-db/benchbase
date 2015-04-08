@@ -315,10 +315,10 @@ public class TPCHLoader extends Loader {
         
         private String getFileFormat(){
             String format = workConf.getXmlConfig().getString("fileFormat");
-            
-            if(format == null || !"csv".equals(format)||!"csv".equals("tbl")){
-                throw new IllegalArgumentException("Configuration does"
-                        + "not have a valid fileFormat");
+            if(format == null ||
+                    (!"csv".equals(format) && !"tbl".equals(format))){
+                throw new IllegalArgumentException("Configuration doesent"
+                        + " have a valid fileFormat");
             }
             return format;
         }
@@ -331,7 +331,7 @@ public class TPCHLoader extends Loader {
                 // double-quoted have the quotes dropped (we don't need them).
                return  Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
             }else{
-                return Pattern.compile("[^\\|]*|");
+                return Pattern.compile("[^\\|]*\\|");
             }
         }
         
@@ -389,6 +389,7 @@ public class TPCHLoader extends Loader {
                                 if (field.charAt(0) == '\"') {
                                     field = field.substring(1, field.length() - 1);
                                 }
+                                
                                 if(group==0){
                                     field = field.substring(0, field.length() -1);
                                 }
