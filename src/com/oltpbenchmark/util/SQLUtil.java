@@ -120,13 +120,18 @@ public abstract class SQLUtil {
         else if (obj instanceof Date) {
             return new Timestamp(((Date)obj).getTime());
         }
-        else if (obj instanceof oracle.sql.TIMESTAMP) {
-            try {
-                return ((oracle.sql.TIMESTAMP)obj).timestampValue();
-            } catch (SQLException ex) {
-                throw new RuntimeException("Failed to get timestamp from '" + obj + "'", ex);
-            }
+        else {
+            LOG.error(String.format("Unexpected timestamp object type '%s': %s",
+                                    obj.getClass().getName(), obj));
         }
+        // FIXME: Not sure how to include this without including Oracle jars
+//        else if (obj instanceof oracle.sql.TIMESTAMP) {
+//            try {
+//                return ((oracle.sql.TIMESTAMP)obj).timestampValue();
+//            } catch (SQLException ex) {
+//                throw new RuntimeException("Failed to get timestamp from '" + obj + "'", ex);
+//            }
+//        }
         
         Long timestamp = SQLUtil.getLong(obj);
         return (timestamp != null ? new Timestamp(timestamp) : null);
