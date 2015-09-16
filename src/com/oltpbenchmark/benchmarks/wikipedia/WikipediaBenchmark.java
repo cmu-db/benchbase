@@ -58,16 +58,26 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		super("wikipedia", workConf, true);
 		
 		XMLConfiguration xml = workConf.getXmlConfig();
-		this.traceInput = (xml != null && xml.containsKey("tracefile") ? new File(xml.getString("tracefile")) : null);
+		if (xml != null && xml.containsKey("tracefile")) {
+		    this.traceInput = new File(xml.getString("tracefile"));
+        } else {
+            this.traceInput = null;
+        }
 		if (xml != null && xml.containsKey("traceOut")) {
 		    this.traceSize = xml.getInt("traceOut");
-		    this.traceOutput = new File(xml.getString("tracefile"));
-		    this.traceOutputDebug = new File(xml.getString("tracefiledebug"));
 		} else {
 		    this.traceSize = 0;
-		    this.traceOutput = null;
-		    this.traceOutputDebug = null;
 		}
+		if (xml != null && xml.containsKey("tracefile")) {
+            this.traceOutput = new File(xml.getString("tracefile"));		    
+		} else {
+		    this.traceOutput = null;
+		}
+		if (xml != null && xml.containsKey("tracefiledebug")) {
+            this.traceOutputDebug = new File(xml.getString("tracefiledebug"));
+        } else {
+            this.traceOutputDebug = null;
+        }
 		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 		this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
