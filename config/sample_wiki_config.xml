@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://server:3306/ycsb</DBUrl>
+    <DBUrl>jdbc:mysql://server:3306/wikipedia</DBUrl>
     <username>user</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
