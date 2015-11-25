@@ -65,8 +65,8 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
-//woonhak, for postgres (make insert statement wihtout escaped char), 
-//need to know current dbType 
+//woonhak, for postgres and monetdb (make insert statement wihtout escaped char),
+//need to know current dbType
 import com.oltpbenchmark.types.DatabaseType;
 
 public class TPCCLoader extends Loader{
@@ -98,15 +98,17 @@ public class TPCCLoader extends Loader{
 	private static long lastTimeMS = 0;
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
-	
+
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
         Table catalog_tbl = this.getTableCatalog(tableName);
         assert(catalog_tbl != null);
 
-				//woonhak, if current dbType is postgres then make insertSQL without escaped character.
+				// if current dbType is either postgres or monetdb make insertSQL
+				// without escaped character.
 				String sql = null;
 
-				if(this.getDatabaseType()== DatabaseType.POSTGRES )
+				if (this.getDatabaseType() == DatabaseType.POSTGRES
+						|| this.getDatabaseType() == DatabaseType.MONETDB)
 					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
 				else
 					sql = SQLUtil.getInsertSQL(catalog_tbl);
