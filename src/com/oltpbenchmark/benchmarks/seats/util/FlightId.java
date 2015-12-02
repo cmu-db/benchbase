@@ -25,7 +25,7 @@ import com.oltpbenchmark.util.CompositeId;
 public class FlightId extends CompositeId {
     
     private static final int COMPOSITE_BITS[] = {
-        16, // AIRLINE_ID
+        14, // AIRLINE_ID
         16, // DEPART AIRPORT_ID
         16, // ARRIVE AIRPORT_ID
         16, // DEPART DATE
