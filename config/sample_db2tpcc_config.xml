@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<parameters>
+   <dbtype>db2</dbtype>
+   <driver>com.ibm.db2.jcc.DB2Driver</driver>
+   <DBUrl>jdbc:db2://db2-1.localhost.localnet:50000/tpcc</DBUrl>
+   <username>db2inst1</username>
+   <password></password>
+   <isolation>TRANSACTION_SERIALIZABLE</isolation>
+   <scalefactor>32</scalefactor>
+   <terminals>200</terminals>
+
+   <works>
+      <work>
+         <time>300</time>
+         <rate>10000</rate>
+         <weights>45,43,4,4,4</weights>
+      </work>
+   </works>
+
+   <transactiontypes>
+      <transactiontype>
+         <name>NewOrder</name>
+      </transactiontype>
+      <transactiontype>
+         <name>Payment</name>
+      </transactiontype>
+      <transactiontype>
+         <name>OrderStatus</name>
+      </transactiontype>
+      <transactiontype>
+         <name>Delivery</name>
+      </transactiontype>
+      <transactiontype>
+         <name>StockLevel</name>
+      </transactiontype>
+   </transactiontypes>
+</parameters>
