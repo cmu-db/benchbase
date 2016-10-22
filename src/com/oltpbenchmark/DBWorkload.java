@@ -555,7 +555,10 @@ public class DBWorkload {
             PrintStream rs = System.out;
             
             // Special result uploader
-            ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
+            ResultUploader ru = null;
+            if (xmlConfig.containsKey("uploadUrl")) {
+                ru = new ResultUploader(r, xmlConfig, argsLine);
+            }
 
             if (argsLine.hasOption("o")) {
                 // Check if directory needs to be created
