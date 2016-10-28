@@ -18,7 +18,6 @@ package com.oltpbenchmark.benchmarks.ycsb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 
 import com.oltpbenchmark.api.BenchmarkModule;

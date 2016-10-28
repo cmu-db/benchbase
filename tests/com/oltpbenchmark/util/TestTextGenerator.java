@@ -32,8 +32,8 @@ public class TestTextGenerator extends TestCase {
      */
     public void testRandomChars() throws Exception {
         long start = System.nanoTime();
-        for (int i = 0; i < 1000; i++) {
-            int strLen = rng.nextInt(2048);
+        int strLen = rng.nextInt(2048);
+        for (int i = 0; i < 10000; i++) {
             char text[] = TextGenerator.randomChars(rng, strLen);
             assertNotNull(text);
             assertEquals(strLen, text.length);
@@ -52,7 +52,7 @@ public class TestTextGenerator extends TestCase {
         long start = System.nanoTime();
         int strLen = rng.nextInt(2048);
         char text[] = new char[strLen];
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10000; i++) {
             TextGenerator.randomChars(rng, text);
             assertNotNull(text);
             assertEquals(strLen, text.length);
