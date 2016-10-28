@@ -17,7 +17,9 @@
 package com.oltpbenchmark.util;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import com.oltpbenchmark.util.TextGenerator;
 
@@ -35,8 +37,9 @@ public class TestTextGenerator extends TestCase {
      * testRandomChars
      */
     public void testRandomChars() throws Exception {
+        Set<String> previous = new HashSet<String>();
         long start = System.nanoTime();
-        int strLen = rng.nextInt(MAX_SIZE);
+        int strLen = rng.nextInt(MAX_SIZE) + 1;
         for (int i = 0; i < NUM_ROUNDS; i++) {
             char text[] = TextGenerator.randomChars(rng, strLen);
             if (SPEED_TEST == false) {
@@ -46,8 +49,11 @@ public class TestTextGenerator extends TestCase {
                     assertFalse(Integer.toString(idx), text[idx] == 0);
                 } // FOR
             }
+            assertFalse(String.valueOf(text), previous.contains(String.valueOf(text)));
+            previous.add(String.valueOf(text));
         } // FOR
         long stop = System.nanoTime();
+        assertEquals(NUM_ROUNDS, previous.size());
         System.err.println("Chars Time: " + ((stop - start) / 1000000d) + " ms");
     }
     
@@ -55,6 +61,7 @@ public class TestTextGenerator extends TestCase {
      * testRandomCharsPrealloc
      */
     public void testRandomCharsPrealloc() throws Exception {
+        Set<String> previous = new HashSet<String>();
         long start = System.nanoTime();
         int strLen = rng.nextInt(MAX_SIZE);
         char text[] = new char[strLen];
@@ -67,8 +74,11 @@ public class TestTextGenerator extends TestCase {
                     assertFalse(Integer.toString(idx), text[idx] == 0);
                 } // FOR
             }
+            assertFalse(String.valueOf(text), previous.contains(String.valueOf(text)));
+            previous.add(String.valueOf(text));
         } // FOR
         long stop = System.nanoTime();
+        assertEquals(NUM_ROUNDS, previous.size());
         System.err.println("Pre-allocated Time: " + ((stop - start) / 1000000d) + " ms");
     }
     
@@ -76,9 +86,10 @@ public class TestTextGenerator extends TestCase {
      * testFastRandomChars
      */
     public void testFastRandomChars() throws Exception {
+        Set<String> previous = new HashSet<String>();
         long start = System.nanoTime();
         for (int i = 0; i < NUM_ROUNDS; i++) {
-            int strLen = rng.nextInt(MAX_SIZE);
+            int strLen = rng.nextInt(MAX_SIZE) + 1;
             char text[] = new char[strLen];
             TextGenerator.randomFastChars(rng, text);
 //            System.err.println("FAST: " + String.valueOf(text));
@@ -89,8 +100,12 @@ public class TestTextGenerator extends TestCase {
                     assertFalse(Integer.toString(idx), text[idx] == 0);
                 } // FOR
             }
+            assertFalse("Duplicate: " + String.valueOf(text),
+                        previous.contains(String.valueOf(text)));
+            previous.add(String.valueOf(text));
         } // FOR
         long stop = System.nanoTime();
+        assertEquals(NUM_ROUNDS, previous.size());
         System.err.println("Fast Time: " + ((stop - start) / 1000000d) + " ms");
     }
     

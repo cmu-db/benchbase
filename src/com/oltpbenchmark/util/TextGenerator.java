@@ -80,7 +80,7 @@ public abstract class TextGenerator {
         int num_rounds = chars.length / FAST_MASKS.length;
         int i = 0;
         for (int ctr = 0; ctr < num_rounds; ctr++) {
-            int rand = rng.nextInt(CHAR_SYMBOLS.length);
+            int rand = rng.nextInt(10000); // CHAR_SYMBOLS.length);
             for (int mask : FAST_MASKS) {
                 chars[i++] = CHAR_SYMBOLS[(rand | mask) % CHAR_SYMBOLS.length];
             } // FOR
