@@ -277,4 +277,18 @@ public abstract class ClassUtil {
         return (target_class);
  
     }
+    
+    /**
+     * Returns true if asserts are enabled. This assumes that
+     * we're always using the default system ClassLoader
+     */
+    public static boolean isAssertsEnabled() {
+        boolean ret = false;
+        try {
+            assert(false);
+        } catch (AssertionError ex) {
+            ret = true;
+        }
+        return (ret);
+}
 }
