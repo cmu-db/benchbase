@@ -101,7 +101,7 @@
             <arg line="--execute ${execute}" />
             <arg line="${extra}" />
             <classpath refid='project.classpath' />
-            <assertions><enable/></assertions>
+<!--             <assertions><enable/></assertions> -->
         </java>
     </target>
     
