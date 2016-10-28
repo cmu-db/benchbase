@@ -56,7 +56,7 @@ public abstract class TextGenerator {
      */
     public static char[] randomChars(Random rng, int strLen) {
         char chars[] = new char[strLen];
-        return randomChars(rng, chars);
+        return randomFastChars(rng, chars);
     }
 
     public static char[] randomChars(Random rng, char chars[]) {
@@ -78,17 +78,10 @@ public abstract class TextGenerator {
         // and then taking different bitmasks
         
         int num_rounds = chars.length / FAST_MASKS.length;
-//        System.out.println("chars.length=" + chars.length);
-//        System.out.println("num_rounds=" + num_rounds);
         int i = 0;
         for (int ctr = 0; ctr < num_rounds; ctr++) {
             int rand = rng.nextInt(CHAR_SYMBOLS.length);
             for (int mask : FAST_MASKS) {
-//                System.out.println("i=" + i);
-//                System.out.println("  rand = " + rand);
-//                System.out.println("  mask = " + mask);
-//                System.out.println("  result = " + (rand | mask));
-//                System.out.println("  fast = " + ((rand | mask) % CHAR_SYMBOLS.length));
                 chars[i++] = CHAR_SYMBOLS[(rand | mask) % CHAR_SYMBOLS.length];
             } // FOR
         } // FOR
@@ -96,15 +89,6 @@ public abstract class TextGenerator {
         // I am doing this because I am too lazy to think of something more clever
         for ( ; i < chars.length; i++) {
             chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
-        } // FOR
-        return (chars);
-    }
-
-
-    
-    public static char[] randomChars(Random rng, char chars[], int start, int stop) {
-        for (int i = start; i < stop; i++) {
-            chars[i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
         return (chars);
     }
