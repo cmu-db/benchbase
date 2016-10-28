@@ -20,10 +20,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
 
 public class ReadRecord extends Procedure{
     public final SQLStmt readStmt = new SQLStmt(
@@ -31,15 +31,14 @@ public class ReadRecord extends Procedure{
     );
     
 	//FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, Map<Integer,String> results) throws SQLException {
+    public void run(Connection conn, int keyname, String results[]) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, readStmt);
         stmt.setInt(1, keyname);          
-        ResultSet r=stmt.executeQuery();
-        while(r.next())
-        {
-        	for(int i=1;i<11;i++)
-        		results.put(i, r.getString(i));
-        }
+        ResultSet r = stmt.executeQuery();
+        while(r.next()) {
+            for (int i = 0; i < YCSBConstants.NUN_FIELDS; i++)
+                results[i] = r.getString(i+1);
+        } // WHILE
         r.close();
     }
 

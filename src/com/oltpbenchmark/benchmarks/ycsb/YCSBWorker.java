@@ -18,8 +18,8 @@ package com.oltpbenchmark.benchmarks.ycsb;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
@@ -37,13 +37,21 @@ import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 
+/**
+ * YCSBWorker Implementation
+ * I forget who really wrote this but I fixed it up in 2016...
+ * @author pavlo
+ *
+ */
 public class YCSBWorker extends Worker {
 
     private ZipfianGenerator readRecord;
     private static CounterGenerator insertRecord;
     private ZipfianGenerator randScan;
 
-    private final Map<Integer, String> m = new HashMap<Integer, String>();
+    private final char data[] = new char[YCSBConstants.FIELD_SIZE];
+    private final String params[] = new String[YCSBConstants.NUN_FIELDS]; 
+    private final String results[] = new String[YCSBConstants.NUN_FIELDS];
     
     public YCSBWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
         super(benchmarkModule, id);
@@ -83,8 +91,8 @@ public class YCSBWorker extends Worker {
         UpdateRecord proc = this.getProcedure(UpdateRecord.class);
         assert (proc != null);
         int keyname = readRecord.nextInt();
-        Map<Integer, String> values = buildValues(10);
-        proc.run(conn, keyname, values);
+        this.buildParameters();
+        proc.run(conn, keyname, this.params);
     }
 
     private void scanRecord() throws SQLException {
@@ -92,37 +100,30 @@ public class YCSBWorker extends Worker {
         assert (proc != null);
         int keyname = readRecord.nextInt();
         int count = randScan.nextInt();
-        proc.run(conn, keyname, count, new ArrayList<Map<Integer, String>>());
+        proc.run(conn, keyname, count, new ArrayList<String[]>());
     }
 
     private void readRecord() throws SQLException {
         ReadRecord proc = this.getProcedure(ReadRecord.class);
         assert (proc != null);
         int keyname = readRecord.nextInt();
-        proc.run(conn, keyname, new HashMap<Integer, String>());
+        proc.run(conn, keyname, this.results);
     }
 
     private void readModifyWriteRecord() throws SQLException {
         ReadModifyWriteRecord proc = this.getProcedure(ReadModifyWriteRecord.class);
         assert (proc != null);
         int keyname = readRecord.nextInt();
-        
-        String fields[] = new String[10];
-        for (int i = 0; i < fields.length; i++) {
-            fields[i] = TextGenerator.randomStr(rng(), 100);
-        } // FOR
-        
-        this.m.clear();
-        proc.run(conn, keyname, fields, this.m);
+        this.buildParameters();
+        proc.run(conn, keyname, this.params, this.results);
     }
 
     private void insertRecord() throws SQLException {
         InsertRecord proc = this.getProcedure(InsertRecord.class);
         assert (proc != null);
         int keyname = insertRecord.nextInt();
-        // System.out.println("[Thread " + this.id+"] insert this:  "+ keyname);
-        Map<Integer, String> values = buildValues(10);
-        proc.run(conn, keyname, values);
+        this.buildParameters();
+        proc.run(conn, keyname, this.params);
     }
 
     private void deleteRecord() throws SQLException {
@@ -132,11 +133,10 @@ public class YCSBWorker extends Worker {
         proc.run(conn, keyname);
     }
 
-    private Map<Integer, String> buildValues(int numVals) {
-        this.m.clear();
-        for (int i = 1; i <= numVals; i++) {
-            this.m.put(i, TextGenerator.randomStr(rng(), 100));
-        }
-        return this.m;
+    private void buildParameters() {
+        Random rng = rng();
+        for (int i = 0; i < this.params.length; i++) {
+            this.params[i] = new String(TextGenerator.randomChars(rng, this.data));
+        } // FOR
     }
 }
