@@ -146,7 +146,7 @@ public class YCSBWorker extends Worker {
     private void buildParameters() {
         Random rng = rng();
         for (int i = 0; i < this.params.length; i++) {
-            this.params[i] = new String(TextGenerator.randomChars(rng, this.data));
+            this.params[i] = new String(TextGenerator.randomFastChars(rng, this.data));
         } // FOR
     }
 }

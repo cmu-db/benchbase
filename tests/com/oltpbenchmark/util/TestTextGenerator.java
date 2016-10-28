@@ -27,41 +27,71 @@ public class TestTextGenerator extends TestCase {
 
     final Random rng = new Random(); 
     
+    final int MAX_SIZE = 2048;
+    final int NUM_ROUNDS = 10000;
+    boolean SPEED_TEST = false;
+    
     /**
      * testRandomChars
      */
     public void testRandomChars() throws Exception {
         long start = System.nanoTime();
-        int strLen = rng.nextInt(2048);
-        for (int i = 0; i < 10000; i++) {
+        int strLen = rng.nextInt(MAX_SIZE);
+        for (int i = 0; i < NUM_ROUNDS; i++) {
             char text[] = TextGenerator.randomChars(rng, strLen);
-            assertNotNull(text);
-            assertEquals(strLen, text.length);
-            for (int idx = 0; idx < strLen; idx++) {
-                assertFalse(Integer.toString(idx), text[idx] == 0);
-            } // FOR
+            if (SPEED_TEST == false) {
+                assertNotNull(text);
+                assertEquals(strLen, text.length);
+                for (int idx = 0; idx < strLen; idx++) {
+                    assertFalse(Integer.toString(idx), text[idx] == 0);
+                } // FOR
+            }
         } // FOR
         long stop = System.nanoTime();
-        System.err.println("Chars Elapsed Time: " + ((stop - start) / 1000000d) + " ms");
+        System.err.println("Chars Time: " + ((stop - start) / 1000000d) + " ms");
     }
     
     /**
-     * testRandomChars
+     * testRandomCharsPrealloc
      */
     public void testRandomCharsPrealloc() throws Exception {
         long start = System.nanoTime();
-        int strLen = rng.nextInt(2048);
+        int strLen = rng.nextInt(MAX_SIZE);
         char text[] = new char[strLen];
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < NUM_ROUNDS; i++) {
             TextGenerator.randomChars(rng, text);
-            assertNotNull(text);
-            assertEquals(strLen, text.length);
-            for (int idx = 0; idx < strLen; idx++) {
-                assertFalse(Integer.toString(idx), text[idx] == 0);
-            } // FOR
+            if (SPEED_TEST == false) {
+                assertNotNull(text);
+                assertEquals(strLen, text.length);
+                for (int idx = 0; idx < strLen; idx++) {
+                    assertFalse(Integer.toString(idx), text[idx] == 0);
+                } // FOR
+            }
         } // FOR
         long stop = System.nanoTime();
-        System.err.println("Pre-allocated Chars Elapsed Time: " + ((stop - start) / 1000000d) + " ms");
+        System.err.println("Pre-allocated Time: " + ((stop - start) / 1000000d) + " ms");
+    }
+    
+    /**
+     * testFastRandomChars
+     */
+    public void testFastRandomChars() throws Exception {
+        long start = System.nanoTime();
+        for (int i = 0; i < NUM_ROUNDS; i++) {
+            int strLen = rng.nextInt(MAX_SIZE);
+            char text[] = new char[strLen];
+            TextGenerator.randomFastChars(rng, text);
+//            System.err.println("FAST: " + String.valueOf(text));
+            if (SPEED_TEST == false) {
+                assertNotNull(text);
+                assertEquals(strLen, text.length);
+                for (int idx = 0; idx < strLen; idx++) {
+                    assertFalse(Integer.toString(idx), text[idx] == 0);
+                } // FOR
+            }
+        } // FOR
+        long stop = System.nanoTime();
+        System.err.println("Fast Time: " + ((stop - start) / 1000000d) + " ms");
     }
     
     /**
