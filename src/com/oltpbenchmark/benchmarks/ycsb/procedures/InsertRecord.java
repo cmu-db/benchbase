@@ -19,21 +19,22 @@ package com.oltpbenchmark.benchmarks.ycsb.procedures;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
-public class InsertRecord extends Procedure{
+public class InsertRecord extends Procedure {
     public final SQLStmt insertStmt = new SQLStmt(
         "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
     );
-    
-	//FIXME: The value in ysqb is a byteiterator
+
+    // FIXME: The value in ysqb is a byteiterator
     public void run(Connection conn, int keyname, String vals[]) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, insertStmt);
+        PreparedStatement stmt = this.getPreparedStatement(conn, this.insertStmt);
         stmt.setInt(1, keyname);
         for (int i = 0; i < vals.length; i++) {
-        	stmt.setString(i+1, vals[i]);
-        }            
+            stmt.setString(i + 1, vals[i]);
+        }
         stmt.executeUpdate();
     }
 

@@ -52,6 +52,13 @@ public class YCSBWorker extends Worker {
     private final String params[] = new String[YCSBConstants.NUN_FIELDS]; 
     private final String results[] = new String[YCSBConstants.NUN_FIELDS];
     
+    private final UpdateRecord procUpdateRecord;
+    private final ScanRecord procScanRecord;
+    private final ReadRecord procReadRecord;
+    private final ReadModifyWriteRecord procReadModifyWriteRecord;
+    private final InsertRecord procInsertRecord;
+    private final DeleteRecord procDeleteRecord;
+    
     public YCSBWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
         super(benchmarkModule, id);
         readRecord = new ZipfianGenerator(init_record_count);// pool for read keys
@@ -63,6 +70,16 @@ public class YCSBWorker extends Worker {
                 insertRecord = new CounterGenerator(init_record_count);
             }
         } // SYNCH
+        
+        // This is a minor speed-up to avoid having to invoke the hashmap look-up
+        // everytime we want to execute a txn. This is important to do on 
+        // a client machine with not a lot of cores
+        this.procUpdateRecord = this.getProcedure(UpdateRecord.class);
+        this.procScanRecord = this.getProcedure(ScanRecord.class);
+        this.procReadRecord = this.getProcedure(ReadRecord.class);
+        this.procReadModifyWriteRecord = this.getProcedure(ReadModifyWriteRecord.class);
+        this.procInsertRecord = this.getProcedure(InsertRecord.class);
+        this.procDeleteRecord = this.getProcedure(DeleteRecord.class);
     }
 
     @Override
@@ -87,49 +104,43 @@ public class YCSBWorker extends Worker {
     }
 
     private void updateRecord() throws SQLException {
-        UpdateRecord proc = this.getProcedure(UpdateRecord.class);
-        assert (proc != null);
+        assert (this.procUpdateRecord!= null);
         int keyname = readRecord.nextInt();
         this.buildParameters();
-        proc.run(conn, keyname, this.params);
+        this.procUpdateRecord.run(conn, keyname, this.params);
     }
 
     private void scanRecord() throws SQLException {
-        ScanRecord proc = this.getProcedure(ScanRecord.class);
-        assert (proc != null);
+        assert (this.procScanRecord != null);
         int keyname = readRecord.nextInt();
         int count = randScan.nextInt();
-        proc.run(conn, keyname, count, new ArrayList<String[]>());
+        this.procScanRecord.run(conn, keyname, count, new ArrayList<String[]>());
     }
 
     private void readRecord() throws SQLException {
-        ReadRecord proc = this.getProcedure(ReadRecord.class);
-        assert (proc != null);
+        assert (this.procReadRecord != null);
         int keyname = readRecord.nextInt();
-        proc.run(conn, keyname, this.results);
+        this.procReadRecord.run(conn, keyname, this.results);
     }
 
     private void readModifyWriteRecord() throws SQLException {
-        ReadModifyWriteRecord proc = this.getProcedure(ReadModifyWriteRecord.class);
-        assert (proc != null);
+        assert (this.procReadModifyWriteRecord != null);
         int keyname = readRecord.nextInt();
         this.buildParameters();
-        proc.run(conn, keyname, this.params, this.results);
+        this.procReadModifyWriteRecord.run(conn, keyname, this.params, this.results);
     }
 
     private void insertRecord() throws SQLException {
-        InsertRecord proc = this.getProcedure(InsertRecord.class);
-        assert (proc != null);
+        assert (this.procInsertRecord != null);
         int keyname = insertRecord.nextInt();
         this.buildParameters();
-        proc.run(conn, keyname, this.params);
+        this.procInsertRecord.run(conn, keyname, this.params);
     }
 
     private void deleteRecord() throws SQLException {
-        DeleteRecord proc = this.getProcedure(DeleteRecord.class);
-        assert (proc != null);
+        assert (this.procDeleteRecord != null);
         int keyname = readRecord.nextInt();
-        proc.run(conn, keyname);
+        this.procDeleteRecord.run(conn, keyname);
     }
 
     private void buildParameters() {
