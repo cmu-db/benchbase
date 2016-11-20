@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.LinkBench.distributions;
+package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
 /**
  * Approximations to harmonic numbers that speed up calculation time.

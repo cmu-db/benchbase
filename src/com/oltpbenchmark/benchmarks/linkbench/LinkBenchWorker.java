@@ -24,35 +24,17 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.facebook.LinkBench.distributions.AccessDistributions;
-import com.facebook.LinkBench.distributions.ID2Chooser;
-import com.facebook.LinkBench.distributions.LogNormalDistribution;
-import com.facebook.LinkBench.distributions.ProbabilityDistribution;
-import com.facebook.LinkBench.distributions.AccessDistributions.AccessDistribution;
-import com.facebook.LinkBench.distributions.RealDistribution.DistributionType;
-import com.facebook.LinkBench.generators.DataGenerator;
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.benchmarks.linkbench.distributions.*;
+import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.DistributionType;
+import com.oltpbenchmark.benchmarks.linkbench.distributions.AccessDistributions.*;
+import com.oltpbenchmark.benchmarks.linkbench.generators.*;
+import com.oltpbenchmark.api.*;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.api.TransactionType;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
-import com.oltpbenchmark.benchmarks.linkbench.pojo.Node;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.AddLink;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.AddNode;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.CountLink;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.DeleteLink;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.DeleteNode;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.GetLinkList;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.GetLink;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.GetNode;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.UpdateLink;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.UpdateNode;
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
-import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
-import com.oltpbenchmark.types.TransactionStatus;
-import com.oltpbenchmark.util.ClassUtil;
-
+import com.oltpbenchmark.benchmarks.linkbench.pojo.*;
+import com.oltpbenchmark.benchmarks.linkbench.procedures.*;
+import com.oltpbenchmark.benchmarks.linkbench.utils.*;
+import com.oltpbenchmark.types.*;
+import com.oltpbenchmark.util.*;
 
 public class LinkBenchWorker extends Worker {
 

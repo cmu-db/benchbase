@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.LinkBench.distributions;
+package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.facebook.LinkBench.distributions.RealDistribution.DistributionType;
+import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.DistributionType;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
