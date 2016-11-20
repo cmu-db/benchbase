@@ -306,7 +306,7 @@ work:
 
             // PART 4: Record results
 			
-				long end = System.nanoTime();
+			long end = System.nanoTime();
             postState = wrkldState.getGlobalState();
 
             switch(postState) {
@@ -381,7 +381,6 @@ work:
     	        // User Abort Handling
     	        // These are not errors
         	    } catch (UserAbortException ex) {
-        	        ex.printStackTrace();
                     if (LOG.isDebugEnabled()) LOG.debug(next + " Aborted", ex);
                     
                     /* PAVLO */
