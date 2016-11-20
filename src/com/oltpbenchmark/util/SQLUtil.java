@@ -120,10 +120,10 @@ public abstract class SQLUtil {
         else if (obj instanceof Date) {
             return new Timestamp(((Date)obj).getTime());
         }
-        else {
-            LOG.error(String.format("Unexpected timestamp object type '%s': %s",
-                                    obj.getClass().getName(), obj));
-        }
+//         else {
+//             LOG.error(String.format("Unexpected timestamp object type '%s': %s",
+//                                     obj.getClass().getName(), obj));
+//         }
         // FIXME: Not sure how to include this without including Oracle jars
 //        else if (obj instanceof oracle.sql.TIMESTAMP) {
 //            try {
