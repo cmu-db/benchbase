@@ -23,7 +23,6 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
-import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
@@ -46,6 +44,15 @@ import com.oltpbenchmark.util.ScriptRunner;
 public abstract class BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 
+    /**
+     * Each benchmark must put their all of the DBMS-specific DDLs
+     * in this directory.
+     */
+    public static final String DDLS_DIR = "ddls";
+    
+    /**
+     * The identifier for this benchmark
+     */
     protected final String benchmarkName;
 
     /**
@@ -178,14 +185,17 @@ public abstract class BenchmarkModule {
      */
     public URL getDatabaseDDL(DatabaseType db_type) {
         String ddlNames[] = {
-                this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
-                this.benchmarkName + "-ddl.sql",
+            this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
+            this.benchmarkName + "-ddl.sql",
         };
 
         for (String ddlName : ddlNames) {
             if (ddlName == null) continue;
-            URL ddlURL = this.getClass().getResource(ddlName);
-            if (ddlURL != null) return ddlURL;
+            URL ddlURL = this.getClass().getResource(DDLS_DIR + File.separator + ddlName);
+            if (ddlURL != null) {
+                LOG.info("Found DDL file for " + db_type + ": " + ddlURL );
+                return ddlURL;
+            }
         } // FOR
         LOG.trace(ddlNames[0]+" :or: "+ddlNames[1]);
         LOG.error("Failed to find DDL file for " + this.benchmarkName);
