@@ -32,6 +32,7 @@ import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
  * The NoOp Benchmark doesn't have any tables or execute any queries.
  * It's just how fast the DBMS can process NoOps
  * @author pavlo
+ * @author eric-haibin-lin
  */
 public class NoOpBenchmark extends BenchmarkModule {
 

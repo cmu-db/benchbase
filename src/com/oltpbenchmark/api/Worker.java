@@ -370,10 +370,18 @@ work:
 //        	            LOG.info("Created SavePoint: " + savepoint);
 //        	        }
         	        
-        	        status = this.executeWork(next);
+        	        status = TransactionStatus.UNKNOWN;
+    	            status = this.executeWork(next);
+        	        
+	            // Assertion Error
+        	    } catch (AssertionError ex) {
+        	        LOG.error("Fatal error when invoking " + next, ex);
+        	        throw ex;
+        	            
     	        // User Abort Handling
     	        // These are not errors
         	    } catch (UserAbortException ex) {
+        	        ex.printStackTrace();
                     if (LOG.isDebugEnabled()) LOG.debug(next + " Aborted", ex);
                     
                     /* PAVLO */
@@ -396,6 +404,7 @@ work:
                     
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
+                    ex.printStackTrace();
                                        
                     //TODO: Handle acceptable error codes for every DBMS     
                     LOG.debug(next+ " " +  ex.getMessage()+" "+ex.getErrorCode()+ " - " +ex.getSQLState());

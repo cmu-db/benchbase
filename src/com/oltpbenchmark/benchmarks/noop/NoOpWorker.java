@@ -25,11 +25,14 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
 import com.oltpbenchmark.types.TransactionStatus;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author pavlo
- *
+ * @author eric-haibin-lin
  */
 public class NoOpWorker extends Worker {
+    private static final Logger LOG = Logger.getLogger(NoOpLoader.class);
 
     private NoOp procNoOp;
     
@@ -41,8 +44,17 @@ public class NoOpWorker extends Worker {
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         // Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
-        this.procNoOp.run(this.conn);
-        this.conn.commit();
+        LOG.debug("Executing " + this.procNoOp);
+        try {
+            this.procNoOp.run(this.conn);
+            this.conn.commit();
+            if (LOG.isDebugEnabled())
+                LOG.debug("Successfully completed " + this.procNoOp + " execution!");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
+        
         return (TransactionStatus.SUCCESS);
     }
 }

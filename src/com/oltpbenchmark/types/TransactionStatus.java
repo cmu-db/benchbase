@@ -18,6 +18,10 @@ package com.oltpbenchmark.types;
 
 public enum TransactionStatus {
     /**
+     * Unknown status
+     */
+    UNKNOWN,
+    /**
      * The transaction executed successfully and
      * committed without any errors.
      */

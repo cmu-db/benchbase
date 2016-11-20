@@ -16,30 +16,18 @@
 
 package com.oltpbenchmark.benchmarks.noop;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.benchmarks.noop.procedures.*;
 
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-
-/**
- * This doesn't load any data!
- * @author pavlo
- * @author eric-haibin-lin
- */
-public class NoOpLoader extends Loader {
-    private static final Logger LOG = Logger.getLogger(NoOpLoader.class);
-
-    public NoOpLoader(NoOpBenchmark benchmark, Connection c) {
-        super(benchmark, c);
-    }
-
-    @Override
-    public void load() throws SQLException {
-        // Nothing to do
-        if (LOG.isDebugEnabled())
-            LOG.debug("No data is no loaded because there is no table!");
-        
-    }
+public class TestNoOpBenchmark extends AbstractTestBenchmarkModule<NoOpBenchmark> {
+	
+    public static final Class<?> PROC_CLASSES[] = {
+        NoOp.class,
+    };
+    
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp(NoOpBenchmark.class, PROC_CLASSES);
+	}
+	
 }

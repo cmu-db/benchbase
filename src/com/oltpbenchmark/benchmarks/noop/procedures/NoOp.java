@@ -24,20 +24,23 @@ import java.sql.SQLException;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
-public class NoOp extends Procedure{
+/**
+ * The actual NoOp implementation
+ * @author pavlo
+ * @author eric-haibin-lin
+ */
+public class NoOp extends Procedure {
     
     // The query only contains a semi-colon
     // That is enough for the DBMS to have to parse it and do something
-    public final SQLStmt noopStmt = new SQLStmt(";");
+    public final SQLStmt noopStmt = new SQLStmt("SELECT 1");
     
     public void run(Connection conn) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
         ResultSet r = stmt.executeQuery();
-        boolean nothing = true;
         while (r.next()) {
-            nothing = false;
+            // Do nothing
         } // WHILE
-        assert(nothing == true);
         r.close();
     }
 
