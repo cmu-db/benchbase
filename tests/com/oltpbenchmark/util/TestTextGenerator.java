@@ -39,7 +39,7 @@ public class TestTextGenerator extends TestCase {
     public void testRandomChars() throws Exception {
         Set<String> previous = new HashSet<String>();
         long start = System.nanoTime();
-        int strLen = rng.nextInt(MAX_SIZE) + 1;
+        int strLen = rng.nextInt(MAX_SIZE) + 10;
         for (int i = 0; i < NUM_ROUNDS; i++) {
             char text[] = TextGenerator.randomChars(rng, strLen);
             if (SPEED_TEST == false) {
@@ -89,7 +89,7 @@ public class TestTextGenerator extends TestCase {
         Set<String> previous = new HashSet<String>();
         long start = System.nanoTime();
         for (int i = 0; i < NUM_ROUNDS; i++) {
-            int strLen = rng.nextInt(MAX_SIZE) + 1;
+            int strLen = rng.nextInt(MAX_SIZE) + 10;
             char text[] = new char[strLen];
             TextGenerator.randomFastChars(rng, text);
 //            System.err.println("FAST: " + String.valueOf(text));
