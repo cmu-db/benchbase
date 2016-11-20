@@ -24,13 +24,33 @@
         </fileset>
         <pathelement path="${java.class.path}"/>
     </path>
+    
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="${lib.dir}/ant-contrib.jar"/>
+        </classpath>
+    </taskdef>
+    
+    <!-- EXEC ASSERTS -->
+    <condition property="assertions" value="false">
+        <not><isset property="assertions"/></not>
+    </condition>
+    <if>
+        <equals arg1="${assertions}" arg2="true" />
+        <then>
+            <assertions id="assertions"><enable /></assertions>
+        </then>
+        <else>
+            <assertions id="assertions"><disable /></assertions>
+        </else>
+    </if>
 
     <!-- *************************************** BUILDING *************************************** -->
     
     <target name="build"
             description="Build the entire framework">
         <fileset dir="${src.dir}" excludes="**/*.launch, **/*.java"/>
-        <echo message="${ant.project.name}: ${ant.file}"/>
+        <!-- <echo message="${ant.project.name}: ${ant.file}"/> -->
         
         <mkdir dir="${build.dir}/META-INF"/>
         <copy file="${src.dir}/META-INF/persistence.xml" todir="${build.dir}/META-INF"/>
@@ -101,7 +121,8 @@
             <arg line="--execute ${execute}" />
             <arg line="${extra}" />
             <classpath refid='project.classpath' />
-            <assertions><enable/></assertions>
+            
+            <assertions refid="assertions"/>
         </java>
     </target>
     
@@ -143,7 +164,8 @@
     </macrodef>
     
     <target name="junit"
-            description="Run all test cases for framework.">
+            description="Run all test cases for framework."
+    	    depends="build" >
         <!-- Run the unit tests -->
         <condition property="timeoutLength" value="${timeoutLength}" else='600000'>
             <isset property="timeoutLength"/>

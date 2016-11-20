@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <dbtype>postgres</dbtype>
+    <driver>org.postgresql.Driver</driver>
+    <DBUrl>jdbc:postgresql://localhost:5432/wikipedia/</DBUrl>
+    <DBName>wikipedia</DBName>
+    <username>joe</username>
+    <password>joe</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    
+    <!-- Scale factor is the number of wikipages *1000 -->
+    <scalefactor>10</scalefactor>
+    
+    <!-- Wikipedia Trace Options -->
+    <tracefile>config/traces/wikipedia-100k.trace</tracefile>
+    <traceOut>10</traceOut>
+    <tracefiledebug>debug_wiki</tracefiledebug>
+    <base_ip>10.1.</base_ip>
+
+	<!-- The workload -->
+ 	<terminals>1</terminals>
+    <works>
+        <work>
+          <time>60</time>
+          <rate>1000</rate>
+          <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
+        </work>
+    </works>
+    
+    <!-- Wikipedia Procedures Declaration -->
+	<transactiontypes>
+        <transactiontype>
+                <name>AddWatchList</name>
+        </transactiontype>
+        <transactiontype>
+                <name>RemoveWatchList</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdatePage</name>
+        </transactiontype>
+        <transactiontype>
+                <name>GetPageAnonymous</name>
+        </transactiontype>
+        <transactiontype>
+                <name>GetPageAuthenticated</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

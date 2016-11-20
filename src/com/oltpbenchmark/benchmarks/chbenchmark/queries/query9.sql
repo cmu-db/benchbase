@@ -18,7 +18,6 @@ WHERE ol_i_id = s_i_id
   AND su_nationkey = n_nationkey
   AND i_data LIKE '%bb'
 GROUP BY n_name,
-         extract(YEAR
-                 FROM o_entry_d)
+         l_year
 ORDER BY n_name,
-         l_year DESC
+         l_year DESC;

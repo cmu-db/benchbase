@@ -3,6 +3,7 @@ bin/
 output.raw
 output.res
 .classpath
+.settings
 
 ## -------------------------------
 ## Kate Swap Files
@@ -15,3 +16,6 @@ output.res
 ## -------------------------------
 ~*
 *~
+
+# maven output
+target

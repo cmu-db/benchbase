@@ -1,3 +1,19 @@
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
+ ******************************************************************************/
+
 package com.oltpbenchmark.util;
 
 import java.util.Arrays;
@@ -17,6 +33,20 @@ public abstract class TextGenerator {
             CHAR_SYMBOLS[i] = (char)(CHAR_START + i);
         } // FOR
     } // STATIC
+    
+    private static final int[] FAST_MASKS = {
+        554189328, // 10000
+        277094664, // 01000
+        138547332, // 00100
+        69273666,  // 00010
+        34636833,  // 00001
+        346368330, // 01010
+        727373493, // 10101
+        588826161, // 10001
+        935194491, // 11011
+        658099827, // 10011
+    };
+    
 
     /**
      * Generate a random block of text as a char array
@@ -26,15 +56,39 @@ public abstract class TextGenerator {
      */
     public static char[] randomChars(Random rng, int strLen) {
         char chars[] = new char[strLen];
+        return randomFastChars(rng, chars);
+    }
+
+    public static char[] randomChars(Random rng, char chars[]) {
         for (int i = 0; i < chars.length; i++) {
-            chars[i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+            chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
         return (chars);
     }
     
-    public static char[] randomChars(Random rng, char chars[], int start, int stop) {
-        for (int i = start; i < stop; i++) {
-            chars[i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+    /**
+     * Faster (pseudo) random number generator
+     * @param rng
+     * @param chars
+     * @return
+     */
+    public static char[] randomFastChars(Random rng, char chars[]) {
+        // Ok so now the goal of this is to reduce the number of times that we have to 
+        // invoke a random number. We'll do this by grabbing a single random int
+        // and then taking different bitmasks
+        
+        int num_rounds = chars.length / FAST_MASKS.length;
+        int i = 0;
+        for (int ctr = 0; ctr < num_rounds; ctr++) {
+            int rand = rng.nextInt(10000); // CHAR_SYMBOLS.length);
+            for (int mask : FAST_MASKS) {
+                chars[i++] = CHAR_SYMBOLS[(rand | mask) % CHAR_SYMBOLS.length];
+            } // FOR
+        } // FOR
+        // Use the old way for the remaining characters
+        // I am doing this because I am too lazy to think of something more clever
+        for ( ; i < chars.length; i++) {
+            chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
         return (chars);
     }

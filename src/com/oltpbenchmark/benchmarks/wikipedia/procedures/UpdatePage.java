@@ -1,22 +1,20 @@
-/*******************************************************************************
- * oltpbenchmark.com
- *  
- *  Project Info:  http://oltpbenchmark.com
- *  Project Members:    Carlo Curino <carlo.curino@gmail.com>
- *              Evan Jones <ej@evanjones.ca>
- *              DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
- *              Andy Pavlo <pavlo@cs.brown.edu>
- *              CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
- *                  Yang Zhang <yaaang@gmail.com> 
- * 
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU General Public License as published by the Free Software Foundation;
- *  either version 3.0 of the License, or (at your option) any later version.
- * 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
  ******************************************************************************/
+
+
 package com.oltpbenchmark.benchmarks.wikipedia.procedures;
 
 import java.sql.Connection;
@@ -25,13 +23,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+//import ch.ethz.ssh2.log.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.util.TimeUtil;
-
+import org.apache.log4j.Logger;
 public class UpdatePage extends Procedure {
-	
+	private static final Logger LOG = Logger.getLogger(Procedure.class);
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------
@@ -144,9 +144,10 @@ public class UpdatePage extends Procedure {
 		param = 1;
 		ps.setInt(param++, pageId);
 		ps.setString(param++, pageText);
-		ps.setString(param++, "utf-8");
-		ps.execute();
-
+		ps.setString(param++, "utf-8");  //This is an error
+//		ps.execute();
+		execute(conn, ps);
+		
 		rs = ps.getGeneratedKeys();
 		adv = rs.next();
 		assert(adv) : "Problem inserting new tuples in table text";
@@ -160,14 +161,15 @@ public class UpdatePage extends Procedure {
 		ps.setInt(param++, pageId);       // rev_page
 		ps.setInt(param++, nextTextId);   // rev_text_id
 		ps.setString(param++, revComment);// rev_comment
-		ps.setInt(param++, revMinorEdit); // rev_minor_edit
+		ps.setInt(param++, revMinorEdit); // rev_minor_edit // this is an error
 		ps.setInt(param++, userId);       // rev_user
 		ps.setString(param++, userText);  // rev_user_text
 		ps.setString(param++, timestamp); // rev_timestamp
-		ps.setInt(param++, 0);            // rev_deleted
+		ps.setInt(param++, 0);            // rev_deleted //this is an error
 		ps.setInt(param++, pageText.length()); // rev_len
-		ps.setInt(param++, revisionId);   // rev_parent_id
-	    ps.execute();
+		ps.setInt(param++, revisionId);   // rev_parent_id // this is an error
+//	    ps.execute();
+		execute(conn, ps);
 		
 		rs = ps.getGeneratedKeys();
 		adv = rs.next();
@@ -184,8 +186,9 @@ public class UpdatePage extends Procedure {
 		ps.setString(param++, timestamp);
 		ps.setInt(param++, pageText.length());
 		ps.setInt(param++, pageId);
-		int numUpdatePages = ps.executeUpdate();
-		assert(numUpdatePages == 1) : "WE ARE NOT UPDATING the page table!";
+//		int numUpdatePages = ps.executeUpdate();
+//		assert(numUpdatePages == 1) : "WE ARE NOT UPDATING the page table!";
+		execute(conn, ps);
 
 		// REMOVED
 		// sql="DELETE FROM `redirect` WHERE rd_from = '"+a.pageId+"';";
@@ -211,9 +214,10 @@ public class UpdatePage extends Procedure {
 		ps.setString(param++, userIp);        // rc_ip
 		ps.setInt(param++, pageText.length());// rc_old_len
         ps.setInt(param++, pageText.length());// rc_new_len
-		int count = ps.executeUpdate();
-		assert(count == 1);
-
+//		int count = ps.executeUpdate();
+//		assert(count == 1);
+        execute(conn, ps);
+        
 		// REMOVED
 		// sql="INSERT INTO `cu_changes` () VALUES ();";
 		// st.addBatch(sql);
@@ -251,7 +255,9 @@ public class UpdatePage extends Procedure {
 				ps.setInt(param, otherUserId.intValue());
 				ps.addBatch();
 			} // FOR
-			ps.executeUpdate();
+//			ps.executeUpdate(); // This is an error
+//			ps.executeBatch();
+			executeBatch(conn, ps);
 
 			// NOTE: this commit is skipped if none is watching the page, and
 			// the transaction merge with the following one
@@ -286,17 +292,53 @@ public class UpdatePage extends Procedure {
 		ps.setString(param++, userText);
 		ps.setInt(param++, pageId);
 		ps.setString(param++, String.format("%d\n%d\n%d", nextRevId, revisionId, 1));
-		ps.executeUpdate();
+//		ps.executeUpdate();
+		execute(conn, ps);
 
 		ps = this.getPreparedStatement(conn, updateUserEdit);
 		param = 1;
 		ps.setInt(param++, userId);
-		ps.executeUpdate();
+//		ps.executeUpdate();
+		execute(conn, ps);
 		
 		ps = this.getPreparedStatement(conn, updateUserTouched);
 		param = 1;
 		ps.setString(param++, timestamp);
 		ps.setInt(param++, userId);
-		ps.executeUpdate();
-	}
+//		ps.executeUpdate();	    		
+		execute(conn, ps);
+	}	
+	
+	public void execute(Connection conn, PreparedStatement p) throws SQLException{
+	      boolean successful = false;
+			while (!successful) {
+				try {
+					p.execute();
+					successful = true;
+				} catch (SQLException esql) {
+					int errorCode = esql.getErrorCode();
+					if (errorCode == 8177)
+						conn.rollback();
+					else
+						throw esql;
+				}
+			}
+		}
+	public void executeBatch(Connection conn, PreparedStatement p) throws SQLException{
+	      boolean successful = false;
+			while (!successful) {
+				try {
+					p.executeBatch();
+					successful = true;
+				} catch (SQLException esql) {
+					int errorCode = esql.getErrorCode();
+					if (errorCode == 8177)
+						conn.rollback();
+					else
+						throw esql;
+				}
+			}
+		}
 }
+
+

@@ -1,3 +1,19 @@
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
+ ******************************************************************************/
+
 package com.oltpbenchmark.util;
 
 import java.math.BigDecimal;
@@ -104,13 +120,18 @@ public abstract class SQLUtil {
         else if (obj instanceof Date) {
             return new Timestamp(((Date)obj).getTime());
         }
-        else if (obj instanceof oracle.sql.TIMESTAMP) {
-            try {
-                return ((oracle.sql.TIMESTAMP)obj).timestampValue();
-            } catch (SQLException ex) {
-                throw new RuntimeException("Failed to get timestamp from '" + obj + "'", ex);
-            }
-        }
+//         else {
+//             LOG.error(String.format("Unexpected timestamp object type '%s': %s",
+//                                     obj.getClass().getName(), obj));
+//         }
+        // FIXME: Not sure how to include this without including Oracle jars
+//        else if (obj instanceof oracle.sql.TIMESTAMP) {
+//            try {
+//                return ((oracle.sql.TIMESTAMP)obj).timestampValue();
+//            } catch (SQLException ex) {
+//                throw new RuntimeException("Failed to get timestamp from '" + obj + "'", ex);
+//            }
+//        }
         
         Long timestamp = SQLUtil.getLong(obj);
         return (timestamp != null ? new Timestamp(timestamp) : null);
@@ -314,6 +335,18 @@ public abstract class SQLUtil {
      */
     public static String getInsertSQL(Table catalog_tbl) {
         return getInsertSQL(catalog_tbl, 1);
+    }
+    
+    /**
+     * Automatically generate the 'INSERT' SQL string to insert
+     * one record into this table, with a flag to escape names or not
+     * 
+     * @param catalog_tbl Table affected
+     * @param escape_names Flag to escape object names
+     * @return
+     */
+    public static String getInsertSQL(Table catalog_tbl, boolean escape_names, int...exclude_columns) {
+        return getInsertSQL(catalog_tbl, false, false, 1, exclude_columns);
     }
     
     /**

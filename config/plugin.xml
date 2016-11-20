@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <plugins>
     <plugin name="tpcc">com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark</plugin>
+    <plugin name="tpch">com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark</plugin>
     <plugin name="tatp">com.oltpbenchmark.benchmarks.tatp.TATPBenchmark</plugin>
     <plugin name="wikipedia">com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark</plugin>
     <plugin name="resourcestresser">com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark</plugin>
@@ -14,4 +15,5 @@
     <plugin name="voter">com.oltpbenchmark.benchmarks.voter.VoterBenchmark</plugin>
     <plugin name="linkbench">com.oltpbenchmark.benchmarks.linkbench.LinkBenchBenchmark</plugin>
     <plugin name="sibench">com.oltpbenchmark.benchmarks.sibench.SIBenchmark</plugin>
+    <plugin name="noop">com.oltpbenchmark.benchmarks.noop.NoOpBenchmark</plugin>
 </plugins>

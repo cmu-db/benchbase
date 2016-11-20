@@ -3,4 +3,4 @@ FROM order_line,
      item
 WHERE ol_i_id = i_id
   AND ol_delivery_d >= '2007-01-02 00:00:00.000000'
-  AND ol_delivery_d < '2020-01-02 00:00:00.000000'
+  AND ol_delivery_d < '2020-01-02 00:00:00.000000';

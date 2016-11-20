@@ -1,22 +1,20 @@
-/*******************************************************************************
- * oltpbenchmark.com
- *  
- *  Project Info:  http://oltpbenchmark.com
- *  Project Members:  	Carlo Curino <carlo.curino@gmail.com>
- * 				Evan Jones <ej@evanjones.ca>
- * 				DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
- * 				Andy Pavlo <pavlo@cs.brown.edu>
- * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
- *  				Yang Zhang <yaaang@gmail.com> 
- * 
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU General Public License as published by the Free Software Foundation;
- *  either version 3.0 of the License, or (at your option) any later version.
- * 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
  ******************************************************************************/
+
+
 package com.oltpbenchmark.benchmarks.tpcc;
 
 /*
@@ -45,6 +43,7 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -65,6 +64,10 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+
+//woonhak, for postgres and monetdb (make insert statement wihtout escaped char),
+//need to know current dbType
+import com.oltpbenchmark.types.DatabaseType;
 
 public class TPCCLoader extends Loader{
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
@@ -95,11 +98,21 @@ public class TPCCLoader extends Loader{
 	private static long lastTimeMS = 0;
 
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
-	
+
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
         Table catalog_tbl = this.getTableCatalog(tableName);
         assert(catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+
+				// if current dbType is either postgres or monetdb make insertSQL
+				// without escaped character.
+				String sql = null;
+
+				if (this.getDatabaseType() == DatabaseType.POSTGRES
+						|| this.getDatabaseType() == DatabaseType.MONETDB)
+					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
+				else
+					sql = SQLUtil.getInsertSQL(catalog_tbl);
+
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         return stmt;
 	}
@@ -133,7 +146,7 @@ public class TPCCLoader extends Loader{
 
 		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
-			this.conn.createStatement().execute("TRUNCATE TABLE " + strTable);
+            this.conn.createStatement().execute("DELETE FROM " + strTable);
 			transCommit();
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -173,7 +186,7 @@ public class TPCCLoader extends Loader{
 				item.i_id = i;
 				item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14, 24,
 						gen));
-				item.i_price = (float) (TPCCUtil.randomNumber(100, 10000, gen) / 100.0);
+                item.i_price = (double) (TPCCUtil.randomNumber(100, 10000, gen) / 100.0);
 
 				// i_data
 				randPct = TPCCUtil.randomNumber(1, 100, gen);
@@ -254,6 +267,11 @@ public class TPCCLoader extends Loader{
 
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
+            se.printStackTrace();
+            SQLException next = se.getNextException();
+            if (next != null) {
+                LOG.debug(next.getMessage());
+            }
 			transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -288,7 +306,7 @@ public class TPCCLoader extends Loader{
 				warehouse.w_ytd = 300000;
 
 				// random within [0.0000 .. 0.2000]
-				warehouse.w_tax = (float) ((TPCCUtil.randomNumber(0, 2000, gen)) / 10000.0);
+                warehouse.w_tax = (double) ((TPCCUtil.randomNumber(0, 2000, gen)) / 10000.0);
 
 				warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6,
 						10, gen));
@@ -517,9 +535,8 @@ public class TPCCLoader extends Loader{
 
 		try {
 
-		    String sql = SQLUtil.getInsertSQL(this.getTableCatalog(TPCCConstants.TABLENAME_DISTRICT));
-		    PreparedStatement distPrepStmt = this.conn.prepareStatement(sql);
-		    
+			PreparedStatement distPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_DISTRICT);
+
 			now = new java.util.Date();
 
 			if (outputFiles == true) {
@@ -1056,6 +1073,10 @@ public class TPCCLoader extends Loader{
 			now = new java.util.Date();
 			LOG.debug("End Orders Load @  " + now);
 
+        } catch (SQLException se) {
+            LOG.debug(se.getMessage());
+            se.printStackTrace();
+            transRollback();
 		} catch (Exception e) {
 			e.printStackTrace();
 			transRollback();

@@ -27,4 +27,4 @@ WHERE i_id = s_i_id
   AND s_quantity = m_s_quantity
 ORDER BY n_name,
          su_name,
-         i_id
+         i_id;

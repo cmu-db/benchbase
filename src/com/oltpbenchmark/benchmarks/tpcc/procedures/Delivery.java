@@ -1,3 +1,19 @@
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
+ ******************************************************************************/
+
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
 import java.sql.Connection;
@@ -14,32 +30,32 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
 public class Delivery extends TPCCProcedure {
 
-	
-	public SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT no_o_id FROM " + TPCCConstants.TABLENAME_NEWORDER + " WHERE no_d_id = ?"
-			+ " AND no_w_id = ? ORDER BY no_o_id ASC LIMIT 1");
-	public SQLStmt delivDeleteNewOrderSQL = new SQLStmt("DELETE FROM " + TPCCConstants.TABLENAME_NEWORDER + ""
-			+ " WHERE no_o_id = ? AND no_d_id = ?"
-			+ " AND no_w_id = ?");
-	public SQLStmt delivGetCustIdSQL = new SQLStmt("SELECT o_c_id"
-			+ " FROM " + TPCCConstants.TABLENAME_OPENORDER + " WHERE o_id = ?"
-			+ " AND o_d_id = ?" + " AND o_w_id = ?");
-	public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_OPENORDER + " SET o_carrier_id = ?"
-			+ " WHERE o_id = ?" + " AND o_d_id = ?"
-			+ " AND o_w_id = ?");
-	public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_ORDERLINE + " SET ol_delivery_d = ?"
-			+ " WHERE ol_o_id = ?"
-			+ " AND ol_d_id = ?"
-			+ " AND ol_w_id = ?");
-	public SQLStmt delivSumOrderAmountSQL = new SQLStmt("SELECT SUM(ol_amount) AS ol_total"
-			+ " FROM " + TPCCConstants.TABLENAME_ORDERLINE + "" + " WHERE ol_o_id = ?"
-			+ " AND ol_d_id = ?" + " AND ol_w_id = ?");
-	public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET c_balance = c_balance + ?"
-			+ ", c_delivery_cnt = c_delivery_cnt + 1"
-			+ " WHERE c_w_id = ?"
-			+ " AND c_d_id = ?"
-			+ " AND c_id = ?");
 
-	
+	public SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER + " WHERE NO_D_ID = ?"
+			+ " AND NO_W_ID = ? ORDER BY NO_O_ID ASC LIMIT 1");
+	public SQLStmt delivDeleteNewOrderSQL = new SQLStmt("DELETE FROM " + TPCCConstants.TABLENAME_NEWORDER + ""
+			+ " WHERE NO_O_ID = ? AND NO_D_ID = ?"
+			+ " AND NO_W_ID = ?");
+	public SQLStmt delivGetCustIdSQL = new SQLStmt("SELECT O_C_ID"
+			+ " FROM " + TPCCConstants.TABLENAME_OPENORDER + " WHERE O_ID = ?"
+			+ " AND O_D_ID = ?" + " AND O_W_ID = ?");
+	public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_OPENORDER + " SET O_CARRIER_ID = ?"
+			+ " WHERE O_ID = ?" + " AND O_D_ID = ?"
+			+ " AND O_W_ID = ?");
+	public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_ORDERLINE + " SET OL_DELIVERY_D = ?"
+			+ " WHERE OL_O_ID = ?"
+			+ " AND OL_D_ID = ?"
+			+ " AND OL_W_ID = ?");
+	public SQLStmt delivSumOrderAmountSQL = new SQLStmt("SELECT SUM(OL_AMOUNT) AS OL_TOTAL"
+			+ " FROM " + TPCCConstants.TABLENAME_ORDERLINE + "" + " WHERE OL_O_ID = ?"
+			+ " AND OL_D_ID = ?" + " AND OL_W_ID = ?");
+	public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET C_BALANCE = C_BALANCE + ?"
+			+ ", C_DELIVERY_CNT = C_DELIVERY_CNT + 1"
+			+ " WHERE C_W_ID = ?"
+			+ " AND C_D_ID = ?"
+			+ " AND C_ID = ?");
+
+
 	// Delivery Txn
 	private PreparedStatement delivGetOrderId = null;
 	private PreparedStatement delivDeleteNewOrder = null;
@@ -49,14 +65,14 @@ public class Delivery extends TPCCProcedure {
 	private PreparedStatement delivSumOrderAmount = null;
 	private PreparedStatement delivUpdateCustBalDelivCnt = null;
 
-	
+
     public ResultSet run(Connection conn, Random gen,
 			int terminalWarehouseID, int numWarehouses,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
 			TPCCWorker w) throws SQLException {
 		int orderCarrierID = TPCCUtil.randomNumber(1, 10, gen);
-	
-		
+
+
 		delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
 		delivDeleteNewOrder =  this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
 		delivGetCustId = this.getPreparedStatement(conn, delivGetCustIdSQL);
@@ -68,10 +84,10 @@ public class Delivery extends TPCCProcedure {
 		deliveryTransaction(terminalWarehouseID,orderCarrierID, conn, w);
 		return null;
     }
-    
+
 
 	private int deliveryTransaction(int w_id, int o_carrier_id, Connection conn, TPCCWorker w) throws SQLException {
-	    
+
 	    int d_id, c_id;
 		float ol_total;
 		int[] orderIDs;
@@ -89,7 +105,7 @@ public class Delivery extends TPCCProcedure {
 				continue;
 			}
 
-			int no_o_id = rs.getInt("no_o_id");
+			int no_o_id = rs.getInt("NO_O_ID");
 			orderIDs[d_id - 1] = no_o_id;
 			rs.close();
 			rs = null;
@@ -118,7 +134,7 @@ public class Delivery extends TPCCProcedure {
 								+ " delete failed (not running with SERIALIZABLE isolation?)");
 			}
 
-	
+
 			delivGetCustId.setInt(1, no_o_id);
 			delivGetCustId.setInt(2, d_id);
 			delivGetCustId.setInt(3, w_id);
@@ -127,7 +143,7 @@ public class Delivery extends TPCCProcedure {
 			if (!rs.next())
 				throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
 						+ d_id + " O_W_ID=" + w_id + " not found!");
-			c_id = rs.getInt("o_c_id");
+			c_id = rs.getInt("O_C_ID");
 			rs.close();
 			rs = null;
 
@@ -154,7 +170,7 @@ public class Delivery extends TPCCProcedure {
 				throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
 						+ d_id + " OL_W_ID=" + w_id + " not found!");
 
-			
+
 
 			delivSumOrderAmount.setInt(1, no_o_id);
 			delivSumOrderAmount.setInt(2, d_id);
@@ -164,10 +180,10 @@ public class Delivery extends TPCCProcedure {
 			if (!rs.next())
 				throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
 						+ d_id + " OL_W_ID=" + w_id + " not found!");
-			ol_total = rs.getFloat("ol_total");
+			ol_total = rs.getFloat("OL_TOTAL");
 			rs.close();
 			rs = null;
-			
+
 			delivUpdateCustBalDelivCnt.setFloat(1, ol_total);
 			delivUpdateCustBalDelivCnt.setInt(2, w_id);
 			delivUpdateCustBalDelivCnt.setInt(3, d_id);
@@ -215,5 +231,5 @@ public class Delivery extends TPCCProcedure {
 	}
 
 
-    
+
 }

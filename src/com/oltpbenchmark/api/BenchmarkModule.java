@@ -1,22 +1,20 @@
-/*******************************************************************************
- * oltpbenchmark.com
- *  
- *  Project Info:  http://oltpbenchmark.com
- *  Project Members:  	Carlo Curino <carlo.curino@gmail.com>
- * 				Evan Jones <ej@evanjones.ca>
- * 				DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
- * 				Andy Pavlo <pavlo@cs.brown.edu>
- * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
- *  				Yang Zhang <yaaang@gmail.com> 
- * 
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU General Public License as published by the Free Software Foundation;
- *  either version 3.0 of the License, or (at your option) any later version.
- * 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
  ******************************************************************************/
+
+
 package com.oltpbenchmark.api;
 
 import java.io.File;
@@ -25,7 +23,6 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +34,6 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
-import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
@@ -48,6 +44,15 @@ import com.oltpbenchmark.util.ScriptRunner;
 public abstract class BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
 
+    /**
+     * Each benchmark must put their all of the DBMS-specific DDLs
+     * in this directory.
+     */
+    public static final String DDLS_DIR = "ddls";
+    
+    /**
+     * The identifier for this benchmark
+     */
     protected final String benchmarkName;
 
     /**
@@ -168,27 +173,31 @@ public abstract class BenchmarkModule {
      * 
      * @return
      */
-    public File getDatabaseDDL() {
+    public URL getDatabaseDDL() {
         return (this.getDatabaseDDL(this.workConf.getDBType()));
     }
 
     /**
-     * Return the File handle to the DDL used to load the benchmark's database
+     * Return the URL handle to the DDL used to load the benchmark's database
      * schema.
      * @param conn 
      * @throws SQLException 
      */
-    public File getDatabaseDDL(DatabaseType db_type) {
+    public URL getDatabaseDDL(DatabaseType db_type) {
         String ddlNames[] = {
-                this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
-                this.benchmarkName + "-ddl.sql",
+            this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
+            this.benchmarkName + "-ddl.sql",
         };
 
         for (String ddlName : ddlNames) {
             if (ddlName == null) continue;
-            URL ddlURL = this.getClass().getResource(ddlName);
-            if (ddlURL != null) return new File(ddlURL.getPath());
+            URL ddlURL = this.getClass().getResource(DDLS_DIR + File.separator + ddlName);
+            if (ddlURL != null) {
+                LOG.info("Found DDL file for " + db_type + ": " + ddlURL );
+                return ddlURL;
+            }
         } // FOR
+        LOG.trace(ddlNames[0]+" :or: "+ddlNames[1]);
         LOG.error("Failed to find DDL file for " + this.benchmarkName);
         return null;
     }
@@ -233,11 +242,10 @@ public abstract class BenchmarkModule {
      */
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
-            File ddl = this.getDatabaseDDL(dbType);
+            URL ddl = this.getDatabaseDDL(dbType);
             assert(ddl != null) : "Failed to get DDL for " + this;
-            assert(ddl.exists()) : "The file '" + ddl + "' does not exist";
             ScriptRunner runner = new ScriptRunner(conn, true, true);
-            if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl.getName() + "'");
+            if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl + "'");
             runner.runScript(ddl);
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
@@ -252,7 +260,7 @@ public abstract class BenchmarkModule {
             Connection conn = this.makeConnection();
             ScriptRunner runner = new ScriptRunner(conn, true, true);
             File scriptFile= new File(script);
-            runner.runScript(scriptFile);
+            runner.runScript(scriptFile.toURI().toURL());
             conn.close();
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to run: %s", script), ex);
@@ -302,16 +310,12 @@ public abstract class BenchmarkModule {
     public final void clearDatabase() {
         try {
             Connection conn = this.makeConnection();
-            conn.setAutoCommit(false);
-            conn.setTransactionIsolation(workConf.getIsolationMode());
-            Statement st = conn.createStatement();
-            for (Table catalog_tbl : this.catalog.getTables()) {
-                LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
-                String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
-                st.execute(sql);
-            } // FOR
-            conn.commit();
-
+            Loader loader = this.makeLoaderImpl(conn);
+            if (loader != null) {
+                conn.setAutoCommit(false);
+                loader.unload(this.catalog);
+                conn.commit();
+            }
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", this.benchmarkName), ex);
         }
@@ -370,24 +374,6 @@ public abstract class BenchmarkModule {
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.workConf);
-    }
-
-    /**
-     * Execute a SQL file using the ScriptRunner
-     * @param c
-     * @param path
-     * @return
-     */
-    protected final boolean executeFile(Connection c, File path) {
-        ScriptRunner runner = new ScriptRunner(c, true, false);
-        try {
-            runner.runScript(path);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.error("Failed to execute script '" + path + "'", ex);
-            return (false);
-        }
-        return (true);
     }
 
     /**

@@ -1,3 +1,19 @@
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
+ ******************************************************************************/
+
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
 import java.sql.Connection;
@@ -20,32 +36,32 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 public class Payment extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(Payment.class);
-	
-	public SQLStmt payUpdateWhseSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE + " SET w_ytd = w_ytd + ?  WHERE w_id = ? ");
-	public SQLStmt payGetWhseSQL = new SQLStmt("SELECT w_street_1, w_street_2, w_city, w_state, w_zip, w_name"
-			+ " FROM " + TPCCConstants.TABLENAME_WAREHOUSE + " WHERE w_id = ?");
-	public SQLStmt payUpdateDistSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_DISTRICT + " SET d_ytd = d_ytd + ? WHERE d_w_id = ? AND d_id = ?");
-	public SQLStmt payGetDistSQL = new SQLStmt("SELECT d_street_1, d_street_2, d_city, d_state, d_zip, d_name"
-			+ " FROM " + TPCCConstants.TABLENAME_DISTRICT + " WHERE d_w_id = ? AND d_id = ?");
-	public SQLStmt payGetCustSQL = new SQLStmt("SELECT c_first, c_middle, c_last, c_street_1, c_street_2, "
-			+ "c_city, c_state, c_zip, c_phone, c_credit, c_credit_lim, "
-			+ "c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_since FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE "
-			+ "c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payGetCustCdataSQL = new SQLStmt("SELECT c_data FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET c_balance = ?, c_ytd_payment = ?, "
-			+ "c_payment_cnt = ?, c_data = ? "
-			+ "WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payUpdateCustBalSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET c_balance = ?, c_ytd_payment = ?, "
-			+ "c_payment_cnt = ? WHERE c_w_id = ? AND c_d_id = ? AND c_id = ?");
-	public SQLStmt payInsertHistSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_HISTORY + " (h_c_d_id, h_c_w_id, h_c_id, h_d_id, h_w_id, h_date, h_amount, h_data) "
+
+	public SQLStmt payUpdateWhseSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE + " SET W_YTD = W_YTD + ?  WHERE W_ID = ? ");
+	public SQLStmt payGetWhseSQL = new SQLStmt("SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME"
+			+ " FROM " + TPCCConstants.TABLENAME_WAREHOUSE + " WHERE W_ID = ?");
+	public SQLStmt payUpdateDistSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_DISTRICT + " SET D_YTD = D_YTD + ? WHERE D_W_ID = ? AND D_ID = ?");
+	public SQLStmt payGetDistSQL = new SQLStmt("SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME"
+			+ " FROM " + TPCCConstants.TABLENAME_DISTRICT + " WHERE D_W_ID = ? AND D_ID = ?");
+	public SQLStmt payGetCustSQL = new SQLStmt("SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, "
+			+ "C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, "
+			+ "C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE "
+			+ "C_W_ID = ? AND C_D_ID = ? AND C_ID = ?");
+	public SQLStmt payGetCustCdataSQL = new SQLStmt("SELECT C_DATA FROM " + TPCCConstants.TABLENAME_CUSTOMER + " WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?");
+	public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET C_BALANCE = ?, C_YTD_PAYMENT = ?, "
+			+ "C_PAYMENT_CNT = ?, C_DATA = ? "
+			+ "WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?");
+	public SQLStmt payUpdateCustBalSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + " SET C_BALANCE = ?, C_YTD_PAYMENT = ?, "
+			+ "C_PAYMENT_CNT = ? WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?");
+	public SQLStmt payInsertHistSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_HISTORY + " (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) "
 			+ " VALUES (?,?,?,?,?,?,?,?)");
-	public SQLStmt customerByNameSQL = new SQLStmt("SELECT c_first, c_middle, c_id, c_street_1, c_street_2, c_city, "
-			+ "c_state, c_zip, c_phone, c_credit, c_credit_lim, c_discount, "
-			+ "c_balance, c_ytd_payment, c_payment_cnt, c_since FROM " + TPCCConstants.TABLENAME_CUSTOMER + " "
-			+ "WHERE c_w_id = ? AND c_d_id = ? AND c_last = ? ORDER BY c_first");
-	
-	
-	
+	public SQLStmt customerByNameSQL = new SQLStmt("SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, "
+			+ "C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, "
+			+ "C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE FROM " + TPCCConstants.TABLENAME_CUSTOMER + " "
+			+ "WHERE C_W_ID = ? AND C_D_ID = ? AND C_LAST = ? ORDER BY C_FIRST");
+
+
+
 	// Payment Txn
 	private PreparedStatement payUpdateWhse = null;
 	private PreparedStatement payGetWhse = null;
@@ -57,15 +73,15 @@ public class Payment extends TPCCProcedure {
 	private PreparedStatement payUpdateCustBal = null;
 	private PreparedStatement payInsertHist = null;
 	private PreparedStatement customerByName = null;
-	
-	
-	
+
+
+
 	 public ResultSet run(Connection conn, Random gen,
 				int terminalWarehouseID, int numWarehouses,
 				int terminalDistrictLowerID, int terminalDistrictUpperID,
 				TPCCWorker w) throws SQLException{
-	
-		 
+
+
 			//initializing all prepared statements
 			payUpdateWhse=this.getPreparedStatement(conn, payUpdateWhseSQL);
 			payGetWhse=this.getPreparedStatement(conn, payGetWhseSQL);
@@ -77,14 +93,14 @@ public class Payment extends TPCCProcedure {
 			payUpdateCustBal =this.getPreparedStatement(conn, payUpdateCustBalSQL);
 			payInsertHist =this.getPreparedStatement(conn, payInsertHistSQL);
 			customerByName=this.getPreparedStatement(conn, customerByNameSQL);
-		 
-		 
+
+
 		    // payUpdateWhse =this.getPreparedStatement(conn, payUpdateWhseSQL);
-		 
-		 
+
+
             int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
         	int customerID = TPCCUtil.getCustomerID(gen);
-        
+
         	int x = TPCCUtil.randomNumber(1, 100, gen);
         	int customerDistrictID;
         	int customerWarehouseID;
@@ -100,7 +116,7 @@ public class Payment extends TPCCProcedure {
         		} while (customerWarehouseID == terminalWarehouseID
         				&& numWarehouses > 1);
         	}
-        
+
         	long y = TPCCUtil.randomNumber(1, 100, gen);
         	boolean customerByName;
         	String customerLastName = null;
@@ -115,7 +131,7 @@ public class Payment extends TPCCProcedure {
         		customerByName = false;
         		customerID = TPCCUtil.getCustomerID(gen);
         	}
-        
+
         	float paymentAmount = (float) (TPCCUtil.randomNumber(100, 500000, gen) / 100.0);
 
 			paymentTransaction(terminalWarehouseID,
@@ -125,14 +141,14 @@ public class Payment extends TPCCProcedure {
 
 			return null;
 	}
-	 
+
     private void paymentTransaction(int w_id, int c_w_id, float h_amount,
 				int d_id, int c_d_id, int c_id, String c_last, boolean c_by_name, Connection conn, TPCCWorker w)
 				throws SQLException {
 			String w_street_1, w_street_2, w_city, w_state, w_zip, w_name;
 			String d_street_1, d_street_2, d_city, d_state, d_zip, d_name;
 
-		
+
 			payUpdateWhse.setFloat(1, h_amount);
 			payUpdateWhse.setInt(2, w_id);
 			// MySQL reports deadlocks due to lock upgrades:
@@ -141,17 +157,17 @@ public class Payment extends TPCCProcedure {
 			if (result == 0)
 				throw new RuntimeException("W_ID=" + w_id + " not found!");
 
-	
+
 			payGetWhse.setInt(1, w_id);
 			ResultSet rs = payGetWhse.executeQuery();
 			if (!rs.next())
 				throw new RuntimeException("W_ID=" + w_id + " not found!");
-			w_street_1 = rs.getString("w_street_1");
-			w_street_2 = rs.getString("w_street_2");
-			w_city = rs.getString("w_city");
-			w_state = rs.getString("w_state");
-			w_zip = rs.getString("w_zip");
-			w_name = rs.getString("w_name");
+			w_street_1 = rs.getString("W_STREET_1");
+			w_street_2 = rs.getString("W_STREET_2");
+			w_city = rs.getString("W_CITY");
+			w_state = rs.getString("W_STATE");
+			w_zip = rs.getString("W_ZIP");
+			w_name = rs.getString("W_NAME");
 			rs.close();
 			rs = null;
 
@@ -171,12 +187,12 @@ public class Payment extends TPCCProcedure {
 			if (!rs.next())
 				throw new RuntimeException("D_ID=" + d_id + " D_W_ID=" + w_id
 						+ " not found!");
-			d_street_1 = rs.getString("d_street_1");
-			d_street_2 = rs.getString("d_street_2");
-			d_city = rs.getString("d_city");
-			d_state = rs.getString("d_state");
-			d_zip = rs.getString("d_zip");
-			d_name = rs.getString("d_name");
+			d_street_1 = rs.getString("D_STREET_1");
+			d_street_2 = rs.getString("D_STREET_2");
+			d_city = rs.getString("D_CITY");
+			d_state = rs.getString("D_STATE");
+			d_zip = rs.getString("D_ZIP");
+			d_name = rs.getString("D_NAME");
 			rs.close();
 			rs = null;
 
@@ -195,7 +211,7 @@ public class Payment extends TPCCProcedure {
 			String c_data = null;
 			if (c.c_credit.equals("BC")) { // bad credit
 
-	
+
 				payGetCustCdata.setInt(1, c_w_id);
 				payGetCustCdata.setInt(2, c_d_id);
 				payGetCustCdata.setInt(3, c.c_id);
@@ -203,7 +219,7 @@ public class Payment extends TPCCProcedure {
 				if (!rs.next())
 					throw new RuntimeException("C_ID=" + c.c_id + " C_W_ID="
 							+ c_w_id + " C_D_ID=" + c_d_id + " not found!");
-				c_data = rs.getString("c_data");
+				c_data = rs.getString("C_DATA");
 				rs.close();
 				rs = null;
 
@@ -232,7 +248,7 @@ public class Payment extends TPCCProcedure {
 
 				payUpdateCustBal.setFloat(1, c.c_balance);
 				payUpdateCustBal.setFloat(2, c.c_ytd_payment);
-				payUpdateCustBal.setFloat(3, c.c_payment_cnt);
+				payUpdateCustBal.setInt(3, c.c_payment_cnt);
 				payUpdateCustBal.setInt(4, c_w_id);
 				payUpdateCustBal.setInt(5, c_d_id);
 				payUpdateCustBal.setInt(6, c.c_id);
@@ -342,15 +358,15 @@ public class Payment extends TPCCProcedure {
 				}
 			}
 			terminalMessage.append("\n+-----------------------------------------------------------------+\n\n");
-			
+
 			if(LOG.isTraceEnabled())LOG.trace(terminalMessage.toString());
-			
-		} 
-	 
+
+		}
+
 	 	// attention duplicated code across trans... ok for now to maintain separate prepared statements
 		public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn)
 				throws SQLException {
-	
+
 			payGetCust.setInt(1, c_w_id);
 			payGetCust.setInt(2, c_d_id);
 			payGetCust.setInt(3, c_id);
@@ -362,11 +378,11 @@ public class Payment extends TPCCProcedure {
 
 			Customer c = TPCCUtil.newCustomerFromResults(rs);
 			c.c_id = c_id;
-			c.c_last = rs.getString("c_last");
+			c.c_last = rs.getString("C_LAST");
 			rs.close();
 			return c;
 		}
-		
+
 		//attention this code is repeated in other transacitons... ok for now to allow for separate statements.
 		public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last)
 				throws SQLException {
@@ -379,7 +395,7 @@ public class Payment extends TPCCProcedure {
 
 			while (rs.next()) {
 				Customer c = TPCCUtil.newCustomerFromResults(rs);
-				c.c_id = rs.getInt("c_id");
+				c.c_id = rs.getInt("C_ID");
 				c.c_last = c_last;
 				customers.add(c);
 			}
@@ -400,5 +416,5 @@ public class Payment extends TPCCProcedure {
 			return customers.get(index);
 		}
 
-		
+
 }

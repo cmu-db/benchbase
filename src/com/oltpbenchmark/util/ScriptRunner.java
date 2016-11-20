@@ -20,8 +20,8 @@
  */
 package com.oltpbenchmark.util;
 
-import java.io.File;
-import java.io.FileReader;
+import java.net.URL;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
@@ -91,8 +91,8 @@ public class ScriptRunner {
 	 * @param reader
 	 *            - the source of the script
 	 */
-	public void runScript(File file) throws IOException, SQLException {
-		Reader reader = new FileReader(file);
+	public void runScript(URL resource) throws IOException, SQLException {
+		Reader reader = new InputStreamReader(resource.openStream());
 		try {
 			boolean originalAutoCommit = connection.getAutoCommit();
 			try {
@@ -159,7 +159,23 @@ public class ScriptRunner {
 					boolean hasResults = false;
 					final String sql = command.toString().trim();
 					if (stopOnError) {
+                                try {
 						hasResults = statement.execute(sql);
+                                } catch (SQLException e) {
+                                    // Some errors aren't actually errors.
+                                    if (e.getErrorCode() == 0 && e.getSQLState() != null
+                                            && e.getSQLState().equals("42S02"))
+                                    {
+                                        // MonetDB has no "drop table if exists" statement,
+                                        // so we have to just try to drop a table whether
+                                        // it exists or not. This error means that the
+                                        // table didn't exist. But no matter: we can carry
+                                        // on.
+                                    }
+                                    else {
+                                        throw e;
+                                    }
+                                }
 					} else {
 						try {
 							statement.execute(sql);

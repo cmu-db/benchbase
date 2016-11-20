@@ -1,28 +1,27 @@
-/*******************************************************************************
- * oltpbenchmark.com
- *  
- *  Project Info:  http://oltpbenchmark.com
- *  Project Members:  	Carlo Curino <carlo.curino@gmail.com>
- * 				Evan Jones <ej@evanjones.ca>
- * 				DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
- * 				Andy Pavlo <pavlo@cs.brown.edu>
- * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
- *  				Yang Zhang <yaaang@gmail.com> 
- * 
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU General Public License as published by the Free Software Foundation;
- *  either version 3.0 of the License, or (at your option) any later version.
- * 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
  ******************************************************************************/
+
+
 package com.oltpbenchmark.benchmarks.epinions;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -39,6 +38,8 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 
 public class EpinionsWorker extends Worker {
+	
+	private static final Logger LOG = Logger.getLogger(EpinionsWorker.class);
 
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;
@@ -52,26 +53,45 @@ public class EpinionsWorker extends Worker {
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
-        if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
-            reviewItemByID();
-        } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
-            reviewsByUser();
-        } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
-            averageRatingByTrustedUser();
-        } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
-            averageRatingOfItem();
-        } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
-            itemReviewsByTrustedUser();
-        } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
-            updateUserName();
-        } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
-            updateItemTitle();
-        } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
-            updateReviewRating();
-        } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
-            updateTrustRating();
-        }
-        conn.commit();
+        
+    	boolean successful = false;
+		while (!successful) {
+			try {
+				if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
+					reviewItemByID();
+				} else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
+					reviewsByUser();
+				} else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
+					averageRatingByTrustedUser();
+				} else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
+					averageRatingOfItem();
+				} else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
+					itemReviewsByTrustedUser();
+				} else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
+					updateUserName();
+				} else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
+					updateItemTitle();
+				} else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
+					updateReviewRating();
+				} else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
+					updateTrustRating();
+				}
+				conn.commit();
+				successful = true;
+			} catch (SQLException esql) {
+				int error_code = esql.getErrorCode();
+				if (error_code == 8177) {
+					conn.rollback();
+				} else {
+					LOG.error("caught sql error in Epinions Benchmark for the procedure "
+							+ nextTrans.getName() + ":" + esql);
+				}
+			} catch (Exception e) {
+				LOG.error("caught Exceptions in Epinions for the procedure "
+						+ nextTrans.getName() + ":" + e);
+			}
+		}
+
         return (TransactionStatus.SUCCESS);
     }
 

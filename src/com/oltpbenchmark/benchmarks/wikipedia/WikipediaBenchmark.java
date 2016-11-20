@@ -1,22 +1,20 @@
-/*******************************************************************************
- * oltpbenchmark.com
- *  
- *  Project Info:  http://oltpbenchmark.com
- *  Project Members:  	Carlo Curino <carlo.curino@gmail.com>
- * 				Evan Jones <ej@evanjones.ca>
- * 				DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
- * 				Andy Pavlo <pavlo@cs.brown.edu>
- * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
- *  				Yang Zhang <yaaang@gmail.com> 
- * 
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU General Public License as published by the Free Software Foundation;
- *  either version 3.0 of the License, or (at your option) any later version.
- * 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
  ******************************************************************************/
+
+
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import java.io.File;
@@ -52,6 +50,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	private final File traceInput;
 	private final File traceOutput;
+	private final File traceOutputDebug;
 	private final int traceSize;
 	
 	@SuppressWarnings("unchecked")
@@ -59,14 +58,26 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		super("wikipedia", workConf, true);
 		
 		XMLConfiguration xml = workConf.getXmlConfig();
-		this.traceInput = (xml != null && xml.containsKey("tracefile") ? new File(xml.getString("tracefile")) : null);
+		if (xml != null && xml.containsKey("tracefile")) {
+		    this.traceInput = new File(xml.getString("tracefile"));
+        } else {
+            this.traceInput = null;
+        }
 		if (xml != null && xml.containsKey("traceOut")) {
 		    this.traceSize = xml.getInt("traceOut");
-		    this.traceOutput = new File(xml.getString("tracefile"));
 		} else {
 		    this.traceSize = 0;
+		}
+		if (xml != null && xml.containsKey("tracefile")) {
+            this.traceOutput = new File(xml.getString("tracefile"));		    
+		} else {
 		    this.traceOutput = null;
 		}
+		if (xml != null && xml.containsKey("tracefiledebug")) {
+            this.traceOutputDebug = new File(xml.getString("tracefiledebug"));
+        } else {
+            this.traceOutputDebug = null;
+        }
 		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 		this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
@@ -82,12 +93,19 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	public File getTraceOutput() {
 	    return (this.traceOutput);
 	}
+	public File getTraceOutputDebug() {
+	    return (this.traceOutputDebug);
+	}
+	
 	public int getTraceSize() {
 	    return (this.traceSize);
 	}
 	
 	/**
-	 * 
+	 * Special function that takes in a char field that represents the last
+	 * version of the page and then do some permutation on it. This ensures
+	 * that each revision looks somewhat similar to previous one so that we
+	 * just don't have a bunch of random text fields for the same page.
 	 * @param orig_text
 	 * @return
 	 */

@@ -20,13 +20,12 @@ WHERE i_id = s_i_id
   AND c_id = o_c_id
   AND c_w_id = o_w_id
   AND c_d_id = o_d_id
-  AND n1.n_nationkey = ascii(substr(c_state, 1 , 1))
+  AND n1.n_nationkey = ascii(substring(c_state from  1  for  1))
   AND n1.n_regionkey = r_regionkey
   AND ol_i_id < 1000
   AND r_name = 'Europe'
   AND su_nationkey = n2.n_nationkey
   AND i_data LIKE '%b'
   AND i_id = ol_i_id
-GROUP BY extract(YEAR
-                 FROM o_entry_d)
-ORDER BY l_year
+GROUP BY l_year
+ORDER BY l_year;

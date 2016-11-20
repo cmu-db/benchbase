@@ -1,30 +1,20 @@
-/***************************************************************************
- *  Copyright (C) 2011 by H-Store Project                                  *
- *  Brown University                                                       *
- *  Massachusetts Institute of Technology                                  *
- *  Yale University                                                        *
- *                                                                         *
- *  http://hstore.cs.brown.edu/                                            *
- *                                                                         *
- *  Permission is hereby granted, free of charge, to any person obtaining  *
- *  a copy of this software and associated documentation files (the        *
- *  "Software"), to deal in the Software without restriction, including    *
- *  without limitation the rights to use, copy, modify, merge, publish,    *
- *  distribute, sublicense, and/or sell copies of the Software, and to     *
- *  permit persons to whom the Software is furnished to do so, subject to  *
- *  the following conditions:                                              *
- *                                                                         *
- *  The above copyright notice and this permission notice shall be         *
- *  included in all copies or substantial portions of the Software.        *
- *                                                                         *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        *
- *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     *
- *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. *
- *  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR      *
- *  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,  *
- *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR  *
- *  OTHER DEALINGS IN THE SOFTWARE.                                        *
- ***************************************************************************/
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
+ ******************************************************************************/
+
+
 /* This file is part of VoltDB. 
  * Copyright (C) 2009 Vertica Systems Inc.
  *
@@ -332,6 +322,7 @@ public class SEATSWorker extends Worker {
         if (LOG.isDebugEnabled())
             LOG.debug("Attempting to execute " + proc);
         boolean ret = false;
+        try {
         switch (txn) {
             case DeleteReservation: {
                 ret = this.executeDeleteReservation((DeleteReservation)proc);
@@ -360,6 +351,12 @@ public class SEATSWorker extends Worker {
             default:
                 assert(false) : "Unexpected transaction: " + txn; 
         } // SWITCH
+        } catch(SQLException esql) {
+        	LOG.error("caught SQLException in SEATSWorker for procedure "+txnType.getName() +":" + esql, esql);
+        	throw esql;
+        }/*catch(Exception e) {
+        	LOG.error("caught Exception in SEATSWorker for procedure "+txnType.getName() +":" + e, e);
+        }*/
         if (ret == false) {
             if (LOG.isDebugEnabled())
                 LOG.debug("Unable to execute " + proc + " right now");
@@ -432,9 +429,25 @@ public class SEATSWorker extends Worker {
         }
         
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
-        proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
-        conn.commit();
         
+        boolean successful = false;
+        while(!successful){
+        	try{
+        		proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
+        		conn.commit();
+        		successful = true;
+        	}catch(SQLException esql){
+        		int error_code = esql.getErrorCode();
+//        		LOG.error("Delete Reservation Error code is "+error_code);
+        		if (error_code == 8177){
+        			conn.rollback();
+        		}
+        		else{
+        			throw esql;
+        		}
+//        		LOG.error("Delete Reservation Roll back");
+        	}
+        }
         // We can remove this from our set of full flights because know that there is now a free seat
         BitSet seats = getSeatsBitSet(r.flight_id);
         seats.set(r.seatnum, false);
@@ -653,13 +666,36 @@ public class SEATSWorker extends Worker {
         } // FOR
         
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
-        proc.run(conn, reservation.id,
-                       reservation.customer_id.encode(),
-                       reservation.flight_id.encode(),
-                       reservation.seatnum,
-                       price,
-                       attributes);
-        conn.commit();
+        
+        boolean successful = false;
+  //      int count = 0;
+        while(successful==false){
+        	try{
+ //       		count ++;
+        		proc.run(conn, 
+        					   reservation.id,
+        					   reservation.customer_id.encode(),
+        					   reservation.flight_id.encode(),
+        					   reservation.seatnum,
+        					   price,
+        					   attributes);
+        		conn.commit();
+        		successful = true;
+  //      		LOG.debug("Inside loop, Count is "+count +" Successful is "+successful);
+        	}catch(SQLException esql) {
+        		int error_code = esql.getErrorCode();
+//        		LOG.error("New Reservation Error code is "+error_code);
+        		if (error_code == 8177){
+        			conn.rollback();
+        		}
+        		else{
+        			throw esql;
+        		}
+//        		LOG.error("New Reservation Roll Back");
+        	}
+ //       	LOG.debug("End of loop, Count is "+count +" Successful is "+successful);
+      }
+
         
         // Mark this seat as successfully reserved
         seats.set(reservation.seatnum);
@@ -694,8 +730,27 @@ public class SEATSWorker extends Worker {
         }
 
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
-        proc.run(conn, c_id, c_id_str, update_ff, attr0, attr1);
-        conn.commit();
+        
+        
+        boolean successful = false;
+        while(!successful){
+        	try{
+        	    proc.run(conn, c_id, c_id_str, update_ff, attr0, attr1);
+        		conn.commit();
+        		successful = true;
+        	}catch(SQLException esql){
+        		int error_code = esql.getErrorCode();
+//        		LOG.error("Update Customer Error code is "+error_code);
+        		if (error_code == 8177){
+        			conn.rollback();
+        		}
+        		else{
+        			throw esql;
+        		}
+//        		LOG.error("Update Reservation Roll Back");
+        	}
+        }
+        
         
         return (true);
     }
@@ -731,14 +786,30 @@ public class SEATSWorker extends Worker {
         long seatnum = rng.number(0, SEATSConstants.FLIGHTS_NUM_SEATS-1);
 
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
-        proc.run(conn, r.id,
-                       r.flight_id.encode(),
-                       r.customer_id.encode(),
-                       seatnum,
-                       attribute_idx,
-                       value);
-        conn.commit();
-        
+      
+        boolean successful = false;
+        while(!successful){
+        	try{
+        		proc.run( conn, r.id,
+        						r.flight_id.encode(),
+        						r.customer_id.encode(),
+        						seatnum,
+        						attribute_idx,
+        						value);
+        		conn.commit();
+        		successful = true;
+        	}catch(SQLException esql){
+        		int error_code = esql.getErrorCode();
+//        		LOG.error("Update Reservation Error code is "+error_code);
+        		if (error_code == 8177){
+        			conn.rollback();
+        		}
+        		else{
+        			throw esql;
+        		}
+//        		LOG.error("Update Reservation Roll Back");
+        	}
+        }
         SEATSWorker.this.requeueReservation(r);
         return (true);
     }

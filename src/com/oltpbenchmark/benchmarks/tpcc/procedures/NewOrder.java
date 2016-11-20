@@ -1,3 +1,19 @@
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
+ ******************************************************************************/
+
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
 import java.sql.Connection;
@@ -16,43 +32,43 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class NewOrder extends TPCCProcedure {
-    
+
     private static final Logger LOG = Logger.getLogger(NewOrder.class);
 
     public final SQLStmt stmtGetCustWhseSQL = new SQLStmt(
-    		"SELECT c_discount, c_last, c_credit, w_tax"
+    		"SELECT C_DISCOUNT, C_LAST, C_CREDIT, W_TAX"
 			+ "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + ", " + TPCCConstants.TABLENAME_WAREHOUSE
-			+ " WHERE w_id = ? AND c_w_id = ?"
-			+ " AND c_d_id = ? AND c_id = ?");
-    
-    public final SQLStmt stmtGetDistSQL = new SQLStmt(
-    		"SELECT d_next_o_id, d_tax FROM " + TPCCConstants.TABLENAME_DISTRICT
-					+ " WHERE d_w_id = ? AND d_id = ? FOR UPDATE"
-    				);
-    
-	public final SQLStmt  stmtInsertNewOrderSQL = new SQLStmt("INSERT INTO "+ TPCCConstants.TABLENAME_NEWORDER + " (no_o_id, no_d_id, no_w_id) VALUES ( ?, ?, ?)");
-	
-	public final SQLStmt  stmtUpdateDistSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_DISTRICT + " SET d_next_o_id = d_next_o_id + 1 WHERE d_w_id = ? AND d_id = ?");
-	
-	public final SQLStmt  stmtInsertOOrderSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_OPENORDER
-			+ " (o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_ol_cnt, o_all_local)"
-			+ " VALUES (?, ?, ?, ?, ?, ?, ?)");
-	
-	public final SQLStmt  stmtGetItemSQL = new SQLStmt("SELECT i_price, i_name , i_data FROM " + TPCCConstants.TABLENAME_ITEM + " WHERE i_id = ?");
+			+ " WHERE W_ID = ? AND C_W_ID = ?"
+			+ " AND C_D_ID = ? AND C_ID = ?");
 
-	public final SQLStmt  stmtGetStockSQL = new SQLStmt("SELECT s_quantity, s_data, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, "
-			+ "       s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10"
-			+ " FROM " + TPCCConstants.TABLENAME_STOCK + " WHERE s_i_id = ? AND s_w_id = ? FOR UPDATE");
-	
-	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_STOCK + " SET s_quantity = ? , s_ytd = s_ytd + ?, s_order_cnt = s_order_cnt + 1, s_remote_cnt = s_remote_cnt + ? "
-			+ " WHERE s_i_id = ? AND s_w_id = ?");
-	
-	public final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_ORDERLINE + " (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id,"
-			+ "  ol_quantity, ol_amount, ol_dist_info) VALUES (?,?,?,?,?,?,?,?,?)");
-    
+    public final SQLStmt stmtGetDistSQL = new SQLStmt(
+    		"SELECT D_NEXT_O_ID, D_TAX FROM " + TPCCConstants.TABLENAME_DISTRICT
+					+ " WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE"
+    				);
+
+	public final SQLStmt  stmtInsertNewOrderSQL = new SQLStmt("INSERT INTO "+ TPCCConstants.TABLENAME_NEWORDER + " (NO_O_ID, NO_D_ID, NO_W_ID) VALUES ( ?, ?, ?)");
+
+	public final SQLStmt  stmtUpdateDistSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_DISTRICT + " SET D_NEXT_O_ID = D_NEXT_O_ID + 1 WHERE D_W_ID = ? AND D_ID = ?");
+
+	public final SQLStmt  stmtInsertOOrderSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_OPENORDER
+			+ " (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)"
+			+ " VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+	public final SQLStmt  stmtGetItemSQL = new SQLStmt("SELECT I_PRICE, I_NAME , I_DATA FROM " + TPCCConstants.TABLENAME_ITEM + " WHERE I_ID = ?");
+
+	public final SQLStmt  stmtGetStockSQL = new SQLStmt("SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05, "
+			+ "       S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10"
+			+ " FROM " + TPCCConstants.TABLENAME_STOCK + " WHERE S_I_ID = ? AND S_W_ID = ? FOR UPDATE");
+
+	public final SQLStmt  stmtUpdateStockSQL = new SQLStmt("UPDATE " + TPCCConstants.TABLENAME_STOCK + " SET S_QUANTITY = ? , S_YTD = S_YTD + ?, S_ORDER_CNT = S_ORDER_CNT + 1, S_REMOTE_CNT = S_REMOTE_CNT + ? "
+			+ " WHERE S_I_ID = ? AND S_W_ID = ?");
+
+	public final SQLStmt  stmtInsertOrderLineSQL = new SQLStmt("INSERT INTO " + TPCCConstants.TABLENAME_ORDERLINE + " (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID,"
+			+ "  OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO) VALUES (?,?,?,?,?,?,?,?,?)");
+
 
 	// NewOrder Txn
-	private PreparedStatement stmtGetCustWhse = null; 
+	private PreparedStatement stmtGetCustWhse = null;
 	private PreparedStatement stmtGetDist = null;
 	private PreparedStatement stmtInsertNewOrder = null;
 	private PreparedStatement stmtUpdateDist = null;
@@ -61,15 +77,15 @@ public class NewOrder extends TPCCProcedure {
 	private PreparedStatement stmtGetStock = null;
 	private PreparedStatement stmtUpdateStock = null;
 	private PreparedStatement stmtInsertOrderLine = null;
-	
-    
+
+
     public ResultSet run(Connection conn, Random gen,
 			int terminalWarehouseID, int numWarehouses,
 			int terminalDistrictLowerID, int terminalDistrictUpperID,
 			TPCCWorker w) throws SQLException {
-    
-    	
-		
+
+
+
 		//initializing all prepared statements
 		stmtGetCustWhse=this.getPreparedStatement(conn, stmtGetCustWhseSQL);
 		stmtGetDist=this.getPreparedStatement(conn, stmtGetDistSQL);
@@ -80,8 +96,8 @@ public class NewOrder extends TPCCProcedure {
 		stmtGetStock =this.getPreparedStatement(conn, stmtGetStockSQL);
 		stmtUpdateStock =this.getPreparedStatement(conn, stmtUpdateStockSQL);
 		stmtInsertOrderLine =this.getPreparedStatement(conn, stmtInsertOrderLineSQL);
-    	
-    	
+
+
 		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
 		int customerID = TPCCUtil.getCustomerID(gen);
 
@@ -109,15 +125,15 @@ public class NewOrder extends TPCCProcedure {
 		if (TPCCUtil.randomNumber(1, 100, gen) == 1)
 			itemIDs[numItems - 1] = jTPCCConfig.INVALID_ITEM_ID;
 
-		
+
 		newOrderTransaction(terminalWarehouseID, districtID,
 						customerID, numItems, allLocal, itemIDs,
 						supplierWarehouseIDs, orderQuantities, conn, w);
 		return null;
-    
+
     }
-    
-	
+
+
 
 
 	private void newOrderTransaction(int w_id, int d_id, int c_id,
@@ -147,10 +163,10 @@ public class NewOrder extends TPCCProcedure {
 			if (!rs.next())
 				throw new RuntimeException("W_ID=" + w_id + " C_D_ID=" + d_id
 						+ " C_ID=" + c_id + " not found!");
-			c_discount = rs.getFloat("c_discount");
-			c_last = rs.getString("c_last");
-			c_credit = rs.getString("c_credit");
-			w_tax = rs.getFloat("w_tax");
+			c_discount = rs.getFloat("C_DISCOUNT");
+			c_last = rs.getString("C_LAST");
+			c_credit = rs.getString("C_CREDIT");
+			w_tax = rs.getFloat("W_TAX");
 			rs.close();
 			rs = null;
 
@@ -162,18 +178,13 @@ public class NewOrder extends TPCCProcedure {
 				throw new RuntimeException("D_ID=" + d_id + " D_W_ID=" + w_id
 						+ " not found!");
 			}
-			d_next_o_id = rs.getInt("d_next_o_id");
-			d_tax = rs.getFloat("d_tax");
+			d_next_o_id = rs.getInt("D_NEXT_O_ID");
+			d_tax = rs.getFloat("D_TAX");
 			rs.close();
 			rs = null;
-			o_id = d_next_o_id;
 
-
-			stmtInsertNewOrder.setInt(1, o_id);
-			stmtInsertNewOrder.setInt(2, d_id);
-			stmtInsertNewOrder.setInt(3, w_id);
-			stmtInsertNewOrder.executeUpdate();
-
+			//woonhak, need to change order because of foreign key constraints
+			//update next_order_id first, but it might doesn't matter
 			stmtUpdateDist.setInt(1, w_id);
 			stmtUpdateDist.setInt(2, d_id);
 			int result = stmtUpdateDist.executeUpdate();
@@ -182,6 +193,10 @@ public class NewOrder extends TPCCProcedure {
 						"Error!! Cannot update next_order_id on district for D_ID="
 								+ d_id + " D_W_ID=" + w_id);
 
+			o_id = d_next_o_id;
+
+			// woonhak, need to change order, because of foreign key constraints
+			//[[insert ooder first
 			stmtInsertOOrder.setInt(1, o_id);
 			stmtInsertOOrder.setInt(2, d_id);
 			stmtInsertOOrder.setInt(3, w_id);
@@ -191,6 +206,27 @@ public class NewOrder extends TPCCProcedure {
 			stmtInsertOOrder.setInt(6, o_ol_cnt);
 			stmtInsertOOrder.setInt(7, o_all_local);
 			stmtInsertOOrder.executeUpdate();
+			//insert ooder first]]
+			/*TODO: add error checking */
+
+			stmtInsertNewOrder.setInt(1, o_id);
+			stmtInsertNewOrder.setInt(2, d_id);
+			stmtInsertNewOrder.setInt(3, w_id);
+			stmtInsertNewOrder.executeUpdate();
+			/*TODO: add error checking */
+
+
+			/* woonhak, [[change order				 
+			stmtInsertOOrder.setInt(1, o_id);
+			stmtInsertOOrder.setInt(2, d_id);
+			stmtInsertOOrder.setInt(3, w_id);
+			stmtInsertOOrder.setInt(4, c_id);
+			stmtInsertOOrder.setTimestamp(5,
+					new Timestamp(System.currentTimeMillis()));
+			stmtInsertOOrder.setInt(6, o_ol_cnt);
+			stmtInsertOOrder.setInt(7, o_all_local);
+			stmtInsertOOrder.executeUpdate();
+			change order]]*/
 
 			for (int ol_number = 1; ol_number <= o_ol_cnt; ol_number++) {
 				ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
@@ -209,34 +245,34 @@ public class NewOrder extends TPCCProcedure {
 									+ " not found!");
 				}
 
-				i_price = rs.getFloat("i_price");
-				i_name = rs.getString("i_name");
-				i_data = rs.getString("i_data");
+				i_price = rs.getFloat("I_PRICE");
+				i_name = rs.getString("I_NAME");
+				i_data = rs.getString("I_DATA");
 				rs.close();
 				rs = null;
 
 				itemPrices[ol_number - 1] = i_price;
 				itemNames[ol_number - 1] = i_name;
 
-	
+
 				stmtGetStock.setInt(1, ol_i_id);
 				stmtGetStock.setInt(2, ol_supply_w_id);
 				rs = stmtGetStock.executeQuery();
 				if (!rs.next())
 					throw new RuntimeException("I_ID=" + ol_i_id
 							+ " not found!");
-				s_quantity = rs.getInt("s_quantity");
-				s_data = rs.getString("s_data");
-				s_dist_01 = rs.getString("s_dist_01");
-				s_dist_02 = rs.getString("s_dist_02");
-				s_dist_03 = rs.getString("s_dist_03");
-				s_dist_04 = rs.getString("s_dist_04");
-				s_dist_05 = rs.getString("s_dist_05");
-				s_dist_06 = rs.getString("s_dist_06");
-				s_dist_07 = rs.getString("s_dist_07");
-				s_dist_08 = rs.getString("s_dist_08");
-				s_dist_09 = rs.getString("s_dist_09");
-				s_dist_10 = rs.getString("s_dist_10");
+				s_quantity = rs.getInt("S_QUANTITY");
+				s_data = rs.getString("S_DATA");
+				s_dist_01 = rs.getString("S_DIST_01");
+				s_dist_02 = rs.getString("S_DIST_02");
+				s_dist_03 = rs.getString("S_DIST_03");
+				s_dist_04 = rs.getString("S_DIST_04");
+				s_dist_05 = rs.getString("S_DIST_05");
+				s_dist_06 = rs.getString("S_DIST_06");
+				s_dist_07 = rs.getString("S_DIST_07");
+				s_dist_08 = rs.getString("S_DIST_08");
+				s_dist_09 = rs.getString("S_DIST_09");
+				s_dist_10 = rs.getString("S_DIST_10");
 				rs.close();
 				rs = null;
 
@@ -254,7 +290,7 @@ public class NewOrder extends TPCCProcedure {
 					s_remote_cnt_increment = 1;
 				}
 
-		
+
 				stmtUpdateStock.setInt(1, s_quantity);
 				stmtUpdateStock.setInt(2, ol_quantity);
 				stmtUpdateStock.setInt(3, s_remote_cnt_increment);
@@ -336,5 +372,5 @@ public class NewOrder extends TPCCProcedure {
         }
 
 	}
-    
+
 }

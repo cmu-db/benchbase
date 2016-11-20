@@ -1,22 +1,20 @@
-/*******************************************************************************
- * oltpbenchmark.com
- *  
- *  Project Info:  http://oltpbenchmark.com
- *  Project Members:  	Carlo Curino <carlo.curino@gmail.com>
- * 				Evan Jones <ej@evanjones.ca>
- * 				DIFALLAH Djellel Eddine <djelleleddine.difallah@unifr.ch>
- * 				Andy Pavlo <pavlo@cs.brown.edu>
- * 				CUDRE-MAUROUX Philippe <philippe.cudre-mauroux@unifr.ch>  
- *  				Yang Zhang <yaaang@gmail.com> 
- * 
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU General Public License as published by the Free Software Foundation;
- *  either version 3.0 of the License, or (at your option) any later version.
- * 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+/******************************************************************************
+ *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *                                                                            *
+ *  Licensed under the Apache License, Version 2.0 (the "License");           *
+ *  you may not use this file except in compliance with the License.          *
+ *  You may obtain a copy of the License at                                   *
+ *                                                                            *
+ *    http://www.apache.org/licenses/LICENSE-2.0                              *
+ *                                                                            *
+ *  Unless required by applicable law or agreed to in writing, software       *
+ *  distributed under the License is distributed on an "AS IS" BASIS,         *
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
+ *  See the License for the specific language governing permissions and       *
+ *  limitations under the License.                                            *
  ******************************************************************************/
+
+
 package com.oltpbenchmark;
 
 import java.lang.reflect.Field;
@@ -52,6 +50,13 @@ public class WorkloadConfiguration {
 	private double scaleFactor = 1.0;
 	private int terminals;
 	private int numTxnTypes;
+    private TraceReader traceReader = null;
+    public TraceReader getTraceReader() {
+        return traceReader;
+    }
+    public void setTraceReader(TraceReader traceReader) {
+        this.traceReader = traceReader;
+    }
     
 	private XMLConfiguration xmlConfig = null;
 
@@ -67,7 +72,7 @@ public class WorkloadConfiguration {
 	 */
     public WorkloadState initializeState(BenchmarkState benchmarkState) {
         assert (workloadState == null);
-        workloadState = new WorkloadState(benchmarkState, works, terminals);
+        workloadState = new WorkloadState(benchmarkState, works, terminals, traceReader);
         return workloadState;
     }
 
@@ -75,11 +80,12 @@ public class WorkloadConfiguration {
 	private TransactionTypes transTypes = null;
 	private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
 	private boolean recordAbortMessages = false;
+    private String dataDir = null;
 
  
 
-	public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, int active_terminals, Phase.Arrival arrival) {
-		works.add(new Phase(benchmarkName, numberOfPhases, time, rate, weights, rateLimited, disabled, active_terminals, arrival));
+    public void addWork(int time, int rate, List<String> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
+        works.add(new Phase(benchmarkName, numberOfPhases, time, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
 		numberOfPhases++;
 	}
 	
@@ -178,6 +184,22 @@ public class WorkloadConfiguration {
 	}
 
 	/**
+     * Set the directory in which we can find the data files (for example, CSV
+     * files) for loading the database.
+     */ 
+    public void setDataDir(String dir) {
+        this.dataDir = dir;
+    }
+
+    /**
+     * Return the directory in which we can find the data files (for example, CSV
+     * files) for loading the database.
+     */ 
+    public String getDataDir() {
+        return this.dataDir;
+    }
+
+    /**
 	 * A utility method that init the phaseIterator and dialectMap
 	 */
 	public void init() {
@@ -219,6 +241,19 @@ public class WorkloadConfiguration {
 	public int getIsolationMode() {
 		return isolationMode;
 	}
+
+    public String getIsolationString() {
+        if(this.isolationMode== Connection.TRANSACTION_SERIALIZABLE)
+            return "TRANSACTION_SERIALIZABLE";
+        else if(this.isolationMode==Connection.TRANSACTION_READ_COMMITTED)
+            return "TRANSACTION_READ_COMMITTED";
+        else if(this.isolationMode==Connection.TRANSACTION_REPEATABLE_READ)
+            return "TRANSACTION_REPEATABLE_READ";
+        else if(this.isolationMode==Connection.TRANSACTION_READ_UNCOMMITTED)
+            return "TRANSACTION_READ_UNCOMMITTED";
+        else
+            return "TRANSACTION_SERIALIZABLE [DEFAULT]";
+    }
 
 	public void setIsolationMode(String mode) {
 		if(mode.equals("TRANSACTION_SERIALIZABLE"))
