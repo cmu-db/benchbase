@@ -25,6 +25,11 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.smallbank.procedures;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
@@ -73,45 +78,50 @@ public class Amalgamate extends Procedure {
         " WHERE custid = ?"
     );
     
-    public VoltTable run(long acctId0, long acctId1) {
+    public void run(Connection conn, long custId0, long custId1) throws SQLException {
         // Get Account Information
-        voltQueueSQL(GetAccount, acctId1);
-        voltQueueSQL(GetAccount, acctId0);
-        final VoltTable acctResults[] = voltExecuteSQL();
-        if (acctResults[0].getRowCount() != 1) {
-            String msg = "Invalid account '" + acctId0 + "'\n" + acctResults[0]; 
+        PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custId0);
+        ResultSet r0 = stmt0.executeQuery();
+        if (r0.next() == false) {
+            String msg = "Invalid account '" + custId0 + "'";
             throw new UserAbortException(msg);
         }
-        if (acctResults[1].getRowCount() != 1) {
-            String msg = "Invalid account '" + acctId1 + "'\n" + acctResults[1];
+        
+        PreparedStatement stmt1 = this.getPreparedStatement(conn, GetAccount, custId1);
+        ResultSet r1 = stmt1.executeQuery();
+        if (r1.next() == false) {
+            String msg = "Invalid account '" + custId1 + "'";
             throw new UserAbortException(msg);
         }
         
         // Get Balance Information
-        voltQueueSQL(GetSavingsBalance, acctId0);
-        voltQueueSQL(GetCheckingBalance, acctId1);
-        final VoltTable balResults[] = voltExecuteSQL();
-        if (balResults[0].getRowCount() != 1) {
+        PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetSavingsBalance, custId0);
+        ResultSet balRes0 = balStmt0.executeQuery();
+        if (balRes0.next() == false) {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_SAVINGS, 
-                                       acctId0);
+                                       custId0);
             throw new UserAbortException(msg);
         }
-        if (balResults[1].getRowCount() != 1) {
+        
+        PreparedStatement balStmt1 = this.getPreparedStatement(conn, GetCheckingBalance, custId1);
+        ResultSet balRes1 = balStmt1.executeQuery();
+        if (balRes1.next() == false) {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_CHECKING, 
-                                       acctId0);
+                                       custId1);
             throw new UserAbortException(msg);
         }
-        balResults[0].advanceRow();
-        balResults[1].advanceRow();
-        double total = balResults[0].getDouble(0) + balResults[1].getDouble(0);
+
+        double total = balRes0.getDouble(1) + balRes1.getDouble(1);
         // assert(total >= 0);
 
         // Update Balance Information
-        voltQueueSQL(ZeroCheckingBalance, acctId0);
-        voltQueueSQL(UpdateSavingsBalance, total, acctId1);
+        PreparedStatement updateStmt0 = this.getPreparedStatement(conn, ZeroCheckingBalance, custId0);
+        updateStmt0.execute();
         
+        PreparedStatement updateStmt1 = this.getPreparedStatement(conn, UpdateSavingsBalance, total, custId1);
+        updateStmt1.execute();
                 
 //        if (balance < 0) {
 //            String msg = String.format("Negative %s balance for customer #%d",
@@ -123,6 +133,5 @@ public class Amalgamate extends Procedure {
 //        voltQueueSQL(UpdateSavingsBalance, amount);
 //        results = voltExecuteSQL(true);
 //        return (results[0]);
-        return (null);
     }
 }

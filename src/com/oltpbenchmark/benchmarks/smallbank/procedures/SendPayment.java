@@ -25,6 +25,11 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.smallbank.procedures;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
@@ -51,32 +56,34 @@ public class SendPayment extends Procedure {
         " WHERE custid = ?"
     );
     
-    public VoltTable[] run(long sendAcct, long destAcct, double amount) {
+    public void run(Connection conn, long sendAcct, long destAcct, double amount) throws SQLException {
         // Get Account Information
-        voltQueueSQL(GetAccount, sendAcct);
-        voltQueueSQL(GetAccount, destAcct);
-        final VoltTable acctResults[] = voltExecuteSQL();
-        if (acctResults[0].getRowCount() != 1) {
-            String msg = "Invalid sender account '" + sendAcct + "'";
+        PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, sendAcct);
+        ResultSet r0 = stmt0.executeQuery();
+        if (r0.next() == false) {
+            String msg = "Invalid account '" + sendAcct + "'";
             throw new UserAbortException(msg);
         }
-        else if (acctResults[1].getRowCount() != 1) {
-            String msg = "Invalid destination account '" + destAcct + "'";
+        
+        PreparedStatement stmt1 = this.getPreparedStatement(conn, GetAccount, destAcct);
+        ResultSet r1 = stmt1.executeQuery();
+        if (r1.next() == false) {
+            String msg = "Invalid account '" + destAcct + "'";
             throw new UserAbortException(msg);
         }
         
         // Get the sender's account balance
-        voltQueueSQL(GetCheckingBalance, sendAcct);
-        final VoltTable balResults[] = voltExecuteSQL();
-        if (balResults[0].getRowCount() != 1) {
+        PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetCheckingBalance, sendAcct);
+        ResultSet balRes0 = balStmt0.executeQuery();
+        if (balRes0.next() == false) {
             String msg = String.format("No %s for customer #%d",
-                                       SmallBankConstants.TABLENAME_SAVINGS, 
+                                       SmallBankConstants.TABLENAME_CHECKING, 
                                        sendAcct);
             throw new UserAbortException(msg);
         }
-        balResults[0].advanceRow();
-        double balance = balResults[0].getDouble(0);
+        double balance = balRes0.getDouble(1);
         
+        // Make sure that they have enough money
         if (balance < amount) {
             String msg = String.format("Insufficient %s funds for customer #%d",
                                        SmallBankConstants.TABLENAME_CHECKING, sendAcct);
@@ -84,11 +91,15 @@ public class SendPayment extends Procedure {
         }
         
         // Debt
-        voltQueueSQL(UpdateCheckingBalance, amount*-1d, sendAcct);
+        PreparedStatement update0 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount*-1d, sendAcct);
+        boolean result0 = update0.execute();
+        assert(result0 == true);
         
         // Credit
-        voltQueueSQL(UpdateCheckingBalance, amount, destAcct);
+        PreparedStatement update1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct);
+        boolean result1 = update1.execute();
+        assert(result1 == true);
         
-        return (voltExecuteSQL(true));
+        return;
     }
 }

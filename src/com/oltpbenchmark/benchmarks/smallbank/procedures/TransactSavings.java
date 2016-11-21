@@ -25,6 +25,11 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.smallbank.procedures;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
@@ -36,13 +41,9 @@ import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
  */
 public class TransactSavings extends Procedure {
     
-    // 2013-05-05
-    // In the original version of the benchmark, this is suppose to be a look up
-    // on the customer's name. We don't have fast implementation of replicated 
-    // secondary indexes, so we'll just ignore that part for now.
     public final SQLStmt GetAccount = new SQLStmt(
         "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-        " WHERE custid = ?"
+        " WHERE name = ?"
     );
     
     public final SQLStmt GetSavingsBalance = new SQLStmt(
@@ -56,36 +57,42 @@ public class TransactSavings extends Procedure {
         " WHERE custid = ?"
     );
     
-    public VoltTable run(long acctId, double amount) {
-        voltQueueSQL(GetAccount, acctId);
-        VoltTable results[] = voltExecuteSQL();
-        
-        if (results[0].getRowCount() != 1) {
-            String msg = "Invalid account '" + acctId + "'";
+    public void run(Connection conn, long custName, double amount) throws SQLException {
+        // First convert the custName to the acctId
+        PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName);
+        ResultSet result = stmt.executeQuery();
+        if (result.next() == false) {
+            String msg = "Invalid account '" + custName + "'";
             throw new UserAbortException(msg);
         }
-        // long acctId = results[0].asScalarLong();
-        
-        voltQueueSQL(GetSavingsBalance, acctId);
-        results = voltExecuteSQL();
-        if (results[0].getRowCount() != 1) {
+        long custId = result.getLong(1);
+        result.close();
+
+        // Get Balance Information
+        stmt = this.getPreparedStatement(conn, GetSavingsBalance, custId);
+        result = stmt.executeQuery();
+        if (result.next() == false) {
             String msg = String.format("No %s for customer #%d",
                                        SmallBankConstants.TABLENAME_SAVINGS, 
-                                       acctId);
+                                       custId);
             throw new UserAbortException(msg);
         }
+        double balance = result.getDouble(1) - amount;
+        result.close();
         
-        results[0].advanceRow();
-        double balance = results[0].getDouble(0) + amount;
+        // Make sure that they have enough
         if (balance < 0) {
             String msg = String.format("Negative %s balance for customer #%d",
                                        SmallBankConstants.TABLENAME_SAVINGS, 
-                                       acctId);
+                                       custId);
             throw new UserAbortException(msg);
         }
         
-        voltQueueSQL(UpdateSavingsBalance, amount, acctId);
-        results = voltExecuteSQL(true);
-        return (results[0]);
+        // Then update their savings balance
+        stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId);
+        boolean status = stmt.execute();
+        assert(status == true);
+        
+        return;
     }
 }

@@ -14,11 +14,11 @@ import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 
 public class SmallBankBenchmark extends BenchmarkModule {
 
-    public final int numContestants;
+    protected final long numAccounts;
     
     public SmallBankBenchmark(WorkloadConfiguration workConf) {
-        super("voter", workConf, true);
-        numContestants = VoterUtil.getScaledNumContestants(workConf.getScaleFactor());
+        super("smallbank", workConf, true);
+        this.numAccounts = (int)Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
     }
 
     @Override

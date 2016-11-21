@@ -4,17 +4,67 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.RandomDistribution.*;
 
+/**
+ * SmallBankBenchmark Loader
+ * @author pavlo
+ */
 public class SmallBankLoader extends Loader {
+    private static final Logger LOG = Logger.getLogger(SmallBankLoader.class);
 
+    private final Table catalogAccts;
+    private final Table catalogSavings;
+    private final Table catalogChecking;
+    
+    private final String sqlAccts;
+    private final String sqlSavings;
+    private final String sqlChecking;
+    
+    private final long numAccounts;
+    private final int acctNameLength;
+
+    
     public SmallBankLoader(SmallBankBenchmark benchmark, Connection conn) {
         super(benchmark, conn);
+        
+        this.numAccounts = benchmark.numAccounts;
+        
+        this.catalogAccts = this.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
+        assert(this.catalogAccts != null);
+        this.catalogSavings = this.getTableCatalog(SmallBankConstants.TABLENAME_SAVINGS);
+        assert(this.catalogSavings != null);
+        this.catalogChecking = this.getTableCatalog(SmallBankConstants.TABLENAME_CHECKING);
+        assert(this.catalogChecking != null);
+        
+        this.sqlAccts = SQLUtil.getInsertSQL(this.catalogAccts);
+        this.sqlSavings = SQLUtil.getInsertSQL(this.catalogSavings);
+        this.sqlChecking = SQLUtil.getInsertSQL(this.catalogChecking);
+        
+        // Calculate account name length
+        int acctNameLength = -1;
+        
+        for (Column col : this.catalogAccts.getColumns()) {
+            if (SQLUtil.isStringType(col.getType())) {
+                acctNameLength = col.getSize();
+                break;
+            }
+        } // FOR
+        assert(acctNameLength > 0);
+        this.acctNameLength = acctNameLength;
     }
 
     @Override
     public void load() throws SQLException {
+        // It's single-threaded for now...
+        Generator generator = new Generator(0, this.numAccounts);
+        generator.run();
 
     }
     
@@ -22,56 +72,66 @@ public class SmallBankLoader extends Loader {
      * Thread that can generate a range of accounts
      */
     private class Generator implements Runnable {
-        private final VoltTable acctsTable;
-        private final VoltTable savingsTable;
-        private final VoltTable checkingTable;
-        private final int start;
-        private final int stop;
-        private final DefaultRandomGenerator rand = new DefaultRandomGenerator(); 
+        private final long start;
+        private final long stop;
         private final DiscreteRNG randBalance;
         
-        public Generator(CatalogContext catalogContext, int start, int stop) {
-            this.acctsTable = CatalogUtil.getVoltTable(catalogContext.getTableByName(SmallBankConstants.TABLENAME_ACCOUNTS));
-            this.savingsTable = CatalogUtil.getVoltTable(catalogContext.getTableByName(SmallBankConstants.TABLENAME_SAVINGS));
-            this.checkingTable = CatalogUtil.getVoltTable(catalogContext.getTableByName(SmallBankConstants.TABLENAME_CHECKING));
+        PreparedStatement stmtAccts;
+        PreparedStatement stmtSavings;
+        PreparedStatement stmtChecking;
+        
+        public Generator(long start, long stop) {
             this.start = start;
             this.stop = stop;
-            this.randBalance = new Gaussian(this.rand,
+            this.randBalance = new Gaussian(SmallBankLoader.this.benchmark.rng(),
                                             SmallBankConstants.MIN_BALANCE,
                                             SmallBankConstants.MAX_BALANCE);
         }
         
         public void run() {
-            final String acctNameFormat = "%0"+acctNameLength+"d";
-            int batchSize = 0;
-            for (int acctId = this.start; acctId < this.stop; acctId++) {
-                // ACCOUNT
-                String acctName = String.format(acctNameFormat, acctId);
-                this.acctsTable.addRow(acctId, acctName);
+            try {
+                this.stmtAccts = conn.prepareStatement(SmallBankLoader.this.sqlAccts);
+                this.stmtSavings = conn.prepareStatement(SmallBankLoader.this.sqlSavings);
+                this.stmtChecking = conn.prepareStatement(SmallBankLoader.this.sqlChecking);
                 
-                // CHECKINGS
-                this.checkingTable.addRow(acctId, this.randBalance.nextInt());
-                
-                // SAVINGS
-                this.savingsTable.addRow(acctId, this.randBalance.nextInt());
-                
-                if (++batchSize >= SmallBankConstants.BATCH_SIZE) {
+                final String acctNameFormat = "%0"+acctNameLength+"d";
+                int batchSize = 0;
+                for (long acctId = this.start; acctId < this.stop; acctId++) {
+                    // ACCOUNT
+                    String acctName = String.format(acctNameFormat, acctId);
+                    stmtAccts.setLong(1, acctId);
+                    stmtAccts.setString(2, acctName);
+                    stmtAccts.addBatch();
+                    
+                    // CHECKINGS
+                    stmtChecking.setLong(1, acctId);
+                    stmtChecking.setInt(2, this.randBalance.nextInt());
+                    stmtChecking.addBatch();
+                    
+                    // SAVINGS
+                    stmtSavings.setLong(1, acctId);
+                    stmtSavings.setInt(2, this.randBalance.nextInt());
+                    stmtSavings.addBatch();
+                    
+                    if (++batchSize >= SmallBankConstants.BATCH_SIZE) {
+                        this.loadTables();
+                        batchSize = 0;
+                    }
+    
+                } // FOR
+                if (batchSize > 0) {
                     this.loadTables();
-                    batchSize = 0;
                 }
-            } // FOR
-            if (batchSize > 0) {
-                this.loadTables();
+            } catch (SQLException ex) {
+                LOG.error("Failed to load data", ex);
+                throw new RuntimeException(ex);
             }
         }
         
-        private void loadTables() {
-            loadVoltTable(SmallBankConstants.TABLENAME_ACCOUNTS, this.acctsTable);
-            this.acctsTable.clearRowData();
-            loadVoltTable(SmallBankConstants.TABLENAME_SAVINGS, this.savingsTable);
-            this.savingsTable.clearRowData();
-            loadVoltTable(SmallBankConstants.TABLENAME_CHECKING, this.checkingTable);
-            this.checkingTable.clearRowData();
+        private void loadTables() throws SQLException {
+            this.stmtAccts.executeBatch();
+            this.stmtSavings.executeBatch();
+            this.stmtChecking.executeBatch();
         }
     };
 

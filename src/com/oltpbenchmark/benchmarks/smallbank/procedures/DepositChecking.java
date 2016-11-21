@@ -25,6 +25,11 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.smallbank.procedures;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
@@ -36,13 +41,9 @@ import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
  */
 public class DepositChecking extends Procedure {
     
-    // 2013-05-05
-    // In the original version of the benchmark, this is suppose to be a look up
-    // on the customer's name. We don't have fast implementation of replicated 
-    // secondary indexes, so we'll just ignore that part for now.
     public final SQLStmt GetAccount = new SQLStmt(
         "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-        " WHERE custid = ?"
+        " WHERE name = ?"
     );
     
     public final SQLStmt UpdateCheckingBalance = new SQLStmt(
@@ -51,21 +52,21 @@ public class DepositChecking extends Procedure {
         " WHERE custid = ?"
     );
     
-    public VoltTable run(long acctId, double amount) {
-        voltQueueSQL(GetAccount, acctId);
-        VoltTable results[] = voltExecuteSQL();
-        
-        if (results[0].getRowCount() != 1) {
-            String msg = "Invalid account name '" + acctId + "'";
+    public void run(Connection conn, String custName, double amount) throws SQLException {
+        // First convert the custName to the custId
+        PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName);
+        ResultSet r0 = stmt0.executeQuery();
+        if (r0.next() == false) {
+            String msg = "Invalid account '" + custName + "'";
             throw new UserAbortException(msg);
         }
-        // long acctId = results[0].asScalarLong();
+        long custId = r0.getLong(1);
+
+        // Then update their checking balance
+        PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
+        boolean result = stmt1.execute();
+        assert(result == true);
         
-        voltQueueSQL(UpdateCheckingBalance, amount, acctId);
-        results = voltExecuteSQL(true);
-        
-        // TODO: Do we need to check whether we actually updated something?
-        
-        return (results[0]);
+        return;
     }
 }
