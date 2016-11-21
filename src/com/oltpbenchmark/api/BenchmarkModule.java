@@ -194,7 +194,8 @@ public abstract class BenchmarkModule {
             if (ddlName == null) continue;
             URL ddlURL = this.getClass().getResource(DDLS_DIR + File.separator + ddlName);
             if (ddlURL != null) {
-                LOG.info("Found DDL file for " + db_type + ": " + ddlURL );
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Found DDL file for " + db_type + ": " + ddlURL );
                 return ddlURL;
             }
         } // FOR

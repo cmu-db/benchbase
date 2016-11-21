@@ -10,7 +10,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
+import com.oltpbenchmark.benchmarks.smallbank.procedures.Amalgamate;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
@@ -40,7 +40,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-       return Vote.class.getPackage();
+       return Amalgamate.class.getPackage();
     }
     
     

@@ -16,4 +16,5 @@
     <plugin name="linkbench">com.oltpbenchmark.benchmarks.linkbench.LinkBenchBenchmark</plugin>
     <plugin name="sibench">com.oltpbenchmark.benchmarks.sibench.SIBenchmark</plugin>
     <plugin name="noop">com.oltpbenchmark.benchmarks.noop.NoOpBenchmark</plugin>
+    <plugin name="smallbank">com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark</plugin>
 </plugins>
