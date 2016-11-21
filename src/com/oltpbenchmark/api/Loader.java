@@ -90,6 +90,7 @@ public abstract class Loader {
      * @param tableName
      * @return
      */
+    @Deprecated
     public Table getTableCatalog(String tableName) {
         Table catalog_tbl = this.benchmark.getCatalog().getTable(tableName.toUpperCase());
         assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";

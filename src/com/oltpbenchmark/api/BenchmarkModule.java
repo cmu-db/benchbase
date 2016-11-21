@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
@@ -193,7 +194,8 @@ public abstract class BenchmarkModule {
             if (ddlName == null) continue;
             URL ddlURL = this.getClass().getResource(DDLS_DIR + File.separator + ddlName);
             if (ddlURL != null) {
-                LOG.info("Found DDL file for " + db_type + ": " + ddlURL );
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Found DDL file for " + db_type + ": " + ddlURL );
                 return ddlURL;
             }
         } // FOR
@@ -338,6 +340,18 @@ public abstract class BenchmarkModule {
         return (this.catalog);
     }
     /**
+     * Get the catalog object for the given table name
+     * 
+     * @param tableName
+     * @return
+     */
+    public Table getTableCatalog(String tableName) {
+        Table catalog_tbl = this.catalog.getTable(tableName.toUpperCase());
+        assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";
+        return (catalog_tbl);
+    }
+    
+    /**
      * Return the StatementDialects loaded for this benchmark
      */
     public final StatementDialects getStatementDialects() {
@@ -348,6 +362,7 @@ public abstract class BenchmarkModule {
         return benchmarkName.toUpperCase();
     }
 
+    
     /**
      * Initialize a TransactionType handle for the get procedure name and id
      * This should only be invoked a start-up time

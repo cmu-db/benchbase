@@ -151,6 +151,8 @@ public abstract class SQLUtil {
             case POSTGRES:
                 return String.format("pg_get_serial_sequence('%s', '%s')",
                                      catalog_tbl.getName(), catalog_col.getName());
+            default:
+                LOG.warn("Unexpected request for sequence name on " + catalog_col + " using " + dbType);
         } // SWITCH
         return (null);
     }

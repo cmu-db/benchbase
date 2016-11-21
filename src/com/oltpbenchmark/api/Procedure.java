@@ -93,10 +93,11 @@ public abstract class Procedure {
     /**
      * Return a PreparedStatement for the given SQLStmt handle
      * The underlying Procedure API will make sure that the proper SQL
-     * for the target DBMS is used for this SQLStmt. 
+     * for the target DBMS is used for this SQLStmt.
+     * This will automatically call setObject for all the parameters you pass in
      * @param conn
      * @param stmt
-     * @param returnGeneratedKeys 
+     * @param parameters 
      * @return
      * @throws SQLException
      */
