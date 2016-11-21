@@ -29,16 +29,6 @@ package com.oltpbenchmark.benchmarks.smallbank;
 public abstract class SmallBankConstants {
 
     // ----------------------------------------------------------------
-    // STORED PROCEDURE EXECUTION FREQUENCIES (0-100)
-    // ----------------------------------------------------------------
-    public static final int FREQUENCY_AMALGAMATE        = 15;
-    public static final int FREQUENCY_BALANCE           = 15;
-    public static final int FREQUENCY_DEPOSIT_CHECKING  = 15;
-    public static final int FREQUENCY_SEND_PAYMENT      = 25;
-    public static final int FREQUENCY_TRANSACT_SAVINGS  = 15;
-    public static final int FREQUENCY_WRITE_CHECK       = 15;
-
-    // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
     public static final String TABLENAME_ACCOUNTS   = "ACCOUNTS";
@@ -66,5 +56,15 @@ public abstract class SmallBankConstants {
     // We'll just make it really big so that they never run out of money
     public static final int MIN_BALANCE             = 10000;
     public static final int MAX_BALANCE             = 50000;
+    
+    // ----------------------------------------------------------------
+    // PROCEDURE PARAMETERS
+    // These amounts are from the original code
+    // ----------------------------------------------------------------
+    public static final double PARAM_SEND_PAYMENT_AMOUNT = 5.0d;
+    public static final double PARAM_DEPOSIT_CHECKING_AMOUNT = 1.3d;
+    public static final double PARAM_TRANSACT_SAVINGS_AMOUNT = 20.20d;
+    public static final double PARAM_WRITE_CHECK_AMOUNT = 5.0d;
+    
 
 }

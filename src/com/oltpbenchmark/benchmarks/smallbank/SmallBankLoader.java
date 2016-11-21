@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.RandomDistribution.*;
@@ -28,13 +27,10 @@ public class SmallBankLoader extends Loader {
     private final String sqlChecking;
     
     private final long numAccounts;
-    private final int acctNameLength;
-
+    private final int custNameLength;
     
     public SmallBankLoader(SmallBankBenchmark benchmark, Connection conn) {
         super(benchmark, conn);
-        
-        this.numAccounts = benchmark.numAccounts;
         
         this.catalogAccts = this.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
         assert(this.catalogAccts != null);
@@ -47,17 +43,8 @@ public class SmallBankLoader extends Loader {
         this.sqlSavings = SQLUtil.getInsertSQL(this.catalogSavings);
         this.sqlChecking = SQLUtil.getInsertSQL(this.catalogChecking);
         
-        // Calculate account name length
-        int acctNameLength = -1;
-        
-        for (Column col : this.catalogAccts.getColumns()) {
-            if (SQLUtil.isStringType(col.getType())) {
-                acctNameLength = col.getSize();
-                break;
-            }
-        } // FOR
-        assert(acctNameLength > 0);
-        this.acctNameLength = acctNameLength;
+        this.numAccounts = benchmark.numAccounts;
+        this.custNameLength = SmallBankBenchmark.getCustomerNameLength(this.catalogAccts);
     }
 
     @Override
@@ -94,7 +81,7 @@ public class SmallBankLoader extends Loader {
                 this.stmtSavings = conn.prepareStatement(SmallBankLoader.this.sqlSavings);
                 this.stmtChecking = conn.prepareStatement(SmallBankLoader.this.sqlChecking);
                 
-                final String acctNameFormat = "%0"+acctNameLength+"d";
+                final String acctNameFormat = "%0"+custNameLength+"d";
                 int batchSize = 0;
                 for (long acctId = this.start; acctId < this.stop; acctId++) {
                     // ACCOUNT

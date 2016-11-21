@@ -57,7 +57,7 @@ public class TransactSavings extends Procedure {
         " WHERE custid = ?"
     );
     
-    public void run(Connection conn, long custName, double amount) throws SQLException {
+    public void run(Connection conn, String custName, double amount) throws SQLException {
         // First convert the custName to the acctId
         PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName);
         ResultSet result = stmt.executeQuery();

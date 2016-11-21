@@ -11,6 +11,9 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
+import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
 
 public class SmallBankBenchmark extends BenchmarkModule {
 
@@ -38,6 +41,24 @@ public class SmallBankBenchmark extends BenchmarkModule {
     @Override
     protected Package getProcedurePackageImpl() {
        return Vote.class.getPackage();
+    }
+    
+    
+    /**
+     * For the given table, return the length of the first VARCHAR attribute
+     * @param acctsTbl
+     * @return
+     */
+    public static int getCustomerNameLength(Table acctsTbl) {
+        int acctNameLength = -1;
+        for (Column col : acctsTbl.getColumns()) {
+            if (SQLUtil.isStringType(col.getType())) {
+                acctNameLength = col.getSize();
+                break;
+            }
+        } // FOR
+        assert(acctNameLength > 0);
+        return (acctNameLength);
     }
 
 }
