@@ -131,7 +131,8 @@ public class TestTextGenerator extends TestCase {
      * testDecreaseText
      */
     public void testDecreaseText() throws Exception {
-        int strLen = rng.nextInt(2048);
+        // Make sure that the original length is always greater than the delta size
+        int strLen = rng.nextInt(2048) + 200;
         char text[] = TextGenerator.randomChars(rng, strLen);
         assertNotNull(text);
         
