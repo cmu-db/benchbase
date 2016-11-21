@@ -91,14 +91,18 @@ public class SendPayment extends Procedure {
         }
         
         // Debt
-        PreparedStatement update0 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount*-1d, sendAcct);
-        boolean result0 = update0.execute();
-        assert(result0 == true);
+        PreparedStatement updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount*-1d, sendAcct);
+        int status = updateStmt.executeUpdate();
+        assert(status == 1) :
+            String.format("Failed to update %s for customer #%d [amount=%.2f]",
+                          SmallBankConstants.TABLENAME_CHECKING, sendAcct, amount);
         
         // Credit
-        PreparedStatement update1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct);
-        boolean result1 = update1.execute();
-        assert(result1 == true);
+        updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct);
+        status = updateStmt.executeUpdate();
+        assert(status == 1) :
+            String.format("Failed to update %s for customer #%d [amount=%.2f]",
+                          SmallBankConstants.TABLENAME_CHECKING, destAcct, amount);
         
         return;
     }

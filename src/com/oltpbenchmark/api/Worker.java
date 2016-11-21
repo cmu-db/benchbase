@@ -381,13 +381,8 @@ public abstract class Worker implements Runnable {
                     status = TransactionStatus.UNKNOWN;
                     status = this.executeWork(next);
 
-                    // Assertion Error
-                } catch (AssertionError ex) {
-                    LOG.error("Fatal error when invoking " + next, ex);
-                    throw ex;
-
-                    // User Abort Handling
-                    // These are not errors
+                // User Abort Handling
+                // These are not errors
                 } catch (UserAbortException ex) {
                     if (LOG.isDebugEnabled())
                         LOG.debug(next + " Aborted", ex);
@@ -410,7 +405,7 @@ public abstract class Worker implements Runnable {
                     this.txnAbort.put(next);
                     break;
 
-                    // Database System Specific Exception Handling
+                // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                     ex.printStackTrace();
 
@@ -463,6 +458,15 @@ public abstract class Worker implements Runnable {
                         // FIXME Disable this for now
                         // throw ex;
                     }
+                // Assertion Error
+                } catch (Error ex) {
+                    LOG.error("Fatal error when invoking " + next, ex);
+                    throw ex;
+                 // Random Error
+                } catch (Exception ex) {
+                    LOG.error("Fatal error when invoking " + next, ex);
+                    throw new RuntimeException(ex);
+                    
                 } finally {
                     switch (status) {
                         case SUCCESS:

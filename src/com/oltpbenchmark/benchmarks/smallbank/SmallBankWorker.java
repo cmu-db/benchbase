@@ -84,29 +84,35 @@ public class SmallBankWorker extends Worker {
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = txnType.getProcedureClass();
         
+        // Amalgamate
         if (procClass.equals(Amalgamate.class)) {
             this.generateCustIds(true);
             this.procAmalgamate.run(conn, this.custIdsBuffer[0], this.custIdsBuffer[1]);
             
+        // Balance
         } else if (procClass.equals(Balance.class)) {
             this.generateCustIds(false);
             String custName = String.format(this.custNameFormat, this.custIdsBuffer[0]);
             this.procBalance.run(conn, custName);
             
+        // DepositChecking
         } else if (procClass.equals(DepositChecking.class)) {
             this.generateCustIds(false);
             String custName = String.format(this.custNameFormat, this.custIdsBuffer[0]);
             this.procDepositChecking.run(conn, custName, SmallBankConstants.PARAM_DEPOSIT_CHECKING_AMOUNT);
             
+        // SendPayment
         } else if (procClass.equals(SendPayment.class)) {
             this.generateCustIds(true);
             this.procSendPayment.run(conn, this.custIdsBuffer[0], this.custIdsBuffer[0], SmallBankConstants.PARAM_SEND_PAYMENT_AMOUNT);
             
+        // TransactSavings
         } else if (procClass.equals(TransactSavings.class)) {
             this.generateCustIds(false);
             String custName = String.format(this.custNameFormat, this.custIdsBuffer[0]);
             this.procTransactSavings.run(conn, custName, SmallBankConstants.PARAM_TRANSACT_SAVINGS_AMOUNT);
             
+        // WriteCheck
         } else if (procClass.equals(WriteCheck.class)) {
             this.generateCustIds(false);
             String custName = String.format(this.custNameFormat, this.custIdsBuffer[0]);

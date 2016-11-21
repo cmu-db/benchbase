@@ -64,8 +64,10 @@ public class DepositChecking extends Procedure {
 
         // Then update their checking balance
         PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
-        boolean result = stmt1.execute();
-        assert(result == true);
+        int status = stmt1.executeUpdate();
+        assert(status == 1) :
+            String.format("Failed to update %s for customer #%d [amount=%.2f]",
+                          SmallBankConstants.TABLENAME_CHECKING, custId, amount);
         
         return;
     }

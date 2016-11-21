@@ -90,8 +90,10 @@ public class TransactSavings extends Procedure {
         
         // Then update their savings balance
         stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId);
-        boolean status = stmt.execute();
-        assert(status == true);
+        int status = stmt.executeUpdate();
+        assert(status == 1) :
+            String.format("Failed to update %s for customer #%d [balance=%.2f / amount=%.2f]",
+                          SmallBankConstants.TABLENAME_CHECKING, custId, balance, amount);
         
         return;
     }
