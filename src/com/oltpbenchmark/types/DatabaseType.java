@@ -20,26 +20,99 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * List of the database management systems that we support 
+ * in the framework.
+ * @author pavlo
+ */
 public enum DatabaseType {
 
-    DB2,
-    MYSQL,
-    POSTGRES,
-    ORACLE,
-    SQLSERVER,
-    SQLITE,
-    AMAZONRDS,
-    HSTORE,
-    SQLAZURE,
-    ASSCLOWN,
-    HSQLDB,
-    H2,
-    MONETDB,
-    NUODB,
-    TIMESTEN,
-    PELOTON
+    /**
+     * Parameters:
+     * (1) JDBC Driver String
+     * (2) Should SQLUtil.getInserSQL escape table/col names
+     * (3) Should SQLUtil.getInserSQL include col names
+     */
+    DB2("com.ibm.db2.jcc.DB2Driver", true, false),
+    MYSQL("com.mysql.jdbc.Driver", true, false),
+    POSTGRES("org.postgresql.Driver", false, false),
+    ORACLE("oracle.jdbc.driver.OracleDriver", true, false),
+    SQLSERVER("com.microsoft.sqlserver.jdbc.SQLServerDriver", true, false),
+    SQLITE("org.sqlite.JDBC", true, false),
+    AMAZONRDS(null, true, false),
+    SQLAZURE(null, true, false),
+    ASSCLOWN(null, true, false),
+    HSQLDB("org.hsqldb.jdbcDriver", true, false),
+    H2("org.h2.Driver", true, false),
+    MONETDB("nl.cwi.monetdb.jdbc.MonetDriver", false, false),
+    NUODB("com.nuodb.jdbc.Driver", true, false),
+    TIMESTEN("com.timesten.jdbc.TimesTenDriver", true, false),
+    PELOTON("org.postgresql.Driver", false, false)
     ;
     
+    private DatabaseType(String driver, boolean escapeNames, boolean includeColNames) {
+        this.driver = driver;
+        this.escapeNames = escapeNames;
+        this.includeColNames = includeColNames;
+    }
+    
+    /**
+     * This is the suggested driver string to use in the configuration xml
+     * This corresponds to the <B>'driver'</b> attribute. 
+     */
+    private final String driver;
+    
+    /**
+     * If this flag is set to true, then the framework will escape names in
+     * the INSERT queries  
+     */
+    private final boolean escapeNames;
+    
+    /**
+     * If this flag is set to true, then the framework will include the column names
+     * when generating INSERT queries for loading data.  
+     */
+    private final boolean includeColNames;
+    
+    // ---------------------------------------------------------------
+    // ACCESSORS
+    // ----------------------------------------------------------------
+    
+    /**
+     * Returns the suggested driver string to use for the given database type
+     * @return
+     */
+    public String getSuggestedDriver() {
+        return (this.driver);
+    }
+    
+    /**
+     * Returns true if the framework should escape the names of columns/tables when 
+     * generating SQL to load in data for the target database type.
+     * @return
+     */
+    public boolean shouldEscapeNames() {
+        return (this.escapeNames);
+    }
+    
+    /**
+     * Returns true if the framework should include the names of columns when 
+     * generating SQL to load in data for the target database type.
+     * @return
+     */
+    public boolean shouldIncludeColumnNames() {
+        return (this.includeColNames);
+    }
+    
+    
+    // ----------------------------------------------------------------
+    // STATIC METHODS + MEMBERS
+    // ----------------------------------------------------------------
+    
+    /**
+     * This is the database type that we will use in our unit tests.
+     * This should always be one of the embedded java databases
+     */
     public static final DatabaseType TEST_TYPE = DatabaseType.HSQLDB; 
     
     protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<Integer, DatabaseType>();

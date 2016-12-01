@@ -40,8 +40,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     
     // HSQLDB
     public static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
-    public static final String DB_JDBC = "org.hsqldb.jdbcDriver";
-    public static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
+    public static final DatabaseType DB_TYPE = DatabaseType.TEST_TYPE;
     
     // H2
     // public static final String DB_CONNECTION = "jdbc:h2:mem:";
@@ -67,7 +66,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
         super.setUp();
-        Class.forName(DB_JDBC);
+        Class.forName(DB_TYPE.getSuggestedDriver());
         
         this.workConf = new WorkloadConfiguration();
         TransactionTypes txnTypes = new TransactionTypes();

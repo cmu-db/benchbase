@@ -366,6 +366,15 @@ public abstract class SQLUtil {
         return getInsertSQL(catalog_tbl, false, true, batchSize, exclude_columns);
     }
     
+    /**
+     * Automatically generate the 'INSERT' SQL string for this table
+     * @param catalog_tbl
+     * @param show_cols
+     * @param escape_names
+     * @param batchSize
+     * @param exclude_columns
+     * @return
+     */
     public static String getInsertSQL(Table catalog_tbl, boolean show_cols, boolean escape_names, int batchSize, int...exclude_columns) {
     	StringBuilder sb = new StringBuilder();
     	sb.append("INSERT INTO ")

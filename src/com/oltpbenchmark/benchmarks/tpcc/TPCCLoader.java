@@ -42,6 +42,7 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -101,17 +102,7 @@ public class TPCCLoader extends Loader{
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
         assert(catalog_tbl != null);
-
-				// if current dbType is either postgres or monetdb make insertSQL
-				// without escaped character.
-				String sql = null;
-
-				if (this.getDatabaseType() == DatabaseType.POSTGRES
-						|| this.getDatabaseType() == DatabaseType.MONETDB)
-					sql = SQLUtil.getInsertSQL(catalog_tbl, false);
-				else
-					sql = SQLUtil.getInsertSQL(catalog_tbl);
-
+		String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         return stmt;
 	}
@@ -163,6 +154,7 @@ public class TPCCLoader extends Loader{
 		int startORIGINAL = 0;
 		
 
+		boolean fail = false;
 		try {
 		    PreparedStatement itemPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ITEM);
 
@@ -249,11 +241,10 @@ public class TPCCLoader extends Loader{
 			} // end for
 
 			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-					+ " of " + t);
+			if (LOG.isDebugEnabled()) {
+    			String etStr = "  Elasped Time(ms): " + ((tmpTime - lastTimeMS) / 1000.000) + "                    ";
+    			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k + " of " + t);
+			}
 			lastTimeMS = tmpTime;
 
 			if (outputFiles == false) {
@@ -262,19 +253,28 @@ public class TPCCLoader extends Loader{
 
 			transCommit();
 			now = new java.util.Date();
-			LOG.debug("End Item Load @  " + now);
+			if (LOG.isDebugEnabled()) {
+			    LOG.debug("End Item Load @  " + now);
+			}
 
-		} catch (SQLException se) {
-			LOG.debug(se.getMessage());
-            se.printStackTrace();
-            SQLException next = se.getNextException();
-            if (next != null) {
-                LOG.debug(next.getMessage());
-            }
-			transRollback();
-		} catch (Exception e) {
-			e.printStackTrace();
-			transRollback();
+		} catch (BatchUpdateException ex) {
+		    SQLException next = ex.getNextException();
+		    LOG.error("Failed to load data for TPC-C", ex);
+            if (next != null) LOG.error(ex.getClass().getSimpleName() + " Cause => " + next.getMessage());
+            fail = true;
+		} catch (SQLException ex) {
+            SQLException next = ex.getNextException();
+            LOG.error("Failed to load data for TPC-C", ex);
+            if (next != null) LOG.error(ex.getClass().getSimpleName() + " Cause => " + next.getMessage());
+            fail = true;
+		} catch (Exception ex) {
+		    LOG.error("Failed to load data for TPC-C", ex);
+			fail = true;
+		} finally {
+		    if (fail) {
+		        LOG.debug("Rolling back changes from last batch");
+		        transRollback();    
+		    }
 		}
 
 		return (k);
