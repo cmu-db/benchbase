@@ -48,6 +48,7 @@ public class WorkloadConfiguration {
 	private String db_password;
 	private String db_driver;	
 	private double scaleFactor = 1.0;
+	private double selectivity = -1.0;
 	private int terminals;
 	private int numTxnTypes;
     private TraceReader traceReader = null;
@@ -135,6 +136,14 @@ public class WorkloadConfiguration {
 	
 	public String getDBPassword() {
 		return this.db_password;
+	}
+
+	public void setSelectivity(double selectivity) {
+        this.selectivity = selectivity;
+    }
+	
+	public double getSelectivity() {
+	    return this.selectivity;
 	}
 
 	public void setDBDriver(String driver) {

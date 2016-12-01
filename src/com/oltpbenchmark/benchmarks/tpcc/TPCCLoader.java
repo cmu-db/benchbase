@@ -43,7 +43,6 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -100,7 +99,7 @@ public class TPCCLoader extends Loader{
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
 
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
-        Table catalog_tbl = this.getTableCatalog(tableName);
+        Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
         assert(catalog_tbl != null);
 
 				// if current dbType is either postgres or monetdb make insertSQL
@@ -549,8 +548,7 @@ public class TPCCLoader extends Loader{
 			District district = new District();
 
 			t = (whseKount * distWhseKount);
-			LOG.debug("\nStart District Data for " + t + " Dists @ "
-					+ now + " ...");
+			if (LOG.isDebugEnabled()) LOG.debug("\nStart District Data for " + t + " Dists @ " + now + " ...");
 
 			for (int w = 1; w <= whseKount; w++) {
 
@@ -565,7 +563,7 @@ public class TPCCLoader extends Loader{
 					district.d_tax = (float) ((TPCCUtil.randomNumber(0, 2000,
 							gen)) / 10000.0);
 
-					district.d_next_o_id = 3001;
+					district.d_next_o_id = configCustPerDist + 1;
 					district.d_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(
 							6, 10, gen));
 					district.d_street_1 = TPCCUtil.randomStr(TPCCUtil
@@ -678,8 +676,7 @@ public class TPCCLoader extends Loader{
 						customer.c_w_id = w;
 
 						// discount is random between [0.0000 ... 0.5000]
-						customer.c_discount = (float) (TPCCUtil.randomNumber(1,
-								5000, gen) / 10000.0);
+						customer.c_discount = (float) (TPCCUtil.randomNumber(1, 5000, gen) / 10000.0);
 
 						if (TPCCUtil.randomNumber(1, 100, gen) <= 10) {
 							customer.c_credit = "BC"; // 10% Bad Credit
@@ -817,11 +814,12 @@ public class TPCCLoader extends Loader{
 
 							if ((k % configCommitCount) == 0) {
 								long tmpTime = new java.util.Date().getTime();
-								String etStr = "  Elasped Time(ms): "
-										+ ((tmpTime - lastTimeMS) / 1000.000)
-										+ "                    ";
-								LOG.debug(etStr.substring(0, 30)
-										+ "  Writing record " + k + " of " + t);
+								if (LOG.isDebugEnabled()) {
+    								String etStr = "  Elasped Time(ms): "
+    										+ ((tmpTime - lastTimeMS) / 1000.000)
+    										+ "                    ";
+    								LOG.debug(etStr.substring(0, 30) + "  Writing record " + k + " of " + t);
+								}
 								lastTimeMS = tmpTime;
 
 							}
@@ -834,11 +832,12 @@ public class TPCCLoader extends Loader{
 			} // end for [w]
 
 			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-					+ " of " + t);
+			if (LOG.isDebugEnabled()) {
+    			String etStr = "  Elasped Time(ms): "
+    					+ ((tmpTime - lastTimeMS) / 1000.000)
+    					+ "                    ";
+    			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k + " of " + t);
+			}
 			lastTimeMS = tmpTime;
 			custPrepStmt.executeBatch();
 			histPrepStmt.executeBatch();
@@ -849,7 +848,9 @@ public class TPCCLoader extends Loader{
 			if (outputFiles == true) {
 				outHist.close();
 			}
-			LOG.debug("End Cust-Hist Data Load @  " + now);
+			if (LOG.isDebugEnabled()) {
+			    LOG.debug("End Cust-Hist Data Load @  " + now);
+			}
 
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -882,18 +883,12 @@ public class TPCCLoader extends Loader{
 		    PreparedStatement orlnPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ORDERLINE);
 
 			if (outputFiles == true) {
-				out = new PrintWriter(new FileOutputStream(fileLocation
-						+ "order.csv"));
-				LOG.debug("\nWriting Order file to: " + fileLocation
-						+ "order.csv");
-				outLine = new PrintWriter(new FileOutputStream(fileLocation
-						+ "order-line.csv"));
-				LOG.debug("\nWriting Order Line file to: "
-						+ fileLocation + "order-line.csv");
-				outNewOrder = new PrintWriter(new FileOutputStream(fileLocation
-						+ "new-order.csv"));
-				LOG.debug("\nWriting New Order file to: "
-						+ fileLocation + "new-order.csv");
+				out = new PrintWriter(new FileOutputStream(fileLocation + "order.csv"));
+				if (LOG.isDebugEnabled()) LOG.debug("\nWriting Order file to: " + fileLocation + "order.csv");
+				outLine = new PrintWriter(new FileOutputStream(fileLocation + "order-line.csv"));
+				if (LOG.isDebugEnabled()) LOG.debug("\nWriting Order Line file to: " + fileLocation + "order-line.csv");
+				outNewOrder = new PrintWriter(new FileOutputStream(fileLocation + "new-order.csv"));
+				if (LOG.isDebugEnabled())  LOG.debug("\nWriting New Order file to: " + fileLocation + "new-order.csv");
 			}
 
 			now = new java.util.Date();
@@ -904,10 +899,10 @@ public class TPCCLoader extends Loader{
 
 			t = (whseKount * distWhseKount * custDistKount);
 			t = (t * 11) + (t / 3);
-			LOG.debug("whse=" + whseKount + ", dist=" + distWhseKount
-					+ ", cust=" + custDistKount);
-			LOG.debug("\nStart Order-Line-New Load for approx " + t
-					+ " rows @ " + now + " ...");
+			if (LOG.isDebugEnabled())  {
+    			LOG.debug("whse=" + whseKount + ", dist=" + distWhseKount + ", cust=" + custDistKount);
+    			LOG.debug("\nStart Order-Line-New Load for approx " + t + " rows @ " + now + " ...");
+			}
 
 			for (int w = 1; w <= whseKount; w++) {
 
@@ -995,7 +990,7 @@ public class TPCCLoader extends Loader{
 							order_line.ol_o_id = c;
 							order_line.ol_number = l; // ol_number
 							order_line.ol_i_id = TPCCUtil.randomNumber(1,
-									100000, gen);
+							        configItemCount, gen);
 							if (order_line.ol_o_id < FIRST_UNPROCESSED_O_ID) {
 								order_line.ol_delivery_d = oorder.o_entry_d;
 								order_line.ol_amount = 0;
@@ -1060,7 +1055,7 @@ public class TPCCLoader extends Loader{
 
 			} // end for [w]
 
-			LOG.debug("  Writing final records " + k + " of " + t);
+			if (LOG.isDebugEnabled())  LOG.debug("  Writing final records " + k + " of " + t);
 			if (outputFiles == false) {
 			    ordrPrepStmt.executeBatch();
 			    nworPrepStmt.executeBatch();
@@ -1071,7 +1066,7 @@ public class TPCCLoader extends Loader{
 			}
 			transCommit();
 			now = new java.util.Date();
-			LOG.debug("End Orders Load @  " + now);
+			if (LOG.isDebugEnabled()) LOG.debug("End Orders Load @  " + now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
@@ -1120,8 +1115,9 @@ public class TPCCLoader extends Loader{
 		// ######################### MAINLINE
 		// ######################################
 		startDate = new java.util.Date();
-		LOG.debug("------------- LoadData Start Date = " + startDate
-				+ "-------------");
+		if (LOG.isDebugEnabled())  {
+		    LOG.debug("------------- LoadData Start Date = " + startDate + "-------------");
+		}
 
 		long startTimeMS = new java.util.Date().getTime();
 		lastTimeMS = startTimeMS;
@@ -1137,14 +1133,16 @@ public class TPCCLoader extends Loader{
 
 		long runTimeMS = (new java.util.Date().getTime()) + 1 - startTimeMS;
 		endDate = new java.util.Date();
-		LOG.debug("");
-		LOG.debug("------------- LoadJDBC Statistics --------------------");
-		LOG.debug("     Start Time = " + startDate);
-		LOG.debug("       End Time = " + endDate);
-		LOG.debug("       Run Time = " + (int) runTimeMS / 1000 + " Seconds");
-		LOG.debug("    Rows Loaded = " + totalRows + " Rows");
-		LOG.debug("Rows Per Second = " + (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
-		LOG.debug("------------------------------------------------------");
+		if (LOG.isDebugEnabled())  {
+    		LOG.debug("");
+    		LOG.debug("------------- LoadJDBC Statistics --------------------");
+    		LOG.debug("     Start Time = " + startDate);
+    		LOG.debug("       End Time = " + endDate);
+    		LOG.debug("       Run Time = " + (int) runTimeMS / 1000 + " Seconds");
+    		LOG.debug("    Rows Loaded = " + totalRows + " Rows");
+    		LOG.debug("Rows Per Second = " + (totalRows / (runTimeMS / 1000)) + " Rows/Sec");
+    		LOG.debug("------------------------------------------------------");
+		}
 	
 	}
 } // end LoadData Class

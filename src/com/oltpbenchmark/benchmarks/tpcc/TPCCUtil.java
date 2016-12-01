@@ -28,6 +28,11 @@ package com.oltpbenchmark.benchmarks.tpcc;
 
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.dateFormat;
 import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.nameTokens;
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configCommitCount;
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configCustPerDist;
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configDistPerWhse;
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configItemCount;
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -105,11 +110,11 @@ public class TPCCUtil {
 	private static final int C_LAST_RUN_C = 223; // in range [0, 255]
 
 	public static int getItemID(Random r) {
-		return nonUniformRandom(8191, OL_I_ID_C, 1, 100000, r);
+		return nonUniformRandom(8191, OL_I_ID_C, 1, configItemCount, r);
 	}
 
 	public static int getCustomerID(Random r) {
-		return nonUniformRandom(1023, C_ID_C, 1, 3000, r);
+		return nonUniformRandom(1023, C_ID_C, 1, configCustPerDist, r);
 	}
 
 	public static String getLastName(int num) {

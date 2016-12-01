@@ -35,12 +35,17 @@ public class NewOrder extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(NewOrder.class);
 
-    public final SQLStmt stmtGetCustWhseSQL = new SQLStmt(
-    		"SELECT C_DISCOUNT, C_LAST, C_CREDIT, W_TAX"
-			+ "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + ", " + TPCCConstants.TABLENAME_WAREHOUSE
-			+ " WHERE W_ID = ? AND C_W_ID = ?"
+    public final SQLStmt stmtGetCustSQL = new SQLStmt(
+    		"SELECT C_DISCOUNT, C_LAST, C_CREDIT"
+			+ "  FROM " + TPCCConstants.TABLENAME_CUSTOMER
+			+ " WHERE C_W_ID = ?"
 			+ " AND C_D_ID = ? AND C_ID = ?");
 
+    public final SQLStmt stmtGetWhseSQL = new SQLStmt(
+    		"SELECT W_TAX"
+			+ "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE
+			+ " WHERE W_ID = ?");
+    
     public final SQLStmt stmtGetDistSQL = new SQLStmt(
     		"SELECT D_NEXT_O_ID, D_TAX FROM " + TPCCConstants.TABLENAME_DISTRICT
 					+ " WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE"
@@ -68,7 +73,8 @@ public class NewOrder extends TPCCProcedure {
 
 
 	// NewOrder Txn
-	private PreparedStatement stmtGetCustWhse = null;
+	private PreparedStatement stmtGetCust = null;
+	private PreparedStatement stmtGetWhse = null;
 	private PreparedStatement stmtGetDist = null;
 	private PreparedStatement stmtInsertNewOrder = null;
 	private PreparedStatement stmtUpdateDist = null;
@@ -87,7 +93,8 @@ public class NewOrder extends TPCCProcedure {
 
 
 		//initializing all prepared statements
-		stmtGetCustWhse=this.getPreparedStatement(conn, stmtGetCustWhseSQL);
+		stmtGetCust=this.getPreparedStatement(conn, stmtGetCustSQL);
+		stmtGetWhse=this.getPreparedStatement(conn, stmtGetWhseSQL);
 		stmtGetDist=this.getPreparedStatement(conn, stmtGetDistSQL);
 		stmtInsertNewOrder=this.getPreparedStatement(conn, stmtInsertNewOrderSQL);
 		stmtUpdateDist =this.getPreparedStatement(conn, stmtUpdateDistSQL);
@@ -155,21 +162,26 @@ public class NewOrder extends TPCCProcedure {
 		float ol_amount, total_amount = 0;
 		try
 		{
-			stmtGetCustWhse.setInt(1, w_id);
-			stmtGetCustWhse.setInt(2, w_id);
-			stmtGetCustWhse.setInt(3, d_id);
-			stmtGetCustWhse.setInt(4, c_id);
-			ResultSet rs = stmtGetCustWhse.executeQuery();
+			stmtGetCust.setInt(1, w_id);
+			stmtGetCust.setInt(2, d_id);
+			stmtGetCust.setInt(3, c_id);
+			ResultSet rs = stmtGetCust.executeQuery();
 			if (!rs.next())
-				throw new RuntimeException("W_ID=" + w_id + " C_D_ID=" + d_id
+				throw new RuntimeException("C_D_ID=" + d_id
 						+ " C_ID=" + c_id + " not found!");
 			c_discount = rs.getFloat("C_DISCOUNT");
 			c_last = rs.getString("C_LAST");
 			c_credit = rs.getString("C_CREDIT");
-			w_tax = rs.getFloat("W_TAX");
 			rs.close();
 			rs = null;
 
+			stmtGetWhse.setInt(1, w_id);
+			rs = stmtGetWhse.executeQuery();
+			if (!rs.next())
+				throw new RuntimeException("W_ID=" + w_id + " not found!");
+			w_tax = rs.getFloat("W_TAX");
+			rs.close();
+			rs = null;
 
 			stmtGetDist.setInt(1, w_id);
 			stmtGetDist.setInt(2, d_id);
@@ -349,7 +361,7 @@ public class NewOrder extends TPCCProcedure {
 				stmtInsertOrderLine.setInt(5, ol_i_id);
 				stmtInsertOrderLine.setInt(6, ol_supply_w_id);
 				stmtInsertOrderLine.setInt(7, ol_quantity);
-				stmtInsertOrderLine.setFloat(8, ol_amount);
+				stmtInsertOrderLine.setDouble(8, ol_amount);
 				stmtInsertOrderLine.setString(9, ol_dist_info);
 				stmtInsertOrderLine.addBatch();
 

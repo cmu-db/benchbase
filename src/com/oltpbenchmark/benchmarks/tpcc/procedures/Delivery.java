@@ -23,13 +23,17 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
+import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
 
 public class Delivery extends TPCCProcedure {
 
+    private static final Logger LOG = Logger.getLogger(OrderStatus.class);
 
 	public SQLStmt delivGetOrderIdSQL = new SQLStmt("SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER + " WHERE NO_D_ID = ?"
 			+ " AND NO_W_ID = ? ORDER BY NO_O_ID ASC LIMIT 1");
@@ -197,35 +201,43 @@ public class Delivery extends TPCCProcedure {
 
 		conn.commit();
 
-		//TODO: This part is not used
-		StringBuilder terminalMessage = new StringBuilder();
-		terminalMessage
-				.append("\n+---------------------------- DELIVERY ---------------------------+\n");
-		terminalMessage.append(" Date: ");
-		terminalMessage.append(TPCCUtil.getCurrentTime());
-		terminalMessage.append("\n\n Warehouse: ");
-		terminalMessage.append(w_id);
-		terminalMessage.append("\n Carrier:   ");
-		terminalMessage.append(o_carrier_id);
-		terminalMessage.append("\n\n Delivered Orders\n");
 		int skippedDeliveries = 0;
-		for (int i = 1; i <= 10; i++) {
+		StringBuilder terminalMessage = (LOG.isTraceEnabled() ? new StringBuilder() : null); 
+    	if (terminalMessage != null) {
+    		terminalMessage
+    				.append("\n+---------------------------- DELIVERY ---------------------------+\n");
+    		terminalMessage.append(" Date: ");
+    		terminalMessage.append(TPCCUtil.getCurrentTime());
+    		terminalMessage.append("\n\n Warehouse: ");
+    		terminalMessage.append(w_id);
+    		terminalMessage.append("\n Carrier:   ");
+    		terminalMessage.append(o_carrier_id);
+    		terminalMessage.append("\n\n Delivered Orders\n");
+    	}
+		for (int i = 1; i <= jTPCCConfig.configDistPerWhse; i++) {
 			if (orderIDs[i - 1] >= 0) {
-				terminalMessage.append("  District ");
-				terminalMessage.append(i < 10 ? " " : "");
-				terminalMessage.append(i);
-				terminalMessage.append(": Order number ");
-				terminalMessage.append(orderIDs[i - 1]);
-				terminalMessage.append(" was delivered.\n");
+			    if (terminalMessage != null) {
+    				terminalMessage.append("  District ");
+    				terminalMessage.append(i < 10 ? " " : "");
+    				terminalMessage.append(i);
+    				terminalMessage.append(": Order number ");
+    				terminalMessage.append(orderIDs[i - 1]);
+    				terminalMessage.append(" was delivered.\n");
+			    }
 			} else {
-				terminalMessage.append("  District ");
-				terminalMessage.append(i < 10 ? " " : "");
-				terminalMessage.append(i);
-				terminalMessage.append(": No orders to be delivered.\n");
+			    if (terminalMessage != null) {
+    				terminalMessage.append("  District ");
+    				terminalMessage.append(i < 10 ? " " : "");
+    				terminalMessage.append(i);
+    				terminalMessage.append(": No orders to be delivered.\n");
+			    }
 				skippedDeliveries++;
 			}
+		} // FOR
+		if (terminalMessage != null) {
+		    terminalMessage.append("+-----------------------------------------------------------------+\n\n");
+    		LOG.trace(terminalMessage.toString());
 		}
-		terminalMessage.append("+-----------------------------------------------------------------+\n\n");
 
 		return skippedDeliveries;
 	}

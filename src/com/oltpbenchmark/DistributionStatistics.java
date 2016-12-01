@@ -84,8 +84,7 @@ public class DistributionStatistics {
 		}
 
 		// NOTE: NIST recommends interpolating. This just selects the closest
-		// value, which is
-		// described as another common technique.
+		// value, which is described as another common technique.
 		// http://www.itl.nist.gov/div898/handbook/prc/section2/prc252.htm
 		long[] percentiles = new long[PERCENTILES.length];
 		for (int i = 0; i < percentiles.length; ++i) {

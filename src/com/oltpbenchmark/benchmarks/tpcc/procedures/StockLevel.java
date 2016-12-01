@@ -40,7 +40,7 @@ public class StockLevel extends TPCCProcedure {
 			+ " WHERE OL_W_ID = ?"
 			+ " AND OL_D_ID = ?"
 			+ " AND OL_O_ID < ?"
-			+ " AND OL_O_ID >= ? - 20"
+			+ " AND OL_O_ID >= ?"
 			+ " AND S_W_ID = ?"
 			+ " AND S_I_ID = OL_I_ID" + " AND S_QUANTITY < ?");
 
@@ -95,7 +95,7 @@ public class StockLevel extends TPCCProcedure {
 			stockGetCountStock.setInt(1, w_id);
 			stockGetCountStock.setInt(2, d_id);
 			stockGetCountStock.setInt(3, o_id);
-			stockGetCountStock.setInt(4, o_id);
+			stockGetCountStock.setInt(4, o_id - 20);
 			stockGetCountStock.setInt(5, w_id);
 			stockGetCountStock.setInt(6, threshold);
 			rs = stockGetCountStock.executeQuery();

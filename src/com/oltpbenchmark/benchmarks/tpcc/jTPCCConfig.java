@@ -37,10 +37,6 @@ public final class jTPCCConfig {
 		NEW_ORDER, PAYMENT, ORDER_STATUS, DELIVERY, STOCK_LEVEL
 	}
 
-	// TODO: Remove these constants
-	public final static int NEW_ORDER = 1, PAYMENT = 2, ORDER_STATUS = 3,
-			DELIVERY = 4, STOCK_LEVEL = 5;
-
 	public final static String[] nameTokens = { "BAR", "OUGHT", "ABLE", "PRI",
 			"PRES", "ESE", "ANTI", "CALLY", "ATION", "EING" };
 
