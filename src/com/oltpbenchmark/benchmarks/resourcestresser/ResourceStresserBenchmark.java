@@ -54,7 +54,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<ResourceStresserBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		throw new NotImplementedException();
 	}
 }

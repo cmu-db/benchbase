@@ -74,7 +74,7 @@ public class TPCHBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<TPCHBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new TPCHLoader(this, conn);
 	}
 

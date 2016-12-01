@@ -15,7 +15,7 @@ import com.oltpbenchmark.util.RandomDistribution.*;
  * SmallBankBenchmark Loader
  * @author pavlo
  */
-public class SmallBankLoader extends Loader {
+public class SmallBankLoader extends Loader<SmallBankBenchmark> {
     private static final Logger LOG = Logger.getLogger(SmallBankLoader.class);
 
     private final Table catalogAccts;
@@ -32,11 +32,11 @@ public class SmallBankLoader extends Loader {
     public SmallBankLoader(SmallBankBenchmark benchmark, Connection conn) {
         super(benchmark, conn);
         
-        this.catalogAccts = this.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
+        this.catalogAccts = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
         assert(this.catalogAccts != null);
-        this.catalogSavings = this.getTableCatalog(SmallBankConstants.TABLENAME_SAVINGS);
+        this.catalogSavings = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_SAVINGS);
         assert(this.catalogSavings != null);
-        this.catalogChecking = this.getTableCatalog(SmallBankConstants.TABLENAME_CHECKING);
+        this.catalogChecking = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_CHECKING);
         assert(this.catalogChecking != null);
         
         this.sqlAccts = SQLUtil.getInsertSQL(this.catalogAccts);

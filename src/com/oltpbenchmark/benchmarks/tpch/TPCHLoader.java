@@ -36,20 +36,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.StringTokenizer;
-import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.util.SimpleSystemPrinter;
 
-import com.oltpbenchmark.benchmarks.tpch.queries.Q1;
-
-public class TPCHLoader extends Loader {
+public class TPCHLoader extends Loader<TPCHBenchmark> {
     private static final Logger LOG = Logger.getLogger(TPCHLoader.class);
     private final static int configCommitCount = 10000; // commit every n records
     private static PreparedStatement customerPrepStmt;
@@ -60,21 +54,21 @@ public class TPCHLoader extends Loader {
     private static PreparedStatement partsuppPrepStmt;
     private static PreparedStatement regionPrepStmt;
     private static PreparedStatement supplierPrepStmt;
-    private static final int numCustomerCols = 8;
-    private static final int numLineItemCols = 16;
-    private static final int numNationCols = 4;
-    private static final int numOrdersCols = 9;
-    private static final int numPartCols = 9;
-    private static final int numPartSuppCols = 5;
-    private static final int numRegionCols = 3;
-    private static final int numSupplierCols = 7;
+//    private static final int numCustomerCols = 8;
+//    private static final int numLineItemCols = 16;
+//    private static final int numNationCols = 4;
+//    private static final int numOrdersCols = 9;
+//    private static final int numPartCols = 9;
+//    private static final int numPartSuppCols = 5;
+//    private static final int numRegionCols = 3;
+//    private static final int numSupplierCols = 7;
 
     private static Date now;
     private static long lastTimeMS;
     private static Connection conn;
 
 
-    public TPCHLoader(BenchmarkModule benchmark, Connection c) {
+    public TPCHLoader(TPCHBenchmark benchmark, Connection c) {
         super(benchmark, c);
         conn =c;
     }

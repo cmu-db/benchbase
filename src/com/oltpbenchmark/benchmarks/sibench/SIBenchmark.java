@@ -71,7 +71,7 @@ public class SIBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<SIBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         return new SILoader(this, conn);
     }
 

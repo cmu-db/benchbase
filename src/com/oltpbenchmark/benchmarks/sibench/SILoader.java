@@ -27,7 +27,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
-public class SILoader extends Loader {
+public class SILoader extends Loader<SIBenchmark> {
     private static final Logger LOG = Logger.getLogger(SILoader.class);
     private final int num_record;
 
@@ -41,8 +41,8 @@ public class SILoader extends Loader {
 
     @Override
     public void load() throws SQLException {
-        Random rand = new Random(System.currentTimeMillis());
-        Table catalog_tbl = this.getTableCatalog("SITEST");
+        Random rand = this.benchmark.rng();
+        Table catalog_tbl = this.benchmark.getTableCatalog("SITEST");
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);

@@ -53,23 +53,14 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.tpcc.jdbc.jdbcIO;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.District;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.History;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Item;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.NewOrder;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.OrderLine;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Stock;
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Warehouse;
+import com.oltpbenchmark.benchmarks.tpcc.pojo.*;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
-//woonhak, for postgres and monetdb (make insert statement wihtout escaped char),
-//need to know current dbType
-import com.oltpbenchmark.types.DatabaseType;
-
-public class TPCCLoader extends Loader{
+/**
+ * TPC-C Benchmark Loader
+ */
+public class TPCCLoader extends Loader<TPCCBenchmark> {
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
 	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
@@ -133,7 +124,6 @@ public class TPCCLoader extends Loader{
 	}
 
 	protected void truncateTable(String strTable) {
-
 		LOG.debug("Truncating '" + strTable + "' ...");
 		try {
             this.conn.createStatement().execute("DELETE FROM " + strTable);
@@ -146,14 +136,11 @@ public class TPCCLoader extends Loader{
 	}
 
 	protected int loadItem(int itemKount) {
-
 		int k = 0;
 		int t = 0;
 		int randPct = 0;
 		int len = 0;
 		int startORIGINAL = 0;
-		
-
 		boolean fail = false;
 		try {
 		    PreparedStatement itemPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ITEM);
@@ -535,9 +522,7 @@ public class TPCCLoader extends Loader{
 		try {
 
 			PreparedStatement distPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_DISTRICT);
-
 			now = new java.util.Date();
-
 			if (outputFiles == true) {
 				out = new PrintWriter(new FileOutputStream(fileLocation
 						+ "district.csv"));
@@ -546,32 +531,23 @@ public class TPCCLoader extends Loader{
 			}
 
 			District district = new District();
-
 			t = (whseKount * distWhseKount);
 			if (LOG.isDebugEnabled()) LOG.debug("\nStart District Data for " + t + " Dists @ " + now + " ...");
 
 			for (int w = 1; w <= whseKount; w++) {
-
 				for (int d = 1; d <= distWhseKount; d++) {
-				    
-				    
 					district.d_id = d;
 					district.d_w_id = w;
 					district.d_ytd = 30000;
 
 					// random within [0.0000 .. 0.2000]
-					district.d_tax = (float) ((TPCCUtil.randomNumber(0, 2000,
-							gen)) / 10000.0);
+					district.d_tax = (float) ((TPCCUtil.randomNumber(0, 2000, gen)) / 10000.0);
 
 					district.d_next_o_id = configCustPerDist + 1;
-					district.d_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(
-							6, 10, gen));
-					district.d_street_1 = TPCCUtil.randomStr(TPCCUtil
-							.randomNumber(10, 20, gen));
-					district.d_street_2 = TPCCUtil.randomStr(TPCCUtil
-							.randomNumber(10, 20, gen));
-					district.d_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(
-							10, 20, gen));
+					district.d_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6, 10, gen));
+					district.d_street_1 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, gen));
+					district.d_street_2 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, gen));
+					district.d_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, gen));
 					district.d_state = TPCCUtil.randomStr(3).toUpperCase();
 					district.d_zip = "123456789";
 
@@ -648,14 +624,10 @@ public class TPCCLoader extends Loader{
 			now = new java.util.Date();
 
 			if (outputFiles == true) {
-				out = new PrintWriter(new FileOutputStream(fileLocation
-						+ "customer.csv"));
-				LOG.debug("\nWriting Customer file to: "
-						+ fileLocation + "customer.csv");
-				outHist = new PrintWriter(new FileOutputStream(fileLocation
-						+ "cust-hist.csv"));
-				LOG.debug("\nWriting Customer History file to: "
-						+ fileLocation + "cust-hist.csv");
+				out = new PrintWriter(new FileOutputStream(fileLocation + "customer.csv"));
+				LOG.debug("\nWriting Customer file to: " + fileLocation + "customer.csv");
+				outHist = new PrintWriter(new FileOutputStream(fileLocation + "cust-hist.csv"));
+				LOG.debug("\nWriting Customer History file to: " + fileLocation + "cust-hist.csv");
 			}
 
 			t = (whseKount * distWhseKount * custDistKount * 2);
@@ -668,8 +640,7 @@ public class TPCCLoader extends Loader{
 
 					for (int c = 1; c <= custDistKount; c++) {
 
-						Timestamp sysdate = new java.sql.Timestamp(
-								System.currentTimeMillis());
+						Timestamp sysdate = this.benchmark.getTimestamp(System.currentTimeMillis());
 
 						customer.c_id = c;
 						customer.c_d_id = d;
@@ -686,11 +657,9 @@ public class TPCCLoader extends Loader{
 						if (c <= 1000) {
 							customer.c_last = TPCCUtil.getLastName(c - 1);
 						} else {
-							customer.c_last = TPCCUtil
-									.getNonUniformRandomLastNameForLoad(gen);
+							customer.c_last = TPCCUtil.getNonUniformRandomLastNameForLoad(gen);
 						}
-						customer.c_first = TPCCUtil.randomStr(TPCCUtil
-								.randomNumber(8, 16, gen));
+						customer.c_first = TPCCUtil.randomStr(TPCCUtil.randomNumber(8, 16, gen));
 						customer.c_credit_lim = 50000;
 
 						customer.c_balance = -10;
@@ -698,18 +667,13 @@ public class TPCCLoader extends Loader{
 						customer.c_payment_cnt = 1;
 						customer.c_delivery_cnt = 0;
 
-						customer.c_street_1 = TPCCUtil.randomStr(TPCCUtil
-								.randomNumber(10, 20, gen));
-						customer.c_street_2 = TPCCUtil.randomStr(TPCCUtil
-								.randomNumber(10, 20, gen));
-						customer.c_city = TPCCUtil.randomStr(TPCCUtil
-								.randomNumber(10, 20, gen));
+						customer.c_street_1 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, gen));
+						customer.c_street_2 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, gen));
+						customer.c_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, gen));
 						customer.c_state = TPCCUtil.randomStr(3).toUpperCase();
 						// TPC-C 4.3.2.7: 4 random digits + "11111"
 						customer.c_zip = TPCCUtil.randomNStr(4) + "11111";
-
 						customer.c_phone = TPCCUtil.randomNStr(16);
-
 						customer.c_since = sysdate;
 						customer.c_middle = "OE";
 						customer.c_data = TPCCUtil.randomStr(TPCCUtil

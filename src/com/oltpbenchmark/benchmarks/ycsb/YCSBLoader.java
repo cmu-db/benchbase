@@ -27,7 +27,7 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
 
-public class YCSBLoader extends Loader {
+public class YCSBLoader extends Loader<YCSBBenchmark> {
     private static final Logger LOG = Logger.getLogger(YCSBLoader.class);
     private final int num_record;
 
@@ -41,7 +41,7 @@ public class YCSBLoader extends Loader {
 
     @Override
     public void load() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("USERTABLE");
+        Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);

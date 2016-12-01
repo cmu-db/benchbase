@@ -22,6 +22,7 @@ import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.terminalPrefix;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
@@ -67,7 +69,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<TPCCBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new TPCCLoader(this, conn);
 	}
 
@@ -138,5 +140,23 @@ public class TPCCBenchmark extends BenchmarkModule {
 			ret.add(w);
 		return ret;
 	}
+	
+   /**
+     * Hack to support postgres-specific timestamps
+     * @param time
+     * @return
+     */
+    public Timestamp getTimestamp(long time) {
+        Timestamp timestamp;
+        
+        // HACK: Peloton doesn't support JDBC timestamps.
+        // We have to use the postgres-specific type
+        if (this.workConf.getDBType() == DatabaseType.PELOTON) {
+            timestamp = new org.postgresql.util.PGTimestamp(time);
+        } else {
+            timestamp = new java.sql.Timestamp(time);
+        }
+        return (timestamp);
+    }
 
 }

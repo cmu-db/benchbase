@@ -34,7 +34,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<SmallBankBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         return new SmallBankLoader(this, conn);
     }
 

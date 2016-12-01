@@ -79,7 +79,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<HYADAPTBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         return new HYADAPTLoader(this, conn);
     }
 

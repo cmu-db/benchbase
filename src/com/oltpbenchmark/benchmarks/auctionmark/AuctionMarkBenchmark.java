@@ -75,7 +75,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<AuctionMarkBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new AuctionMarkLoader(this, conn);
 	}
 	

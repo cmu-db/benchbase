@@ -24,7 +24,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
-public class VoterLoader extends Loader {
+public class VoterLoader extends Loader<VoterBenchmark> {
 
     // Domain data: matching lists of Area codes and States
     private static final short[] areaCodes = new short[]{
@@ -79,7 +79,7 @@ public class VoterLoader extends Loader {
         
         int numContestants = ((VoterBenchmark)this.benchmark).numContestants;
         
-        Table tbl = getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
+        Table tbl = benchmark.getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
         PreparedStatement ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
         for (int i = 0; i < numContestants; i++) {
             ps.setInt(1, i + 1);
@@ -88,7 +88,7 @@ public class VoterLoader extends Loader {
         }
         ps.executeBatch();
         
-        tbl = getTableCatalog(VoterConstants.TABLENAME_LOCATIONS);
+        tbl = benchmark.getTableCatalog(VoterConstants.TABLENAME_LOCATIONS);
         ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
         for (int i = 0; i < areaCodes.length; i++) {
             ps.setShort(1, areaCodes[i]);

@@ -47,7 +47,7 @@ public class VoterBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<VoterBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         return new VoterLoader(this, conn);
     }
 

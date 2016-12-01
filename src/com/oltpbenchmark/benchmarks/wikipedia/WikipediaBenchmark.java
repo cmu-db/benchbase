@@ -161,7 +161,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<WikipediaBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new WikipediaLoader(this, conn);
 	}
 }

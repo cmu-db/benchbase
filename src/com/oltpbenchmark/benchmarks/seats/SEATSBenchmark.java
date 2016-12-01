@@ -69,7 +69,7 @@ public class SEATSBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<SEATSBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new SEATSLoader(this, conn);
 	}
 	

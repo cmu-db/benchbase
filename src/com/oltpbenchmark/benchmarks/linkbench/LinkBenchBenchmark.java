@@ -63,7 +63,7 @@ public class LinkBenchBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<LinkBenchBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         return new LinkBenchLoader(this, conn);
     }
 

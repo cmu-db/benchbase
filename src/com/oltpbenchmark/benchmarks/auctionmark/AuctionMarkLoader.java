@@ -54,7 +54,7 @@ import com.oltpbenchmark.util.RandomDistribution.Zipf;
  * @author pavlo
  * @author visawee
  */
-public class AuctionMarkLoader extends Loader {
+public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     private static final Logger LOG = Logger.getLogger(AuctionMarkLoader.class);
     
     // -----------------------------------------------------------------

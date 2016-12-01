@@ -66,7 +66,7 @@ public class TwitterBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+	protected Loader<TwitterBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new TwitterLoader(this, conn);
 	}
 }

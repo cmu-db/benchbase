@@ -35,16 +35,16 @@ import com.oltpbenchmark.util.SQLUtil;
 /**
  * @author pavlo
  */
-public abstract class Loader {
+public abstract class Loader<T extends BenchmarkModule> {
     private static final Logger LOG = Logger.getLogger(Loader.class);
 
-    protected final BenchmarkModule benchmark;
+    protected final T benchmark;
     protected Connection conn;
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
     private final Histogram<String> tableSizes = new Histogram<String>(true);
 
-    public Loader(BenchmarkModule benchmark, Connection conn) {
+    public Loader(T benchmark, Connection conn) {
         this.benchmark = benchmark;
         this.conn = conn;
         this.workConf = benchmark.getWorkloadConfiguration();

@@ -26,13 +26,7 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.dateFormat;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.nameTokens;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configCommitCount;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configCustPerDist;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configDistPerWhse;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configItemCount;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
+import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

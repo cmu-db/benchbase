@@ -28,7 +28,7 @@ import com.oltpbenchmark.util.SQLUtil;
 
 import java.util.Random;
 
-public class HYADAPTLoader extends Loader {
+public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     private static final Logger LOG = Logger.getLogger(HYADAPTLoader.class);
     private final int num_record;
     private static final Random rand = new Random();
@@ -61,7 +61,7 @@ public class HYADAPTLoader extends Loader {
     
     @Override
     public void load() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog("HTABLE");
+        Table catalog_tbl = this.benchmark.getTableCatalog("HTABLE");
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);

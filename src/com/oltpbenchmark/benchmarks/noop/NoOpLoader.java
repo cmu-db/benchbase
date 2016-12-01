@@ -28,7 +28,7 @@ import com.oltpbenchmark.api.Loader;
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpLoader extends Loader {
+public class NoOpLoader extends Loader<NoOpBenchmark> {
     private static final Logger LOG = Logger.getLogger(NoOpLoader.class);
 
     public NoOpLoader(NoOpBenchmark benchmark, Connection c) {

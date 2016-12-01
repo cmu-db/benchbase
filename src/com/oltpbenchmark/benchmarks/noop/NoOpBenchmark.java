@@ -50,7 +50,7 @@ public class NoOpBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<NoOpBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         return new NoOpLoader(this, conn);
     }
 

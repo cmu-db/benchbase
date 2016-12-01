@@ -35,7 +35,7 @@ import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
 
-public class TwitterLoader extends Loader {
+public class TwitterLoader extends Loader<TwitterBenchmark> {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
 
     public final static int configCommitCount = 1000;
@@ -62,7 +62,7 @@ public class TwitterLoader extends Loader {
      * @throws SQLException
      */
     protected void loadUsers() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_USER);
+        Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_USER);
         assert(catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
@@ -115,7 +115,7 @@ public class TwitterLoader extends Loader {
      * @throws SQLException
      */
     protected void loadTweets() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
+        Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
         assert(catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
@@ -167,11 +167,11 @@ public class TwitterLoader extends Loader {
      * @throws SQLException
      */
     protected void loadFollowData() throws SQLException {
-        Table catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
+        Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
         assert(catalog_tbl != null);
         final PreparedStatement followsInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
 
-        catalog_tbl = this.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
+        catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
         assert(catalog_tbl != null);
         final PreparedStatement followersInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
 

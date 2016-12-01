@@ -54,7 +54,7 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.*;
 import com.oltpbenchmark.util.RandomDistribution.*;
 
-public class SEATSLoader extends Loader {
+public class SEATSLoader extends Loader<SEATSBenchmark> {
     private static final Logger LOG = Logger.getLogger(SEATSLoader.class);
     
     // -----------------------------------------------------------------
@@ -201,7 +201,7 @@ public class SEATSLoader extends Loader {
         for (String table_name : SEATSConstants.TABLES_DATAFILES) {
             LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
             try {    
-                Table catalog_tbl = this.getTableCatalog(table_name);
+                Table catalog_tbl = this.benchmark.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
                 Iterable<Object[]> iterable = this.getFixedIterable(catalog_tbl);
                 this.loadTable(catalog_tbl, iterable, 5000);
@@ -225,7 +225,7 @@ public class SEATSLoader extends Loader {
         // create a new FREQUENT_FLYER account for a CUSTOMER 
         for (String table_name : SEATSConstants.TABLES_SCALING) {
             try {
-                Table catalog_tbl = this.getTableCatalog(table_name);
+                Table catalog_tbl = this.benchmark.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
                 Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl); 
                 this.loadTable(catalog_tbl, iterable, 5000);

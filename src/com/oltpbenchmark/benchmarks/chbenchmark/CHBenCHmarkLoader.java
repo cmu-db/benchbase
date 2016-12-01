@@ -30,14 +30,13 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
 import com.oltpbenchmark.util.RandomGenerator;
 
-public class CHBenCHmarkLoader extends Loader {
+public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 	private static final Logger LOG = Logger.getLogger(CHBenCHmarkLoader.class);
 	private final static int configCommitCount = 1000; // commit every n records
 	private static final RandomGenerator ran = new RandomGenerator(0);
@@ -63,7 +62,7 @@ public class CHBenCHmarkLoader extends Loader {
         }
 	}
 	
-	public CHBenCHmarkLoader(BenchmarkModule benchmark, Connection c) {
+	public CHBenCHmarkLoader(CHBenCHmark benchmark, Connection c) {
 		super(benchmark, c);
 		conn =c;
 	}
