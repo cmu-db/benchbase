@@ -30,7 +30,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 
 public class CHBenCHmark extends BenchmarkModule {
 	private static final Logger LOG = Logger.getLogger(CHBenCHmark.class);
@@ -49,7 +49,7 @@ public class CHBenCHmark extends BenchmarkModule {
 	@Override
 	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
-		jTPCCConfig.TERMINAL_MESSAGES = false;
+		TPCCConfig.TERMINAL_MESSAGES = false;
 		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
 		int numTerminals = workConf.getTerminals();

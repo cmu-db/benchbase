@@ -20,7 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -30,7 +29,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 
 public class Payment extends TPCCProcedure {
@@ -109,7 +108,7 @@ public class Payment extends TPCCProcedure {
         		customerWarehouseID = terminalWarehouseID;
         	} else {
         		customerDistrictID = TPCCUtil.randomNumber(1,
-        				jTPCCConfig.configDistPerWhse, gen);
+        				TPCCConfig.configDistPerWhse, gen);
         		do {
         			customerWarehouseID = TPCCUtil.randomNumber(1,
         					numWarehouses, gen);
@@ -272,7 +271,7 @@ public class Payment extends TPCCProcedure {
 			payInsertHist.setInt(3, c.c_id);
 			payInsertHist.setInt(4, d_id);
 			payInsertHist.setInt(5, w_id);
-			payInsertHist.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
+			payInsertHist.setTimestamp(6, w.getBenchmarkModule().getTimestamp(System.currentTimeMillis()));
 			payInsertHist.setDouble(7, h_amount);
 			payInsertHist.setString(8, h_data);
 			payInsertHist.executeUpdate();

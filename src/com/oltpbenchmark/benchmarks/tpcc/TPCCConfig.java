@@ -27,7 +27,7 @@ package com.oltpbenchmark.benchmarks.tpcc;
 
 import java.text.SimpleDateFormat;
 
-public final class jTPCCConfig {
+public final class TPCCConfig {
 
 	// TODO: This was final; Modified by TPCCRateLimited. Better system?
 	public static boolean TERMINAL_MESSAGES = true;
@@ -43,8 +43,7 @@ public final class jTPCCConfig {
 	public final static String terminalPrefix = "Term-";
 	public final static String reportFilePrefix = "reports/BenchmarkSQL_session_";
 
-	public final static SimpleDateFormat dateFormat = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
+	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public final static int configCommitCount = 1000; // commit every n records
 	public final static int configWhseCount = 1;

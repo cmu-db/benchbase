@@ -34,11 +34,11 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configCommitCount;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configCustPerDist;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configDistPerWhse;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configItemCount;
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.configWhseCount;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.configCommitCount;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.configCustPerDist;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.configDistPerWhse;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.configItemCount;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.configWhseCount;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;

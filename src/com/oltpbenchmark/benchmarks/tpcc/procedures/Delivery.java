@@ -20,7 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
@@ -29,7 +28,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 
 public class Delivery extends TPCCProcedure {
 
@@ -163,8 +162,7 @@ public class Delivery extends TPCCProcedure {
 						+ d_id + " O_W_ID=" + w_id + " not found!");
 
 
-			delivUpdateDeliveryDate.setTimestamp(1, 
-					new Timestamp(System.currentTimeMillis()));
+			delivUpdateDeliveryDate.setTimestamp(1, w.getBenchmarkModule().getTimestamp(System.currentTimeMillis()));
 			delivUpdateDeliveryDate.setInt(2, no_o_id);
 			delivUpdateDeliveryDate.setInt(3, d_id);
 			delivUpdateDeliveryDate.setInt(4, w_id);
@@ -214,7 +212,7 @@ public class Delivery extends TPCCProcedure {
     		terminalMessage.append(o_carrier_id);
     		terminalMessage.append("\n\n Delivered Orders\n");
     	}
-		for (int i = 1; i <= jTPCCConfig.configDistPerWhse; i++) {
+		for (int i = 1; i <= TPCCConfig.configDistPerWhse; i++) {
 			if (orderIDs[i - 1] >= 0) {
 			    if (terminalMessage != null) {
     				terminalMessage.append("  District ");

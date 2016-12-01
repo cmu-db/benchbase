@@ -52,7 +52,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 	@Override
 	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
-		jTPCCConfig.TERMINAL_MESSAGES = false;
+		TPCCConfig.TERMINAL_MESSAGES = false;
 		ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
 		try {
@@ -102,10 +102,10 @@ public class TPCCBenchmark extends BenchmarkModule {
 				upperTerminalId = numTerminals;
 			int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
-			LOG.info(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
+			LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
 			                       w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
 
-			final double districtsPerTerminal = jTPCCConfig.configDistPerWhse
+			final double districtsPerTerminal = TPCCConfig.configDistPerWhse
 					/ (double) numWarehouseTerminals;
 			assert districtsPerTerminal >= 1 :
 			    String.format("Too many terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
@@ -114,7 +114,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 				int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
 				int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
 				if (terminalId + 1 == numWarehouseTerminals) {
-					upperDistrictId = jTPCCConfig.configDistPerWhse;
+					upperDistrictId = TPCCConfig.configDistPerWhse;
 				}
 				lowerDistrictId += 1;
 

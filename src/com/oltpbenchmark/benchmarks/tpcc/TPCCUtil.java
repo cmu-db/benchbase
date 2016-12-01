@@ -26,7 +26,7 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.*;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

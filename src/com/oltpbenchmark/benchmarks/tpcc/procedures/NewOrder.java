@@ -20,7 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
@@ -29,7 +28,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 
 public class NewOrder extends TPCCProcedure {
 
@@ -130,7 +129,7 @@ public class NewOrder extends TPCCProcedure {
 
 		// we need to cause 1% of the new orders to be rolled back.
 		if (TPCCUtil.randomNumber(1, 100, gen) == 1)
-			itemIDs[numItems - 1] = jTPCCConfig.INVALID_ITEM_ID;
+			itemIDs[numItems - 1] = TPCCConfig.INVALID_ITEM_ID;
 
 
 		newOrderTransaction(terminalWarehouseID, districtID,
@@ -213,8 +212,7 @@ public class NewOrder extends TPCCProcedure {
 			stmtInsertOOrder.setInt(2, d_id);
 			stmtInsertOOrder.setInt(3, w_id);
 			stmtInsertOOrder.setInt(4, c_id);
-			stmtInsertOOrder.setTimestamp(5,
-					new Timestamp(System.currentTimeMillis()));
+			stmtInsertOOrder.setTimestamp(5, w.getBenchmarkModule().getTimestamp(System.currentTimeMillis()));
 			stmtInsertOOrder.setInt(6, o_ol_cnt);
 			stmtInsertOOrder.setInt(7, o_all_local);
 			stmtInsertOOrder.executeUpdate();
@@ -250,7 +248,7 @@ public class NewOrder extends TPCCProcedure {
 					// This is (hopefully) an expected error: this is an
 					// expected new order rollback
 					assert ol_number == o_ol_cnt;
-					assert ol_i_id == jTPCCConfig.INVALID_ITEM_ID;
+					assert ol_i_id == TPCCConfig.INVALID_ITEM_ID;
 					rs.close();
 					throw new UserAbortException(
 							"EXPECTED new order rollback: I_ID=" + ol_i_id

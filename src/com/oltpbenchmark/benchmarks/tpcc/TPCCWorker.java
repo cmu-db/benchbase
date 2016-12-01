@@ -59,7 +59,7 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
 		this.terminalDistrictLowerID = terminalDistrictLowerID;
 		this.terminalDistrictUpperID = terminalDistrictUpperID;
 		assert this.terminalDistrictLowerID >= 1;
-		assert this.terminalDistrictUpperID <= jTPCCConfig.configDistPerWhse;
+		assert this.terminalDistrictUpperID <= TPCCConfig.configDistPerWhse;
 		assert this.terminalDistrictLowerID <= this.terminalDistrictUpperID;
 		this.numWarehouses = numWarehouses;
 	}
