@@ -37,7 +37,7 @@ import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 
-public class EpinionsWorker extends Worker {
+public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 	
 	private static final Logger LOG = Logger.getLogger(EpinionsWorker.class);
 
@@ -45,7 +45,7 @@ public class EpinionsWorker extends Worker {
     private ArrayList<String> item_ids;
     private final Random rand = new Random(System.currentTimeMillis());
 
-    public EpinionsWorker(int id, EpinionsBenchmark benchmarkModule, ArrayList<String> user_ids, ArrayList<String> item_ids) {
+    public EpinionsWorker(EpinionsBenchmark benchmarkModule, int id, ArrayList<String> user_ids, ArrayList<String> item_ids) {
         super(benchmarkModule, id);
         this.user_ids = user_ids;
         this.item_ids = item_ids;

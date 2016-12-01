@@ -17,8 +17,6 @@
 
 package com.oltpbenchmark.benchmarks.tpcc;
 
-import static com.oltpbenchmark.benchmarks.tpcc.jTPCCConfig.terminalPrefix;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,7 +33,6 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 public class TPCCBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(TPCCBenchmark.class);
@@ -53,10 +50,10 @@ public class TPCCBenchmark extends BenchmarkModule {
 	 * @param Bool
 	 */
 	@Override
-	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
 		// HACK: Turn off terminal messages
 		jTPCCConfig.TERMINAL_MESSAGES = false;
-		ArrayList<Worker> workers = new ArrayList<Worker>();
+		ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
 		try {
 			List<TPCCWorker> terminals = createTerminals();
@@ -83,7 +80,6 @@ public class TPCCBenchmark extends BenchmarkModule {
 		    String.format("Insufficient number of terminals '%d' [numWarehouses=%d]",
 		                  numTerminals, numWarehouses);
 
-		String[] terminalNames = new String[numTerminals];
 		// TODO: This is currently broken: fix it!
 		int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
 		assert warehouseOffset == 1;
@@ -94,6 +90,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 		// 1, 1, 2, 1, 2, 1, 2
 		final double terminalsPerWarehouse = (double) numTerminals
 				/ numWarehouses;
+		int workerId = 0;
 		assert terminalsPerWarehouse >= 1;
 		for (int w = 0; w < numWarehouses; w++) {
 			// Compute the number of terminals in *this* warehouse
@@ -121,15 +118,10 @@ public class TPCCBenchmark extends BenchmarkModule {
 				}
 				lowerDistrictId += 1;
 
-				String terminalName = terminalPrefix + "w" + w_id + "d"
-						+ lowerDistrictId + "-" + upperDistrictId;
-
-				TPCCWorker terminal = new TPCCWorker(terminalName, w_id,
-						lowerDistrictId, upperDistrictId, this,
-						new SimpleSystemPrinter(null), new SimpleSystemPrinter(
-								System.err), numWarehouses);
+				TPCCWorker terminal = new TPCCWorker(this, workerId++,
+						w_id, lowerDistrictId, upperDistrictId,
+						numWarehouses);
 				terminals[lowerTerminalId + terminalId] = terminal;
-				terminalNames[lowerTerminalId + terminalId] = terminalName;
 			}
 
 		}

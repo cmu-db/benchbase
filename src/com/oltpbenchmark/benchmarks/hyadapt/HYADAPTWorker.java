@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
@@ -59,14 +58,14 @@ import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord10;
 import com.oltpbenchmark.distributions.CounterGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class HYADAPTWorker extends Worker {
+public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     private static final Logger LOG = Logger.getLogger(HYADAPTWorker.class);
 
     private static CounterGenerator insertRecord;
     private double selectivity = wrkld.getSelectivity();
     private int key_lower_bound = (int) ((1 - selectivity) * HYADAPTConstants.RANGE);
             
-    public HYADAPTWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
+    public HYADAPTWorker(HYADAPTBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);        
         LOG.info("Key lower bound :: " + key_lower_bound);
         

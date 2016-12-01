@@ -38,7 +38,7 @@ import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation;
 import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class TATPWorker extends Worker {
+public class TATPWorker extends Worker<TATPBenchmark> {
 	private static final Logger LOG = Logger.getLogger(TATPWorker.class);
 	
     /**
@@ -168,7 +168,7 @@ public class TATPWorker extends Worker {
     
     private final long subscriberSize;
 	
-	public TATPWorker(int id, TATPBenchmark benchmarkModule) {
+	public TATPWorker(TATPBenchmark benchmarkModule, int id) {
 		super(benchmarkModule, id);
 		this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * benchmarkModule.getWorkloadConfiguration().getScaleFactor());
 	}

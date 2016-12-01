@@ -63,7 +63,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomGenerator;
 import com.oltpbenchmark.util.StringUtil;
 
-public class SEATSWorker extends Worker {
+public class SEATSWorker extends Worker<SEATSBenchmark> {
     private static final Logger LOG = Logger.getLogger(SEATSWorker.class);
 
     /**
@@ -270,7 +270,7 @@ public class SEATSWorker extends Worker {
     // REQUIRED METHODS
     // -----------------------------------------------------------------
 
-    public SEATSWorker(int id, SEATSBenchmark benchmark) {
+    public SEATSWorker(SEATSBenchmark benchmark, int id) {
         super(benchmark, id);
 
         this.rng = benchmark.getRandomGenerator();

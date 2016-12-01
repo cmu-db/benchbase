@@ -25,8 +25,6 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -35,7 +33,6 @@ import com.oltpbenchmark.benchmarks.jpab.procedures.Persist;
 import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 
 public class JPABBenchmark extends BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(JPABBenchmark.class);
 
     private EntityManagerFactory emf;
 
@@ -47,8 +44,8 @@ public class JPABBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-        ArrayList<Worker> workers = new ArrayList<Worker>();
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
         emf = Persistence.createEntityManagerFactory(jpabConf.getPersistanceUnit());
         Test test = null;
         try {
@@ -63,7 +60,7 @@ public class JPABBenchmark extends BenchmarkModule {
             e.printStackTrace();
         }
         for (int i = 0; i < workConf.getTerminals(); ++i) {
-            JPABWorker worker = new JPABWorker(i, this , test);
+            JPABWorker worker = new JPABWorker(this, i , test);
             worker.em = emf.createEntityManager();
             workers.add(worker);
         }

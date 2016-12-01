@@ -144,17 +144,17 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
 	    LOG.info(String.format("Initializing %d %s using '%s' as the input trace file",
                                workConf.getTerminals(), WikipediaWorker.class.getSimpleName(), this.traceInput));
 		TransactionSelector transSel = new TransactionSelector(this.traceInput, workConf.getTransTypes());
 		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
 		LOG.info("Total Number of Sample Operations: " + trace.size());
 		
-		ArrayList<Worker> workers = new ArrayList<Worker>();
+		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
 			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(trace);
-			WikipediaWorker worker = new WikipediaWorker(i, this, generator);
+			WikipediaWorker worker = new WikipediaWorker(this, i, generator);
 			workers.add(worker);
 		} // FOR
 		return workers;

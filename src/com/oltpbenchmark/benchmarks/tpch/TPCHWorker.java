@@ -17,21 +17,18 @@
 package com.oltpbenchmark.benchmarks.tpch;
 
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpch.queries.GenericQuery;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class TPCHWorker extends Worker {
-    public TPCHWorker(BenchmarkModule benchmarkModule) {
-        super(benchmarkModule, terminalId.getAndIncrement());
+public class TPCHWorker extends Worker<TPCHBenchmark> {
+    
+    public TPCHWorker(TPCHBenchmark benchmarkModule, int id) {
+        super(benchmarkModule, id);
     }
-
-    private static final AtomicInteger terminalId = new AtomicInteger(0);
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {

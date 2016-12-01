@@ -24,7 +24,7 @@ import com.oltpbenchmark.util.RandomDistribution.*;
  * @author pavlo
  * 
  */
-public class SmallBankWorker extends Worker {
+public class SmallBankWorker extends Worker<SmallBankBenchmark> {
     private static final Logger LOG = Logger.getLogger(SmallBankWorker.class);
     
     private final Amalgamate procAmalgamate;

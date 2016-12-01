@@ -25,7 +25,7 @@ import com.oltpbenchmark.benchmarks.voter.PhoneCallGenerator.PhoneCall;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class VoterWorker extends Worker {
+public class VoterWorker extends Worker<VoterBenchmark> {
 
     private final PhoneCallGenerator switchboard;
     

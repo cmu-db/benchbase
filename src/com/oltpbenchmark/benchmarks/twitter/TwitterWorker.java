@@ -35,13 +35,13 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
 
-public class TwitterWorker extends Worker {
+public class TwitterWorker extends Worker<TwitterBenchmark> {
     private TransactionGenerator<TwitterOperation> generator;
 
     private final FlatHistogram<Integer> tweet_len_rng;
     private final int num_users;
     
-    public TwitterWorker(int id, TwitterBenchmark benchmarkModule, TransactionGenerator<TwitterOperation> generator) {
+    public TwitterWorker(TwitterBenchmark benchmarkModule, int id, TransactionGenerator<TwitterOperation> generator) {
         super(benchmarkModule, id);
         this.generator = generator;
         this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());

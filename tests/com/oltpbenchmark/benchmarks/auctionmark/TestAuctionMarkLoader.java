@@ -55,7 +55,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         AuctionMarkProfile copy = new AuctionMarkProfile(this.benchmark, new RandomGenerator(0));
         assertTrue(copy.users_per_itemCount.isEmpty());
         
-        List<Worker> workers = this.benchmark.makeWorkers(false);
+        List<Worker<?>> workers = this.benchmark.makeWorkers(false);
         AuctionMarkWorker worker = (AuctionMarkWorker)workers.get(0); 
         copy.loadProfile(worker);
         
@@ -80,7 +80,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         Set<ItemInfo> allItemInfos = new HashSet<ItemInfo>();
         Set<ItemInfo> clientItemInfos = new HashSet<ItemInfo>();
         Histogram<Integer> clientItemCtr = new Histogram<Integer>();
-        List<Worker> workers = this.benchmark.makeWorkers(false);
+        List<Worker<?>> workers = this.benchmark.makeWorkers(false);
         assertEquals(num_clients, workers.size());
         for (int i = 0; i < num_clients; i++) {
             AuctionMarkWorker worker = (AuctionMarkWorker)workers.get(i);

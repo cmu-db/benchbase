@@ -27,7 +27,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     
     protected static final int NUM_TERMINALS = 1;
     
-    protected List<Worker> workers;
+    protected List<Worker<? extends BenchmarkModule>> workers;
     
     @SuppressWarnings("rawtypes")
     protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
@@ -57,7 +57,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
      */
     public void testGetProcedure() throws Exception {
         // Make sure that we can get a Procedure handle for each TransactionType
-        Worker w = workers.get(0);
+        Worker<?> w = workers.get(0);
         assertNotNull(w);
         for (Class<? extends Procedure> procClass: this.procClasses) {
             assertNotNull(procClass);
@@ -75,7 +75,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         this.benchmark.loadDatabase();
         this.conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
-        Worker w = workers.get(0);
+        Worker<?> w = workers.get(0);
         assertNotNull(w);
         w.initialize();
         assertFalse(this.conn.isReadOnly());

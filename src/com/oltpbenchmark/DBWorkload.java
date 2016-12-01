@@ -713,7 +713,7 @@ public class DBWorkload {
     }
 
     private static Results runWorkload(List<BenchmarkModule> benchList, boolean verbose, int intervalMonitor) throws QueueLimitException, IOException {
-        List<Worker> workers = new ArrayList<Worker>();
+        List<Worker<?>> workers = new ArrayList<Worker<?>>();
         List<WorkloadConfiguration> workConfs = new ArrayList<WorkloadConfiguration>();
         for (BenchmarkModule bench : benchList) {
             LOG.info("Creating " + bench.getWorkloadConfiguration().getTerminals() + " virtual terminals...");

@@ -163,7 +163,7 @@ public class Delivery extends TPCCProcedure {
 						+ d_id + " O_W_ID=" + w_id + " not found!");
 
 
-			delivUpdateDeliveryDate.setTimestamp(1,
+			delivUpdateDeliveryDate.setTimestamp(1, 
 					new Timestamp(System.currentTimeMillis()));
 			delivUpdateDeliveryDate.setInt(2, no_o_id);
 			delivUpdateDeliveryDate.setInt(3, d_id);

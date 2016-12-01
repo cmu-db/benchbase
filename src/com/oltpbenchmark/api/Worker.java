@@ -41,7 +41,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.StringUtil;
 
-public abstract class Worker implements Runnable {
+public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);
 
     private WorkloadState wrkldState;
@@ -52,7 +52,7 @@ public abstract class Worker implements Runnable {
     private AtomicInteger intervalRequests = new AtomicInteger(0);
 
     private final int id;
-    private final BenchmarkModule benchmarkModule;
+    private final T benchmarkModule;
     protected final Connection conn;
     protected final WorkloadConfiguration wrkld;
     protected final TransactionTypes transactionTypes;
@@ -68,7 +68,7 @@ public abstract class Worker implements Runnable {
 
     private boolean seenDone = false;
 
-    public Worker(BenchmarkModule benchmarkModule, int id) {
+    public Worker(T benchmarkModule, int id) {
         this.id = id;
         this.benchmarkModule = benchmarkModule;
         this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
@@ -100,9 +100,8 @@ public abstract class Worker implements Runnable {
     /**
      * Get the BenchmarkModule managing this Worker
      */
-    @SuppressWarnings("unchecked")
-    public final <T extends BenchmarkModule> T getBenchmarkModule() {
-        return ((T) this.benchmarkModule);
+    public final T getBenchmarkModule() {
+        return (this.benchmarkModule);
     }
 
     /**
@@ -157,8 +156,8 @@ public abstract class Worker implements Runnable {
     }
 
     @SuppressWarnings("unchecked")
-    public final <T extends Procedure> T getProcedure(Class<T> procClass) {
-        return (T) (this.class_procedures.get(procClass));
+    public final <P extends Procedure> P getProcedure(Class<P> procClass) {
+        return (P) (this.class_procedures.get(procClass));
     }
 
     public final Histogram<TransactionType> getTransactionSuccessHistogram() {

@@ -26,7 +26,6 @@ package com.oltpbenchmark.benchmarks.tpcc.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 import com.oltpbenchmark.benchmarks.tpcc.pojo.NewOrder;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
@@ -46,9 +45,7 @@ public class HSQLDBjdbcIO {
 			ordrPrepStmt.setInt(5, oorder.o_carrier_id);
 			ordrPrepStmt.setInt(6, oorder.o_ol_cnt);
 			ordrPrepStmt.setInt(7, oorder.o_all_local);
-			Timestamp entry_d = new java.sql.Timestamp(oorder.o_entry_d);
-			ordrPrepStmt.setTimestamp(8, entry_d);
-
+			ordrPrepStmt.setTimestamp(8, oorder.o_entry_d);
 			ordrPrepStmt.execute();
 
 		} catch (SQLException se) {
@@ -86,9 +83,7 @@ public class HSQLDBjdbcIO {
 			orlnPrepStmt.setInt(3, order_line.ol_o_id);
 			orlnPrepStmt.setInt(4, order_line.ol_number);
 			orlnPrepStmt.setLong(5, order_line.ol_i_id);
-
-			Timestamp delivery_d = new Timestamp(order_line.ol_delivery_d);
-			orlnPrepStmt.setTimestamp(6, delivery_d);
+			orlnPrepStmt.setTimestamp(6, order_line.ol_delivery_d);
 
 			orlnPrepStmt.setDouble(7, order_line.ol_amount);
 			orlnPrepStmt.setLong(8, order_line.ol_supply_w_id);

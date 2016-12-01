@@ -26,7 +26,6 @@ package com.oltpbenchmark.benchmarks.tpcc.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 
 import com.oltpbenchmark.benchmarks.tpcc.pojo.NewOrder;
@@ -51,8 +50,7 @@ public class jdbcIO {
 			}
 			ordrPrepStmt.setInt(6, oorder.o_ol_cnt);
 			ordrPrepStmt.setInt(7, oorder.o_all_local);
-			Timestamp entry_d = new java.sql.Timestamp(oorder.o_entry_d);
-			ordrPrepStmt.setTimestamp(8, entry_d);
+			ordrPrepStmt.setTimestamp(8, oorder.o_entry_d);
 
 			ordrPrepStmt.addBatch();
 			//ordrPrepStmt.execute();
@@ -88,15 +86,11 @@ public class jdbcIO {
 			orlnPrepStmt.setInt(3, order_line.ol_o_id);
 			orlnPrepStmt.setInt(4, order_line.ol_number);
 			orlnPrepStmt.setLong(5, order_line.ol_i_id);
-
-			Timestamp delivery_d = null;
-			if (order_line.ol_delivery_d != null)
-				delivery_d = new Timestamp(order_line.ol_delivery_d);
-            if (delivery_d == null)
+			if (order_line.ol_delivery_d != null) {
+			    orlnPrepStmt.setTimestamp(6, order_line.ol_delivery_d);
+			} else {
                 orlnPrepStmt.setNull(6, 0);
-            else
-			orlnPrepStmt.setTimestamp(6, delivery_d);
-
+			}
 			orlnPrepStmt.setDouble(7, order_line.ol_amount);
 			orlnPrepStmt.setLong(8, order_line.ol_supply_w_id);
 			orlnPrepStmt.setDouble(9, order_line.ol_quantity);

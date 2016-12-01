@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.sibench;
 import java.sql.SQLException;
 import java.util.Random;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
@@ -28,17 +27,17 @@ import com.oltpbenchmark.benchmarks.sibench.procedures.MinRecord;
 import com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class SIWorker extends Worker {
+public class SIWorker extends Worker<SIBenchmark> {
 
     private static Random updateRecordIdGenerator = null;
     private int recordCount;
     
-    public SIWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
+    public SIWorker(SIBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
         synchronized (SIWorker.class) {
             // We must know where to start inserting
             if (updateRecordIdGenerator == null) {
-                updateRecordIdGenerator = new Random(System.currentTimeMillis());
+                updateRecordIdGenerator = benchmarkModule.rng();
             }
         }
         this.recordCount= init_record_count;

@@ -43,11 +43,11 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		ArrayList<Worker> workers = new ArrayList<Worker>();
+	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 		
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			workers.add(new ResourceStresserWorker(i, this));
+			workers.add(new ResourceStresserWorker(this, i));
 		} // FOR
 
 		return workers;

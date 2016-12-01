@@ -49,8 +49,8 @@ public class EpinionsBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-        ArrayList<Worker> workers = new ArrayList<Worker>();
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
         try {
             Connection metaConn = this.makeConnection();
@@ -84,7 +84,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             metaConn.close();
             // Now create the workers.
             for (int i = 0; i < workConf.getTerminals(); ++i) {
-                workers.add(new EpinionsWorker(i, this, user_ids, item_ids));
+                workers.add(new EpinionsWorker(this, i, user_ids, item_ids));
             }
 
         } catch (SQLException e) {

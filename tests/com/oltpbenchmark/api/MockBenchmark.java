@@ -36,12 +36,12 @@ public class MockBenchmark extends BenchmarkModule {
         return null;
     }
     @Override
-    protected Loader makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<MockBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
         // TODO Auto-generated method stub
         return null;
     }
     @Override
-    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         // TODO Auto-generated method stub
         return null;
     }

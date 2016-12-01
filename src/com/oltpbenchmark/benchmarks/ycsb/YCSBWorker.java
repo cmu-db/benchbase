@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
@@ -42,7 +41,7 @@ import com.oltpbenchmark.util.TextGenerator;
  * @author pavlo
  *
  */
-public class YCSBWorker extends Worker {
+public class YCSBWorker extends Worker<YCSBBenchmark> {
 
     private ZipfianGenerator readRecord;
     private static CounterGenerator insertRecord;
@@ -59,7 +58,7 @@ public class YCSBWorker extends Worker {
     private final InsertRecord procInsertRecord;
     private final DeleteRecord procDeleteRecord;
     
-    public YCSBWorker(int id, BenchmarkModule benchmarkModule, int init_record_count) {
+    public YCSBWorker(YCSBBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
         readRecord = new ZipfianGenerator(init_record_count);// pool for read keys
         randScan = new ZipfianGenerator(YCSBConstants.MAX_SCAN);

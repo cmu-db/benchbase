@@ -137,7 +137,7 @@ public abstract class BenchmarkModule {
      * @return
      * @throws IOException
      */
-    protected abstract List<Worker> makeWorkersImpl(boolean verbose) throws IOException;
+    protected abstract List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException;
 
     /**
      * Each BenchmarkModule needs to implement this method to load a sample
@@ -151,7 +151,7 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      *             TODO
      */
-    protected abstract Loader makeLoaderImpl(Connection conn) throws SQLException;
+    protected abstract Loader<? extends BenchmarkModule> makeLoaderImpl(Connection conn) throws SQLException;
 
     /**
      * @param txns
@@ -218,7 +218,7 @@ public abstract class BenchmarkModule {
         return (null);
     }
 
-    public final List<Worker> makeWorkers(boolean verbose) throws IOException {
+    public final List<Worker<? extends BenchmarkModule>> makeWorkers(boolean verbose) throws IOException {
         return (this.makeWorkersImpl(verbose));
     }
 
@@ -290,7 +290,7 @@ public abstract class BenchmarkModule {
      */
     protected final void loadDatabase(Connection conn) {
         try {
-            Loader loader = this.makeLoaderImpl(conn);
+            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
             if (loader != null) {
                 conn.setAutoCommit(false);
                 loader.load();
@@ -312,7 +312,7 @@ public abstract class BenchmarkModule {
     public final void clearDatabase() {
         try {
             Connection conn = this.makeConnection();
-            Loader loader = this.makeLoaderImpl(conn);
+            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
             if (loader != null) {
                 conn.setAutoCommit(false);
                 loader.unload(this.catalog);

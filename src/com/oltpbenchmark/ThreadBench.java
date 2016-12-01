@@ -33,6 +33,7 @@ import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
@@ -45,7 +46,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     
     private static BenchmarkState testState;
-    private final List<? extends Worker> workers;
+    private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
     // private File profileFile;
     private List<WorkloadConfiguration> workConfs;
@@ -53,11 +54,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
     private int intervalMonitor = 0;
 
-    private ThreadBench(List<? extends Worker> workers, List<WorkloadConfiguration> workConfs) {
+    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs) {
         this(workers, null, workConfs);
     }
 
-    public ThreadBench(List<? extends Worker> workers, File profileFile, List<WorkloadConfiguration> workConfs) {
+    public ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, File profileFile, List<WorkloadConfiguration> workConfs) {
         this.workers = workers;
         this.workConfs = workConfs;
         this.workerThreads = new ArrayList<Thread>(workers.size());
@@ -177,7 +178,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     private void createWorkerThreads() {
 
-        for (Worker worker : workers) {
+        for (Worker<?> worker : workers) {
             worker.initializeState();
             Thread thread = new Thread(worker);
             thread.setUncaughtExceptionHandler(this);
@@ -188,7 +189,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     private void interruptWorkers() {
-        for (Worker worker : workers) {
+        for (Worker<?> worker : workers) {
             worker.cancelStatement();
         }
     }
@@ -269,7 +270,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // Compute the last throughput
                 long measuredRequests = 0;
                 synchronized (testState) {
-                    for (Worker w : workers) {
+                    for (Worker<?> w : workers) {
                         measuredRequests += w.getAndResetIntervalRequests();
                     }
                 }
@@ -286,7 +287,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * bench.runRateLimitedFromFile(); }
      */
 
-    public static Results runRateLimitedBenchmark(List<Worker> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) throws QueueLimitException, IOException {
+    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) throws QueueLimitException, IOException {
         ThreadBench bench = new ThreadBench(workers, workConfs);
         bench.intervalMonitor = intervalMonitoring;
         return bench.runRateLimitedMultiPhase();
@@ -485,7 +486,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // Combine all the latencies together in the most disgusting way
             // possible: sorting!
-            for (Worker w : workers) {
+            for (Worker<?> w : workers) {
                 for (LatencyRecord.Sample sample : w.getLatencyRecords()) {
                     samples.add(sample);
                 }
@@ -513,7 +514,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             results.txnAbort.putAll(txnTypes, 0);
             results.txnErrors.putAll(txnTypes, 0);
 
-            for (Worker w : workers) {
+            for (Worker<?> w : workers) {
                 results.txnSuccess.putHistogram(w.getTransactionSuccessHistogram());
                 results.txnRetry.putHistogram(w.getTransactionRetryHistogram());
                 results.txnAbort.putHistogram(w.getTransactionAbortHistogram());

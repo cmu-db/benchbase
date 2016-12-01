@@ -38,14 +38,14 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 
-public class WikipediaWorker extends Worker {
+public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);
 	private final TransactionGenerator<WikipediaOperation> generator;
 
 	final Flat usersRng;
 	final int num_users;
 	
-	public WikipediaWorker(int id, WikipediaBenchmark benchmarkModule,
+	public WikipediaWorker(WikipediaBenchmark benchmarkModule, int id,
 	                       TransactionGenerator<WikipediaOperation> generator) {
 		super(benchmarkModule, id);
 		this.generator = generator;

@@ -18,7 +18,6 @@ package com.oltpbenchmark.benchmarks.noop;
 
 import java.sql.SQLException;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -31,12 +30,12 @@ import org.apache.log4j.Logger;
  * @author pavlo
  * @author eric-haibin-lin
  */
-public class NoOpWorker extends Worker {
+public class NoOpWorker extends Worker<NoOpBenchmark> {
     private static final Logger LOG = Logger.getLogger(NoOpLoader.class);
 
     private NoOp procNoOp;
     
-    public NoOpWorker(int id, BenchmarkModule benchmarkModule) {
+    public NoOpWorker(NoOpBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.procNoOp = this.getProcedure(NoOp.class);
     }

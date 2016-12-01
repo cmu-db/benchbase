@@ -18,7 +18,6 @@
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Random;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
@@ -32,7 +31,7 @@ import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class ResourceStresserWorker extends Worker {
+public class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
     public static final int CONTENTION1_howManyKeys = 1;
     public static final int CONTENTION1_howManyUpdates = 2;
     public static final int CONTENTION1_sleepLength = 1;
@@ -55,7 +54,7 @@ public class ResourceStresserWorker extends Worker {
     public static final Random gen = new Random(1); // I change the random seed
                                                     // every time!
 
-    public ResourceStresserWorker(int id, ResourceStresserBenchmark benchmarkModule) {
+    public ResourceStresserWorker(ResourceStresserBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
     }
 

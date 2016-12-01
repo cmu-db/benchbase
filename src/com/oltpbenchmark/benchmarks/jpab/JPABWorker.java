@@ -20,7 +20,6 @@ import java.sql.SQLException;
 
 import javax.persistence.EntityManager;
 
-import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -31,12 +30,12 @@ import com.oltpbenchmark.benchmarks.jpab.procedures.Update;
 import com.oltpbenchmark.benchmarks.jpab.tests.Test;
 import com.oltpbenchmark.types.TransactionStatus;
 
-public class JPABWorker extends Worker{
+public class JPABWorker extends Worker<JPABBenchmark> {
 
 	public EntityManager em;
 	public Test test;
 
-	public JPABWorker(int id, BenchmarkModule benchmarkModule, Test test) {
+	public JPABWorker(JPABBenchmark benchmarkModule, int id, Test test) {
 		super(benchmarkModule, id);
 		// Connections are managed by JPA .. 
 		// No need to keep this

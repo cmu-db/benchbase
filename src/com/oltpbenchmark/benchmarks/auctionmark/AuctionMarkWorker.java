@@ -54,7 +54,7 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.SQLUtil;
 
-public class AuctionMarkWorker extends Worker {
+public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     private static final Logger LOG = Logger.getLogger(AuctionMarkWorker.class);
 
     // -----------------------------------------------------------------

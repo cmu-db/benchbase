@@ -36,7 +36,7 @@ import com.oltpbenchmark.benchmarks.linkbench.utils.*;
 import com.oltpbenchmark.types.*;
 import com.oltpbenchmark.util.*;
 
-public class LinkBenchWorker extends Worker {
+public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private static final Logger LOG = Logger.getLogger(LinkBenchWorker.class);
     private Random rng;
@@ -135,7 +135,7 @@ public class LinkBenchWorker extends Worker {
     // Limit of cache size
     private int listTailHistoryLimit;
 
-    public LinkBenchWorker(int id, BenchmarkModule benchmarkModule, 
+    public LinkBenchWorker(LinkBenchBenchmark benchmarkModule, int id, 
             Random masterRandom, Properties props, int nrequesters) {
         super(benchmarkModule, id);
         this.rng = masterRandom;

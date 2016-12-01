@@ -42,8 +42,8 @@ public class HYADAPTBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-        ArrayList<Worker> workers = new ArrayList<Worker>();
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
         try {
             Connection metaConn = this.makeConnection();
 
@@ -65,7 +65,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
             for (int i = 0; i < workConf.getTerminals(); ++i) {
 //                Connection conn = this.makeConnection();
 //                conn.setAutoCommit(false);
-                workers.add(new HYADAPTWorker(i, this, init_record_count + 1));
+                workers.add(new HYADAPTWorker(this, i, init_record_count + 1));
             } // FOR
             metaConn.close();
             

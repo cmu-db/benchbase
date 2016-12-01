@@ -39,8 +39,8 @@ public class YCSBBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-        ArrayList<Worker> workers = new ArrayList<Worker>();
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
         try {
             Connection metaConn = this.makeConnection();
 
@@ -60,9 +60,7 @@ public class YCSBBenchmark extends BenchmarkModule {
             res.close();
             //
             for (int i = 0; i < workConf.getTerminals(); ++i) {
-//                Connection conn = this.makeConnection();
-//                conn.setAutoCommit(false);
-                workers.add(new YCSBWorker(i, this, init_record_count + 1));
+                workers.add(new YCSBWorker(this, i, init_record_count + 1));
             } // FOR
             metaConn.close();
         } catch (SQLException e) {

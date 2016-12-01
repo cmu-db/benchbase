@@ -38,10 +38,8 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.util.SimpleSystemPrinter;
 
 import com.oltpbenchmark.benchmarks.tpch.queries.Q1;
-
 
 public class TPCHBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(TPCHBenchmark.class);
@@ -60,16 +58,14 @@ public class TPCHBenchmark extends BenchmarkModule {
 	 * @param Bool
 	 */
 	@Override
-	protected List<Worker> makeWorkersImpl(boolean verbose) throws IOException {
-		ArrayList<Worker> workers = new ArrayList<Worker>();
+	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
-		try {
-			List<TPCHWorker> terminals = createTerminals();
-			workers.addAll(terminals);
-		} catch (Exception e) {
-			e.printStackTrace();
+		int numTerminals = workConf.getTerminals();
+        LOG.info(String.format("Creating %d workers for TPC-H", numTerminals));
+        for (int i = 0; i < numTerminals; i++) {
+            workers.add(new TPCHWorker(this, i));
 		}
-
 		return workers;
 	}
 
@@ -77,17 +73,5 @@ public class TPCHBenchmark extends BenchmarkModule {
 	protected Loader<TPCHBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
 		return new TPCHLoader(this, conn);
 	}
-
-	protected ArrayList<TPCHWorker> createTerminals() throws SQLException {
-        int numTerminals = workConf.getTerminals();
-
-        ArrayList<TPCHWorker> ret = new ArrayList<TPCHWorker>();
-        LOG.info(String.format("Creating %d workers for TPC-H", numTerminals));
-        for (int i = 0; i < numTerminals; i++)
-            ret.add(new TPCHWorker(this));
-
-        return ret;
-    }
-
 
 } 
