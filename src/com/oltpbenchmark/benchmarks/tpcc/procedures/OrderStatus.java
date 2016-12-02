@@ -82,8 +82,7 @@ public class OrderStatus extends TPCCProcedure {
 			int customerID = -1;
 			if (y <= 60) {
 				isCustomerByName = true;
-				customerLastName = TPCCUtil
-						.getNonUniformRandomLastNameForRun(gen);
+				customerLastName = TPCCUtil.getNonUniformRandomLastNameForRun(gen);
 			} else {
 				isCustomerByName = false;
 				customerID = TPCCUtil.getCustomerID(gen);
@@ -97,11 +96,14 @@ public class OrderStatus extends TPCCProcedure {
 	// attention duplicated code across trans... ok for now to maintain separate prepared statements
 			public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn)
 					throws SQLException {
+			    boolean trace = LOG.isDebugEnabled();
 
 				payGetCust.setInt(1, c_w_id);
 				payGetCust.setInt(2, c_d_id);
 				payGetCust.setInt(3, c_id);
+				if (trace) LOG.trace("payGetCust START");
 				ResultSet rs = payGetCust.executeQuery();
+				if (trace) LOG.trace("payGetCust END");
 				if (!rs.next()) {
 					throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id
 							+ " C_W_ID=" + c_w_id + " not found!");
@@ -117,6 +119,7 @@ public class OrderStatus extends TPCCProcedure {
 			private void orderStatusTransaction(int w_id, int d_id, int c_id,
 					String c_last, boolean c_by_name, Connection conn, TPCCWorker w) throws SQLException {
 				int o_id = -1, o_carrier_id = -1;
+				boolean trace = LOG.isDebugEnabled();
 				Timestamp entdate;
 				ArrayList<String> orderLines = new ArrayList<String>();
 
@@ -138,7 +141,9 @@ public class OrderStatus extends TPCCProcedure {
 				ordStatGetNewestOrd.setInt(1, w_id);
 				ordStatGetNewestOrd.setInt(2, d_id);
 				ordStatGetNewestOrd.setInt(3, c.c_id);
+				if (trace) LOG.trace("ordStatGetNewestOrd START");
 				ResultSet rs = ordStatGetNewestOrd.executeQuery();
+				if (trace) LOG.trace("ordStatGetNewestOrd END");
 
 				if (!rs.next()) {
 					throw new RuntimeException("No orders for O_W_ID=" + w_id
@@ -157,7 +162,9 @@ public class OrderStatus extends TPCCProcedure {
 				ordStatGetOrderLines.setInt(1, o_id);
 				ordStatGetOrderLines.setInt(2, d_id);
 				ordStatGetOrderLines.setInt(3, w_id);
+				if (trace) LOG.trace("ordStatGetOrderLines START");
 				rs = ordStatGetOrderLines.executeQuery();
+				if (trace) LOG.trace("ordStatGetOrderLines END");
 
 				while (rs.next()) {
 					StringBuilder orderLine = new StringBuilder();
@@ -235,11 +242,14 @@ public class OrderStatus extends TPCCProcedure {
 			public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last)
 					throws SQLException {
 				ArrayList<Customer> customers = new ArrayList<Customer>();
+				boolean trace = LOG.isDebugEnabled();
 
 				customerByName.setInt(1, c_w_id);
 				customerByName.setInt(2, c_d_id);
 				customerByName.setString(3, c_last);
+				if (trace) LOG.trace("customerByName START");
 				ResultSet rs = customerByName.executeQuery();
+				if (trace) LOG.trace("customerByName END");
 
 				while (rs.next()) {
 					Customer c = TPCCUtil.newCustomerFromResults(rs);
@@ -255,8 +265,7 @@ public class OrderStatus extends TPCCProcedure {
 				}
 
 				// TPC-C 2.5.2.2: Position n / 2 rounded up to the next integer, but
-				// that
-				// counts starting from 1.
+				// that counts starting from 1.
 				int index = customers.size() / 2;
 				if (customers.size() % 2 == 0) {
 					index -= 1;
