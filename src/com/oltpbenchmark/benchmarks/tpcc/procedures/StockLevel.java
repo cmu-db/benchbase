@@ -33,96 +33,86 @@ public class StockLevel extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(StockLevel.class);
 
-	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt("SELECT D_NEXT_O_ID FROM DISTRICT WHERE D_W_ID = ? AND D_ID = ?");
+	public SQLStmt stockGetDistOrderIdSQL = new SQLStmt(
+	        "SELECT D_NEXT_O_ID FROM " + TPCCConstants.TABLENAME_DISTRICT +
+	        " WHERE D_W_ID = ? AND D_ID = ?");
 
-	public SQLStmt stockGetCountStockSQL = new SQLStmt("SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT"
-			+ " FROM " + TPCCConstants.TABLENAME_ORDERLINE + ", " + TPCCConstants.TABLENAME_STOCK
-			+ " WHERE OL_W_ID = ?"
-			+ " AND OL_D_ID = ?"
-			+ " AND OL_O_ID < ?"
-			+ " AND OL_O_ID >= ?"
-			+ " AND S_W_ID = ?"
-			+ " AND S_I_ID = OL_I_ID" + " AND S_QUANTITY < ?");
+	public SQLStmt stockGetCountStockSQL = new SQLStmt(
+	        "SELECT COUNT(DISTINCT (S_I_ID)) AS STOCK_COUNT " +
+			" FROM " + TPCCConstants.TABLENAME_ORDERLINE + ", " + TPCCConstants.TABLENAME_STOCK +
+			" WHERE OL_W_ID = ?" +
+			" AND OL_D_ID = ?" +
+			" AND OL_O_ID < ?" +
+			" AND OL_O_ID >= ?" +
+			" AND S_W_ID = ?" +
+			" AND S_I_ID = OL_I_ID" + 
+			" AND S_QUANTITY < ?");
 
 	// Stock Level Txn
 	private PreparedStatement stockGetDistOrderId = null;
 	private PreparedStatement stockGetCountStock = null;
 
 	 public ResultSet run(Connection conn, Random gen,
-				int terminalWarehouseID, int numWarehouses,
+				int w_id, int numWarehouses,
 				int terminalDistrictLowerID, int terminalDistrictUpperID,
 				TPCCWorker w) throws SQLException {
 
+	     boolean trace = LOG.isDebugEnabled(); 
+	     
+	     stockGetDistOrderId = this.getPreparedStatement(conn, stockGetDistOrderIdSQL);
+	     stockGetCountStock= this.getPreparedStatement(conn, stockGetCountStockSQL);
 
-		stockGetDistOrderId = this.getPreparedStatement(conn, stockGetDistOrderIdSQL);
-		stockGetCountStock= this.getPreparedStatement(conn, stockGetCountStockSQL);
+	     int threshold = TPCCUtil.randomNumber(10, 20, gen);
+	     int d_id = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
 
-		int threshold = TPCCUtil.randomNumber(10, 20, gen);
+	     int o_id = 0;
+	     // XXX int i_id = 0;
+	     int stock_count = 0;
 
-		int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
+	     stockGetDistOrderId.setInt(1, w_id);
+         stockGetDistOrderId.setInt(2, d_id);
+         if (trace) LOG.trace("stockGetDistOrderId BEGIN");
+         ResultSet rs = stockGetDistOrderId.executeQuery();
+         if (trace) LOG.trace("stockGetDistOrderId END");
 
-		stockLevelTransaction(terminalWarehouseID, districtID, threshold,conn,w);
+         if (!rs.next()) {
+             throw new RuntimeException("D_W_ID="+ w_id +" D_ID="+ d_id+" not found!");
+         }
+         o_id = rs.getInt("D_NEXT_O_ID");
+         rs.close();
 
-		return null;
+         stockGetCountStock.setInt(1, w_id);
+         stockGetCountStock.setInt(2, d_id);
+         stockGetCountStock.setInt(3, o_id);
+         stockGetCountStock.setInt(4, o_id - 20);
+         stockGetCountStock.setInt(5, w_id);
+         stockGetCountStock.setInt(6, threshold);
+         if (trace) LOG.trace("stockGetCountStock BEGIN");
+         rs = stockGetCountStock.executeQuery();
+         if (trace) LOG.trace("stockGetCountStock END");
+
+         if (!rs.next()) {
+             throw new RuntimeException("OL_W_ID="+w_id +" OL_D_ID="+d_id+" OL_O_ID="+o_id+" not found!");
+         }
+         stock_count = rs.getInt("STOCK_COUNT");
+
+         conn.commit();
+         rs.close();
+
+         if (trace) {
+             StringBuilder terminalMessage = new StringBuilder();
+             terminalMessage.append("\n+-------------------------- STOCK-LEVEL --------------------------+");
+             terminalMessage.append("\n Warehouse: ");
+             terminalMessage.append(w_id);
+             terminalMessage.append("\n District:  ");
+             terminalMessage.append(d_id);
+             terminalMessage.append("\n\n Stock Level Threshold: ");
+             terminalMessage.append(threshold);
+             terminalMessage.append("\n Low Stock Count:       ");
+             terminalMessage.append(stock_count);
+             terminalMessage.append("\n+-----------------------------------------------------------------+\n\n");
+             LOG.trace(terminalMessage.toString());
+         }
+         return null;
 	 }
-
-
-
-		private void stockLevelTransaction(int w_id, int d_id, int threshold, Connection conn,TPCCWorker w)
-				throws SQLException {
-			int o_id = 0;
-			// XXX int i_id = 0;
-			int stock_count = 0;
-
-			// XXX District dist = new District();
-			// XXX OrderLine orln = new OrderLine();
-			// XXX Stock stck = new Stock();
-
-
-
-
-			stockGetDistOrderId.setInt(1, w_id);
-			stockGetDistOrderId.setInt(2, d_id);
-			ResultSet rs = stockGetDistOrderId.executeQuery();
-
-			if (!rs.next())
-				throw new RuntimeException("D_W_ID="+ w_id +" D_ID="+ d_id+" not found!");
-			o_id = rs.getInt("D_NEXT_O_ID");
-			rs.close();
-			rs = null;
-
-
-			stockGetCountStock.setInt(1, w_id);
-			stockGetCountStock.setInt(2, d_id);
-			stockGetCountStock.setInt(3, o_id);
-			stockGetCountStock.setInt(4, o_id - 20);
-			stockGetCountStock.setInt(5, w_id);
-			stockGetCountStock.setInt(6, threshold);
-			rs = stockGetCountStock.executeQuery();
-
-			if (!rs.next())
-				throw new RuntimeException("OL_W_ID="+w_id +" OL_D_ID="+d_id+" OL_O_ID="+o_id+" not found!");
-			stock_count = rs.getInt("STOCK_COUNT");
-
-			conn.commit();
-
-			rs.close();
-			rs = null;
-
-			StringBuilder terminalMessage = new StringBuilder();
-			terminalMessage
-					.append("\n+-------------------------- STOCK-LEVEL --------------------------+");
-			terminalMessage.append("\n Warehouse: ");
-			terminalMessage.append(w_id);
-			terminalMessage.append("\n District:  ");
-			terminalMessage.append(d_id);
-			terminalMessage.append("\n\n Stock Level Threshold: ");
-			terminalMessage.append(threshold);
-			terminalMessage.append("\n Low Stock Count:       ");
-			terminalMessage.append(stock_count);
-			terminalMessage
-					.append("\n+-----------------------------------------------------------------+\n\n");
-			if(LOG.isTraceEnabled())LOG.trace(terminalMessage.toString());
-		}
-
 }
