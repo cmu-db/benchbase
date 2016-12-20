@@ -41,7 +41,7 @@ public class ReadModifyWriteRecord extends Procedure {
         stmt.setInt(1, keyname);          
         ResultSet r = stmt.executeQuery();
         while (r.next()) {
-        	for (int i = 0; i < YCSBConstants.NUN_FIELDS; i++)
+        	for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++)
         	    results[i] = r.getString(i+1);
         }
         r.close();

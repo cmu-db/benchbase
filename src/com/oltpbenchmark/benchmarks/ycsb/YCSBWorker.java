@@ -48,8 +48,8 @@ public class YCSBWorker extends Worker<YCSBBenchmark> {
     private ZipfianGenerator randScan;
 
     private final char data[] = new char[YCSBConstants.FIELD_SIZE];
-    private final String params[] = new String[YCSBConstants.NUN_FIELDS]; 
-    private final String results[] = new String[YCSBConstants.NUN_FIELDS];
+    private final String params[] = new String[YCSBConstants.NUM_FIELDS]; 
+    private final String results[] = new String[YCSBConstants.NUM_FIELDS];
     
     private final UpdateRecord procUpdateRecord;
     private final ScanRecord procScanRecord;

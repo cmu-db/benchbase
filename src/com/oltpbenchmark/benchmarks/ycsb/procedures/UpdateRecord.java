@@ -33,7 +33,7 @@ public class UpdateRecord extends Procedure {
     
     public void run(Connection conn, int keyname, String vals[]) throws SQLException {
     	PreparedStatement stmt = this.getPreparedStatement(conn, updateAllStmt);
-		assert(vals.length == YCSBConstants.NUN_FIELDS);
+		assert(vals.length == YCSBConstants.NUM_FIELDS);
 		stmt.setInt(11,keyname); 
 		for (int i = 0; i < vals.length; i++) {
             stmt.setString(i+1, vals[i]);

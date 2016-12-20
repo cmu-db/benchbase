@@ -38,7 +38,7 @@ public class ScanRecord extends Procedure{
         stmt.setInt(2, start+count); 
         ResultSet r=stmt.executeQuery();
         while(r.next()) {
-            String data[] = new String[YCSBConstants.NUN_FIELDS];
+            String data[] = new String[YCSBConstants.NUM_FIELDS];
         	for(int i = 0; i < data.length; i++)
         		data[i] = r.getString(i+1);
         	results.add(data);
