@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS stock;
 CREATE TABLE stock (
   s_w_id int NOT NULL PRIMARY KEY,
   s_i_id int NOT NULL PRIMARY KEY,
-  s_quantity decimal NOT NULL,
+  s_quantity int NOT NULL,
   s_ytd decimal NOT NULL,
   s_order_cnt int NOT NULL,
   s_remote_cnt int NOT NULL,
