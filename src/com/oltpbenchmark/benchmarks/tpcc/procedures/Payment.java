@@ -400,7 +400,7 @@ public class Payment extends TPCCProcedure {
         customerByName.setInt(2, c_d_id);
         customerByName.setString(3, customerLastName);
         ResultSet rs = customerByName.executeQuery();
-        LOG.info("C_LAST=" + customerLastName + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id);
+        if (LOG.isTraceEnabled()) LOG.trace("C_LAST=" + customerLastName + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id);
 
         while (rs.next()) {
             Customer c = TPCCUtil.newCustomerFromResults(rs);
