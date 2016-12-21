@@ -134,7 +134,7 @@ CREATE TABLE warehouse (
 
 
 --add constraints and indexes
--- CREATE INDEX IDX_CUSTOMER_NAME ON customer (c_w_id,c_d_id,c_last,c_first);
+CREATE INDEX IDX_CUSTOMER_NAME ON customer (c_w_id,c_d_id,c_last);
 CREATE INDEX IDX_ORDER ON OORDER (O_W_ID,O_D_ID,O_ID,O_C_ID);
 -- tpcc-mysql create two indexes for the foreign key constraints, Is it really necessary?
 -- CREATE INDEX FKEY_STOCK_2 ON STOCK (S_I_ID);

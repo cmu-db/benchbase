@@ -102,8 +102,9 @@ public class TPCCBenchmark extends BenchmarkModule {
 				upperTerminalId = numTerminals;
 			int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
-			LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
-			                       w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
+			if (LOG.isDebugEnabled())
+			    LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
+			                            w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
 
 			final double districtsPerTerminal = TPCCConfig.configDistPerWhse
 					/ (double) numWarehouseTerminals;
