@@ -175,18 +175,20 @@ public class Phase {
      * @return Loggin String
      */
     public String currentPhaseString() {
-        String retString ="[Starting Phase] [Workload= " + benchmarkName + "] ";
+        String retString ="[Starting Phase] [Workload=" + benchmarkName + "] ";
         if (isDisabled()){
-            retString += "[Disabled= true]";
+            retString += "[Disabled=true]";
         } else {
             if (isLatencyRun()) {
-                retString += "[Serial= true] [Time= n/a] ";
+                retString += "[Serial=true] [Time= n/a] ";
             }
             else {
-                retString += "[Serial= " + (isSerial()? "true" : "false")
-                             + "] [Time= " + time + "] ";
+                retString += "[Serial= "+ isSerial() + "] [Time=" + time + "] ";
             }
-            retString += "[Rate= " + (isRateLimited() ? rate : "unlimited") + "] [Arrival= " + arrival + "] [Ratios= " + getWeights() + "] [Active Workers=" + getActiveTerminals() + "]";
+            retString += "[Rate=" + (isRateLimited() ? rate : "unlimited") + "] " +
+                         "[Arrival=" + arrival + "] " +
+                         "[Ratios=" + getWeights() + "] " +
+                         "[ActiveWorkers=" + getActiveTerminals() + "]";
         }
         return retString;
     }

@@ -157,16 +157,7 @@ public class DBWorkload {
             return;
         }
         
-        // If an output directory is used, store the information
-        String outputDirectory = "";
-        if (argsLine.hasOption("d")) {
-            outputDirectory = argsLine.getOptionValue("d");
-        }
         
-        String timestampValue = "";
-        if (argsLine.hasOption("t")) {
-            timestampValue = String.valueOf(TimeUtil.getCurrentTime().getTime()) + "_";
-        }
         
         // Seconds
         int intervalMonitor = 0;
@@ -570,84 +561,9 @@ public class DBWorkload {
             }
             assert(r != null);
 
-            PrintStream ps = System.out;
-            PrintStream rs = System.out;
+            writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
             
-            // Special result uploader
-            ResultUploader ru = null;
-            if (xmlConfig.containsKey("uploadUrl")) {
-                ru = new ResultUploader(r, xmlConfig, argsLine);
-            }
-
-            if (argsLine.hasOption("o")) {
-                // Check if directory needs to be created
-                if (outputDirectory.length() > 0) {
-                    FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
-                }
-                
-                // Build the complex path
-                String baseFile = timestampValue + argsLine.getOptionValue("o");
-                
-                // Increment the filename for new results
-                String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
-                ps = new PrintStream(new File(nextName));
-                LOG.info("Output into file: " + nextName);
-
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".raw"));
-                rs = new PrintStream(new File(nextName));
-                LOG.info("Output Raw data into file: " + nextName);
-
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
-                PrintStream ss = new PrintStream(new File(nextName));
-                System.out.println("Our result uploader" + ru);
-                LOG.info("Output summary data into file: " + nextName);
-                if (ru != null) ru.writeSummary(ss);
-                ss.close();
-
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
-                ss = new PrintStream(new File(nextName));
-                LOG.info("Output db config into file: " + nextName);
-                if (ru != null) ru.writeDBParameters(ss);
-                ss.close();
-
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
-                ss = new PrintStream(new File(nextName));
-                LOG.info("Output benchmark config into file: " + nextName);
-                if (ru != null) ru.writeBenchmarkConf(ss);
-                ss.close();
-            } else if (LOG.isDebugEnabled()) {
-                LOG.debug("No output file specified");
-            }
             
-            if (argsLine.hasOption("s")) {
-                int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
-                LOG.info("Grouped into Buckets of " + windowSize + " seconds");
-                r.writeCSV(windowSize, ps);
-
-                if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
-                    ru.uploadResult();
-                }
-
-                // Allow more detailed reporting by transaction to make it easier to check
-                if (argsLine.hasOption("ss")) {
-                    
-                    for (TransactionType t : activeTXTypes) {
-                        PrintStream ts = ps;
-                        
-                        if (ts != System.out) {
-                            // Get the actual filename for the output
-                            String baseFile = timestampValue + argsLine.getOptionValue("o") + "_" + t.getName();
-                            String prepended = outputDirectory + timestampValue;
-                            String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));                            
-                            ts = new PrintStream(new File(nextName));
-                            r.writeCSV(windowSize, ts, t);
-                            ts.close();
-                        }
-                    }
-                }
-            } else if (LOG.isDebugEnabled()) {
-                LOG.warn("No bucket size specified");
-            }
             if (argsLine.hasOption("histograms")) {
                 LOG.info(SINGLE_LINE);
                 LOG.info("Completed Transactions:\n" + r.getTransactionSuccessHistogram() + "\n");
@@ -660,41 +576,155 @@ public class DBWorkload {
                 LOG.warn("No bucket size specified");
             }
 
-            r.writeAllCSVAbsoluteTiming(rs);
 
-            ps.close();
-            rs.close();
         } else {
             LOG.info("Skipping benchmark workload execution");
         }
     }
+        
+    /**
+     * Write out the results for a benchmark run to a bunch of files
+     * @param r
+     * @param activeTXTypes
+     * @param argsLine
+     * @param xmlConfig
+     * @throws Exception
+     */
+    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine, XMLConfiguration xmlConfig) throws Exception {
+        
+        // If an output directory is used, store the information
+        String outputDirectory = "results";
+        if (argsLine.hasOption("d")) {
+            outputDirectory = argsLine.getOptionValue("d");
+        }
+        String filePrefix = "";
+        if (argsLine.hasOption("t")) {
+            filePrefix = String.valueOf(TimeUtil.getCurrentTime().getTime()) + "_";
+        }
+        
+        // Special result uploader
+        ResultUploader ru = null;
+        if (xmlConfig.containsKey("uploadUrl")) {
+            ru = new ResultUploader(r, xmlConfig, argsLine);
+            LOG.info("Upload Results URL: " + ru);
+        }
+        
+        // Output target 
+        PrintStream ps = null;
+        PrintStream rs = null;
+        String baseFileName = "oltpbench";
+        if (argsLine.hasOption("o")) {
+            if (argsLine.getOptionValue("o") == "-") {
+                ps = System.out;
+                rs = System.out;
+                baseFileName = null;
+            } else {
+                baseFileName = argsLine.getOptionValue("o");
+            }
+        }
+        
+        if (baseFileName != null) {
+            // Check if directory needs to be created
+            if (outputDirectory.length() > 0) {
+                FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
+            }
+            
+            // Build the complex path
+            String baseFile = filePrefix + baseFileName;
+            
+            // Increment the filename for new results
+            String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
+            ps = new PrintStream(new File(nextName));
+            LOG.info("Output into file: " + nextName);
+
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".raw"));
+            rs = new PrintStream(new File(nextName));
+            LOG.info("Output Raw data into file: " + nextName);
+
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
+            PrintStream ss = new PrintStream(new File(nextName));
+            LOG.info("Output summary data into file: " + nextName);
+            if (ru != null) ru.writeSummary(ss);
+            ss.close();
+
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
+            ss = new PrintStream(new File(nextName));
+            LOG.info("Output db config into file: " + nextName);
+            if (ru != null) ru.writeDBParameters(ss);
+            ss.close();
+
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
+            ss = new PrintStream(new File(nextName));
+            LOG.info("Output benchmark config into file: " + nextName);
+            if (ru != null) ru.writeBenchmarkConf(ss);
+            ss.close();
+        } else if (LOG.isDebugEnabled()) {
+            LOG.debug("No output file specified");
+        }
+        
+        if (argsLine.hasOption("s")) {
+            int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
+            LOG.info("Grouped into Buckets of " + windowSize + " seconds");
+            r.writeCSV(windowSize, ps);
+
+            if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
+                ru.uploadResult();
+            }
+
+            // Allow more detailed reporting by transaction to make it easier to check
+            if (argsLine.hasOption("ss")) {
+                
+                for (TransactionType t : activeTXTypes) {
+                    PrintStream ts = ps;
+                    
+                    if (ts != System.out) {
+                        // Get the actual filename for the output
+                        String baseFile = filePrefix + baseFileName + "_" + t.getName();
+                        String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));                            
+                        ts = new PrintStream(new File(nextName));
+                        r.writeCSV(windowSize, ts, t);
+                        ts.close();
+                    }
+                }
+            }
+        } else if (LOG.isDebugEnabled()) {
+            LOG.warn("No bucket size specified");
+        }
+        
+        r.writeAllCSVAbsoluteTiming(rs);
+        ps.close();
+        rs.close();
+    }
+    
+        
 
     /* buggy piece of shit of Java XPath implementation made me do it 
        replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
      */
     private static List<String> get_weights(String plugin, SubnodeConfiguration work) {
-            
-            List<String> weight_strings = new LinkedList<String>();
-            @SuppressWarnings("unchecked")
-            List<SubnodeConfiguration> weights = work.configurationsAt("weights");
-            boolean weights_started = false;
-            
-            for (SubnodeConfiguration weight : weights) {
-                
-                // stop if second attributed node encountered
-                if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
-                    break;
-                }
-                //start adding node values, if node with attribute equal to current plugin encountered
-                if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
-                    weights_started = true;
-                }
-                if (weights_started) {
-                    weight_strings.add(weight.getString(""));
-                }
-                
+
+        List<String> weight_strings = new LinkedList<String>();
+        @SuppressWarnings("unchecked")
+        List<SubnodeConfiguration> weights = work.configurationsAt("weights");
+        boolean weights_started = false;
+
+        for (SubnodeConfiguration weight : weights) {
+
+            // stop if second attributed node encountered
+            if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
+                break;
             }
-            return weight_strings;
+            // start adding node values, if node with attribute equal to current
+            // plugin encountered
+            if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
+                weights_started = true;
+            }
+            if (weights_started) {
+                weight_strings.add(weight.getString(""));
+            }
+
+        }
+        return weight_strings;
     }
     
     private static void runScript(BenchmarkModule bench, String script) {
