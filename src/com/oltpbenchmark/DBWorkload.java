@@ -56,7 +56,7 @@ import com.oltpbenchmark.util.TimeUtil;
 public class DBWorkload {
     private static final Logger LOG = Logger.getLogger(DBWorkload.class);
     
-    private static final String SINGLE_LINE = "**********************************************************************************";
+    private static final String SINGLE_LINE = StringUtil.repeat("=", 70);
     
     private static final String RATE_DISABLED = "disabled";
     private static final String RATE_UNLIMITED = "unlimited";
@@ -561,19 +561,12 @@ public class DBWorkload {
             }
             assert(r != null);
 
+            // WRITE OUTPUT
             writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
             
-            
+            // WRITE HISTOGRAMS
             if (argsLine.hasOption("histograms")) {
-                LOG.info(SINGLE_LINE);
-                LOG.info("Completed Transactions:\n" + r.getTransactionSuccessHistogram() + "\n");
-                LOG.info("Aborted Transactions:\n" + r.getTransactionAbortHistogram() + "\n");
-                LOG.info("Rejected Transactions:\n" + r.getTransactionRetryHistogram());
-                LOG.info("Unexpected Errors:\n" + r.getTransactionErrorHistogram());
-                if (r.getTransactionAbortMessageHistogram().isEmpty() == false)
-                    LOG.info("User Aborts:\n" + StringUtil.formatMaps(r.getTransactionAbortMessageHistogram()));
-            } else if (LOG.isDebugEnabled()) {
-                LOG.warn("No bucket size specified");
+                writeHistograms(r);
             }
 
 
@@ -581,6 +574,40 @@ public class DBWorkload {
             LOG.info("Skipping benchmark workload execution");
         }
     }
+    
+    private static void writeHistograms(Results r) {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(StringUtil.bold("Completed Transactions:"))
+          .append("\n")
+          .append(r.getTransactionSuccessHistogram())
+          .append("\n\n");
+        
+        sb.append(StringUtil.bold("Aborted Transactions:"))
+          .append("\n")
+          .append(r.getTransactionAbortHistogram())
+          .append("\n\n");
+        
+        sb.append(StringUtil.bold("Rejected Transactions (Server Retry):"))
+          .append("\n")
+          .append(r.getTransactionRetryHistogram())
+          .append("\n\n");
+        
+        sb.append(StringUtil.bold("Unexpected Errors:"))
+          .append("\n")
+          .append(r.getTransactionErrorHistogram());
+        
+        if (r.getTransactionAbortMessageHistogram().isEmpty() == false)
+            sb.append("\n\n")
+              .append(StringUtil.bold("User Aborts:"))
+              .append("\n")
+              .append(r.getTransactionAbortMessageHistogram());
+        
+        LOG.info(SINGLE_LINE);
+        LOG.info("Workload Histograms:\n" + sb.toString());
+        LOG.info(SINGLE_LINE);
+    }
+    
         
     /**
      * Write out the results for a benchmark run to a bunch of files
@@ -647,11 +674,14 @@ public class DBWorkload {
             if (ru != null) ru.writeSummary(ss);
             ss.close();
 
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
-            ss = new PrintStream(new File(nextName));
-            LOG.info("Output db config into file: " + nextName);
-            if (ru != null) ru.writeDBParameters(ss);
-            ss.close();
+            // DBMS Configuration
+            if (ru.getConfCollector().hasParameters()) {
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
+                ss = new PrintStream(new File(nextName));
+                LOG.info("Output DBMS Configuration into file: " + nextName);
+                if (ru != null) ru.writeDBParameters(ss);
+                ss.close();
+            }
 
             nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
             ss = new PrintStream(new File(nextName));
@@ -695,8 +725,6 @@ public class DBWorkload {
         ps.close();
         rs.close();
     }
-    
-        
 
     /* buggy piece of shit of Java XPath implementation made me do it 
        replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
@@ -749,8 +777,10 @@ public class DBWorkload {
             LOG.info("Creating " + bench.getWorkloadConfiguration().getTerminals() + " virtual terminals...");
             workers.addAll(bench.makeWorkers(verbose));
             // LOG.info("done.");
-            LOG.info(String.format("Launching the %s Benchmark with %s Phases...",
-                    bench.getBenchmarkName(), bench.getWorkloadConfiguration().getNumberOfPhases()));
+            
+            int num_phases = bench.getWorkloadConfiguration().getNumberOfPhases();
+            LOG.info(String.format("Launching the %s Benchmark with %s Phase%s...",
+                    bench.getBenchmarkName(), num_phases, (num_phases > 1 ? "s" : "")));
             workConfs.add(bench.getWorkloadConfiguration());
             
         }

@@ -20,7 +20,6 @@ import com.oltpbenchmark.catalog.Catalog;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
-import java.util.Map;
 
 class MYSQLCollector extends DBCollector {
     private static final Logger LOG = Logger.getLogger(MYSQLCollector.class);
@@ -41,7 +40,7 @@ class MYSQLCollector extends DBCollector {
             LOG.debug("Error while collecting DB parameters: " + e.getMessage());
         }
     }
-
+    
     @Override
     public String collectVersion() {
         String dbVersion = dbConf.get(VERSION);

@@ -17,6 +17,7 @@
 package com.oltpbenchmark.util.dbms_collectors;
 
 public interface DBParameterCollector {
+    boolean hasParameters();
     String collectParameters();
     String collectVersion();
 }

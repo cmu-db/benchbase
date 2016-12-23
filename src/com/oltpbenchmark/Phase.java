@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import com.oltpbenchmark.util.StringUtil;
+
 public class Phase {
     public enum Arrival {
         REGULAR,POISSON,
@@ -175,7 +177,8 @@ public class Phase {
      * @return Loggin String
      */
     public String currentPhaseString() {
-        String retString ="[Starting Phase] [Workload=" + benchmarkName + "] ";
+        String retString = StringUtil.bold("PHASE START") + " :: ";
+        retString += "[Workload=" + benchmarkName + "] ";
         if (isDisabled()){
             retString += "[Disabled=true]";
         } else {

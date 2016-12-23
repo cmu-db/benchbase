@@ -44,6 +44,9 @@ public abstract class StringUtil {
     private static final Pattern LINE_SPLIT = Pattern.compile("\n");
     private static final Pattern TITLE_SPLIT = Pattern.compile(" ");
     
+    private static final String SET_PLAIN_TEXT = "\033[0;0m";
+    private static final String SET_BOLD_TEXT = "\033[0;1m";
+    
     private static String CACHE_REPEAT_STR = null;
     private static Integer CACHE_REPEAT_SIZE = null;
     private static String CACHE_REPEAT_RESULT = null;
@@ -498,6 +501,14 @@ public abstract class StringUtil {
     
     public static <T> String join(String delimiter, final Iterator<T> items) {
         return (join("", delimiter, CollectionUtil.iterable(items)));
+    }
+    
+    /**
+     * Wrap the given string with the control characters
+     * to make the text appear bold in the console
+     */
+    public static String bold(String str) {
+        return (SET_BOLD_TEXT + str + SET_PLAIN_TEXT);
     }
     
     /**

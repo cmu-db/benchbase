@@ -39,7 +39,7 @@ class POSTGRESCollector extends DBCollector {
             LOG.debug("Error while collecting DB parameters: " + e.getMessage());
         }
     }
-
+    
     @Override
     public String collectVersion() {
         return dbConf.get(VERSION);

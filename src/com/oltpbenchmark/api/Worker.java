@@ -409,7 +409,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     ex.printStackTrace();
 
                     // TODO: Handle acceptable error codes for every DBMS
-                    LOG.debug(next + " " + ex.getMessage() + " " + ex.getErrorCode() + " - " + ex.getSQLState());
+                    if (LOG.isDebugEnabled()) 
+                        LOG.debug(next + " " + ex.getMessage() + " " + ex.getErrorCode() + " - " + ex.getSQLState());
 
                     this.txnErrors.put(next);
 
@@ -421,26 +422,45 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     if (ex.getSQLState() == null) {
                         continue;
+                    // ------------------
+                    // MYSQL
+                    // ------------------
                     } else if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
                         // MySQLTransactionRollbackException
                         continue;
                     } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("41000")) {
                         // MySQL Lock timeout
                         continue;
+                        
+                    // ------------------
+                    // SQL SERVER
+                    // ------------------
                     } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
                         // SQLServerException Deadlock
                         continue;
-                    } else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
-                        // DB2Exception Deadlock
-                        continue;
+                    
+                    // ------------------
+                    // POSTGRES
+                    // ------------------
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
                         continue;
+                        
+                    // ------------------
+                    // ORACLE
+                    // ------------------
                     } else if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
                         // ORA-08177: Oracle Serialization
                         continue;
-                    } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) || (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014")) // DB2
-                    ) {
+                        
+                    // ------------------
+                    // DB2
+                    // ------------------
+                    } else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
+                        // DB2Exception Deadlock
+                        continue;
+                    } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) ||
+                               (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
                         // Query cancelled by benchmark because we changed
                         // state. That's fine! We expected/caused this.
                         status = TransactionStatus.RETRY_DIFFERENT;
@@ -451,8 +471,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         // too, since this is unusual.
                         status = TransactionStatus.RETRY_DIFFERENT;
                         continue;
+
+                    // ------------------
+                    // UNKNOWN!
+                    // ------------------
                     } else {
                         // UNKNOWN: In this case .. Retry as well!
+                        LOG.warn("The DBMS rejected the transaction without an error code", ex);
                         continue;
                         // FIXME Disable this for now
                         // throw ex;
@@ -470,7 +495,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     switch (status) {
                         case SUCCESS:
                             this.txnSuccess.put(next);
-                            LOG.debug("Executed a new invocation of " + next);
+                            if (LOG.isTraceEnabled()) LOG.trace("Executed a new invocation of " + next);
                             break;
                         case RETRY_DIFFERENT:
                             this.txnRetry.put(next);

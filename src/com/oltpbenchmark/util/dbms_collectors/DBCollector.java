@@ -16,7 +16,6 @@
 
 package com.oltpbenchmark.util.dbms_collectors;
 
-import com.oltpbenchmark.catalog.Catalog;
 import org.apache.log4j.Logger;
 
 import java.util.Map;
@@ -26,6 +25,11 @@ class DBCollector implements DBParameterCollector {
     private static final Logger LOG = Logger.getLogger(DBCollector.class);
     protected final Map<String, String> dbConf = new TreeMap<String, String>();
 
+    @Override
+    public boolean hasParameters() {
+        return (dbConf.isEmpty() == false);
+    }
+    
     @Override
     public String collectParameters() {
         StringBuilder confBuilder = new StringBuilder();
