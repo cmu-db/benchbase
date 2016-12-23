@@ -58,7 +58,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 	public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
 		super(benchmark, c);
         numWarehouses = (int)Math.round(TPCCConfig.configWhseCount * this.scaleFactor);
-        if (numWarehouses == 0) {
+        if (numWarehouses <= 0) {
             //where would be fun in that?
             numWarehouses = 1;
         }
@@ -67,35 +67,41 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 	static boolean fastLoad;
 	static String fastLoaderBaseDir;
 
-	// ********** general vars **********************************
-	private static java.util.Date now = null;
 
-	private static int numWarehouses = 0;
-	private static long lastTimeMS = 0;
-
+	private int numWarehouses = 0;
 	private static final int FIRST_UNPROCESSED_O_ID = 2101;
 	
     @Override
     public void load() throws SQLException {
-        long startTimeMS = new java.util.Date().getTime();
-        lastTimeMS = startTimeMS;
-
         loadWarehouses(numWarehouses);
         loadItems(TPCCConfig.configItemCount);
         
-        
-        for (int w_id = 0; w_id < numWarehouses; w_id++) {
-            // WAREHOUSE
-            loadStock(w_id, TPCCConfig.configItemCount);
-            
-            // DISTRICT
-            loadDist(w_id, TPCCConfig.configDistPerWhse);
-            
-            // CUSTOMER
-            loadCust(w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
-            
-            loadOrders(w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
-        }
+        // List<Runnable> threads = new ArrayList<Runnable>();
+        for (int w = 0; w < numWarehouses; w++) {
+            final int w_id = w;
+            // We currently can't support multi-threaded loading because we
+            // will need to make multiple connections to the DBMS
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    if (LOG.isDebugEnabled()) LOG.debug("Starting to load WAREHOUSE " + w_id);
+                    
+                    // WAREHOUSE
+                    loadStock(w_id, TPCCConfig.configItemCount);
+                    
+                    // DISTRICT
+                    loadDist(w_id, TPCCConfig.configDistPerWhse);
+                    
+                    // CUSTOMER
+                    loadCust(w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+                    
+                    loadOrders(w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+                }
+            };
+            r.run();
+            // threads.add(r);
+        } // FOR
+        // ThreadUtil.runGlobalPool(threads);
     }
 	
 	private PreparedStatement getInsertStatement(String tableName) throws SQLException {
@@ -125,17 +131,12 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 	protected int loadItems(int itemKount) {
 		int k = 0;
-		int t = 0;
 		int randPct = 0;
 		int len = 0;
 		int startORIGINAL = 0;
 		boolean fail = false;
 		try {
 		    PreparedStatement itemPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ITEM);
-
-			now = new java.util.Date();
-			t = itemKount;
-			LOG.debug("\nStart Item Load for " + t + " Items @ " + now + " ...");
 
 			Item item = new Item();
 			for (int i = 1; i <= itemKount; i++) {
@@ -172,32 +173,15 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 				itemPrepStmt.addBatch();
 
 				if ((k % TPCCConfig.configCommitCount) == 0) {
-					long tmpTime = new java.util.Date().getTime();
-					String etStr = "  Elasped Time(ms): "
-							+ ((tmpTime - lastTimeMS) / 1000.000)
-							+ "                    ";
-					LOG.debug(etStr.substring(0, 30)
-							+ "  Writing record " + k + " of " + t);
-					lastTimeMS = tmpTime;
 					itemPrepStmt.executeBatch();
 					itemPrepStmt.clearBatch();
 					transCommit();
 				}
 			} // end for
 
-			long tmpTime = new java.util.Date().getTime();
-			if (LOG.isDebugEnabled()) {
-    			String etStr = "  Elasped Time(ms): " + ((tmpTime - lastTimeMS) / 1000.000) + "                    ";
-    			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k + " of " + t);
-			}
-			lastTimeMS = tmpTime;
 
 			itemPrepStmt.executeBatch();
 			transCommit();
-			now = new java.util.Date();
-			if (LOG.isDebugEnabled()) {
-			    LOG.debug("End Item Load @  " + now);
-			}
 
 		} catch (BatchUpdateException ex) {
 		    SQLException next = ex.getNextException();
@@ -223,24 +207,10 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 	} // end loadItem()
 
-//	
-//	protected void loadWarehouse(int w_id) throws SQLException {
-//	    PreparedStatement stckPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_STOCK);
-//        now = new java.util.Date();
-//        
-//        Warehouse warehouse = new Warehouse();
-//        
-//        
-//	}
-	
 	protected int loadWarehouses(int whseKount) {
 
 		try {
-		    
 		    PreparedStatement whsePrepStmt = getInsertStatement(TPCCConstants.TABLENAME_WAREHOUSE);
-
-			now = new java.util.Date();
-			LOG.debug("\nStart Whse Load for " + whseKount + " Whses @ " + now + " ...");
 			Warehouse warehouse = new Warehouse();
 			for (int i = 1; i <= whseKount; i++) {
 
@@ -275,14 +245,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 			whsePrepStmt.executeBatch();
 
 			transCommit();
-			now = new java.util.Date();
-
-			long tmpTime = new java.util.Date().getTime();
-			LOG.debug("Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000));
-			lastTimeMS = tmpTime;
-			LOG.debug("End Whse Load @  " + now);
-
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
 			transRollback();
@@ -298,13 +260,11 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 	protected int loadStock(int w_id, int numItems) {
 
 		int k = 0;
-		int t = 0;
 		int randPct = 0;
 		int len = 0;
 		int startORIGINAL = 0;
 		try {
 		    PreparedStatement stckPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_STOCK);
-			now = new java.util.Date();
 
 			Stock stock = new Stock();
 			for (int i = 1; i <= numItems; i++) {
@@ -363,31 +323,14 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 				stckPrepStmt.setString(17, stock.s_dist_10);
 				stckPrepStmt.addBatch();
 				if ((k % TPCCConfig.configCommitCount) == 0) {
-					long tmpTime = new java.util.Date().getTime();
-					String etStr = "  Elasped Time(ms): "
-							+ ((tmpTime - lastTimeMS) / 1000.000)
-							+ "                    ";
-					LOG.debug(etStr.substring(0, 30)
-							+ "  Writing record " + k + " of " + t);
-					lastTimeMS = tmpTime;
 					stckPrepStmt.executeBatch();
 					stckPrepStmt.clearBatch();
 					transCommit();
 				}
 			} // end for [i]
 
-			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30)
-					+ "  Writing final records " + k + " of " + t);
-			lastTimeMS = tmpTime;
 			stckPrepStmt.executeBatch();
 			transCommit();
-
-			now = new java.util.Date();
-			LOG.debug("End Stock Load @  " + now);
 
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -405,12 +348,10 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 	protected int loadDist(int w_id, int distWhseKount) {
 
 		int k = 0;
-		int t = 0;
 
 		try {
 
 			PreparedStatement distPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_DISTRICT);
-			now = new java.util.Date();
 			District district = new District();
 
 			for (int d = 1; d <= distWhseKount; d++) {
@@ -444,16 +385,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 				distPrepStmt.executeUpdate();
 			} // end for [d]
 
-			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k + " of " + t);
-			lastTimeMS = tmpTime;
 			transCommit();
-			now = new java.util.Date();
-			LOG.debug("End District Load @  " + now);
-
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
 			transRollback();
@@ -469,7 +401,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 	protected int loadCust(int w_id, int districtsPerWarehouse, int customersPerDistrict) {
 
 		int k = 0;
-		int t = 0;
 
 		Customer customer = new Customer();
 		History history = new History();
@@ -478,7 +409,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 		    PreparedStatement custPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_CUSTOMER);
 		    PreparedStatement histPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_HISTORY);
 
-			now = new java.util.Date();
 			for (int d = 1; d <= districtsPerWarehouse; d++) {
 				for (int c = 1; c <= customersPerDistrict; c++) {
 					Timestamp sysdate = this.benchmark.getTimestamp(System.currentTimeMillis());
@@ -569,14 +499,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 					histPrepStmt.addBatch();
 
 					if ((k % TPCCConfig.configCommitCount) == 0) {
-						long tmpTime = new java.util.Date().getTime();
-						String etStr = "  Elasped Time(ms): "
-								+ ((tmpTime - lastTimeMS) / 1000.000)
-								+ "                    ";
-						LOG.debug(etStr.substring(0, 30)
-								+ "  Writing record " + k + " of " + t);
-						lastTimeMS = tmpTime;
-
 						custPrepStmt.executeBatch();
 						histPrepStmt.executeBatch();
 						custPrepStmt.clearBatch();
@@ -586,23 +508,11 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 				} // end for [c]
 			} // end for [d]
 
-			long tmpTime = new java.util.Date().getTime();
-			if (LOG.isDebugEnabled()) {
-    			String etStr = "  Elasped Time(ms): "
-    					+ ((tmpTime - lastTimeMS) / 1000.000)
-    					+ "                    ";
-    			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k + " of " + t);
-			}
-			lastTimeMS = tmpTime;
 			custPrepStmt.executeBatch();
 			histPrepStmt.executeBatch();
 			custPrepStmt.clearBatch();
 			histPrepStmt.clearBatch();
 			transCommit();
-			now = new java.util.Date();
-			if (LOG.isDebugEnabled()) {
-			    LOG.debug("End Cust-Hist Data Load @  " + now);
-			}
 
 		} catch (SQLException se) {
 			LOG.debug(se.getMessage());
@@ -625,7 +535,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 		    PreparedStatement nworPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_NEWORDER);
 		    PreparedStatement orlnPrepStmt = getInsertStatement(TPCCConstants.TABLENAME_ORDERLINE);
 
-			now = new java.util.Date();
 			Oorder oorder = new Oorder();
 			NewOrder new_order = new NewOrder();
 			OrderLine order_line = new OrderLine();
@@ -705,13 +614,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 						myJdbcIO.insertOrderLine(orlnPrepStmt, order_line);
 
 						if ((k % TPCCConfig.configCommitCount) == 0) {
-							long tmpTime = new java.util.Date().getTime();
-							String etStr = "  Elasped Time(ms): "
-									+ ((tmpTime - lastTimeMS) / 1000.000)
-									+ "                    ";
-							LOG.debug(etStr.substring(0, 30)
-									+ "  Writing record " + k + " of " + t);
-							lastTimeMS = tmpTime;
 							ordrPrepStmt.executeBatch();
 							nworPrepStmt.executeBatch();
 							orlnPrepStmt.executeBatch();
@@ -733,8 +635,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 		    nworPrepStmt.executeBatch();
 		    orlnPrepStmt.executeBatch();
 			transCommit();
-			now = new java.util.Date();
-			if (LOG.isDebugEnabled()) LOG.debug("End Orders Load @  " + now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
