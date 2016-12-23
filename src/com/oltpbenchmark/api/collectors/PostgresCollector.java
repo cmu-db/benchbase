@@ -14,36 +14,33 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.util.dbms_collectors;
+package com.oltpbenchmark.api.collectors;
 
+import com.oltpbenchmark.catalog.Catalog;
 import org.apache.log4j.Logger;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.sql.*;
 
-class DBCollector implements DBParameterCollector {
-    private static final Logger LOG = Logger.getLogger(DBCollector.class);
-    protected final Map<String, String> dbConf = new TreeMap<String, String>();
+public class PostgresCollector extends DBCollector {
+    private static final Logger LOG = Logger.getLogger(PostgresCollector.class);
+    private static final String VERSION = "server_version";
 
-    @Override
-    public boolean hasParameters() {
-        return (dbConf.isEmpty() == false);
+    public PostgresCollector(String oriDBUrl, String username, String password) {
+        try {
+            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
+            Catalog.setSeparator(conn);
+            Statement s = conn.createStatement();
+            ResultSet out = s.executeQuery("SHOW ALL;");
+            while(out.next()) {
+                dbConf.put(out.getString("name"), out.getString("setting"));
+            }
+        } catch (SQLException e) {
+            LOG.debug("Error while collecting DB parameters: " + e.getMessage());
+        }
     }
     
     @Override
-    public String collectParameters() {
-        StringBuilder confBuilder = new StringBuilder();
-        for (Map.Entry<String, String> kv : dbConf.entrySet()) {
-            confBuilder.append(kv.getKey().toLowerCase())
-                       .append("=")
-                       .append(kv.getValue().toLowerCase())
-                       .append("\n");
-        }
-        return confBuilder.toString();
-    }
-
-    @Override
     public String collectVersion() {
-        return "";
+        return dbConf.get(VERSION);
     }
 }

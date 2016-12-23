@@ -266,12 +266,12 @@ public class DBWorkload {
             List<TransactionType> ttypes = new ArrayList<TransactionType>();
             ttypes.add(TransactionType.INVALID);
             int txnIdOffset = lastTxnId;
-            for (int i = 1; i < wrkld.getNumTxnTypes() + 1; i++) {
+            for (int i = 1; i <= wrkld.getNumTxnTypes(); i++) {
                 String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
                 String txnName = xmlConfig.getString(key + "/name");
 
                 // Get ID if specified; else increment from last one.
-                int txnId = i + 1;
+                int txnId = i;
                 if (xmlConfig.containsKey(key + "/id")) {
                     txnId = xmlConfig.getInt(key + "/id");
                 }
@@ -352,7 +352,7 @@ public class DBWorkload {
                     if (groupings.containsKey(weightKey))
                         weight_strings = groupings.get(weightKey);
                     else
-                    weight_strings = get_weights(plugin, work);
+                    weight_strings = getWeights(plugin, work);
                 } else {
                     String weightKey = work.getString("weights[not(@bench)]").toLowerCase();
                     if (groupings.containsKey(weightKey))
@@ -649,6 +649,10 @@ public class DBWorkload {
                 baseFileName = argsLine.getOptionValue("o");
             }
         }
+
+        // Build the complex path
+        String baseFile = filePrefix;
+        String nextName;
         
         if (baseFileName != null) {
             // Check if directory needs to be created
@@ -656,17 +660,13 @@ public class DBWorkload {
                 FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
             }
             
-            // Build the complex path
-            String baseFile = filePrefix + baseFileName;
+            baseFile = filePrefix + baseFileName;
             
-            // Increment the filename for new results
-            String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
-            ps = new PrintStream(new File(nextName));
-            LOG.info("Output into file: " + nextName);
-
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".raw"));
+            // RAW OUTPUT
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + "-raw.csv"));
             rs = new PrintStream(new File(nextName));
             LOG.info("Output Raw data into file: " + nextName);
+            r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
 
             // Result Uploader Files
             if (ru != null) {
@@ -695,13 +695,18 @@ public class DBWorkload {
             LOG.debug("No output file specified");
         }
         
+        // SUMMARY FILE
         if (argsLine.hasOption("s")) {
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
+            ps = new PrintStream(new File(nextName));
+            LOG.info("Output into file: " + nextName);
+            
             int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
             LOG.info("Grouped into Buckets of " + windowSize + " seconds");
             r.writeCSV(windowSize, ps);
 
             if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
-                ru.uploadResult();
+                ru.uploadResult(activeTXTypes);
             }
 
             // Allow more detailed reporting by transaction to make it easier to check
@@ -709,11 +714,10 @@ public class DBWorkload {
                 
                 for (TransactionType t : activeTXTypes) {
                     PrintStream ts = ps;
-                    
                     if (ts != System.out) {
                         // Get the actual filename for the output
-                        String baseFile = filePrefix + baseFileName + "_" + t.getName();
-                        String nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));                            
+                        baseFile = filePrefix + baseFileName + "_" + t.getName();
+                        nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));                            
                         ts = new PrintStream(new File(nextName));
                         r.writeCSV(windowSize, ts, t);
                         ts.close();
@@ -724,15 +728,14 @@ public class DBWorkload {
             LOG.warn("No bucket size specified");
         }
         
-        r.writeAllCSVAbsoluteTiming(rs);
-        ps.close();
-        rs.close();
+        if (ps != null) ps.close();
+        if (rs != null) rs.close();
     }
 
     /* buggy piece of shit of Java XPath implementation made me do it 
        replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
      */
-    private static List<String> get_weights(String plugin, SubnodeConfiguration work) {
+    private static List<String> getWeights(String plugin, SubnodeConfiguration work) {
 
         List<String> weight_strings = new LinkedList<String>();
         @SuppressWarnings("unchecked")

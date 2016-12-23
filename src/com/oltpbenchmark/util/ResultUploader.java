@@ -17,8 +17,9 @@
 package com.oltpbenchmark.util;
 
 import com.oltpbenchmark.Results;
-import com.oltpbenchmark.util.dbms_collectors.DBParameterCollector;
-import com.oltpbenchmark.util.dbms_collectors.DBParameterCollectorGen;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.collectors.DBParameterCollector;
+import com.oltpbenchmark.api.collectors.DBParameterCollectorGen;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.zip.GZIPOutputStream;
 
@@ -119,7 +120,7 @@ public class ResultUploader {
         }
     }
 
-    public void uploadResult() throws ParseException {
+    public void uploadResult(List<TransactionType> activeTXTypes) throws ParseException {
         try {
             File expConfFile = File.createTempFile("expConf", ".tmp");
             File sampleFile = File.createTempFile("sample", ".tmp");
@@ -144,7 +145,7 @@ public class ResultUploader {
             confOut.close();
 
             confOut = new PrintStream(new GZIPOutputStream(new FileOutputStream(rawDataFile)));
-            results.writeAllCSVAbsoluteTiming(confOut);
+            results.writeAllCSVAbsoluteTiming(activeTXTypes, confOut);
             confOut.close();
 
             CloseableHttpClient httpclient = HttpClients.createDefault();

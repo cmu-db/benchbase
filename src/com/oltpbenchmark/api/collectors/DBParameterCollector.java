@@ -14,7 +14,7 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.util.dbms_collectors;
+package com.oltpbenchmark.api.collectors;
 
 public interface DBParameterCollector {
     boolean hasParameters();

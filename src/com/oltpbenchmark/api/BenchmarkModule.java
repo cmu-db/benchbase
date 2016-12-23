@@ -373,7 +373,7 @@ public abstract class BenchmarkModule {
     @SuppressWarnings("unchecked")
     public final TransactionType initTransactionType(String procName, int id) {
         if (id == TransactionType.INVALID_ID) {
-            LOG.error(String.format("Procedure %s.%s cannot the reserved id '%d' for %s",
+            LOG.error(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s",
                     this.benchmarkName, procName, id,
                     TransactionType.INVALID.getClass().getSimpleName()));
             return null;

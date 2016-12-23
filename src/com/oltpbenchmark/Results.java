@@ -28,6 +28,7 @@ import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.ThreadBench.TimeBucketIterable;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 
 public final class Results {
     public final long nanoSeconds;
@@ -110,7 +111,7 @@ public final class Results {
         }
     }
 
-    public void writeAllCSVAbsoluteTiming(PrintStream out) {
+    public void writeAllCSVAbsoluteTiming(List<TransactionType> activeTXTypes, PrintStream out) {
 
         // This is needed because nanTime does not guarantee offset... we
         // ground it (and round it) to ms from 1970-01-01 like currentTime
@@ -119,10 +120,28 @@ public final class Results {
         double offset = x - y;
 
         // long startNs = latencySamples.get(0).startNs;
-        out.println("transaction type (index in config file), start time (microseconds),latency (microseconds),worker id(start number), phase id(index in config file)");
+        String header[] = {
+            "Transaction Type Index",
+            "Transaction Name",
+            "Start Time (microseconds)",
+            "Latency (microseconds)",
+            "Worker Id (start number)",
+            "Phase Id (index in config file)"
+        };
+        out.println(StringUtil.join(",", header));
         for (Sample s : latencySamples) {
             double startUs = ((double) s.startNs / (double) 1000000000);
-            out.println(s.tranType + "," + String.format("%10.6f", startUs - offset) + "," + s.latencyUs + "," + s.workerId + "," + s.phaseId);
+            String row[] = {
+                Integer.toString(s.tranType),
+                // Important!
+                // The TxnType offsets start at 1!
+                activeTXTypes.get(s.tranType-1).getName(),
+                String.format("%10.6f", startUs - offset),
+                Integer.toString(s.latencyUs),
+                Integer.toString(s.workerId),
+                Integer.toString(s.phaseId),
+            };
+            out.println(StringUtil.join(",", row));
         }
     }
 

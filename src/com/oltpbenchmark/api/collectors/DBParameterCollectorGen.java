@@ -14,34 +14,17 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.util.dbms_collectors;
+package com.oltpbenchmark.api.collectors;
 
-import com.oltpbenchmark.catalog.Catalog;
-import org.apache.log4j.Logger;
-
-import java.sql.*;
-import java.util.Map;
-
-class POSTGRESCollector extends DBCollector {
-    private static final Logger LOG = Logger.getLogger(POSTGRESCollector.class);
-    private static final String VERSION = "server_version";
-
-    public POSTGRESCollector(String oriDBUrl, String username, String password) {
-        try {
-            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
-            Catalog.setSeparator(conn);
-            Statement s = conn.createStatement();
-            ResultSet out = s.executeQuery("SHOW ALL;");
-            while(out.next()) {
-                dbConf.put(out.getString("name"), out.getString("setting"));
-            }
-        } catch (SQLException e) {
-            LOG.debug("Error while collecting DB parameters: " + e.getMessage());
+public class DBParameterCollectorGen {
+    public static DBParameterCollector getCollector(String dbType, String dbUrl, String username, String password) {
+        String db = dbType.toLowerCase();
+        if (db.equals("mysql")) {
+            return new MySQLCollector(dbUrl, username, password);
+        } else if (db.equals("postgres")) {
+            return new PostgresCollector(dbUrl, username, password);
+        } else {
+            return new DBCollector();
         }
-    }
-    
-    @Override
-    public String collectVersion() {
-        return dbConf.get(VERSION);
     }
 }
