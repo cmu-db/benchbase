@@ -19,11 +19,13 @@ package com.oltpbenchmark.benchmarks.sibench;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -37,6 +39,12 @@ public class SILoader extends Loader<SIBenchmark> {
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  " + this.num_record);
         }
+    }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

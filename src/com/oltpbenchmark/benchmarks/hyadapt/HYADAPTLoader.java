@@ -23,9 +23,11 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
+import java.util.List;
 import java.util.Random;
 
 public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
@@ -58,6 +60,12 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;
     }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
+    }    
     
     @Override
     public void load() throws SQLException {

@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderUtil;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.benchmarks.twitter.util.NameHistogram;
 import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
 import com.oltpbenchmark.catalog.Table;
@@ -54,6 +55,12 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             LOG.debug("# of TWEETS: " + this.num_tweets);
             LOG.debug("# of FOLLOWS: " + this.num_follows);
         }
+    }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
     }
     
     /**

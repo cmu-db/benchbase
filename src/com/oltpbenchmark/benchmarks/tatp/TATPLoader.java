@@ -20,10 +20,12 @@ package com.oltpbenchmark.benchmarks.tatp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.*;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -38,6 +40,12 @@ public class TATPLoader extends Loader<TATPBenchmark> {
     	super(benchmark, c);
     	this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * this.scaleFactor);
         if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
+    }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

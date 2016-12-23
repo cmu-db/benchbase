@@ -20,6 +20,7 @@ package com.oltpbenchmark.api;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
@@ -39,11 +40,25 @@ public abstract class Loader<T extends BenchmarkModule> {
     private static final Logger LOG = Logger.getLogger(Loader.class);
 
     protected final T benchmark;
+    @Deprecated
     protected Connection conn;
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
     private final Histogram<String> tableSizes = new Histogram<String>(true);
 
+    /**
+     * A LoaderThread is responsible for loading some portion of a
+     * benchmark's databsae.
+     * Note that each LoaderThread has its own databsae Connection handle.
+     */
+    public abstract class LoaderThread implements Runnable {
+        protected final Connection conn;
+        
+        public LoaderThread() throws SQLException {
+            this.conn = Loader.this.benchmark.makeConnection();
+        }
+    }
+    
     public Loader(T benchmark, Connection conn) {
         this.benchmark = benchmark;
         this.conn = conn;
@@ -51,6 +66,29 @@ public abstract class Loader<T extends BenchmarkModule> {
         this.scaleFactor = workConf.getScaleFactor();
     }
 
+    /**
+     * Each Loader will generate a list of Runnable objects that
+     * will perform the loading operation for the benchmark.
+     * The number of threads that will be launched at the same time
+     * depends on the number of cores that are available. But they are
+     * guaranteed to execute in the order specified in the list.
+     * You may have to use your own protections if there are dependencies 
+     * @return
+     */
+    public abstract List<LoaderThread> createLoaderTheads() throws SQLException;
+    
+    /**
+     * @throws SQLException
+     */
+    @Deprecated
+    public void load() throws SQLException {
+        List<LoaderThread> threads = this.createLoaderTheads();
+        for (LoaderThread t : threads) {
+            t.run();
+        }
+    }
+    
+    
     public void setTableCount(String tableName, int size) {
         this.tableSizes.set(tableName, size);
     }
@@ -106,10 +144,7 @@ public abstract class Loader<T extends BenchmarkModule> {
         return (this.benchmark.rng());
     }
 
-    /**
-     * @throws SQLException
-     */
-    public abstract void load() throws SQLException;
+    
 
     /**
      * Method that can be overriden to specifically unload the tables of the

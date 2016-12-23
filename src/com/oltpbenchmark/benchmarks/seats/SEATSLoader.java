@@ -43,6 +43,7 @@ import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerIdIterable;
 import com.oltpbenchmark.benchmarks.seats.util.DistanceUtil;
@@ -110,6 +111,12 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     // -----------------------------------------------------------------
     // LOADING METHODS
     // -----------------------------------------------------------------
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
+    }
     
     @Override
     public void load() {

@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.ycsb;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -37,6 +38,12 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  " + this.num_record);
         }
+    }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

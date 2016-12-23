@@ -54,6 +54,12 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             LOG.debug("# Max of TRUSTS per user: " + this.num_trust);
         }
     }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     @Override
     public void load() throws SQLException {

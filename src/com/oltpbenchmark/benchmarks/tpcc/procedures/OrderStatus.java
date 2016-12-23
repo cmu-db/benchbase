@@ -76,215 +76,213 @@ public class OrderStatus extends TPCCProcedure {
 	private PreparedStatement customerByName = null;
 
 
-	 public ResultSet run(Connection conn, Random gen,
-				int terminalWarehouseID, int numWarehouses,
-				int terminalDistrictLowerID, int terminalDistrictUpperID,
-				TPCCWorker w) throws SQLException{
+    public ResultSet run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
+        boolean trace = LOG.isTraceEnabled();
+        
+        // initializing all prepared statements
+        payGetCust = this.getPreparedStatement(conn, payGetCustSQL);
+        customerByName = this.getPreparedStatement(conn, customerByNameSQL);
+        ordStatGetNewestOrd = this.getPreparedStatement(conn, ordStatGetNewestOrdSQL);
+        ordStatGetOrderLines = this.getPreparedStatement(conn, ordStatGetOrderLinesSQL);
 
+        int d_id = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
+        boolean c_by_name = false;
+        int y = TPCCUtil.randomNumber(1, 100, gen);
+        String c_last = null;
+        int c_id = -1;
+        if (y <= 60) {
+            c_by_name = true;
+            c_last = TPCCUtil.getNonUniformRandomLastNameForRun(gen);
+        } else {
+            c_by_name = false;
+            c_id = TPCCUtil.getCustomerID(gen);
+        }
 
-			//initializing all prepared statements
-			payGetCust =this.getPreparedStatement(conn, payGetCustSQL);
-			customerByName=this.getPreparedStatement(conn, customerByNameSQL);
-			ordStatGetNewestOrd =this.getPreparedStatement(conn, ordStatGetNewestOrdSQL);
-			ordStatGetOrderLines=this.getPreparedStatement(conn, ordStatGetOrderLinesSQL);
+        int o_id = -1, o_carrier_id = -1;
+        Timestamp o_entry_d;
+        ArrayList<String> orderLines = new ArrayList<String>();
 
-			int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID,terminalDistrictUpperID, gen);
-			boolean isCustomerByName=false;
-			int y = TPCCUtil.randomNumber(1, 100, gen);
-			String customerLastName = null;
-			int customerID = -1;
-			if (y <= 60) {
-				isCustomerByName = true;
-				customerLastName = TPCCUtil.getNonUniformRandomLastNameForRun(gen);
-			} else {
-				isCustomerByName = false;
-				customerID = TPCCUtil.getCustomerID(gen);
-			}
+        Customer c;
+        if (c_by_name) {
+            assert c_id <= 0;
+            // TODO: This only needs c_balance, c_first, c_middle, c_id
+            // only fetch those columns?
+            c = getCustomerByName(w_id, d_id, c_last);
+        } else {
+            assert c_last == null;
+            c = getCustomerById(w_id, d_id, c_id, conn);
+        }
 
-			orderStatusTransaction(terminalWarehouseID, districtID,
-							customerID, customerLastName, isCustomerByName, conn, w);
-			return null;
-	 }
+        // find the newest order for the customer
+        // retrieve the carrier & order date for the most recent order.
 
-	// attention duplicated code across trans... ok for now to maintain separate prepared statements
-			public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn)
-					throws SQLException {
-			    boolean trace = LOG.isDebugEnabled();
+        ordStatGetNewestOrd.setInt(1, w_id);
+        ordStatGetNewestOrd.setInt(2, d_id);
+        ordStatGetNewestOrd.setInt(3, c.c_id);
+        if (trace) LOG.trace("ordStatGetNewestOrd START");
+        ResultSet rs = ordStatGetNewestOrd.executeQuery();
+        if (trace) LOG.trace("ordStatGetNewestOrd END");
 
-				payGetCust.setInt(1, c_w_id);
-				payGetCust.setInt(2, c_d_id);
-				payGetCust.setInt(3, c_id);
-				if (trace) LOG.trace("payGetCust START");
-				ResultSet rs = payGetCust.executeQuery();
-				if (trace) LOG.trace("payGetCust END");
-				if (!rs.next()) {
-					throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id
-							+ " C_W_ID=" + c_w_id + " not found!");
-				}
+        if (!rs.next()) {
+            String msg = String.format("No order records for CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_ID=%d]",
+                                       w_id, d_id, c.c_id);
+            if (trace) LOG.warn(msg);
+            throw new RuntimeException(msg);
+        }
 
-				Customer c = TPCCUtil.newCustomerFromResults(rs);
-				c.c_id = c_id;
-				c.c_last = rs.getString("C_LAST");
-				rs.close();
-				return c;
-			}
+        o_id = rs.getInt("O_ID");
+        o_carrier_id = rs.getInt("O_CARRIER_ID");
+        o_entry_d = rs.getTimestamp("O_ENTRY_D");
+        rs.close();
 
-			private void orderStatusTransaction(int w_id, int d_id, int c_id,
-					String c_last, boolean c_by_name, Connection conn, TPCCWorker w) throws SQLException {
-				int o_id = -1, o_carrier_id = -1;
-				boolean trace = LOG.isDebugEnabled();
-				Timestamp entdate;
-				ArrayList<String> orderLines = new ArrayList<String>();
+        // retrieve the order lines for the most recent order
+        ordStatGetOrderLines.setInt(1, o_id);
+        ordStatGetOrderLines.setInt(2, d_id);
+        ordStatGetOrderLines.setInt(3, w_id);
+        if (trace) LOG.trace("ordStatGetOrderLines START");
+        rs = ordStatGetOrderLines.executeQuery();
+        if (trace) LOG.trace("ordStatGetOrderLines END");
 
-				Customer c;
-				if (c_by_name) {
-					assert c_id <= 0;
-					// TODO: This only needs c_balance, c_first, c_middle, c_id
-					// only fetch those columns?
-					c = getCustomerByName(w_id, d_id, c_last);
-				} else {
-					assert c_last == null;
-					c = getCustomerById(w_id, d_id, c_id,conn);
-				}
+        while (rs.next()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            sb.append(rs.getLong("OL_SUPPLY_W_ID"));
+            sb.append(" - ");
+            sb.append(rs.getLong("OL_I_ID"));
+            sb.append(" - ");
+            sb.append(rs.getLong("OL_QUANTITY"));
+            sb.append(" - ");
+            sb.append(TPCCUtil.formattedDouble(rs.getDouble("OL_AMOUNT")));
+            sb.append(" - ");
+            if (rs.getTimestamp("OL_DELIVERY_D") != null)
+                sb.append(rs.getTimestamp("OL_DELIVERY_D"));
+            else
+                sb.append("99-99-9999");
+            sb.append("]");
+            orderLines.add(sb.toString());
+        }
+        rs.close();
+        rs = null;
 
-				// find the newest order for the customer
-				// retrieve the carrier & order date for the most recent order.
+        // commit the transaction
+        conn.commit();
+        
+        if (orderLines.isEmpty()) {
+            String msg = String.format("Order record had no order line items [C_W_ID=%d, C_D_ID=%d, C_ID=%d, O_ID=%d]",
+                                       w_id, d_id, c.c_id, o_id);
+            if (trace) LOG.warn(msg);
+        }
 
+        if (trace) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n");
+            sb.append("+-------------------------- ORDER-STATUS -------------------------+\n");
+            sb.append(" Date: ");
+            sb.append(TPCCUtil.getCurrentTime());
+            sb.append("\n\n Warehouse: ");
+            sb.append(w_id);
+            sb.append("\n District:  ");
+            sb.append(d_id);
+            sb.append("\n\n Customer:  ");
+            sb.append(c.c_id);
+            sb.append("\n   Name:    ");
+            sb.append(c.c_first);
+            sb.append(" ");
+            sb.append(c.c_middle);
+            sb.append(" ");
+            sb.append(c.c_last);
+            sb.append("\n   Balance: ");
+            sb.append(c.c_balance);
+            sb.append("\n\n");
+            if (o_id == -1) {
+                sb.append(" Customer has no orders placed.\n");
+            } else {
+                sb.append(" Order-Number: ");
+                sb.append(o_id);
+                sb.append("\n    Entry-Date: ");
+                sb.append(o_entry_d);
+                sb.append("\n    Carrier-Number: ");
+                sb.append(o_carrier_id);
+                sb.append("\n\n");
+                if (orderLines.size() != 0) {
+                    sb.append(" [Supply_W - Item_ID - Qty - Amount - Delivery-Date]\n");
+                    for (String orderLine : orderLines) {
+                        sb.append(" ");
+                        sb.append(orderLine);
+                        sb.append("\n");
+                    }
+                } else {
+                    LOG.trace(" This Order has no Order-Lines.\n");
+                }
+            }
+            sb.append("+-----------------------------------------------------------------+\n\n");
+            LOG.trace(sb.toString());
+        }
+        
+        return null;
+    }
 
-				ordStatGetNewestOrd.setInt(1, w_id);
-				ordStatGetNewestOrd.setInt(2, d_id);
-				ordStatGetNewestOrd.setInt(3, c.c_id);
-				if (trace) LOG.trace("ordStatGetNewestOrd START");
-				ResultSet rs = ordStatGetNewestOrd.executeQuery();
-				if (trace) LOG.trace("ordStatGetNewestOrd END");
+    // attention duplicated code across trans... ok for now to maintain separate
+    // prepared statements
+    public Customer getCustomerById(int c_w_id, int c_d_id, int c_id, Connection conn) throws SQLException {
+        boolean trace = LOG.isTraceEnabled();
 
-				if (!rs.next()) {
-					throw new RuntimeException("No orders for O_W_ID=" + w_id
-							+ " O_D_ID=" + d_id + " O_C_ID=" + c.c_id);
-				}
+        payGetCust.setInt(1, c_w_id);
+        payGetCust.setInt(2, c_d_id);
+        payGetCust.setInt(3, c_id);
+        if (trace) LOG.trace("payGetCust START");
+        ResultSet rs = payGetCust.executeQuery();
+        if (trace) LOG.trace("payGetCust END");
+        if (!rs.next()) {
+            String msg = String.format("Failed to get CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_ID=%d]",
+                                       c_w_id, c_d_id, c_id);
+            if (trace) LOG.warn(msg);
+            throw new RuntimeException(msg);
+        }
 
-				o_id = rs.getInt("O_ID");
-				o_carrier_id = rs.getInt("O_CARRIER_ID");
-				entdate = rs.getTimestamp("O_ENTRY_D");
-				rs.close();
-				rs = null;
+        Customer c = TPCCUtil.newCustomerFromResults(rs);
+        c.c_id = c_id;
+        c.c_last = rs.getString("C_LAST");
+        rs.close();
+        return c;
+    }
 
-				// retrieve the order lines for the most recent order
+    // attention this code is repeated in other transacitons... ok for now to
+    // allow for separate statements.
+    public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last) throws SQLException {
+        ArrayList<Customer> customers = new ArrayList<Customer>();
+        boolean trace = LOG.isDebugEnabled();
 
+        customerByName.setInt(1, c_w_id);
+        customerByName.setInt(2, c_d_id);
+        customerByName.setString(3, c_last);
+        if (trace) LOG.trace("customerByName START");
+        ResultSet rs = customerByName.executeQuery();
+        if (trace) LOG.trace("customerByName END");
 
-				ordStatGetOrderLines.setInt(1, o_id);
-				ordStatGetOrderLines.setInt(2, d_id);
-				ordStatGetOrderLines.setInt(3, w_id);
-				if (trace) LOG.trace("ordStatGetOrderLines START");
-				rs = ordStatGetOrderLines.executeQuery();
-				if (trace) LOG.trace("ordStatGetOrderLines END");
+        while (rs.next()) {
+            Customer c = TPCCUtil.newCustomerFromResults(rs);
+            c.c_id = rs.getInt("C_ID");
+            c.c_last = c_last;
+            customers.add(c);
+        }
+        rs.close();
 
-				while (rs.next()) {
-					StringBuilder orderLine = new StringBuilder();
-					orderLine.append("[");
-					orderLine.append(rs.getLong("OL_SUPPLY_W_ID"));
-					orderLine.append(" - ");
-					orderLine.append(rs.getLong("OL_I_ID"));
-					orderLine.append(" - ");
-					orderLine.append(rs.getLong("OL_QUANTITY"));
-					orderLine.append(" - ");
-					orderLine.append(TPCCUtil.formattedDouble(rs
-							.getDouble("OL_AMOUNT")));
-					orderLine.append(" - ");
-					if (rs.getTimestamp("OL_DELIVERY_D") != null)
-						orderLine.append(rs.getTimestamp("OL_DELIVERY_D"));
-					else
-						orderLine.append("99-99-9999");
-					orderLine.append("]");
-					orderLines.add(orderLine.toString());
-				}
-				rs.close();
-				rs = null;
+        if (customers.size() == 0) {
+            String msg = String.format("Failed to get CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_LAST=%s]",
+                                       c_w_id, c_d_id, c_last);
+            if (trace) LOG.warn(msg);
+            throw new RuntimeException(msg);
+        }
 
-				// commit the transaction
-				conn.commit();
-
-				StringBuilder terminalMessage = new StringBuilder();
-				terminalMessage.append("\n");
-				terminalMessage
-						.append("+-------------------------- ORDER-STATUS -------------------------+\n");
-				terminalMessage.append(" Date: ");
-				terminalMessage.append(TPCCUtil.getCurrentTime());
-				terminalMessage.append("\n\n Warehouse: ");
-				terminalMessage.append(w_id);
-				terminalMessage.append("\n District:  ");
-				terminalMessage.append(d_id);
-				terminalMessage.append("\n\n Customer:  ");
-				terminalMessage.append(c.c_id);
-				terminalMessage.append("\n   Name:    ");
-				terminalMessage.append(c.c_first);
-				terminalMessage.append(" ");
-				terminalMessage.append(c.c_middle);
-				terminalMessage.append(" ");
-				terminalMessage.append(c.c_last);
-				terminalMessage.append("\n   Balance: ");
-				terminalMessage.append(c.c_balance);
-				terminalMessage.append("\n\n");
-				if (o_id == -1) {
-					terminalMessage.append(" Customer has no orders placed.\n");
-				} else {
-					terminalMessage.append(" Order-Number: ");
-					terminalMessage.append(o_id);
-					terminalMessage.append("\n    Entry-Date: ");
-					terminalMessage.append(entdate);
-					terminalMessage.append("\n    Carrier-Number: ");
-					terminalMessage.append(o_carrier_id);
-					terminalMessage.append("\n\n");
-					if (orderLines.size() != 0) {
-						terminalMessage
-								.append(" [Supply_W - Item_ID - Qty - Amount - Delivery-Date]\n");
-						for (String orderLine : orderLines) {
-							terminalMessage.append(" ");
-							terminalMessage.append(orderLine);
-							terminalMessage.append("\n");
-						}
-					} else {
-					    if(LOG.isTraceEnabled()) LOG.trace(" This Order has no Order-Lines.\n");
-					}
-				}
-				terminalMessage.append("+-----------------------------------------------------------------+\n\n");
-				if(LOG.isTraceEnabled()) LOG.trace(terminalMessage.toString());
-			}
-
-			//attention this code is repeated in other transacitons... ok for now to allow for separate statements.
-			public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last)
-					throws SQLException {
-				ArrayList<Customer> customers = new ArrayList<Customer>();
-				boolean trace = LOG.isDebugEnabled();
-
-				customerByName.setInt(1, c_w_id);
-				customerByName.setInt(2, c_d_id);
-				customerByName.setString(3, c_last);
-				if (trace) LOG.trace("customerByName START");
-				ResultSet rs = customerByName.executeQuery();
-				if (trace) LOG.trace("customerByName END");
-
-				while (rs.next()) {
-					Customer c = TPCCUtil.newCustomerFromResults(rs);
-					c.c_id = rs.getInt("C_ID");
-					c.c_last = c_last;
-					customers.add(c);
-				}
-				rs.close();
-
-				if (customers.size() == 0) {
-					throw new RuntimeException("C_LAST=" + c_last + " C_D_ID=" + c_d_id
-							+ " C_W_ID=" + c_w_id + " not found!");
-				}
-
-				// TPC-C 2.5.2.2: Position n / 2 rounded up to the next integer, but
-				// that counts starting from 1.
-				int index = customers.size() / 2;
-				if (customers.size() % 2 == 0) {
-					index -= 1;
-				}
-				return customers.get(index);
-			}
+        // TPC-C 2.5.2.2: Position n / 2 rounded up to the next integer, but
+        // that counts starting from 1.
+        int index = customers.size() / 2;
+        if (customers.size() % 2 == 0) {
+            index -= 1;
+        }
+        return customers.get(index);
+    }
 
 
 

@@ -3,10 +3,13 @@ package com.oltpbenchmark.benchmarks.smallbank;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.RandomDistribution.*;
@@ -48,17 +51,22 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
     }
 
     @Override
-    public void load() throws SQLException {
-        // It's single-threaded for now...
-        Generator generator = new Generator(0, this.numAccounts);
-        generator.run();
-
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        int batchSize = 100000;
+        long start = 0;
+        while (start < this.numAccounts) {
+            long stop = Math.min(start + batchSize, this.numAccounts);
+            threads.add(new Generator(start, stop));
+            start = stop;
+        }
+        return (threads);
     }
     
     /**
      * Thread that can generate a range of accounts
      */
-    private class Generator implements Runnable {
+    private class Generator extends LoaderThread {
         private final long start;
         private final long stop;
         private final DiscreteRNG randBalance;
@@ -67,7 +75,8 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
         PreparedStatement stmtSavings;
         PreparedStatement stmtChecking;
         
-        public Generator(long start, long stop) {
+        public Generator(long start, long stop) throws SQLException {
+            super();
             this.start = start;
             this.stop = stop;
             this.randBalance = new Gaussian(SmallBankLoader.this.benchmark.rng(),

@@ -18,6 +18,7 @@ package com.oltpbenchmark.benchmarks.noop;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +34,12 @@ public class NoOpLoader extends Loader<NoOpBenchmark> {
 
     public NoOpLoader(NoOpBenchmark benchmark, Connection c) {
         super(benchmark, c);
+    }
+    
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

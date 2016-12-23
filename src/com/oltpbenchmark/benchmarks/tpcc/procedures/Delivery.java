@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
@@ -100,6 +101,7 @@ public class Delivery extends TPCCProcedure {
 		
         boolean trace = LOG.isDebugEnabled();
         int o_carrier_id = TPCCUtil.randomNumber(1, 10, gen);
+        Timestamp timestamp = w.getBenchmarkModule().getTimestamp(System.currentTimeMillis());
 
 		delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
 		delivDeleteNewOrder =  this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
@@ -121,8 +123,9 @@ public class Delivery extends TPCCProcedure {
             ResultSet rs = delivGetOrderId.executeQuery();
             if (trace) LOG.trace("delivGetOrderId END");
             if (!rs.next()) {
-                // This district has no new orders; this can happen but should
-                // be rare
+                // This district has no new orders
+                // This can happen but should be rare
+                if (trace) LOG.warn(String.format("District has no new orders [W_ID=%d, D_ID=%d]", w_id, d_id));
                 continue;
             }
 
@@ -156,13 +159,14 @@ public class Delivery extends TPCCProcedure {
             rs = delivGetCustId.executeQuery();
             if (trace) LOG.trace("delivGetCustId END");
 
-            if (!rs.next())
-                throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
-                        + d_id + " O_W_ID=" + w_id + " not found!");
+            if (!rs.next()) {
+                String msg = String.format("Failed to retrieve ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
+                                           w_id, d_id, no_o_id);
+                if (trace) LOG.warn(msg);
+                throw new RuntimeException(msg);
+            }
             c_id = rs.getInt("O_C_ID");
             rs.close();
-            rs = null;
-
 
             delivUpdateCarrierId.setInt(1, o_carrier_id);
             delivUpdateCarrierId.setInt(2, no_o_id);
@@ -173,11 +177,13 @@ public class Delivery extends TPCCProcedure {
             if (trace) LOG.trace("delivUpdateCarrierId END");
 
             if (result != 1) {
-                throw new RuntimeException("O_ID=" + no_o_id + " O_D_ID="
-                        + d_id + " O_W_ID=" + w_id + " not found!");
+                String msg = String.format("Failed to update ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
+                                           w_id, d_id, no_o_id);
+                if (trace) LOG.warn(msg);
+                throw new RuntimeException(msg);
             }
 
-            delivUpdateDeliveryDate.setTimestamp(1, w.getBenchmarkModule().getTimestamp(System.currentTimeMillis()));
+            delivUpdateDeliveryDate.setTimestamp(1, timestamp);
             delivUpdateDeliveryDate.setInt(2, no_o_id);
             delivUpdateDeliveryDate.setInt(3, d_id);
             delivUpdateDeliveryDate.setInt(4, w_id);
@@ -186,8 +192,10 @@ public class Delivery extends TPCCProcedure {
             if (trace) LOG.trace("delivUpdateDeliveryDate END");
 
             if (result == 0){
-                throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
-                        + d_id + " OL_W_ID=" + w_id + " not found!");
+                String msg = String.format("Failed to update ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
+                                           w_id, d_id, no_o_id);
+                if (trace) LOG.warn(msg);
+                throw new RuntimeException(msg);
             }
 
 
@@ -198,12 +206,14 @@ public class Delivery extends TPCCProcedure {
             rs = delivSumOrderAmount.executeQuery();
             if (trace) LOG.trace("delivSumOrderAmount END");
 
-            if (!rs.next())
-                throw new RuntimeException("OL_O_ID=" + no_o_id + " OL_D_ID="
-                        + d_id + " OL_W_ID=" + w_id + " not found!");
+            if (!rs.next()) {
+                String msg = String.format("Failed to retrieve ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
+                                           w_id, d_id, no_o_id);
+                if (trace) LOG.warn(msg);
+                throw new RuntimeException(msg);
+            }
             ol_total = rs.getFloat("OL_TOTAL");
             rs.close();
-            rs = null;
 
             int idx = 1; // HACK: So that we can debug this query
             delivUpdateCustBalDelivCnt.setDouble(idx++, ol_total);
@@ -214,14 +224,17 @@ public class Delivery extends TPCCProcedure {
             result = delivUpdateCustBalDelivCnt.executeUpdate();
             if (trace) LOG.trace("delivUpdateCustBalDelivCnt END");
 
-            if (result == 0)
-                throw new RuntimeException("C_ID=" + c_id + " C_W_ID=" + w_id
-                        + " C_D_ID=" + d_id + " not found!");
+            if (result == 0) {
+                String msg = String.format("Failed to update CUSTOMER record [W_ID=%d, D_ID=%d, C_ID=%d]",
+                                           w_id, d_id, c_id);
+                if (trace) LOG.warn(msg);
+                throw new RuntimeException(msg);
+            }
         }
 
         conn.commit();
          
-        if (LOG.isTraceEnabled()) {
+        if (trace) {
             StringBuilder terminalMessage = new StringBuilder();
             terminalMessage
                     .append("\n+---------------------------- DELIVERY ---------------------------+\n");

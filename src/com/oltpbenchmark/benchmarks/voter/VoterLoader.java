@@ -19,8 +19,10 @@ package com.oltpbenchmark.benchmarks.voter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -73,6 +75,12 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         super(benchmark, conn);
     }
 
+    @Override
+    public List<LoaderThread> createLoaderTheads() throws SQLException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
     @Override
     public void load() throws SQLException {
         String[] contestants = VoterConstants.CONTESTANT_NAMES_CSV.split(",");

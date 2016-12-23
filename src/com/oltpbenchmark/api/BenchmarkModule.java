@@ -33,11 +33,13 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
+import com.oltpbenchmark.util.ThreadUtil;
 
 /**
  * Base class for all benchmark implementations
@@ -77,11 +79,6 @@ public abstract class BenchmarkModule {
     private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<Class<? extends Procedure>>();
 
     /**
-     * The last Connection that was created using this BenchmarkModule
-     */
-    private Connection last_connection;
-
-    /**
      * A single Random object that should be re-used by all a benchmark's components
      */
     private final Random rng = new Random();
@@ -111,21 +108,12 @@ public abstract class BenchmarkModule {
      * @return
      * @throws SQLException
      */
-    protected final Connection makeConnection() throws SQLException {
+    public final Connection makeConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(workConf.getDBConnection(),
                 workConf.getDBUsername(),
                 workConf.getDBPassword());
         Catalog.setSeparator(conn);
-        this.last_connection = conn;
         return (conn);
-    }
-
-    /**
-     * Return the last Connection handle created by this BenchmarkModule
-     * @return
-     */
-    protected final Connection getLastConnection() {
-        return (this.last_connection);
     }
 
     // --------------------------------------------------------------------------
@@ -293,7 +281,18 @@ public abstract class BenchmarkModule {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
             if (loader != null) {
                 conn.setAutoCommit(false);
-                loader.load();
+                
+                // PAVLO: 2016-12-23
+                // We are going to eventually migrate everything over to use the
+                // same API for creating multi-threaded loaders. For now we will support
+                // both. So if createLoaderTheads() returns null, we will use the old load()
+                // method.
+                List<? extends LoaderThread> loaderThreads = loader.createLoaderTheads();
+                if (loaderThreads != null) {
+                    ThreadUtil.runGlobalPool(loaderThreads);
+                } else {
+                    loader.load();    
+                }
                 conn.commit();
 
                 if (loader.getTableCounts().isEmpty() == false) {
