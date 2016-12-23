@@ -77,7 +77,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         loadItems(TPCCConfig.configItemCount);
         
         // List<Runnable> threads = new ArrayList<Runnable>();
-        for (int w = 0; w < numWarehouses; w++) {
+        for (int w = 1; w <= numWarehouses; w++) {
             final int w_id = w;
             // We currently can't support multi-threaded loading because we
             // will need to make multiple connections to the DBMS
@@ -90,7 +90,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     loadStock(w_id, TPCCConfig.configItemCount);
                     
                     // DISTRICT
-                    loadDist(w_id, TPCCConfig.configDistPerWhse);
+                    loadDistricts(w_id, TPCCConfig.configDistPerWhse);
                     
                     // CUSTOMER
                     loadCust(w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
@@ -345,7 +345,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 	} // end loadStock()
 
-	protected int loadDist(int w_id, int distWhseKount) {
+	protected int loadDistricts(int w_id, int distWhseKount) {
 
 		int k = 0;
 
