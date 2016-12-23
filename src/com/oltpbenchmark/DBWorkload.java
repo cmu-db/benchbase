@@ -668,26 +668,29 @@ public class DBWorkload {
             rs = new PrintStream(new File(nextName));
             LOG.info("Output Raw data into file: " + nextName);
 
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
-            PrintStream ss = new PrintStream(new File(nextName));
-            LOG.info("Output summary data into file: " + nextName);
-            if (ru != null) ru.writeSummary(ss);
-            ss.close();
+            // Result Uploader Files
+            if (ru != null) {
+                // Summary Data
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
+                PrintStream ss = new PrintStream(new File(nextName));
+                LOG.info("Output summary data into file: " + nextName);
+                ru.writeSummary(ss);
+                ss.close();
 
-            // DBMS Configuration
-            if (ru.getConfCollector().hasParameters()) {
+                // DBMS Configuration
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
                 ss = new PrintStream(new File(nextName));
                 LOG.info("Output DBMS Configuration into file: " + nextName);
-                if (ru != null) ru.writeDBParameters(ss);
+                ru.writeDBParameters(ss);
+                ss.close();
+
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
+                ss = new PrintStream(new File(nextName));
+                LOG.info("Output benchmark config into file: " + nextName);
+                ru.writeBenchmarkConf(ss);
                 ss.close();
             }
-
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
-            ss = new PrintStream(new File(nextName));
-            LOG.info("Output benchmark config into file: " + nextName);
-            if (ru != null) ru.writeBenchmarkConf(ss);
-            ss.close();
+            
         } else if (LOG.isDebugEnabled()) {
             LOG.debug("No output file specified");
         }
