@@ -130,27 +130,67 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     // -----------------------------------------------------------------
     
     public List<LoaderThread> createLoaderTheads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
-        
+        return (null);
+    }
+    
+    @Override
+    public void load() {
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Starting loader [scaleFactor=%.2f]", profile.getScaleFactor())); 
         
-        for (AbstractTableGenerator g : this.generators.values()) {
-            final AbstractTableGenerator generator = g;
-            
+        final EventObservableExceptionHandler handler = new EventObservableExceptionHandler();
+        final List<Thread> threads = new ArrayList<Thread>();
+        for (AbstractTableGenerator generator : this.generators.values()) {
             // if (isSubGenerator(generator)) continue;
-            threads.add(new LoaderThread() {
-                @Override
-                public void run() {
-                    generator.run();
-                }
-            });
+            Thread t = new Thread(generator);
+            t.setName(generator.getTableName());
+            t.setUncaughtExceptionHandler(handler);
+            
             // Call init() before we start!
             // This will setup non-data related dependencies
             generator.init();
+            
+            threads.add(t);
         } // FOR
-        return (threads);
+        assert(threads.size() > 0);
+        handler.addObserver(new EventObserver<Pair<Thread,Throwable>>() {
+            @Override
+            public void update(EventObservable<Pair<Thread, Throwable>> o, Pair<Thread, Throwable> t) {
+                fail = true;
+                for (Thread thread : threads)
+                    thread.interrupt();
+                t.second.printStackTrace();
+            }
+        });
+        
+        // Construct a new thread to load each table
+        // Fire off the threads and wait for them to complete
+        // If debug is set to true, then we'll execute them serially
+        try {
+            for (Thread t : threads) {
+                t.start();
+            } // FOR
+            for (Thread t : threads) {
+                t.join();
+            } // FOR
+        } catch (InterruptedException e) {
+            LOG.fatal("Unexpected error", e);
+        } finally {
+            if (handler.hasError()) {
+                throw new RuntimeException("Error while generating table data.", handler.getError());
+            }
+        }
+        
+        // Save the benchmark profile out to disk so that we can send it
+        // to all of the clients
+        try {
+            profile.saveProfile(this.conn);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to save profile information in database", ex);
+        }
+        LOG.info("Finished generating data for all tables");
     }
+    
     
     private void registerGenerator(AbstractTableGenerator generator) {
         // Register this one as well as any sub-generators
