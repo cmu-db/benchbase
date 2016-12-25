@@ -406,8 +406,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
-
                     // TODO: Handle acceptable error codes for every DBMS
                     if (LOG.isDebugEnabled()) 
                         LOG.debug(next + " " + ex.getMessage() + " " + ex.getErrorCode() + " - " + ex.getSQLState());
