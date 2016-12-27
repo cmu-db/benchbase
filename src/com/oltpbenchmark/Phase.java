@@ -173,27 +173,28 @@ public class Phase {
     
     /**
      * Returns a string for logging purposes when entering the phase
-     * 
-     * @return Loggin String
      */
     public String currentPhaseString() {
-        String retString = StringUtil.bold("PHASE START") + " :: ";
-        retString += "[Workload=" + benchmarkName + "] ";
+        List<String> inner = new ArrayList<String>();
+        inner.add("[Workload=" + benchmarkName.toUpperCase() + "]");
         if (isDisabled()){
-            retString += "[Disabled=true]";
+            inner.add("[Disabled=true]");
         } else {
             if (isLatencyRun()) {
-                retString += "[Serial=true] [Time= n/a] ";
+                inner.add("[Serial=true]");
+                inner.add("[Time=n/a]");
             }
             else {
-                retString += "[Serial= "+ isSerial() + "] [Time=" + time + "] ";
+                inner.add("[Serial="+ isSerial() + "]");
+                inner.add("[Time=" + time + "]");
             }
-            retString += "[Rate=" + (isRateLimited() ? rate : "unlimited") + "] " +
-                         "[Arrival=" + arrival + "] " +
-                         "[Ratios=" + getWeights() + "] " +
-                         "[ActiveWorkers=" + getActiveTerminals() + "]";
+            inner.add("[Rate=" + (isRateLimited() ? rate : "unlimited") + "]");
+            inner.add("[Arrival=" + arrival + "]");
+            inner.add("[Ratios=" + getWeights() + "]");
+            inner.add("[ActiveWorkers=" + getActiveTerminals() + "]");
         }
-        return retString;
+        
+        return StringUtil.bold("PHASE START") + " :: " + StringUtil.join(" ", inner);
     }
 
 }

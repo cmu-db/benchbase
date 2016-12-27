@@ -111,6 +111,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return this.id;
     }
 
+    @Override
+    public String toString() {
+        return this.getName();
+    }
+    
     /**
      * Get the the total number of workers in this benchmark invocation
      */
@@ -200,7 +205,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * Get unique name for this worker's thread
      */
     public final String getName() {
-        return String.format("worker%03d", this.getId());
+        return String.format("WORKER<%s>%03d", this.benchmarkModule.benchmarkName.toUpperCase(), this.getId());
     }
 
     @Override
@@ -384,7 +389,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 // These are not errors
                 } catch (UserAbortException ex) {
                     if (LOG.isDebugEnabled())
-                        LOG.debug(next + " Aborted", ex);
+                        LOG.trace(next + " Aborted", ex);
 
                     /* PAVLO */
                     if (recordAbortMessages) {
@@ -401,14 +406,18 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     } else {
                         this.conn.rollback();
                     }
-                    this.txnAbort.put(next);
+                    
+                    status = TransactionStatus.USER_ABORTED;
                     break;
 
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                     // TODO: Handle acceptable error codes for every DBMS
-                    if (LOG.isDebugEnabled()) 
-                        LOG.debug(next + " " + ex.getMessage() + " " + ex.getErrorCode() + " - " + ex.getSQLState());
+                     if (LOG.isDebugEnabled())
+                        LOG.warn(String.format("%s thrown when executing '%s' on '%s' " +
+                                               "[Message='%s', ErrorCode='%d', SQLState='%s']", 
+                                               ex.getClass().getSimpleName(), next, this.toString(),
+                                               ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
 
                     this.txnErrors.put(next);
 
@@ -490,16 +499,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     throw new RuntimeException(ex);
                     
                 } finally {
+                     if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("%s %s Result: %s", this, next, status));
+                    
                     switch (status) {
                         case SUCCESS:
                             this.txnSuccess.put(next);
-                            if (LOG.isTraceEnabled()) LOG.trace("Executed a new invocation of " + next);
                             break;
                         case RETRY_DIFFERENT:
                             this.txnRetry.put(next);
                             return null;
+                        case USER_ABORTED:
+                            this.txnAbort.put(next);
+                            break;
                         case RETRY:
-                            LOG.debug("Retrying transaction...");
                             continue;
                         default:
                             assert (false) : String.format("Unexpected status '%s' for %s", status, next);
@@ -508,7 +521,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             } // WHILE
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error in %s when executing %s [%s]", this.getName(), next, dbType), ex);
+            throw new RuntimeException(String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
+                                                     this.getName(), next, dbType), ex);
         }
 
         return (next);
