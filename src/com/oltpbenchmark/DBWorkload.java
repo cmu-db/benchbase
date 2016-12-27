@@ -786,7 +786,7 @@ public class DBWorkload {
             
             int num_phases = bench.getWorkloadConfiguration().getNumberOfPhases();
             LOG.info(String.format("Launching the %s Benchmark with %s Phase%s...",
-                    bench.getBenchmarkName(), num_phases, (num_phases > 1 ? "s" : "")));
+                    bench.getBenchmarkName().toUpperCase(), num_phases, (num_phases > 1 ? "s" : "")));
             workConfs.add(bench.getWorkloadConfiguration());
             
         }
