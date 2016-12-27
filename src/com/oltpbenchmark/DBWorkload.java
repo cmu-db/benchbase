@@ -663,7 +663,7 @@ public class DBWorkload {
             baseFile = filePrefix + baseFileName;
             
             // RAW OUTPUT
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + "-raw.csv"));
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
             rs = new PrintStream(new File(nextName));
             LOG.info("Output Raw data into file: " + nextName);
             r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
