@@ -99,6 +99,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     try {
                         itemLatch.await();
                     } catch (InterruptedException ex) {
+                        ex.printStackTrace();
                         throw new RuntimeException(ex);
                     }
                     
@@ -239,16 +240,12 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 			// random within [0.0000 .. 0.2000]
             warehouse.w_tax = (double) ((TPCCUtil.randomNumber(0, 2000, benchmark.rng())) / 10000.0);
-
-			warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6,
-					10, benchmark.rng()));
-			warehouse.w_street_1 = TPCCUtil.randomStr(TPCCUtil
-					.randomNumber(10, 20, benchmark.rng()));
-			warehouse.w_street_2 = TPCCUtil.randomStr(TPCCUtil
-					.randomNumber(10, 20, benchmark.rng()));
-			warehouse.w_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(10,
-					20, benchmark.rng()));
-			warehouse.w_state = TPCCUtil.randomStr(3).toUpperCase();
+            
+			warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6, 10, benchmark.rng()));
+			warehouse.w_street_1 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));
+			warehouse.w_street_2 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));
+			warehouse.w_city = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));
+			warehouse.w_state = TPCCUtil.randomStr(3).toUpperCase(); 
 			warehouse.w_zip = "123456789";
 
 			whsePrepStmt.setLong(1, warehouse.w_id);
