@@ -65,7 +65,7 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
         assert (catalog_tbl != null);
         
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement stmt = conn.prepareStatement(sql);
         long total = 0;
         int batch = 0;

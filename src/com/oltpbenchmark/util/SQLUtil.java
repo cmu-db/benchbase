@@ -333,8 +333,12 @@ public abstract class SQLUtil {
     /**
      * Automatically generate the 'INSERT' SQL string to insert
      * one record into this table
+     * 
+     * <b>Note:</b> You should use the other getInsertSQL methods that will escape things based
+     * on what DBMS you are using.
      * @return
      */
+    @Deprecated
     public static String getInsertSQL(Table catalog_tbl) {
         return getInsertSQL(catalog_tbl, 1);
     }
