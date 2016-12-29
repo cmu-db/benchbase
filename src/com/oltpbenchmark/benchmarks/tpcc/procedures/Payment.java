@@ -36,70 +36,70 @@ public class Payment extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(Payment.class);
 
-	public SQLStmt payUpdateWhseSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE + 
-	        "   SET W_YTD = W_YTD + ? " +
+    public SQLStmt payUpdateWhseSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE + 
+            "   SET W_YTD = W_YTD + ? " +
             " WHERE W_ID = ? ");
-	
-	public SQLStmt payGetWhseSQL = new SQLStmt(
-	        "SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME" + 
+    
+    public SQLStmt payGetWhseSQL = new SQLStmt(
+            "SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME" + 
             "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE + 
             " WHERE W_ID = ?");
-	
-	public SQLStmt payUpdateDistSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_DISTRICT + 
-	        "   SET D_YTD = D_YTD + ? " +
+    
+    public SQLStmt payUpdateDistSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_DISTRICT + 
+            "   SET D_YTD = D_YTD + ? " +
             " WHERE D_W_ID = ? " +
             "   AND D_ID = ?");
-	
-	public SQLStmt payGetDistSQL = new SQLStmt(
-	        "SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME" + 
-	        "  FROM " + TPCCConstants.TABLENAME_DISTRICT + 
-	        " WHERE D_W_ID = ? " +
-	        "   AND D_ID = ?");
-	
-	public SQLStmt payGetCustSQL = new SQLStmt(
-	        "SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, " + 
-	        "       C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, " + 
+    
+    public SQLStmt payGetDistSQL = new SQLStmt(
+            "SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME" + 
+            "  FROM " + TPCCConstants.TABLENAME_DISTRICT + 
+            " WHERE D_W_ID = ? " +
+            "   AND D_ID = ?");
+    
+    public SQLStmt payGetCustSQL = new SQLStmt(
+            "SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, " + 
+            "       C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, " + 
             "       C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
-	        "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
-	        " WHERE C_W_ID = ? " +
-	        "   AND C_D_ID = ? " +
-	        "   AND C_ID = ?");
-	
-	public SQLStmt payGetCustCdataSQL = new SQLStmt(
-	        "SELECT C_DATA " +
             "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
             " WHERE C_W_ID = ? " +
             "   AND C_D_ID = ? " +
             "   AND C_ID = ?");
-	
-	public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + 
-	        "   SET C_BALANCE = ?, " +
+    
+    public SQLStmt payGetCustCdataSQL = new SQLStmt(
+            "SELECT C_DATA " +
+            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
+            " WHERE C_W_ID = ? " +
+            "   AND C_D_ID = ? " +
+            "   AND C_ID = ?");
+    
+    public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + 
+            "   SET C_BALANCE = ?, " +
             "       C_YTD_PAYMENT = ?, " + 
-	        "       C_PAYMENT_CNT = ?, " +
+            "       C_PAYMENT_CNT = ?, " +
             "       C_DATA = ? " +
-	        " WHERE C_W_ID = ? " +
+            " WHERE C_W_ID = ? " +
             "   AND C_D_ID = ? " + 
-	        "   AND C_ID = ?");
-	
-	public SQLStmt payUpdateCustBalSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + 
-	        "   SET C_BALANCE = ?, " +
-	        "       C_YTD_PAYMENT = ?, " +
-			"       C_PAYMENT_CNT = ? " +
-	        " WHERE C_W_ID = ? " + 
-			"   AND C_D_ID = ? " + 
-	        "   AND C_ID = ?");
-	
-	public SQLStmt payInsertHistSQL = new SQLStmt(
-	        "INSERT INTO " + TPCCConstants.TABLENAME_HISTORY + 
-	        " (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) " +
+            "   AND C_ID = ?");
+    
+    public SQLStmt payUpdateCustBalSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + 
+            "   SET C_BALANCE = ?, " +
+            "       C_YTD_PAYMENT = ?, " +
+            "       C_PAYMENT_CNT = ? " +
+            " WHERE C_W_ID = ? " + 
+            "   AND C_D_ID = ? " + 
+            "   AND C_ID = ?");
+    
+    public SQLStmt payInsertHistSQL = new SQLStmt(
+            "INSERT INTO " + TPCCConstants.TABLENAME_HISTORY + 
+            " (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) " +
             " VALUES (?,?,?,?,?,?,?,?)");
-	
-	public SQLStmt customerByNameSQL = new SQLStmt(
-	        "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " + 
+    
+    public SQLStmt customerByNameSQL = new SQLStmt(
+            "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " + 
             "       C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, " +
             "       C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
             "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
@@ -108,19 +108,17 @@ public class Payment extends TPCCProcedure {
             "   AND C_LAST = ? " +
             " ORDER BY C_FIRST");
 
-	// Payment Txn
-	private PreparedStatement payUpdateWhse = null;
-	private PreparedStatement payGetWhse = null;
-	private PreparedStatement payUpdateDist = null;
-	private PreparedStatement payGetDist = null;
-	private PreparedStatement payGetCust = null;
-	private PreparedStatement payGetCustCdata = null;
-	private PreparedStatement payUpdateCustBalCdata = null;
-	private PreparedStatement payUpdateCustBal = null;
-	private PreparedStatement payInsertHist = null;
-	private PreparedStatement customerByName = null;
-
-
+    // Payment Txn
+    private PreparedStatement payUpdateWhse = null;
+    private PreparedStatement payGetWhse = null;
+    private PreparedStatement payUpdateDist = null;
+    private PreparedStatement payGetDist = null;
+    private PreparedStatement payGetCust = null;
+    private PreparedStatement payGetCustCdata = null;
+    private PreparedStatement payUpdateCustBalCdata = null;
+    private PreparedStatement payUpdateCustBal = null;
+    private PreparedStatement payInsertHist = null;
+    private PreparedStatement customerByName = null;
 
     public ResultSet run(Connection conn, Random gen,
                          int w_id, int numWarehouses,
