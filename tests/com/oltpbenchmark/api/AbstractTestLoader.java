@@ -22,11 +22,15 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
+    
+    private static final Logger LOG = Logger.getLogger(AbstractTestLoader.class);
     
     protected Set<String> ignoreTables = new HashSet<String>();
     
@@ -58,21 +62,28 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         // All we really can do here is just invoke the loader 
         // and then check to make sure that our tables aren't empty
         this.benchmark.loadDatabase(this.conn);
-        Histogram<String> tableSizes = new Histogram<String>();
+        assertFalse("Failed to get table names for " + benchmark.getBenchmarkName().toUpperCase(),
+                    this.catalog.getTableNames().isEmpty());
+        
+        LOG.debug("Computing the size of the tables");
+        Histogram<String> tableSizes = new Histogram<String>(true);
         for (String tableName : this.catalog.getTableNames()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);
             
-            sql = SQLUtil.getCountSQL(catalog_tbl);
+            sql = SQLUtil.getCountSQL(this.workConf.getDBType(), catalog_tbl);
             result = stmt.executeQuery(sql);
             assertNotNull(result);
             boolean adv = result.next();
             assertTrue(sql, adv);
             int count = result.getInt(1);
             result.close();
+            System.out.println(sql + " => " + count);
             tableSizes.put(tableName, count);            
         } // FOR
-        System.err.println(tableSizes);
+        System.out.println("=== TABLE SIZES ===\n" + tableSizes);
+        assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
+                    tableSizes.isEmpty());
         
         for (String tableName : tableSizes.values()) {
             long count = tableSizes.get(tableName);

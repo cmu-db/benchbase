@@ -313,8 +313,8 @@ public abstract class SQLUtil {
      * @param table
      * @return SQL for select count execution
      */
-    public static String getCountSQL(Table catalog_tbl) {
-        return SQLUtil.getCountSQL(catalog_tbl, "*");
+    public static String getCountSQL(DatabaseType dbType, Table catalog_tbl) {
+        return SQLUtil.getCountSQL(dbType, catalog_tbl, "*");
     }
 
     /**
@@ -324,9 +324,9 @@ public abstract class SQLUtil {
      * @param col
      * @return SQL for select count execution
      */
-    public static String getCountSQL(Table catalog_tbl, String col) {
-        return String.format("SELECT COUNT(%s) FROM %s",
-                             col, catalog_tbl.getEscapedName());
+    public static String getCountSQL(DatabaseType dbType, Table catalog_tbl, String col) {
+        String tableName = (dbType.shouldEscapeNames() ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
+        return String.format("SELECT COUNT(%s) FROM %s", col, tableName.trim());
     }
 
 
@@ -426,7 +426,7 @@ public abstract class SQLUtil {
         return String.format("SELECT MAX(%s) FROM %s", col, tableName);
     }
 
-    public static String selectColValues(Table catalog_tbl, String col) {
+    public static String selectColValues(DatabaseType dbType, Table catalog_tbl, String col) {
         return String.format("SELECT %s FROM %s",
                 col, catalog_tbl.getEscapedName());
     }

@@ -111,13 +111,13 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
                     stmtSavings.addBatch();
                     
                     if (++batchSize >= SmallBankConstants.BATCH_SIZE) {
-                        this.loadTables();
+                        this.loadTables(conn);
                         batchSize = 0;
                     }
     
                 } // FOR
                 if (batchSize > 0) {
-                    this.loadTables();
+                    this.loadTables(conn);
                 }
             } catch (SQLException ex) {
                 LOG.error("Failed to load data", ex);
@@ -125,10 +125,12 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
             }
         }
         
-        private void loadTables() throws SQLException {
+        private void loadTables(Connection conn) throws SQLException {
             this.stmtAccts.executeBatch();
             this.stmtSavings.executeBatch();
             this.stmtChecking.executeBatch();
+            conn.commit();
+            
         }
     };
 

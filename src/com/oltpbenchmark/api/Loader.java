@@ -128,16 +128,6 @@ public abstract class Loader<T extends BenchmarkModule> {
     }
 
     /**
-     * Hackishly return true if we are using the same type as we use in our unit
-     * tests
-     * 
-     * @return
-     */
-    protected final boolean isTesting() {
-        return (this.workConf.getDBType() == DatabaseType.TEST_TYPE);
-    }
-
-    /**
      * Return the database's catalog
      */
     public Catalog getCatalog() {

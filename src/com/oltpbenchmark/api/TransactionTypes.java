@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
 
 import org.apache.commons.collections15.map.ListOrderedMap;
 
@@ -49,6 +50,12 @@ public class TransactionTypes implements Collection<TransactionType> {
 		} // FOR
 	}
 
+	@Override
+	public Spliterator<TransactionType> spliterator() {
+	    // TODO Auto-generated method stub
+	    return null;
+	}
+	
 	public TransactionType getType(String procName) {
 	    return (this.types.get(procName.toUpperCase()));
 	}

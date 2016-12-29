@@ -109,12 +109,6 @@ public enum DatabaseType {
     // STATIC METHODS + MEMBERS
     // ----------------------------------------------------------------
     
-    /**
-     * This is the database type that we will use in our unit tests.
-     * This should always be one of the embedded java databases
-     */
-    public static final DatabaseType TEST_TYPE = DatabaseType.HSQLDB; 
-    
     protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<Integer, DatabaseType>();
     protected static final Map<String, DatabaseType> name_lookup = new HashMap<String, DatabaseType>();
     static {

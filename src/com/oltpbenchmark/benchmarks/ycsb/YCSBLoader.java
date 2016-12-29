@@ -51,8 +51,8 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
             threads.add(new LoaderThread() {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("YCSBLoadThread[%d, %d]", start, stop));
+//                    if (LOG.isDebugEnabled())
+                        LOG.info(String.format("YCSBLoadThread[%d, %d]", start, stop));
                     loadRecords(conn, start, stop);
                 }
             });
@@ -87,6 +87,7 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
         } // FOR
         if (batch > 0) {
             stmt.executeBatch();
+            conn.commit();
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
         }

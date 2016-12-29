@@ -16,18 +16,17 @@
 
 package com.oltpbenchmark.util;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Time;
+
+import junit.framework.TestCase;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestFileUtil {
+public class TestFileUtil extends TestCase {
 
     @Before
     public void setUp() throws Exception {

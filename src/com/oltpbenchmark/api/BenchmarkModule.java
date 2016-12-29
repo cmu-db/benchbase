@@ -277,7 +277,7 @@ public abstract class BenchmarkModule {
      * Invoke this benchmark's database loader using the given Connection handle
      * @param conn
      */
-    protected final void loadDatabase(Connection conn) {
+    protected final void loadDatabase(final Connection conn) {
         try {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
             if (loader != null) {
@@ -290,9 +290,19 @@ public abstract class BenchmarkModule {
                 // method.
                 List<? extends LoaderThread> loaderThreads = loader.createLoaderTheads();
                 if (loaderThreads != null) {
-                    ThreadUtil.runNewPool(loaderThreads, workConf.getLoaderThreads());
+                    int maxConcurrent = workConf.getLoaderThreads();
+                    assert(maxConcurrent > 0);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]",
+                                                loaderThreads.size(),
+                                                loader.getClass().getSimpleName(),
+                                                maxConcurrent));
+                    ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
                 } else {
-                    loader.load();    
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("Using legacy %s.load() method",
+                                                loader.getClass().getSimpleName()));
+                    loader.load();
                 }
                 conn.commit();
 
@@ -305,6 +315,9 @@ public abstract class BenchmarkModule {
                                        this.benchmarkName.toUpperCase());
             throw new RuntimeException(msg, ex);
         }
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("Finished loading the %s database",
+                                    this.getBenchmarkName().toUpperCase()));
     }
 
     /**
