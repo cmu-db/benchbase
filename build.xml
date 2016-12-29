@@ -2,8 +2,8 @@
 <project basedir="." default="build" name="benchmark">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="javac.target" value="1.6"/>
-    <property name="javac.source" value="1.6"/>
+    <property name="javac.target" value="1.7"/>
+    <property name="javac.source" value="1.7"/>
 
     <!-- *************************************** CONFIGURATION *************************************** -->
     
