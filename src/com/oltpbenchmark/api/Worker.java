@@ -517,7 +517,18 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         } catch (SQLException ex) {
             String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
                                        this, next, dbType);
-            throw new RuntimeException(msg, ex);
+            // FIXME: PAVLO 2016-12-29
+            // Right now our DBMS throws an exception when the txn gets aborted
+            // due to a conflict, so for now we have to not kill ourselves.
+            // This *does not* incorrectly inflate our performance numbers.
+            // It's more of a workaround for now until I can figure out how to do
+            // this correctly in JDBC.
+            if (dbType == DatabaseType.PELOTON) {
+                msg += "But we are not stopping because " + dbType + " cannot handle this correctly";
+                LOG.warn(msg);
+            } else {
+                throw new RuntimeException(msg, ex);
+            }
         }
 
         return (next);
