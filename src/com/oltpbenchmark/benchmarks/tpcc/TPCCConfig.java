@@ -29,9 +29,6 @@ import java.text.SimpleDateFormat;
 
 public final class TPCCConfig {
 
-	// TODO: This was final; Modified by TPCCRateLimited. Better system?
-	public static boolean TERMINAL_MESSAGES = true;
-
 	public static enum TransactionType {
 		INVALID, // Exists so the order is the same as the constants below
 		NEW_ORDER, PAYMENT, ORDER_STATUS, DELIVERY, STOCK_LEVEL
@@ -41,7 +38,6 @@ public final class TPCCConfig {
 			"PRES", "ESE", "ANTI", "CALLY", "ATION", "EING" };
 
 	public final static String terminalPrefix = "Term-";
-	public final static String reportFilePrefix = "reports/BenchmarkSQL_session_";
 
 	public final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

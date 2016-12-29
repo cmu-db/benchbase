@@ -51,8 +51,6 @@ public class TPCCBenchmark extends BenchmarkModule {
 	 */
 	@Override
 	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		// HACK: Turn off terminal messages
-		TPCCConfig.TERMINAL_MESSAGES = false;
 		ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
 		try {
