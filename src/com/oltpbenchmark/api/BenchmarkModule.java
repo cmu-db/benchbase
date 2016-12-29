@@ -290,7 +290,7 @@ public abstract class BenchmarkModule {
                 // method.
                 List<? extends LoaderThread> loaderThreads = loader.createLoaderTheads();
                 if (loaderThreads != null) {
-                    ThreadUtil.runGlobalPool(loaderThreads);
+                    ThreadUtil.runNewPool(loaderThreads, workConf.getLoaderThreads());
                 } else {
                     loader.load();    
                 }
