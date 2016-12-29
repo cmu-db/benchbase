@@ -50,12 +50,6 @@ public class TransactionTypes implements Collection<TransactionType> {
 		} // FOR
 	}
 
-	@Override
-	public Spliterator<TransactionType> spliterator() {
-	    // TODO Auto-generated method stub
-	    return null;
-	}
-	
 	public TransactionType getType(String procName) {
 	    return (this.types.get(procName.toUpperCase()));
 	}
