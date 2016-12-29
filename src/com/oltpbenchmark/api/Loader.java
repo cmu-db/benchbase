@@ -64,6 +64,10 @@ public abstract class Loader<T extends BenchmarkModule> {
             try {
                 this.load(this.conn);
             } catch (SQLException ex) {
+                SQLException next_ex = ex.getNextException();
+                String msg = String.format("Unexpected error when loading %s database",
+                                           Loader.this.benchmark.getBenchmarkName().toUpperCase());
+                LOG.error(msg, next_ex);
                 throw new RuntimeException(ex);
             }
         }

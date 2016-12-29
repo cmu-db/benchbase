@@ -32,7 +32,7 @@ public abstract class YCSBConstants {
     /**
      * How many records will each thread load.
      */
-    public static final int THREAD_BATCH_SIZE = 10000;
+    public static final int THREAD_BATCH_SIZE = 50000;
 
     public static final int MAX_SCAN = 1000;
 
