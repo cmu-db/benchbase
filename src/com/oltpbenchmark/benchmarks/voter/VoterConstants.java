@@ -24,6 +24,7 @@ public abstract class VoterConstants {
 	public static final int NUM_CONTESTANTS = 6; 
 	
 	public static final String TABLENAME_CONTESTANTS = "CONTESTANTS";
+	public static final String TABLENAME_VOTES = "VOTES";
 	public static final String TABLENAME_LOCATIONS = "AREA_CODE_STATE";
 	
 	// Initialize some common constants and variables

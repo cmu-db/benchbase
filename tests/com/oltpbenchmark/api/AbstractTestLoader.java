@@ -32,7 +32,11 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
     
     private static final Logger LOG = Logger.getLogger(AbstractTestLoader.class);
     
-    protected Set<String> ignoreTables = new HashSet<String>();
+    /**
+     * These are tables that are not pre-loaded by the benchmark loader
+     * So we want to ignore them if their count is zero
+     */
+    private Set<String> ignoreTables = new HashSet<String>();
     
     @SuppressWarnings("rawtypes")
     protected void setUp(Class<T> clazz, String ignoreTables[], Class...procClasses) throws Exception {

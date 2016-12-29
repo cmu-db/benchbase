@@ -161,6 +161,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             PreparedStatement itemPrepStmt = getInsertStatement(conn, TPCCConstants.TABLENAME_ITEM);
 
             Item item = new Item();
+            int batchSize = 0;
             for (int i = 1; i <= itemKount; i++) {
 
                 item.i_id = i;
@@ -193,16 +194,18 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 itemPrepStmt.setString(4, item.i_data);
                 itemPrepStmt.setLong(5, item.i_im_id);
                 itemPrepStmt.addBatch();
+                batchSize++;
 
-                if ((k % TPCCConfig.configCommitCount) == 0) {
+                if (batchSize == TPCCConfig.configCommitCount) {
                     itemPrepStmt.executeBatch();
                     itemPrepStmt.clearBatch();
                     transCommit(conn);
+                    batchSize = 0;
                 }
             } // end for
 
 
-            itemPrepStmt.executeBatch();
+            if (batchSize > 0) itemPrepStmt.executeBatch();
             transCommit(conn);
 
         } catch (BatchUpdateException ex) {
@@ -571,6 +574,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 					c_ids[i] = temp;
 				}
 
+				int newOrderBatch = 0;
 				for (int c = 1; c <= customersPerDistrict; c++) {
 
 					oorder.o_id = c;
@@ -602,6 +606,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 						k++;
 						myJdbcIO.insertNewOrder(nworPrepStmt, new_order);
+						newOrderBatch++;
 					} // end new order
 
 					for (int l = 1; l <= oorder.o_ol_cnt; l++) {
@@ -629,8 +634,12 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 						if ((k % TPCCConfig.configCommitCount) == 0) {
 							ordrPrepStmt.executeBatch();
-							nworPrepStmt.executeBatch();
+							if (newOrderBatch > 0) {
+							    nworPrepStmt.executeBatch();
+							    newOrderBatch = 0;
+							}
 							orlnPrepStmt.executeBatch();
+							
 							ordrPrepStmt.clearBatch();
 							nworPrepStmt.clearBatch();
 							orlnPrepStmt.clearBatch();

@@ -21,9 +21,21 @@ import com.oltpbenchmark.catalog.Catalog;
 
 public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> {
 
+    private static final String IGNORE[] = {
+        WikipediaConstants.TABLENAME_IPBLOCKS,
+        WikipediaConstants.TABLENAME_LOGGING,
+        WikipediaConstants.TABLENAME_PAGE_BACKUP,
+        WikipediaConstants.TABLENAME_PAGE_RESTRICTIONS,
+        WikipediaConstants.TABLENAME_RECENTCHANGES,
+        WikipediaConstants.TABLENAME_REVISION,
+        WikipediaConstants.TABLENAME_TEXT,
+        WikipediaConstants.TABLENAME_USER_GROUPS,
+        WikipediaConstants.TABLENAME_VALUE_BACKUP,
+    };
+    
     @Override
     protected void setUp() throws Exception {
-        super.setUp(WikipediaBenchmark.class, null, TestWikipediaBenchmark.PROC_CLASSES);
+        super.setUp(WikipediaBenchmark.class, IGNORE, TestWikipediaBenchmark.PROC_CLASSES);
         this.workConf.setScaleFactor(0.1);
         
         // For some reason we have to do this for HSQLDB
