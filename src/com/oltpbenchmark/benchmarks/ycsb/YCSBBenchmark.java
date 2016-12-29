@@ -49,7 +49,7 @@ public class YCSBBenchmark extends BenchmarkModule {
 
             Table t = this.catalog.getTable("USERTABLE");
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
-            String userCount = SQLUtil.getMaxColSQL(t, "ycsb_key");
+            String userCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "ycsb_key");
             Statement stmt = metaConn.createStatement();
             ResultSet res = stmt.executeQuery(userCount);
             int init_record_count = 0;

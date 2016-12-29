@@ -421,9 +421,9 @@ public abstract class SQLUtil {
     	return (sb.toString());
     }
 
-    public static String getMaxColSQL(Table catalog_tbl, String col) {
-        return String.format("SELECT MAX(%s) FROM %s",
-                col, catalog_tbl.getEscapedName());
+    public static String getMaxColSQL(DatabaseType dbType, Table catalog_tbl, String col) {
+        String tableName = (dbType.shouldEscapeNames() ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
+        return String.format("SELECT MAX(%s) FROM %s", col, tableName);
     }
 
     public static String selectColValues(Table catalog_tbl, String col) {
