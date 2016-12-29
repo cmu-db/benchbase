@@ -113,7 +113,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     @Override
     public String toString() {
-        return this.getName();
+        return String.format("%s<%03d>",
+                             this.getClass().getSimpleName(), this.getId());
     }
     
     /**
@@ -201,18 +202,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
     }
 
-    /**
-     * Get unique name for this worker's thread
-     */
-    public final String getName() {
-        return String.format("WORKER<%s>%03d", this.benchmarkModule.benchmarkName.toUpperCase(), this.getId());
-    }
-
     @Override
     public final void run() {
         Thread t = Thread.currentThread();
         SubmittedProcedure pieceOfWork;
-        t.setName(this.getName());
+        t.setName(this.toString());
 
         // In case of reuse reset the measurements
         latencies = new LatencyRecord(wrkldState.getTestStartNs());
@@ -221,7 +215,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         try {
             this.initialize();
         } catch (Throwable ex) {
-            throw new RuntimeException("Unexpected error when initializing " + this.getName(), ex);
+            throw new RuntimeException("Unexpected error when initializing " + this, ex);
         }
 
         // wait for start
@@ -521,8 +515,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             } // WHILE
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
-                                                     this.getName(), next, dbType), ex);
+            String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
+                                       this, next, dbType);
+            throw new RuntimeException(msg, ex);
         }
 
         return (next);

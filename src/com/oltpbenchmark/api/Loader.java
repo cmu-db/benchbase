@@ -52,11 +52,29 @@ public abstract class Loader<T extends BenchmarkModule> {
      * Note that each LoaderThread has its own databsae Connection handle.
      */
     public abstract class LoaderThread implements Runnable {
-        protected final Connection conn;
+        private final Connection conn;
         
         public LoaderThread() throws SQLException {
             this.conn = Loader.this.benchmark.makeConnection();
+            this.conn.setAutoCommit(false);
         }
+        
+        @Override
+        public final void run() {
+            try {
+                this.load(this.conn);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        /**
+         * This is the method that each LoaderThread has to implement
+         * @param conn
+         * @throws SQLException
+         */
+        public abstract void load(Connection conn) throws SQLException;
+        
     }
     
     public Loader(T benchmark, Connection conn) {

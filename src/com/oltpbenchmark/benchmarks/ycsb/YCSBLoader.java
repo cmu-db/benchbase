@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.ycsb;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -42,27 +43,39 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
     
     @Override
     public List<LoaderThread> createLoaderTheads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        int count = 0;
+        while (count < this.num_record) {
+            final int start = count;
+            final int stop = Math.min(start+YCSBConstants.THREAD_BATCH_SIZE, this.num_record);
+            threads.add(new LoaderThread() {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    LOG.info(String.format("YCSBLoadThread[%d, %d]", start, stop));
+                    loadRecords(conn, start, stop);
+                }
+            });
+            count = stop;
+        }
+        return (threads);
     }
 
-    @Override
-    public void load() throws SQLException {
+    private void loadRecords(Connection conn, int start, int stop) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl);
-        PreparedStatement stmt = this.conn.prepareStatement(sql);
+        PreparedStatement stmt = conn.prepareStatement(sql);
         long total = 0;
         int batch = 0;
-        for (int i = 0; i < this.num_record; i++) {
+        for (int i = start; i < stop; i++) {
             stmt.setInt(1, i);
             for (int j = 2; j <= 11; j++) {
                 stmt.setString(j, TextGenerator.randomStr(rng(), 100));
             }
             stmt.addBatch();
             total++;
-            if (++batch >= YCSBConstants.configCommitCount) {
+            if (++batch >= YCSBConstants.COMMIT_BATCH_SIZE) {
                 int result[] = stmt.executeBatch();
                 assert (result != null);
                 conn.commit();
@@ -78,5 +91,7 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
         }
         stmt.close();
         if (LOG.isDebugEnabled()) LOG.debug("Finished loading " + catalog_tbl.getName());
+        return;
     }
+    
 }

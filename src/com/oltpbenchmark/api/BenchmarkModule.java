@@ -109,7 +109,8 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public final Connection makeConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(workConf.getDBConnection(),
+        Connection conn = DriverManager.getConnection(
+                workConf.getDBConnection(),
                 workConf.getDBUsername(),
                 workConf.getDBPassword());
         Catalog.setSeparator(conn);
@@ -300,7 +301,9 @@ public abstract class BenchmarkModule {
                 }
             }
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", this.benchmarkName), ex);
+            String msg = String.format("Unexpected error when trying to load the %s database",
+                                       this.benchmarkName.toUpperCase());
+            throw new RuntimeException(msg, ex);
         }
     }
 

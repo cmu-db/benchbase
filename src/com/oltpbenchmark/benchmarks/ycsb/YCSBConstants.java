@@ -24,8 +24,16 @@ public abstract class YCSBConstants {
     
     public static final int FIELD_SIZE = 100; // chars
     
-    public static final int configCommitCount = 100;
+    /**
+     * How big should a commit batch be when loading
+     */
+    public static final int COMMIT_BATCH_SIZE = 100;
+    
+    /**
+     * How many records will each thread load.
+     */
+    public static final int THREAD_BATCH_SIZE = 10000;
 
-    static final int MAX_SCAN=1000;
+    public static final int MAX_SCAN = 1000;
 
 }

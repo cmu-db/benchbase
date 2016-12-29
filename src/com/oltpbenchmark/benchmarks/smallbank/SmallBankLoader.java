@@ -84,7 +84,8 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
                                             SmallBankConstants.MAX_BALANCE);
         }
         
-        public void run() {
+        @Override
+        public void load(Connection conn) throws SQLException {
             try {
                 this.stmtAccts = conn.prepareStatement(SmallBankLoader.this.sqlAccts);
                 this.stmtSavings = conn.prepareStatement(SmallBankLoader.this.sqlSavings);

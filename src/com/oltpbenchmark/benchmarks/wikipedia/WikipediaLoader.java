@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
