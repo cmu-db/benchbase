@@ -133,7 +133,7 @@ public class DBWorkload {
         options.addOption("v", "verbose", false, "Display Messages");
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
-        options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in seconds");
+        options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
         options.addOption("ss", false, "Verbose Sampling per Transaction");
         options.addOption("o", "output", true, "Output file (default System.out)");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");

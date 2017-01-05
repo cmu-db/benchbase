@@ -253,6 +253,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         {
             this.setDaemon(true);
         }
+        
+        /**
+         * @param interval How long to wait between polling in milliseconds
+         */
         MonitorThread(int interval) {
             this.intervalMonitor = interval;
         }
@@ -261,7 +265,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             LOG.info("Starting MonitorThread Interval[" + this.intervalMonitor + " seconds]");
             while (true) {
                 try {
-                    Thread.sleep(this.intervalMonitor * 1000);
+                    Thread.sleep(this.intervalMonitor);
                 } catch (InterruptedException ex) {
                     return;
                 }
@@ -274,8 +278,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                         measuredRequests += w.getAndResetIntervalRequests();
                     }
                 }
-                double tps = (double) measuredRequests / (double) this.intervalMonitor;
-                LOG.info("Throughput: " + tps + " Tps");
+                double seconds = this.intervalMonitor / 1000d;
+                double tps = (double) measuredRequests / seconds;
+                LOG.info("Throughput: " + tps + " txn/sec");
             } // WHILE
         }
     } // CLASS
