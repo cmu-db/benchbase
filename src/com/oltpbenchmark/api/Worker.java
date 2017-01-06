@@ -524,7 +524,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // It's more of a workaround for now until I can figure out how to do
             // this correctly in JDBC.
             if (dbType == DatabaseType.PELOTON) {
-                msg += "But we are not stopping because " + dbType + " cannot handle this correctly";
+                msg += "\nBut we are not stopping because " + dbType + " cannot handle this correctly";
                 LOG.warn(msg);
             } else {
                 throw new RuntimeException(msg, ex);

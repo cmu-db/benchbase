@@ -262,7 +262,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
         @Override
         public void run() {
-            LOG.info("Starting MonitorThread Interval[" + this.intervalMonitor + " seconds]");
+            LOG.info("Starting MonitorThread Interval [" + this.intervalMonitor + "ms]");
             while (true) {
                 try {
                     Thread.sleep(this.intervalMonitor);
@@ -425,7 +425,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                                 lastEntry = true;
                                 testState.startCoolDown();
                                 measureEnd = now;
-                                LOG.info("[Terminate] Waiting for all terminals to finish ..");
+                                LOG.info(StringUtil.bold("TERMINATE") + " :: Waiting for all terminals to finish ..");
                             } else if (phase != null) {
                                 phase.resetSerial();
                                 LOG.info(phase.currentPhaseString());
@@ -469,7 +469,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     interruptWorkers();
                 }
                 start = now;
-                LOG.info("[Measure] Warmup complete, starting measurements.");
+                LOG.info(StringUtil.bold("MEASURE") + " :: Warmup complete, starting measurements.");
                 // measureEnd = measureStart + measureSeconds * 1000000000L;
 
                 // For serial executions, we want to do every query exactly
