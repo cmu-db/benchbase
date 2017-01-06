@@ -51,8 +51,8 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
             threads.add(new LoaderThread() {
                 @Override
                 public void load(Connection conn) throws SQLException {
-//                    if (LOG.isDebugEnabled())
-                        LOG.info(String.format("YCSBLoadThread[%d, %d]", start, stop));
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("YCSBLoadThread[%d, %d]", start, stop));
                     loadRecords(conn, start, stop);
                 }
             });
