@@ -619,6 +619,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 						new_order.no_o_id = c;
 
 						k++;
+						idx = 1;
 				        nworPrepStmt.setInt(idx++, new_order.no_w_id);
 			            nworPrepStmt.setInt(idx++, new_order.no_d_id);
 				        nworPrepStmt.setInt(idx++, new_order.no_o_id);
@@ -646,7 +647,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 						order_line.ol_dist_info = TPCCUtil.randomStr(24);
 
 						k++;
-						idx = 0;
+						idx = 1;
 						orlnPrepStmt.setInt(idx++, order_line.ol_w_id);
 			            orlnPrepStmt.setInt(idx++, order_line.ol_d_id);
 			            orlnPrepStmt.setInt(idx++, order_line.ol_o_id);
