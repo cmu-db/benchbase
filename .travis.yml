@@ -75,7 +75,10 @@ env:
   - TEST=sibench
   - TEST=noop
   - TEST=smallbank
-  - TEST=resourcestresser
+
+# Missing loader com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark.makeLoaderImpl(ResourceStresserBenchmark.java:58)
+# -> org.apache.commons.lang.NotImplementedException: Code is not implemented
+#  - TEST=resourcestresser
 
 # Missing sample config file
 #  - TEST=chbenchmark
