@@ -26,6 +26,6 @@ CREATE TABLE nodetable (
   type int NOT NULL,
   version bigint NOT NULL,
   time int NOT NULL,
-  data LONGVARCHAR NOT NULL,
+  data varchar(255) NOT NULL,
   PRIMARY KEY(id)
 );
