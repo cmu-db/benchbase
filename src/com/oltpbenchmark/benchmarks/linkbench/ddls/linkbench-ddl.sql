@@ -6,7 +6,7 @@ CREATE TABLE linktable (
   id1 bigint NOT NULL,
   id2 bigint NOT NULL,
   link_type bigint NOT NULL,
-  visibility tinyint NOT NULL,
+  visibility smallint NOT NULL,
   data varchar(255) NOT NULL,
   time bigint NOT NULL,
   version int NOT NULL,
