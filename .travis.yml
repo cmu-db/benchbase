@@ -9,13 +9,12 @@ cache:
 language: java
 jdk:
   - oraclejdk8
-  - oraclejdk9
   - openjdk8
 
 # oraclejdk9 failures - https://github.com/oltpbenchmark/oltpbench/issues/137
-matrix:
-  allow_failures:
-    - jdk: oraclejdk9
+#matrix:
+#  allow_failures:
+#    - jdk: oraclejdk9
 
 # Currently oraclejdk8 is mapped to DB=mysql and the
 # others are DB=postgres.
