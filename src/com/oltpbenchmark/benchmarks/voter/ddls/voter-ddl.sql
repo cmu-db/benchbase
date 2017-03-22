@@ -42,7 +42,7 @@ CREATE VIEW V_VOTES_BY_PHONE_NUMBER
 AS
    SELECT phone_number
         , COUNT(*)
-     FROM votes
+     FROM VOTES
  GROUP BY phone_number
 ;
 
