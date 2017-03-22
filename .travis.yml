@@ -1,4 +1,148 @@
+dist: trusty
+sudo: false
+
+# lib contains jar files to support running tests
+cache:
+  directories:
+    - lib
+
 language: java
-install: echo "Done"
-before_script: echo "Done"
-script: ant junit
+jdk:
+  - oraclejdk8
+  - oraclejdk9
+  - openjdk8
+
+# oraclejdk9 failures - https://github.com/oltpbenchmark/oltpbench/issues/137
+matrix:
+  allow_failures:
+    - jdk: oraclejdk9
+
+# Currently oraclejdk8 is mapped to DB=mysql and the
+# others are DB=postgres.
+#
+# a test env of: - DB=mysql  TEST=tatp
+# duplicated for postgres would of been nice however
+# attempting to limit non-junit tests to single jdk with
+# matrix:
+#   exclude:
+#     - jdk: oraclejdk8
+#       env: DB=mysql
+#     - jdk: oraclejdk9
+#       env: DB=mysql
+#     - jdk: oraclejdk8
+#       env: DB=postgres
+#     - jdk: oraclejdk9
+#       env: DB=postgres
+# Failed to exclude any elements.
+
+# Possibilities for future:
+# matrix:
+#   include:
+#    - addons:
+#      mariadb: 5.5
+#    - addons:
+#      mariadb: 10.0
+#    - addons:
+#      mariadb: 10.1
+#    - addons:
+#      mariadb: 10.2
+#    - addons:
+#      postgresql: 9.4
+#    - addons:
+#      postgresql: 9.5
+#    - addons:
+#      postgresql: 9.6
+##    - addons:
+##      postgresql: 9.7
+# https://docs.travis-ci.com/user/database-setup/#Using-a-different-PostgreSQL-Version
+# MariaDB wasn't supported on trusty-containers at time of writing
+# This syntax may not be correct.
+
+addons:
+  postgresql: 9.6
+
+env:
+  - TEST=junit
+  - TEST=epinions
+  - TEST=tatp
+  - TEST=linkbench
+  - TEST=tpcc
+  - TEST=voter
+  - TEST=auctionmark
+  - TEST=wiki
+  - TEST=ycsb
+  - TEST=jpab
+  - TEST=seats
+  - TEST=sibench
+  - TEST=noop
+  - TEST=smallbank
+  - TEST=resourcestresser
+
+# Missing sample config file
+#  - TEST=chbenchmark
+#
+# Missing sample config
+#  - TEST=hyadapt
+#
+# Missing config/traces/tweets.txt
+#  - TEST=twitter
+
+
+# While mariadb addon isn't used. Remove if using a addon: mariadb
+services:
+  - mysql
+
+install:
+  - echo $TRAVIS_JDK_VERSION
+  - if [ $TRAVIS_JDK_VERSION == oraclejdk8 ]; then
+      DB=mysql ;
+    else
+      DB=postgres ;
+    fi
+  - if [ $DB == mysql ]; then mysql -e "SELECT VERSION()";
+      mysql -e "CREATE DATABASE IF NOT EXISTS ${TEST}" ;
+      mysql -e "CREATE USER 'travis'@'localhost' IDENTIFIED BY 'travis'; GRANT ALL ON *.* TO 'travis'@'localhost'";
+    elif [ $DB == postgres ]; then psql -c "SELECT VERSION()" -U travis;
+      psql -c "create database $TEST" -U postgres ;
+      psql -c "ALTER USER CURRENT_USER WITH PASSWORD 'travis'" -U travis;
+    fi
+
+# MySQL create user is probably one of the trust-container bugs for MySQL
+# Will probably need the following to set a password
+
+# We pass a password here as <password></password> sends no password in the protocol
+# rather than the blank one and therefore fails on MySQL.
+
+before_script:
+  - if [ $DB == mysql ]; then
+      URLBASE=jdbc:mysql://localhost:3306 ;
+      DRIVER=com.mysql.jdbc.Driver ;
+      TYPE=mysql ;
+    elif [ $DB == postgres ]; then
+      URLBASE=jdbc:postgresql://localhost:5432 ;
+      DRIVER=org.postgresql.Driver ;
+      TYPE=postgres ;
+    fi
+
+script:
+  - if [ $TEST == junit ]; then
+      ant junit;
+    else
+      ant build;
+      config=config/sample_${TEST}_config.xml ;
+      sed -i
+           -e "/<dbtype>/c\<dbtype>${TYPE}</dbtype>"
+           -e "/<driver>/c\<driver>${DRIVER}</driver>"
+           -e "/<DBUrl>/c\<DBUrl>${URLBASE}/${TEST}</DBUrl>"
+           -e '/<username>/c\<username>travis</username>'
+           -e '/<password>/c\<password>travis</password>'
+           -e '/<scalefactor>/c\<scalefactor>1</scalefactor>'
+           -e '/<terminals>/c\<terminals>3</terminals>'
+           -e '/<isolation>/c\<isolation>TRANSACTION_READ_COMMITTED</isolation>'
+           "${config}";
+      ./oltpbenchmark --bench "${TEST}" --config "${config}"  --create true    --load true   --execute true ;
+    fi
+
+
+# With tests, scalefactor and terminals are just to reduce load on travis
+# isolation READ_COMMITTED as the TRANSACTIONAL default caused too many failures for now.
