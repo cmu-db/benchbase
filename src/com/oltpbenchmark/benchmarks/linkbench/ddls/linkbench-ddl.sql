@@ -10,7 +10,7 @@ CREATE TABLE linktable (
   data varchar(255) NOT NULL,
   time bigint NOT NULL,
   version int NOT NULL,
-  PRIMARY KEY (id1,id2,link_type),
+  PRIMARY KEY (id1,id2,link_type)
 );
 CREATE TABLE counttable (
   id bigint NOT NULL,
@@ -18,6 +18,7 @@ CREATE TABLE counttable (
   "count" int NOT NULL,
   time bigint NOT NULL,
   version bigint NOT NULL,
+  PRIMARY KEY (id,link_type)
 );
 
 CREATE TABLE nodetable (
