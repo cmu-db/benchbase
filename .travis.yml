@@ -75,6 +75,7 @@ env:
   - TEST=sibench
   - TEST=noop
   - TEST=smallbank
+  - TEST=twitter
 
 # Missing loader com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark.makeLoaderImpl(ResourceStresserBenchmark.java:58)
 # -> org.apache.commons.lang.NotImplementedException: Code is not implemented
@@ -86,9 +87,6 @@ env:
 # Missing sample config
 #  - TEST=hyadapt
 #
-# Missing config/traces/tweets.txt
-#  - TEST=twitter
-
 
 # While mariadb addon isn't used. Remove if using a addon: mariadb
 services:
