@@ -34,10 +34,10 @@
             <name>IO2</name>
         </transactiontype>
         <transactiontype>
-            <name>CONTENTION1</name>
+            <name>Contention1</name>
         </transactiontype>
         <transactiontype>
-            <name>CONTENTION2</name>
+            <name>Contention2</name>
         </transactiontype>
     </transactiontypes>
 </parameters>
