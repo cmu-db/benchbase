@@ -24,7 +24,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class UpdateRecord extends Procedure{
     public final SQLStmt updateStmt = new SQLStmt(
-        "UPDATE sitest SET value = value + 1 WHERE id = ?"
+        "UPDATE SITEST SET value = value + 1 WHERE id = ?"
     );
 
     public void run(Connection conn, int id) throws SQLException {
