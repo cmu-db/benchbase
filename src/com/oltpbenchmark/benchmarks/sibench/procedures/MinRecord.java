@@ -29,7 +29,7 @@ import com.oltpbenchmark.api.SQLStmt;
 
 public class MinRecord extends Procedure{
     public final SQLStmt minStmt = new SQLStmt(
-        "SELECT id FROM sitest ORDER BY value ASC LIMIT 1"
+        "SELECT id FROM SITEST ORDER BY value ASC LIMIT 1"
     );
 
     public int run(Connection conn) throws SQLException {
