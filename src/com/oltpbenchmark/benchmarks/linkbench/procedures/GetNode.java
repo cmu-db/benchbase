@@ -36,7 +36,7 @@ public class GetNode extends Procedure{
     public final SQLStmt getNodeStmt = new SQLStmt(
             "SELECT id, type, version, time, data " +
             "FROM nodetable " +
-            "WHERE id= ?; commit;"
+            "WHERE id= ?"
     );
 
     //FIXME: return the RS rather than boolean
@@ -48,6 +48,7 @@ public class GetNode extends Procedure{
             stmt = this.getPreparedStatement(conn, getNodeStmt);
         stmt.setLong(1, id);          
         ResultSet rs = stmt.executeQuery();
+        conn.commit();
         if (rs.next()) {
             Node res = new Node(rs.getLong(1), rs.getInt(2),
                  rs.getLong(3), rs.getInt(4), rs.getBytes(5));

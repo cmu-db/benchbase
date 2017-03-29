@@ -36,7 +36,7 @@ public class UpdateNode extends Procedure{
     public final SQLStmt updateNodeStmt = new SQLStmt(
             "UPDATE nodetable " +
             "SET version= ? , time= ? , data= HEXDATA " +
-            "WHERE id= ? AND type= ?; commit;"
+            "WHERE id= ? AND type= ?"
     );
     
     public boolean run(Connection conn, Node node) throws SQLException {
@@ -53,6 +53,7 @@ public class UpdateNode extends Procedure{
         stmt.setLong(3, node.id);
         stmt.setInt(4, node.type);
         int rows = stmt.executeUpdate();
+        conn.commit();
         if (rows == 1) return true;
         else if (rows == 0) return false;
         else throw new SQLException("Did not expect " + rows +  "affected rows: only "

@@ -33,7 +33,7 @@ public class DeleteNode extends Procedure{
     
     public final SQLStmt deleteStmt = new SQLStmt(
             "DELETE FROM nodetable " +
-            "WHERE id= ? and type = ?; commit;"
+            "WHERE id= ? and type = ?"
     );
 
     public boolean run(Connection conn, int type, long id) throws SQLException {
@@ -53,6 +53,7 @@ public class DeleteNode extends Procedure{
             throw new SQLException(rows + " rows modified on delete: should delete " +
             "at most one");
         }
+        conn.commit();
     }
 
 }

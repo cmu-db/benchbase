@@ -35,7 +35,7 @@ public class AddNode extends Procedure{
     public final SQLStmt addNode = new SQLStmt(
             "INSERT INTO nodetable " +
             "(type, version, time, data) " +
-            "VALUES (?,?,?,HEXDATA); commit;"
+            "VALUES (?,?,?,HEXDATA)"
     );
     
     private PreparedStatement stmt= null;
@@ -56,6 +56,7 @@ public class AddNode extends Procedure{
         stmt.setLong(2, node.version);          
         stmt.setInt(3, node.time);
         stmt.executeUpdate();
+        conn.commit();
         //Need to check how many ideas were inserted
         ResultSet rs = stmt.getGeneratedKeys();
 
