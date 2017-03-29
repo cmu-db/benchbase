@@ -131,8 +131,15 @@ public class DeleteLink extends Procedure{
             PreparedStatement p;
             if (!expunge) {
                 p = stmt2;
+		p.setInt(1, visibility);
+		p.setLong(2, id1);
+		p.setLong(3, id2);
+		p.setLong(4, link_type);
             } else {
                 p = stmt3;
+                p.setLong(1, id1);
+                p.setLong(2, id2);
+                p.setLong(3, link_type);
             }
 
             if (LOG.isDebugEnabled()) {
