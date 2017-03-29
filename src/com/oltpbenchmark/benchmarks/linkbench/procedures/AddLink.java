@@ -143,7 +143,8 @@ public class AddLink extends Procedure{
             // This is the last statement of transaction - append commit to avoid
             // extra round trip
             if (!update_data) {
-                updateCount.setSQL(updateCount.getSQL()+"; commit;");
+                updateCount.setSQL(updateCount.getSQL());
+                conn.commit();
             }
             if(stmt2 ==null)
                 stmt2 = this.getPreparedStatement(conn, updateCount);
