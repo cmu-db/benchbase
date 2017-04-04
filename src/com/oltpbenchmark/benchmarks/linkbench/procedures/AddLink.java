@@ -54,7 +54,7 @@ public class AddLink extends Procedure{
     public final SQLStmt updateData = new SQLStmt(
             "UPDATE linktable SET " +
             "visibility = ? , data = HEXDATA , time = ? , version = ? " + 
-            "WHERE id1 = ? AND id2 = ? AND link_type = ?; commit;"
+            "WHERE id1 = ? AND id2 = ? AND link_type = ?"
     );
 
     public boolean run(Connection conn, Link l, boolean noinverse) throws SQLException {
@@ -143,7 +143,8 @@ public class AddLink extends Procedure{
             // This is the last statement of transaction - append commit to avoid
             // extra round trip
             if (!update_data) {
-                updateCount.setSQL(updateCount.getSQL()+"; commit;");
+                updateCount.setSQL(updateCount.getSQL());
+                conn.commit();
             }
             if(stmt2 ==null)
                 stmt2 = this.getPreparedStatement(conn, updateCount);
@@ -175,6 +176,7 @@ public class AddLink extends Procedure{
                 LOG.trace(updateData);
             }
             stmt3.executeUpdate();
+            conn.commit();
         }
         return row_found;        
     }
