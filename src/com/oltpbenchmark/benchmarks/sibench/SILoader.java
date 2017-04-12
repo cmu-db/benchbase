@@ -35,7 +35,7 @@ public class SILoader extends Loader<SIBenchmark> {
 
     public SILoader(SIBenchmark benchmark, Connection c) {
         super(benchmark, c);
-        this.num_record = (int) Math.round(this.scaleFactor);
+        this.num_record = (int) Math.round(SIConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  " + this.num_record);
         }
@@ -53,7 +53,8 @@ public class SILoader extends Loader<SIBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("SITEST");
         assert (catalog_tbl != null);
         
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl,
+        		this.getDatabaseType().shouldEscapeNames());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         long total = 0;
         int batch = 0;

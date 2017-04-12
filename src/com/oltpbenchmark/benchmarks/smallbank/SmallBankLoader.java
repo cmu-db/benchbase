@@ -42,9 +42,10 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
         this.catalogChecking = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_CHECKING);
         assert(this.catalogChecking != null);
         
-        this.sqlAccts = SQLUtil.getInsertSQL(this.catalogAccts);
-        this.sqlSavings = SQLUtil.getInsertSQL(this.catalogSavings);
-        this.sqlChecking = SQLUtil.getInsertSQL(this.catalogChecking);
+        boolean escapeNames = this.getDatabaseType().shouldEscapeNames();
+        this.sqlAccts = SQLUtil.getInsertSQL(this.catalogAccts, escapeNames);
+        this.sqlSavings = SQLUtil.getInsertSQL(this.catalogSavings, escapeNames);
+        this.sqlChecking = SQLUtil.getInsertSQL(this.catalogChecking, escapeNames);
         
         this.numAccounts = benchmark.numAccounts;
         this.custNameLength = SmallBankBenchmark.getCustomerNameLength(this.catalogAccts);
