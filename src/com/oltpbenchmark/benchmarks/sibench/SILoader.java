@@ -35,7 +35,7 @@ public class SILoader extends Loader<SIBenchmark> {
 
     public SILoader(SIBenchmark benchmark, Connection c) {
         super(benchmark, c);
-        this.num_record = (int) Math.round(this.scaleFactor);
+        this.num_record = (int) Math.round(SIConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  " + this.num_record);
         }
