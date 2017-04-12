@@ -64,13 +64,11 @@ env:
   - TEST=junit
   - TEST=epinions
   - TEST=tatp
-  - TEST=linkbench
   - TEST=tpcc
   - TEST=voter
   - TEST=auctionmark
   - TEST=wikipedia
   - TEST=ycsb
-  - TEST=jpab
   - TEST=seats
   - TEST=sibench
   - TEST=noop
@@ -86,6 +84,12 @@ env:
 #
 # Missing sample config
 #  - TEST=hyadapt
+#
+# Not fully implemented
+#  - TEST=jpab
+#
+# Works only for MySQL at this time
+#  - TEST=linkbench
 #
 
 # While mariadb addon isn't used. Remove if using a addon: mariadb
@@ -137,8 +141,9 @@ script:
            -e "/<DBUrl>/c\<DBUrl>${URLBASE}/${TEST}</DBUrl>"
            -e '/<username>/c\<username>travis</username>'
            -e '/<password>/c\<password>travis</password>'
-           -e '/<scalefactor>/c\<scalefactor>1</scalefactor>'
+           -e '/<scalefactor>/c\<scalefactor>0.5</scalefactor>'
            -e '/<terminals>/c\<terminals>3</terminals>'
+           -e '/<time>/c\<time>60</time>'
            -e '/<isolation>/c\<isolation>TRANSACTION_READ_COMMITTED</isolation>'
            "${config}";
       ./oltpbenchmark --bench "${TEST}" --config "${config}"  --create true    --load true   --execute true ;
@@ -147,3 +152,10 @@ script:
 
 # With tests, scalefactor and terminals are just to reduce load on travis
 # isolation READ_COMMITTED as the TRANSACTIONAL default caused too many failures for now.
+
+after_script:
+  - if [ $DB == mysql ]; then
+      mysql -e "DROP DATABASE IF EXISTS ${TEST}" ;
+    elif [ $DB == postgres ]; then
+      psql -c "DROP DATABASE IF EXISTS ${TEST}" -U postgres ;
+    fi
