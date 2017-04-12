@@ -87,8 +87,9 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         
         int numContestants = ((VoterBenchmark)this.benchmark).numContestants;
         
+        boolean escapeNames = this.getDatabaseType().shouldEscapeNames();
         Table tbl = benchmark.getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
-        PreparedStatement ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
+        PreparedStatement ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl, escapeNames));
         for (int i = 0; i < numContestants; i++) {
             ps.setInt(1, i + 1);
             ps.setString(2, contestants[i]);
@@ -97,7 +98,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         ps.executeBatch();
         
         tbl = benchmark.getTableCatalog(VoterConstants.TABLENAME_LOCATIONS);
-        ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl));
+        ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl, escapeNames));
         for (int i = 0; i < areaCodes.length; i++) {
             ps.setShort(1, areaCodes[i]);
             ps.setString(2, states[i]);
