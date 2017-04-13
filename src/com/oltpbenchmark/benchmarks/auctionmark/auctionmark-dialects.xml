@@ -17,7 +17,7 @@
             <statement name="getBuyerItems">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM "USERACCT_ITEM", "ITEM" WHERE ui_u_id = ? AND ui_i_id = i_id AND ui_i_u_id = i_u_id ORDER BY i_end_date DESC LIMIT 25 </statement>
             <statement name="getSellerItems">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM "ITEM" WHERE i_u_id = ? ORDER BY i_end_date DESC LIMIT 25 </statement>
             <statement name="getWatchedItems">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status, uw_u_id, uw_created FROM "USERACCT_WATCH", "ITEM" WHERE uw_u_id = ?    AND uw_i_id = i_id AND uw_i_u_id = i_u_id  ORDER BY i_end_date DESC LIMIT 25</statement>
-            <statement name="getItemComments">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status,        ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created   FROM "ITEM", "ITEM_COMMENT" WHERE i_u_id = ? AND i_status = 0   AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL ORDER BY ic_created DESC LIMIT 25 </statement>
+            <statement name="getItemComments">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status,        ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created   FROM "ITEM", "ITEM_COMMENT" WHERE i_u_id = ? AND i_status = ?   AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL ORDER BY ic_created DESC LIMIT 25 </statement>
         </procedure>
         <procedure name="LoadConfig">
             <statement name="getConfigProfile">SELECT * FROM "CONFIG_PROFILE"</statement>

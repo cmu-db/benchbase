@@ -133,7 +133,6 @@ script:
       ant junit;
     else
       ant build;
-      mv config/sample_wiki_config.xml config/sample_wikipedia_config.xml ;
       config=config/sample_${TEST}_config.xml ;
       sed -i
            -e "/<dbtype>/c\<dbtype>${TYPE}</dbtype>"
