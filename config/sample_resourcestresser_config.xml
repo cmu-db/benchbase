@@ -4,13 +4,16 @@
     <!-- Connection details -->
     <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://server:3306/resourcestresser</DBUrl>
-    <username>user</username>
-    <password>password</password>
+    <DBUrl>jdbc:mysql://localhost:3306/resourcestresser</DBUrl>
+    <username>root</username>
+    <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+
+    <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
+    <scalefactor>2</scalefactor>
     
     <!-- The workload -->   
-    <terminals>10</terminals>    
+    <terminals>2</terminals>    
     <works>
         <work>
             <time>300</time>
@@ -40,4 +43,5 @@
             <name>Contention2</name>
         </transactiontype>
     </transactiontypes>
+
 </parameters>
