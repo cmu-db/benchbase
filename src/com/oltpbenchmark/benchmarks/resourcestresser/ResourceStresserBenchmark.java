@@ -23,8 +23,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -55,6 +53,6 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected Loader<ResourceStresserBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
+		return new ResourceStresserLoader(this, conn);
 	}
 }
