@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
 
 /**
@@ -33,7 +34,8 @@ public class Contention2 extends Procedure {
 	private static final Logger LOG = Logger.getLogger(Procedure.class);
 
     public final SQLStmt lockUpdate = new SQLStmt(
-        "UPDATE locktable SET salary = ? WHERE empid >= ? AND empid < ?"
+        "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE + 
+        " SET salary = ? WHERE empid >= ? AND empid < ?"
     );
 
     public final SQLStmt lockSleep = new SQLStmt(

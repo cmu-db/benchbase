@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
 
 public class IO1 extends Procedure {
@@ -31,7 +32,8 @@ public class IO1 extends Procedure {
 
     public final SQLStmt ioUpdate;
     {
-        String sql = "UPDATE iotable SET %s WHERE empid >= ? AND empid < ?";
+        String sql = "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLE + 
+        		" SET %s WHERE empid >= ? AND empid < ?";
         String setClause = "";
         for (int col=1; col<=ResourceStresserWorker.IO1_howManyColsPerRow; ++col) {
             setClause = setClause + (col>1 ? "," : "") + " data" + col + "=?";      

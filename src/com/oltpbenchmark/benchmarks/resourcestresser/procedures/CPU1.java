@@ -23,6 +23,7 @@ import java.sql.SQLException;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
 
 public class CPU1 extends Procedure {
@@ -34,7 +35,9 @@ public class CPU1 extends Procedure {
             complexClause = "md5(concat(" + complexClause +",?))";
         } // FOR
         cpuSelect = new SQLStmt(
-            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 0 AND empid < 100) AS T1"
+            "SELECT count(*) FROM (SELECT " + complexClause + 
+            " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE +
+            " WHERE empid >= 0 AND empid < 100) AS T1"
         );
     }
     

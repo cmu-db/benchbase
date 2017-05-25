@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
 
 /**
@@ -35,7 +36,8 @@ public class IO2 extends Procedure {
     private static final Logger LOG = Logger.getLogger(Procedure.class);
     
     public final SQLStmt ioUpdate = new SQLStmt(
-        "UPDATE iotablesmallrow SET flag1 = ? WHERE empid = ?"
+        "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLESMALLROW +
+        " SET flag1 = ? WHERE empid = ?"
     );
     
     public void run(Connection conn, int myId, int howManyUpdatesPerTransaction,
