@@ -34,18 +34,15 @@ public class CPU2 extends Procedure {
             complexClause = "md5(concat(" + complexClause +",?))";
         } // FOR
         cpuSelect = new SQLStmt(
-            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 1 AND empid <= 100) AS T2" 
+            "SELECT count(*) FROM (SELECT " + complexClause + " FROM cputable WHERE empid >= 0 AND empid < 100) AS T2" 
         );
     }
     
-    public void run(Connection conn) throws SQLException {
-        final int howManyPerTrasaction = ResourceStresserWorker.CPU2_howManyPerTrasaction;
-        final int sleepLength = ResourceStresserWorker.CPU2_sleep;
-        final int nestedLevel = ResourceStresserWorker.CPU2_nestedLevel;
-
+    public void run(Connection conn, int howManyPerTransaction, int sleepLength,
+    		int nestedLevel) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect);
 
-        for (int tranIdx = 0; tranIdx < howManyPerTrasaction; ++tranIdx) {
+        for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
             double randNoise = ResourceStresserWorker.gen.nextDouble();
 
             for (int i = 1; i <= nestedLevel; ++i) {
