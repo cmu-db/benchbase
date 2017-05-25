@@ -2,7 +2,7 @@
 
 IF OBJECT_ID('[cputable]') IS NOT NULL DROP table [dbo].[cputable];
 IF OBJECT_ID('[iotable]') IS NOT NULL DROP table [dbo].[iotable];
-IF OBJECT_ID('[iotableSmallrow]') IS NOT NULL DROP table [dbo].[iotableSmallrow];
+IF OBJECT_ID('[iotablesmallrow]') IS NOT NULL DROP table [dbo].[iotablesmallrow];
 IF OBJECT_ID('[locktable]') IS NOT NULL DROP table [dbo].[locktable];
 
 -- Create Tables
@@ -34,7 +34,7 @@ CREATE TABLE iotable (
   PRIMARY KEY (empid)
 );
 
-CREATE TABLE iotableSmallrow (
+CREATE TABLE iotablesmallrow (
   empid int NOT NULL,
   flag1 int NOT NULL,
   PRIMARY KEY (empid)
