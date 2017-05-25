@@ -20,7 +20,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
 	public ResourceStresserLoader(ResourceStresserBenchmark benchmark, Connection conn) {
 		super(benchmark, conn);
-        this.numEmployees = (int) this.scaleFactor * ResourceStresserConstants.RECORD_COUNT;
+        this.numEmployees = (int) (this.scaleFactor * ResourceStresserConstants.RECORD_COUNT);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of EMPLOYEES:  " + this.numEmployees);
         }
