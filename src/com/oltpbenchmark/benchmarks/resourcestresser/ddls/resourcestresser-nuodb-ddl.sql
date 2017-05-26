@@ -27,8 +27,8 @@ CREATE TABLE iotable (
   PRIMARY KEY (empid)
 );
 
-DROP TABLE IF EXISTS iotableSmallrow CASCADE;
-CREATE TABLE iotableSmallrow (
+DROP TABLE IF EXISTS iotablesmallrow CASCADE;
+CREATE TABLE iotablesmallrow (
   empid int NOT NULL,
   flag1 int NOT NULL,
   PRIMARY KEY (empid)

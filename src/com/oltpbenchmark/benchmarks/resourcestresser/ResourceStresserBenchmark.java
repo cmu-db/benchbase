@@ -23,15 +23,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
+	private static final Logger LOG = Logger.getLogger(Procedure.class);
 
 	public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
 		super("resourcestresser", workConf, true);
@@ -45,9 +47,12 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 	@Override
 	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
 		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
-		
+		int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
+		int keyRange = numKeys / workConf.getTerminals();
+		LOG.warn("numkeys=" + numKeys + ", keyRange=" + keyRange);
+		// TODO: check ranges
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			workers.add(new ResourceStresserWorker(this, i));
+			workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
 		} // FOR
 
 		return workers;
@@ -55,6 +60,6 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected Loader<ResourceStresserBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		throw new NotImplementedException();
+		return new ResourceStresserLoader(this, conn);
 	}
 }
