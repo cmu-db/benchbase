@@ -32,7 +32,7 @@ public class PostgresCollector extends DBCollector {
             Statement s = conn.createStatement();
             ResultSet out = s.executeQuery("SHOW ALL;");
             while(out.next()) {
-                dbConf.put(out.getString("name"), out.getString("setting"));
+                dbParameters.put(out.getString("name"), out.getString("setting"));
             }
         } catch (SQLException e) {
             LOG.debug("Error while collecting DB parameters: " + e.getMessage());
@@ -41,6 +41,6 @@ public class PostgresCollector extends DBCollector {
     
     @Override
     public String collectVersion() {
-        return dbConf.get(VERSION);
+        return dbParameters.get(VERSION);
     }
 }

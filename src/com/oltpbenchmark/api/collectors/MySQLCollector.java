@@ -16,37 +16,50 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import com.oltpbenchmark.catalog.Catalog;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.apache.log4j.Logger;
 
-import java.sql.*;
+import com.oltpbenchmark.catalog.Catalog;
 
 public class MySQLCollector extends DBCollector {
     private static final Logger LOG = Logger.getLogger(MySQLCollector.class);
-    private static final String VERSION = "VERSION";
+
+    private final String versionSQL = "SELECT @@GLOBAL.version;";
+
+    private final String parametersSQL = "SHOW VARIABLES;";
+
+    private final String metricsSQL = "SHOW STATUS";
 
     public MySQLCollector(String oriDBUrl, String username, String password) {
-        String dbUrl = oriDBUrl.substring(0, oriDBUrl.lastIndexOf('/'));
-        dbUrl = dbUrl + "/information_schema";
         try {
-            Connection conn = DriverManager.getConnection(dbUrl, username, password);
+            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
             Catalog.setSeparator(conn);
             Statement s = conn.createStatement();
-            ResultSet out = s.executeQuery("SELECT * FROM GLOBAL_VARIABLES;");
+
+            // Collect DBMS version
+            ResultSet out = s.executeQuery(versionSQL);
+            if (out.next()) {
+            	this.version.append(out.getString(1));
+            }
+
+            // Collect DBMS parameters
+            out = s.executeQuery(parametersSQL);
             while(out.next()) {
-                dbConf.put(out.getString("VARIABLE_NAME"), out.getString("VARIABLE_VALUE"));
+                dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
+            }
+
+            // Collect DBMS internal metrics
+            out = s.executeQuery(metricsSQL);
+            while (out.next()) {
+            	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
             }
         } catch (SQLException e) {
-            LOG.debug("Error while collecting DB parameters: " + e.getMessage());
+            LOG.warn("Error while collecting DB parameters: " + e.getMessage());
         }
-    }
-    
-    @Override
-    public String collectVersion() {
-        String dbVersion = dbConf.get(VERSION);
-        int verIdx = dbVersion.indexOf('-');
-        if (verIdx >= 0)
-	        dbVersion = dbVersion.substring(0, verIdx);
-        return dbVersion;
     }
 }

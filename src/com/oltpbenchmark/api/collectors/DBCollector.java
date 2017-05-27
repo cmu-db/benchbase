@@ -18,32 +18,42 @@ package com.oltpbenchmark.api.collectors;
 
 import org.apache.log4j.Logger;
 
+import com.oltpbenchmark.util.JSONUtil;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 public class DBCollector implements DBParameterCollector {
+
     private static final Logger LOG = Logger.getLogger(DBCollector.class);
-    protected final Map<String, String> dbConf = new TreeMap<String, String>();
+
+    protected final Map<String, String> dbParameters = new TreeMap<String, String>();
+
+    protected final Map<String, String> dbMetrics = new TreeMap<String, String>();
+
+    protected final StringBuilder version = new StringBuilder();
 
     @Override
     public boolean hasParameters() {
-        return (dbConf.isEmpty() == false);
+        return (dbParameters.isEmpty() == false);
     }
-    
+
+    @Override
+    public boolean hasMetrics() {
+    	return (dbMetrics.isEmpty() == false);
+    }
+
     @Override
     public String collectParameters() {
-        StringBuilder confBuilder = new StringBuilder();
-        for (Map.Entry<String, String> kv : dbConf.entrySet()) {
-            confBuilder.append(kv.getKey().toLowerCase())
-                       .append("=")
-                       .append(kv.getValue().toLowerCase())
-                       .append("\n");
-        }
-        return confBuilder.toString();
+    	return JSONUtil.format(JSONUtil.toJSONString(dbParameters));
+    }
+
+    public String collectMetrics() {
+    	return JSONUtil.format(JSONUtil.toJSONString(dbMetrics));
     }
 
     @Override
     public String collectVersion() {
-        return "";
+        return version.toString();
     }
 }
