@@ -17,30 +17,66 @@
 package com.oltpbenchmark.api.collectors;
 
 import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.util.JSONUtil;
+
 import org.apache.log4j.Logger;
 
 import java.sql.*;
 
 public class PostgresCollector extends DBCollector {
     private static final Logger LOG = Logger.getLogger(PostgresCollector.class);
-    private static final String VERSION = "server_version";
+    
+    private static final String VERSION_SQL = "SELECT version();";
+    
+    private static final String PARAMETERS_SQL = "SHOW ALL;";
+    
+    private static final String ARCHIVER_SQL = "SELECT * FROM pg_stat_archiver;";
+    
+    private static final String BGWRITER_SQL = "SELECT * FROM pg_stat_bgwriter;";
+    
+    private static final String DATABASE_SQL = "SELECT * FROM pg_stat_database;";
+    
+    private static final String DATABASE_CONFLICTS_SQL = "SELECT * FROM pg_stat_database_conflicts;";
+    
+    private static final String TABLE_SQL = "SELECT * FROM pg_stat_all_tables;";
+    
+    private static final String TABLE_IO_SQL = "SELECT * FROM pg_statio_all_tables;";
+    
+    private static final String INDEX_SQL = "SELECT * FROM pg_stat_all_indexes;";
+    
+    private static final String INDEX_IO_SQL = "SELECT * FROM pg_statio_all_indexes;";
 
     public PostgresCollector(String oriDBUrl, String username, String password) {
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
             Catalog.setSeparator(conn);
             Statement s = conn.createStatement();
-            ResultSet out = s.executeQuery("SHOW ALL;");
+            
+            // Collect DBMS version
+            ResultSet out = s.executeQuery(VERSION_SQL);
+            if (out.next()) {
+            	this.version.append(out.getString(1));
+            }
+            
+            // Collect DBMS parameters
+            out = s.executeQuery(PARAMETERS_SQL);
             while(out.next()) {
                 dbParameters.put(out.getString("name"), out.getString("setting"));
             }
+            
+            // Collect DBMS internal metrics
         } catch (SQLException e) {
             LOG.debug("Error while collecting DB parameters: " + e.getMessage());
         }
     }
     
     @Override
-    public String collectVersion() {
-        return dbParameters.get(VERSION);
+    public boolean hasMetrics() {
+    	return (dbMetrics.isEmpty() == false);
+    }
+    
+    @Override
+    public String collectMetrics() {
+    	return JSONUtil.format(JSONUtil.toJSONString(dbMetrics));
     }
 }

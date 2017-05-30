@@ -48,6 +48,7 @@ public class DBCollector implements DBParameterCollector {
     	return JSONUtil.format(JSONUtil.toJSONString(dbParameters));
     }
 
+    @Override
     public String collectMetrics() {
     	return JSONUtil.format(JSONUtil.toJSONString(dbMetrics));
     }
