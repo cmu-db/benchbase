@@ -101,6 +101,45 @@ public final class Results {
             i += 1;
         }
     }
+    
+    public void writeCSV2(PrintStream out) {
+        writeCSV2(1, out, TransactionType.INVALID);
+    }
+
+    public void writeCSV2(int windowSizeSeconds, PrintStream out, TransactionType txType) {
+    	String header[] = {
+	    	"Time (seconds)",
+	    	"Requests",
+	    	"Throughput (requests/second)",
+	    	"Minimum Latency (microseconds)",
+	    	"25th Percentile Latency (microseconds)",
+	    	"Median Latency (microseconds)",
+	    	"Average Latency (microseconds)",
+	    	"75th Percentile Latency (microseconds)",
+	    	"90th Percentile Latency (microseconds)",
+	    	"95th Percentile Latency (microseconds)",
+	    	"99th Percentile Latency (microseconds)",
+	    	"Maximum Latency (microseconds)"
+    	};
+    	out.println(StringUtil.join(",", header));
+        int i = 0;
+        for (DistributionStatistics s : new TimeBucketIterable(latencySamples, windowSizeSeconds, txType)) {
+            out.printf("%d,%d,%.3f,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+            		i * windowSizeSeconds,
+            		s.getCount(),
+            		(double) s.getCount() / windowSizeSeconds,
+                    (int) s.getMinimum(),
+                    (int) s.get25thPercentile(),
+                    (int) s.getMedian(),
+                    (int) s.getAverage(),
+                    (int) s.get75thPercentile(),
+                    (int) s.get90thPercentile(),
+                    (int) s.get95thPercentile(),
+                    (int) s.get99thPercentile(),
+                    (int) s.getMaximum());
+            i += 1;
+        }
+    }
 
     public void writeAllCSV(PrintStream out) {
         long startNs = latencySamples.get(0).startNs;

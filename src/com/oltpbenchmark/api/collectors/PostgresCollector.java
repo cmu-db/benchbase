@@ -16,31 +16,94 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import com.oltpbenchmark.catalog.Catalog;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.apache.log4j.Logger;
 
-import java.sql.*;
+import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.util.JSONUtil;
 
 public class PostgresCollector extends DBCollector {
     private static final Logger LOG = Logger.getLogger(PostgresCollector.class);
-    private static final String VERSION = "server_version";
+
+    private static final String VERSION_SQL = "SELECT version();";
+
+    private static final String PARAMETERS_SQL = "SHOW ALL;";
+
+    private static final String[] PG_STAT_VIEWS = {
+    	"pg_stat_archiver", "pg_stat_bgwriter", "pg_stat_database",
+    	"pg_stat_database_conflicts", "pg_stat_user_tables", "pg_statio_user_tables",
+    	"pg_stat_user_indexes", "pg_statio_user_indexes"
+    };
+
+    private final Map<String, List<Map<String, String>>> pgMetrics;
 
     public PostgresCollector(String oriDBUrl, String username, String password) {
+    	pgMetrics = new HashMap<String, List<Map<String, String>>>();
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
             Catalog.setSeparator(conn);
             Statement s = conn.createStatement();
-            ResultSet out = s.executeQuery("SHOW ALL;");
-            while(out.next()) {
-                dbConf.put(out.getString("name"), out.getString("setting"));
+
+            // Collect DBMS version
+            ResultSet out = s.executeQuery(VERSION_SQL);
+            if (out.next()) {
+            	this.version.append(out.getString(1));
+            }
+
+            // Collect DBMS parameters
+            out = s.executeQuery(PARAMETERS_SQL);
+            while (out.next()) {
+                dbParameters.put(out.getString("name"), out.getString("setting"));
+            }
+
+            // Collect DBMS internal metrics
+            for (String viewName : PG_STAT_VIEWS) {
+            	out = s.executeQuery("SELECT * FROM " + viewName);
+            	pgMetrics.put(viewName, getMetrics(out));
             }
         } catch (SQLException e) {
-            LOG.debug("Error while collecting DB parameters: " + e.getMessage());
+            LOG.error("Error while collecting DB parameters: " + e.getMessage());
         }
     }
-    
+
     @Override
-    public String collectVersion() {
-        return dbConf.get(VERSION);
+    public boolean hasMetrics() {
+    	return (pgMetrics.isEmpty() == false);
     }
+
+    @Override
+    public String collectMetrics() {
+    	return JSONUtil.format(JSONUtil.toJSONString(pgMetrics));
+    }
+
+    private static List<Map<String, String>> getMetrics(ResultSet out) throws SQLException {
+        ResultSetMetaData metadata = out.getMetaData();
+        int numColumns = metadata.getColumnCount();
+        String[] columnNames = new String[numColumns];
+        for (int i = 0; i < numColumns; ++i) {
+        	columnNames[i] = metadata.getColumnName(i + 1).toLowerCase();
+        }
+        
+        List<Map<String, String>> metrics = new ArrayList<Map<String, String>>();
+        while (out.next()) {
+        	Map<String, String> metricMap = new TreeMap<String, String>();
+        	for (int i = 0; i < numColumns; ++i) {
+        		metricMap.put(columnNames[i], out.getString(i + 1));
+        	}
+        	metrics.add(metricMap);
+        }
+        return metrics;
+    }
+
 }

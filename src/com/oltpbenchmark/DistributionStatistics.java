@@ -18,6 +18,8 @@
 package com.oltpbenchmark;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DistributionStatistics {
 	private static final double[] PERCENTILES = { 0.0, 0.25, 0.5, 0.75, 0.9,
@@ -153,5 +155,19 @@ public class DistributionStatistics {
 				+ get95thPercentile() / 1e6 + ", " + "99th="
 				+ get99thPercentile() / 1e6 + ", " + "max=" + getMaximum()
 				/ 1e6 + "]";
+	}
+	
+	public Map<String, Integer> toMap() {
+		Map<String, Integer> distMap = new LinkedHashMap<String, Integer>();
+		distMap.put("Minimum Latency (microseconds)", (int) getMinimum());
+		distMap.put("25th Percentile Latency (microseconds)", (int) get25thPercentile());
+		distMap.put("Median Latency (microseconds)", (int) getMedian());
+		distMap.put("Average Latency (microseconds)", (int) getAverage());
+		distMap.put("75th Percentile Latency (microseconds)", (int) get75thPercentile());
+		distMap.put("90th Percentile Latency (microseconds)", (int) get90thPercentile());
+		distMap.put("95th Percentile Latency (microseconds)", (int) get95thPercentile());
+		distMap.put("99th Percentile Latency (microseconds)", (int) get99thPercentile());
+		distMap.put("Maximum Latency (microseconds)", (int) getMaximum());
+		return distMap;
 	}
 }

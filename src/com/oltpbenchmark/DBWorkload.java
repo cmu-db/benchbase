@@ -684,17 +684,33 @@ public class DBWorkload {
                 ru.writeSummary(ss);
                 ss.close();
 
-                // DBMS Configuration
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".db.cnf"));
+                // DBMS Parameters
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".params"));
                 ss = new PrintStream(new File(nextName));
-                LOG.info("Output DBMS Configuration into file: " + nextName);
+                LOG.info("Output DBMS parameters into file: " + nextName);
                 ru.writeDBParameters(ss);
                 ss.close();
 
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".ben.cnf"));
+                // DBMS Metrics
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".metrics"));
                 ss = new PrintStream(new File(nextName));
-                LOG.info("Output benchmark config into file: " + nextName);
+                LOG.info("Output DBMS metrics into file: " + nextName);
+                ru.writeDBMetrics(ss);
+                ss.close();
+
+                // Experiment Configuration
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".expconfig"));
+                ss = new PrintStream(new File(nextName));
+                LOG.info("Output experiment config into file: " + nextName);
                 ru.writeBenchmarkConf(ss);
+                ss.close();
+                
+
+                // Write samples using 1 second window
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
+                ss = new PrintStream(new File(nextName));
+                LOG.info("Output samples into file: " + nextName);
+                r.writeCSV2(ss);
                 ss.close();
             }
             
