@@ -59,7 +59,7 @@ public class MySQLCollector extends DBCollector {
             	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
             }
         } catch (SQLException e) {
-            LOG.warn("Error while collecting DB parameters: " + e.getMessage());
+            LOG.error("Error while collecting DB parameters: " + e.getMessage());
         }
     }
 }
