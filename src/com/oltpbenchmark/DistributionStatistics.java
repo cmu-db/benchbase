@@ -21,7 +21,11 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 public class DistributionStatistics {
+	private static final Logger LOG = Logger.getLogger(DistributionStatistics.class);
+
 	private static final double[] PERCENTILES = { 0.0, 0.25, 0.5, 0.75, 0.9,
 			0.95, 0.99, 1.0 };
 
@@ -56,8 +60,10 @@ public class DistributionStatistics {
 	 */
 	public static DistributionStatistics computeStatistics(int[] values) {
 		if (values.length == 0) {
-			throw new IllegalArgumentException(
-					"cannot compute statistics for an empty list");
+			LOG.warn("cannot compute statistics for an empty list");
+			long[] percentiles = new long[PERCENTILES.length];
+			Arrays.fill(percentiles, -1);
+			return new DistributionStatistics(0, percentiles, -1, -1);
 			
 //			long[] percentiles = new long[PERCENTILES.length];
 //			for (int i = 0; i < percentiles.length; ++i) {
