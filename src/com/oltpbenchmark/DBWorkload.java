@@ -718,6 +718,10 @@ public class DBWorkload {
             LOG.debug("No output file specified");
         }
         
+        if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
+            ru.uploadResult(activeTXTypes);
+        }
+        
         // SUMMARY FILE
         if (argsLine.hasOption("s")) {
             nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
@@ -727,10 +731,6 @@ public class DBWorkload {
             int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
             LOG.info("Grouped into Buckets of " + windowSize + " seconds");
             r.writeCSV(windowSize, ps);
-
-            if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
-                ru.uploadResult(activeTXTypes);
-            }
 
             // Allow more detailed reporting by transaction to make it easier to check
             if (argsLine.hasOption("ss")) {

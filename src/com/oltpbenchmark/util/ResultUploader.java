@@ -135,26 +135,26 @@ public class ResultUploader {
 
     public void uploadResult(List<TransactionType> activeTXTypes) throws ParseException {
         try {
-            File experimentConfFile = File.createTempFile("experimentConf", ".tmp");
-            File sampleFile = File.createTempFile("sample", ".tmp");
+            File expConfigFile = File.createTempFile("expconfig", ".tmp");
+            File samplesFile = File.createTempFile("samples", ".tmp");
             File summaryFile = File.createTempFile("summary", ".tmp");
-            File dbParametersFile = File.createTempFile("dbParameters", ".tmp");
-            File dbMetricsFile = File.createTempFile("dbMetrics", ".tmp");
-            File rawDataFile = File.createTempFile("raw", ".gz");
+            File paramsFile = File.createTempFile("params", ".tmp");
+            File metricsFile = File.createTempFile("metrics", ".tmp");
+            File csvDataFile = File.createTempFile("csv", ".gz");
 
-            PrintStream confOut = new PrintStream(new FileOutputStream(experimentConfFile));
+            PrintStream confOut = new PrintStream(new FileOutputStream(expConfigFile));
             writeBenchmarkConf(confOut);
             confOut.close();
 
-            confOut = new PrintStream(new FileOutputStream(dbParametersFile));
+            confOut = new PrintStream(new FileOutputStream(paramsFile));
             writeDBParameters(confOut);
             confOut.close();
 
-            confOut = new PrintStream(new FileOutputStream(dbMetricsFile));
+            confOut = new PrintStream(new FileOutputStream(metricsFile));
             writeDBMetrics(confOut);
             confOut.close();
 
-            confOut = new PrintStream(new FileOutputStream(sampleFile));
+            confOut = new PrintStream(new FileOutputStream(samplesFile));
             results.writeCSV2(confOut);
             confOut.close();
 
@@ -162,7 +162,7 @@ public class ResultUploader {
             writeSummary(confOut);
             confOut.close();
 
-            confOut = new PrintStream(new GZIPOutputStream(new FileOutputStream(rawDataFile)));
+            confOut = new PrintStream(new GZIPOutputStream(new FileOutputStream(csvDataFile)));
             results.writeAllCSVAbsoluteTiming(activeTXTypes, confOut);
             confOut.close();
 
@@ -171,11 +171,11 @@ public class ResultUploader {
 
             HttpEntity reqEntity = MultipartEntityBuilder.create()
                     .addTextBody("upload_code", uploadCode)
-                    .addPart("sample_data", new FileBody(sampleFile))
-                    .addPart("raw_data", new FileBody(rawDataFile))
-                    .addPart("db_parameters_data", new FileBody(dbParametersFile))
-                    .addPart("db_metrics_data", new FileBody(dbMetricsFile))
-                    .addPart("experiment_conf_data", new FileBody(experimentConfFile))
+                    .addPart("sample_data", new FileBody(samplesFile))
+                    .addPart("raw_data", new FileBody(csvDataFile))
+                    .addPart("db_parameters_data", new FileBody(paramsFile))
+                    .addPart("db_metrics_data", new FileBody(metricsFile))
+                    .addPart("benchmark_conf_data", new FileBody(expConfigFile))
                     .addPart("summary_data", new FileBody(summaryFile))
                     .build();
 
