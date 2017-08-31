@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE parameters [
+
+<!ENTITY conn SYSTEM "Connection/conn_mysql.xml">
+<!ENTITY proc SYSTEM "Procedure/proc_tpcc.xml">
+<!ENTITY work SYSTEM "Workload/work_tpcc.xml">
+
+]>
+<parameters>
+
+	
+    <!-- Connection details -->
+    &conn;
+    
+    <!-- Scale factor is the number of warehouses in TPCC -->
+    <scalefactor>2</scalefactor>
+    
+    <!-- The workload -->
+    &work;
+	
+    <!-- TPCC Procedures definition -->  
+    &proc;   
+
+</parameters>

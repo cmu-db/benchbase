@@ -1,0 +1,3 @@
+
+<!-- the prefix url for MySQL --> 
+<!ENTITY url "jdbc:mysql://localhost:3306/">
