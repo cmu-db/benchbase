@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="CPU1">
+            <statement name="cpuSelect">
+            	SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
+            										 HashBytes('MD5',CONVERT(VARCHAR(32),
+            										 					     HashBytes('MD5',CONVERT(VARCHAR(32), 
+            										 					     						 HashBytes('MD5',CONVERT(VARCHAR(32),
+            										 					     						 						 HashBytes('MD5',CONVERT(VARCHAR(32),
+            										 					     						 						                         HashBytes('MD5',passwd+?)
+            										 					     						 						                         )
+            										 					     						 						 +?))
+            										 					     						 +?))
+            										 					     +?))
+            										 +?))
+            										Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
+            </statement>
+        </procedure>   
+        <procedure name="CPU2">
+            <statement name="cpuSelect">
+            	            	SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
+            										 HashBytes('MD5',CONVERT(VARCHAR(32),
+            										 					     HashBytes('MD5',CONVERT(VARCHAR(32), 
+            										 					     						 HashBytes('MD5',CONVERT(VARCHAR(32),
+            										 					     						 						 HashBytes('MD5',CONVERT(VARCHAR(32),
+            										 					     						 						                         HashBytes('MD5',passwd+?)
+            										 					     						 						                         )
+            										 					     						 						 +?))
+            										 					     						 +?))
+            										 					     +?))
+            										 +?))
+            										Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
+            </statement>
+        </procedure>     
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+            	WAITFOR DELAY ?
+            </statement>
+        </procedure>   
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+            	WAITFOR DELAY ?
+            </statement>
+        </procedure>  
+</dialects>

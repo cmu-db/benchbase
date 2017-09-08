@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="GetTweet">
+            <statement name="getTweet">
+                SELECT * FROM "tweets" WHERE id = ?
+            </statement>
+        </procedure>
+        <procedure name="GetTweetsFromFollowing">
+            <statement name="getFollowing">
+                SELECT TOP 20 f2 FROM "follows" WHERE f1 = ?
+            </statement>
+            <statement name="getTweets">
+                SELECT * FROM "tweets" WHERE uid IN (??)
+            </statement>
+        </procedure>        
+        <procedure name="GetFollowers">
+            <statement name="getFollowers">
+                SELECT TOP 20 f2 FROM "followers" WHERE f1 = ?
+            </statement>
+            <statement name="getFollowerNames">
+                SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
+            </statement>
+        </procedure>
+        <procedure name="GetUserTweets">
+            <statement name="getTweets">
+                SELECT TOP 10 * FROM "tweets" WHERE uid = ?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>    
