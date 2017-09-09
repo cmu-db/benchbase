@@ -219,7 +219,7 @@ public abstract class BenchmarkModule {
         // String xmlName = this.benchmarkName + "-dialects.xml";
         // URL ddlURL = this.getClass().getResource(xmlName);
 
-        String xmlName = (db_type != null ? db_type.name().toLowerCase() : this.benchmarkName) + "-dialects.xml";
+        String xmlName = (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml";
         URL ddlURL = this.getClass().getResource( DIALECTS_DIR + File.separator + xmlName);
         if (ddlURL != null) return new File(ddlURL.getPath());
         if (LOG.isDebugEnabled())
