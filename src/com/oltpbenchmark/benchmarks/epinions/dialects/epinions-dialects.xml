@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="GetReviewsByUser">
+            <statement name="getReviewUser">
+                SELECT * FROM review r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? 
+                ORDER BY rating LIMIT 10
+            </statement>
+        </procedure>
+        <procedure name="UpdateUserName">
+            <statement name="updateUser">
+                UPDATE "user" SET name = ? WHERE u_id=?
+            </statement>
+        </procedure>
+    </dialect>
+    <dialect type="ORACLE">
+        <procedure name="GetAverageRatingByTrustedUser">
+            <statement name="getAverageRating">
+                SELECT avg(rating) FROM "review" r, "trust" t WHERE r.u_id=t.target_u_id AND r.i_id=? AND t.source_u_id=?
+            </statement>
+        </procedure>
+        <procedure name="GetItemAverageRating">
+            <statement name="getAverageRating">
+                SELECT avg(rating) FROM "review" r WHERE r.i_id=?
+            </statement>
+        </procedure>
+        <procedure name="GetItemReviewsByTrustedUser">
+            <statement name="getReview">
+                SELECT * FROM "review" r WHERE r.i_id=?
+            </statement>
+            <statement name="getTrust">
+                SELECT * FROM "trust" t WHERE t.source_u_id=?
+            </statement>
+        </procedure> 
+        <procedure name="GetReviewItemById">
+            <statement name="getReviewItem">
+                SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM &lt;= 10
+                ORDER BY rating
+            </statement>
+        </procedure>
+        <procedure name="GetReviewsByUser">
+            <statement name="getReviewUser">
+                SELECT * FROM "review" r, "user" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM &lt;= 10
+                ORDER BY rating
+            </statement>
+        </procedure>
+        <procedure name="UpdateItemTitle">
+            <statement name="updateItem">
+                UPDATE "item" SET title = ? WHERE i_id=?
+            </statement>
+        </procedure>
+        <procedure name="UpdateReviewRating">
+            <statement name="updateReview">
+                UPDATE "review" SET rating = ? WHERE i_id=? AND u_id=?
+            </statement>
+        </procedure>
+        <procedure name="UpdateTrustRating">
+            <statement name="updateTrust">
+                UPDATE "trust" SET trust = ? WHERE source_u_id=? AND target_u_id=?
+            </statement>
+        </procedure>
+        <procedure name="UpdateUserName">
+            <statement name="updateUser">
+                UPDATE "user" SET name = ? WHERE u_id=?
+            </statement>
+        </procedure>       
+    </dialect>
+    <dialect type="SQLSERVER">
+        <procedure name="GetReviewItemById">
+            <statement name="getReviewItem">
+                SELECT TOP 10 * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=?
+                ORDER BY rating;
+            </statement>
+        </procedure>
+        <procedure name="GetReviewsByUser">
+            <statement name="getReviewUser">
+                SELECT TOP 10 * FROM review r, [user] u WHERE u.u_id = r.u_id AND r.u_id=? 
+                ORDER BY rating;
+            </statement>
+        </procedure>
+        <procedure name="UpdateUserName">
+            <statement name="updateUser">
+                UPDATE [user] SET name = ? WHERE u_id=?;
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

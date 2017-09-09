@@ -218,13 +218,16 @@ public abstract class BenchmarkModule {
        
         // String xmlName = this.benchmarkName + "-dialects.xml";
         // URL ddlURL = this.getClass().getResource(xmlName);
-
-        String xmlName = (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml";
-        URL ddlURL = this.getClass().getResource( DIALECTS_DIR + File.separator + xmlName);
-        if (ddlURL != null) return new File(ddlURL.getPath());
-        if (LOG.isDebugEnabled())
-            LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
-        
+        String xmlNames[] = {
+            (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml",
+            this.benchmarkName + "-dialects.xml",
+        }
+        for(String xmlName : xmlNames) { 
+            URL ddlURL = this.getClass().getResource( DIALECTS_DIR + File.separator + xmlName);
+            if (ddlURL != null) return new File(ddlURL.getPath());
+                if (LOG.isDebugEnabled())
+                    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
+        }
         return (null);
     }
 
