@@ -52,7 +52,14 @@ public abstract class BenchmarkModule {
      * in this directory.
      */
     public static final String DDLS_DIR = "ddls";
-    
+   
+
+    /**
+     * Each dialect xml file  must put their all of the DBMS-specific DIALECTs
+     * in this directory.
+     */
+    public static final String DIALECTS_DIR = "dialects";
+   
     /**
      * The identifier for this benchmark
      */
@@ -194,16 +201,33 @@ public abstract class BenchmarkModule {
     }
 
     /**
+     *
+     * @return
+     */
+
+    public File getSQLDialect(){
+        return (this.getSQLDialect(this.workConf.getDBType()));
+    }
+
+    /**
      * Return the File handle to the SQL Dialect XML file
      * used for this benchmark 
      * @return
      */
-    public File getSQLDialect() {
-        String xmlName = this.benchmarkName + "-dialects.xml";
-        URL ddlURL = this.getClass().getResource(xmlName);
-        if (ddlURL != null) return new File(ddlURL.getPath());
-        if (LOG.isDebugEnabled())
-            LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
+    public File getSQLDialect(DatabaseType db_type) {
+       
+        // String xmlName = this.benchmarkName + "-dialects.xml";
+        // URL ddlURL = this.getClass().getResource(xmlName);
+        String xmlNames[] = {
+            (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml",
+            this.benchmarkName + "-dialects.xml",
+        };
+        for(String xmlName : xmlNames) { 
+            URL ddlURL = this.getClass().getResource( DIALECTS_DIR + File.separator + xmlName);
+            if (ddlURL != null) return new File(ddlURL.getPath());
+                if (LOG.isDebugEnabled())
+                    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
+        }
         return (null);
     }
 

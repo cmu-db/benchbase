@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="LoadConfig">
+            <statement name="getPastItems">SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status FROM ITEM, CONFIG_PROFILE WHERE i_status = ? AND i_end_date &lt;= cfp_loader_start  ORDER BY i_end_date ASC</statement>
+            <statement name="getFutureItems">SELECT TOP 1000 i_id, i_current_price, i_end_date, i_num_bids, i_status FROM ITEM, CONFIG_PROFILE WHERE i_status = ? AND i_end_date &gt; cfp_loader_start  ORDER BY i_end_date ASC</statement>
+        </procedure>
+        <procedure name="GetUserInfo">
+            <statement name="getUser">
+                    SELECT TOP 25 i_id, i_u_id,i_name,i_current_price,i_num_bids,i_end_date,i_status
+                    uw_u_id, uw_created 
+			        FROM USERACCT_WATCH, ITEM
+			        WHERE uw_u_id = ?
+			        AND uw_i_id = i_id AND uw_i_u_id = i_u_id
+			        ORDER BY i_end_date DESC
+        	</statement>
+        	<statement name="getUserFeedback">
+			       	SELECT TOP 25 u_id, u_rating, u_sattr0, u_sattr1, uf_rating, uf_date, uf_sattr0 
+			        FROM  USERACCT , USERACCT_FEEDBACK
+			        WHERE u_id = ? AND uf_u_id = u_id 
+			        ORDER BY uf_date DESC
+        	</statement>
+        	<statement name="getItemComments">
+			        SELECT TOP 25 i_id, i_u_id,i_name,i_current_price,i_num_bids,i_end_date,i_status,
+			        ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created 
+			        FROM ITEM , ITEM_COMMENT
+			        WHERE i_u_id = ? AND i_status = ?
+			        AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL
+			        ORDER BY ic_created DESC
+        	</statement>
+        	<statement name="getSellerItems">
+			        SELECT TOP 25 i_id, i_u_id,i_name,i_current_price,i_num_bids,i_end_date,i_status
+			        FROM ITEM 
+			        WHERE i_u_id = ?
+			        ORDER BY i_end_date DESC
+        	</statement>
+        	<statement name="getBuyerItems">
+			        SELECT TOP 25 i_id, i_u_id,i_name,i_current_price,i_num_bids,i_end_date,i_status
+			        FROM USERACCT_ITEM, ITEM
+			        WHERE ui_u_id = ?
+			        AND ui_i_id = i_id AND ui_i_u_id = i_u_id 
+			        ORDER BY i_end_date DESC
+        	</statement>
+        	<statement name="getWatchedItems">
+			        SELECT TOP 25 i_id, i_u_id,i_name,i_current_price,i_num_bids,i_end_date,i_status , uw_u_id, uw_created
+			        FROM USERACCT_WATCH, ITEM 
+			        WHERE uw_u_id = ? 
+			        AND uw_i_id = i_id AND uw_i_u_id = i_u_id
+			        ORDER BY i_end_date DESC
+        	</statement>
+        </procedure>
+    	<procedure name="CloseAuctions">
+            <statement name="getDueItems">
+                     SELECT TOP 25 i_id, i_u_id,i_name,i_current_price,i_num_bids,i_end_date,i_status
+			         FROM   ITEM
+			         WHERE (i_start_date BETWEEN ? AND ?) AND i_status = ?
+			         ORDER BY i_id ASC
+            </statement>
+		</procedure>
+    </dialect>
+</dialects>
+
