@@ -21,7 +21,10 @@ public class DBParameterCollectorGen {
         String db = dbType.toLowerCase();
         if (db.equals("mysql")) {
             return new MySQLCollector(dbUrl, username, password);
-        } else if (db.equals("postgres")) {
+        } else if (db.equals("myrocks")) {
+            return new MyRocksCollector(dbUrl, username, password);
+	}
+	else if (db.equals("postgres")) {
             return new PostgresCollector(dbUrl, username, password);
         } else {
             return new DBCollector();
