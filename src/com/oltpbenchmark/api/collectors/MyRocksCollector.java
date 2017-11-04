@@ -21,9 +21,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.ArrayList;
+import com.oltpbenchmark.util.JSONUtil;
+import java.sql.ResultSetMetaData;
 import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.catalog.Catalog;
 
 public class MyRocksCollector extends DBCollector {
@@ -36,28 +41,39 @@ public class MyRocksCollector extends DBCollector {
     private static final String METRICS_SQL = "SHOW STATUS";
 
     private static final String CF_OPTIONS = "select * from information_schema.rocksdb_cf_options order by cf_name, option_type;";
+
+    private final Map<String, List<Map<String, String>>> myroMetrics;
+
+    private static final String[] MYRO_STAT_VIEWS = {"rocksdb_cfstats","rocksdb_compaction_stats","rocksdb_dbstats","rocksdb_perf_context_global", "index_statistics","rocksdb_perf_context"};
+
+    private static final String DB_STATS = "select * from information_schema.db_statistics where db = ";
+
+    private static final String TABLE_STATS = "select * from information_schema.table_statistics where table_schema = ";
  
-    private static final String CF_STATS= "select * from information_schema.rocksdb_cfstats;";
+    private static final String INDEX_STATS = "SELECT *  FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = ";
 
-
-    private static final String COMPACTION_STATS= "select * from information_schema.rocksdb_compaction_stats;";
-
-
-    private static final String ROCKSDB_DBSTATS= "select * from information_schema.rocksdb_dbstats;";
-
-    private static final String PERF_CONTEXT_GLOBAL= "select * from information_schema.rocksdb_perf_context_global;";
-    
     public MyRocksCollector(String oriDBUrl, String username, String password) {
+
+        myroMetrics = new HashMap<String, List<Map<String, String>>>();
+
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
             Catalog.setSeparator(conn);
             Statement s = conn.createStatement();
-
+         
+         
             // Collect DBMS version
             ResultSet out = s.executeQuery(VERSION_SQL);
             if (out.next()) {
             	this.version.append(out.getString(1));
             }
+      
+            // get currenct oltpbench database
+            String dbname="";
+            out = s.executeQuery("select database()");
+            if(out.next()){
+                dbname = out.getString(1);
+            } 
 
             // Collect DBMS parameters
             out = s.executeQuery(PARAMETERS_SQL);
@@ -73,40 +89,55 @@ public class MyRocksCollector extends DBCollector {
 
             // Collect DBMS internal metrics
             out = s.executeQuery(METRICS_SQL);
-            while (out.next()) {
-            	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
-            }
+            myroMetrics.put("internal_metrics", getMetrics(out));
+                   
+            // Collect metrics from information_schema 
+	    for (String viewName : MYRO_STAT_VIEWS) {
+            	out = s.executeQuery("select * from information_schema." + viewName + ";");
+            	myroMetrics.put(viewName, getMetrics(out));
+            }          
+ 
+            // Collect db statistics
+            out = s.executeQuery(DB_STATS + "\""+dbname +"\""+ ";");
+            myroMetrics.put("db_statistics", getMetrics(out));
+           
+	    // Collect table statistics  
+            out = s.executeQuery(TABLE_STATS + "\""+dbname +"\""+ ";");
+            myroMetrics.put("table_statistics", getMetrics(out));
 
-            // Collect MyRocks Column Family statistics 
-            out = s.executeQuery(CF_STATS);
-            while(out.next()){
-                dbMetrics.put("cf_stats: "+ "cf_name=" + out.getString(1).toLowerCase() + " , " + "type="+ out.getString(2).toLowerCase(), out.getString(3));
-            }            
-
-            // Collect Compaction Statistics
-            out = s.executeQuery(COMPACTION_STATS);
-            while(out.next()){
-                dbMetrics.put("cf_compaction_stats: "+ "cf_name=" + out.getString(1).toLowerCase() + " , " + "level=" + out.getString(2).toLowerCase() + " , " +"type=" + out.getString(3).toLowerCase(), out.getString(4));
-            }            
-
-            // Collect DB statistics
-            out = s.executeQuery(ROCKSDB_DBSTATS);
-            while (out.next()) {
-            	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
-            }    
-
-            // Collect Global Performance Context Statistics 
-            out = s.executeQuery(PERF_CONTEXT_GLOBAL);
-            while (out.next()) {
-            	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
-            }
-            // Collect Perf Context table? 
-            // index, db, table statistic ? 
-
-
+	    // Collect index statistics  
+            out = s.executeQuery(INDEX_STATS + "\""+dbname +"\""+ ";");
+            myroMetrics.put("index_statistics", getMetrics(out));
 
         } catch (SQLException e) {
             LOG.error("Error while collecting DB parameters: " + e.getMessage());
         }
     }
+
+    @Override
+    public String collectMetrics() {
+    	return JSONUtil.format(JSONUtil.toJSONString(myroMetrics));
+    }  
+
+
+    private static List<Map<String, String>> getMetrics(ResultSet out) throws SQLException {
+        ResultSetMetaData metadata = out.getMetaData();
+        int numColumns = metadata.getColumnCount();
+        String[] columnNames = new String[numColumns];
+        for (int i = 0; i < numColumns; ++i) {
+        	columnNames[i] = metadata.getColumnName(i + 1).toLowerCase();
+        }
+        
+        List<Map<String, String>> metrics = new ArrayList<Map<String, String>>();
+        while (out.next()) {
+        	Map<String, String> metricMap = new TreeMap<String, String>();
+        	for (int i = 0; i < numColumns; ++i) {
+        		metricMap.put(columnNames[i], out.getString(i + 1));
+        	}
+        	metrics.add(metricMap);
+        }
+        return metrics;
+
+    }
+
 }
