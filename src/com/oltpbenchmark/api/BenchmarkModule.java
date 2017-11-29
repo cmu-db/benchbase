@@ -228,6 +228,8 @@ public abstract class BenchmarkModule {
                 if (LOG.isDebugEnabled())
                     LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
         }
+ 
+        LOG.error("Failed to find SQL Dialect XML file for " + this.benchmarkName + ":" + db_type.name().toLowerCase());
         return (null);
     }
 
