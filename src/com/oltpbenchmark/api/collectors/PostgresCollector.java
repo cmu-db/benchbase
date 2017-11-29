@@ -87,7 +87,7 @@ public class PostgresCollector extends DBCollector {
     	return JSONUtil.format(JSONUtil.toJSONString(pgMetrics));
     }
 
-    private static List<Map<String, String>> getMetrics(ResultSet out) throws SQLException {
+/*    private static List<Map<String, String>> getMetrics(ResultSet out) throws SQLException {
         ResultSetMetaData metadata = out.getMetaData();
         int numColumns = metadata.getColumnCount();
         String[] columnNames = new String[numColumns];
@@ -105,5 +105,5 @@ public class PostgresCollector extends DBCollector {
         }
         return metrics;
     }
-
+*/
 }
