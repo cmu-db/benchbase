@@ -86,24 +86,4 @@ public class PostgresCollector extends DBCollector {
     public String collectMetrics() {
     	return JSONUtil.format(JSONUtil.toJSONString(pgMetrics));
     }
-
-/*    private static List<Map<String, String>> getMetrics(ResultSet out) throws SQLException {
-        ResultSetMetaData metadata = out.getMetaData();
-        int numColumns = metadata.getColumnCount();
-        String[] columnNames = new String[numColumns];
-        for (int i = 0; i < numColumns; ++i) {
-        	columnNames[i] = metadata.getColumnName(i + 1).toLowerCase();
-        }
-        
-        List<Map<String, String>> metrics = new ArrayList<Map<String, String>>();
-        while (out.next()) {
-        	Map<String, String> metricMap = new TreeMap<String, String>();
-        	for (int i = 0; i < numColumns; ++i) {
-        		metricMap.put(columnNames[i], out.getString(i + 1));
-        	}
-        	metrics.add(metricMap);
-        }
-        return metrics;
-    }
-*/
 }

@@ -61,15 +61,14 @@ public class MyRocksCollector extends DBCollector {
             Catalog.setSeparator(conn);
             Statement s = conn.createStatement();
          
-         
             // Collect DBMS version
             ResultSet out = s.executeQuery(VERSION_SQL);
             if (out.next()) {
             	this.version.append(out.getString(1));
             }
       
-            // get currenct oltpbench database
-            String dbname="";
+            // Get currenct oltpbench database
+            String dbname = "";
             out = s.executeQuery("select database()");
             if(out.next()){
                 dbname = out.getString(1);
@@ -92,21 +91,21 @@ public class MyRocksCollector extends DBCollector {
             myroMetrics.put("internal_metrics", getMetrics(out));
                    
             // Collect metrics from information_schema 
-	    for (String viewName : MYRO_STAT_VIEWS) {
+            for (String viewName : MYRO_STAT_VIEWS) {
             	out = s.executeQuery("select * from information_schema." + viewName + ";");
             	myroMetrics.put(viewName, getMetrics(out));
             }          
  
             // Collect db statistics
-            out = s.executeQuery(DB_STATS + "\""+dbname +"\""+ ";");
+            out = s.executeQuery(DB_STATS + "\"" + dbname + "\""+ ";");
             myroMetrics.put("db_statistics", getMetrics(out));
            
-	    // Collect table statistics  
-            out = s.executeQuery(TABLE_STATS + "\""+dbname +"\""+ ";");
+            // Collect table statistics  
+            out = s.executeQuery(TABLE_STATS + "\"" + dbname + "\""+ ";");
             myroMetrics.put("table_statistics", getMetrics(out));
 
-	    // Collect index statistics  
-            out = s.executeQuery(INDEX_STATS + "\""+dbname +"\""+ ";");
+            // Collect index statistics  
+            out = s.executeQuery(INDEX_STATS + "\"" + dbname + "\""+ ";");
             myroMetrics.put("index_statistics", getMetrics(out));
 
         } catch (SQLException e) {
@@ -118,6 +117,4 @@ public class MyRocksCollector extends DBCollector {
     public String collectMetrics() {
     	return JSONUtil.format(JSONUtil.toJSONString(myroMetrics));
     }  
-
-
 }

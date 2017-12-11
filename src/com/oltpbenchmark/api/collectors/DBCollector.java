@@ -79,8 +79,5 @@ public class DBCollector implements DBParameterCollector {
         	metrics.add(metricMap);
         }
         return metrics;
-
     }
-
-
 }
