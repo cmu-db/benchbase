@@ -67,9 +67,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         }
     }
     
-    static boolean fastLoad;
-    static String fastLoaderBaseDir;
-
     private int numWarehouses = 0;
     private static final int FIRST_UNPROCESSED_O_ID = 2101;
     
@@ -78,7 +75,8 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
         final CountDownLatch itemLatch = new CountDownLatch(1);
         
-        // ITEM Table
+        // ITEM
+        // This will be invoked first and executed in a single thread. 
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -88,10 +86,11 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         });
         
         // WAREHOUSES
+        // We use a separate thread per warehouse. Each thread will load 
+        // all of the tables that depend on that warehouse. They all have
+        // to wait until the ITEM table is loaded first though.
         for (int w = 1; w <= numWarehouses; w++) {
             final int w_id = w;
-            // We currently can't support multi-threaded loading because we
-            // will need to make multiple connections to the DBMS
             LoaderThread t = new LoaderThread() {
                 @Override
                 public void load(Connection conn) throws SQLException {
