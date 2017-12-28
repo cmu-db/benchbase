@@ -94,17 +94,29 @@ public abstract class Loader<T extends BenchmarkModule> {
      * The number of threads that will be launched at the same time
      * depends on the number of cores that are available. But they are
      * guaranteed to execute in the order specified in the list.
-     * You may have to use your own protections if there are dependencies 
-     * @return
+     * You will have to use your own protections if there are dependencies between
+     * threads (i.e., if one table needs to be loaded before another).
+     * 
+     * Each LoaderThread will be given a Connection handle to the DBMS when
+     * it is invoked.
+     * 
+     * If the benchmark does <b>not</b> support multi-threaded loading yet,
+     * then this method should return null. 
+     *  
+     * @return The list of LoaderThreads the framework will launch.
      */
-    public abstract List<LoaderThread> createLoaderTheads() throws SQLException;
+    public abstract List<LoaderThread> createLoaderThreads() throws SQLException;
     
     /**
+     * This is the old and deprecated way of invoking a loader.
+     * If a benchmark is using createLoaderThreads, then this method will not
+     * be invoked.
+     * 
      * @throws SQLException
      */
     @Deprecated
     public void load() throws SQLException {
-        List<LoaderThread> threads = this.createLoaderTheads();
+        List<LoaderThread> threads = this.createLoaderThreads();
         for (LoaderThread t : threads) {
             t.run();
         }

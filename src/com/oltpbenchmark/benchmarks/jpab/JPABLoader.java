@@ -38,7 +38,7 @@ public class JPABLoader extends Loader<JPABBenchmark> {
     }
     
     @Override
-    public List<LoaderThread> createLoaderTheads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub
         return null;
     }
