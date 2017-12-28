@@ -74,7 +74,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
     private static final int FIRST_UNPROCESSED_O_ID = 2101;
     
     @Override
-    public List<LoaderThread> createLoaderTheads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
         final CountDownLatch itemLatch = new CountDownLatch(1);
         

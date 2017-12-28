@@ -70,7 +70,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 	}
 	
 	@Override
-	public List<LoaderThread> createLoaderTheads() throws SQLException {
+	public List<LoaderThread> createLoaderThreads() throws SQLException {
 	    // TODO Auto-generated method stub
 	    return null;
 	}

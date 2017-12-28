@@ -129,7 +129,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     // LOADING METHODS
     // -----------------------------------------------------------------
     
-    public List<LoaderThread> createLoaderTheads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
         return (null);
     }
     

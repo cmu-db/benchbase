@@ -97,14 +97,14 @@ public abstract class Loader<T extends BenchmarkModule> {
      * You may have to use your own protections if there are dependencies 
      * @return
      */
-    public abstract List<LoaderThread> createLoaderTheads() throws SQLException;
+    public abstract List<LoaderThread> createLoaderThreads() throws SQLException;
     
     /**
      * @throws SQLException
      */
     @Deprecated
     public void load() throws SQLException {
-        List<LoaderThread> threads = this.createLoaderTheads();
+        List<LoaderThread> threads = this.createLoaderThreads();
         for (LoaderThread t : threads) {
             t.run();
         }

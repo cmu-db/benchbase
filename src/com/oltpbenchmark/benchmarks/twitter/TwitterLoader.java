@@ -58,7 +58,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     }
     
     @Override
-    public List<LoaderThread> createLoaderTheads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub
         return null;
     }

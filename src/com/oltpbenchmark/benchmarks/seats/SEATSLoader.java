@@ -113,7 +113,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     // -----------------------------------------------------------------
     
     @Override
-    public List<LoaderThread> createLoaderTheads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub
         return null;
     }
