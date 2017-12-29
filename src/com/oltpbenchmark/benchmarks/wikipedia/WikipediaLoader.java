@@ -23,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +76,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * Pair<PageNamespace, PageTitle>
      */
-    private List<Pair<Integer, String>> titles = new ArrayList<Pair<Integer, String>>();
+    private List<Pair<Integer, String>> titles = Collections.synchronizedList(new ArrayList<Pair<Integer, String>>());
 
     /**
      * Constructor
@@ -104,25 +105,41 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
-        final CountDownLatch userPageLatch = new CountDownLatch(2);
+        final int itemsPerThread = 250;
+        final int numUserThreads = (int) Math.ceil((double) this.num_users / itemsPerThread);
+        final int numPageThreads = (int) Math.ceil((double) this.num_pages / itemsPerThread);
+
+        final CountDownLatch userPageLatch = new CountDownLatch(numUserThreads + numPageThreads);
 
         // USERS
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadUsers(conn);
-                userPageLatch.countDown();
-            }
-        });
+        for (int i = 0; i < numUserThreads; i++) {
+            // load USERS[lo, hi]
+            final int lo = i * itemsPerThread + 1;
+            final int hi = Math.min(this.num_users, (i+1) * itemsPerThread);
+
+            threads.add(new LoaderThread() {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    loadUsers(conn, lo, hi);
+                    userPageLatch.countDown();
+                }
+            });
+        }
 
         // PAGES
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadPages(conn);
-                userPageLatch.countDown();
-            }
-        });
+        for (int i = 0; i < numPageThreads; i++) {
+            // load PAGES[lo, hi]
+            final int lo = i * itemsPerThread + 1;
+            final int hi = Math.min(this.num_pages, (i+1) * itemsPerThread);
+
+            threads.add(new LoaderThread() {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    loadPages(conn, lo, hi);
+                    userPageLatch.countDown();
+                }
+            });
+        }
 
         // WATCHLIST, REVISIONS and trace file depends on USERS and PAGES
 
@@ -224,7 +241,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * USERACCTS
      */
-    private void loadUsers(Connection conn) throws SQLException {
+    private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         assert(catalog_tbl != null);
 
@@ -242,7 +259,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         int types[] = catalog_tbl.getColumnTypes();
         int batchSize = 0;
         int lastPercent = -1;
-        for (int i = 1; i <= this.num_users; i++) {
+        for (int i = lo; i <= hi; i++) {
             // The name will be prefixed with their UserId. This increases
             // the likelihood that all of our usernames are going to be unique
             // It's not a guarantee, but it's good enough...
@@ -308,7 +325,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * PAGE
      */
-    private void loadPages(Connection conn) throws SQLException {
+    private void loadPages(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
         assert(catalog_tbl != null);
 
@@ -325,7 +342,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         int batchSize = 0;
         int lastPercent = -1;
-        for (int i = 1; i <= this.num_pages; i++) {
+        for (int i = lo; i <= hi; i++) {
             // HACK: Always append the page id to the title so that it's guaranteed
             // to be unique. Otherwise we can get collisions with larger scale factors.
             int titleLength = h_titleLength.nextValue().intValue();
