@@ -12,7 +12,8 @@ CREATE TABLE `linktable` (
   `version` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id1`,`id2`,`link_type`),
   KEY `id1_type` (`id1`,`link_type`,`visibility`,`time`,`version`,`data`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 PARTITION BY key(id1) PARTITIONS 16;
+);
+-- Optimization: CREATE TABLE linktable (...) PARTITION BY key(id1) PARTITIONS 16
 
 CREATE TABLE `counttable` (
   `id` bigint(20) unsigned NOT NULL DEFAULT '0',
@@ -21,7 +22,7 @@ CREATE TABLE `counttable` (
   `time` bigint(20) unsigned NOT NULL DEFAULT '0',
   `version` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`link_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 CREATE TABLE `nodetable` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -30,4 +31,4 @@ CREATE TABLE `nodetable` (
   `time` int(10) unsigned NOT NULL,
   `data` mediumtext NOT NULL,
   PRIMARY KEY(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
