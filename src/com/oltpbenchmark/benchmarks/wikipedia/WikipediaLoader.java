@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -102,29 +103,79 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        final CountDownLatch userPageLatch = new CountDownLatch(2);
 
-    @Override
-    public void load() {
-        try {
-            // Load Data
-            this.loadUsers();
-            this.loadPages();
-            this.loadWatchlist();
-            this.loadRevision();
+        // USERS
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadUsers(conn);
+                userPageLatch.countDown();
+            }
+        });
 
-            // Generate Trace File
-            this.genTrace();
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            if (e.getNextException() != null) e = e.getNextException();
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // PAGES
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadPages(conn);
+                userPageLatch.countDown();
+            }
+        });
+
+        // WATCHLIST, REVISIONS and trace file depends on USERS and PAGES
+
+        // WATCHLIST
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    userPageLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadWatchlist(conn);
+            }
+        });
+
+        // REVISIONS
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    userPageLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadRevision(conn);
+            }
+        });
+
+        // generate trace file
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    userPageLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                try {
+                    genTrace();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        return threads;
     }
     
     private File genTrace() throws Exception {
@@ -173,7 +224,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * USERACCTS
      */
-    private void loadUsers() throws SQLException {
+    private void loadUsers(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         assert(catalog_tbl != null);
 
@@ -182,7 +233,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             // Oracle handles quoted object identifiers differently, do not escape names
             sql = SQLUtil.getInsertSQL(catalog_tbl, false);
         }
-        PreparedStatement userInsert = this.conn.prepareStatement(sql);
+        PreparedStatement userInsert = conn.prepareStatement(sql);
 
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_realNameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.REAL_NAME_LENGTH);
@@ -229,7 +280,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
                 userInsert.executeBatch();
-                this.conn.commit();
+                conn.commit();
                 userInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
@@ -243,7 +294,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         if (batchSize > 0) {
             this.addToTableCount(catalog_tbl.getName(), batchSize);
             userInsert.executeBatch();
-            this.conn.commit();
+            conn.commit();
             userInsert.clearBatch();
         }
         userInsert.close();
@@ -257,7 +308,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * PAGE
      */
-    private void loadPages() throws SQLException {
+    private void loadPages(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
         assert(catalog_tbl != null);
 
@@ -266,7 +317,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             // Oracle handles quoted object identifiers differently, do not escape names
             sql = SQLUtil.getInsertSQL(catalog_tbl, false);
         }
-        PreparedStatement pageInsert = this.conn.prepareStatement(sql);
+        PreparedStatement pageInsert = conn.prepareStatement(sql);
         
         FlatHistogram<Integer> h_titleLength = new FlatHistogram<Integer>(this.rng(), PageHistograms.TITLE_LENGTH);
         FlatHistogram<Integer> h_namespace = new FlatHistogram<Integer>(this.rng(), PageHistograms.NAMESPACE);
@@ -302,7 +353,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
                 pageInsert.executeBatch();
-                this.conn.commit();
+                conn.commit();
                 pageInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
@@ -315,7 +366,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         } // FOR
         if (batchSize > 0) {
             pageInsert.executeBatch();
-            this.conn.commit();
+            conn.commit();
             pageInsert.clearBatch();
             this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
@@ -330,7 +381,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * WATCHLIST
      */
-    private void loadWatchlist() throws SQLException {
+    private void loadWatchlist(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_WATCHLIST);
         assert(catalog_tbl != null);
         
@@ -339,7 +390,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             // Oracle handles quoted object identifiers differently, do not escape names
             sql = SQLUtil.getInsertSQL(catalog_tbl, false);
         }
-        PreparedStatement watchInsert = this.conn.prepareStatement(sql);
+        PreparedStatement watchInsert = conn.prepareStatement(sql);
         
         int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
         Zipf h_numWatches = new Zipf(rng(), 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
@@ -386,7 +437,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             if (batchSize >= maxBatchSize) {
                 watchInsert.executeBatch();
-                this.conn.commit();
+                conn.commit();
                 watchInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
@@ -401,7 +452,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         if (batchSize > 0) {
             watchInsert.executeBatch();
             watchInsert.clearBatch();
-            this.conn.commit();
+            conn.commit();
             this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
         watchInsert.close();
@@ -412,7 +463,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     /**
      * REVISIONS
      */
-    private void loadRevision() throws SQLException {
+    private void loadRevision(Connection conn) throws SQLException {
         
         // TEXT
         Table textTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
@@ -421,7 +472,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             // Oracle handles quoted object identifiers differently, do not escape names
             textSQL = SQLUtil.getInsertSQL(textTable, false);
         }
-        PreparedStatement textInsert = this.conn.prepareStatement(textSQL);
+        PreparedStatement textInsert = conn.prepareStatement(textSQL);
 
         // REVISION
         Table revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
@@ -430,7 +481,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             // Oracle handles quoted object identifiers differently, do not escape names
             revSQL = SQLUtil.getInsertSQL(revTable, false);
         }
-        PreparedStatement revisionInsert = this.conn.prepareStatement(revSQL);
+        PreparedStatement revisionInsert = conn.prepareStatement(revSQL);
 
         WikipediaBenchmark b = (WikipediaBenchmark)this.benchmark;
         int batchSize = 1;
@@ -503,10 +554,10 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.page_last_rev_length[page_id-1] = old_text_length;
                 rev_id++;  
                 if (this.getDatabaseType() == DatabaseType.ORACLE) {
-                    PreparedStatement text_seq=this.conn.prepareStatement("select text_seq.nextval from dual");
+                    PreparedStatement text_seq=conn.prepareStatement("select text_seq.nextval from dual");
                     text_seq.execute();
                     text_seq.close();
-                    PreparedStatement revision_seq=this.conn.prepareStatement("select revision_seq.nextval from dual");
+                    PreparedStatement revision_seq=conn.prepareStatement("select revision_seq.nextval from dual");
                     revision_seq.execute();
                     revision_seq.close();
                 }
@@ -515,7 +566,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             if (batchSize > WikipediaConstants.BATCH_SIZE) {
                 textInsert.executeBatch();
                 revisionInsert.executeBatch();
-                this.conn.commit();
+                conn.commit();
                 this.addToTableCount(textTable.getName(), batchSize);
                 this.addToTableCount(revTable.getName(), batchSize);
                 batchSize = 0;
@@ -544,7 +595,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                                "   SET user_editcount = ?, " +
                                "       user_touched = ? " +
                                " WHERE user_id = ?";
-        PreparedStatement userUpdate = this.conn.prepareStatement(updateUserSql);
+        PreparedStatement userUpdate = conn.prepareStatement(updateUserSql);
         batchSize = 0;
         for (int i = 0; i < this.num_users; i++) {
             int col = 1;
@@ -554,14 +605,14 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             userUpdate.addBatch();
             if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
                 userUpdate.executeBatch();
-                this.conn.commit();
+                conn.commit();
                 userUpdate.clearBatch();
                 batchSize = 0;
             }
         } // FOR
         if (batchSize > 0) {
             userUpdate.executeBatch();
-            this.conn.commit();
+            conn.commit();
             userUpdate.clearBatch();
         }
         userUpdate.close();
@@ -579,7 +630,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                                "       page_is_redirect = 0, " +
                                "       page_len = ? " +
                                " WHERE page_id = ?";
-        PreparedStatement pageUpdate = this.conn.prepareStatement(updatePageSql);
+        PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql);
         batchSize = 0;
         for (int i = 0; i < this.num_pages; i++) {
             if (this.page_last_rev_id[i] == -1) continue;
@@ -592,14 +643,14 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             pageUpdate.addBatch();
             if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
                 pageUpdate.executeBatch();
-                this.conn.commit();
+                conn.commit();
                 pageUpdate.clearBatch();
                 batchSize = 0;
             }
         } // FOR
         if (batchSize > 0) {
             pageUpdate.executeBatch();
-            this.conn.commit();
+            conn.commit();
             pageUpdate.clearBatch();
         }
         pageUpdate.close();
