@@ -254,12 +254,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         assert (catalog_tbl != null);
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
-        if (this.getDatabaseType() == DatabaseType.ORACLE) {
-            // Oracle handles quoted object identifiers differently, do not
-            // escape names
-            sql = SQLUtil.getInsertSQL(catalog_tbl, false);
-        }
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement userInsert = conn.prepareStatement(sql);
 
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
@@ -342,12 +337,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
         assert (catalog_tbl != null);
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
-        if (this.getDatabaseType() == DatabaseType.ORACLE) {
-            // Oracle handles quoted object identifiers differently, do not
-            // escape names
-            sql = SQLUtil.getInsertSQL(catalog_tbl, false);
-        }
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement pageInsert = conn.prepareStatement(sql);
 
         FlatHistogram<Integer> h_titleLength = new FlatHistogram<Integer>(this.rng(), PageHistograms.TITLE_LENGTH);
@@ -421,12 +411,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_WATCHLIST);
         assert (catalog_tbl != null);
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, 1);
-        if (this.getDatabaseType() == DatabaseType.ORACLE) {
-            // Oracle handles quoted object identifiers differently, do not
-            // escape names
-            sql = SQLUtil.getInsertSQL(catalog_tbl, false);
-        }
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement watchInsert = conn.prepareStatement(sql);
 
         int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
@@ -510,22 +495,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         // TEXT
         Table textTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
-        String textSQL = SQLUtil.getInsertSQL(textTable);
-        if (this.getDatabaseType() == DatabaseType.ORACLE) {
-            // Oracle handles quoted object identifiers differently, do not
-            // escape names
-            textSQL = SQLUtil.getInsertSQL(textTable, false);
-        }
+        String textSQL = SQLUtil.getInsertSQL(textTable, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement textInsert = conn.prepareStatement(textSQL);
 
         // REVISION
         Table revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
-        String revSQL = SQLUtil.getInsertSQL(revTable);
-        if (this.getDatabaseType() == DatabaseType.ORACLE) {
-            // Oracle handles quoted object identifiers differently, do not
-            // escape names
-            revSQL = SQLUtil.getInsertSQL(revTable, false);
-        }
+        String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType().shouldEscapeNames());
         PreparedStatement revisionInsert = conn.prepareStatement(revSQL);
 
         WikipediaBenchmark b = this.benchmark;
@@ -636,9 +611,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         // UPDATE USER
         revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
 
-        // Since Oracle handles table names with quote differently, catch this
-        // here
-        String revTableName = (this.getDatabaseType() == DatabaseType.ORACLE) ? revTable.getName() : revTable.getEscapedName();
+        String revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
         String updateUserSql = "UPDATE " + revTableName + "   SET user_editcount = ?, " + "       user_touched = ? " + " WHERE user_id = ?";
         PreparedStatement userUpdate = conn.prepareStatement(updateUserSql);
@@ -666,9 +639,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         // UPDATE PAGES
         revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
 
-        // Since Oracle handles table names with quote differently, catch this
-        // here
-        revTableName = (this.getDatabaseType() == DatabaseType.ORACLE) ? revTable.getName() : revTable.getEscapedName();
+        revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
         String updatePageSql = "UPDATE " + revTableName + "   SET page_latest = ?, " + "       page_touched = ?, " + "       page_is_new = 0, " + "       page_is_redirect = 0, "
                 + "       page_len = ? " + " WHERE page_id = ?";

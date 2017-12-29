@@ -43,7 +43,7 @@ public enum DatabaseType {
     AMAZONRDS(null, true, false),
     SQLAZURE(null, true, false),
     ASSCLOWN(null, true, false),
-    HSQLDB("org.hsqldb.jdbcDriver", true, false),
+    HSQLDB("org.hsqldb.jdbcDriver", false, false),
     H2("org.h2.Driver", true, false),
     MONETDB("nl.cwi.monetdb.jdbc.MonetDriver", false, false),
     NUODB("com.nuodb.jdbc.Driver", true, false),
