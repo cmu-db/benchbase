@@ -87,7 +87,6 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         
         int numContestants = ((VoterBenchmark)this.benchmark).numContestants;
         
-        boolean escapeNames = this.getDatabaseType().shouldEscapeNames();
         Table tbl = benchmark.getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
         PreparedStatement ps = this.conn.prepareStatement(SQLUtil.getInsertSQL(tbl, this.getDatabaseType()));
         for (int i = 0; i < numContestants; i++) {
