@@ -36,7 +36,7 @@ public enum DatabaseType {
     DB2("com.ibm.db2.jcc.DB2Driver", true, false),
     MYSQL("com.mysql.jdbc.Driver", true, false),
     MYROCKS("com.mysql.jdbc.Driver", true, false),
-    POSTGRES("org.postgresql.Driver", false, false),
+    POSTGRES("org.postgresql.Driver", true, false),
     ORACLE("oracle.jdbc.driver.OracleDriver", true, false),
     SQLSERVER("com.microsoft.sqlserver.jdbc.SQLServerDriver", true, false),
     SQLITE("org.sqlite.JDBC", true, false),
