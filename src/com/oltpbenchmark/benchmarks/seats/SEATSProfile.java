@@ -204,11 +204,13 @@ public class SEATSProfile {
      */
     protected final void saveProfile(Connection conn) throws SQLException {
         PreparedStatement stmt = null;
+        String sql;
         
         // CONFIG_PROFILE
         Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
         assert(catalog_tbl != null);
-        stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+        sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
+        stmt = conn.prepareStatement(sql);
         int param_idx = 1;
         stmt.setObject(param_idx++, this.scale_factor);                  // CFP_SCALE_FACTOR
         stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
@@ -228,7 +230,8 @@ public class SEATSProfile {
         
         // CONFIG_HISTOGRAMS
         catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-        stmt = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl)); 
+        sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
+        stmt = conn.prepareStatement(sql);
         for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
             param_idx = 1;
             stmt.setObject(param_idx++, e.getKey());                    // CFH_NAME

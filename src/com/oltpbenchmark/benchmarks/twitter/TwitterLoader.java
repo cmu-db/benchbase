@@ -71,7 +71,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     protected void loadUsers() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_USER);
         assert(catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
         
         NameHistogram name_h = new NameHistogram();
@@ -124,7 +124,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     protected void loadTweets() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
         assert(catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement tweetInsert = this.conn.prepareStatement(sql);
         
         int total = 0;
@@ -174,13 +174,16 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      * @throws SQLException
      */
     protected void loadFollowData() throws SQLException {
+        String sql;
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
         assert(catalog_tbl != null);
-        final PreparedStatement followsInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+        sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        final PreparedStatement followsInsert = this.conn.prepareStatement(sql);
 
         catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
         assert(catalog_tbl != null);
-        final PreparedStatement followersInsert = this.conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl));
+        sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        final PreparedStatement followersInsert = this.conn.prepareStatement(sql);
 
         int total = 1;
         int batchSize = 0;

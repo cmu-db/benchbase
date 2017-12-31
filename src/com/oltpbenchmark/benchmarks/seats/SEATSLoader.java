@@ -286,7 +286,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         int row_batch = 0;
         
         try {
-            String insert_sql = SQLUtil.getInsertSQL(catalog_tbl);
+            String insert_sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
             PreparedStatement insert_stmt = this.conn.prepareStatement(insert_sql);
             int sqlTypes[] = catalog_tbl.getColumnTypes();
             

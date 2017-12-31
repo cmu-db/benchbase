@@ -72,7 +72,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("HTABLE");
         assert (catalog_tbl != null);
         
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         long total = 0;
         int batch = 0;

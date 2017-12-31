@@ -53,8 +53,7 @@ public class SILoader extends Loader<SIBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("SITEST");
         assert (catalog_tbl != null);
         
-        String sql = SQLUtil.getInsertSQL(catalog_tbl,
-        		this.getDatabaseType().shouldEscapeNames());
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         long total = 0;
         int batch = 0;

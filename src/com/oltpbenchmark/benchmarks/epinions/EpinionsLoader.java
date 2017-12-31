@@ -76,7 +76,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     private void loadUsers() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("user");
         assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
 
         //
@@ -115,7 +115,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     private void loadItems() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("item");
         assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement itemInsert = this.conn.prepareStatement(sql);
         
         //
@@ -158,7 +158,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     private void loadReviews() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("review");
         assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
         
         //
@@ -218,7 +218,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     public void loadTrust() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("trust");
         assert (catalog_tbl != null);
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement trustInsert = this.conn.prepareStatement(sql);
         
         //

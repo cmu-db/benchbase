@@ -116,7 +116,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
      */
     void genSubscriber(Table catalog_tbl) throws SQLException {
         // Create a prepared statement
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement pstmt = this.conn.prepareStatement(sql);
 
         long s_id = 0;
@@ -167,7 +167,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
      */
     void genAccessInfo(Table catalog_tbl) throws SQLException {
     	// Create a prepared statement
-        String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement pstmt = this.conn.prepareStatement(sql);
     	
         int s_id = 0;
@@ -212,12 +212,12 @@ public class TATPLoader extends Loader<TATPBenchmark> {
      */
     void genSpeAndCal(Table catalog_spe, Table catalog_cal) throws SQLException {
     	// Create a prepared statement
-        String spe_sql = SQLUtil.getInsertSQL(catalog_spe);
+        String spe_sql = SQLUtil.getInsertSQL(catalog_spe, this.getDatabaseType());
         PreparedStatement spe_pstmt = this.conn.prepareStatement(spe_sql);
         int spe_batch = 0;
         long spe_total = 0;
         
-        String cal_sql = SQLUtil.getInsertSQL(catalog_cal);
+        String cal_sql = SQLUtil.getInsertSQL(catalog_cal, this.getDatabaseType());
         PreparedStatement cal_pstmt = this.conn.prepareStatement(cal_sql);
         long cal_total = 0;
         

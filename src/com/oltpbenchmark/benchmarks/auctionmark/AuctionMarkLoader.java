@@ -218,7 +218,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         final Table catalog_tbl = benchmark.getCatalog().getTable(tableName);
         assert(catalog_tbl != null) : tableName;
         final List<Object[]> volt_table = generator.getVoltTable();
-        final String sql = SQLUtil.getInsertSQL(catalog_tbl);
+        final String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         final PreparedStatement stmt = conn.prepareStatement(sql);
         final int types[] = catalog_tbl.getColumnTypes();
         

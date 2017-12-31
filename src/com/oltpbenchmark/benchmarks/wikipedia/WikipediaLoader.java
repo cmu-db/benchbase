@@ -254,7 +254,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
         assert (catalog_tbl != null);
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement userInsert = conn.prepareStatement(sql);
 
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<Integer>(this.rng(), UserHistograms.NAME_LENGTH);
@@ -337,7 +337,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
         assert (catalog_tbl != null);
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement pageInsert = conn.prepareStatement(sql);
 
         FlatHistogram<Integer> h_titleLength = new FlatHistogram<Integer>(this.rng(), PageHistograms.TITLE_LENGTH);
@@ -411,7 +411,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_WATCHLIST);
         assert (catalog_tbl != null);
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType().shouldEscapeNames());
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement watchInsert = conn.prepareStatement(sql);
 
         int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
@@ -495,12 +495,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         // TEXT
         Table textTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
-        String textSQL = SQLUtil.getInsertSQL(textTable, this.getDatabaseType().shouldEscapeNames());
+        String textSQL = SQLUtil.getInsertSQL(textTable, this.getDatabaseType());
         PreparedStatement textInsert = conn.prepareStatement(textSQL);
 
         // REVISION
         Table revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
-        String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType().shouldEscapeNames());
+        String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType());
         PreparedStatement revisionInsert = conn.prepareStatement(revSQL);
 
         WikipediaBenchmark b = this.benchmark;
