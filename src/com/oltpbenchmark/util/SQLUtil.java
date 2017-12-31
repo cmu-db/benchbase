@@ -348,8 +348,8 @@ public abstract class SQLUtil {
      * @param catalog_tbl
      * @param db_type
      * @param batchSize
-     *            the number of sets of parameters that should be included in
-     *            the insert
+     *            the number of sets of parameters
+     *            that should be included in the insert
      * @param exclude_columns
      * @return
      */
