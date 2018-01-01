@@ -9,13 +9,13 @@
         </procedure>
         <procedure name="GetReviewsByUser">
             <statement name="getReviewUser">
-                SELECT TOP 10 * FROM review r, [user] u WHERE u.u_id = r.u_id AND r.u_id=? 
+                SELECT TOP 10 * FROM review r, [useracct] u WHERE u.u_id = r.u_id AND r.u_id=?
                 ORDER BY rating;
             </statement>
         </procedure>
         <procedure name="UpdateUserName">
             <statement name="updateUser">
-                UPDATE [user] SET name = ? WHERE u_id=?;
+                UPDATE [useracct] SET name = ? WHERE u_id=?;
             </statement>
         </procedure>
     </dialect>

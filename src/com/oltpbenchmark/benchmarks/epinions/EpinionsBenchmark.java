@@ -58,7 +58,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("USER");
+            Table t = this.catalog.getTable("USERACCT");
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
 
             String userCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "u_id");

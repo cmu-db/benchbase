@@ -6,11 +6,11 @@ BEGIN EXECUTE IMMEDIATE 'DROP TABLE "review"'; EXCEPTION WHEN OTHERS THEN IF SQL
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "review_rating"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "trust"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "item"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
-BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "useracct"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 
 -- create tables
 
-CREATE TABLE "user" (
+CREATE TABLE "useracct" (
   u_id number(11,0) NOT NULL,
   name varchar(128) DEFAULT NULL,
   PRIMARY KEY (u_id)
@@ -24,14 +24,14 @@ CREATE TABLE "item" (
 
 CREATE TABLE "review" (
   a_id number(11,0) NOT NULL,
-  u_id number(11,0) NOT NULL REFERENCES "user" (u_id),
+  u_id number(11,0) NOT NULL REFERENCES "useracct" (u_id),
   i_id number(11,0) NOT NULL REFERENCES "item" (i_id),
   rating number(11,0) DEFAULT NULL,
   rank number(11,0) DEFAULT NULL
 );
 
 CREATE TABLE "review_rating" (
-  u_id number(11,0) NOT NULL REFERENCES "user" (u_id),
+  u_id number(11,0) NOT NULL REFERENCES "useracct" (u_id),
   a_id number(11,0) NOT NULL,
   rating number(11,0) NOT NULL,
   status number(11,0) NOT NULL,
@@ -42,8 +42,8 @@ CREATE TABLE "review_rating" (
 );
 
 CREATE TABLE "trust" (
-  source_u_id number(11,0) NOT NULL REFERENCES "user" (u_id),
-  target_u_id number(11,0) NOT NULL REFERENCES "user" (u_id),
+  source_u_id number(11,0) NOT NULL REFERENCES "useracct" (u_id),
+  target_u_id number(11,0) NOT NULL REFERENCES "useracct" (u_id),
   trust number(11,0) NOT NULL,
   creation_date date DEFAULT NULL
 );

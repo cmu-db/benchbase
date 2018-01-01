@@ -74,7 +74,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * @throws SQLException
      */
     private void loadUsers() throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("user");
+        Table catalog_tbl = this.benchmark.getTableCatalog("useracct");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement userInsert = this.conn.prepareStatement(sql);
