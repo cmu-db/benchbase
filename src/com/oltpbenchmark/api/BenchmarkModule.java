@@ -220,6 +220,8 @@ public abstract class BenchmarkModule {
         // URL ddlURL = this.getClass().getResource(xmlName);
         String xmlNames[] = {
             (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml",
+            
+            // TODO: We need to remove this!
             this.benchmarkName + "-dialects.xml",
         };
         for(String xmlName : xmlNames) { 
