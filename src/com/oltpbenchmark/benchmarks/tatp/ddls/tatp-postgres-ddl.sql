@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS "SUBSCRIBER" cascade;
-CREATE TABLE "SUBSCRIBER" (
+DROP TABLE IF EXISTS subscriber cascade;
+CREATE TABLE subscriber (
    s_id INTEGER NOT NULL PRIMARY KEY,
    sub_nbr VARCHAR(15) NOT NULL UNIQUE,
    bit_1 SMALLINT,
@@ -36,8 +36,8 @@ CREATE TABLE "SUBSCRIBER" (
    vlr_location INTEGER
 );
 
-DROP TABLE IF EXISTS "ACCESS_INFO" cascade;
-CREATE TABLE "ACCESS_INFO" (
+DROP TABLE IF EXISTS access_info cascade;
+CREATE TABLE access_info (
    s_id INTEGER NOT NULL,
    ai_type SMALLINT NOT NULL,
    data1 SMALLINT,
@@ -45,11 +45,11 @@ CREATE TABLE "ACCESS_INFO" (
    data3 VARCHAR(3),
    data4 VARCHAR(5),
    PRIMARY KEY(s_id, ai_type),
-   FOREIGN KEY (s_id) REFERENCES "SUBSCRIBER" (s_id)
+   FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-DROP TABLE IF EXISTS "SPECIAL_FACILITY" cascade;
-CREATE TABLE "SPECIAL_FACILITY" (
+DROP TABLE IF EXISTS special_facility cascade;
+CREATE TABLE special_facility (
    s_id INTEGER NOT NULL,
    sf_type SMALLINT NOT NULL,
    is_active SMALLINT NOT NULL,
@@ -57,17 +57,17 @@ CREATE TABLE "SPECIAL_FACILITY" (
    data_a SMALLINT,
    data_b VARCHAR(5),
    PRIMARY KEY (s_id, sf_type),
-   FOREIGN KEY (s_id) REFERENCES "SUBSCRIBER" (s_id)
+   FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-DROP TABLE IF EXISTS "CALL_FORWARDING" cascade;
-CREATE TABLE "CALL_FORWARDING" (
+DROP TABLE IF EXISTS call_forwarding cascade;
+CREATE TABLE call_forwarding (
    s_id INTEGER NOT NULL,
    sf_type SMALLINT NOT NULL,
    start_time SMALLINT NOT NULL,
    end_time SMALLINT,
    numberx VARCHAR(15),
    PRIMARY KEY (s_id, sf_type, start_time),
-   FOREIGN KEY (s_id, sf_type) REFERENCES "SPECIAL_FACILITY"(s_id, sf_type)
+   FOREIGN KEY (s_id, sf_type) REFERENCES special_facility (s_id, sf_type)
 );
-CREATE INDEX IDX_CF ON "CALL_FORWARDING" (S_ID);
+CREATE INDEX IDX_CF ON call_forwarding (S_ID);
