@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -57,32 +58,92 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
+        final int numToLoad = this.num_items + this.num_users;
+        final int loadPerThread = numToLoad / numLoaders;
+        final int numUserThreads = (int) Math.ceil((double) this.num_users / loadPerThread);
+        final int numItemThreads = (int) Math.ceil((double) this.num_items / loadPerThread);
 
-    @Override
-    public void load() throws SQLException {
-        this.loadUsers();
-        this.loadItems();
-        this.loadReviews();
-        this.loadTrust();
+        final CountDownLatch userLatch = new CountDownLatch(numUserThreads);
+        final CountDownLatch itemLatch = new CountDownLatch(numItemThreads);
+
+        // USERACCT
+        for (int i = 0; i < numUserThreads; i++) {
+            final int lo = i * loadPerThread + 1;
+            final int hi = Math.min(this.num_users, (i + 1) * loadPerThread);
+
+            threads.add(new LoaderThread() {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    EpinionsLoader.this.loadUsers(conn, lo, hi);
+                    userLatch.countDown();
+                }
+            });
+        }
+
+        // ITEM
+        for (int i = 0; i < numItemThreads; i++) {
+            final int lo = i * loadPerThread + 1;
+            final int hi = Math.min(this.num_items, (i + 1) * loadPerThread);
+
+            threads.add(new LoaderThread() {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    EpinionsLoader.this.loadItems(conn, lo, hi);
+                    itemLatch.countDown();
+                }
+            });
+        }
+
+        // TRUST depends on USERACCT
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    userLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                EpinionsLoader.this.loadTrust(conn);
+            }
+        });
+
+        // REVIEWS depends on USERACCT, ITEM
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    userLatch.await();
+                    itemLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                EpinionsLoader.this.loadReviews(conn);
+            }
+        });
+
+        return threads;
     }
 
     /**
      * @author Djellel Load num_users users.
      * @throws SQLException
      */
-    private void loadUsers() throws SQLException {
+    private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("useracct");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement userInsert = this.conn.prepareStatement(sql);
+        PreparedStatement userInsert = conn.prepareStatement(sql);
 
         //
         int total = 0;
         int batch = 0;
-        for (int i = 0; i < num_users; i++) {
+        for (int i = lo; i < hi; i++) {
             String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
             userInsert.setInt(1, i);
             userInsert.setString(2, name);
@@ -112,16 +173,15 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * @author Djellel Load num_items items.
      * @throws SQLException
      */
-    private void loadItems() throws SQLException {
+    private void loadItems(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("item");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement itemInsert = this.conn.prepareStatement(sql);
-        
-        //
+        PreparedStatement itemInsert = conn.prepareStatement(sql);
+
         int total = 0;
         int batch = 0;
-        for (int i = 0; i < num_items; i++) {
+        for (int i = lo; i < hi; i++) {
             String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH);
             itemInsert.setInt(1, i);
             itemInsert.setString(2, title);
@@ -155,11 +215,11 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      *         based on Zipfian distribution.
      * @throws SQLException
      */
-    private void loadReviews() throws SQLException {
+    private void loadReviews(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("review");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement reviewInsert = this.conn.prepareStatement(sql);
+        PreparedStatement reviewInsert = conn.prepareStatement(sql);
         
         //
         ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
@@ -215,11 +275,11 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      *         reviewers (drawn using a scrambled distribution)
      * @throws SQLException
      */
-    public void loadTrust() throws SQLException {
+    public void loadTrust(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("trust");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement trustInsert = this.conn.prepareStatement(sql);
+        PreparedStatement trustInsert = conn.prepareStatement(sql);
         
         //
         int total = 0;
