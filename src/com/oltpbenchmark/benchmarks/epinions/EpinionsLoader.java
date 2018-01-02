@@ -70,7 +70,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
         // USERACCT
         for (int i = 0; i < numUserThreads; i++) {
-            final int lo = i * loadPerThread + 1;
+            final int lo = i * loadPerThread;
             final int hi = Math.min(this.num_users, (i + 1) * loadPerThread);
 
             threads.add(new LoaderThread() {
@@ -84,7 +84,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
         // ITEM
         for (int i = 0; i < numItemThreads; i++) {
-            final int lo = i * loadPerThread + 1;
+            final int lo = i * loadPerThread;
             final int hi = Math.min(this.num_items, (i + 1) * loadPerThread);
 
             threads.add(new LoaderThread() {
