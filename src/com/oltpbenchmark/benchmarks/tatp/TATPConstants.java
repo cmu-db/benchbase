@@ -22,7 +22,9 @@ public abstract class TATPConstants {
     public static final long DEFAULT_NUM_SUBSCRIBERS = 100000l; 
     
     public static final int SUB_NBR_PADDING_SIZE = 15;
-    
+
+    public static final int BATCH_SIZE = 1000;
+
     // ----------------------------------------------------------------
     // STORED PROCEDURE EXECUTION FREQUENCIES (0-100)
     // ----------------------------------------------------------------
