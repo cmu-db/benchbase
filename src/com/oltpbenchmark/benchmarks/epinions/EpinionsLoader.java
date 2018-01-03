@@ -61,7 +61,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         final int numToLoad = this.num_items + this.num_users;
-        final int loadPerThread = numToLoad / numLoaders;
+        final int loadPerThread = Math.max(numToLoad / numLoaders, 1);
         final int numUserThreads = (int) Math.ceil((double) this.num_users / loadPerThread);
         final int numItemThreads = (int) Math.ceil((double) this.num_items / loadPerThread);
 
