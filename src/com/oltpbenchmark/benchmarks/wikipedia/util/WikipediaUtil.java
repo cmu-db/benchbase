@@ -14,29 +14,32 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.wikipedia.util;
 
-import java.util.List;
 import java.util.Random;
 
-import com.oltpbenchmark.api.TransactionGenerator;
+import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
+import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
+import com.oltpbenchmark.util.TextGenerator;
 
-public class TraceTransactionGenerator implements TransactionGenerator<WikipediaOperation> {
-	private final Random rng = new Random();
-	private final List<WikipediaOperation> transactions;
+public abstract class WikipediaUtil {
 
-	/**
-	 * @param transactions
-	 *            a list of transactions shared between threads.
-	 */
-	public TraceTransactionGenerator(List<WikipediaOperation> transactions) {
-		this.transactions = transactions;
-	}
+    public static String generatePageTitle(Random rand, int page_id) {
+        rand.setSeed(page_id);
 
-	@Override
-	public WikipediaOperation nextTransaction() {
-		int transactionIndex = rng.nextInt(transactions.size());
-		return transactions.get(transactionIndex);
-	}
+        FlatHistogram<Integer> h_titleLength = new FlatHistogram<Integer>(rand, PageHistograms.TITLE_LENGTH);
+        // HACK: Always append the page id to the title
+        // so that it's guaranteed to be unique.
+        // Otherwise we can get collisions with larger scale factors.
+        int titleLength = h_titleLength.nextValue();
+        return TextGenerator.randomStr(rand, titleLength) + " [" + page_id + "]";
+
+    }
+
+    public static int generatePageNamespace(Random rand, int page_id) {
+        rand.setSeed(page_id);
+
+        FlatHistogram<Integer> h_namespace = new FlatHistogram<Integer>(rand, PageHistograms.NAMESPACE);
+        return h_namespace.nextInt();
+    }
 }

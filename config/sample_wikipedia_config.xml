@@ -12,11 +12,6 @@
     <!-- Scale factor is the number of wikipages *1000 -->
     <scalefactor>100</scalefactor>
     
-    <!-- Wikipedia Trace Options -->
-    <tracefile>config/traces/wikipedia-100k.trace</tracefile>
-    <traceOut>10</traceOut>
-    <base_ip>10.1.</base_ip>
-
 	<!-- The workload -->
  	<terminals>100</terminals>
     <works>

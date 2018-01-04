@@ -19,12 +19,12 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
@@ -33,24 +33,22 @@ import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
-import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
+import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaUtil;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
+import com.oltpbenchmark.util.RandomDistribution.Zipf;
 
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);
-	private final TransactionGenerator<WikipediaOperation> generator;
 
-	final Flat usersRng;
-	final int num_users;
+	private final int num_users;
+	private final int num_pages;
 	
-	public WikipediaWorker(WikipediaBenchmark benchmarkModule, int id,
-	                       TransactionGenerator<WikipediaOperation> generator) {
+	public WikipediaWorker(WikipediaBenchmark benchmarkModule, int id) {
 		super(benchmarkModule, id);
-		this.generator = generator;
 		this.num_users = (int) Math.round(WikipediaConstants.USERS * this.getWorkloadConfiguration().getScaleFactor());
-		this.usersRng = new Flat(rng(), 1, this.num_users);
+		this.num_pages = (int) Math.round(WikipediaConstants.PAGES * this.getWorkloadConfiguration().getScaleFactor());
 	}
 	
 	private String generateUserIP() {
@@ -62,58 +60,65 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
-        WikipediaOperation t = null;
-        
+		Flat z_users = new Flat(this.rng(), 1, this.num_users);
+		Zipf z_pages = new Zipf(this.rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
+
         Class<? extends Procedure> procClass = nextTransaction.getProcedureClass();
         boolean needUser = (procClass.equals(AddWatchList.class) ||
                             procClass.equals(RemoveWatchList.class) ||
-                            procClass.equals(GetPageAuthenticated.class));    
-        while (t == null) {
-            t = this.generator.nextTransaction();
-            if (needUser && t.userId == 0) {
-                t = null;
-            }
-        } // WHILE
-        assert(t != null);
-        if (t.userId != 0) t.userId = this.usersRng.nextInt();
-        
+                            procClass.equals(GetPageAuthenticated.class));
+
+		int userId;
+
+		do {
+			// Check whether this should be an anonymous update
+			if (this.rng().nextInt(100) < WikipediaConstants.ANONYMOUS_PAGE_UPDATE_PROB) {
+				userId = WikipediaConstants.ANONYMOUS_USER_ID;
+			}
+			// Otherwise figure out what user is updating this page
+			else {
+				userId = z_users.nextInt();
+			}
+			// Repeat if we need a user but we generated Anonymous
+		} while (needUser && userId == WikipediaConstants.ANONYMOUS_USER_ID);
+
+		// Figure out what page they're going to update
+		int page_id = z_pages.nextInt();
+
+		Random rand = new Random();
+		String pageTitle = WikipediaUtil.generatePageTitle(rand, page_id);
+		int nameSpace = WikipediaUtil.generatePageNamespace(rand, page_id);
+
         // AddWatchList
         try{
         if (procClass.equals(AddWatchList.class)) {
-            assert(t.userId > 0);
-            addToWatchlist(t.userId, t.nameSpace, t.pageTitle);
-//            LOG.debug("AddWatchList Successful");
+            assert(userId > 0);
+            addToWatchlist(userId, nameSpace, pageTitle);
         }
         // RemoveWatchList
         else if (procClass.equals(RemoveWatchList.class)) {
-            assert(t.userId > 0);
-            removeFromWatchlist(t.userId, t.nameSpace, t.pageTitle);
-//            LOG.debug("RemoveWatchList Successful");
+            assert(userId > 0);
+            removeFromWatchlist(userId, nameSpace, pageTitle);
         }
         // UpdatePage
         else if (procClass.equals(UpdatePage.class)) {
-            updatePage(this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
-//            LOG.debug("UpdatePage Successful");
+            updatePage(this.generateUserIP(), userId, nameSpace, pageTitle);
         }
         // GetPageAnonymous
         else if (procClass.equals(GetPageAnonymous.class)) {
-            getPageAnonymous(true, this.generateUserIP(), t.nameSpace, t.pageTitle);
-//            LOG.debug("GetPageAnonymous Successful");
+            getPageAnonymous(true, this.generateUserIP(), nameSpace, pageTitle);
         }
         // GetPageAuthenticated
         else if (procClass.equals(GetPageAuthenticated.class)) {
-            assert(t.userId > 0);
-            getPageAuthenticated(true, this.generateUserIP(), t.userId, t.nameSpace, t.pageTitle);
-//            LOG.debug("GetPageAuthenticated Successful");
+            assert(userId > 0);
+            getPageAuthenticated(true, this.generateUserIP(), userId, nameSpace, pageTitle);
         }
         conn.commit();
         }catch(SQLException esql)
         {
         	LOG.error("Caught SQL Exception in WikipediaWorker for procedure"+procClass.getName()+":"+esql, esql);
         	throw esql;
-        }/*catch(Exception e) {
-        	LOG.error("caught Exception in WikipediaWorker for procedure "+procClass.getName() +":" + e, e);
-        }*/
+        }
         return (TransactionStatus.SUCCESS);
     }
     

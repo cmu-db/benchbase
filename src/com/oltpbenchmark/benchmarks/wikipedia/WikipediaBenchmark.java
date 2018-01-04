@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
@@ -31,13 +30,9 @@ import org.apache.log4j.Logger;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
-import com.oltpbenchmark.benchmarks.wikipedia.util.TraceTransactionGenerator;
-import com.oltpbenchmark.benchmarks.wikipedia.util.TransactionSelector;
-import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaOperation;
 import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 
@@ -48,36 +43,10 @@ public class WikipediaBenchmark extends BenchmarkModule {
     protected final FlatHistogram<Integer> minorEdit;
     private final FlatHistogram<Integer> revisionDeltas[];
 	
-	private final File traceInput;
-	private final File traceOutput;
-	private final File traceOutputDebug;
-	private final int traceSize;
-	
 	@SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {		
 		super("wikipedia", workConf, true);
 		
-		XMLConfiguration xml = workConf.getXmlConfig();
-		if (xml != null && xml.containsKey("tracefile")) {
-		    this.traceInput = new File(xml.getString("tracefile"));
-        } else {
-            this.traceInput = null;
-        }
-		if (xml != null && xml.containsKey("traceOut")) {
-		    this.traceSize = xml.getInt("traceOut");
-		} else {
-		    this.traceSize = 0;
-		}
-		if (xml != null && xml.containsKey("tracefile")) {
-            this.traceOutput = new File(xml.getString("tracefile"));		    
-		} else {
-		    this.traceOutput = null;
-		}
-		if (xml != null && xml.containsKey("tracefiledebug")) {
-            this.traceOutputDebug = new File(xml.getString("tracefiledebug"));
-        } else {
-            this.traceOutputDebug = null;
-        }
 		
 		this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
 		this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
@@ -85,20 +54,6 @@ public class WikipediaBenchmark extends BenchmarkModule {
 		for (int i = 0; i < this.revisionDeltas.length; i++) {
 		    this.revisionDeltas[i] = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
 		} // FOR
-	}
-
-	public File getTraceInput() {
-	    return (this.traceInput);
-	}
-	public File getTraceOutput() {
-	    return (this.traceOutput);
-	}
-	public File getTraceOutputDebug() {
-	    return (this.traceOutputDebug);
-	}
-	
-	public int getTraceSize() {
-	    return (this.traceSize);
 	}
 	
 	/**
@@ -145,16 +100,12 @@ public class WikipediaBenchmark extends BenchmarkModule {
 	
 	@Override
 	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-	    LOG.info(String.format("Initializing %d %s using '%s' as the input trace file",
-                               workConf.getTerminals(), WikipediaWorker.class.getSimpleName(), this.traceInput));
-		TransactionSelector transSel = new TransactionSelector(this.traceInput, workConf.getTransTypes());
-		List<WikipediaOperation> trace = Collections.unmodifiableList(transSel.readAll());
-		LOG.info("Total Number of Sample Operations: " + trace.size());
+	    LOG.info(String.format("Initializing %d %s",
+                               workConf.getTerminals(), WikipediaWorker.class.getSimpleName()));
 		
 		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			TransactionGenerator<WikipediaOperation> generator = new TraceTransactionGenerator(trace);
-			WikipediaWorker worker = new WikipediaWorker(this, i, generator);
+			WikipediaWorker worker = new WikipediaWorker(this, i);
 			workers.add(worker);
 		} // FOR
 		return workers;
