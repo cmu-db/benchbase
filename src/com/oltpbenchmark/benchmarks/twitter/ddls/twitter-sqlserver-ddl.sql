@@ -18,14 +18,14 @@ CREATE TABLE [dbo].[user_profiles] (
 );
 
 CREATE TABLE [dbo].[followers] (
-  f1 int NOT NULL,
-  f2 int NOT NULL,
+  f1 int NOT NULL REFERENCES [user_profiles] (uid),
+  f2 int NOT NULL REFERENCES [user_profiles] (uid),
   PRIMARY KEY (f1,f2)
 );
 
 CREATE TABLE [dbo].[follows] (
-  f1 int NOT NULL,
-  f2 int NOT NULL,
+  f1 int NOT NULL REFERENCES [user_profiles] (uid),
+  f2 int NOT NULL REFERENCES [user_profiles] (uid),
   PRIMARY KEY (f1,f2)
 );
 

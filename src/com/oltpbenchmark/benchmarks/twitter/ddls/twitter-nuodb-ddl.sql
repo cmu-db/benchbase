@@ -15,15 +15,15 @@ CREATE INDEX IDX_USER_PARTITION ON user_profiles (partitionid);
 
 DROP TABLE IF EXISTS followers CASCADE;
 CREATE TABLE followers (
-  f1 int NOT NULL,
-  f2 int NOT NULL,
+  f1 int NOT NULL REFERENCES user_profiles (uid),
+  f2 int NOT NULL REFERENCES user_profiles (uid),
   PRIMARY KEY (f1,f2)
 );
 
 DROP TABLE IF EXISTS follows CASCADE;
 CREATE TABLE follows (
-  f1 int NOT NULL,
-  f2 int NOT NULL,
+  f1 int NOT NULL REFERENCES user_profiles (uid),
+  f2 int NOT NULL REFERENCES user_profiles (uid),
   PRIMARY KEY (f1,f2)
 );
 

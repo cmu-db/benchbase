@@ -79,10 +79,17 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             });
         }
 
-        // FOLLOW_DATA currently depends on nothing
+        // FOLLOW_DATA depends on USERS
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
+                try {
+                    userLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
                 TwitterLoader.this.loadFollowData(conn);
             }
         });

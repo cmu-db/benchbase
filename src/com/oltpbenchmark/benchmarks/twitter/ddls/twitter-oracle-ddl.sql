@@ -16,15 +16,15 @@ CREATE INDEX IDX_USER_PARTITION ON "user_profiles" (partitionid);
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "followers"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 CREATE TABLE "followers" (
-  f1 int NOT NULL,
-  f2 int NOT NULL,
+  f1 int NOT NULL REFERENCES "user_profiles" (uid),
+  f2 int NOT NULL REFERENCES "user_profiles" (uid),
   CONSTRAINT follower_key PRIMARY KEY (f1,f2)
 );
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "follows"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;;
 CREATE TABLE "follows" (
-  f1 int NOT NULL,
-  f2 int NOT NULL,
+  f1 int NOT NULL REFERENCES "user_profiles" (uid),
+  f2 int NOT NULL REFERENCES "user_profiles" (uid),
   CONSTRAINT follows_key PRIMARY KEY (f1,f2)
 );
 

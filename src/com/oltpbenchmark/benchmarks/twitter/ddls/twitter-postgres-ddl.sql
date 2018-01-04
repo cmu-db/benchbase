@@ -15,8 +15,8 @@ CREATE INDEX IDX_USER_PARTITION ON user_profiles (partitionid);
 
 DROP TABLE IF EXISTS followers;
 CREATE TABLE followers (
-  f1 int NOT NULL DEFAULT '0',
-  f2 int NOT NULL DEFAULT '0',
+  f1 int NOT NULL DEFAULT '0' REFERENCES user_profiles (uid),
+  f2 int NOT NULL DEFAULT '0' REFERENCES user_profiles (uid),
   PRIMARY KEY (f1,f2)
 );
 
