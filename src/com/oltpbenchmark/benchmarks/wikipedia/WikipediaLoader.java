@@ -343,6 +343,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         int batchSize = 0;
         int lastPercent = -1;
         Set<Integer> userPages = new HashSet<Integer>();
+
         for (int user_id = 1; user_id <= this.num_users; user_id++) {
             int num_watches = h_numWatches.nextInt();
             if (LOG.isTraceEnabled()) {
@@ -367,9 +368,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 assert (pageId > 0);
                 userPages.add(pageId);
 
-                Random rand = new Random();
-                Integer namespace = WikipediaUtil.generatePageNamespace(rand, pageId);
-                String title = WikipediaUtil.generatePageTitle(rand, pageId);
+                Integer namespace = WikipediaUtil.generatePageNamespace(this.rng(), pageId);
+                String title = WikipediaUtil.generatePageTitle(this.rng(), pageId);
 
                 int param = 1;
                 watchInsert.setInt(param++, user_id); // wl_user

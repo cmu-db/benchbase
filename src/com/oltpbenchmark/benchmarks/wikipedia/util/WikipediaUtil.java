@@ -33,7 +33,6 @@ public abstract class WikipediaUtil {
         // Otherwise we can get collisions with larger scale factors.
         int titleLength = h_titleLength.nextValue();
         return TextGenerator.randomStr(rand, titleLength) + " [" + page_id + "]";
-
     }
 
     public static int generatePageNamespace(Random rand, int page_id) {
