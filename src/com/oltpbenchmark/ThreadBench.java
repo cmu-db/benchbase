@@ -313,6 +313,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         // long measureStart = start;
 
         long start = System.nanoTime();
+        long warmupStart = System.nanoTime();
+        long warmup = warmupStart;
         long measureEnd = -1;
         // used to determine the longest sleep interval
         int lowestRate = Integer.MAX_VALUE;
@@ -361,6 +363,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // Wait until the interval expires, which may be "don't wait"
             long now = System.nanoTime();
+            if (phase != null) {
+                warmup = warmupStart + phase.warmupTime * 1000000000L;
+            }
             long diff = nextInterval - now;
             while (diff > 0) { // this can wake early: sleep multiple times to
                                // avoid that
@@ -460,7 +465,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // Update the test state appropriately
             State state = testState.getState();
-            if (state == State.WARMUP && now >= start) {
+            if (state == State.WARMUP && now >= warmup) {
                 synchronized(testState) {
                     if (phase != null && phase.isLatencyRun())
                         testState.startColdQuery();

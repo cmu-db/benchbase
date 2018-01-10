@@ -436,6 +436,7 @@ public class DBWorkload {
                 }
 
                 int time = work.getInt("/time", 0);
+                int warmup = work.getInt("/warmup", 0);
                 timed = (time > 0);
                 if (scriptRun) {
                     LOG.info("Running a script; ignoring timer, serial, and weight settings.");
@@ -454,8 +455,14 @@ public class DBWorkload {
                 else if (serial)
                     LOG.info("Timer enabled for serial run; will run queries"
                              + " serially in a loop until the timer expires.");
+                if (warmup < 0) {
+                    LOG.fatal("Must provide nonnegative time bound for"
+                            + " warmup.");
+                    System.exit(-1);
+                }
 
                 wrkld.addWork(time,
+                              warmup,
                               rate,
                               weight_strings,
                               rateLimited,

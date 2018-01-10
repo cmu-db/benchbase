@@ -32,6 +32,7 @@ public class Phase {
     public final String benchmarkName;
     public final int id;
     public final int time;
+    public final int warmupTime;
     public final int rate;
     public final Arrival arrival;
 
@@ -46,7 +47,7 @@ public class Phase {
     private int nextSerial;
     
 
-    Phase(String benchmarkName, int id, int t, int r, List<String> o, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
+    Phase(String benchmarkName, int id, int t, int wt, int r, List<String> o, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
         ArrayList<Double> w = new ArrayList<Double>();
         for (String s : o)
             w.add(Double.parseDouble(s));
@@ -54,6 +55,7 @@ public class Phase {
         this.benchmarkName = benchmarkName;
         this.id = id;
         this.time = t;
+        this.warmupTime = wt;
         this.rate = r;
         this.weights = Collections.unmodifiableList(w);
         this.num_weights = this.weights.size();
@@ -188,6 +190,7 @@ public class Phase {
                 inner.add("[Serial="+ isSerial() + "]");
                 inner.add("[Time=" + time + "]");
             }
+            inner.add("[WarmupTime=" + warmupTime + "]");
             inner.add("[Rate=" + (isRateLimited() ? rate : "unlimited") + "]");
             inner.add("[Arrival=" + arrival + "]");
             inner.add("[Ratios=" + getWeights() + "]");
