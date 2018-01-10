@@ -14,7 +14,6 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.seats;
 
 import java.io.File;
@@ -36,59 +35,61 @@ import com.oltpbenchmark.util.RandomGenerator;
 
 public class SEATSBenchmark extends BenchmarkModule {
 
-    private final RandomGenerator rng = new RandomGenerator((int)System.currentTimeMillis());
-    
-	public SEATSBenchmark(WorkloadConfiguration workConf) {
-		super("seats", workConf, true);
-		this.registerSupplementalProcedure(LoadConfig.class);
-	}
-	
-	public File getDataDir() {
-	    URL url = SEATSBenchmark.class.getResource("data");
-		try {
-			if (url != null) {
-				return new File(url.toURI().getPath());
-			}
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		return (null);
-	}
-	
-	public RandomGenerator getRandomGenerator() {
-	    return (this.rng);
-	}
-	
-	@Override
-	protected Package getProcedurePackageImpl() {
-		return (LoadConfig.class.getPackage());
-	}
+    private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			workers.add(new SEATSWorker(this, i));
-		} // FOR
-		return (workers);
-	}
-	
-	@Override
-	protected Loader<SEATSBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new SEATSLoader(this, conn);
-	}
-	
-	/**
-	 * Return the path of the CSV file that has data for the given Table catalog handle
-	 * @param data_dir
-	 * @param catalog_tbl
-	 * @return
-	 */
-	public static final File getTableDataFile(File data_dir, Table catalog_tbl) {
-	    File f = new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(),
-	                                                        File.separator,
-	                                                        catalog_tbl.getName().toLowerCase()));
-	    if (f.exists() == false) f = new File(f.getAbsolutePath() + ".gz");
-	    return (f);
-	}
+    public SEATSBenchmark(WorkloadConfiguration workConf) {
+        super("seats", workConf, true);
+        this.registerSupplementalProcedure(LoadConfig.class);
+    }
+
+    public File getDataDir() {
+        URL url = SEATSBenchmark.class.getResource("data");
+        try {
+            if (url != null) {
+                return new File(url.toURI().getPath());
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return (null);
+    }
+
+    public RandomGenerator getRandomGenerator() {
+        return (this.rng);
+    }
+
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return (LoadConfig.class.getPackage());
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        for (int i = 0; i < this.workConf.getTerminals(); ++i) {
+            workers.add(new SEATSWorker(this, i));
+        } // FOR
+        return (workers);
+    }
+
+    @Override
+    protected Loader<SEATSBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return new SEATSLoader(this, conn);
+    }
+
+    /**
+     * Return the path of the CSV file that has data for the given Table catalog
+     * handle
+     * 
+     * @param data_dir
+     * @param catalog_tbl
+     * @return
+     */
+    public static final File getTableDataFile(File data_dir, Table catalog_tbl) {
+        File f = new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(), File.separator, catalog_tbl.getName().toLowerCase()));
+        if (f.exists() == false) {
+            f = new File(f.getAbsolutePath() + ".gz");
+        }
+        return (f);
+    }
 }
