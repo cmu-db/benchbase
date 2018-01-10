@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.seats;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -44,10 +45,14 @@ public class SEATSBenchmark extends BenchmarkModule {
 	
 	public File getDataDir() {
 	    URL url = SEATSBenchmark.class.getResource("data");
-	    if (url != null) {
-	        return new File(url.getPath());
-	    }
-	    return (null);
+		try {
+			if (url != null) {
+				return new File(url.toURI().getPath());
+			}
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return (null);
 	}
 	
 	public RandomGenerator getRandomGenerator() {
