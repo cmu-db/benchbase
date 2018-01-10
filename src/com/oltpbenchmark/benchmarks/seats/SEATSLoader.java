@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,7 +45,6 @@ import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerIdIterable;
 import com.oltpbenchmark.benchmarks.seats.util.DistanceUtil;
@@ -114,37 +115,60 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    @Override
-    public void load() {
-        if (LOG.isDebugEnabled()) LOG.debug("Begin to load tables...");
-        
-        // Load Histograms
-        if (LOG.isDebugEnabled()) LOG.debug("Loading data files for histograms");
-        this.loadHistograms();
-        
-        // Load the first tables from data files
-        if (LOG.isDebugEnabled()) LOG.debug("Loading data files for fixed-sized tables");
-        this.loadFixedTables();
-        
-        // Once we have those mofos, let's go get make our flight data tables
-        if (LOG.isDebugEnabled()) LOG.debug("Loading data files for scaling tables");
-        this.loadScalingTables();
-        
-        // Save the benchmark profile out to disk so that we can send it
-        // to all of the clients
-        try {
-            this.profile.saveProfile(this.conn);
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to save profile information in database", ex);
-        }
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
 
-        if (LOG.isDebugEnabled()) LOG.debug("SEATS loader done.");
+        final CountDownLatch fixedLatch = new CountDownLatch(1);
+        final CountDownLatch loadLatch = new CountDownLatch(3);
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadHistograms();
+                loadLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadFixedTables(conn);
+                fixedLatch.countDown();
+                loadLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    fixedLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadScalingTables(conn);
+                loadLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    loadLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                profile.saveProfile(conn);
+            }
+        });
+
+        return threads;
     }
-    
+
     /**
      * Load all the histograms used in the benchmark
      */
@@ -204,14 +228,14 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * The number of tuples in these tables will not change based on the scale factor.
      * @param catalog_db
      */
-    protected void loadFixedTables() {
+    protected void loadFixedTables(Connection conn) {
         for (String table_name : SEATSConstants.TABLES_DATAFILES) {
             LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
             try {    
                 Table catalog_tbl = this.benchmark.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
                 Iterable<Object[]> iterable = this.getFixedIterable(catalog_tbl);
-                this.loadTable(catalog_tbl, iterable, 5000);
+                this.loadTable(conn, catalog_tbl, iterable, 5000);
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to load data files for fixed-sized table '" + table_name + "'", ex);
             }
@@ -223,7 +247,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * on the given scaling factor at runtime 
      * @param catalog_db
      */
-    protected void loadScalingTables() {
+    protected void loadScalingTables(Connection conn) {
         // Setup the # of flights per airline
         this.flights_per_airline.putAll(profile.getAirlineCodes(), 0);
 
@@ -235,7 +259,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 Table catalog_tbl = this.benchmark.getTableCatalog(table_name);
                 assert(catalog_tbl != null);
                 Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl); 
-                this.loadTable(catalog_tbl, iterable, 5000);
+                this.loadTable(conn, catalog_tbl, iterable, 5000);
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to load data files for scaling-sized table '" + table_name + "'", ex);
             }
@@ -247,7 +271,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * 
      * @param catalog_tbl
      */
-    public void loadTable(Table catalog_tbl, Iterable<Object[]> iterable, int batch_size) {
+    public void loadTable(Connection conn, Table catalog_tbl, Iterable<Object[]> iterable, int batch_size) {
         // Special Case: Airport Locations
         final boolean is_airport = catalog_tbl.getName().equals(SEATSConstants.TABLENAME_AIRPORT);
         
@@ -287,7 +311,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         
         try {
             String insert_sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-            PreparedStatement insert_stmt = this.conn.prepareStatement(insert_sql);
+            PreparedStatement insert_stmt = conn.prepareStatement(insert_sql);
             int sqlTypes[] = catalog_tbl.getColumnTypes();
             
             for (Object tuple[] : iterable) {

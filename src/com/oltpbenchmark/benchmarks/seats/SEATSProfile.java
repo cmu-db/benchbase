@@ -223,6 +223,7 @@ public class SEATSProfile {
         stmt.setObject(param_idx++, this.num_reservations);              // CFP_NUM_RESERVATIONS
         stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
         int result = stmt.executeUpdate();
+        conn.commit();
         stmt.close();
         assert(result == 1);
         if (LOG.isDebugEnabled())
@@ -251,6 +252,7 @@ public class SEATSProfile {
             result = stmt.executeUpdate();
             assert(result == 1);
         } // FOR
+        conn.commit();
         stmt.close();
         if (LOG.isDebugEnabled())
             LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
