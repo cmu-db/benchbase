@@ -32,29 +32,34 @@ public enum DatabaseType {
      * (1) JDBC Driver String
      * (2) Should SQLUtil.getInsertSQL escape table/col names
      * (3) Should SQLUtil.getInsertSQL include col names
+     * (4) Does this DBMS support "real" transactions?
      */
-    DB2("com.ibm.db2.jcc.DB2Driver", true, false),
-    MYSQL("com.mysql.jdbc.Driver", true, false),
-    MYROCKS("com.mysql.jdbc.Driver", true, false),
-    POSTGRES("org.postgresql.Driver", false, false),
-    ORACLE("oracle.jdbc.driver.OracleDriver", true, false),
-    SQLSERVER("com.microsoft.sqlserver.jdbc.SQLServerDriver", true, false),
-    SQLITE("org.sqlite.JDBC", true, false),
-    AMAZONRDS(null, true, false),
-    SQLAZURE(null, true, false),
-    ASSCLOWN(null, true, false),
-    HSQLDB("org.hsqldb.jdbcDriver", false, false),
-    H2("org.h2.Driver", true, false),
-    MONETDB("nl.cwi.monetdb.jdbc.MonetDriver", false, false),
-    NUODB("com.nuodb.jdbc.Driver", true, false),
-    TIMESTEN("com.timesten.jdbc.TimesTenDriver", true, false),
-    PELOTON("org.postgresql.Driver", false, false)
+    DB2("com.ibm.db2.jcc.DB2Driver", true, false, true),
+    MYSQL("com.mysql.jdbc.Driver", true, false, true),
+    MYROCKS("com.mysql.jdbc.Driver", true, false, true),
+    POSTGRES("org.postgresql.Driver", false, false, true),
+    ORACLE("oracle.jdbc.driver.OracleDriver", true, false, true),
+    SQLSERVER("com.microsoft.sqlserver.jdbc.SQLServerDriver", true, false, true),
+    SQLITE("org.sqlite.JDBC", true, false, true),
+    AMAZONRDS(null, true, false, true),
+    SQLAZURE(null, true, false, true),
+    ASSCLOWN(null, true, false, true),
+    HSQLDB("org.hsqldb.jdbcDriver", false, false, true),
+    H2("org.h2.Driver", true, false, true),
+    MONETDB("nl.cwi.monetdb.jdbc.MonetDriver", false, false, true),
+    NUODB("com.nuodb.jdbc.Driver", true, false, true),
+    TIMESTEN("com.timesten.jdbc.TimesTenDriver", true, false, true),
+    PELOTON("org.postgresql.Driver", false, false, true)
     ;
     
-    private DatabaseType(String driver, boolean escapeNames, boolean includeColNames) {
+    private DatabaseType(String driver,
+                         boolean escapeNames,
+                         boolean includeColNames,
+                         boolean supportTxns) {
         this.driver = driver;
         this.escapeNames = escapeNames;
         this.includeColNames = includeColNames;
+        this.supportTxns = supportTxns;
     }
     
     /**
@@ -74,6 +79,15 @@ public enum DatabaseType {
      * when generating INSERT queries for loading data.  
      */
     private final boolean includeColNames;
+    
+    /**
+     * If this flag is set to true, then the framework will invoke the JDBC transaction
+     * api to do various things during execution. This should only be disabled
+     * if you know that the DBMS will throw an error when these commands are executed.
+     * For example, the Cassandra JDBC driver (as of 2018) throws a "Not Implemented" exception
+     * when the framework tries to set the isolation level.
+     */
+    private boolean supportTxns;
     
     // ---------------------------------------------------------------
     // ACCESSORS
@@ -105,6 +119,14 @@ public enum DatabaseType {
         return (this.includeColNames);
     }
     
+    /**
+     * Returns true if the framework should use transactions when executing
+     * any SQL queries on the target DBMS.
+     * @return
+     */
+    public boolean shouldUseTransactions() {
+        return (this.supportTxns);
+    }
     
     // ----------------------------------------------------------------
     // STATIC METHODS + MEMBERS

@@ -80,7 +80,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         try {
             this.conn = this.benchmarkModule.makeConnection();
             this.conn.setAutoCommit(false);
-            conn.setTransactionIsolation(this.wrkld.getIsolationMode());
+            
+            // 2018-01-11: Since we want to support NoSQL systems 
+            // that do not support txns, we will not invoke certain JDBC functions
+            // that may cause an error in them.
+            if (this.wrkld.getDBType().shouldUseTransactions()) {
+                this.conn.setTransactionIsolation(this.wrkld.getIsolationMode());
+            }
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to connect to database", ex);
         }
