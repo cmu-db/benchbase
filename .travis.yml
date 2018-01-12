@@ -98,6 +98,11 @@ env:
 services:
   - mysql
 
+# Increase the size of ramdisk on sudo enabled infrastructure
+# https://github.com/travis-ci/travis-ci/issues/9036#issuecomment-357189213
+before_install:
+  - sudo mount -o remount,size=50% /var/ramfs
+
 install:
   - echo $TRAVIS_JDK_VERSION
   - if [ $TRAVIS_JDK_VERSION == oraclejdk8 ]; then
@@ -130,13 +135,8 @@ before_script:
       TYPE=postgres ;
     fi
 
-# As of 2018-01-10, Travis is running into space issues with ramfs
-# So we're special casing our larger benchmarks to use lower scalefactor
 script:
   - SCALEFACTOR=0.5
-  - if [ $TEST == wikipedia ]; then
-      SCALEFACTOR=0.25 ;
-    fi
   - if [ $TEST == junit ]; then
       ant junit;
     else
