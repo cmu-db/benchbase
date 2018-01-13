@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.auctionmark;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -51,8 +52,12 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
 	public File getDataDir() {
 	    URL url = AuctionMarkBenchmark.class.getResource("data");
 	    if (url != null) {
-	        return new File(url.getPath());
-	    }
+			try {
+				return new File(url.toURI().getPath());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
 	    return (null);
 	}
 	
