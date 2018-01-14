@@ -24,8 +24,6 @@ import com.oltpbenchmark.util.SQLUtil;
 public class TPCDSLoader extends Loader<TPCDSBenchmark> {
     private static final Logger LOG = Logger.getLogger(TPCDSLoader.class);
 
-    private static enum CastTypes { LONG, DOUBLE, STRING, DATE };
-
     public TPCDSLoader(TPCDSBenchmark benchmark, Connection c) {
         super(benchmark, c);
     }
@@ -87,9 +85,9 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         }
     }
 
-    public void loadData(Connection conn, String table, PreparedStatement ps, CastTypes[] types, int batchSize) {
+    private void loadData(Connection conn, String table, PreparedStatement ps, TPCDSConstants.CastTypes[] types) {
         BufferedReader br = null;
-        int recordsRead = 0;
+        int batchSize = 0;
         try {
             String format = getFileFormat();
             File file = new File(workConf.getDataDir()
@@ -142,50 +140,69 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                 String isoFmtDate;
                                 java.sql.Date fieldAsDate = null;
                                 if (isoMatcher.find()) {
-                                    fieldAsDate = java.sql.Date.valueOf(field);
+                                    isoFmtDate = field;
                                 }
                                 else if (nondelimMatcher.find()) {
                                     isoFmtDate = nondelimMatcher.group(1) + "-"
                                                 + nondelimMatcher.group(2) + "-"
                                                 + nondelimMatcher.group(3);
-                                    fieldAsDate = java.sql.Date.valueOf(isoFmtDate);
                                 }
                                 else if (usaMatcher.find()) {
                                     isoFmtDate = usaMatcher.group(3) + "-"
                                                 + usaMatcher.group(1) + "-"
                                                 + usaMatcher.group(2);
-                                    fieldAsDate = java.sql.Date.valueOf(isoFmtDate);
                                 }
                                 else if (eurMatcher.find()) {
                                     isoFmtDate = eurMatcher.group(3) + "-"
                                             + eurMatcher.group(2) + "-"
                                             + eurMatcher.group(1);
-                                    fieldAsDate = java.sql.Date.valueOf(isoFmtDate);
                                 }
                                 else {
                                     throw new RuntimeException("Unrecognized date \""
                                             + field + "\" in CSV file: "
                                             + file.getAbsolutePath());
                                 }
+                                fieldAsDate = java.sql.Date.valueOf(isoFmtDate);
                                 ps.setDate(i+1, fieldAsDate, null);
                                 break;
                             default:
                                 throw new RuntimeException("Unrecognized type for prepared statement");
                         }
+
+                        ps.addBatch();
+                        if (++batchSize % TPCDSConstants.BATCH_SIZE == 0) {
+                            ps.executeBatch();
+                            conn.commit();
+                            ps.clearBatch();
+                            this.addToTableCount(table, batchSize);
+                            batchSize = 0;
+                        }
+
                     } // FOR
+
+
 
                 } catch(IllegalStateException e) {
                     // This happens if there wasn't a match against the regex.
                     LOG.error("Invalid CSV file: " + file.getAbsolutePath());
                 }
-
-                // batch stuff
             }
-            // batch stuff at eof
+
+            if (batchSize > 0) {
+                this.addToTableCount(table, batchSize);
+                ps.executeBatch();
+                conn.commit();
+                ps.clearBatch();
+            }
+            ps.close();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(table + " loaded");
+            }
+
         } catch (SQLException se) {
-            LOG.debug(se.getMessage());
+            LOG.error("Failed to load data for TPC-DS", se);
             se = se.getNextException();
-            LOG.debug(se.getMessage());
+            if (se != null) LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
             transRollback(conn);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -201,7 +218,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                 }
             }
         }
-        // close connection, add rows
     }
 
     private void loadCallCenters(Connection conn) throws SQLException {
@@ -210,7 +226,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement callCenterInsert = conn.prepareStatement(sql);
-
-
+        loadData(conn, TPCDSConstants.TABLENAME_CALLCENTER, callCenterInsert, TPCDSConstants.callcenterTypes);
     }
 }
