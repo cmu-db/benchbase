@@ -1,4 +1,7 @@
 package com.oltpbenchmark.benchmarks.tpcds;
 
-public class TPCDSBenchmark {
+import com.oltpbenchmark.api.BenchmarkModule;
+
+public class TPCDSBenchmark extends BenchmarkModule {
+
 }
