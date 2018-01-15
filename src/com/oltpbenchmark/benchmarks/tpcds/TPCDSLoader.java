@@ -220,12 +220,74 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         }
     }
 
-    private void loadCallCenters(Connection conn) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_CALLCENTER);
+    private void loadWarehouse(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_WAREHOUSE);
         assert (catalog_tbl != null);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement callCenterInsert = conn.prepareStatement(sql);
-        loadData(conn, TPCDSConstants.TABLENAME_CALLCENTER, callCenterInsert, TPCDSConstants.callcenterTypes);
+        PreparedStatement warehouseInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_WAREHOUSE, warehouseInsert, TPCDSConstants.warehouseTypes);
     }
+
+    private void loadCustomer(Connection conn) throws SQLException {
+        // load customer
+        // load customer address
+        // load customer demographics
+        // load household demographics?
+    }
+
+    private void loadDateDim(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_DATEDIM);
+        assert (catalog_tbl != null);
+
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        PreparedStatement dateDimInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_DATEDIM, dateDimInsert, TPCDSConstants.datedimTypes);
+    }
+
+    private void loadItem(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_ITEM);
+        assert (catalog_tbl != null);
+
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        PreparedStatement itemInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_ITEM, itemInsert, TPCDSConstants.itemTypes);
+    }
+
+    private void loadIncomeBand(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_INCOMEBAND);
+        assert (catalog_tbl != null);
+
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        PreparedStatement incomeBandInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_INCOMEBAND, incomeBandInsert, TPCDSConstants.incomebandTypes);
+    }
+
+    private void loadReason(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_REASON);
+        assert (catalog_tbl != null);
+
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        PreparedStatement reasonInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_REASON, reasonInsert, TPCDSConstants.reasonTypes);
+    }
+
+    private void loadShipMode(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_SHIPMODE);
+        assert (catalog_tbl != null);
+
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        PreparedStatement shipModeInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_SHIPMODE, shipModeInsert, TPCDSConstants.shipmodeTypes);
+    }
+
+    private void loadTimeDim(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getTableCatalog(TPCDSConstants.TABLENAME_TIMEDIM);
+        assert (catalog_tbl != null);
+
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        PreparedStatement timeDimInsert = conn.prepareStatement(sql);
+        loadData(conn, TPCDSConstants.TABLENAME_TIMEDIM, timeDimInsert, TPCDSConstants.timedimTypes);
+    }
+
 }

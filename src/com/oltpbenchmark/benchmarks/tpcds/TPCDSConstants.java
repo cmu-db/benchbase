@@ -7,9 +7,9 @@ public abstract class TPCDSConstants {
     public static final String TABLENAME_CATALOGSALES = "catalog_sales";
     public static final String TABLENAME_CUSTOMER = "customer";
     public static final String TABLENAME_CUSTOMERADDRESS = "customer_address";
-    public static final String TABLENAME_CUSTOMERDEMO = "customer_demographics";
+    public static final String TABLENAME_CUSTOMERDEM = "customer_demographics";
     public static final String TABLENAME_DATEDIM = "date_dim";
-    public static final String TABLENAME_HOUSEHOLDDEMO = "household_demographics";
+    public static final String TABLENAME_HOUSEHOLDDEM = "household_demographics";
     public static final String TABLENAME_INCOMEBAND = "income_band";
     public static final String TABLENAME_INVENTORY = "inventory";
     public static final String TABLENAME_ITEM = "item";
@@ -64,7 +64,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // cc_tax_percentage
     };
 
-    private static final CastTypes[] catalogpageTypes = {
+    public static final CastTypes[] catalogpageTypes = {
             CastTypes.LONG,   // cp_catalog_page_sk
             CastTypes.STRING, // cp_catalog_page_id
             CastTypes.LONG,   // cp_start_date_sk
@@ -76,7 +76,7 @@ public abstract class TPCDSConstants {
             CastTypes.STRING  // cp_type
     };
 
-    private static final CastTypes[] catalogreturnsTypes = {
+    public static final CastTypes[] catalogreturnsTypes = {
             CastTypes.LONG,   // cr_returned_date_sk
             CastTypes.LONG,   // cr_returned_time_sk
             CastTypes.LONG,   // cr_item_sk
@@ -106,7 +106,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // cr_net_loss
     };
 
-    private static final CastTypes[] catalogsalesTypes = {
+    public static final CastTypes[] catalogsalesTypes = {
             CastTypes.LONG,   // cs_sold_date_sk
             CastTypes.LONG,   // cs_sold_time_sk
             CastTypes.LONG,   // cs_ship_date_sk
@@ -143,7 +143,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // cs_net_profit
     };
 
-    private static final CastTypes[] customerTypes = {
+    public static final CastTypes[] customerTypes = {
             CastTypes.LONG,   // c_customer_sk
             CastTypes.STRING, // c_customer_id
             CastTypes.LONG,   // c_current_cdemo_sk
@@ -164,7 +164,7 @@ public abstract class TPCDSConstants {
             CastTypes.LONG    // c_last_review_date_sk
     };
 
-    private static final CastTypes[] customeraddressTypes = {
+    public static final CastTypes[] customeraddressTypes = {
             CastTypes.LONG,   // ca_address_sk
             CastTypes.STRING, // ca_address_id
             CastTypes.STRING, // ca_street_number
@@ -180,7 +180,7 @@ public abstract class TPCDSConstants {
             CastTypes.STRING  // ca_location_type
     };
 
-    private static final CastTypes[] customerdemTypes = {
+    public static final CastTypes[] customerdemTypes = {
             CastTypes.STRING, // cd_marital_status
             CastTypes.STRING, // cd_education_status
             CastTypes.LONG,   // cd_purchase_estimate
@@ -190,7 +190,7 @@ public abstract class TPCDSConstants {
             CastTypes.LONG    // cd_dep_college_count
     };
 
-    private static final CastTypes[] datedimTypes = {
+    public static final CastTypes[] datedimTypes = {
             CastTypes.LONG,   // d_date_sk
             CastTypes.STRING, // d_date_id
             CastTypes.DATE,   // d_date
@@ -221,7 +221,7 @@ public abstract class TPCDSConstants {
             CastTypes.STRING // d_current_year
     };
 
-    private static final CastTypes[] householddemTypes = {
+    public static final CastTypes[] householddemTypes = {
             CastTypes.LONG,   // hd_demo_sk
             CastTypes.LONG,   // hd_income_band_sk
             CastTypes.STRING, // hd_buy_potential
@@ -229,20 +229,20 @@ public abstract class TPCDSConstants {
             CastTypes.LONG,   // hd_vehicle_count
     };
 
-    private static final CastTypes[] incomebandTypes = {
+    public static final CastTypes[] incomebandTypes = {
             CastTypes.LONG,   // ib_income_band_sk
             CastTypes.LONG,   // ib_lower_bound
             CastTypes.LONG    // ib_upper_bound
     };
 
-    private static final CastTypes[] inventoryTypes = {
+    public static final CastTypes[] inventoryTypes = {
             CastTypes.LONG,   // inv_date_sk
             CastTypes.LONG,   // inv_item_sk
             CastTypes.LONG,   // inv_warehouse_sk
             CastTypes.LONG    // inv_quantity_on_hand
     };
 
-    private static final CastTypes[] itemTypes = {
+    public static final CastTypes[] itemTypes = {
             CastTypes.LONG,   // i_item_sk
             CastTypes.STRING, // i_item_id
             CastTypes.DATE,   // i_rec_start_date
@@ -267,7 +267,7 @@ public abstract class TPCDSConstants {
             CastTypes.STRING  // i_product_name
     };
 
-    private static final CastTypes[] promotionTypes = {
+    public static final CastTypes[] promotionTypes = {
             CastTypes.LONG,   // p_promo_sk
             CastTypes.STRING, // p_promo_id
             CastTypes.LONG,   // p_start_date_sk
@@ -289,13 +289,13 @@ public abstract class TPCDSConstants {
             CastTypes.STRING  // p_discount_active
     };
 
-    private static final CastTypes[] reasonTypes = {
+    public static final CastTypes[] reasonTypes = {
             CastTypes.LONG,   // r_reason_sk
             CastTypes.STRING, // r_reason_id
             CastTypes.STRING  // r_reason_desc
     };
 
-    private static final CastTypes[] shipmodeTypes = {
+    public static final CastTypes[] shipmodeTypes = {
             CastTypes.LONG,   // sm_ship_mode_sk
             CastTypes.STRING, // sm_ship_mode_id
             CastTypes.STRING, // sm_type
@@ -304,7 +304,7 @@ public abstract class TPCDSConstants {
             CastTypes.STRING  // sm_contract
     };
 
-    private static final CastTypes[] storeTypes = {
+    public static final CastTypes[] storeTypes = {
             CastTypes.LONG,   // s_store_sk
             CastTypes.STRING, // s_store_id
             CastTypes.DATE,   // s_rec_start_date
@@ -336,7 +336,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // s_tax_percentage
     };
 
-    private static final CastTypes[] storereturnsTypes = {
+    public static final CastTypes[] storereturnsTypes = {
             CastTypes.LONG,   // sr_returned_date_sk
             CastTypes.LONG,   // sr_return_time_sk
             CastTypes.LONG,   // sr_item_sk
@@ -359,7 +359,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // sr_net_loss
     };
 
-    private static final CastTypes[] storesalesTypes = {
+    public static final CastTypes[] storesalesTypes = {
             CastTypes.LONG,   // ss_sold_date_sk
             CastTypes.LONG,   // ss_sold_time_sk
             CastTypes.LONG,   // ss_item_sk
@@ -385,7 +385,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // ss_net_profit
     };
 
-    private static final CastTypes[] timedimTypes = {
+    public static final CastTypes[] timedimTypes = {
             CastTypes.LONG,   // t_time_sk
             CastTypes.STRING, // t_time_id
             CastTypes.LONG,   // t_time
@@ -398,7 +398,7 @@ public abstract class TPCDSConstants {
             CastTypes.STRING  // t_meal_time
     };
 
-    private static final CastTypes[] warehouseTypes = {
+    public static final CastTypes[] warehouseTypes = {
             CastTypes.LONG,   // w_warehouse_sk
             CastTypes.STRING, // w_warehouse_id
             CastTypes.STRING, // w_warehouse_name
@@ -415,7 +415,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // w_gmt_offset
     };
 
-    private static final CastTypes[] webpageTypes = {
+    public static final CastTypes[] webpageTypes = {
             CastTypes.LONG,   // wp_web_page_sk
             CastTypes.STRING, // wp_web_page_id
             CastTypes.DATE,   // wp_rec_start_date
@@ -432,7 +432,7 @@ public abstract class TPCDSConstants {
             CastTypes.LONG    // wp_max_ad_count
     };
 
-    private static final CastTypes[] webreturnsTypes = {
+    public static final CastTypes[] webreturnsTypes = {
             CastTypes.LONG,   // wr_returned_date_sk
             CastTypes.LONG,   // wr_return_time_sk
             CastTypes.LONG,   // wr_item_sk
@@ -459,7 +459,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // wr_net_loss
     };
 
-    private static final CastTypes[] websalesTypes = {
+    public static final CastTypes[] websalesTypes = {
             CastTypes.LONG,   // ws_sold_date_sk
             CastTypes.LONG,   // ws_sold_time_sk
             CastTypes.LONG,   // ws_ship_date_sk
@@ -496,7 +496,7 @@ public abstract class TPCDSConstants {
             CastTypes.DOUBLE  // ws_net_profit
     };
 
-    private static final CastTypes[] websiteTypes = {
+    public static final CastTypes[] websiteTypes = {
             CastTypes.LONG,   // web_site_sk
             CastTypes.STRING, // web_site_id
             CastTypes.DATE,   // web_rec_start_date
