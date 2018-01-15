@@ -283,6 +283,7 @@ public class AuctionMarkProfile {
         stmt.setObject(param_idx++, this.loaderStopTime); // CFP_LOADER_STOP
         stmt.setObject(param_idx++, this.users_per_itemCount.toJSONString()); // CFP_USER_ITEM_HISTOGRAM
         int result = stmt.executeUpdate();
+        conn.commit();
         stmt.close();
         assert(result == 1);
 
