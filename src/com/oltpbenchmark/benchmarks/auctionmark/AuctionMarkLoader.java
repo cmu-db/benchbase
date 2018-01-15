@@ -14,16 +14,24 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-
 package com.oltpbenchmark.benchmarks.auctionmark;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -34,8 +42,8 @@ import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
 import com.oltpbenchmark.benchmarks.auctionmark.util.Category;
+import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
@@ -45,39 +53,41 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.*;
+import com.oltpbenchmark.util.CollectionUtil;
+import com.oltpbenchmark.util.CompositeId;
+import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
+import com.oltpbenchmark.util.SQLUtil;
 
 /**
- * 
  * @author pavlo
  * @author visawee
  */
 public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     private static final Logger LOG = Logger.getLogger(AuctionMarkLoader.class);
-    
+
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS
     // -----------------------------------------------------------------
-    
+
     protected final AuctionMarkProfile profile;
-    
+
     /**
-     * Data Generator Classes
-     * TableName -> AbstactTableGenerator
+     * Data Generator Classes TableName -> AbstactTableGenerator
      */
     private final Map<String, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<String, AbstractTableGenerator>());
-    
+
     private final Collection<String> sub_generators = new HashSet<String>();
 
     /** The set of tables that we have finished loading **/
     private final transient Collection<String> finished = Collections.synchronizedCollection(new HashSet<String>());
-    
+
     private final Histogram<String> tableSizes = new Histogram<String>();
 
     private boolean fail = false;
-    
+
     // -----------------------------------------------------------------
     // INITIALIZATION
     // -----------------------------------------------------------------
@@ -91,7 +101,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         super(benchmark, conn);
 
         // BenchmarkProfile
-        profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
+        this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
 
         File category_file = new File(benchmark.getDataDir().getAbsolutePath() + "/table.category.gz");
 
@@ -108,28 +118,41 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // ---------------------------
             // Scaling-Size Table Generators
             // ---------------------------
-            this.registerGenerator(new UserGenerator()); // depends on REGION
-            this.registerGenerator(new UserAttributesGenerator()); // depends on USERACCT
 
-            this.registerGenerator(new ItemGenerator()); // depends on USERACCT, CATEGORY
-            this.registerGenerator(new ItemCommentGenerator()); // depends on ITEM
-            this.registerGenerator(new ItemImageGenerator()); // depends on ITEM
-            this.registerGenerator(new ItemBidGenerator()); // depends on ITEM
+            // depends on REGION
+            this.registerGenerator(new UserGenerator());
+            // depends on USERACCT
+            this.registerGenerator(new UserAttributesGenerator());
 
-            this.registerGenerator(new ItemAttributeGenerator()); // depends on ITEM, GAG, GAV
+            // depends on USERACCT, CATEGORY
+            this.registerGenerator(new ItemGenerator());
+            // depends on ITEM
+            this.registerGenerator(new ItemCommentGenerator());
+            // depends on ITEM
+            this.registerGenerator(new ItemImageGenerator());
+            // depends on ITEM
+            this.registerGenerator(new ItemBidGenerator());
 
-            this.registerGenerator(new ItemMaxBidGenerator()); // depends on ITEM_BID
-            this.registerGenerator(new ItemPurchaseGenerator()); // depends on ITEM_BID
-            this.registerGenerator(new UserItemGenerator()); // depends on ITEM_BID
-            this.registerGenerator(new UserWatchGenerator()); // depends on ITEM_BID
+            // depends on ITEM, GLOBAL_ATTRIBUTE_GROUP, GLOBAL_ATTRIBUTE_VALUE
+            this.registerGenerator(new ItemAttributeGenerator());
 
-            this.registerGenerator(new UserFeedbackGenerator()); // depends on ITEM_PURCHASE
+            // depends on ITEM_BID
+            this.registerGenerator(new ItemMaxBidGenerator());
+            // depends on ITEM_BID
+            this.registerGenerator(new ItemPurchaseGenerator());
+            // depends on ITEM_BID
+            this.registerGenerator(new UserItemGenerator());
+            // depends on ITEM_BID
+            this.registerGenerator(new UserWatchGenerator());
+
+            // depends on ITEM_PURCHASE
+            this.registerGenerator(new UserFeedbackGenerator());
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
-    
+
     // -----------------------------------------------------------------
     // LOADING METHODS
     // -----------------------------------------------------------------
@@ -145,17 +168,18 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         @Override
         public void load(Connection conn) throws SQLException {
-            LOG.debug(String.format("Started loading %s which depends on %s", generator.getTableName(), generator.getDependencies()));
-            generator.load(conn);
-            latch.countDown();
-            LOG.debug(String.format("Finished loading %s", generator.getTableName()));
+            LOG.debug(String.format("Started loading %s which depends on %s", this.generator.getTableName(), this.generator.getDependencies()));
+            this.generator.load(conn);
+            this.latch.countDown();
+            LOG.debug(String.format("Finished loading %s", this.generator.getTableName()));
         }
     }
 
+    @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
 
-        final CountDownLatch loadLatch = new CountDownLatch(generators.size());
+        final CountDownLatch loadLatch = new CountDownLatch(this.generators.size());
 
         for (AbstractTableGenerator generator : this.generators.values()) {
             generator.init();
@@ -171,13 +195,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-                profile.saveProfile(conn);
+                AuctionMarkLoader.this.profile.saveProfile(conn);
             }
         });
 
         return threads;
     }
-    
+
     private void registerGenerator(AbstractTableGenerator generator) {
         // Register this one as well as any sub-generators
         this.generators.put(generator.getTableName(), generator);
