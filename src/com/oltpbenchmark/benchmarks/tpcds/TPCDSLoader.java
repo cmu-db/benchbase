@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +33,387 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
-        
+        final CountDownLatch custAddrLatch = new CountDownLatch(1);
+        final CountDownLatch custDemLatch = new CountDownLatch(1);
+        final CountDownLatch dateLatch = new CountDownLatch(1);
+        final CountDownLatch incomeLatch = new CountDownLatch(1);
+        final CountDownLatch itemLatch = new CountDownLatch(1);
+        final CountDownLatch reasonLatch = new CountDownLatch(1);
+        final CountDownLatch shipModeLatch = new CountDownLatch(1);
+        final CountDownLatch timeLatch = new CountDownLatch(1);
+        final CountDownLatch warehouseLatch = new CountDownLatch(1);
+        final CountDownLatch promoLatch = new CountDownLatch(1);
+        final CountDownLatch householdLatch = new CountDownLatch(1);
+        final CountDownLatch storeLatch = new CountDownLatch(1);
+        final CountDownLatch customerLatch = new CountDownLatch(1);
+        final CountDownLatch webPageLatch = new CountDownLatch(1);
+        final CountDownLatch webSiteLatch = new CountDownLatch(1);
+        final CountDownLatch callCenterLatch = new CountDownLatch(1);
+        final CountDownLatch catalogPageLatch = new CountDownLatch(1);
+        final CountDownLatch storeSalesLatch = new CountDownLatch(1);
+        final CountDownLatch catalogSalesLatch = new CountDownLatch(1);
+        final CountDownLatch webSalesLatch = new CountDownLatch(1);
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMERADDRESS, TPCDSConstants.customeraddressTypes);
+                custAddrLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMERDEM, TPCDSConstants.customerdemTypes);
+                custDemLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_DATEDIM, TPCDSConstants.datedimTypes);
+                dateLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_INCOMEBAND, TPCDSConstants.incomebandTypes);
+                incomeLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_ITEM, TPCDSConstants.itemTypes);
+                itemLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_REASON, TPCDSConstants.reasonTypes);
+                reasonLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_SHIPMODE, TPCDSConstants.shipmodeTypes);
+                shipModeLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_TIMEDIM, TPCDSConstants.timedimTypes);
+                timeLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_WAREHOUSE, TPCDSConstants.warehouseTypes);
+                warehouseLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    callCenterLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CALLCENTER, TPCDSConstants.callcenterTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    catalogPageLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGPAGE, TPCDSConstants.catalogpageTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    storeLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_STORE, TPCDSConstants.storeTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    webSiteLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBSITE, TPCDSConstants.websiteTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    incomeLatch.await();
+                    householdLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_HOUSEHOLDDEM, TPCDSConstants.householddemTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    itemLatch.await();
+                    promoLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_PROMOTION, TPCDSConstants.promotionTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    itemLatch.await();
+                    warehouseLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_INVENTORY, TPCDSConstants.inventoryTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    householdLatch.await();
+                    customerLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMER, TPCDSConstants.customerTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    customerLatch.await();
+                    webPageLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBPAGE, TPCDSConstants.webpageTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    customerLatch.await();
+                    householdLatch.await();
+                    itemLatch.await();
+                    promoLatch.await();
+                    timeLatch.await();
+                    storeLatch.await();
+                    storeSalesLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_STORESALES, TPCDSConstants.storesalesTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    customerLatch.await();
+                    householdLatch.await();
+                    itemLatch.await();
+                    reasonLatch.await();
+                    timeLatch.await();
+                    storeLatch.await();
+                    storeSalesLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_STORERETURNS, TPCDSConstants.storereturnsTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    customerLatch.await();
+                    householdLatch.await();
+                    itemLatch.await();
+                    promoLatch.await();
+                    timeLatch.await();
+                    webPageLatch.await();
+                    shipModeLatch.await();
+                    warehouseLatch.await();
+                    webSiteLatch.await();
+                    webSalesLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBSALES, TPCDSConstants.websalesTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    customerLatch.await();
+                    householdLatch.await();
+                    itemLatch.await();
+                    reasonLatch.await();
+                    timeLatch.await();
+                    webPageLatch.await();
+                    webSalesLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBRETURNS, TPCDSConstants.webreturnsTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    customerLatch.await();
+                    callCenterLatch.await();
+                    householdLatch.await();
+                    itemLatch.await();
+                    promoLatch.await();
+                    timeLatch.await();
+                    shipModeLatch.await();
+                    warehouseLatch.await();
+                    catalogPageLatch.await();
+                    catalogSalesLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGSALES, TPCDSConstants.catalogsalesTypes);
+            }
+        });
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try {
+                    dateLatch.await();
+                    custAddrLatch.await();
+                    custDemLatch.await();
+                    customerLatch.await();
+                    callCenterLatch.await();
+                    householdLatch.await();
+                    itemLatch.await();
+                    reasonLatch.await();
+                    timeLatch.await();
+                    shipModeLatch.await();
+                    warehouseLatch.await();
+                    catalogPageLatch.await();
+                    catalogSalesLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGRETURNS, TPCDSConstants.catalogreturnsTypes);
+            }
+        });
+
         return threads;
     }
 
