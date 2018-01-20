@@ -505,13 +505,21 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
                         switch(types[i]) {
                             case DOUBLE:
-                                ps.setDouble(i+1, Double.parseDouble(field));
+                                if ("".equals(field)) {
+                                    ps.setDouble(i+1, Double.NaN);
+                                } else {
+                                    ps.setDouble(i+1, Double.parseDouble(field));
+                                }
                                 break;
                             case LONG:
-                                ps.setLong(i+1, Long.parseLong(field));
+                                if ("".equals(field)) {
+                                    ps.setLong(i+1, Long.MIN_VALUE);
+                                } else {
+                                    ps.setLong(i+1, Long.parseLong(field));
+                                }
                                 break;
                             case STRING:
-                                ps.setString(i+1, field);
+                                ps.setString(i + 1, field);
                                 break;
                             case DATE:
                                 // Four possible formats for date
@@ -528,8 +536,8 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                 Pattern eurFmt = Pattern.compile("^\\s*(\\d{2})\\.(\\d{2})\\.(\\d{4})\\s*$");
                                 Matcher eurMatcher = eurFmt.matcher(field);
 
-                                String isoFmtDate;
-                                java.sql.Date fieldAsDate = null;
+                                String isoFmtDate = "";
+                                java.sql.Date fieldAsDate;
                                 if (isoMatcher.find()) {
                                     isoFmtDate = field;
                                 }
@@ -548,12 +556,12 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                             + eurMatcher.group(2) + "-"
                                             + eurMatcher.group(1);
                                 }
-                                else {
+                                else if (!"".equals(field)){
                                     throw new RuntimeException("Unrecognized date \""
-                                            + field + "\" in CSV file: "
+                                            + field + "\" in file: "
                                             + file.getAbsolutePath());
                                 }
-                                fieldAsDate = java.sql.Date.valueOf(isoFmtDate);
+                                fieldAsDate = "".equals(field) ? null : java.sql.Date.valueOf(isoFmtDate);
                                 ps.setDate(i+1, fieldAsDate, null);
                                 break;
                             default:
@@ -575,7 +583,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
                 } catch(IllegalStateException e) {
                     // This happens if there wasn't a match against the regex.
-                    LOG.error("Invalid CSV file: " + file.getAbsolutePath());
+                    LOG.error("Invalid file: " + file.getAbsolutePath());
                 }
             }
 
