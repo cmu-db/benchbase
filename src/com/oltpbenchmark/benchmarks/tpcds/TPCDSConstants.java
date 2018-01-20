@@ -181,6 +181,8 @@ public abstract class TPCDSConstants {
     };
 
     public static final CastTypes[] customerdemTypes = {
+            CastTypes.LONG,   // cd_demo_sk
+            CastTypes.STRING, // gender
             CastTypes.STRING, // cd_marital_status
             CastTypes.STRING, // cd_education_status
             CastTypes.LONG,   // cd_purchase_estimate

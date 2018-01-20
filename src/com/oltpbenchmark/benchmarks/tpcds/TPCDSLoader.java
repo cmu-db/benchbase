@@ -69,15 +69,15 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         final CountDownLatch storeSalesLatch = new CountDownLatch(1);
         final CountDownLatch catalogSalesLatch = new CountDownLatch(1);
         final CountDownLatch webSalesLatch = new CountDownLatch(1);
-
+/*
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMERADDRESS, TPCDSConstants.customeraddressTypes);
                 custAddrLatch.countDown();
             }
-        });
-
+        }); */
+/*
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -141,7 +141,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                 warehouseLatch.countDown();
             }
         });
-
+*/
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -156,7 +156,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                 loadTable(conn, TPCDSConstants.TABLENAME_CALLCENTER, TPCDSConstants.callcenterTypes);
             }
         });
-
+/*
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -428,7 +428,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
                 loadTable(conn, TPCDSConstants.TABLENAME_CATALOGRETURNS, TPCDSConstants.catalogreturnsTypes);
             }
-        });
+        }); */
 
         return threads;
     }
@@ -479,13 +479,14 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
     private void loadData(Connection conn, String table, PreparedStatement ps, TPCDSConstants.CastTypes[] types) {
         BufferedReader br = null;
         int batchSize = 0;
+        String line = "";
+        String field = "";
         try {
             String format = getFileFormat();
             File file = new File(workConf.getDataDir()
                     , table + "."
                     + format);
             br = new BufferedReader(new FileReader(file));
-            String line;
             Pattern pattern = getFormatPattern(format);
             int group = getFormatGroup(format);
             Matcher matcher;
@@ -494,7 +495,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                 try {
                     for (int i = 0; i < types.length; ++i) {
                         matcher.find();
-                        String field = matcher.group(group);
+                        field = matcher.group(group);
                         if (field.charAt(0) == '\"') {
                             field = field.substring(1, field.length() - 1);
                         }
@@ -502,7 +503,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                         if(group==0){
                             field = field.substring(0, field.length() -1);
                         }
-
+                        //LOG.error(field + " " + i);
                         switch(types[i]) {
                             case DOUBLE:
                                 if ("".equals(field)) {
@@ -568,18 +569,16 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                 throw new RuntimeException("Unrecognized type for prepared statement");
                         }
 
-                        ps.addBatch();
-                        if (++batchSize % TPCDSConstants.BATCH_SIZE == 0) {
-                            ps.executeBatch();
-                            conn.commit();
-                            ps.clearBatch();
-                            this.addToTableCount(table, batchSize);
-                            batchSize = 0;
-                        }
-
                     } // FOR
 
-
+                    ps.addBatch();
+                    if (++batchSize % TPCDSConstants.BATCH_SIZE == 0) {
+                        ps.executeBatch();
+                        conn.commit();
+                        ps.clearBatch();
+                        this.addToTableCount(table, batchSize);
+                        batchSize = 0;
+                    }
 
                 } catch(IllegalStateException e) {
                     // This happens if there wasn't a match against the regex.
@@ -599,7 +598,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             }
 
         } catch (SQLException se) {
-            LOG.error("Failed to load data for TPC-DS", se);
+            LOG.error("Failed to load data for TPC-DS: " + field + ", LINE " + line, se);
             se = se.getNextException();
             if (se != null) LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
             transRollback(conn);
