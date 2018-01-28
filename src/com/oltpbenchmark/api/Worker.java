@@ -421,11 +421,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     this.txnErrors.put(next);
 
-                    if (savepoint != null) {
-                        this.conn.rollback(savepoint);
-                    } else {
-                        this.conn.rollback();
-                    }
+		    if (this.wrkld.getDBType().shouldUseTransactions()) {
+			if (savepoint != null) {
+			    this.conn.rollback(savepoint);
+			} else {
+			    this.conn.rollback();
+			}
+		    }
 
                     if (ex.getSQLState() == null) {
                         continue;

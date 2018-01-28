@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <dbtype>cassandra</dbtype>
+    <driver>com.github.adejanovski.cassandra.jdbc.CassandraDriver</driver>
+    <DBUrl>jdbc:cassandra://localhost:9042/ycsb</DBUrl>
+    <username>user</username>
+    <password>password</password>
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    
+    <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
+    <scalefactor>16</scalefactor>
+    
+    <!-- The workload -->
+    <terminals>64</terminals>
+    <works>
+        <work>
+          <time>300</time>
+          <rate>unlimited</rate>
+          <weights>50,5,15,10,10,10</weights>
+        </work>
+    </works>
+
+    <!-- YCSB Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+                <name>ReadRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>InsertRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ScanRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>UpdateRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>DeleteRecord</name>
+        </transactiontype>
+        <transactiontype>
+                <name>ReadModifyWriteRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

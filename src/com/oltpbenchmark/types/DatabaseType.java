@@ -49,6 +49,7 @@ public enum DatabaseType {
     MONETDB("nl.cwi.monetdb.jdbc.MonetDriver", false, false, true),
     NUODB("com.nuodb.jdbc.Driver", true, false, true),
     TIMESTEN("com.timesten.jdbc.TimesTenDriver", true, false, true),
+    CASSANDRA("com.github.adejanovski.cassandra.jdbc.CassandraDriver", true, true, false),
     PELOTON("org.postgresql.Driver", false, false, true)
     ;
     
