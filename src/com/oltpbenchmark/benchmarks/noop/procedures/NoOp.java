@@ -21,6 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
@@ -30,18 +32,35 @@ import com.oltpbenchmark.api.SQLStmt;
  * @author eric-haibin-lin
  */
 public class NoOp extends Procedure {
+    private static final Logger LOG = Logger.getLogger(NoOp.class);
+    
     
     // The query only contains a semi-colon
     // That is enough for the DBMS to have to parse it and do something
-    public final SQLStmt noopStmt = new SQLStmt("SELECT 1");
+    public final SQLStmt noopStmt = new SQLStmt(";");
     
     public void run(Connection conn) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            // Do nothing
-        } // WHILE
-        r.close();
+        
+        // IMPORTANT:
+        // Some DBMSs will throw an exception here when you execute
+        // a query that does not return a result. So we are just 
+        // going to catch the exception and ignore it. If you are porting
+        // a new DBMS to this benchmark, then you should disable this
+        // exception here and check whether it is actually working
+        // correctly.
+        try {
+            ResultSet r = stmt.executeQuery();
+            while (r.next()) {
+                // Do nothing
+            } // WHILE
+            r.close();
+        } catch (Exception ex) {
+            // This error should be something like "No results were returned by the query."
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Exception for NoOp query. This may be expected!", ex);
+            }
+        }
     }
 
 }
