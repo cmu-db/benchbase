@@ -42,4 +42,4 @@ Please visit the project homepage for anything other than source code: <http://o
 
 ## Dependencies
 
-+ Java (+1.6)
++ Java (+1.7)

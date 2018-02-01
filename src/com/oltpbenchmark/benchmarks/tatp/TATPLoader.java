@@ -46,7 +46,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
-        final long itemsPerThread = Long.max(this.subscriberSize / numLoaders, 1);
+        final long itemsPerThread = Math.max(this.subscriberSize / numLoaders, 1);
         final int numSubThreads = (int) Math.ceil((double) this.subscriberSize / itemsPerThread);
         final CountDownLatch subLatch = new CountDownLatch(numSubThreads);
 
