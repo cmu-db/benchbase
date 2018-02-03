@@ -148,9 +148,7 @@
                 showoutput="@{showoutput}"
             >
                 <classpath refid='project.classpath' />
-                <jvmarg value="-Djava.library.path=${build.dir}/nativelibs" />
                 <jvmarg value="-server" />
-                <jvmarg value="-Xcheck:jni" />
                 <jvmarg value="-Xmx2048m"/>
                 <jvmarg value="-XX:+HeapDumpOnOutOfMemoryError"/>
                 
