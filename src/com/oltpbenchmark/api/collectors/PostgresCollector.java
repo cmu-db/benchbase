@@ -19,14 +19,11 @@ package com.oltpbenchmark.api.collectors;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -69,8 +66,12 @@ public class PostgresCollector extends DBCollector {
 
             // Collect DBMS internal metrics
             for (String viewName : PG_STAT_VIEWS) {
-            	out = s.executeQuery("SELECT * FROM " + viewName);
-            	pgMetrics.put(viewName, getMetrics(out));
+            	try {
+            		out = s.executeQuery("SELECT * FROM " + viewName);
+            		pgMetrics.put(viewName, getMetrics(out));
+            	} catch (SQLException ex) {
+            		LOG.error("Error while collecting DB metric view: " + ex.getMessage());
+            	}
             }
         } catch (SQLException e) {
             LOG.error("Error while collecting DB parameters: " + e.getMessage());
