@@ -66,7 +66,7 @@ public abstract class AuctionMarkUtil {
         // The idx cannot be more than 7bits
         assert(idx >= 0 && idx <= 128) :
             String.format("Invalid element idx %d", idx);
-        long id = ((long) idx << 52) | (item_id & ITEM_ID_MASK);
+        long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
         assert(id >= 0) :
             String.format("Invalid negative element id %d [item_id=%d, idx=%d]",
                           id, item_id, idx);

@@ -66,6 +66,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     private final AtomicBoolean closeAuctions_flag = new AtomicBoolean();
     
     private final Thread closeAuctions_checker;
+
+    protected static final Map<Long, Integer> ip_id_cntrs = new HashMap<Long, Integer>(); 
     
     // --------------------------------------------------------------------
     // CLOSE_AUCTIONS CHECKER
@@ -811,8 +813,15 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         long encodedItemId = itemInfo.itemId.encode();
         UserId sellerId = itemInfo.getSellerId();
         double buyer_credit = 0d;
+
+	Integer ip_id_cnt = ip_id_cntrs.get(new Long(encodedItemId));
+	if (ip_id_cnt == null) {
+	    ip_id_cnt = new Integer(0);
+	}
+	
         long ip_id = AuctionMarkUtil.getUniqueElementId(encodedItemId,
-                                                        profile.rng.number(0, 128)); // HACK
+                                                        ip_id_cnt.intValue());
+	ip_id_cntrs.put(encodedItemId, (ip_id_cnt < 127) ? ip_id_cnt + 1 : 0);
         
         // Whether the buyer will not have enough money
         if (itemInfo.hasCurrentPrice()) {
@@ -827,7 +836,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         Object results[] = proc.run(conn, benchmarkTimes, encodedItemId,
                                                           sellerId.encode(),
                                                           ip_id,
-                                                          buyer_credit);
+				                          buyer_credit);
         conn.commit();
         
         ItemId itemId = this.processItemRecord(results);
