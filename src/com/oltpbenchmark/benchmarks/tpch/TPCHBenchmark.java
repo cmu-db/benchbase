@@ -39,7 +39,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 
-import com.oltpbenchmark.benchmarks.tpch.queries.Q1;
+import com.oltpbenchmark.benchmarks.tpch.procedures.Q1;
 
 public class TPCHBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(TPCHBenchmark.class);

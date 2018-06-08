@@ -19,7 +19,7 @@ package com.oltpbenchmark.api.collectors;
 public class DBParameterCollectorGen {
     public static DBParameterCollector getCollector(String dbType, String dbUrl, String username, String password) {
         String db = dbType.toLowerCase();
-        if (db.equals("mysql")) {
+        if (db.equals("mysql") || db.equals("memsql")) {
             return new MySQLCollector(dbUrl, username, password);
         } else if (db.equals("myrocks")) {
             return new MyRocksCollector(dbUrl, username, password);

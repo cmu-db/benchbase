@@ -21,13 +21,18 @@ import java.sql.SQLException;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.tpch.queries.GenericQuery;
+import com.oltpbenchmark.benchmarks.tpch.procedures.GenericQuery;
 import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.RandomGenerator;
 
 public class TPCHWorker extends Worker<TPCHBenchmark> {
-    
+
+    private final RandomGenerator rand;
+
     public TPCHWorker(TPCHBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
+        this.rng().setSeed(15721);
+        rand = new RandomGenerator(this.rng().nextInt());
     }
 
     @Override
@@ -35,7 +40,7 @@ public class TPCHWorker extends Worker<TPCHBenchmark> {
         try {
             GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
             proc.setOwner(this);
-            proc.run(conn);
+            proc.run(conn, rand);
         } catch (ClassCastException e) {
             System.err.println("We have been invoked with an INVALID transactionType?!");
             throw new RuntimeException("Bad transaction type = "+ nextTransaction);
