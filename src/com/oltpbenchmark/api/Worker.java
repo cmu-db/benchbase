@@ -457,6 +457,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("53200")) {
                         // Postgres OOM error
                         throw ex;
+                    } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("XX000")) {
+                        // Postgres no pinned buffers available
+                        throw ex;
                         
                     // ------------------
                     // ORACLE
