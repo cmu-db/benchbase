@@ -141,6 +141,9 @@ public class DBWorkload {
         options.addOption("ts", "tracescript", true, "Script of transactions to execute");
         options.addOption(null, "histograms", false, "Print txn histograms");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
+        options.addOption(null, "output-raw", true, "Output raw data");
+        options.addOption(null, "output-samples", true, "Output sample data");
+
 
         // parse the command line arguments
         CommandLine argsLine = parser.parse(options, args);
@@ -675,12 +678,24 @@ public class DBWorkload {
             }
             
             baseFile = filePrefix + baseFileName;
-            
-            // RAW OUTPUT
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
-            rs = new PrintStream(new File(nextName));
-            LOG.info("Output Raw data into file: " + nextName);
-            r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
+
+            if (argsLine.getOptionValue("output-raw", "true").equalsIgnoreCase("true")) {
+                // RAW OUTPUT
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
+                rs = new PrintStream(new File(nextName));
+                LOG.info("Output Raw data into file: " + nextName);
+                r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
+                rs.close();
+            }
+
+            if (isBooleanOptionSet(argsLine, "output-samples")) {
+                // Write samples using 1 second window
+                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
+                rs = new PrintStream(new File(nextName));
+                LOG.info("Output samples into file: " + nextName);
+                r.writeCSV2(rs);
+                rs.close();
+            }
 
             // Result Uploader Files
             if (ru != null) {
@@ -710,14 +725,6 @@ public class DBWorkload {
                 ss = new PrintStream(new File(nextName));
                 LOG.info("Output experiment config into file: " + nextName);
                 ru.writeBenchmarkConf(ss);
-                ss.close();
-                
-
-                // Write samples using 1 second window
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
-                ss = new PrintStream(new File(nextName));
-                LOG.info("Output samples into file: " + nextName);
-                r.writeCSV2(ss);
                 ss.close();
             }
             
