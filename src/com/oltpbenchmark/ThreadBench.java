@@ -467,10 +467,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             State state = testState.getState();
             if (state == State.WARMUP && now >= warmup) {
                 synchronized(testState) {
-                    if (phase != null && phase.isLatencyRun())
+                    if (phase != null && phase.isLatencyRun()) {
                         testState.startColdQuery();
-                    else
-                testState.startMeasure();
+                    } else {
+                        testState.startMeasure();
+                    }
                     interruptWorkers();
                 }
                 start = now;
