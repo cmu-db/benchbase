@@ -42,7 +42,7 @@ public class YCSBBenchmark extends BenchmarkModule {
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
         try {
-            Connection metaConn = this.makeConnection();
+
 
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
@@ -50,19 +50,21 @@ public class YCSBBenchmark extends BenchmarkModule {
             Table t = this.catalog.getTable("USERTABLE");
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "ycsb_key");
-            Statement stmt = metaConn.createStatement();
-            ResultSet res = stmt.executeQuery(userCount);
-            int init_record_count = 0;
-            while (res.next()) {
-                init_record_count = res.getInt(1);
+
+            try (
+                    Connection metaConn = this.makeConnection();
+                    Statement stmt = metaConn.createStatement();
+                    ResultSet res = stmt.executeQuery(userCount)) {
+                int init_record_count = 0;
+                while (res.next()) {
+                    init_record_count = res.getInt(1);
+                }
+                assert init_record_count > 0;
+                //
+                for (int i = 0; i < workConf.getTerminals(); ++i) {
+                    workers.add(new YCSBWorker(this, i, init_record_count + 1));
+                } // FOR
             }
-            assert init_record_count > 0;
-            res.close();
-            //
-            for (int i = 0; i < workConf.getTerminals(); ++i) {
-                workers.add(new YCSBWorker(this, i, init_record_count + 1));
-            } // FOR
-            metaConn.close();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

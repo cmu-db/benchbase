@@ -66,34 +66,33 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
         assert (catalog_tbl != null);
         
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        long total = 0;
-        int batch = 0;
-        for (int i = start; i < stop; i++) {
-            stmt.setInt(1, i);
-            for (int j = 0; j < YCSBConstants.NUM_FIELDS; j++) {
-                stmt.setString(j+2, TextGenerator.randomStr(rng(), YCSBConstants.FIELD_SIZE));
-            }
-            stmt.addBatch();
-            total++;
-            if (++batch >= YCSBConstants.COMMIT_BATCH_SIZE) {
-                int result[] = stmt.executeBatch();
-                assert (result != null);
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            long total = 0;
+            int batch = 0;
+            for (int i = start; i < stop; i++) {
+                stmt.setInt(1, i);
+                for (int j = 0; j < YCSBConstants.NUM_FIELDS; j++) {
+                    stmt.setString(j + 2, TextGenerator.randomStr(rng(), YCSBConstants.FIELD_SIZE));
+                }
+                stmt.addBatch();
+                total++;
+                if (++batch >= YCSBConstants.COMMIT_BATCH_SIZE) {
+                    int result[] = stmt.executeBatch();
+                    assert (result != null);
+                    conn.commit();
+                    batch = 0;
+                    if (LOG.isDebugEnabled())
+                        LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
+                }
+            } // FOR
+            if (batch > 0) {
+                stmt.executeBatch();
                 conn.commit();
-                batch = 0;
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
             }
-        } // FOR
-        if (batch > 0) {
-            stmt.executeBatch();
-            conn.commit();
-            if (LOG.isDebugEnabled())
-                LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
         }
-        stmt.close();
         if (LOG.isDebugEnabled()) LOG.debug("Finished loading " + catalog_tbl.getName());
-        return;
     }
     
 }
