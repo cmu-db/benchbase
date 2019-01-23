@@ -232,7 +232,6 @@ public abstract class BenchmarkModule {
                     return new File(ddlURL.toURI().getPath());
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
-                    if (LOG.isDebugEnabled())
                         LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
                 }
             }

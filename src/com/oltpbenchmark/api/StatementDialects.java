@@ -81,7 +81,7 @@ public class StatementDialects {
             "Failed to find 'dialects.xml' for " + this.getClass().getName();
         if (this.xmlFile != null && this.dbType != null) {
             this.load();
-        } else if (LOG.isDebugEnabled()) {
+        } else  {
             LOG.warn("DatabaseType is null. Not loading StatementDialect XML");
         }
         
@@ -161,7 +161,6 @@ public class StatementDialects {
             } // FOR (proc)
         } // FOR (dbtype)
         if (this.dialectsMap.isEmpty()) {
-            if (LOG.isDebugEnabled())
                 LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
                                        this.dbType, DEFAULT_DB_TYPE));
             return (false);

@@ -34,7 +34,7 @@ import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
  * The best solution is perhaps to 
  */
 public class Contention1 extends Procedure {
-	private static final Logger LOG = Logger.getLogger(Procedure.class);
+	private static final Logger LOG = Logger.getLogger(Contention1.class);
 
     public final SQLStmt lockUpdate = new SQLStmt(
         "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +
@@ -65,7 +65,7 @@ public class Contention1 extends Procedure {
             stmtUpdate.setInt(1, ResourceStresserWorker.gen.nextInt()); 
             int result = stmtUpdate.executeUpdate();
             if (result != howManyKeys) {
-            	if(LOG.isInfoEnabled())LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
+            	LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
             }
 
             stmtSleep.setInt(1, sleepLength);

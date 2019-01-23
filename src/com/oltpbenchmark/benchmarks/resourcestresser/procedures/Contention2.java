@@ -31,7 +31,7 @@ import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
  * Uses a range of primary keys.
  */
 public class Contention2 extends Procedure {
-	private static final Logger LOG = Logger.getLogger(Procedure.class);
+	private static final Logger LOG = Logger.getLogger(Contention2.class);
 
     public final SQLStmt lockUpdate = new SQLStmt(
         "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE + 
@@ -60,7 +60,7 @@ public class Contention2 extends Procedure {
             stmtUpdate.setInt(3, rightKey + 1);
             int result = stmtUpdate.executeUpdate();
             if (result != howManyKeys) {
-            	if(LOG.isInfoEnabled())LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
+            	LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
             }
 
             stmtSleep.setInt(1, sleepLength);

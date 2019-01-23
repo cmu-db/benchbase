@@ -388,7 +388,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 // User Abort Handling
                 // These are not errors
                 } catch (UserAbortException ex) {
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isTraceEnabled())
                         LOG.trace(next + " Aborted", ex);
 
                     /* PAVLO */
@@ -413,7 +413,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                     // TODO: Handle acceptable error codes for every DBMS
-                     if (LOG.isDebugEnabled())
                         LOG.warn(String.format("%s thrown when executing '%s' on '%s' " +
                                                "[Message='%s', ErrorCode='%d', SQLState='%s']", 
                                                ex.getClass().getSimpleName(), next, this.toString(),

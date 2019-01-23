@@ -107,7 +107,7 @@ public class DeleteLink extends Procedure{
           }
           assert(!result.next()); // check done
           result.close();
-          if (LOG.isDebugEnabled()) {
+          if (LOG.isTraceEnabled()) {
               LOG.trace(String.format("(%d, %d, %d) visibility = %d",
                       id1, link_type, id2, visibility));
           }
@@ -142,7 +142,7 @@ public class DeleteLink extends Procedure{
                 p.setLong(3, link_type);
             }
 
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isTraceEnabled()) {
                 LOG.trace(p);
             }
 
@@ -161,7 +161,7 @@ public class DeleteLink extends Procedure{
             stmt4.setLong(3, currentTime);          
             stmt4.setLong(4, currentTime);          
             
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isTraceEnabled()) {
                 LOG.trace(updateLink);
             }
             

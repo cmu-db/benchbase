@@ -624,7 +624,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         while (reservation == null) {
             Reservation r = cache.poll();
             if (r == null) {
-                if (LOG.isDebugEnabled())
                     LOG.warn("Unable to execute " + proc + " - No available reservations to insert");
                 break;
             }
@@ -650,7 +649,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             reservation = r; 
         } // WHILE
         if (reservation == null) {
-            if (LOG.isDebugEnabled())
                 LOG.warn("Failed to find a valid pending insert Reservation\n" + this.toString());
             return (false);
         }
@@ -774,7 +772,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             // Nothing
         }
         if (r == null) {
-            if (LOG.isDebugEnabled())
                 LOG.warn(String.format("Failed to find Reservation to update [cache=%d]", cache.size()));
             return (false);
         }

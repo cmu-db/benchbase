@@ -33,7 +33,7 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
-	private static final Logger LOG = Logger.getLogger(Procedure.class);
+	private static final Logger LOG = Logger.getLogger(ResourceStresserBenchmark.class);
 
 	public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
 		super("resourcestresser", workConf, true);

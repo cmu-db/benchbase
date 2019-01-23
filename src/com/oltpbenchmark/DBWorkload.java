@@ -526,7 +526,7 @@ public class DBWorkload {
             }
         } else if (LOG.isDebugEnabled()) {
             LOG.debug("Skipping creating benchmark database tables");
-            LOG.info(SINGLE_LINE);
+            LOG.debug(SINGLE_LINE);
         }
 
         // Clear the Benchmark's Database
@@ -539,7 +539,7 @@ public class DBWorkload {
             }
         } else if (LOG.isDebugEnabled()) {
             LOG.debug("Skipping creating benchmark database tables");
-            LOG.info(SINGLE_LINE);
+            LOG.debug(SINGLE_LINE);
         }
 
         // Execute Loader
@@ -552,7 +552,7 @@ public class DBWorkload {
             }
         } else if (LOG.isDebugEnabled()) {
             LOG.debug("Skipping loading benchmark database records");
-            LOG.info(SINGLE_LINE);
+            LOG.debug(SINGLE_LINE);
         }
         
         // Execute a Script
@@ -761,7 +761,7 @@ public class DBWorkload {
                     }
                 }
             }
-        } else if (LOG.isDebugEnabled()) {
+        } else  {
             LOG.warn("No bucket size specified");
         }
         

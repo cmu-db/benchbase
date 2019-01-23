@@ -549,7 +549,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         long newid1 = dist.nextID(rng, previousId1);
         // Distribution responsible for generating number in range
         assert((newid1 >= startid1) && (newid1 < maxid1));
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
             LOG.trace("id1 generated = " + newid1 +
                     " for access distribution: " + dist.getClass().getName() + ": " +
                     dist.toString());
@@ -578,14 +578,14 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     Link[] multigetLinks(long id1, long link_type, long id2s[]) throws SQLException {
         GetLink proc= this.getProcedure(GetLink.class);
         Link links[] = proc.run(conn, id1, link_type, id2s);
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
             LOG.trace("getLinkList(id1=" + id1 + ", link_type="  + link_type
                     + ") => count=" + (links == null ? 0 : links.length));
         }
         // If there were more links than limit, record
         if (links != null && links.length >= LinkBenchConstants.DEFAULT_LIMIT) {
             Link lastLink = links[links.length-1];
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("Maybe more history for (" + id1 +"," +
                         link_type + " older than " + lastLink.time);
             }
@@ -597,14 +597,14 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     Link[] getLinkList(long id1, long link_type) throws SQLException {
         GetLinkList proc= this.getProcedure(GetLinkList.class);
         Link links[] = proc.run(conn, id1, link_type);
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
            LOG.trace("getLinkList(id1=" + id1 + ", link_type="  + link_type
                          + ") => count=" + (links == null ? 0 : links.length));
         }
         // If there were more links than limit, record
         if (links != null && links.length >= LinkBenchConstants.DEFAULT_LIMIT) {
           Link lastLink = links[links.length-1];
-          if (LOG.isDebugEnabled()) {
+          if (LOG.isTraceEnabled()) {
             LOG.trace("Maybe more history for (" + id1 +"," +
                           link_type + " older than " + lastLink.time);
           }
@@ -624,12 +624,12 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         Link links[] = proc.run(conn, prevLast.id1,
             prevLast.link_type, 0, prevLast.time, 1, LinkBenchConstants.DEFAULT_LIMIT);
 
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
           LOG.trace("getLinkListTail(id1=" + prevLast.id1 + ", link_type="
                     + prevLast.link_type + ", max_time=" + prevLast.time
                     + " => count=" + (links == null ? 0 : links.length));
        }
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
             LOG.trace("Historical range query for (" + prevLast.id1 +"," +
                         prevLast.link_type + " older than " + prevLast.time +
                         ": " + (links == null ? 0 : links.length) + " results");
@@ -638,7 +638,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         if (links != null && links.length == LinkBenchConstants.DEFAULT_LIMIT) {
           // There might be yet more history
           Link last = links[links.length-1];
-          if (LOG.isDebugEnabled()) {
+          if (LOG.isTraceEnabled()) {
               LOG.trace("might be yet more history for (" + last.id1 +"," +
                           last.link_type + " older than " + last.time);
           }

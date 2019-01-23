@@ -357,7 +357,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         this.tableSize = (long)Math.max(1, (int)Math.round(this.tableSize * profile.getScaleFactor()));
                     }
                 } catch (NoSuchFieldException ex) {
-                    if (LOG.isDebugEnabled()) LOG.warn("No table size field for '" + tableName + "'", ex);
+                    LOG.warn("No table size field for '" + tableName + "'", ex);
                 } catch (Exception ex) {
                     throw new RuntimeException("Missing field '" + field_name + "' needed for '" + tableName + "'", ex);
                 } 

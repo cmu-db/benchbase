@@ -360,9 +360,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // flight data
         for (String histogramName : SEATSConstants.HISTOGRAM_DATA_FILES) {
             if (this.profile.histograms.containsKey(histogramName)) {
-                if (LOG.isDebugEnabled()) {
                     LOG.warn("Already loaded histogram '" + histogramName + "'. Skipping...");
-                }
                 continue;
             }
             if (LOG.isDebugEnabled()) {

@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  * @author eric-haibin-lin
  */
 public class NoOpWorker extends Worker<NoOpBenchmark> {
-    private static final Logger LOG = Logger.getLogger(NoOpLoader.class);
+    private static final Logger LOG = Logger.getLogger(NoOpWorker.class);
 
     private NoOp procNoOp;
     

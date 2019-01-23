@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public class WorkloadState {
     private static final int RATE_QUEUE_LIMIT = 10000;
-    private static final Logger LOG = Logger.getLogger(ThreadBench.class);
+    private static final Logger LOG = Logger.getLogger(WorkloadState.class);
     
     private LinkedList<SubmittedProcedure> workQueue = new LinkedList<SubmittedProcedure>();
     private BenchmarkState benchmarkState;

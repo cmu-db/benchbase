@@ -28,7 +28,7 @@ import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
 
 public class IO1 extends Procedure {
-    private static final Logger LOG = Logger.getLogger(Procedure.class);
+    private static final Logger LOG = Logger.getLogger(IO1.class);
 
     public final SQLStmt ioUpdate;
     {
@@ -67,7 +67,7 @@ public class IO1 extends Procedure {
             stmt.setInt(howManyColsPerRow + 2, rightKey);
             int result = stmt.executeUpdate();
             if (result != howManyRowsPerUpdate) {
-                if(LOG.isInfoEnabled())LOG.warn("supposedtochange=" + howManyRowsPerUpdate + " but result=" + result);
+                LOG.warn("supposedtochange=" + howManyRowsPerUpdate + " but result=" + result);
             }
         } // FOR
     }

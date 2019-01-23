@@ -191,7 +191,7 @@ public abstract class JSONUtil {
         try {
             object.fromJSON(new JSONObject(contents));
         } catch (Exception ex) {
-            if (LOG.isDebugEnabled()) LOG.error("Failed to deserialize the " + object.getClass().getSimpleName() + " from file '" + input_path + "'", ex);
+            LOG.error("Failed to deserialize the " + object.getClass().getSimpleName() + " from file '" + input_path + "'", ex);
             throw new IOException(ex);
         }
         if (LOG.isDebugEnabled()) LOG.debug("The loading of the " + object.getClass().getSimpleName() + " is complete");
@@ -521,7 +521,7 @@ public abstract class JSONUtil {
             if (!json_object.has(json_key)) {
                 String msg = "JSONObject for " + base_class.getSimpleName() + " does not have key '" + json_key + "': " + CollectionUtil.list(json_object.keys()); 
                 if (ignore_missing) {
-                    if (LOG.isDebugEnabled()) LOG.warn(msg);
+                    LOG.warn(msg);
                     continue;
                 } else {
                     throw new JSONException(msg);    

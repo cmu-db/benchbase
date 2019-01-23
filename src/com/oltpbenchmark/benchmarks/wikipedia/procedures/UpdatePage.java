@@ -31,7 +31,7 @@ import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.util.TimeUtil;
 import org.apache.log4j.Logger;
 public class UpdatePage extends Procedure {
-	private static final Logger LOG = Logger.getLogger(Procedure.class);
+	private static final Logger LOG = Logger.getLogger(UpdatePage.class);
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------

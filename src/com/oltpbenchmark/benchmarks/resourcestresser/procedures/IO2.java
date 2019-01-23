@@ -33,7 +33,7 @@ import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
  * changes one row.
  */
 public class IO2 extends Procedure {
-    private static final Logger LOG = Logger.getLogger(Procedure.class);
+    private static final Logger LOG = Logger.getLogger(IO2.class);
     
     public final SQLStmt ioUpdate = new SQLStmt(
         "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLESMALLROW +
