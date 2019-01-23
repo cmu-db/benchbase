@@ -75,7 +75,7 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
                     terminalDistrictLowerID, terminalDistrictUpperID, this);
         } catch (ClassCastException ex){
             //fail gracefully
-        	LOG.error("We have been invoked with an INVALID transactionType?!");
+        	LOG.error("We have been invoked with an INVALID transactionType?!", ex);
         	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
 	    }
         conn.commit();
