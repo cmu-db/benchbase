@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://localhost:3306/smallbank</DBUrl>
+    <DBUrl>jdbc:mysql://localhost:3306/oltpbench</DBUrl>
     <username>user</username>
     <password>pass</password>    
     <isolation>TRANSACTION_READ_COMMITTED</isolation>
