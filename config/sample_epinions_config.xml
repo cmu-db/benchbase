@@ -2,11 +2,11 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>mysql</dbtype>
-    <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://server:3306/epinions</DBUrl>
-    <username>user</username>
-    <password>password</password>
+    <dbtype>cockroachdb</dbtype>
+    <driver>org.postgresql.Driver</driver>
+    <DBUrl>jdbc:postgresql://localhost:5432/epinions</DBUrl>
+    <username>root</username>
+    <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
