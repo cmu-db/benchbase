@@ -2,8 +2,8 @@
 <project basedir="." default="build" name="benchmark">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="javac.target" value="1.7"/>
-    <property name="javac.source" value="1.7"/>
+    <property name="javac.target" value="1.8"/>
+    <property name="javac.source" value="1.8"/>
 
     <!-- *************************************** CONFIGURATION *************************************** -->
     
@@ -53,7 +53,6 @@
         <!-- <echo message="${ant.project.name}: ${ant.file}"/> -->
         
         <mkdir dir="${build.dir}/META-INF"/>
-        <copy file="${src.dir}/META-INF/persistence.xml" todir="${build.dir}/META-INF"/>
         <javac debug="true" debuglevel="${debuglevel}" includeantruntime="false"
                destdir="${build.dir}"
                source="${javac.source}"

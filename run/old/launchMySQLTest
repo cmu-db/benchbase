@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -o errexit -o nounset
-nwarehouses=50
-mysqladmin --defaults-file=../../my.cnf --force drop tpcc create tpcc
-./runSQL.sh mysql-local.properties sql/sqlInnoDBTableCreates
-./loadData.sh mysql-local.properties numWarehouses= $nwarehouses
-./runSQL.sh mysql-local.properties sql/sqlIndexCreates
-./runBenchmark.sh mysql-local.properties numWarehouses= $nwarehouses
