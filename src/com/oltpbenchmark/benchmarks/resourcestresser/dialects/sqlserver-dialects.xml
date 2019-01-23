@@ -42,5 +42,6 @@
             <statement name="lockSleep">
             	WAITFOR DELAY ?
             </statement>
-        </procedure>  
+        </procedure>
+	</dialect>
 </dialects>
