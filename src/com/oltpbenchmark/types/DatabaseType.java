@@ -52,6 +52,7 @@ public enum DatabaseType {
     CASSANDRA("com.github.adejanovski.cassandra.jdbc.CassandraDriver", true, true, false),
     PELOTON("org.postgresql.Driver", false, false, true),
     MEMSQL("com.mysql.jdbc.Driver", true, false, false),
+    COCKROACHDB("org.postgresql.Driver", false, false, true),
     ;
     
     private DatabaseType(String driver,
