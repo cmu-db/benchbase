@@ -6,6 +6,12 @@ output.res
 .settings
 results
 
+.idea
+*.iml
+
+.project
+
+
 ## -------------------------------
 ## Kate Swap Files
 ## -------------------------------
