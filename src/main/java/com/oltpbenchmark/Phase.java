@@ -25,7 +25,7 @@ import java.util.Random;
 
 public class Phase {
     public enum Arrival {
-        REGULAR,POISSON,
+        REGULAR, POISSON,
     }
 
     private final Random gen = new Random();
@@ -45,7 +45,7 @@ public class Phase {
     private final int num_weights;
     private int activeTerminals;
     private int nextSerial;
-    
+
 
     Phase(String benchmarkName, int id, int t, int wt, int r, List<String> o, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
         ArrayList<Double> w = new ArrayList<Double>();
@@ -65,9 +65,9 @@ public class Phase {
         this.timed = timed;
         this.nextSerial = 1;
         this.activeTerminals = activeTerminals;
-        this.arrival=a;
+        this.arrival = a;
     }
-    
+
     public boolean isRateLimited() {
         return rateLimited;
     }
@@ -103,13 +103,14 @@ public class Phase {
     public int getWeightCount() {
         return (this.num_weights);
     }
+
     public List<Double> getWeights() {
         return (this.weights);
     }
-    
+
     /**
      * Computes the sum of weights. Usually needs to add up to 100%
-     * 
+     *
      * @return The total weight
      */
     public double totalWeight() {
@@ -118,23 +119,24 @@ public class Phase {
             total += d;
         return total;
     }
-    
+
     /**
      * This simply computes the next transaction by randomly selecting one based
      * on the weights of this phase.
-     * 
+     *
      * @return
      */
     public int chooseTransaction() {
         return chooseTransaction(false);
     }
+
     public int chooseTransaction(boolean isColdQuery) {
         if (isDisabled())
             return -1;
 
         if (isSerial()) {
             int ret;
-            synchronized(this) {
+            synchronized (this) {
                 ret = this.nextSerial;
 
                 // Serial runs should not execute queries with non-positive
@@ -158,36 +160,34 @@ public class Phase {
                 }
             }
             return ret;
-        }
-        else {
-            int randomPercentage = gen.nextInt((int)totalWeight()) + 1;
-        double weight = 0.0;
-        for (int i = 0; i < this.num_weights; i++) {
-            weight += weights.get(i).doubleValue();
-            if (randomPercentage <= weight) {
-                return i + 1;
-            }
-        } // FOR
+        } else {
+            int randomPercentage = gen.nextInt((int) totalWeight()) + 1;
+            double weight = 0.0;
+            for (int i = 0; i < this.num_weights; i++) {
+                weight += weights.get(i).doubleValue();
+                if (randomPercentage <= weight) {
+                    return i + 1;
+                }
+            } // FOR
         }
 
         return -1;
     }
-    
+
     /**
      * Returns a string for logging purposes when entering the phase
      */
     public String currentPhaseString() {
         List<String> inner = new ArrayList<String>();
         inner.add("[Workload=" + benchmarkName.toUpperCase() + "]");
-        if (isDisabled()){
+        if (isDisabled()) {
             inner.add("[Disabled=true]");
         } else {
             if (isLatencyRun()) {
                 inner.add("[Serial=true]");
                 inner.add("[Time=n/a]");
-            }
-            else {
-                inner.add("[Serial="+ isSerial() + "]");
+            } else {
+                inner.add("[Serial=" + isSerial() + "]");
                 inner.add("[Time=" + time + "]");
             }
             inner.add("[WarmupTime=" + warmupTime + "]");
@@ -196,7 +196,7 @@ public class Phase {
             inner.add("[Ratios=" + getWeights() + "]");
             inner.add("[ActiveWorkers=" + getActiveTerminals() + "]");
         }
-        
+
         return StringUtil.bold("PHASE START") + " :: " + StringUtil.join(" ", inner);
     }
 

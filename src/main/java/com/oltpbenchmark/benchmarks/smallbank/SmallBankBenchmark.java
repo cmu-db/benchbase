@@ -18,10 +18,10 @@ import java.util.List;
 public class SmallBankBenchmark extends BenchmarkModule {
 
     protected final long numAccounts;
-    
+
     public SmallBankBenchmark(WorkloadConfiguration workConf) {
         super("smallbank", workConf, true);
-        this.numAccounts = (int)Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
+        this.numAccounts = (int) Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
     }
 
     @Override
@@ -40,12 +40,13 @@ public class SmallBankBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-       return Amalgamate.class.getPackage();
+        return Amalgamate.class.getPackage();
     }
-    
-    
+
+
     /**
      * For the given table, return the length of the first VARCHAR attribute
+     *
      * @param acctsTbl
      * @return
      */
@@ -57,7 +58,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
                 break;
             }
         } // FOR
-        assert(acctNameLength > 0);
+        assert (acctNameLength > 0);
         return (acctNameLength);
     }
 

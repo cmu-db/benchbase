@@ -21,35 +21,38 @@ import java.util.Random;
 
 /**
  * Fast Random Text Generator
+ *
  * @author pavlo
  */
 public abstract class TextGenerator {
-    
+
     private static final int CHAR_START = 32; // [space]
-    private static final int CHAR_STOP  = 126; // [~]
+    private static final int CHAR_STOP = 126; // [~]
     private static final char[] CHAR_SYMBOLS = new char[1 + CHAR_STOP - CHAR_START];
+
     static {
         for (int i = 0; i < CHAR_SYMBOLS.length; i++) {
-            CHAR_SYMBOLS[i] = (char)(CHAR_START + i);
+            CHAR_SYMBOLS[i] = (char) (CHAR_START + i);
         } // FOR
     } // STATIC
-    
+
     private static final int[] FAST_MASKS = {
-        554189328, // 10000
-        277094664, // 01000
-        138547332, // 00100
-        69273666,  // 00010
-        34636833,  // 00001
-        346368330, // 01010
-        727373493, // 10101
-        588826161, // 10001
-        935194491, // 11011
-        658099827, // 10011
+            554189328, // 10000
+            277094664, // 01000
+            138547332, // 00100
+            69273666,  // 00010
+            34636833,  // 00001
+            346368330, // 01010
+            727373493, // 10101
+            588826161, // 10001
+            935194491, // 11011
+            658099827, // 10011
     };
-    
+
 
     /**
      * Generate a random block of text as a char array
+     *
      * @param rng
      * @param strLen
      * @return
@@ -65,9 +68,10 @@ public abstract class TextGenerator {
         } // FOR
         return (chars);
     }
-    
+
     /**
      * Faster (pseudo) random number generator
+     *
      * @param rng
      * @param chars
      * @return
@@ -76,7 +80,7 @@ public abstract class TextGenerator {
         // Ok so now the goal of this is to reduce the number of times that we have to 
         // invoke a random number. We'll do this by grabbing a single random int
         // and then taking different bitmasks
-        
+
         int num_rounds = chars.length / FAST_MASKS.length;
         int i = 0;
         for (int ctr = 0; ctr < num_rounds; ctr++) {
@@ -87,14 +91,15 @@ public abstract class TextGenerator {
         } // FOR
         // Use the old way for the remaining characters
         // I am doing this because I am too lazy to think of something more clever
-        for ( ; i < chars.length; i++) {
+        for (; i < chars.length; i++) {
             chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
         return (chars);
     }
-    
+
     /**
      * Returns a new string filled with random text
+     *
      * @param rng
      * @param strLen
      * @return
@@ -102,10 +107,11 @@ public abstract class TextGenerator {
     public static String randomStr(Random rng, int strLen) {
         return new String(randomChars(rng, strLen));
     }
-    
+
     /**
      * Returns a new string filled with random text. The first characters
      * of the string will be filled with the prefix
+     *
      * @param rng
      * @param strLen
      * @param prefix
@@ -117,28 +123,30 @@ public abstract class TextGenerator {
         prefix.getChars(0, Math.min(prefix.length(), strLen), chars, 0);
         return new String(chars);
     }
-    
+
     /**
      * Resize the given block of text by the delta and add random characters
      * to the new space in the array. Returns a new character array
+     *
      * @param rng
      * @param orig
      * @param delta
      * @return
      */
     public static char[] resizeText(Random rng, char orig[], int delta) {
-        assert(orig.length + delta > 0) :
-            String.format("Invalid resize (orig:%d, delta:%d)", orig.length, delta);
+        assert (orig.length + delta > 0) :
+                String.format("Invalid resize (orig:%d, delta:%d)", orig.length, delta);
         char chars[] = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
-            chars[i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+            chars[i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
         return (chars);
     }
-    
+
     /**
      * Permute a random portion of the origin text
      * Returns the same character array that was given as input
+     *
      * @param rng
      * @param chars
      * @return
@@ -147,7 +155,7 @@ public abstract class TextGenerator {
         // We will try to be fast about this and permute the text by blocks
         int idx = 0;
         int blockSize = chars.length / 32;
-        
+
         // We'll generate one random number and check whether its bit is set to zero
         // Hopefully this is faster than having to generate a bunch of random
         // integers
@@ -156,16 +164,16 @@ public abstract class TextGenerator {
         // we change at least one block
         if (rand == 0) rand = 1;
         for (int bit = 0; bit < 32; bit++) {
-            if ((rand>>bit & 1) == 1) {
+            if ((rand >> bit & 1) == 1) {
                 for (int i = 0; i < blockSize; i++) {
-                    chars[idx + i] = (char)CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+                    chars[idx + i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
                 } // FOR
             }
             idx += blockSize;
             if (idx >= chars.length) break;
         } // FOR
-        
+
         return (chars);
     }
-    
+
 }

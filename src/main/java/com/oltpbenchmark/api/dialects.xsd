@@ -31,7 +31,7 @@
         <xsd:sequence>
             <xsd:element name="procedure" type="procedureType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:attribute name="type" type="xsd:string" use="required" />
+        <xsd:attribute name="type" type="xsd:string" use="required"/>
     </xsd:complexType>
 
     <!-- <procedure> -->
@@ -39,16 +39,16 @@
         <xsd:sequence>
             <xsd:element name="statement" type="statementType" minOccurs="1" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:attribute name="name" type="xsd:string" use="required" />
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
     </xsd:complexType>
 
     <!-- <statement> -->
     <xsd:complexType name="statementType">
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
-                <xsd:attribute name="name" type="xsd:string" use="required" />
+                <xsd:attribute name="name" type="xsd:string" use="required"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
-    
+
 </xsd:schema>

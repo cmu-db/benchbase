@@ -43,7 +43,7 @@ public class TPCHWorker extends Worker<TPCHBenchmark> {
             proc.run(conn, rand);
         } catch (ClassCastException e) {
             System.err.println("We have been invoked with an INVALID transactionType?!");
-            throw new RuntimeException("Bad transaction type = "+ nextTransaction);
+            throw new RuntimeException("Bad transaction type = " + nextTransaction);
         }
 
         conn.commit();

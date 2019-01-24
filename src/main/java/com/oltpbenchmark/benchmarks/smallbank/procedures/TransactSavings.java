@@ -37,26 +37,27 @@ import java.sql.SQLException;
 /**
  * TransactSavings Procedure
  * Original version by Mohammad Alomari and Michael Cahill
+ *
  * @author pavlo
  */
 public class TransactSavings extends Procedure {
-    
+
     public final SQLStmt GetAccount = new SQLStmt(
-        "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-        " WHERE name = ?"
+            "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
+                    " WHERE name = ?"
     );
-    
+
     public final SQLStmt GetSavingsBalance = new SQLStmt(
-        "SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS +
-        " WHERE custid = ?"
+            "SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS +
+                    " WHERE custid = ?"
     );
-    
+
     public final SQLStmt UpdateSavingsBalance = new SQLStmt(
-        "UPDATE " + SmallBankConstants.TABLENAME_SAVINGS + 
-        "   SET bal = bal - ? " +
-        " WHERE custid = ?"
+            "UPDATE " + SmallBankConstants.TABLENAME_SAVINGS +
+                    "   SET bal = bal - ? " +
+                    " WHERE custid = ?"
     );
-    
+
     public void run(Connection conn, String custName, double amount) throws SQLException {
         // First convert the custName to the acctId
         PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName);
@@ -73,28 +74,28 @@ public class TransactSavings extends Procedure {
         result = stmt.executeQuery();
         if (result.next() == false) {
             String msg = String.format("No %s for customer #%d",
-                                       SmallBankConstants.TABLENAME_SAVINGS, 
-                                       custId);
+                    SmallBankConstants.TABLENAME_SAVINGS,
+                    custId);
             throw new UserAbortException(msg);
         }
         double balance = result.getDouble(1) - amount;
         result.close();
-        
+
         // Make sure that they have enough
         if (balance < 0) {
             String msg = String.format("Negative %s balance for customer #%d",
-                                       SmallBankConstants.TABLENAME_SAVINGS, 
-                                       custId);
+                    SmallBankConstants.TABLENAME_SAVINGS,
+                    custId);
             throw new UserAbortException(msg);
         }
-        
+
         // Then update their savings balance
         stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId);
         int status = stmt.executeUpdate();
-        assert(status == 1) :
-            String.format("Failed to update %s for customer #%d [balance=%.2f / amount=%.2f]",
-                          SmallBankConstants.TABLENAME_CHECKING, custId, balance, amount);
-        
+        assert (status == 1) :
+                String.format("Failed to update %s for customer #%d [balance=%.2f / amount=%.2f]",
+                        SmallBankConstants.TABLENAME_CHECKING, custId, balance, amount);
+
         return;
     }
 }

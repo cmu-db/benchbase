@@ -3,13 +3,13 @@
     <dialect type="Postgres">
         <procedure name="Contention1">
             <statement name="lockSleep">
-            	SELECT  PG_SLEEP(?)
+                SELECT PG_SLEEP(?)
             </statement>
-        </procedure>   
+        </procedure>
         <procedure name="Contention2">
             <statement name="lockSleep">
-            	SELECT  PG_SLEEP(?)
+                SELECT PG_SLEEP(?)
             </statement>
-        </procedure>      
+        </procedure>
     </dialect>
 </dialects>

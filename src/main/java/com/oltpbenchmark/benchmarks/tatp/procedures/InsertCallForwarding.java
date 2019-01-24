@@ -29,35 +29,34 @@ import java.sql.SQLException;
 public class InsertCallForwarding extends Procedure {
 
     public final SQLStmt getSubscriber = new SQLStmt(
-        "SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
+            "SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
     );
 
     public final SQLStmt getSpecialFacility = new SQLStmt(
-        "SELECT sf_type FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " WHERE s_id = ?"
+            "SELECT sf_type FROM " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " WHERE s_id = ?"
     );
 
     public final SQLStmt insertCallForwarding = new SQLStmt(
-        "INSERT INTO " + TATPConstants.TABLENAME_CALL_FORWARDING + " VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO " + TATPConstants.TABLENAME_CALL_FORWARDING + " VALUES (?, ?, ?, ?, ?)"
     );
-     
+
     public long run(Connection conn, String sub_nbr, byte sf_type, byte start_time, byte end_time, String numberx) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
         stmt.setString(1, sub_nbr);
         ResultSet results = stmt.executeQuery();
-        assert(results != null);
-        long s_id=-1;
-        if(results.next())
-        {
+        assert (results != null);
+        long s_id = -1;
+        if (results.next()) {
             s_id = results.getLong(1);
         }
-        assert s_id!=-1; 
+        assert s_id != -1;
         results.close();
         stmt = this.getPreparedStatement(conn, getSpecialFacility);
         stmt.setLong(1, s_id);
         ResultSet results2 = stmt.executeQuery();
-        assert(results2 != null);
+        assert (results2 != null);
         results2.close();
-         
+
         // Inserting a new CALL_FORWARDING record only succeeds 30% of the time
         stmt = this.getPreparedStatement(conn, insertCallForwarding);
         stmt.setLong(1, s_id);
@@ -66,7 +65,7 @@ public class InsertCallForwarding extends Procedure {
         stmt.setByte(4, end_time);
         stmt.setString(5, numberx);
         int rows_updated = -1;
-        
+
         try {
             rows_updated = stmt.executeUpdate();
         } catch (SQLException ex) {

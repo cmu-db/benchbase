@@ -31,49 +31,49 @@ public class OrderStatus extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(OrderStatus.class);
 
-	public SQLStmt ordStatGetNewestOrdSQL = new SQLStmt(
-	        "SELECT O_ID, O_CARRIER_ID, O_ENTRY_D " +
-            "  FROM " + TPCCConstants.TABLENAME_OPENORDER + 
-            " WHERE O_W_ID = ? " + 
-            "   AND O_D_ID = ? " + 
-            "   AND O_C_ID = ? " +
-            " ORDER BY O_ID DESC LIMIT 1");
+    public SQLStmt ordStatGetNewestOrdSQL = new SQLStmt(
+            "SELECT O_ID, O_CARRIER_ID, O_ENTRY_D " +
+                    "  FROM " + TPCCConstants.TABLENAME_OPENORDER +
+                    " WHERE O_W_ID = ? " +
+                    "   AND O_D_ID = ? " +
+                    "   AND O_C_ID = ? " +
+                    " ORDER BY O_ID DESC LIMIT 1");
 
-	public SQLStmt ordStatGetOrderLinesSQL = new SQLStmt(
-	        "SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D " + 
-            "  FROM " + TPCCConstants.TABLENAME_ORDERLINE + 
-            " WHERE OL_O_ID = ?" + 
-            "   AND OL_D_ID = ?" + 
-            "   AND OL_W_ID = ?");
+    public SQLStmt ordStatGetOrderLinesSQL = new SQLStmt(
+            "SELECT OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DELIVERY_D " +
+                    "  FROM " + TPCCConstants.TABLENAME_ORDERLINE +
+                    " WHERE OL_O_ID = ?" +
+                    "   AND OL_D_ID = ?" +
+                    "   AND OL_W_ID = ?");
 
-	public SQLStmt payGetCustSQL = new SQLStmt(
-	        "SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, " + 
-            "       C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, " + 
-            "       C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
-            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
-            " WHERE C_W_ID = ? " +
-            "   AND C_D_ID = ? " +
-            "   AND C_ID = ?");
+    public SQLStmt payGetCustSQL = new SQLStmt(
+            "SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, " +
+                    "       C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, " +
+                    "       C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
+                    "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
+                    " WHERE C_W_ID = ? " +
+                    "   AND C_D_ID = ? " +
+                    "   AND C_ID = ?");
 
-	public SQLStmt customerByNameSQL = new SQLStmt(
-	        "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " + 
-            "       C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, " +
-            "       C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
-            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
-            " WHERE C_W_ID = ? " +
-            "   AND C_D_ID = ? " +
-            "   AND C_LAST = ? " + 
-            " ORDER BY C_FIRST");
+    public SQLStmt customerByNameSQL = new SQLStmt(
+            "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " +
+                    "       C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, " +
+                    "       C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
+                    "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
+                    " WHERE C_W_ID = ? " +
+                    "   AND C_D_ID = ? " +
+                    "   AND C_LAST = ? " +
+                    " ORDER BY C_FIRST");
 
-	private PreparedStatement ordStatGetNewestOrd = null;
-	private PreparedStatement ordStatGetOrderLines = null;
-	private PreparedStatement payGetCust = null;
-	private PreparedStatement customerByName = null;
+    private PreparedStatement ordStatGetNewestOrd = null;
+    private PreparedStatement ordStatGetOrderLines = null;
+    private PreparedStatement payGetCust = null;
+    private PreparedStatement customerByName = null;
 
 
     public ResultSet run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
         boolean trace = LOG.isTraceEnabled();
-        
+
         // initializing all prepared statements
         payGetCust = this.getPreparedStatement(conn, payGetCustSQL);
         customerByName = this.getPreparedStatement(conn, customerByNameSQL);
@@ -120,7 +120,7 @@ public class OrderStatus extends TPCCProcedure {
 
         if (!rs.next()) {
             String msg = String.format("No order records for CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_ID=%d]",
-                                       w_id, d_id, c.c_id);
+                    w_id, d_id, c.c_id);
             if (trace) LOG.warn(msg);
             throw new RuntimeException(msg);
         }
@@ -161,10 +161,10 @@ public class OrderStatus extends TPCCProcedure {
 
         // commit the transaction
         conn.commit();
-        
+
         if (orderLines.isEmpty()) {
             String msg = String.format("Order record had no order line items [C_W_ID=%d, C_D_ID=%d, C_ID=%d, O_ID=%d]",
-                                       w_id, d_id, c.c_id, o_id);
+                    w_id, d_id, c.c_id, o_id);
             if (trace) LOG.warn(msg);
         }
 
@@ -213,7 +213,7 @@ public class OrderStatus extends TPCCProcedure {
             sb.append("+-----------------------------------------------------------------+\n\n");
             LOG.trace(sb.toString());
         }
-        
+
         return null;
     }
 
@@ -230,7 +230,7 @@ public class OrderStatus extends TPCCProcedure {
         if (trace) LOG.trace("payGetCust END");
         if (!rs.next()) {
             String msg = String.format("Failed to get CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_ID=%d]",
-                                       c_w_id, c_d_id, c_id);
+                    c_w_id, c_d_id, c_id);
             if (trace) LOG.warn(msg);
             throw new RuntimeException(msg);
         }
@@ -265,7 +265,7 @@ public class OrderStatus extends TPCCProcedure {
 
         if (customers.size() == 0) {
             String msg = String.format("Failed to get CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_LAST=%s]",
-                                       c_w_id, c_d_id, c_last);
+                    c_w_id, c_d_id, c_last);
             if (trace) LOG.warn(msg);
             throw new RuntimeException(msg);
         }
@@ -278,7 +278,6 @@ public class OrderStatus extends TPCCProcedure {
         }
         return customers.get(index);
     }
-
 
 
 }

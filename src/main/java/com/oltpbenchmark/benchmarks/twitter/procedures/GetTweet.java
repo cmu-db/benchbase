@@ -28,10 +28,10 @@ import java.sql.SQLException;
 public class GetTweet extends Procedure {
 
     public SQLStmt getTweet = new SQLStmt(
-        "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE id = ?"
+            "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE id = ?"
     );
 
-    public void run(Connection conn, long tweet_id) throws SQLException{
+    public void run(Connection conn, long tweet_id) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getTweet);
         stmt.setLong(1, tweet_id);
         ResultSet rs = stmt.executeQuery();

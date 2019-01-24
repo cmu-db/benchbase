@@ -69,6 +69,7 @@ import java.io.StringWriter;
  * you. Objects and arrays can be nested up to 20 levels deep.
  * <p>
  * This can sometimes be easier than using a JSONObject to build a string.
+ *
  * @author JSON.org
  * @version 2008-09-18
  */
@@ -86,6 +87,7 @@ public class JSONStringer extends JSONWriter {
      * problem in the construction of the JSON text (such as the calls to
      * <code>array</code> were not properly balanced with calls to
      * <code>endArray</code>).
+     *
      * @return The JSON text.
      */
     public String toString() {

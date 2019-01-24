@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SumRecord8 extends Procedure{
+public class SumRecord8 extends Procedure {
     public final SQLStmt sumStmt = new SQLStmt(
             "SELECT FIELD198  + FIELD206 + FIELD169 + FIELD119 + FIELD9 + FIELD220 + FIELD2 + FIELD230 + FIELD212 + FIELD164 + FIELD111 + FIELD136 + FIELD106 + FIELD8 + FIELD112 + FIELD4 + FIELD234 + FIELD147 + FIELD35 + FIELD114 + FIELD89 + FIELD127 + FIELD144 + FIELD71 + FIELD186 + "
                     + "FIELD34 + FIELD145 + FIELD124 + FIELD146 + FIELD7 + FIELD40 + FIELD227 + FIELD59 + FIELD190 + FIELD249 + FIELD157 + FIELD38 + FIELD64 + FIELD134 + FIELD167 + FIELD63 + FIELD178 + FIELD156 + FIELD94 + FIELD84 + FIELD187 + FIELD153 + FIELD158 + FIELD42 + FIELD236 + "
@@ -34,17 +34,17 @@ public class SumRecord8 extends Procedure{
                     + "FIELD123 + FIELD16 + FIELD238 + FIELD81 + FIELD3 + FIELD219 + FIELD204 + FIELD68 + FIELD203 + FIELD73 + FIELD41 + FIELD66 + FIELD192 + FIELD113 + FIELD216 + FIELD117 + FIELD99 + FIELD126 + FIELD53 + FIELD1 + FIELD139 + FIELD116 + FIELD229 + FIELD100 + FIELD215 + "
                     + "FIELD48 + FIELD10 + FIELD86 + FIELD211 + FIELD17 + FIELD224 + FIELD122 + FIELD51 + FIELD103 + FIELD85 + FIELD110 + FIELD50 + FIELD162 + FIELD129 + FIELD243 + FIELD67 + FIELD133 + FIELD138 + FIELD193 + FIELD141 + FIELD232 + FIELD118 + FIELD159 + FIELD199 + FIELD39 + "
                     + "FIELD154 + FIELD137 + FIELD163 + FIELD179 + FIELD77 + FIELD194 + FIELD130 + FIELD46 + FIELD32 + FIELD125 + FIELD241 + FIELD246 + FIELD140 + FIELD26 + FIELD78 + FIELD177 + FIELD148 + FIELD223 + FIELD185 + FIELD197 + FIELD61 + FIELD195 + FIELD18 + FIELD80 + FIELD231 "
-                    + "FROM HTABLE WHERE FIELD1>?" );
-    
+                    + "FROM HTABLE WHERE FIELD1>?");
+
     public void run(Connection conn, int keyname) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, sumStmt);
-        stmt.setInt(1, keyname);        
+        stmt.setInt(1, keyname);
         int sum = -1;
-        ResultSet r=stmt.executeQuery();
-        if(r.next()){
-            sum = r.getInt(1);        
+        ResultSet r = stmt.executeQuery();
+        if (r.next()) {
+            sum = r.getInt(1);
         }
-        assert(sum != -1);
+        assert (sum != -1);
         r.close();
     }
 

@@ -14,9 +14,11 @@
                 SELECT data1, data2, data3, data4 FROM access_info WHERE s_id = ? AND ai_type = ?
             </statement>
         </procedure>
-	    <procedure name="GetNewDestination">
+        <procedure name="GetNewDestination">
             <statement name="getNewDestination">
-            SELECT cf.numberx FROM special_facility sf, call_forwarding cf WHERE sf.s_id = ? AND sf.sf_type = ? AND sf.is_active = 1 AND cf.s_id = sf.s_id AND cf.sf_type = sf.sf_type AND cf.start_time &lt;= ? AND cf.end_time &gt; ?
+                SELECT cf.numberx FROM special_facility sf, call_forwarding cf WHERE sf.s_id = ? AND sf.sf_type = ? AND
+                sf.is_active = 1 AND cf.s_id = sf.s_id AND cf.sf_type = sf.sf_type AND cf.start_time &lt;= ? AND
+                cf.end_time &gt; ?
             </statement>
         </procedure>
         <procedure name="GetSubscriberData">
@@ -31,7 +33,7 @@
             <statement name="getSpecialFacility">
                 SELECT sf_type FROM special_facility WHERE s_id = ?
             </statement>
-			<statement name="insertCallForwarding">
+            <statement name="insertCallForwarding">
                 INSERT INTO call_forwarding VALUES (?, ?, ?, ?, ?)
             </statement>
         </procedure>
@@ -51,5 +53,5 @@
                 UPDATE special_facility SET data_a = ? WHERE s_id = ? AND sf_type = ?
             </statement>
         </procedure>
-	</dialect>
+    </dialect>
 </dialects>

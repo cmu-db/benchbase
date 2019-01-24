@@ -425,7 +425,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         return threads;
     }
 
-    private String getFileFormat(){
+    private String getFileFormat() {
         String format = workConf.getXmlConfig().getString("fileFormat");
             /*
                Previouse configuration migh not have a fileFormat and assume
@@ -433,29 +433,29 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             */
         if (format == null) return "csv";
 
-        if((!"csv".equals(format) && !"tbl".equals(format) && !"dat".equals(format))){
+        if ((!"csv".equals(format) && !"tbl".equals(format) && !"dat".equals(format))) {
             throw new IllegalArgumentException("Configuration doesent"
                     + " have a valid fileFormat");
         }
         return format;
     }
 
-    private Pattern getFormatPattern(String format){
+    private Pattern getFormatPattern(String format) {
 
-        if("csv".equals(format)){
+        if ("csv".equals(format)) {
             // The following pattern parses the lines by commas, except for
             // ones surrounded by double-quotes. Further, strings that are
             // double-quoted have the quotes dropped (we don't need them).
-            return  Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
-        }else{
+            return Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
+        } else {
             return Pattern.compile("[^\\|]*\\|");
         }
     }
 
-    private int getFormatGroup(String format){
-        if("csv".equals(format)){
-            return  1;
-        }else{
+    private int getFormatGroup(String format) {
+        if ("csv".equals(format)) {
+            return 1;
+        } else {
             return 0;
         }
     }
@@ -492,23 +492,23 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                             field = field.substring(1, field.length() - 1);
                         }
 
-                        if(group==0){
-                            field = field.substring(0, field.length() -1);
+                        if (group == 0) {
+                            field = field.substring(0, field.length() - 1);
                         }
                         //LOG.error(field + " " + i);
-                        switch(types[i]) {
+                        switch (types[i]) {
                             case DOUBLE:
                                 if ("".equals(field)) {
-                                    ps.setDouble(i+1, Double.NaN);
+                                    ps.setDouble(i + 1, Double.NaN);
                                 } else {
-                                    ps.setDouble(i+1, Double.parseDouble(field));
+                                    ps.setDouble(i + 1, Double.parseDouble(field));
                                 }
                                 break;
                             case LONG:
                                 if ("".equals(field)) {
-                                    ps.setLong(i+1, Long.MIN_VALUE);
+                                    ps.setLong(i + 1, Long.MIN_VALUE);
                                 } else {
-                                    ps.setLong(i+1, Long.parseLong(field));
+                                    ps.setLong(i + 1, Long.parseLong(field));
                                 }
                                 break;
                             case STRING:
@@ -533,29 +533,25 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                 java.sql.Date fieldAsDate;
                                 if (isoMatcher.find()) {
                                     isoFmtDate = field;
-                                }
-                                else if (nondelimMatcher.find()) {
+                                } else if (nondelimMatcher.find()) {
                                     isoFmtDate = nondelimMatcher.group(1) + "-"
-                                                + nondelimMatcher.group(2) + "-"
-                                                + nondelimMatcher.group(3);
-                                }
-                                else if (usaMatcher.find()) {
+                                            + nondelimMatcher.group(2) + "-"
+                                            + nondelimMatcher.group(3);
+                                } else if (usaMatcher.find()) {
                                     isoFmtDate = usaMatcher.group(3) + "-"
-                                                + usaMatcher.group(1) + "-"
-                                                + usaMatcher.group(2);
-                                }
-                                else if (eurMatcher.find()) {
+                                            + usaMatcher.group(1) + "-"
+                                            + usaMatcher.group(2);
+                                } else if (eurMatcher.find()) {
                                     isoFmtDate = eurMatcher.group(3) + "-"
                                             + eurMatcher.group(2) + "-"
                                             + eurMatcher.group(1);
-                                }
-                                else if (!"".equals(field)){
+                                } else if (!"".equals(field)) {
                                     throw new RuntimeException("Unrecognized date \""
                                             + field + "\" in file: "
                                             + file.getAbsolutePath());
                                 }
                                 fieldAsDate = "".equals(field) ? null : java.sql.Date.valueOf(isoFmtDate);
-                                ps.setDate(i+1, fieldAsDate, null);
+                                ps.setDate(i + 1, fieldAsDate, null);
                                 break;
                             default:
                                 throw new RuntimeException("Unrecognized type for prepared statement");
@@ -572,7 +568,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                         batchSize = 0;
                     }
 
-                } catch(IllegalStateException e) {
+                } catch (IllegalStateException e) {
                     // This happens if there wasn't a match against the regex.
                     LOG.error("Invalid file: " + file.getAbsolutePath());
                 }
@@ -600,7 +596,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             e.printStackTrace();
             transRollback(conn);
         } finally {
-            if (br != null){
+            if (br != null) {
                 try {
                     br.close();
                 } catch (IOException e) {

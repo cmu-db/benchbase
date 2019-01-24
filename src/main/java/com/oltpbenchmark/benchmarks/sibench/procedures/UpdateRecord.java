@@ -23,16 +23,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class UpdateRecord extends Procedure{
+public class UpdateRecord extends Procedure {
     public final SQLStmt updateStmt = new SQLStmt(
-        "UPDATE SITEST SET value = value + 1 WHERE id = ?"
+            "UPDATE SITEST SET value = value + 1 WHERE id = ?"
     );
 
     public void run(Connection conn, int id) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateStmt);
         stmt.setInt(1, id);
         stmt.executeUpdate();
-	conn.commit();
+        conn.commit();
     }
 
 }

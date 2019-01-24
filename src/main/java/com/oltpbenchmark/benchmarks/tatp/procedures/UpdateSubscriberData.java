@@ -28,28 +28,28 @@ import java.sql.SQLException;
 public class UpdateSubscriberData extends Procedure {
 
     public final SQLStmt updateSubscriber = new SQLStmt(
-        "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET bit_1 = ? WHERE s_id = ?"
+            "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET bit_1 = ? WHERE s_id = ?"
     );
 
     public final SQLStmt updateSpecialFacility = new SQLStmt(
-        "UPDATE " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " SET data_a = ? WHERE s_id = ? AND sf_type = ?"
+            "UPDATE " + TATPConstants.TABLENAME_SPECIAL_FACILITY + " SET data_a = ? WHERE s_id = ? AND sf_type = ?"
     );
 
     public long run(Connection conn, long s_id, byte bit_1, short data_a, byte sf_type) throws SQLException {
-    	PreparedStatement stmt = this.getPreparedStatement(conn, updateSubscriber);
-    	stmt.setByte(1, bit_1);
-    	stmt.setLong(2, s_id);
-    	int updated = stmt.executeUpdate();
-    	assert(updated == 1);
-    	
-    	stmt = this.getPreparedStatement(conn, updateSpecialFacility);
-    	stmt.setShort(1, data_a);
-    	stmt.setLong(2, s_id);
-    	stmt.setByte(3, sf_type);
-    	updated = stmt.executeUpdate();
-    	if (updated != 0) {
-    	    throw new UserAbortException("Failed to update a row in " + TATPConstants.TABLENAME_SPECIAL_FACILITY);
-    	}
-    	return (updated);
+        PreparedStatement stmt = this.getPreparedStatement(conn, updateSubscriber);
+        stmt.setByte(1, bit_1);
+        stmt.setLong(2, s_id);
+        int updated = stmt.executeUpdate();
+        assert (updated == 1);
+
+        stmt = this.getPreparedStatement(conn, updateSpecialFacility);
+        stmt.setShort(1, data_a);
+        stmt.setLong(2, s_id);
+        stmt.setByte(3, sf_type);
+        updated = stmt.executeUpdate();
+        if (updated != 0) {
+            throw new UserAbortException("Failed to update a row in " + TATPConstants.TABLENAME_SPECIAL_FACILITY);
+        }
+        return (updated);
     }
 }

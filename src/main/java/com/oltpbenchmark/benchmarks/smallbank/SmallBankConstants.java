@@ -31,32 +31,32 @@ public abstract class SmallBankConstants {
     // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
-    public static final String TABLENAME_ACCOUNTS   = "ACCOUNTS";
-    public static final String TABLENAME_SAVINGS    = "SAVINGS";
-    public static final String TABLENAME_CHECKING   = "CHECKING";
-    
-    public static final int BATCH_SIZE              = 5000;
-    
+    public static final String TABLENAME_ACCOUNTS = "ACCOUNTS";
+    public static final String TABLENAME_SAVINGS = "SAVINGS";
+    public static final String TABLENAME_CHECKING = "CHECKING";
+
+    public static final int BATCH_SIZE = 5000;
+
     // ----------------------------------------------------------------
     // ACCOUNT INFORMATION
     // ----------------------------------------------------------------
-    
+
     // Default number of customers in bank
-    public static final int NUM_ACCOUNTS            = 1000000;
-    
-    public static final boolean HOTSPOT_USE_FIXED_SIZE  = false;
-    public static final double HOTSPOT_PERCENTAGE       = 25; // [0% - 100%]
-    public static final int HOTSPOT_FIXED_SIZE          = 100; // fixed number of tuples
-    
+    public static final int NUM_ACCOUNTS = 1000000;
+
+    public static final boolean HOTSPOT_USE_FIXED_SIZE = false;
+    public static final double HOTSPOT_PERCENTAGE = 25; // [0% - 100%]
+    public static final int HOTSPOT_FIXED_SIZE = 100; // fixed number of tuples
+
     // ----------------------------------------------------------------
     // ADDITIONAL CONFIGURATION SETTINGS
     // ----------------------------------------------------------------
-    
+
     // Initial balance amount
     // We'll just make it really big so that they never run out of money
-    public static final int MIN_BALANCE             = 10000;
-    public static final int MAX_BALANCE             = 50000;
-    
+    public static final int MIN_BALANCE = 10000;
+    public static final int MAX_BALANCE = 50000;
+
     // ----------------------------------------------------------------
     // PROCEDURE PARAMETERS
     // These amounts are from the original code
@@ -65,6 +65,6 @@ public abstract class SmallBankConstants {
     public static final double PARAM_DEPOSIT_CHECKING_AMOUNT = 1.3d;
     public static final double PARAM_TRANSACT_SAVINGS_AMOUNT = 20.20d;
     public static final double PARAM_WRITE_CHECK_AMOUNT = 5.0d;
-    
+
 
 }

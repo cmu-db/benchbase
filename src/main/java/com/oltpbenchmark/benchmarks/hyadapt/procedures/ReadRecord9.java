@@ -26,7 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-public class ReadRecord9 extends Procedure{
+public class ReadRecord9 extends Procedure {
     public final SQLStmt readStmt = new SQLStmt(
             "SELECT FIELD198, FIELD206, FIELD169, FIELD119, FIELD9, FIELD220, FIELD2, FIELD230, FIELD212, FIELD164, FIELD111, FIELD136, FIELD106, FIELD8, FIELD112, FIELD4, FIELD234, FIELD147, FIELD35, FIELD114, FIELD89, FIELD127, FIELD144, FIELD71, FIELD186, "
                     + "FIELD34, FIELD145, FIELD124, FIELD146, FIELD7, FIELD40, FIELD227, FIELD59, FIELD190, FIELD249, FIELD157, FIELD38, FIELD64, FIELD134, FIELD167, FIELD63, FIELD178, FIELD156, FIELD94, FIELD84, FIELD187, FIELD153, FIELD158, FIELD42, FIELD236, "
@@ -37,18 +37,17 @@ public class ReadRecord9 extends Procedure{
                     + "FIELD48, FIELD10, FIELD86, FIELD211, FIELD17, FIELD224, FIELD122, FIELD51, FIELD103, FIELD85, FIELD110, FIELD50, FIELD162, FIELD129, FIELD243, FIELD67, FIELD133, FIELD138, FIELD193, FIELD141, FIELD232, FIELD118, FIELD159, FIELD199, FIELD39, "
                     + "FIELD154, FIELD137, FIELD163, FIELD179, FIELD77, FIELD194, FIELD130, FIELD46, FIELD32, FIELD125, FIELD241, FIELD246, FIELD140, FIELD26, FIELD78, FIELD177, FIELD148, FIELD223, FIELD185, FIELD197, FIELD61, FIELD195, FIELD18, FIELD80, FIELD231, "
                     + "FIELD222, FIELD70, FIELD191, FIELD52, FIELD72, FIELD155, FIELD88, FIELD175, FIELD43, FIELD172, FIELD173, FIELD13, FIELD152, FIELD180, FIELD62, FIELD121, FIELD25, FIELD55, FIELD247, FIELD36, FIELD15, FIELD210, FIELD56, FIELD6, FIELD104 "
-                    + "FROM HTABLE WHERE FIELD1>?" );
-    
+                    + "FROM HTABLE WHERE FIELD1>?");
+
     //FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, Map<Integer,Integer> results) throws SQLException {
+    public void run(Connection conn, int keyname, Map<Integer, Integer> results) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, readStmt);
-        stmt.setInt(1, keyname);          
-        ResultSet r=stmt.executeQuery();
-        while(r.next())
-        {
-            for(int i=1; i<= ((HYADAPTConstants.FIELD_COUNT/10) * 9); i++)
+        stmt.setInt(1, keyname);
+        ResultSet r = stmt.executeQuery();
+        while (r.next()) {
+            for (int i = 1; i <= ((HYADAPTConstants.FIELD_COUNT / 10) * 9); i++)
                 results.put(i, r.getInt(i));
-        }        
+        }
         r.close();
     }
 

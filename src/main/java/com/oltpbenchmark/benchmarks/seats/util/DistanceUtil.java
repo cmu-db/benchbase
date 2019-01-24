@@ -27,6 +27,7 @@ public abstract class DistanceUtil {
 
     /**
      * Calculate the distance between two points
+     *
      * @param lat0
      * @param lon0
      * @param lat1
@@ -40,9 +41,10 @@ public abstract class DistanceUtil {
         dist = rad2deg(dist);
         return (dist * 60 * 1.1515);
     }
-    
+
     /**
      * Pair<Latitude, Longitude>
+     *
      * @param loc0
      * @param loc1
      * @return

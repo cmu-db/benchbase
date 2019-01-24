@@ -112,17 +112,16 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
      * Implements wikipedia selection of last version of an article (with and
      * without the user being logged in)
      *
-     * @parama userIp contains the user's IP address in dotted quad form for
-     *         IP-based access control
-     * @param userId
-     *            the logged in user's identifer. If negative, it is an
-     *            anonymous access.
+     * @param userId    the logged in user's identifer. If negative, it is an
+     *                  anonymous access.
      * @param nameSpace
      * @param pageTitle
      * @return article (return a Class containing the information we extracted,
-     *         useful for the updatePage transaction)
+     * useful for the updatePage transaction)
      * @throws SQLException
      * @throws UnknownHostException
+     * @parama userIp contains the user's IP address in dotted quad form for
+     * IP-based access control
      */
     public Article getPageAnonymous(boolean forSelect, String userIp, int nameSpace, String pageTitle) throws SQLException {
         GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);

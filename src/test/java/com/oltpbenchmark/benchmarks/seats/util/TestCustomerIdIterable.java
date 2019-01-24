@@ -16,20 +16,19 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
+import com.oltpbenchmark.util.Histogram;
+import junit.framework.TestCase;
+
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-
-import com.oltpbenchmark.util.Histogram;
-
-import junit.framework.TestCase;
 
 public class TestCustomerIdIterable extends TestCase {
 
     final Random rand = new Random();
     final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
     CustomerIdIterable customer_id_iterable;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -39,8 +38,8 @@ public class TestCustomerIdIterable extends TestCase {
         } // FOR
         this.customer_id_iterable = new CustomerIdIterable(this.airport_max_customer_id);
     }
-    
-    
+
+
     /**
      * testIterator
      */
@@ -57,6 +56,6 @@ public class TestCustomerIdIterable extends TestCase {
         assertEquals(this.airport_max_customer_id.getSampleCount(), seen_ids.size());
         assertEquals(this.airport_max_customer_id, airport_ids);
     }
-    
-    
+
+
 }

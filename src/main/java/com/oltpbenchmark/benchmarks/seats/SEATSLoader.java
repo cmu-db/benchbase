@@ -334,7 +334,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // flight data
         for (String histogramName : SEATSConstants.HISTOGRAM_DATA_FILES) {
             if (this.profile.histograms.containsKey(histogramName)) {
-                    LOG.warn("Already loaded histogram '" + histogramName + "'. Skipping...");
+                LOG.warn("Already loaded histogram '" + histogramName + "'. Skipping...");
                 continue;
             }
             if (LOG.isDebugEnabled()) {
@@ -638,7 +638,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         int max_length = FixedDataIterable.this.rnd_string_max.get(col_idx);
                         tuple[col_idx] = SEATSLoader.this.rng.astring(min_length, max_length);
                     } // FOR
-                      // Random Integer (*_IATTR##)
+                    // Random Integer (*_IATTR##)
                     for (int col_idx : FixedDataIterable.this.rnd_integer) {
                         tuple[col_idx] = SEATSLoader.this.rng.nextLong();
                     } // FOR
@@ -656,8 +656,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     /**
      * Return an iterable that spits out tuples for scaling tables
      *
-     * @param catalog_tbl
-     *            the target table that we need an iterable for
+     * @param catalog_tbl the target table that we need an iterable for
      */
     protected Iterable<Object[]> getScalingIterable(Table catalog_tbl) {
         String name = catalog_tbl.getName().toUpperCase();
@@ -676,7 +675,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // Airport Distance
         else if (name.equals(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {
             int max_distance = Integer.MAX_VALUE; // SEATSConstants.DISTANCES[SEATSConstants.DISTANCES.length
-                                                  // - 1];
+            // - 1];
             it = new AirportDistanceIterable(catalog_tbl, max_distance);
         }
         // Flights
@@ -721,9 +720,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         /**
          * @param catalog_tbl
          * @param total
-         * @param special_columns
-         *            The offsets of the columns that we will invoke
-         *            specialValue() to get their values
+         * @param special_columns The offsets of the columns that we will invoke
+         *                        specialValue() to get their values
          * @throws Exception
          */
         public ScalingDataIterable(Table catalog_tbl, long total, int special_columns[]) {
@@ -829,7 +827,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private CustomerId last_id = null;
 
         public CustomerIterable(Table catalog_tbl, long total) {
-            super(catalog_tbl, total, new int[] { 0, 1, 2, 3 });
+            super(catalog_tbl, total, new int[]{0, 1, 2, 3});
 
             // Use the flights per airport histogram to select where people are
             // located
@@ -914,7 +912,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private Collection<String> customer_airlines = new HashSet<String>();
 
         public FrequentFlyerIterable(Table catalog_tbl, long num_customers) {
-            super(catalog_tbl, num_customers, new int[] { 0, 1, 2 });
+            super(catalog_tbl, num_customers, new int[]{0, 1, 2});
 
             this.customer_id_iterator = new CustomerIdIterable(SEATSLoader.this.profile.airport_max_customer_id).iterator();
             this.last_customer_id = this.customer_id_iterator.next();
@@ -1035,7 +1033,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          * @param max_distance
          */
         public AirportDistanceIterable(Table catalog_tbl, int max_distance) {
-            super(catalog_tbl, Long.MAX_VALUE, new int[] { 0, 1, 2 });
+            super(catalog_tbl, Long.MAX_VALUE, new int[]{0, 1, 2});
             // total work around ????
             this.max_distance = max_distance;
             this.num_airports = SEATSLoader.this.airport_locations.size();
@@ -1136,7 +1134,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private int status;
 
         public FlightIterable(Table catalog_tbl, int days_past, int days_future) {
-            super(catalog_tbl, Long.MAX_VALUE, new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            super(catalog_tbl, Long.MAX_VALUE, new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
             assert (days_past >= 0);
             assert (days_future >= 0);
 
@@ -1413,7 +1411,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          */
         public ReservationIterable(Table catalog_tbl, long total) {
             // Special Columns: R_C_ID, R_F_ID, R_F_AL_ID, R_SEAT, R_PRICE
-            super(catalog_tbl, total, new int[] { 1, 2, 3, 4 });
+            super(catalog_tbl, total, new int[]{1, 2, 3, 4});
 
             for (long airport_id : SEATSLoader.this.profile.getAirportIds()) {
                 // Return Flights per airport
@@ -1540,7 +1538,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     if (LOG.isTraceEnabled()) {
                         LOG.trace(String.format("New reservation ready. Adding to queue! [queueSize=%d]", this.queue.size()));
                     }
-                    this.queue.put(new Object[] { customer_id, flight_id, seatnum });
+                    this.queue.put(new Object[]{customer_id, flight_id, seatnum});
                 } // FOR (seats)
             } // FOR (flights)
             if (LOG.isDebugEnabled()) {
@@ -1743,7 +1741,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
     public void setDistance(String airport0, String airport1, double distance) {
         short short_distance = (short) Math.round(distance);
-        for (String a[] : new String[][] { { airport0, airport1 }, { airport1, airport0 } }) {
+        for (String a[] : new String[][]{{airport0, airport1}, {airport1, airport0}}) {
             if (!this.airport_distances.containsKey(a[0])) {
                 this.airport_distances.put(a[0], new HashMap<String, Short>());
             }

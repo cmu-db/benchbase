@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * PostAuction
+ *
  * @author pavlo
  * @author visawee
  */
@@ -39,48 +40,48 @@ public class CloseAuctions extends Procedure {
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------
-    
+
     public final SQLStmt getDueItems = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR + 
-         " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " + 
-         "WHERE (i_start_date BETWEEN ? AND ?) " +
-         "AND ? " +
-         "ORDER BY i_id ASC " +
-         "LIMIT " + AuctionMarkConstants.CLOSE_AUCTIONS_ITEMS_PER_ROUND
+            "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
+                    " FROM " + AuctionMarkConstants.TABLENAME_ITEM + " " +
+                    "WHERE (i_start_date BETWEEN ? AND ?) " +
+                    "AND ? " +
+                    "ORDER BY i_id ASC " +
+                    "LIMIT " + AuctionMarkConstants.CLOSE_AUCTIONS_ITEMS_PER_ROUND
     );
-    
+
     public final SQLStmt getMaxBid = new SQLStmt(
-        "SELECT imb_ib_id, ib_buyer_id " + 
-          "FROM " + AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + ", " +
+            "SELECT imb_ib_id, ib_buyer_id " +
+                    "FROM " + AuctionMarkConstants.TABLENAME_ITEM_MAX_BID + ", " +
                     AuctionMarkConstants.TABLENAME_ITEM_BID +
-        " WHERE imb_i_id = ? AND imb_u_id = ? " +
-           "AND ib_id = imb_ib_id AND ib_i_id = imb_i_id AND ib_u_id = imb_u_id "
+                    " WHERE imb_i_id = ? AND imb_u_id = ? " +
+                    "AND ib_id = imb_ib_id AND ib_i_id = imb_i_id AND ib_u_id = imb_u_id "
     );
-    
+
     public final SQLStmt updateItemStatus = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM + " " +
-           "SET i_status = ?, " +
-           "    i_updated = ? " +
-        "WHERE i_id = ? AND i_u_id = ? "
+            "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM + " " +
+                    "SET i_status = ?, " +
+                    "    i_updated = ? " +
+                    "WHERE i_id = ? AND i_u_id = ? "
     );
 
     public final SQLStmt insertUserItem = new SQLStmt(
-        "INSERT INTO " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + "(" +
-            "ui_u_id, " +
-            "ui_i_id, " +
-            "ui_i_u_id, " +  
-            "ui_created" +     
-        ") VALUES(?, ?, ?, ?)"
+            "INSERT INTO " + AuctionMarkConstants.TABLENAME_USERACCT_ITEM + "(" +
+                    "ui_u_id, " +
+                    "ui_i_id, " +
+                    "ui_i_u_id, " +
+                    "ui_created" +
+                    ") VALUES(?, ?, ?, ?)"
     );
 
     // -----------------------------------------------------------------
     // RUN METHOD
     // -----------------------------------------------------------------
-    
+
     /**
-     * @param item_ids - Item Ids
+     * @param item_ids   - Item Ids
      * @param seller_ids - Seller Ids
-     * @param bid_ids - ItemBid Ids
+     * @param bid_ids    - ItemBid Ids
      * @return
      */
     public List<Object[]> run(Connection conn, Timestamp benchmarkTimes[],
@@ -90,10 +91,10 @@ public class CloseAuctions extends Procedure {
 
 //        int orig_isolation = conn.getTransactionIsolation();
 //        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-        
+
         if (debug)
             LOG.debug(String.format("startTime=%s, endTime=%s, currentTime=%s",
-                                    startTime, endTime, currentTime));
+                    startTime, endTime, currentTime));
 
         int closed_ctr = 0;
         int waiting_ctr = 0;
@@ -101,12 +102,12 @@ public class CloseAuctions extends Procedure {
         int updated = -1;
         int col = -1;
         int param = -1;
-        
+
         PreparedStatement dueItemsStmt = this.getPreparedStatement(conn, getDueItems);
         ResultSet dueItemsTable = null;
         PreparedStatement maxBidStmt = this.getPreparedStatement(conn, getMaxBid);
         ResultSet maxBidResults = null;
-        
+
         final List<Object[]> output_rows = new ArrayList<Object[]>();
         while (round-- > 0) {
             param = 1;
@@ -129,30 +130,30 @@ public class CloseAuctions extends Procedure {
                 ItemStatus itemStatus = ItemStatus.get(dueItemsTable.getLong(col++));
                 Long bidId = null;
                 Long buyerId = null;
-                
+
                 if (debug)
                     LOG.debug(String.format("Getting max bid for itemId=%d / sellerId=%d", itemId, sellerId));
-                assert(itemStatus == ItemStatus.OPEN);
-                
+                assert (itemStatus == ItemStatus.OPEN);
+
                 // Has bid on this item - set status to WAITING_FOR_PURCHASE
                 // We'll also insert a new USER_ITEM record as needed
                 // We have to do this extra step because H-Store doesn't have good support in the
                 // query optimizer for LEFT OUTER JOINs
                 if (numBids > 0) {
                     waiting_ctr++;
-                    
+
                     param = 1;
                     maxBidStmt.setLong(param++, itemId);
                     maxBidStmt.setLong(param++, sellerId);
                     maxBidResults = maxBidStmt.executeQuery();
                     adv = maxBidResults.next();
-                    assert(adv);
-                    
+                    assert (adv);
+
                     col = 1;
                     bidId = maxBidResults.getLong(col++);
                     buyerId = maxBidResults.getLong(col++);
                     updated = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime).executeUpdate();
-                    assert(updated == 1);
+                    assert (updated == 1);
                     itemStatus = ItemStatus.WAITING_FOR_PURCHASE;
                     maxBidResults.close();
                 }
@@ -161,13 +162,13 @@ public class CloseAuctions extends Procedure {
                     closed_ctr++;
                     itemStatus = ItemStatus.CLOSED;
                 }
-                
+
                 // Update Status!
                 updated = this.getPreparedStatement(conn, updateItemStatus, itemStatus.ordinal(), currentTime, itemId, sellerId).executeUpdate();
                 if (debug)
                     LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
-                
-                Object row[] = new Object[] {
+
+                Object row[] = new Object[]{
                         itemId,               // i_id
                         sellerId,             // i_u_id
                         i_name,               // i_name

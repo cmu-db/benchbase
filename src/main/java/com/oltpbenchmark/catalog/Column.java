@@ -19,12 +19,13 @@ package com.oltpbenchmark.catalog;
 
 /**
  * Column Catalog Object
+ *
  * @author pavlo
  */
 public class Column extends AbstractCatalogObject implements Cloneable {
-	private static final long serialVersionUID = 1L;
-	
-	private final Table catalog_tbl;
+    private static final long serialVersionUID = 1L;
+
+    private final Table catalog_tbl;
     private final int type;
     private final String typename;
     private final Integer size;
@@ -34,15 +35,15 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     private boolean autoincrement = false;
     private boolean signed = false;
     private Column foreignkey = null;
-    
+
     public Column(Table catalog_tbl, String name, int type, String typename, Integer size) {
-    	super(name);
+        super(name);
         this.catalog_tbl = catalog_tbl;
         this.type = type;
         this.typename = typename;
         this.size = size;
     }
-    
+
     @Override
     protected Object clone() {
         try {
@@ -55,15 +56,15 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     public Table getTable() {
         return (this.catalog_tbl);
     }
-    
+
     public int getIndex() {
         return (this.catalog_tbl.getColumnIndex(this));
     }
-    
+
     public String fullName() {
         return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
     }
-    
+
     /**
      * @return the type
      */
@@ -80,12 +81,13 @@ public class Column extends AbstractCatalogObject implements Cloneable {
 
     /**
      * Return the max size of this column
+     *
      * @return the size
      */
     public Integer getSize() {
         return size;
     }
-    
+
     /**
      * @return the defaultValue
      */
@@ -113,21 +115,21 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     public boolean isSigned() {
         return signed;
     }
-    
+
     /**
      * @return the foreign key parent for this column
      */
     public Column getForeignKey() {
         return foreignkey;
     }
-    
+
     /**
      * @param defaultValue the defaultValue to set
      */
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
-    
+
     /**
      * @param nullable the nullable to set
      */
@@ -155,10 +157,10 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     public void setForeignKey(Column foreignkey) {
         this.foreignkey = foreignkey;
     }
-    
+
     @Override
     public String toString() {
         return (this.getName());
     }
-    
+
 }

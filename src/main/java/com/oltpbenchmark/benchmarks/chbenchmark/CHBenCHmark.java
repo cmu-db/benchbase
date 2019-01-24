@@ -31,34 +31,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CHBenCHmark extends BenchmarkModule {
-	private static final Logger LOG = Logger.getLogger(CHBenCHmark.class);
-	
-	public CHBenCHmark(WorkloadConfiguration workConf) {
-		super("chbenchmark", workConf, true);
-	}
-	
-	protected Package getProcedurePackageImpl() {
-		return (Q1.class.getPackage());
-	}
-	
-	/**
-	 * @param Bool
-	 */
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		// HACK: Turn off terminal messages
-		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+    private static final Logger LOG = Logger.getLogger(CHBenCHmark.class);
 
-		int numTerminals = workConf.getTerminals();
-		LOG.info(String.format("Creating %d workers for CHBenCHMark", numTerminals));
+    public CHBenCHmark(WorkloadConfiguration workConf) {
+        super("chbenchmark", workConf, true);
+    }
+
+    protected Package getProcedurePackageImpl() {
+        return (Q1.class.getPackage());
+    }
+
+    /**
+     * @param Bool
+     */
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        // HACK: Turn off terminal messages
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+
+        int numTerminals = workConf.getTerminals();
+        LOG.info(String.format("Creating %d workers for CHBenCHMark", numTerminals));
         for (int i = 0; i < numTerminals; i++)
             workers.add(new CHBenCHmarkWorker(this, i));
 
-		return workers;
-	}
-	
-	protected Loader<CHBenCHmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new CHBenCHmarkLoader(this, conn);
-	}
-	
+        return workers;
+    }
+
+    protected Loader<CHBenCHmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return new CHBenCHmarkLoader(this, conn);
+    }
+
 }

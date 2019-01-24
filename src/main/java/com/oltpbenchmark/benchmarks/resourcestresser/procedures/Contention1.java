@@ -28,25 +28,25 @@ import java.sql.SQLException;
 
 /**
  * Uses random keys and OR on primary key
- * WARNING: The reason why I removed howManyKeys from the parameter list is that users might call this function with different arguments and thus, we would need  
- * to recreate the PreparedStatement every time, which is undesired because of its memory leak. 
- * The best solution is perhaps to 
+ * WARNING: The reason why I removed howManyKeys from the parameter list is that users might call this function with different arguments and thus, we would need
+ * to recreate the PreparedStatement every time, which is undesired because of its memory leak.
+ * The best solution is perhaps to
  */
 public class Contention1 extends Procedure {
-	private static final Logger LOG = Logger.getLogger(Contention1.class);
+    private static final Logger LOG = Logger.getLogger(Contention1.class);
 
     public final SQLStmt lockUpdate = new SQLStmt(
-        "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +
-        " locktable SET salary = ? WHERE empid IN (??)",
-        ResourceStresserWorker.CONTENTION1_howManyKeys
+            "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +
+                    " locktable SET salary = ? WHERE empid IN (??)",
+            ResourceStresserWorker.CONTENTION1_howManyKeys
     );
 
     public final SQLStmt lockSleep = new SQLStmt(
-        "SELECT SLEEP(?)"
+            "SELECT SLEEP(?)"
     );
 
     public void run(Connection conn, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
-    	int howManyKeys = ResourceStresserWorker.CONTENTION1_howManyKeys;
+        int howManyKeys = ResourceStresserWorker.CONTENTION1_howManyKeys;
         assert howManyKeys > 0;
         assert howManyUpdates > 0;
         assert sleepLength >= 0;
@@ -61,10 +61,10 @@ public class Contention1 extends Procedure {
             }
             // setting the parameter that corresponds to the salary in
             // the SET clause
-            stmtUpdate.setInt(1, ResourceStresserWorker.gen.nextInt()); 
+            stmtUpdate.setInt(1, ResourceStresserWorker.gen.nextInt());
             int result = stmtUpdate.executeUpdate();
             if (result != howManyKeys) {
-            	LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
+                LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
             }
 
             stmtSleep.setInt(1, sleepLength);

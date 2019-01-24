@@ -30,7 +30,7 @@ public class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
     public static final int CONTENTION1_howManyKeys = 10;
     public static final int CONTENTION1_howManyUpdates = 20;
     public static final int CONTENTION1_sleepLength = 1;
-    
+
     public static final int CONTENTION2_howManyKeys = 10;
     public static final int CONTENTION2_howManyUpdates = 5;
     public static final int CONTENTION2_sleepLength = 2;
@@ -51,8 +51,8 @@ public class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
     public static final int CPU2_nestedLevel = 5;
 
     public static final Random gen = new Random(1); // I change the random seed
-                                                    // every time!
-    
+    // every time!
+
     private final int keyRange;
     private final int numKeys;
 

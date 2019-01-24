@@ -29,28 +29,30 @@ import java.sql.SQLException;
 public class GetTweetsFromFollowing extends Procedure {
 
     public final SQLStmt getFollowing = new SQLStmt(
-        "SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWS +
-        " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS
+            "SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWS +
+                    " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS
     );
-    
-    /** NOTE: The ?? is substituted into a string of repeated ?'s */
+
+    /**
+     * NOTE: The ?? is substituted into a string of repeated ?'s
+     */
     public final SQLStmt getTweets = new SQLStmt(
-        "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS +
-        " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS
+            "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS +
+                    " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS
     );
-    
+
     public void run(Connection conn, int uid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getFollowing);
         stmt.setLong(1, uid);
         ResultSet rs = stmt.executeQuery();
-        
+
         stmt = this.getPreparedStatement(conn, getTweets);
         int ctr = 0;
         long last = -1;
         while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
             last = rs.getLong(1);
             stmt.setLong(ctr, last);
-            
+
         } // WHILE
         rs.close();
         if (ctr > 0) {
@@ -59,11 +61,9 @@ public class GetTweetsFromFollowing extends Procedure {
             } // WHILE     
             rs = stmt.executeQuery();
             rs.close();
-        }
-        else 
-        {
+        } else {
             // LOG.debug("No followers for user: "+uid); // so what .. ?
         }
     }
-    
+
 }

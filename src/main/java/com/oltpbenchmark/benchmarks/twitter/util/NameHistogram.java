@@ -21,10 +21,11 @@ import com.oltpbenchmark.util.Histogram;
 /**
  * A histogram of Twitter username length. This is derived from
  * http://simplymeasured.com/blog/2010/06/lakers-vs-celtics-social-media-breakdown-nba/
+ *
  * @author pavlo
  */
 public class NameHistogram extends Histogram<Integer> {
-    
+
     {
         this.put(1, 2);
         this.put(2, 12);

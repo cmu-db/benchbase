@@ -20,18 +20,19 @@ package com.oltpbenchmark.benchmarks.tatp;
 import java.util.Random;
 
 public abstract class TATPUtil {
-    
+
     public static final Random rand = new Random();
 
     public static byte isActive() {
-        return (byte)(number(1,100) < number(86,100) ? 1 : 0);
+        return (byte) (number(1, 100) < number(86, 100) ? 1 : 0);
     }
 
     public static Long getSubscriberId(long subscriberSize) {
         return (TATPUtil.number(1, subscriberSize));
     }
-    
+
     // modified from tpcc.RandomGenerator
+
     /**
      * @returns a random alphabetic string with length in range [minimum_length, maximum_length].
      */
@@ -40,6 +41,7 @@ public abstract class TATPUtil {
     }
 
     // taken from tpcc.RandomGenerator
+
     /**
      * @returns a random numeric string with length in range [minimum_length, maximum_length].
      */
@@ -53,7 +55,7 @@ public abstract class TATPUtil {
         byte baseByte = (byte) base;
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; ++i) {
-            bytes[i] = (byte)(baseByte + number(0, numCharacters-1));
+            bytes[i] = (byte) (baseByte + number(0, numCharacters - 1));
         }
         return new String(bytes);
     }
@@ -61,11 +63,11 @@ public abstract class TATPUtil {
     // taken from tpcc.RandomGenerator
     public static Long number(long minimum, long maximum) {
         assert minimum <= maximum;
-        long value = Math.abs( rand.nextLong() ) % ( maximum - minimum + 1 ) + minimum;
+        long value = Math.abs(rand.nextLong()) % (maximum - minimum + 1) + minimum;
         assert minimum <= value && value <= maximum;
         return value;
     }
-    
+
     public static String padWithZero(long n) {
         String str = Long.toString(n);
         char[] zeros = new char[TATPConstants.SUB_NBR_PADDING_SIZE - str.length()];
@@ -99,5 +101,5 @@ public abstract class TATPUtil {
 
         return sub;
     }
-    
+
 }

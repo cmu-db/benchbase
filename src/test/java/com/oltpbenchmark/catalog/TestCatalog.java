@@ -16,37 +16,35 @@
 
 package com.oltpbenchmark.catalog;
 
+import com.oltpbenchmark.api.MockBenchmark;
+import com.oltpbenchmark.util.SQLUtil;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import junit.framework.TestCase;
-
-import org.apache.commons.io.IOUtils;
-
-import com.oltpbenchmark.api.MockBenchmark;
-import com.oltpbenchmark.util.SQLUtil;
 
 public class TestCatalog extends TestCase {
 
     static {
         org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
     }
-    
+
     private MockBenchmark benchmark;
     private Catalog catalog;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         this.benchmark = new MockBenchmark();
         this.catalog = new Catalog(benchmark);
         assertNotNull(this.catalog);
-        
+
         System.err.println("CATALOG:\n" + catalog);
     }
-    
+
     /**
      * testGetOriginalTableNames
      */
@@ -56,13 +54,13 @@ public class TestCatalog extends TestCase {
         Map<String, String> origTableNames = this.catalog.getOriginalTableNames();
         assertNotNull(origTableNames);
         assertFalse(origTableNames.isEmpty());
-        
+
         for (Entry<String, String> e : origTableNames.entrySet()) {
             assertFalse(e.toString(), e.getKey().equals(e.getValue()));
             assertTrue(e.toString(), e.getKey().equalsIgnoreCase(e.getValue()));
         } // FOR
     }
-    
+
     /**
      * testInit
      */
@@ -78,11 +76,11 @@ public class TestCatalog extends TestCase {
             num_tables++;
             offset++;
         } // FOR
-        assert(num_tables > 0);
-        
+        assert (num_tables > 0);
+
         // Make sure that CatalogUtil returns the same number of tables
         assertEquals(num_tables, this.catalog.getTableCount());
-        
+
         // Make sure that Map names match the Table names
         for (String table_name : this.catalog.getTableNames()) {
             Table catalog_tbl = this.catalog.getTable(table_name);
@@ -90,7 +88,7 @@ public class TestCatalog extends TestCase {
             assertEquals(table_name, catalog_tbl.getName());
         } // FOR
     }
-    
+
     /**
      * testPrimaryKeys
      */
@@ -104,7 +102,7 @@ public class TestCatalog extends TestCase {
             List<String> pkeys = catalog_tbl.getPrimaryKeyColumns();
             assertNotNull(pkeys);
             assertFalse(catalog_tbl.getName(), pkeys.isEmpty());
-            
+
             if (pkeys.size() > 1) {
                 assertNull(multicol_table);
                 multicol_table = catalog_tbl;
@@ -113,7 +111,7 @@ public class TestCatalog extends TestCase {
         } // FOR
         assertNotNull(multicol_table);
     }
-    
+
     /**
      * testForeignKeys
      */
@@ -121,7 +119,7 @@ public class TestCatalog extends TestCase {
         // The C table should have two foreign keys
         Table catalog_tbl = this.catalog.getTable("C");
         int found = 0;
-        assert(catalog_tbl != null) : this.catalog.getTableNames();
+        assert (catalog_tbl != null) : this.catalog.getTableNames();
         for (Column catalog_col : catalog_tbl.getColumns()) {
             assertNotNull(catalog_col);
             Column fkey_col = catalog_col.getForeignKey();
@@ -132,7 +130,7 @@ public class TestCatalog extends TestCase {
         } // FOR
         assertEquals(2, found);
     }
-    
+
     /**
      * testIndexes
      */
@@ -140,12 +138,12 @@ public class TestCatalog extends TestCase {
         // We should always have a PRIMARY KEY index
         for (Table catalog_tbl : this.catalog.getTables()) {
             assertNotNull(catalog_tbl);
-            
+
             for (Index catalog_idx : catalog_tbl.getIndexes()) {
                 assertNotNull(catalog_idx);
                 assertEquals(catalog_tbl, catalog_idx.getTable());
-                assert(catalog_idx.getColumnCount() > 0);
-                
+                assert (catalog_idx.getColumnCount() > 0);
+
                 for (int i = 0; i < catalog_idx.getColumnCount(); i++) {
                     assertNotNull(catalog_idx.getColumnName(i));
                     assertNotNull(catalog_idx.getColumnDirection(i));
@@ -154,7 +152,7 @@ public class TestCatalog extends TestCase {
             } // FOR
         }
     }
-    
+
     /**
      * testIntegerColumns
      */

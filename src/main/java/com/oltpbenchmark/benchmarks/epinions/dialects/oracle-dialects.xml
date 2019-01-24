@@ -3,7 +3,8 @@
     <dialect type="ORACLE">
         <procedure name="GetAverageRatingByTrustedUser">
             <statement name="getAverageRating">
-                SELECT avg(rating) FROM "review" r, "trust" t WHERE r.u_id=t.target_u_id AND r.i_id=? AND t.source_u_id=?
+                SELECT avg(rating) FROM "review" r, "trust" t WHERE r.u_id=t.target_u_id AND r.i_id=? AND
+                t.source_u_id=?
             </statement>
         </procedure>
         <procedure name="GetItemAverageRating">
@@ -18,7 +19,7 @@
             <statement name="getTrust">
                 SELECT * FROM "trust" t WHERE t.source_u_id=?
             </statement>
-        </procedure> 
+        </procedure>
         <procedure name="GetReviewItemById">
             <statement name="getReviewItem">
                 SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM &lt;= 10
@@ -50,7 +51,7 @@
             <statement name="updateUser">
                 UPDATE "useracct" SET name = ? WHERE u_id=?
             </statement>
-        </procedure>       
+        </procedure>
     </dialect>
 </dialects>
 

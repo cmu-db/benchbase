@@ -15,20 +15,19 @@
  ******************************************************************************/
 
 
-
 package com.oltpbenchmark.benchmarks.voter;
 
 public abstract class VoterConstants {
 
-	public static final int MAX_VOTES = 1000; 
-	public static final int NUM_CONTESTANTS = 6; 
-	
-	public static final String TABLENAME_CONTESTANTS = "CONTESTANTS";
-	public static final String TABLENAME_VOTES = "VOTES";
-	public static final String TABLENAME_LOCATIONS = "AREA_CODE_STATE";
-	
-	// Initialize some common constants and variables
+    public static final int MAX_VOTES = 1000;
+    public static final int NUM_CONTESTANTS = 6;
+
+    public static final String TABLENAME_CONTESTANTS = "CONTESTANTS";
+    public static final String TABLENAME_VOTES = "VOTES";
+    public static final String TABLENAME_LOCATIONS = "AREA_CODE_STATE";
+
+    // Initialize some common constants and variables
     public static final String CONTESTANT_NAMES_CSV = "Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway," +
-											   "Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster," +
-											   "Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
+            "Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster," +
+            "Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
 }

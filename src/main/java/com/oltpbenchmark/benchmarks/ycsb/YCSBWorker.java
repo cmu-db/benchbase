@@ -33,8 +33,8 @@ import java.util.Random;
 /**
  * YCSBWorker Implementation
  * I forget who really wrote this but I fixed it up in 2016...
- * @author pavlo
  *
+ * @author pavlo
  */
 public class YCSBWorker extends Worker<YCSBBenchmark> {
 
@@ -43,28 +43,28 @@ public class YCSBWorker extends Worker<YCSBBenchmark> {
     private ZipfianGenerator randScan;
 
     private final char data[] = new char[YCSBConstants.FIELD_SIZE];
-    private final String params[] = new String[YCSBConstants.NUM_FIELDS]; 
+    private final String params[] = new String[YCSBConstants.NUM_FIELDS];
     private final String results[] = new String[YCSBConstants.NUM_FIELDS];
-    
+
     private final UpdateRecord procUpdateRecord;
     private final ScanRecord procScanRecord;
     private final ReadRecord procReadRecord;
     private final ReadModifyWriteRecord procReadModifyWriteRecord;
     private final InsertRecord procInsertRecord;
     private final DeleteRecord procDeleteRecord;
-    
+
     public YCSBWorker(YCSBBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
         readRecord = new ZipfianGenerator(init_record_count);// pool for read keys
         randScan = new ZipfianGenerator(YCSBConstants.MAX_SCAN);
-        
+
         synchronized (YCSBWorker.class) {
             // We must know where to start inserting
             if (insertRecord == null) {
                 insertRecord = new CounterGenerator(init_record_count);
             }
         } // SYNCH
-        
+
         // This is a minor speed-up to avoid having to invoke the hashmap look-up
         // everytime we want to execute a txn. This is important to do on 
         // a client machine with not a lot of cores
@@ -79,7 +79,7 @@ public class YCSBWorker extends Worker<YCSBBenchmark> {
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
-        
+
         if (procClass.equals(DeleteRecord.class)) {
             deleteRecord();
         } else if (procClass.equals(InsertRecord.class)) {
@@ -98,7 +98,7 @@ public class YCSBWorker extends Worker<YCSBBenchmark> {
     }
 
     private void updateRecord() throws SQLException {
-        assert (this.procUpdateRecord!= null);
+        assert (this.procUpdateRecord != null);
         int keyname = readRecord.nextInt();
         this.buildParameters();
         this.procUpdateRecord.run(conn, keyname, this.params);

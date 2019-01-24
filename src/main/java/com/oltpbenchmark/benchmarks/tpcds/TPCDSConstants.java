@@ -27,7 +27,10 @@ public abstract class TPCDSConstants {
     public static final String TABLENAME_WEBSITE = "web_site";
 
     public static final int BATCH_SIZE = 1000;
-    public enum CastTypes { LONG, DOUBLE, STRING, DATE };
+
+    public enum CastTypes {LONG, DOUBLE, STRING, DATE}
+
+    ;
 
     public static final CastTypes[] callcenterTypes = {
             CastTypes.LONG,   // cc_call_center_sk

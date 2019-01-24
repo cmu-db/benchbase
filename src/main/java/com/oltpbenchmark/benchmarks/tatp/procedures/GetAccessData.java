@@ -28,17 +28,17 @@ import java.sql.SQLException;
 
 public class GetAccessData extends Procedure {
 
-     public final SQLStmt getAccessInfo = new SQLStmt(
-         "SELECT data1, data2, data3, data4 FROM " + TATPConstants.TABLENAME_ACCESS_INFO + 
-         " WHERE s_id = ? AND ai_type = ?"
-     );
+    public final SQLStmt getAccessInfo = new SQLStmt(
+            "SELECT data1, data2, data3, data4 FROM " + TATPConstants.TABLENAME_ACCESS_INFO +
+                    " WHERE s_id = ? AND ai_type = ?"
+    );
 
-     public void run(Connection conn, long s_id, byte ai_type) throws SQLException {
-    	 PreparedStatement stmt = this.getPreparedStatement(conn, getAccessInfo);
-    	 stmt.setLong(1, s_id);
-    	 stmt.setByte(2, ai_type);
-    	 ResultSet results = stmt.executeQuery();
-    	 assert(results != null);
-    	 results.close();
-     }
+    public void run(Connection conn, long s_id, byte ai_type) throws SQLException {
+        PreparedStatement stmt = this.getPreparedStatement(conn, getAccessInfo);
+        stmt.setLong(1, s_id);
+        stmt.setByte(2, ai_type);
+        ResultSet results = stmt.executeQuery();
+        assert (results != null);
+        results.close();
+    }
 }

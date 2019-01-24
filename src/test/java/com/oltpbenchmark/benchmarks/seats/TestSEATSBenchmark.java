@@ -17,36 +17,36 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
-import java.io.File;
-
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.seats.procedures.*;
 
+import java.io.File;
+
 public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
-	
+
     public static final Class<?> PROC_CLASSES[] = {
-        DeleteReservation.class,
-        FindFlights.class,
-        FindOpenSeats.class,
-        NewReservation.class,
-        UpdateCustomer.class,
-        UpdateReservation.class
+            DeleteReservation.class,
+            FindFlights.class,
+            FindOpenSeats.class,
+            NewReservation.class,
+            UpdateCustomer.class,
+            UpdateReservation.class
     };
-    
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp(SEATSBenchmark.class, PROC_CLASSES);
-		SEATSProfile.clearCachedProfile();
-	}
-	
-	/**
-	 * testGetDataDir
-	 */
-	public void testGetDataDir() throws Exception {
-	    File data_dir = this.benchmark.getDataDir();
-	    System.err.println("Data Dir: " + data_dir);
-	    assertNotNull(data_dir);
-	    assertTrue(data_dir.exists());
-	}
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp(SEATSBenchmark.class, PROC_CLASSES);
+        SEATSProfile.clearCachedProfile();
+    }
+
+    /**
+     * testGetDataDir
+     */
+    public void testGetDataDir() throws Exception {
+        File data_dir = this.benchmark.getDataDir();
+        System.err.println("Data Dir: " + data_dir);
+        assertNotNull(data_dir);
+        assertTrue(data_dir.exists());
+    }
 
 }

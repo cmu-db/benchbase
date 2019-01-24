@@ -17,22 +17,21 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
+import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+import junit.framework.TestCase;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
-
-import junit.framework.TestCase;
-
 public class TestFlightId extends TestCase {
 
-    private final long base_ids[]               = { 111, 222, 333 };  
-    private final long depart_airport_ids[]     = { 444, 555, 666 };
-    private final long arrive_airport_ids[]     = { 777, 888, 999 };
-    private final int flight_offset_days[]      = { 1, 2, 4, 8 };
-    private final Timestamp flight_dates[]  = new Timestamp[this.flight_offset_days.length];
+    private final long base_ids[] = {111, 222, 333};
+    private final long depart_airport_ids[] = {444, 555, 666};
+    private final long arrive_airport_ids[] = {777, 888, 999};
+    private final int flight_offset_days[] = {1, 2, 4, 8};
+    private final Timestamp flight_dates[] = new Timestamp[this.flight_offset_days.length];
     private Timestamp start_date;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -42,7 +41,7 @@ public class TestFlightId extends TestCase {
             this.flight_dates[i] = new Timestamp(this.start_date.getTime() + (day * SEATSConstants.MILLISECONDS_PER_DAY));
         } // FOR
     }
-    
+
     /**
      * testFlightId
      */
@@ -62,7 +61,7 @@ public class TestFlightId extends TestCase {
             } // FOR (depart_airport_id)
         } // FOR (base_ids)
     }
-    
+
     /**
      * testFlightIdEncode
      */
@@ -72,8 +71,8 @@ public class TestFlightId extends TestCase {
                 for (long arrive_airport_id : this.arrive_airport_ids) {
                     for (Timestamp flight_date : this.flight_dates) {
                         long encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
-                        assert(encoded >= 0) : "Invalid encoded value '" + encoded + "'";
-                
+                        assert (encoded >= 0) : "Invalid encoded value '" + encoded + "'";
+
                         FlightId flight_id = new FlightId(encoded);
                         assertNotNull(flight_id);
                         assertEquals(base_id, flight_id.getAirlineId());
@@ -85,7 +84,7 @@ public class TestFlightId extends TestCase {
             } // FOR (depart_airport_id)
         } // FOR (base_ids)
     }
-    
+
     /**
      * testFlightIdDecode
      */
@@ -94,9 +93,9 @@ public class TestFlightId extends TestCase {
             for (long depart_airport_id : this.depart_airport_ids) {
                 for (long arrive_airport_id : this.arrive_airport_ids) {
                     for (Timestamp flight_date : this.flight_dates) {
-                        long values[] = { base_id, depart_airport_id, arrive_airport_id, FlightId.calculateFlightDate(this.start_date, flight_date) };
+                        long values[] = {base_id, depart_airport_id, arrive_airport_id, FlightId.calculateFlightDate(this.start_date, flight_date)};
                         long encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
-                        assert(encoded >= 0) : "Invalid encoded value '" + encoded + "'";
+                        assert (encoded >= 0) : "Invalid encoded value '" + encoded + "'";
 
                         long new_values[] = new FlightId(encoded).toArray();
                         assertEquals(values.length, new_values.length);

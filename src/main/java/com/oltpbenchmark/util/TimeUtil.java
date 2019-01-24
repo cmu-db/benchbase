@@ -26,14 +26,16 @@ public abstract class TimeUtil {
 
     /**
      * TODO(djellel)
+     *
      * @return
      */
     public static String getCurrentTimeString14() {
-    	return TimeUtil.DATE_FORMAT_14.format(new java.util.Date());
+        return TimeUtil.DATE_FORMAT_14.format(new java.util.Date());
     }
 
     /**
      * TODO(djellel)
+     *
      * @return
      */
     public static String getCurrentTimeString() {

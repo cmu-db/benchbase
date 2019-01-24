@@ -21,41 +21,40 @@ import org.apache.commons.lang.NotImplementedException;
 import java.io.Serializable;
 
 /**
- * 
  * @author Carlo A. Curino (carlo@curino.us)
  */
-public abstract class IntegrityConstraint implements Serializable{
+public abstract class IntegrityConstraint implements Serializable {
     private static final long serialVersionUID = 1L;
-	
-	private String id;
 
-	public IntegrityConstraint(){
-	    // ????
-	}
-	
-	@Override
-	public IntegrityConstraint clone(){
-		
-		try {
-			throw new NotImplementedException("The clone method should be implemented in the subtypes!");
-		} catch (NotImplementedException e) {
-			e.printStackTrace();
-		}
-		return null;	
-	}
+    private String id;
 
-	public String getId() {
-		return id;
-	}
+    public IntegrityConstraint() {
+        // ????
+    }
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-	
-	public abstract boolean equals(IntegrityConstraint ic);
-	
+    @Override
+    public IntegrityConstraint clone() {
+
+        try {
+            throw new NotImplementedException("The clone method should be implemented in the subtypes!");
+        } catch (NotImplementedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public abstract boolean equals(IntegrityConstraint ic);
+
 
 }

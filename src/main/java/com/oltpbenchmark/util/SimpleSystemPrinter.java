@@ -20,14 +20,14 @@ package com.oltpbenchmark.util;
 import java.io.PrintStream;
 
 public class SimpleSystemPrinter implements SimplePrinter {
-	PrintStream out;
+    PrintStream out;
 
-	public SimpleSystemPrinter(PrintStream out) {
-		this.out = out;
-	}
+    public SimpleSystemPrinter(PrintStream out) {
+        this.out = out;
+    }
 
-	public void println(String msg) {
-		if (out != null)
-			out.println(msg);
-	}
+    public void println(String msg) {
+        if (out != null)
+            out.println(msg);
+    }
 }

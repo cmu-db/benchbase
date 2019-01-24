@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * Internal Error Codes
+ *
  * @author pavlo
  */
 public enum ErrorType {
@@ -32,14 +33,14 @@ public enum ErrorType {
     CUSTOMER_ALREADY_HAS_SEAT,
     VALIDITY_ERROR,
     UNKNOWN;
-    
+
     private final String errorCode;
     private final static Pattern p = Pattern.compile("^(USER ABORT:[\\s]+)?E([\\d]{4})");
-    
+
     private ErrorType() {
         this.errorCode = String.format("E%04d", this.ordinal());
     }
-    
+
     public static ErrorType getErrorType(String msg) {
         Matcher m = p.matcher(msg);
         if (m.find()) {
@@ -48,6 +49,7 @@ public enum ErrorType {
         }
         return (ErrorType.UNKNOWN);
     }
+
     @Override
     public String toString() {
         return this.errorCode;

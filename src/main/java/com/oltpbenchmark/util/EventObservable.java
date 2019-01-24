@@ -21,7 +21,6 @@ import java.util.Observable;
 
 /**
  * EventObservable
- * 
  */
 public class EventObservable<T> {
 
@@ -30,14 +29,15 @@ public class EventObservable<T> {
         public synchronized void setChanged() {
             super.setChanged();
         }
+
         public EventObservable<T> getEventObservable() {
             return (EventObservable.this);
         }
     }
-    
+
     private final InnerObservable observable;
     private int observer_ctr = 0;
-    
+
     public EventObservable() {
         this.observable = new InnerObservable();
     }
@@ -53,18 +53,19 @@ public class EventObservable<T> {
         this.observable.deleteObserver(o.getObserver());
         this.observer_ctr--;
     }
-    
+
     public synchronized void deleteObservers() {
         this.observable.deleteObservers();
         this.observer_ctr = 0;
     }
-    
+
     public int countObservers() {
         return (this.observer_ctr);
     }
 
     /**
      * Notifies the Observers that a changed occurred
+     *
      * @param arg - the state that changed
      */
     public void notifyObservers(T arg) {

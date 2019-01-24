@@ -16,14 +16,14 @@
 
 package com.oltpbenchmark.util;
 
+import junit.framework.TestCase;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import junit.framework.TestCase;
 
 public class TestThreadUtil extends TestCase {
     /**
@@ -40,12 +40,12 @@ public class TestThreadUtil extends TestCase {
                 Throwable error = arg.second;
                 assertNotNull(error);
                 System.err.printf("[%02d] Got Error: %s / %s\n",
-                                  latch.getCount(), thread.getName(), error);
+                        latch.getCount(), thread.getName(), error);
                 latch.countDown();
             }
         };
         handler.addObserver(observer);
-        
+
         Runnable r = new ExceptionHandlingRunnable() {
             @Override
             public void runImpl() {
@@ -53,34 +53,36 @@ public class TestThreadUtil extends TestCase {
                 throw new RuntimeException("Old and busted!");
             }
         };
-        
+
         int poolSize = 1;
-        int stackSize = 1024*128;
+        int stackSize = 1024 * 128;
         ScheduledThreadPoolExecutor executor = ThreadUtil.getScheduledThreadPoolExecutor("TEST", handler, poolSize, stackSize);
         executor.scheduleWithFixedDelay(r, 1, 1, TimeUnit.SECONDS);
-        
+
         boolean ret = latch.await(10, TimeUnit.SECONDS);
         assertTrue(ret);
     }
-    
+
     /**
      * testRun
      */
     public void testRun() {
         final int num_threads = 100;
         final AtomicInteger ctr = new AtomicInteger(0);
-        
-        List<Runnable> threads = new ArrayList<Runnable>(); 
+
+        List<Runnable> threads = new ArrayList<Runnable>();
         for (int i = 0; i < num_threads; i++) {
             threads.add(new Runnable() {
                 public void run() {
                     ctr.incrementAndGet();
-                };
+                }
+
+                ;
             });
         } // FOR
-        
+
         ThreadUtil.runNewPool(threads);
         assertEquals(num_threads, ctr.get());
     }
-    
+
 }

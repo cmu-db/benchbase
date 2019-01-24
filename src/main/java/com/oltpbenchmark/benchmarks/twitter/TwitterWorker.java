@@ -36,12 +36,12 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
 
     private final FlatHistogram<Integer> tweet_len_rng;
     private final int num_users;
-    
+
     public TwitterWorker(TwitterBenchmark benchmarkModule, int id, TransactionGenerator<TwitterOperation> generator) {
         super(benchmarkModule, id);
         this.generator = generator;
-        this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());
-        
+        this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());
+
         TweetHistogram tweet_h = new TweetHistogram();
         this.tweet_len_rng = new FlatHistogram<Integer>(this.rng(), tweet_h);
     }
@@ -50,7 +50,7 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         TwitterOperation t = generator.nextTransaction();
         t.uid = this.rng().nextInt(this.num_users); // HACK
-        
+
         if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
             doSelect1Tweet(t.tweetid);
         } else if (nextTrans.getProcedureClass().equals(GetTweetsFromFollowing.class)) {

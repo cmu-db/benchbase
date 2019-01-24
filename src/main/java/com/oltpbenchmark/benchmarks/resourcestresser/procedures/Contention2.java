@@ -30,15 +30,15 @@ import java.sql.SQLException;
  * Uses a range of primary keys.
  */
 public class Contention2 extends Procedure {
-	private static final Logger LOG = Logger.getLogger(Contention2.class);
+    private static final Logger LOG = Logger.getLogger(Contention2.class);
 
     public final SQLStmt lockUpdate = new SQLStmt(
-        "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE + 
-        " SET salary = ? WHERE empid >= ? AND empid < ?"
+            "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +
+                    " SET salary = ? WHERE empid >= ? AND empid < ?"
     );
 
     public final SQLStmt lockSleep = new SQLStmt(
-        "SELECT SLEEP(?)"
+            "SELECT SLEEP(?)"
     );
 
     public void run(Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
@@ -59,7 +59,7 @@ public class Contention2 extends Procedure {
             stmtUpdate.setInt(3, rightKey + 1);
             int result = stmtUpdate.executeUpdate();
             if (result != howManyKeys) {
-            	LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
+                LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
             }
 
             stmtSleep.setInt(1, sleepLength);

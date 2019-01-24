@@ -32,9 +32,9 @@
 package com.oltpbenchmark.benchmarks.linkbench;
 
 public class LinkBenchConfigError extends RuntimeException {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public LinkBenchConfigError(String msg) {
-    super(msg);
-  }
+    public LinkBenchConfigError(String msg) {
+        super(msg);
+    }
 }

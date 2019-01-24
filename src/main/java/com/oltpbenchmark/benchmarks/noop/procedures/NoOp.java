@@ -27,20 +27,21 @@ import java.sql.SQLException;
 
 /**
  * The actual NoOp implementation
+ *
  * @author pavlo
  * @author eric-haibin-lin
  */
 public class NoOp extends Procedure {
     private static final Logger LOG = Logger.getLogger(NoOp.class);
-    
-    
+
+
     // The query only contains a semi-colon
     // That is enough for the DBMS to have to parse it and do something
     public final SQLStmt noopStmt = new SQLStmt(";");
-    
+
     public void run(Connection conn) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
-        
+
         // IMPORTANT:
         // Some DBMSs will throw an exception here when you execute
         // a query that does not return a result. So we are just 

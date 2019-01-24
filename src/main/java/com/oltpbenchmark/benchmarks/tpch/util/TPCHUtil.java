@@ -22,6 +22,7 @@ public class TPCHUtil {
 
     /**
      * Returns a random element of the array
+     *
      * @param array
      * @param rand
      * @param <T>
@@ -33,6 +34,7 @@ public class TPCHUtil {
 
     /**
      * Returns the region key given the nation
+     *
      * @param nation N_NAME
      * @return region key
      */
@@ -75,6 +77,7 @@ public class TPCHUtil {
 
     /**
      * Returns the region key given the region
+     *
      * @param region R_NAME
      * @return region key
      */
@@ -97,16 +100,22 @@ public class TPCHUtil {
 
     /**
      * Returns the region given the region key
+     *
      * @param regionKey region key
      * @return region
      */
     public static String getRegionFromRegionKey(int regionKey) {
         switch (regionKey) {
-            case 0: return "AFRICA";
-            case 1: return "AMERICA";
-            case 2: return "ASIA";
-            case 3: return "EUROPE";
-            case 4: return "MIDDLE EAST";
+            case 0:
+                return "AFRICA";
+            case 1:
+                return "AMERICA";
+            case 2:
+                return "ASIA";
+            case 3:
+                return "EUROPE";
+            case 4:
+                return "MIDDLE EAST";
             default:
                 throw new IllegalArgumentException(String.format("Invalid region key %s", regionKey));
         }

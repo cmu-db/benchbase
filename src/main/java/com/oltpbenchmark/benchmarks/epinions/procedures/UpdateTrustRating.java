@@ -26,9 +26,9 @@ import java.sql.SQLException;
 public class UpdateTrustRating extends Procedure {
 
     public final SQLStmt updateTrust = new SQLStmt(
-        "UPDATE trust SET trust = ? WHERE source_u_id=? AND target_u_id=?"
+            "UPDATE trust SET trust = ? WHERE source_u_id=? AND target_u_id=?"
     );
-    
+
     public void run(Connection conn, long source_uid, long target_uid, int trust) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateTrust);
         stmt.setInt(1, trust);

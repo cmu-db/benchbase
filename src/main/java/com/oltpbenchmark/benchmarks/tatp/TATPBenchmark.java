@@ -31,26 +31,26 @@ import java.util.List;
 
 public class TATPBenchmark extends BenchmarkModule {
 
-	public TATPBenchmark(WorkloadConfiguration workConf) {
-		super("tatp", workConf, true);
-	}
-	
-	@Override
-	protected Package getProcedurePackageImpl() {
-		return (DeleteCallForwarding.class.getPackage());
-	}
+    public TATPBenchmark(WorkloadConfiguration workConf) {
+        super("tatp", workConf, true);
+    }
 
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			workers.add(new TATPWorker(this, i));
-		} // FOR
-		return (workers);
-	}
-	
-	@Override
-	protected Loader<TATPBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return (new TATPLoader(this, conn));
-	}
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return (DeleteCallForwarding.class.getPackage());
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        for (int i = 0; i < workConf.getTerminals(); ++i) {
+            workers.add(new TATPWorker(this, i));
+        } // FOR
+        return (workers);
+    }
+
+    @Override
+    protected Loader<TATPBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return (new TATPLoader(this, conn));
+    }
 }

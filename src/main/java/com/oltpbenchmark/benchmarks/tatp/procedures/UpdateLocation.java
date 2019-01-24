@@ -29,28 +29,28 @@ import java.sql.SQLException;
 public class UpdateLocation extends Procedure {
 
     public final SQLStmt getSubscriber = new SQLStmt(
-        "SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
+            "SELECT s_id FROM " + TATPConstants.TABLENAME_SUBSCRIBER + " WHERE sub_nbr = ?"
     );
-    
+
     public final SQLStmt updateSubscriber = new SQLStmt(
-        "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET vlr_location = ? WHERE s_id = ?"
+            "UPDATE " + TATPConstants.TABLENAME_SUBSCRIBER + " SET vlr_location = ? WHERE s_id = ?"
     );
-    
+
     public long run(Connection conn, int location, String sub_nbr) throws SQLException {
-    	PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
-    	stmt.setString(1, sub_nbr);
-    	ResultSet results = stmt.executeQuery();
-    	assert(results != null);
-    	
-    	if (results.next()) {
-    		long s_id = results.getLong(1);
-    		results.close();
-    		stmt = this.getPreparedStatement(conn, updateSubscriber);
-    		stmt.setInt(1, location);
-    		stmt.setLong(2, s_id);
-    		return stmt.executeUpdate();
+        PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
+        stmt.setString(1, sub_nbr);
+        ResultSet results = stmt.executeQuery();
+        assert (results != null);
+
+        if (results.next()) {
+            long s_id = results.getLong(1);
+            results.close();
+            stmt = this.getPreparedStatement(conn, updateSubscriber);
+            stmt.setInt(1, location);
+            stmt.setLong(2, s_id);
+            return stmt.executeUpdate();
         }
-    	results.close();
+        results.close();
         return 0;
     }
 }

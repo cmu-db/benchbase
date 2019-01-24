@@ -28,19 +28,19 @@ import java.sql.SQLException;
 
 /**
  * io2Transaction deals with a table that has much smaller rows.
- * It runs a given number of updates, where each update only 
+ * It runs a given number of updates, where each update only
  * changes one row.
  */
 public class IO2 extends Procedure {
     private static final Logger LOG = Logger.getLogger(IO2.class);
-    
+
     public final SQLStmt ioUpdate = new SQLStmt(
-        "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLESMALLROW +
-        " SET flag1 = ? WHERE empid = ?"
+            "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLESMALLROW +
+                    " SET flag1 = ? WHERE empid = ?"
     );
-    
+
     public void run(Connection conn, int myId, int howManyUpdatesPerTransaction,
-    		boolean makeSureWorkerSetFitsInMemory, int keyRange) throws SQLException {
+                    boolean makeSureWorkerSetFitsInMemory, int keyRange) throws SQLException {
         assert howManyUpdatesPerTransaction > 0;
 
         PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
@@ -48,7 +48,7 @@ public class IO2 extends Procedure {
         //int keyRange = (makeSureWorkerSetFitsInMemory ? 16777216 / 160 : 167772160 / 160); // FIXME
         int startingKey = myId * keyRange;
         int lastKey = (myId + 1) * keyRange - 1;
-                
+
         for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
             int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;
             int value = ResourceStresserWorker.gen.nextInt();
@@ -56,11 +56,11 @@ public class IO2 extends Procedure {
             stmt.setInt(1, value);
             stmt.setInt(2, key);
 
-            int result = stmt.executeUpdate();                 
-            if (result !=1 ) {
+            int result = stmt.executeUpdate();
+            if (result != 1) {
                 LOG.warn("supposedtochange=" + 1 + " but rc=" + result);
             }
-            
+
         } // FOR
     }
 }

@@ -75,7 +75,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     // Chance of doing historical range query
     double p_historical_getlinklist;
-    
+
     // Access distributions
     private AccessDistribution writeDist; // link writes
     private AccessDistribution writeDistUncorr; // to blend with link writes
@@ -103,6 +103,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     private static class HistoryKey {
         public final long id1;
         public final long link_type;
+
         public HistoryKey(long id1, long link_type) {
             super();
             this.id1 = id1;
@@ -131,6 +132,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         }
 
     }
+
     // Cache of last link in lists where full list wasn't retrieved
     ArrayList<Link> listTailHistory;
 
@@ -140,13 +142,13 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     // Limit of cache size
     private int listTailHistoryLimit;
 
-    public LinkBenchWorker(LinkBenchBenchmark benchmarkModule, int id, 
-            Random masterRandom, Properties props, int nrequesters) {
+    public LinkBenchWorker(LinkBenchBenchmark benchmarkModule, int id,
+                           Random masterRandom, Properties props, int nrequesters) {
         super(benchmarkModule, id);
         this.rng = masterRandom;
 
         this.props = props;
-        this.requesterID =  id;
+        this.requesterID = id;
         this.nrequesters = nrequesters;
         maxid1 = ConfigUtil.getLong(props, LinkBenchConstants.MAX_ID);
         startid1 = ConfigUtil.getLong(props, LinkBenchConstants.MIN_ID);
@@ -181,7 +183,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         listTailHistory = new ArrayList<Link>(listTailHistoryLimit);
         listTailHistoryIndex = new HashMap<HistoryKey, Integer>();
         p_historical_getlinklist = ConfigUtil.getDouble(this.props,
-                            LinkBenchConstants.PR_GETLINKLIST_HISTORY, 0.0) / 100;
+                LinkBenchConstants.PR_GETLINKLIST_HISTORY, 0.0) / 100;
         lastNodeId = startid1;
     }
 
@@ -219,9 +221,10 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         Node newNode = createAddNode();
         lastNodeId = proc.run(conn, newNode);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("lastNodeId= " +lastNodeId);
-          }
+            LOG.debug("lastNodeId= " + lastNodeId);
+        }
     }
+
     private void getNode() throws SQLException {
         GetNode proc = this.getProcedure(GetNode.class);
         assert (proc != null);
@@ -230,6 +233,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         Node fetched = proc.run(conn, LinkBenchConstants.DEFAULT_NODE_TYPE, idToFetch);
         lastNodeId = idToFetch;
     }
+
     private void deleteNode() throws SQLException {
         DeleteNode proc = this.getProcedure(DeleteNode.class);
         assert (proc != null);
@@ -238,6 +242,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         proc.run(conn, LinkBenchConstants.DEFAULT_NODE_TYPE, idToDelete);
         lastNodeId = idToDelete;
     }
+
     private void updateNode() throws SQLException {
         UpdateNode proc = this.getProcedure(UpdateNode.class);
         assert (proc != null);
@@ -247,9 +252,10 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                 lastNodeId);
         // Generate new data randomly
         Node newNode = createUpdateNode(upId);
-        proc.run(conn,newNode);
+        proc.run(conn, newNode);
         lastNodeId = upId;
     }
+
     private void getLink() throws SQLException {
         GetLink proc = this.getProcedure(GetLink.class);
         assert (proc != null);
@@ -258,13 +264,13 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         long link_type = id2chooser.chooseRandomLinkType(rng);
         int nid2s = 1;
         if (multigetDist != null) {
-            nid2s = (int)multigetDist.choose(rng);
+            nid2s = (int) multigetDist.choose(rng);
         }
         long id2s[] = id2chooser.chooseMultipleForOp(rng, id1, link_type, nid2s,
                 ID2Chooser.P_GET_EXIST);
 
         int found = getLink(id1, link_type, id2s);
-        assert(found >= 0 && found <= nid2s);
+        assert (found >= 0 && found <= nid2s);
 
         if (found > 0) {
             numfound += found;
@@ -272,36 +278,39 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
             numnotfound += nid2s - found;
         }
     }
+
     private void addLink() throws SQLException {
         AddLink proc = this.getProcedure(AddLink.class);
         assert (proc != null);
         // generate add request
-        Link link =  new Link();
+        Link link = new Link();
         link.id1 = chooseRequestID(DistributionType.LINK_WRITES, link.id1);
         link.link_type = id2chooser.chooseRandomLinkType(rng);
         link.id2 = id2chooser.chooseForOp(rng, link.id1, link.link_type,
-                                                ID2Chooser.P_ADD_EXIST);
+                ID2Chooser.P_ADD_EXIST);
         link.visibility = LinkBenchConstants.VISIBILITY_DEFAULT;
         link.version = 0;
         link.time = System.currentTimeMillis();
         link.data = linkAddDataGen.fill(rng,
-                                      new byte[(int)linkDataSize.choose(rng)]);
+                new byte[(int) linkDataSize.choose(rng)]);
         // no inverses for now
         boolean alreadyExists = proc.run(conn, link, true);
         boolean added = !alreadyExists;
     }
-    private void deleteLink() throws SQLException{
+
+    private void deleteLink() throws SQLException {
         DeleteLink proc = this.getProcedure(DeleteLink.class);
         assert (proc != null);
         Link link = new Link();
         long id1 = chooseRequestID(DistributionType.LINK_WRITES, link.id1);
         long link_type = id2chooser.chooseRandomLinkType(rng);
         long id2 = id2chooser.chooseForOp(rng, id1, link_type,
-                                          ID2Chooser.P_DELETE_EXIST);
+                ID2Chooser.P_DELETE_EXIST);
         proc.run(conn, id1, link_type, id2, true, // no inverse
-            false);
+                false);
     }
-    private void updateLink() throws SQLException{
+
+    private void updateLink() throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         AddLink proc = this.getProcedure(AddLink.class);
         assert (proc != null);
@@ -310,17 +319,18 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         link.link_type = id2chooser.chooseRandomLinkType(rng);
         // Update one of the existing links
         link.id2 = id2chooser.chooseForOp(rng, link.id1, link.link_type,
-                                              ID2Chooser.P_UPDATE_EXIST);
+                ID2Chooser.P_UPDATE_EXIST);
         link.visibility = LinkBenchConstants.VISIBILITY_DEFAULT;
         link.version = 0;
         link.time = System.currentTimeMillis();
         link.data = linkUpDataGen.fill(rng,
-                            new byte[(int)linkDataSize.choose(rng)]);
+                new byte[(int) linkDataSize.choose(rng)]);
         // no inverses for now
         boolean found1 = proc.run(conn, link, true);
         boolean found = found1;
     }
-    private void countLink() throws SQLException{
+
+    private void countLink() throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         CountLink proc = this.getProcedure(CountLink.class);
         assert (proc != null);
@@ -329,19 +339,20 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         long link_type = id2chooser.chooseRandomLinkType(rng);
         long count = proc.run(conn, id1, link_type);
     }
-    private void getLinkList() throws SQLException{
+
+    private void getLinkList() throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         GetLinkList proc = this.getProcedure(GetLinkList.class);
         assert (proc != null);
         Link link = new Link();
         Link links[];
         if (rng.nextDouble() < p_historical_getlinklist &&
-                    !this.listTailHistory.isEmpty()) {
-          links = getLinkListTail();
+                !this.listTailHistory.isEmpty()) {
+            links = getLinkListTail();
         } else {
-          long id1 = chooseRequestID(DistributionType.LINK_READS, link.id1);
-          long link_type = id2chooser.chooseRandomLinkType(rng);
-          links = getLinkList(id1, link_type);
+            long id1 = chooseRequestID(DistributionType.LINK_READS, link.id1);
+            long link_type = id2chooser.chooseRandomLinkType(rng);
+            links = getLinkList(id1, link_type);
         }
 
         int count = ((links == null) ? 0 : links.length);
@@ -370,7 +381,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     }
 
     private void initLinkRequestDistributions(Properties props, int requesterID,
-            int nrequesters) {
+                                              int nrequesters) {
         writeDist = AccessDistributions.loadAccessDistribution(props,
                 startid1, maxid1, DistributionType.LINK_WRITES);
         readDist = AccessDistributions.loadAccessDistribution(props,
@@ -415,7 +426,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
             } catch (ClassNotFoundException e) {
                 LOG.error(e);
                 throw new LinkBenchConfigError("Class" + multigetDistClass +
-                " could not be loaded as ProbabilityDistribution");
+                        " could not be loaded as ProbabilityDistribution");
             }
         } else {
             multigetDist = null;
@@ -473,25 +484,25 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void initNodeRequestDistributions(Properties props) {
         try {
-            nodeReadDist  = AccessDistributions.loadAccessDistribution(props,
+            nodeReadDist = AccessDistributions.loadAccessDistribution(props,
                     startid1, maxid1, DistributionType.NODE_READS);
         } catch (LinkBenchConfigError e) {
             // Not defined
             LOG.info("Node access distribution not configured: " +
                     e.getMessage());
             throw new LinkBenchConfigError("Node read distribution not " +
-            "configured but node read operations have non-zero probability");
+                    "configured but node read operations have non-zero probability");
         }
 
         try {
-            nodeUpdateDist  = AccessDistributions.loadAccessDistribution(props,
+            nodeUpdateDist = AccessDistributions.loadAccessDistribution(props,
                     startid1, maxid1, DistributionType.NODE_UPDATES);
         } catch (LinkBenchConfigError e) {
             // Not defined
             LOG.info("Node access distribution not configured: " +
                     e.getMessage());
             throw new LinkBenchConfigError("Node write distribution not " +
-            "configured but node write operations have non-zero probability");
+                    "configured but node write operations have non-zero probability");
         }
 
         try {
@@ -502,18 +513,19 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
             LOG.info("Node delete distribution not configured: " +
                     e.getMessage());
             throw new LinkBenchConfigError("Node delete distribution not " +
-            "configured but node write operations have non-zero probability");
+                    "configured but node write operations have non-zero probability");
         }
     }
 
     /**
      * Create a new node for adding to database
+     *
      * @return
      */
     private Node createAddNode() {
-        byte data[] = nodeAddDataGen.fill(rng, new byte[(int)nodeDataSize.choose(rng)]);
+        byte data[] = nodeAddDataGen.fill(rng, new byte[(int) nodeDataSize.choose(rng)]);
         return new Node(-1, LinkBenchConstants.DEFAULT_NODE_TYPE, 1,
-                (int)(System.currentTimeMillis()/1000), data);
+                (int) (System.currentTimeMillis() / 1000), data);
     }
 
     // gets id1 for the request based on desired distribution
@@ -553,7 +565,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         }
         long newid1 = dist.nextID(rng, previousId1);
         // Distribution responsible for generating number in range
-        assert((newid1 >= startid1) && (newid1 < maxid1));
+        assert ((newid1 >= startid1) && (newid1 < maxid1));
         if (LOG.isTraceEnabled()) {
             LOG.trace("id1 generated = " + newid1 +
                     " for access distribution: " + dist.getClass().getName() + ": " +
@@ -572,26 +584,28 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
      * Create new node for updating in database
      */
     private Node createUpdateNode(long id) {
-        byte data[] = nodeUpDataGen.fill(rng, new byte[(int)nodeDataSize.choose(rng)]);
+        byte data[] = nodeUpDataGen.fill(rng, new byte[(int) nodeDataSize.choose(rng)]);
         return new Node(id, LinkBenchConstants.DEFAULT_NODE_TYPE, 2,
-                (int)(System.currentTimeMillis()/1000), data);
+                (int) (System.currentTimeMillis() / 1000), data);
     }
+
     int getLink(long id1, long link_type, long id2s[]) throws SQLException {
         Link links[] = multigetLinks(id1, link_type, id2s);
         return links == null ? 0 : links.length;
     }
+
     Link[] multigetLinks(long id1, long link_type, long id2s[]) throws SQLException {
-        GetLink proc= this.getProcedure(GetLink.class);
+        GetLink proc = this.getProcedure(GetLink.class);
         Link links[] = proc.run(conn, id1, link_type, id2s);
         if (LOG.isTraceEnabled()) {
-            LOG.trace("getLinkList(id1=" + id1 + ", link_type="  + link_type
+            LOG.trace("getLinkList(id1=" + id1 + ", link_type=" + link_type
                     + ") => count=" + (links == null ? 0 : links.length));
         }
         // If there were more links than limit, record
         if (links != null && links.length >= LinkBenchConstants.DEFAULT_LIMIT) {
-            Link lastLink = links[links.length-1];
+            Link lastLink = links[links.length - 1];
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Maybe more history for (" + id1 +"," +
+                LOG.trace("Maybe more history for (" + id1 + "," +
                         link_type + " older than " + lastLink.time);
             }
 
@@ -599,65 +613,69 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         }
         return links;
     }
+
     Link[] getLinkList(long id1, long link_type) throws SQLException {
-        GetLinkList proc= this.getProcedure(GetLinkList.class);
+        GetLinkList proc = this.getProcedure(GetLinkList.class);
         Link links[] = proc.run(conn, id1, link_type);
         if (LOG.isTraceEnabled()) {
-           LOG.trace("getLinkList(id1=" + id1 + ", link_type="  + link_type
-                         + ") => count=" + (links == null ? 0 : links.length));
+            LOG.trace("getLinkList(id1=" + id1 + ", link_type=" + link_type
+                    + ") => count=" + (links == null ? 0 : links.length));
         }
         // If there were more links than limit, record
         if (links != null && links.length >= LinkBenchConstants.DEFAULT_LIMIT) {
-          Link lastLink = links[links.length-1];
-          if (LOG.isTraceEnabled()) {
-            LOG.trace("Maybe more history for (" + id1 +"," +
-                          link_type + " older than " + lastLink.time);
-          }
+            Link lastLink = links[links.length - 1];
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Maybe more history for (" + id1 + "," +
+                        link_type + " older than " + lastLink.time);
+            }
 
-          addTailCacheEntry(lastLink);
+            addTailCacheEntry(lastLink);
         }
         return links;
-      }
+    }
+
     Link[] getLinkListTail() throws SQLException {
         GetLinkList proc = this.getProcedure(GetLinkList.class);
-        assert(!listTailHistoryIndex.isEmpty());
-        assert(!listTailHistory.isEmpty());
+        assert (!listTailHistoryIndex.isEmpty());
+        assert (!listTailHistory.isEmpty());
         int choice = rng.nextInt(listTailHistory.size());
         Link prevLast = listTailHistory.get(choice);
 
         // Get links past the oldest last retrieved
         Link links[] = proc.run(conn, prevLast.id1,
-            prevLast.link_type, 0, prevLast.time, 1, LinkBenchConstants.DEFAULT_LIMIT);
+                prevLast.link_type, 0, prevLast.time, 1, LinkBenchConstants.DEFAULT_LIMIT);
 
         if (LOG.isTraceEnabled()) {
-          LOG.trace("getLinkListTail(id1=" + prevLast.id1 + ", link_type="
+            LOG.trace("getLinkListTail(id1=" + prevLast.id1 + ", link_type="
                     + prevLast.link_type + ", max_time=" + prevLast.time
                     + " => count=" + (links == null ? 0 : links.length));
-       }
+        }
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Historical range query for (" + prevLast.id1 +"," +
-                        prevLast.link_type + " older than " + prevLast.time +
-                        ": " + (links == null ? 0 : links.length) + " results");
+            LOG.trace("Historical range query for (" + prevLast.id1 + "," +
+                    prevLast.link_type + " older than " + prevLast.time +
+                    ": " + (links == null ? 0 : links.length) + " results");
         }
 
         if (links != null && links.length == LinkBenchConstants.DEFAULT_LIMIT) {
-          // There might be yet more history
-          Link last = links[links.length-1];
-          if (LOG.isTraceEnabled()) {
-              LOG.trace("might be yet more history for (" + last.id1 +"," +
-                          last.link_type + " older than " + last.time);
-          }
-          // Update in place
-          listTailHistory.set(choice, last.clone());
+            // There might be yet more history
+            Link last = links[links.length - 1];
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("might be yet more history for (" + last.id1 + "," +
+                        last.link_type + " older than " + last.time);
+            }
+            // Update in place
+            listTailHistory.set(choice, last.clone());
         } else {
-          // No more history after this, remove from cache
-          removeTailCacheEntry(choice, null);
+            // No more history after this, remove from cache
+            removeTailCacheEntry(choice, null);
         }
         numHistoryQueries++;
         return links;
-      }
+    }
+
     /**
      * Add a new link to the history cache, unless already present
+     *
      * @param lastLink the last (i.e. lowest timestamp) link retrieved
      */
     private void addTailCacheEntry(Link lastLink) {
@@ -676,9 +694,11 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
             removeTailCacheEntry(choice, lastLink.clone());
         }
     }
+
     /**
      * Remove or replace entry in listTailHistory and update index
-     * @param pos index of entry in listTailHistory
+     *
+     * @param pos  index of entry in listTailHistory
      * @param repl replace with this if not null
      */
     private void removeTailCacheEntry(int pos, Link repl) {

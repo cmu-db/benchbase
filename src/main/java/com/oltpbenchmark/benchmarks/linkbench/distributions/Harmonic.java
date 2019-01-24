@@ -19,25 +19,26 @@ package com.oltpbenchmark.benchmarks.linkbench.distributions;
  * This code was derived and modified from the Apache Commons
  * Math 3.0 source release and modified for use in LinkBench
  *
- *  @author tarmstrong
+ * @author tarmstrong
  */
+
 import org.apache.commons.math3.util.FastMath;
 
 public class Harmonic {
-  /**
-   * Calculates the Nth generalized harmonic number. See
-   * <a href="http://mathworld.wolfram.com/HarmonicSeries.html">Harmonic
-   * Series</a>.
-   *
-   * @param n Term in the series to calculate (must be larger than 1)
-   * @param m Exponent (special case {@code m = 1} is the harmonic series).
-   * @return the n<sup>th</sup> generalized harmonic number.
-   */
-  public static double generalizedHarmonic(final long n, final double m) {
-      double value = 0;
-      for (long k = n; k > 0; --k) {
-          value += 1.0 / FastMath.pow(k, m);
-      }
-      return value;
-  }
+    /**
+     * Calculates the Nth generalized harmonic number. See
+     * <a href="http://mathworld.wolfram.com/HarmonicSeries.html">Harmonic
+     * Series</a>.
+     *
+     * @param n Term in the series to calculate (must be larger than 1)
+     * @param m Exponent (special case {@code m = 1} is the harmonic series).
+     * @return the n<sup>th</sup> generalized harmonic number.
+     */
+    public static double generalizedHarmonic(final long n, final double m) {
+        double value = 0;
+        for (long k = n; k > 0; --k) {
+            value += 1.0 / FastMath.pow(k, m);
+        }
+        return value;
+    }
 }

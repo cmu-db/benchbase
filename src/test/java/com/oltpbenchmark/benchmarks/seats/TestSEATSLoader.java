@@ -16,11 +16,11 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
-import java.util.List;
-
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
+
+import java.util.List;
 
 public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
 
@@ -29,25 +29,25 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         super.setUp(SEATSBenchmark.class, null, TestSEATSBenchmark.PROC_CLASSES);
         SEATSProfile.clearCachedProfile();
     }
-    
+
     /**
      * testSaveLoadProfile
      */
     public void testSaveLoadProfile() throws Exception {
-        SEATSLoader loader = (SEATSLoader)this.benchmark.makeLoaderImpl(conn);
+        SEATSLoader loader = (SEATSLoader) this.benchmark.makeLoaderImpl(conn);
         assertNotNull(loader);
         loader.load();
-        
+
         SEATSProfile orig = loader.profile;
         assertNotNull(orig);
-        
+
         SEATSProfile copy = new SEATSProfile(this.benchmark, new RandomGenerator(0));
-        assert(copy.airport_histograms.isEmpty());
-        
+        assert (copy.airport_histograms.isEmpty());
+
         List<Worker<?>> workers = this.benchmark.makeWorkers(false);
-        SEATSWorker worker = (SEATSWorker)workers.get(0);
+        SEATSWorker worker = (SEATSWorker) workers.get(0);
         copy.loadProfile(worker);
-        
+
         assertEquals(orig.scale_factor, copy.scale_factor);
         assertEquals(orig.airport_max_customer_id, copy.airport_max_customer_id);
         assertEquals(orig.flight_start_date.toString(), copy.flight_start_date.toString());

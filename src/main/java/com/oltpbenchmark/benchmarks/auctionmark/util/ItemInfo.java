@@ -32,7 +32,7 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     public Timestamp endDate;
     public long numBids = 0;
     public ItemStatus status = null;
-    
+
     public ItemInfo(ItemId id, Double currentPrice, Timestamp endDate, int numBids) {
         this.itemId = id;
         this.currentPrice = (currentPrice != null ? currentPrice.floatValue() : null);
@@ -43,69 +43,81 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     public ItemInfo() {
         // For serialization
     }
-    
+
     public ItemId getItemId() {
         return (this.itemId);
     }
+
     public UserId getSellerId() {
         return (this.itemId.getSellerId());
     }
+
     public boolean hasCurrentPrice() {
         return (this.currentPrice != null);
     }
+
     public Float getCurrentPrice() {
         return currentPrice;
     }
+
     public boolean hasEndDate() {
         return (this.endDate != null);
     }
+
     public Timestamp getEndDate() {
         return endDate;
     }
-    
+
     @Override
     public int compareTo(ItemInfo o) {
         return this.itemId.compareTo(o.itemId);
     }
+
     @Override
     public String toString() {
         return this.itemId.toString();
     }
+
     @Override
     public int hashCode() {
         return this.itemId.hashCode();
     }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) 
+        if (this == obj)
             return true;
-        
+
         if (!(obj instanceof ItemInfo) || obj == null)
             return false;
-        
-        return (this.itemId == obj || this.equals(((ItemInfo)obj).itemId));
+
+        return (this.itemId == obj || this.equals(((ItemInfo) obj).itemId));
     }
-    
+
     // -----------------------------------------------------------------
     // SERIALIZATION
     // -----------------------------------------------------------------
-    
+
     @Override
     public void load(String input_path) throws IOException {
-        
+
     }
+
     @Override
     public void save(String output_path) throws IOException {
-        
+
     }
+
     @Override
     public String toJSONString() {
         return (JSONUtil.toJSONString(this));
     }
+
     @Override
     public void toJSON(JSONStringer stringer) throws JSONException {
         JSONUtil.fieldsToJSON(stringer, this, ItemInfo.class, JSONUtil.getSerializableFields(ItemInfo.class));
     }
+
     @Override
     public void fromJSON(JSONObject json_object) throws JSONException {
         JSONUtil.fieldsFromJSON(json_object, this, ItemInfo.class, true, JSONUtil.getSerializableFields(ItemInfo.class));

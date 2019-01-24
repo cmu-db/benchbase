@@ -9,7 +9,8 @@
         </procedure>
         <procedure name="InsertRecord">
             <statement name="insertStmt">
-                INSERT INTO USERTABLE (YCSB_KEY, FIELD1, FIELD2, FIELD3, FIELD4, FIELD5, FIELD6, FIELD7, FIELD8, FIELD9, FIELD10) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO USERTABLE (YCSB_KEY, FIELD1, FIELD2, FIELD3, FIELD4, FIELD5, FIELD6, FIELD7, FIELD8, FIELD9,
+                FIELD10) VALUES (?,?,?,?,?,?,?,?,?,?,?)
             </statement>
         </procedure>
     </dialect>

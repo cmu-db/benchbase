@@ -28,19 +28,19 @@ import java.sql.Timestamp;
 
 public abstract class AuctionMarkUtil {
     private static final Logger LOG = Logger.getLogger(AuctionMarkUtil.class);
-    
+
     public static File getDataDirectory() {
         File dataDir = null;
-        
+
         // If we weren't given a path, then we need to look for the tests directory and
         // then walk our way up the tree to get to our benchmark's directory
         try {
             File tests_dir = FileUtil.findDirectory("tests");
-            assert(tests_dir != null);
-            
+            assert (tests_dir != null);
+
             dataDir = new File(tests_dir.getAbsolutePath() + File.separator + "frontend" + File.separator +
-                               AuctionMarkProfile.class.getPackage().getName().replace('.', File.separatorChar) +
-                               File.separator + "data").getCanonicalFile();
+                    AuctionMarkProfile.class.getPackage().getName().replace('.', File.separatorChar) +
+                    File.separator + "data").getCanonicalFile();
             if (LOG.isDebugEnabled()) LOG.debug("Default data directory path = " + dataDir);
             if (!dataDir.exists()) {
                 throw new RuntimeException("The default data directory " + dataDir + " does not exist");
@@ -52,43 +52,40 @@ public abstract class AuctionMarkUtil {
         }
         return (dataDir);
     }
-    
+
     private static final long ITEM_ID_MASK = 0xFFFFFFFFFFFFFFl; // 56 bits (ITEM_ID)
 
     /**
-     * 
      * @param item_id
      * @param idx
      * @return
      */
     public static long getUniqueElementId(long item_id, int idx) {
         // The idx cannot be more than 7bits
-        assert(idx >= 0 && idx <= 128) :
-            String.format("Invalid element idx %d", idx);
+        assert (idx >= 0 && idx <= 128) :
+                String.format("Invalid element idx %d", idx);
         long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
-        assert(id >= 0) :
-            String.format("Invalid negative element id %d [item_id=%d, idx=%d]",
-                          id, item_id, idx);
+        assert (id >= 0) :
+                String.format("Invalid negative element id %d [item_id=%d, idx=%d]",
+                        id, item_id, idx);
         return (id);
     }
 
     /**
-     * 
      * @param benchmarkTimes
      * @return
      */
     public static Timestamp getProcTimestamp(Timestamp benchmarkTimes[]) {
-        assert(benchmarkTimes.length == 2);
-        
+        assert (benchmarkTimes.length == 2);
+
         Timestamp tmp = new Timestamp(System.currentTimeMillis());
         long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], tmp);
         tmp.setTime(timestamp);
-        
+
         return (tmp);
     }
-    
+
     /**
-     * 
      * @param benchmarkStart
      * @param clientStart
      * @param current
@@ -104,5 +101,5 @@ public abstract class AuctionMarkUtil {
         long elapsed = (offset - base) * AuctionMarkConstants.TIME_SCALE_FACTOR;
         return (base + elapsed);
     }
-    
+
 }

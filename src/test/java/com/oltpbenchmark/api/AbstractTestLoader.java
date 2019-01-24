@@ -17,43 +17,42 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.SQLUtil;
-
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
-    
+
     private static final Logger LOG = Logger.getLogger(AbstractTestLoader.class);
-    
+
     /**
      * These are tables that are not pre-loaded by the benchmark loader
      * So we want to ignore them if their count is zero
      */
     private Set<String> ignoreTables = new HashSet<String>();
-    
+
     @SuppressWarnings("rawtypes")
-    protected void setUp(Class<T> clazz, String ignoreTables[], Class...procClasses) throws Exception {
+    protected void setUp(Class<T> clazz, String ignoreTables[], Class... procClasses) throws Exception {
         super.setUp(clazz, procClasses);
-        
+
         if (ignoreTables != null) {
             for (String t : ignoreTables) {
                 this.ignoreTables.add(t.toUpperCase());
             } // FOR
         }
-        
+
         this.workConf.setScaleFactor(.001);
         this.workConf.setTerminals(1);
         this.benchmark.createDatabase();
         this.benchmark.getProcedures();
     }
-    
+
     /**
      * testLoad
      */
@@ -61,20 +60,20 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         Statement stmt = conn.createStatement();
         ResultSet result = null;
         String sql = null;
-        
-        
+
+
         // All we really can do here is just invoke the loader 
         // and then check to make sure that our tables aren't empty
         this.benchmark.loadDatabase(this.conn);
         assertFalse("Failed to get table names for " + benchmark.getBenchmarkName().toUpperCase(),
-                    this.catalog.getTableNames().isEmpty());
-        
+                this.catalog.getTableNames().isEmpty());
+
         LOG.debug("Computing the size of the tables");
         Histogram<String> tableSizes = new Histogram<String>(true);
         for (String tableName : this.catalog.getTableNames()) {
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);
-            
+
             sql = SQLUtil.getCountSQL(this.workConf.getDBType(), catalog_tbl);
             result = stmt.executeQuery(sql);
             assertNotNull(result);
@@ -83,16 +82,16 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             int count = result.getInt(1);
             result.close();
             System.out.println(sql + " => " + count);
-            tableSizes.put(tableName, count);            
+            tableSizes.put(tableName, count);
         } // FOR
         System.out.println("=== TABLE SIZES ===\n" + tableSizes);
         assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
-                    tableSizes.isEmpty());
-        
+                tableSizes.isEmpty());
+
         for (String tableName : tableSizes.values()) {
             long count = tableSizes.get(tableName);
-            assert(count > 0) : "No tuples were inserted for table " + tableName;
+            assert (count > 0) : "No tuples were inserted for table " + tableName;
         } // FOR
-        
+
     }
 }

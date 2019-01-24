@@ -21,19 +21,19 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.smallbank.procedures.*;
 
 public class TestSmallBankBenchmark extends AbstractTestBenchmarkModule<SmallBankBenchmark> {
-	
+
     public static final Class<?> PROC_CLASSES[] = {
-        Amalgamate.class,
-        Balance.class,
-        DepositChecking.class,
-        SendPayment.class,
-        TransactSavings.class,
-        WriteCheck.class,
+            Amalgamate.class,
+            Balance.class,
+            DepositChecking.class,
+            SendPayment.class,
+            TransactSavings.class,
+            WriteCheck.class,
     };
-    
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp(SmallBankBenchmark.class, PROC_CLASSES);
-	}
-	
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp(SmallBankBenchmark.class, PROC_CLASSES);
+    }
+
 }

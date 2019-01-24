@@ -30,7 +30,7 @@ import java.util.List;
 public class LoaderItemInfo extends ItemInfo {
     private final List<Bid> bids = new ArrayList<Bid>();
     private Histogram<UserId> bidderHistogram = new Histogram<UserId>();
-    
+
     public short numImages;
     public short numAttributes;
     public short numComments;
@@ -53,26 +53,29 @@ public class LoaderItemInfo extends ItemInfo {
         this.sellerId = null;
         this.lastBidderId = null;
     }
-    
+
     public int getBidCount() {
         return (this.bids.size());
     }
+
     public Bid getNextBid(long id, UserId bidder_id) {
-        assert(bidder_id != null);
+        assert (bidder_id != null);
         Bid b = new Bid(id, bidder_id);
         this.bids.add(b);
-        assert(this.bids.size() <= this.numBids);
+        assert (this.bids.size() <= this.numBids);
         this.bidderHistogram.put(bidder_id);
-        assert(this.bids.size() == this.bidderHistogram.getSampleCount());
+        assert (this.bids.size() == this.bidderHistogram.getSampleCount());
         return (b);
     }
+
     public Bid getLastBid() {
         return (CollectionUtil.last(this.bids));
     }
+
     public Histogram<UserId> getBidderHistogram() {
         return bidderHistogram;
     }
-    
+
     @Override
     public String toString() {
         Class<?> hints_class = this.getClass();
@@ -89,7 +92,7 @@ public class LoaderItemInfo extends ItemInfo {
         } // FOR
         return (StringUtil.formatMaps(m));
     }
-    
+
     public class Bid {
         public final long id;
         public final UserId bidderId;
@@ -106,10 +109,11 @@ public class LoaderItemInfo extends ItemInfo {
             this.createDate = null;
             this.updateDate = null;
         }
-        
+
         public LoaderItemInfo getLoaderItemInfo() {
             return (LoaderItemInfo.this);
         }
+
         @Override
         public String toString() {
             Class<?> hints_class = this.getClass();

@@ -20,26 +20,26 @@ package com.oltpbenchmark.benchmarks.seats.util;
 import junit.framework.TestCase;
 
 public class TestDistanceUtil extends TestCase {
-    
+
     /**
      * testDistance
      */
     public void testDistance() throws Exception {
         // { latitude, longitude }
         double locations[][] = {
-            {  39.175278, -76.668333 }, // Baltimore-Washington, USA (BWI)
-            { -22.808889, -43.243611 }, // Rio de Janeiro, Brazil (GIG)
-            {  40.633333, -73.783333 }, // New York, USA (JFK)
-            { -33.946111, 151.177222 }, // Syndey, Austrailia (SYD)
+                {39.175278, -76.668333}, // Baltimore-Washington, USA (BWI)
+                {-22.808889, -43.243611}, // Rio de Janeiro, Brazil (GIG)
+                {40.633333, -73.783333}, // New York, USA (JFK)
+                {-33.946111, 151.177222}, // Syndey, Austrailia (SYD)
         };
         // expected distance in miles
         double expected[] = {
-            4796,   // BWI->GIG
-            183,    // BWI->JFK
-            9787,   // BWI->SYD
-            4802,   // GIG->JFK
-            8402,   // GIG->SYD
-            9950,   // JFK->SYD                
+                4796,   // BWI->GIG
+                183,    // BWI->JFK
+                9787,   // BWI->SYD
+                4802,   // GIG->JFK
+                8402,   // GIG->SYD
+                9950,   // JFK->SYD
         };
 
         int e = 0;

@@ -21,14 +21,14 @@ import com.oltpbenchmark.util.Histogram;
 /**
  * A histogram of tweet length. This is derived from
  * http://simplymeasured.com/blog/2010/06/lakers-vs-celtics-social-media-breakdown-nba/
- * 
+ * <p>
  * And seems to match the distribution shown in:
  * http://blog.hubspot.com/Portals/249/sotwitter09.pdf
- * 
+ *
  * @author pavlo
  */
 public class TweetHistogram extends Histogram<Integer> {
-    
+
     {
         this.put(4, 2);
         this.put(6, 610);

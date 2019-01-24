@@ -35,8 +35,8 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     public HYADAPTLoader(HYADAPTBenchmark benchmark, Connection c) {
         super(benchmark, c);
         this.num_record = (int) Math.round(HYADAPTConstants.RECORD_COUNT * this.scaleFactor);
-        LOG.info("# of RECORDS:  " + this.num_record);        
-    }    
+        LOG.info("# of RECORDS:  " + this.num_record);
+    }
 
     /**
      * Returns a pseudo-random number between min and max, inclusive.
@@ -52,23 +52,23 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive
         int min = 0;
-        int max = HYADAPTConstants.RANGE;        
+        int max = HYADAPTConstants.RANGE;
 
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;
     }
-    
+
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub
         return null;
-    }    
-    
+    }
+
     @Override
     public void load() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("HTABLE");
         assert (catalog_tbl != null);
-        
+
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
         long total = 0;

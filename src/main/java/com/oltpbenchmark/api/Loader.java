@@ -52,12 +52,12 @@ public abstract class Loader<T extends BenchmarkModule> {
      */
     public abstract class LoaderThread implements Runnable {
         private final Connection conn;
-        
+
         public LoaderThread() throws SQLException {
             this.conn = Loader.this.benchmark.makeConnection();
             this.conn.setAutoCommit(false);
         }
-        
+
         @Override
         public final void run() {
             try {
@@ -65,7 +65,7 @@ public abstract class Loader<T extends BenchmarkModule> {
             } catch (SQLException ex) {
                 SQLException next_ex = ex.getNextException();
                 String msg = String.format("Unexpected error when loading %s database",
-                                           Loader.this.benchmark.getBenchmarkName().toUpperCase());
+                        Loader.this.benchmark.getBenchmarkName().toUpperCase());
                 LOG.error(msg, next_ex);
                 throw new RuntimeException(ex);
             }
@@ -73,13 +73,14 @@ public abstract class Loader<T extends BenchmarkModule> {
 
         /**
          * This is the method that each LoaderThread has to implement
+         *
          * @param conn
          * @throws SQLException
          */
         public abstract void load(Connection conn) throws SQLException;
-        
+
     }
-    
+
     public Loader(T benchmark, Connection conn) {
         this.benchmark = benchmark;
         this.conn = conn;
@@ -95,22 +96,22 @@ public abstract class Loader<T extends BenchmarkModule> {
      * guaranteed to execute in the order specified in the list.
      * You will have to use your own protections if there are dependencies between
      * threads (i.e., if one table needs to be loaded before another).
-     * 
+     * <p>
      * Each LoaderThread will be given a Connection handle to the DBMS when
      * it is invoked.
-     * 
+     * <p>
      * If the benchmark does <b>not</b> support multi-threaded loading yet,
-     * then this method should return null. 
-     *  
+     * then this method should return null.
+     *
      * @return The list of LoaderThreads the framework will launch.
      */
     public abstract List<LoaderThread> createLoaderThreads() throws SQLException;
-    
+
     /**
      * This is the old and deprecated way of invoking a loader.
      * If a benchmark is using createLoaderThreads, then this method will not
      * be invoked.
-     * 
+     *
      * @throws SQLException
      */
     @Deprecated
@@ -120,8 +121,8 @@ public abstract class Loader<T extends BenchmarkModule> {
             t.run();
         }
     }
-    
-    
+
+
     public void setTableCount(String tableName, int size) {
         this.tableSizes.set(tableName, size);
     }
@@ -147,7 +148,7 @@ public abstract class Loader<T extends BenchmarkModule> {
 
     /**
      * Get the catalog object for the given table name
-     * 
+     *
      * @param tableName
      * @return
      */
@@ -160,21 +161,20 @@ public abstract class Loader<T extends BenchmarkModule> {
 
     /**
      * Get the pre-seeded Random generator for this Loader invocation
-     * 
+     *
      * @return
      */
     public Random rng() {
         return (this.benchmark.rng());
     }
 
-    
 
     /**
      * Method that can be overriden to specifically unload the tables of the
      * database. In the default implementation it checks for tables from the
      * catalog to delete them using SQL. Any subclass can inject custom behavior
      * here.
-     * 
+     *
      * @param catalog The catalog containing all loaded tables
      * @throws SQLException
      */

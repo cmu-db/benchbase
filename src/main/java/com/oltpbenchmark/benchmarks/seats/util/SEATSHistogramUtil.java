@@ -33,17 +33,17 @@ public abstract class SEATSHistogramUtil {
     private static final Logger LOG = Logger.getLogger(SEATSHistogramUtil.class);
 
 //    private static final Pattern p = Pattern.compile("\\|");
-    
+
     private static final Map<File, Histogram<String>> cached_Histograms = new HashMap<File, Histogram<String>>();
-    
-    private static Map<String, Histogram<String>> cached_AirportFlights; 
+
+    private static Map<String, Histogram<String>> cached_AirportFlights;
 
     private static File getHistogramFile(File data_dir, String name) {
         File file = new File(data_dir.getAbsolutePath() + File.separator + "histogram." + name.toLowerCase());
         if (file.exists() == false) file = new File(file.getAbsolutePath() + ".gz");
         return (file);
     }
-    
+
     public static Histogram<String> collapseAirportFlights(Map<String, Histogram<String>> m) {
         Histogram<String> h = new Histogram<String>();
         for (Entry<String, Histogram<String>> e : m.entrySet()) {
@@ -56,20 +56,21 @@ public abstract class SEATSHistogramUtil {
         } // FOR (depart airport)
         return (h);
     }
-    
+
     /**
      * Returns the Flights Per Airport Histogram
+     *
      * @param data_path
      * @return
      * @throws Exception
      */
     public static synchronized Map<String, Histogram<String>> loadAirportFlights(File data_path) throws Exception {
         if (cached_AirportFlights != null) return (cached_AirportFlights);
-        
+
         File file = getHistogramFile(data_path, SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);
         Histogram<String> h = new Histogram<String>();
         h.load(file.getAbsolutePath());
-        
+
         Map<String, Histogram<String>> m = new TreeMap<String, Histogram<String>>();
         Pattern pattern = Pattern.compile("-");
         Collection<String> values = h.values();
@@ -82,13 +83,14 @@ public abstract class SEATSHistogramUtil {
             }
             src_h.put(split[1], h.get(value));
         } // FOR
-        
+
         cached_AirportFlights = m;
         return (m);
     }
-    
+
     /**
      * Construct a histogram from an airline-benchmark data file
+     *
      * @param name
      * @param data_path
      * @param has_header
@@ -103,9 +105,9 @@ public abstract class SEATSHistogramUtil {
             histogram.load(file.getAbsolutePath());
             cached_Histograms.put(file, histogram);
         }
-        if (LOG.isDebugEnabled()) 
+        if (LOG.isDebugEnabled())
             LOG.debug(String.format("Histogram %s\n%s", name, histogram.toString()));
-        
+
         return (histogram);
     }
 }

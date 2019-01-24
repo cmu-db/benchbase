@@ -27,8 +27,8 @@ import java.util.Random;
 public abstract class TPCCProcedure extends Procedure {
 
     public abstract ResultSet run(Connection conn, Random gen,
-            int terminalWarehouseID, int numWarehouses,
-            int terminalDistrictLowerID, int terminalDistrictUpperID,
-            TPCCWorker w) throws SQLException;
+                                  int terminalWarehouseID, int numWarehouses,
+                                  int terminalDistrictLowerID, int terminalDistrictUpperID,
+                                  TPCCWorker w) throws SQLException;
 
 }

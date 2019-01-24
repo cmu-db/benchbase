@@ -49,10 +49,11 @@ public abstract class ThreadUtil {
     public static int availableProcessors() {
         return Math.max(1, Runtime.getRuntime().availableProcessors());
     }
-    
+
     /**
      * Convenience wrapper around Thread.sleep() for when we don't care about
      * exceptions
+     *
      * @param millis
      */
     public static void sleep(long millis) {
@@ -64,7 +65,7 @@ public abstract class ThreadUtil {
             }
         }
     }
-    
+
     /**
      * Have shutdown actually means shutdown. Tasks that need to complete should use
      * futures.
@@ -74,19 +75,19 @@ public abstract class ThreadUtil {
         // if we're using ExceptionHandlingRunnable then we'll be able to 
         // pick up the exceptions
         Thread.setDefaultUncaughtExceptionHandler(handler);
-        
+
         ThreadFactory factory = getThreadFactory(name, handler);
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(poolSize, factory);
         executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         return executor;
     }
-    
+
     public static ThreadFactory getThreadFactory(final String name, final UncaughtExceptionHandler handler) {
         return new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(null, r, name, 1024*1024);
+                Thread t = new Thread(null, r, name, 1024 * 1024);
                 t.setDaemon(true);
                 t.setUncaughtExceptionHandler(handler);
                 return t;
@@ -97,6 +98,7 @@ public abstract class ThreadUtil {
     /**
      * Executes the given command and returns a pair containing the PID and
      * Process handle
+     *
      * @param command
      * @return
      */
@@ -129,7 +131,7 @@ public abstract class ThreadUtil {
 
     /**
      * Fork the command (in the current thread)
-     * 
+     *
      * @param command
      */
     public static <T> void fork(String command[], EventObservable<T> stop_observable) {
@@ -206,7 +208,7 @@ public abstract class ThreadUtil {
     /**
      * Get the max number of threads that will be allowed to run concurrenctly
      * in the global pool
-     * 
+     *
      * @return
      */
     public static int getMaxGlobalThreads() {
@@ -227,7 +229,7 @@ public abstract class ThreadUtil {
     /**
      * Execute the given collection of Runnables in the global thread pool. The
      * calling thread will block until all of the threads finish
-     * 
+     *
      * @param <R>
      * @param runnables
      */
@@ -243,7 +245,7 @@ public abstract class ThreadUtil {
         } // SYNCHRONIZED
         ThreadUtil.run(runnables, ThreadUtil.pool, false);
     }
-    
+
     public static synchronized void shutdownGlobalPool() {
         if (ThreadUtil.pool != null) {
             ThreadUtil.pool.shutdown();
@@ -253,7 +255,7 @@ public abstract class ThreadUtil {
 
     /**
      * Execute all the given Runnables in a new pool
-     * 
+     *
      * @param <R>
      * @param threads
      */
@@ -275,7 +277,7 @@ public abstract class ThreadUtil {
      * For a given list of threads, execute them all (up to max_concurrent at a
      * time) and return once they have completed. If max_concurrent is null,
      * then all threads will be fired off at the same time
-     * 
+     *
      * @param runnables
      * @param max_concurrent
      * @throws Exception
@@ -308,7 +310,7 @@ public abstract class ThreadUtil {
         if (LOG.isDebugEnabled()) {
             final long stop = System.currentTimeMillis();
             LOG.debug(String.format("Finished executing %d threads [time=%.02fs]",
-                      num_threads, (stop - start) / 1000d));
+                    num_threads, (stop - start) / 1000d));
         }
         return;
     }

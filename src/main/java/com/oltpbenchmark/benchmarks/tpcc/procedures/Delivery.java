@@ -30,83 +30,83 @@ public class Delivery extends TPCCProcedure {
 
     private static final Logger LOG = Logger.getLogger(Delivery.class);
 
-	public SQLStmt delivGetOrderIdSQL = new SQLStmt(
-	        "SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER + 
-	        " WHERE NO_D_ID = ? " +
-	        "   AND NO_W_ID = ? " +
-	        " ORDER BY NO_O_ID ASC " +
-	        " LIMIT 1");
-	
-	public SQLStmt delivDeleteNewOrderSQL = new SQLStmt(
-	        "DELETE FROM " + TPCCConstants.TABLENAME_NEWORDER +
-			" WHERE NO_O_ID = ? " +
-            "   AND NO_D_ID = ?" +
-			"   AND NO_W_ID = ?");
-	
-	public SQLStmt delivGetCustIdSQL = new SQLStmt(
-	        "SELECT O_C_ID FROM " + TPCCConstants.TABLENAME_OPENORDER + 
-	        " WHERE O_ID = ? " +
-            "   AND O_D_ID = ? " +
-	        "   AND O_W_ID = ?");
-	
-	public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_OPENORDER + 
-	        "   SET O_CARRIER_ID = ? " +
-			" WHERE O_ID = ? " +
-	        "   AND O_D_ID = ?" +
-			"   AND O_W_ID = ?");
-	
-	public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_ORDERLINE +
-	        "   SET OL_DELIVERY_D = ? " +
-			" WHERE OL_O_ID = ? " +
-			"   AND OL_D_ID = ? " +
-			"   AND OL_W_ID = ? ");
-	
-	public SQLStmt delivSumOrderAmountSQL = new SQLStmt(
-	        "SELECT SUM(OL_AMOUNT) AS OL_TOTAL " +
-			"  FROM " + TPCCConstants.TABLENAME_ORDERLINE + 
-			" WHERE OL_O_ID = ? " +
-			"   AND OL_D_ID = ? " +
-			"   AND OL_W_ID = ?");
-	
-	public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt(
-	        "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
-	        "   SET C_BALANCE = C_BALANCE + ?," +
-			"       C_DELIVERY_CNT = C_DELIVERY_CNT + 1 " +
-			" WHERE C_W_ID = ? " +
-			"   AND C_D_ID = ? " +
-			"   AND C_ID = ? ");
+    public SQLStmt delivGetOrderIdSQL = new SQLStmt(
+            "SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER +
+                    " WHERE NO_D_ID = ? " +
+                    "   AND NO_W_ID = ? " +
+                    " ORDER BY NO_O_ID ASC " +
+                    " LIMIT 1");
+
+    public SQLStmt delivDeleteNewOrderSQL = new SQLStmt(
+            "DELETE FROM " + TPCCConstants.TABLENAME_NEWORDER +
+                    " WHERE NO_O_ID = ? " +
+                    "   AND NO_D_ID = ?" +
+                    "   AND NO_W_ID = ?");
+
+    public SQLStmt delivGetCustIdSQL = new SQLStmt(
+            "SELECT O_C_ID FROM " + TPCCConstants.TABLENAME_OPENORDER +
+                    " WHERE O_ID = ? " +
+                    "   AND O_D_ID = ? " +
+                    "   AND O_W_ID = ?");
+
+    public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_OPENORDER +
+                    "   SET O_CARRIER_ID = ? " +
+                    " WHERE O_ID = ? " +
+                    "   AND O_D_ID = ?" +
+                    "   AND O_W_ID = ?");
+
+    public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_ORDERLINE +
+                    "   SET OL_DELIVERY_D = ? " +
+                    " WHERE OL_O_ID = ? " +
+                    "   AND OL_D_ID = ? " +
+                    "   AND OL_W_ID = ? ");
+
+    public SQLStmt delivSumOrderAmountSQL = new SQLStmt(
+            "SELECT SUM(OL_AMOUNT) AS OL_TOTAL " +
+                    "  FROM " + TPCCConstants.TABLENAME_ORDERLINE +
+                    " WHERE OL_O_ID = ? " +
+                    "   AND OL_D_ID = ? " +
+                    "   AND OL_W_ID = ?");
+
+    public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt(
+            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
+                    "   SET C_BALANCE = C_BALANCE + ?," +
+                    "       C_DELIVERY_CNT = C_DELIVERY_CNT + 1 " +
+                    " WHERE C_W_ID = ? " +
+                    "   AND C_D_ID = ? " +
+                    "   AND C_ID = ? ");
 
 
-	// Delivery Txn
-	private PreparedStatement delivGetOrderId = null;
-	private PreparedStatement delivDeleteNewOrder = null;
-	private PreparedStatement delivGetCustId = null;
-	private PreparedStatement delivUpdateCarrierId = null;
-	private PreparedStatement delivUpdateDeliveryDate = null;
-	private PreparedStatement delivSumOrderAmount = null;
-	private PreparedStatement delivUpdateCustBalDelivCnt = null;
+    // Delivery Txn
+    private PreparedStatement delivGetOrderId = null;
+    private PreparedStatement delivDeleteNewOrder = null;
+    private PreparedStatement delivGetCustId = null;
+    private PreparedStatement delivUpdateCarrierId = null;
+    private PreparedStatement delivUpdateDeliveryDate = null;
+    private PreparedStatement delivSumOrderAmount = null;
+    private PreparedStatement delivUpdateCustBalDelivCnt = null;
 
 
     public ResultSet run(Connection conn, Random gen,
-			int w_id, int numWarehouses,
-			int terminalDistrictLowerID, int terminalDistrictUpperID,
-			TPCCWorker w) throws SQLException {
-		
+                         int w_id, int numWarehouses,
+                         int terminalDistrictLowerID, int terminalDistrictUpperID,
+                         TPCCWorker w) throws SQLException {
+
         boolean trace = LOG.isDebugEnabled();
         int o_carrier_id = TPCCUtil.randomNumber(1, 10, gen);
         Timestamp timestamp = w.getBenchmarkModule().getTimestamp(System.currentTimeMillis());
 
-		delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
-		delivDeleteNewOrder =  this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
-		delivGetCustId = this.getPreparedStatement(conn, delivGetCustIdSQL);
-		delivUpdateCarrierId = this.getPreparedStatement(conn, delivUpdateCarrierIdSQL);
-		delivUpdateDeliveryDate = this.getPreparedStatement(conn, delivUpdateDeliveryDateSQL);
-		delivSumOrderAmount = this.getPreparedStatement(conn, delivSumOrderAmountSQL);
-		delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, delivUpdateCustBalDelivCntSQL);
+        delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
+        delivDeleteNewOrder = this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
+        delivGetCustId = this.getPreparedStatement(conn, delivGetCustIdSQL);
+        delivUpdateCarrierId = this.getPreparedStatement(conn, delivUpdateCarrierIdSQL);
+        delivUpdateDeliveryDate = this.getPreparedStatement(conn, delivUpdateDeliveryDateSQL);
+        delivSumOrderAmount = this.getPreparedStatement(conn, delivSumOrderAmountSQL);
+        delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, delivUpdateCustBalDelivCntSQL);
 
-		int d_id, c_id;
+        int d_id, c_id;
         float ol_total = 0;
         int[] orderIDs;
 
@@ -142,7 +142,7 @@ public class Delivery extends TPCCProcedure {
                 // error makes this work with MySQL's default consistency. 
                 // Careful auditing would be required.
                 String msg = String.format("NewOrder delete failed. Not running with SERIALIZABLE isolation? " +
-                                           "[w_id=%d, d_id=%d, no_o_id=%d]", w_id, d_id, no_o_id);
+                        "[w_id=%d, d_id=%d, no_o_id=%d]", w_id, d_id, no_o_id);
                 throw new UserAbortException(msg);
             }
 
@@ -156,7 +156,7 @@ public class Delivery extends TPCCProcedure {
 
             if (!rs.next()) {
                 String msg = String.format("Failed to retrieve ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
-                                           w_id, d_id, no_o_id);
+                        w_id, d_id, no_o_id);
                 if (trace) LOG.warn(msg);
                 throw new RuntimeException(msg);
             }
@@ -173,7 +173,7 @@ public class Delivery extends TPCCProcedure {
 
             if (result != 1) {
                 String msg = String.format("Failed to update ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
-                                           w_id, d_id, no_o_id);
+                        w_id, d_id, no_o_id);
                 if (trace) LOG.warn(msg);
                 throw new RuntimeException(msg);
             }
@@ -186,9 +186,9 @@ public class Delivery extends TPCCProcedure {
             result = delivUpdateDeliveryDate.executeUpdate();
             if (trace) LOG.trace("delivUpdateDeliveryDate END");
 
-            if (result == 0){
+            if (result == 0) {
                 String msg = String.format("Failed to update ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
-                                           w_id, d_id, no_o_id);
+                        w_id, d_id, no_o_id);
                 if (trace) LOG.warn(msg);
                 throw new RuntimeException(msg);
             }
@@ -203,7 +203,7 @@ public class Delivery extends TPCCProcedure {
 
             if (!rs.next()) {
                 String msg = String.format("Failed to retrieve ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
-                                           w_id, d_id, no_o_id);
+                        w_id, d_id, no_o_id);
                 if (trace) LOG.warn(msg);
                 throw new RuntimeException(msg);
             }
@@ -221,14 +221,14 @@ public class Delivery extends TPCCProcedure {
 
             if (result == 0) {
                 String msg = String.format("Failed to update CUSTOMER record [W_ID=%d, D_ID=%d, C_ID=%d]",
-                                           w_id, d_id, c_id);
+                        w_id, d_id, c_id);
                 if (trace) LOG.warn(msg);
                 throw new RuntimeException(msg);
             }
         }
 
         conn.commit();
-         
+
         if (trace) {
             StringBuilder terminalMessage = new StringBuilder();
             terminalMessage
@@ -253,8 +253,8 @@ public class Delivery extends TPCCProcedure {
             terminalMessage.append("+-----------------------------------------------------------------+\n\n");
             LOG.trace(terminalMessage.toString());
         }
-	
-		return null;
+
+        return null;
     }
 
 }

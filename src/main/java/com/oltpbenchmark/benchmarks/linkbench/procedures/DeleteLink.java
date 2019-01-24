@@ -27,10 +27,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class DeleteLink extends Procedure{
-    
+public class DeleteLink extends Procedure {
+
     private static final Logger LOG = Logger.getLogger(DeleteLink.class);
-    
+
     private PreparedStatement stmt1 = null;
     private PreparedStatement stmt2 = null;
     private PreparedStatement stmt3 = null;
@@ -38,102 +38,100 @@ public class DeleteLink extends Procedure{
 
     public final SQLStmt selectLink = new SQLStmt(
             "SELECT visibility" +
-                       " FROM linktable "+
-                       " WHERE id1 = ?" +
-                       " AND id2 = ?"+
-                       " AND link_type = ?" +
-                       " FOR UPDATE"
+                    " FROM linktable " +
+                    " WHERE id1 = ?" +
+                    " AND id2 = ?" +
+                    " AND link_type = ?" +
+                    " FOR UPDATE"
     );
     public final SQLStmt deleteLink = new SQLStmt(
             "DELETE FROM linktable " +
-                       " WHERE id1 = ?" + 
-                       " AND id2 = ?" + 
-                       " AND link_type = ?"
-        );
+                    " WHERE id1 = ?" +
+                    " AND id2 = ?" +
+                    " AND link_type = ?"
+    );
     public final SQLStmt hideLink = new SQLStmt(
-            "UPDATE linktable SET visibility =  ?"+ 
-                       " WHERE id1 = ?"+
-                       " AND id2 = ?"+
-                       " AND link_type = ?"
-        );
+            "UPDATE linktable SET visibility =  ?" +
+                    " WHERE id1 = ?" +
+                    " AND id2 = ?" +
+                    " AND link_type = ?"
+    );
     public final SQLStmt updateLink = new SQLStmt(
-            "INSERT INTO counttable"+
-                       " (id, link_type, count, time, version) " +
-                       " VALUES (?, ?, 0, ?, 0) " +
-                       " ON DUPLICATE KEY UPDATE" +
-                       " count = IF (count = 0, 0, count - 1)" +
-                       " , time = ?, version = version + 1"
-        );
-    
+            "INSERT INTO counttable" +
+                    " (id, link_type, count, time, version) " +
+                    " VALUES (?, ?, 0, ?, 0) " +
+                    " ON DUPLICATE KEY UPDATE" +
+                    " count = IF (count = 0, 0, count - 1)" +
+                    " , time = ?, version = version + 1"
+    );
+
     public boolean run(Connection conn, long id1, long link_type, long id2,
-            boolean noinverse, boolean expunge) throws SQLException {
+                       boolean noinverse, boolean expunge) throws SQLException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("deleteLink " + id1 +
-                               "." + id2 +
-                               "." + link_type);
-          }
+                    "." + id2 +
+                    "." + link_type);
+        }
 
-          // conn.setAutoCommit(false);
+        // conn.setAutoCommit(false);
 
-          // First do a select to check if the link is not there, is there and
-          // hidden, or is there and visible;
-          // Result could be either NULL, VISIBILITY_HIDDEN or VISIBILITY_DEFAULT.
-          // In case of VISIBILITY_DEFAULT, later we need to mark the link as
-          // hidden, and update counttable.
-          // We lock the row exclusively because we rely on getting the correct
-          // value of visible to maintain link counts.  Without the lock,
-          // a concurrent transaction could also see the link as visible and
-          // we would double-decrement the link count.
-        
-          if(stmt1 == null)
-              stmt1 = this.getPreparedStatement(conn, selectLink);
-          
-          stmt1.setLong(1, id1);          
-          stmt1.setLong(2, id2);          
-          stmt1.setLong(3, link_type);          
-          
-          if (LOG.isTraceEnabled()) {
-              LOG.trace(selectLink);
-          }
+        // First do a select to check if the link is not there, is there and
+        // hidden, or is there and visible;
+        // Result could be either NULL, VISIBILITY_HIDDEN or VISIBILITY_DEFAULT.
+        // In case of VISIBILITY_DEFAULT, later we need to mark the link as
+        // hidden, and update counttable.
+        // We lock the row exclusively because we rely on getting the correct
+        // value of visible to maintain link counts.  Without the lock,
+        // a concurrent transaction could also see the link as visible and
+        // we would double-decrement the link count.
 
-          ResultSet result = stmt1.executeQuery();
+        if (stmt1 == null)
+            stmt1 = this.getPreparedStatement(conn, selectLink);
 
-          int visibility = -1;
-          boolean found = false;
-          while (result.next()) {
+        stmt1.setLong(1, id1);
+        stmt1.setLong(2, id2);
+        stmt1.setLong(3, link_type);
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(selectLink);
+        }
+
+        ResultSet result = stmt1.executeQuery();
+
+        int visibility = -1;
+        boolean found = false;
+        while (result.next()) {
             visibility = result.getInt("visibility");
             found = true;
-          }
-          assert(!result.next()); // check done
-          result.close();
-          if (LOG.isTraceEnabled()) {
-              LOG.trace(String.format("(%d, %d, %d) visibility = %d",
-                      id1, link_type, id2, visibility));
-          }
+        }
+        assert (!result.next()); // check done
+        result.close();
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(String.format("(%d, %d, %d) visibility = %d",
+                    id1, link_type, id2, visibility));
+        }
 
-          if (!found) {
+        if (!found) {
             // do nothing
-          }
-          else if (visibility == LinkBenchConstants.VISIBILITY_HIDDEN && !expunge) {
+        } else if (visibility == LinkBenchConstants.VISIBILITY_HIDDEN && !expunge) {
             // do nothing
-          }
-          else {
+        } else {
             // Only update count if link is present and visible
             boolean updateCount = (visibility != LinkBenchConstants.VISIBILITY_HIDDEN);
 
             // either delete or mark the link as hidden
-            if(stmt2 == null) 
+            if (stmt2 == null)
                 stmt2 = this.getPreparedStatement(conn, hideLink);
-            if(stmt3 == null) 
+            if (stmt3 == null)
                 stmt3 = this.getPreparedStatement(conn, deleteLink);
-            
+
             PreparedStatement p;
             if (!expunge) {
                 p = stmt2;
-		p.setInt(1, visibility);
-		p.setLong(2, id1);
-		p.setLong(3, id2);
-		p.setLong(4, link_type);
+                p.setInt(1, visibility);
+                p.setLong(2, id1);
+                p.setLong(3, id2);
+                p.setLong(4, link_type);
             } else {
                 p = stmt3;
                 p.setLong(1, id1);
@@ -153,21 +151,21 @@ public class DeleteLink extends Procedure{
             // * otherwise, insert new link with count column = 0
             // The update happens atomically, with the latest count and version
             long currentTime = (new Date()).getTime();
-            if(stmt4==null)
-              stmt4 = this.getPreparedStatement(conn, updateLink);
-            stmt4.setLong(1, id1);          
-            stmt4.setLong(2, link_type);          
-            stmt4.setLong(3, currentTime);          
-            stmt4.setLong(4, currentTime);          
-            
+            if (stmt4 == null)
+                stmt4 = this.getPreparedStatement(conn, updateLink);
+            stmt4.setLong(1, id1);
+            stmt4.setLong(2, link_type);
+            stmt4.setLong(3, currentTime);
+            stmt4.setLong(4, currentTime);
+
             if (LOG.isTraceEnabled()) {
                 LOG.trace(updateLink);
             }
-            
+
             stmt4.executeUpdate();
-          }
-          conn.commit();
-          return found;
+        }
+        conn.commit();
+        return found;
     }
 
 }

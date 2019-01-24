@@ -26,9 +26,9 @@ import java.sql.SQLException;
 public class UpdateItemTitle extends Procedure {
 
     public final SQLStmt updateItem = new SQLStmt(
-        "UPDATE item SET title = ? WHERE i_id=?"
+            "UPDATE item SET title = ? WHERE i_id=?"
     );
-    
+
     public void run(Connection conn, long iid, String title) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateItem);
         stmt.setString(1, title);

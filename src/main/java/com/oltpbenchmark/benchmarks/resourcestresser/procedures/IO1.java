@@ -30,18 +30,19 @@ public class IO1 extends Procedure {
     private static final Logger LOG = Logger.getLogger(IO1.class);
 
     public final SQLStmt ioUpdate;
+
     {
-        String sql = "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLE + 
-        		" SET %s WHERE empid >= ? AND empid < ?";
+        String sql = "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLE +
+                " SET %s WHERE empid >= ? AND empid < ?";
         String setClause = "";
-        for (int col=1; col<=ResourceStresserWorker.IO1_howManyColsPerRow; ++col) {
-            setClause = setClause + (col>1 ? "," : "") + " data" + col + "=?";      
+        for (int col = 1; col <= ResourceStresserWorker.IO1_howManyColsPerRow; ++col) {
+            setClause = setClause + (col > 1 ? "," : "") + " data" + col + "=?";
         }
         this.ioUpdate = new SQLStmt(String.format(sql, setClause));
     }
-    
+
     public void run(Connection conn, int myId, int howManyColsPerRow, int howManyUpdatesPerTransaction,
-    		int howManyRowsPerUpdate, int keyRange) throws SQLException {
+                    int howManyRowsPerUpdate, int keyRange) throws SQLException {
         assert howManyUpdatesPerTransaction > 0;
         assert howManyRowsPerUpdate > 0;
         assert howManyColsPerRow > 0 && howManyColsPerRow <= 16;

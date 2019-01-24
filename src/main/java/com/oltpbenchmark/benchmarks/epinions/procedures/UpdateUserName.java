@@ -26,7 +26,7 @@ import java.sql.SQLException;
 public class UpdateUserName extends Procedure {
 
     public final SQLStmt updateUser = new SQLStmt("UPDATE useracct SET name = ? WHERE u_id=?");
-    
+
     public void run(Connection conn, long uid, String name) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, updateUser);
         stmt.setString(1, name);

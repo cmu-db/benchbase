@@ -21,7 +21,7 @@ public abstract class EpinionsConstants {
     // Constants
     public static final int NUM_USERS = 2000; // Number of baseline Users
     public static final int NUM_ITEMS = 1000; // Number of baseline pages
-    
+
     public static final int NAME_LENGTH = 5; // Length of user's name
     public static final int TITLE_LENGTH = 20;
 

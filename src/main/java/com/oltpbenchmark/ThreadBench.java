@@ -36,7 +36,7 @@ import java.util.Map.Entry;
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = Logger.getLogger(ThreadBench.class);
 
-    
+
     private static BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
@@ -64,8 +64,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         /**
          * @param samples
          * @param windowSizeSeconds
-         * @param txType
-         *            Allows to filter transactions by type
+         * @param txType            Allows to filter transactions by type
          */
         public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType txType) {
             this.samples = samples;
@@ -92,8 +91,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         /**
          * @param samples
          * @param windowSizeSeconds
-         * @param txType
-         *            Allows to filter transactions by type
+         * @param txType            Allows to filter transactions by type
          */
         public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds, TransactionType txType) {
             this.samples = samples;
@@ -198,7 +196,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // forever, however we might ignore 
             // problems
             workerThreads.get(i).join(60000); // wait for 60second for threads
-                                              // to terminate... hands otherwise
+            // to terminate... hands otherwise
 
             /*
              * // CARLO: Maybe we might want to do this to kill threads that are
@@ -242,16 +240,18 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     private class MonitorThread extends Thread {
         private final int intervalMonitor;
+
         {
             this.setDaemon(true);
         }
-        
+
         /**
          * @param interval How long to wait between polling in milliseconds
          */
         MonitorThread(int interval) {
             this.intervalMonitor = interval;
         }
+
         @Override
         public void run() {
             LOG.info("Starting MonitorThread Interval [" + this.intervalMonitor + "ms]");
@@ -276,7 +276,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             } // WHILE
         }
     } // CLASS
-    
+
     /*
      * public static Results runRateLimitedBenchmark(List<Worker> workers, File
      * profileFile) throws QueueLimitException, IOException { ThreadBench bench
@@ -334,12 +334,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         boolean lastEntry = false;
 
         // Initialize the Monitor
-        if(this.intervalMonitor > 0 ) {
+        if (this.intervalMonitor > 0) {
             new MonitorThread(this.intervalMonitor).start();
         }
 
         // Main Loop
-        while (true) {           
+        while (true) {
             // posting new work... and reseting the queue in case we have new
             // portion of the workload...
 
@@ -360,7 +360,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
             long diff = nextInterval - now;
             while (diff > 0) { // this can wake early: sleep multiple times to
-                               // avoid that
+                // avoid that
                 long ms = diff / 1000000;
                 diff = diff % 1000000;
                 try {
@@ -388,15 +388,14 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                         }
                         phaseComplete = true;
                     }
-                }
-                else if (phase.isLatencyRun())
+                } else if (phase.isLatencyRun())
                     // Latency runs (serial run through each query) have their own
                     // state to mark completion
                     phaseComplete = testState.getState()
-                                    == State.LATENCY_COMPLETE;
+                            == State.LATENCY_COMPLETE;
                 else
                     phaseComplete = testState.getState() == State.MEASURE
-                                    && (start + delta <= now);
+                            && (start + delta <= now);
             }
 
             // Go to next phase if this one is complete
@@ -426,11 +425,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                             } else if (phase != null) {
                                 phase.resetSerial();
                                 LOG.info(phase.currentPhaseString());
-                            if (phase.rate < lowestRate) {
-                                lowestRate = phase.rate;
+                                if (phase.rate < lowestRate) {
+                                    lowestRate = phase.rate;
+                                }
                             }
                         }
-                    }
                     }
                     if (phase != null) {
                         // update frequency in which we check according to
@@ -458,7 +457,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Update the test state appropriately
             State state = testState.getState();
             if (state == State.WARMUP && now >= warmup) {
-                synchronized(testState) {
+                synchronized (testState) {
                     if (phase != null && phase.isLatencyRun()) {
                         testState.startColdQuery();
                     } else {

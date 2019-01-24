@@ -27,16 +27,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class RemoveWatchList extends Procedure {
-	
-	public SQLStmt removeWatchList = new SQLStmt(
-        "DELETE FROM " + WikipediaConstants.TABLENAME_WATCHLIST +
-        " WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?"
+
+    public SQLStmt removeWatchList = new SQLStmt(
+            "DELETE FROM " + WikipediaConstants.TABLENAME_WATCHLIST +
+                    " WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?"
     );
     public SQLStmt setUserTouched = new SQLStmt(
-        "UPDATE " + WikipediaConstants.TABLENAME_USER +
-        "   SET user_touched = ? " +
-        " WHERE user_id =  ? "
-    ); 
+            "UPDATE " + WikipediaConstants.TABLENAME_USER +
+                    "   SET user_touched = ? " +
+                    " WHERE user_id =  ? "
+    );
 
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
 

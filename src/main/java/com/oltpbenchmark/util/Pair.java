@@ -36,7 +36,6 @@ package com.oltpbenchmark.util;
 /**
  * Class representing a pair of generic-ized types. Supports equality, hashing
  * and all that other nice Java stuff. Based on STL's pair class in C++.
- *
  */
 public class Pair<T, U> implements Comparable<Pair<T, U>> {
 
@@ -56,9 +55,9 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
 
     private int computeHashCode() {
         return (first == null ? 0 : first.hashCode() * 31) +
-               (second == null ? 0 : second.hashCode());
+                (second == null ? 0 : second.hashCode());
     }
-    
+
     public int hashCode() {
         if (hash != null) return (hash.intValue());
         return (this.computeHashCode());
@@ -67,12 +66,12 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
     public String toString() {
         return String.format("<%s, %s>", first, second);
     }
-    
+
     @Override
     public int compareTo(Pair<T, U> other) {
         return (other.hash - this.hash);
     }
-    
+
     public Object get(int idx) {
         if (idx == 0) return first;
         else if (idx == 1) return second;
@@ -94,7 +93,7 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
         if (this == o) {
             return true;
         }
-        
+
         if (o == null || !(o instanceof Pair)) {
             return false;
         }

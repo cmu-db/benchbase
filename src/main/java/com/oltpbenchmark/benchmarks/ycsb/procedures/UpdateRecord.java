@@ -25,18 +25,18 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UpdateRecord extends Procedure {
-    
+
     public final SQLStmt updateAllStmt = new SQLStmt(
-        "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
-        "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
+            "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
+                    "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
     );
-    
+
     public void run(Connection conn, int keyname, String vals[]) throws SQLException {
-    	PreparedStatement stmt = this.getPreparedStatement(conn, updateAllStmt);
-		assert(vals.length == YCSBConstants.NUM_FIELDS);
-		stmt.setInt(11,keyname); 
-		for (int i = 0; i < vals.length; i++) {
-            stmt.setString(i+1, vals[i]);
+        PreparedStatement stmt = this.getPreparedStatement(conn, updateAllStmt);
+        assert (vals.length == YCSBConstants.NUM_FIELDS);
+        stmt.setInt(11, keyname);
+        for (int i = 0; i < vals.length; i++) {
+            stmt.setString(i + 1, vals[i]);
         }
         stmt.executeUpdate();
     }

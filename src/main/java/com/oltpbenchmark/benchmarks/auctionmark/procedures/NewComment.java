@@ -26,53 +26,54 @@ import java.sql.*;
 
 /**
  * NewComment
+ *
  * @author visawee
  */
 public class NewComment extends Procedure {
-	
+
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------
-    
+
     public final SQLStmt getItemComments = new SQLStmt(
-        "SELECT i_num_comments " + 
-        "  FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
-        " WHERE i_id = ? AND i_u_id = ?"
+            "SELECT i_num_comments " +
+                    "  FROM " + AuctionMarkConstants.TABLENAME_ITEM +
+                    " WHERE i_id = ? AND i_u_id = ?"
     );
-    
+
     public final SQLStmt updateItemComments = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM +
-        "   SET i_num_comments = i_num_comments + 1 " + 
-        " WHERE i_id = ? AND i_u_id = ?"
+            "UPDATE " + AuctionMarkConstants.TABLENAME_ITEM +
+                    "   SET i_num_comments = i_num_comments + 1 " +
+                    " WHERE i_id = ? AND i_u_id = ?"
     );
-	
+
     public final SQLStmt insertItemComment = new SQLStmt(
-        "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_COMMENT + "(" +
-        	"ic_id," +
-        	"ic_i_id," +
-        	"ic_u_id," +
-        	"ic_buyer_id," +
-        	"ic_question, " +
-        	"ic_created," +
-        	"ic_updated " +
-        ") VALUES (?,?,?,?,?,?,?)"
+            "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_COMMENT + "(" +
+                    "ic_id," +
+                    "ic_i_id," +
+                    "ic_u_id," +
+                    "ic_buyer_id," +
+                    "ic_question, " +
+                    "ic_created," +
+                    "ic_updated " +
+                    ") VALUES (?,?,?,?,?,?,?)"
     );
-    
+
     public final SQLStmt updateUser = new SQLStmt(
-        "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
-           "SET u_comments = u_comments + 1, " +
-           "    u_updated = ? " +
-        " WHERE u_id = ?"
+            "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
+                    "SET u_comments = u_comments + 1, " +
+                    "    u_updated = ? " +
+                    " WHERE u_id = ?"
     );
-	
+
     // -----------------------------------------------------------------
     // RUN METHOD
     // -----------------------------------------------------------------
-    
+
     public Object[] run(Connection conn, Timestamp benchmarkTimes[],
                         long item_id, long seller_id, long buyer_id, String question) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
-    	
+
         // Set comment_id
         long ic_id = 0;
         PreparedStatement stmt = this.getPreparedStatement(conn, getItemComments, item_id, seller_id);
@@ -83,19 +84,19 @@ public class NewComment extends Procedure {
         results.close();
 
         this.getPreparedStatement(conn, insertItemComment, ic_id,
-                                                           item_id,
-                                                           seller_id,
-                                                           buyer_id,
-                                                           question,
-                                                           currentTime,
-                                                           currentTime).executeUpdate();
+                item_id,
+                seller_id,
+                buyer_id,
+                question,
+                currentTime,
+                currentTime).executeUpdate();
         this.getPreparedStatement(conn, updateItemComments, item_id, seller_id).executeUpdate();
         this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
 
         // Return new ic_id
-        return new Object[]{ ic_id,
-                             item_id,
-                             seller_id } ;
-    }	
-	
+        return new Object[]{ic_id,
+                item_id,
+                seller_id};
+    }
+
 }

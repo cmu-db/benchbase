@@ -33,12 +33,12 @@ public enum TransactionStatus {
      */
     USER_ABORTED,
     /**
-     * The transaction did not executed due to internal 
+     * The transaction did not executed due to internal
      * benchmark state. It should be retried
      */
     RETRY,
     /**
-     * The transaction did not executed due to internal 
+     * The transaction did not executed due to internal
      * benchmark state. The Worker should retry but select
      * a new random transaction to execute.
      */

@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MaxRecord7 extends Procedure{
+public class MaxRecord7 extends Procedure {
     public final SQLStmt maxStmt = new SQLStmt(
             "SELECT MAX(FIELD198), MAX(FIELD206), MAX(FIELD169), MAX(FIELD119), MAX(FIELD9), MAX(FIELD220), MAX(FIELD2), MAX(FIELD230), MAX(FIELD212), MAX(FIELD164), MAX(FIELD111), MAX(FIELD136), MAX(FIELD106), MAX(FIELD8), MAX(FIELD112), MAX(FIELD4), MAX(FIELD234), MAX(FIELD147), MAX(FIELD35), MAX(FIELD114), MAX(FIELD89), MAX(FIELD127), MAX(FIELD144), MAX(FIELD71), MAX(FIELD186), "
                     + "MAX(FIELD34), MAX(FIELD145), MAX(FIELD124), MAX(FIELD146), MAX(FIELD7), MAX(FIELD40), MAX(FIELD227), MAX(FIELD59), MAX(FIELD190), MAX(FIELD249), MAX(FIELD157), MAX(FIELD38), MAX(FIELD64), MAX(FIELD134), MAX(FIELD167), MAX(FIELD63), MAX(FIELD178), MAX(FIELD156), MAX(FIELD94), MAX(FIELD84), MAX(FIELD187), MAX(FIELD153), MAX(FIELD158), MAX(FIELD42), MAX(FIELD236), "
@@ -33,17 +33,17 @@ public class MaxRecord7 extends Procedure{
                     + "MAX(FIELD27), MAX(FIELD235), MAX(FIELD217), MAX(FIELD98), MAX(FIELD143), MAX(FIELD165), MAX(FIELD160), MAX(FIELD109), MAX(FIELD65), MAX(FIELD23), MAX(FIELD74), MAX(FIELD207), MAX(FIELD115), MAX(FIELD69), MAX(FIELD108), MAX(FIELD30), MAX(FIELD201), MAX(FIELD221), MAX(FIELD202), MAX(FIELD20), MAX(FIELD225), MAX(FIELD105), MAX(FIELD91), MAX(FIELD95), MAX(FIELD150), "
                     + "MAX(FIELD123), MAX(FIELD16), MAX(FIELD238), MAX(FIELD81), MAX(FIELD3), MAX(FIELD219), MAX(FIELD204), MAX(FIELD68), MAX(FIELD203), MAX(FIELD73), MAX(FIELD41), MAX(FIELD66), MAX(FIELD192), MAX(FIELD113), MAX(FIELD216), MAX(FIELD117), MAX(FIELD99), MAX(FIELD126), MAX(FIELD53), MAX(FIELD1), MAX(FIELD139), MAX(FIELD116), MAX(FIELD229), MAX(FIELD100), MAX(FIELD215), "
                     + "MAX(FIELD48), MAX(FIELD10), MAX(FIELD86), MAX(FIELD211), MAX(FIELD17), MAX(FIELD224), MAX(FIELD122), MAX(FIELD51), MAX(FIELD103), MAX(FIELD85), MAX(FIELD110), MAX(FIELD50), MAX(FIELD162), MAX(FIELD129), MAX(FIELD243), MAX(FIELD67), MAX(FIELD133), MAX(FIELD138), MAX(FIELD193), MAX(FIELD141), MAX(FIELD232), MAX(FIELD118), MAX(FIELD159), MAX(FIELD199), MAX(FIELD39) "
-                    + "FROM HTABLE WHERE FIELD1>?" );
-        
+                    + "FROM HTABLE WHERE FIELD1>?");
+
     public void run(Connection conn, int keyname) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, maxStmt);
-        stmt.setInt(1, keyname);          
+        stmt.setInt(1, keyname);
         int max = -1;
         ResultSet r = stmt.executeQuery();
-        if(r.next()){
-            max = r.getInt(1);        
+        if (r.next()) {
+            max = r.getInt(1);
         }
-        assert(max != -1);
+        assert (max != -1);
         r.close();
     }
 

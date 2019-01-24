@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * This doesn't load any data!
+ *
  * @author pavlo
  * @author eric-haibin-lin
  */
@@ -34,7 +35,7 @@ public class NoOpLoader extends Loader<NoOpBenchmark> {
     public NoOpLoader(NoOpBenchmark benchmark, Connection c) {
         super(benchmark, c);
     }
-    
+
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub
@@ -46,6 +47,6 @@ public class NoOpLoader extends Loader<NoOpBenchmark> {
         // Nothing to do
         if (LOG.isDebugEnabled())
             LOG.debug("No data is no loaded because there is no table!");
-        
+
     }
 }

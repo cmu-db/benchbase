@@ -54,7 +54,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             LOG.debug("# Max of TRUSTS per user: " + this.num_trust);
         }
     }
-    
+
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
@@ -130,8 +130,8 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     }
 
     /**
-     * @author Djellel Load num_users users.
      * @throws SQLException
+     * @author Djellel Load num_users users.
      */
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("useracct");
@@ -169,8 +169,8 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     }
 
     /**
-     * @author Djellel Load num_items items.
      * @throws SQLException
+     * @author Djellel Load num_items items.
      */
     private void loadItems(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("item");
@@ -186,7 +186,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             itemInsert.setString(2, title);
             itemInsert.addBatch();
             total++;
-            
+
             if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                 itemInsert.executeBatch();
                 conn.commit();
@@ -207,19 +207,19 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     }
 
     /**
-     * @author Djellel What's going on here?: For each item we Loaded, we are
-     *         going to generate reviews The number of reviews per Item selected
-     *         from num_reviews. Who gives the reviews is selected from
-     *         num_users and added to reviewers list. Note: the selection is
-     *         based on Zipfian distribution.
      * @throws SQLException
+     * @author Djellel What's going on here?: For each item we Loaded, we are
+     * going to generate reviews The number of reviews per Item selected
+     * from num_reviews. Who gives the reviews is selected from
+     * num_users and added to reviewers list. Note: the selection is
+     * based on Zipfian distribution.
      */
     private void loadReviews(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("review");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement reviewInsert = conn.prepareStatement(sql);
-        
+
         //
         ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
         ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
@@ -230,7 +230,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             int review_count = numReviews.nextInt();
             if (review_count == 0)
                 review_count = 1; // make sure at least each item has a review
-            for (int rc = 0; rc < review_count;) {
+            for (int rc = 0; rc < review_count; ) {
                 int u_id = reviewer.nextInt();
                 if (!reviewers.contains(u_id)) {
                     rc++;
@@ -242,7 +242,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                     reviewInsert.addBatch();
                     reviewers.add(u_id);
                     total++;
-                    
+
                     if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                         reviewInsert.executeBatch();
                         conn.commit();
@@ -266,20 +266,20 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     }
 
     /**
-     * @author Djellel What's going on here?: For each user, select a number
-     *         num_trust of trust-feedbacks (given by others users). Then we
-     *         select the users who are part of that list. The actual feedback
-     *         can be 1/0 with uniform distribution. Note: Select is based on
-     *         Zipfian distribution Trusted users are not correlated to heavy
-     *         reviewers (drawn using a scrambled distribution)
      * @throws SQLException
+     * @author Djellel What's going on here?: For each user, select a number
+     * num_trust of trust-feedbacks (given by others users). Then we
+     * select the users who are part of that list. The actual feedback
+     * can be 1/0 with uniform distribution. Note: Select is based on
+     * Zipfian distribution Trusted users are not correlated to heavy
+     * reviewers (drawn using a scrambled distribution)
      */
     public void loadTrust(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("trust");
         assert (catalog_tbl != null);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement trustInsert = conn.prepareStatement(sql);
-        
+
         //
         int total = 0;
         int batch = 0;
@@ -289,7 +289,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         for (int i = 0; i < num_users; i++) {
             List<Integer> trusted = new ArrayList<Integer>();
             int trust_count = numTrust.nextInt();
-            for (int tc = 0; tc < trust_count;) {
+            for (int tc = 0; tc < trust_count; ) {
                 int u_id = reviewed.nextInt();
                 if (!trusted.contains(u_id)) {
                     tc++;
@@ -300,7 +300,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                     trustInsert.addBatch();
                     trusted.add(u_id);
                     total++;
-                    
+
                     if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                         trustInsert.executeBatch();
                         conn.commit();

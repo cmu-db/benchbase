@@ -35,112 +35,113 @@ import java.util.List;
 public class TPCCBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(TPCCBenchmark.class);
 
-	public TPCCBenchmark(WorkloadConfiguration workConf) {
-		super("tpcc", workConf, true);
-	}
+    public TPCCBenchmark(WorkloadConfiguration workConf) {
+        super("tpcc", workConf, true);
+    }
 
-	@Override
-	protected Package getProcedurePackageImpl() {
-		return (NewOrder.class.getPackage());
-	}
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return (NewOrder.class.getPackage());
+    }
 
-	/**
-	 * @param Bool
-	 */
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+    /**
+     * @param Bool
+     */
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
-		try {
-			List<TPCCWorker> terminals = createTerminals();
-			workers.addAll(terminals);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        try {
+            List<TPCCWorker> terminals = createTerminals();
+            workers.addAll(terminals);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		return workers;
-	}
+        return workers;
+    }
 
-	@Override
-	protected Loader<TPCCBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new TPCCLoader(this, conn);
-	}
+    @Override
+    protected Loader<TPCCBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return new TPCCLoader(this, conn);
+    }
 
-	protected ArrayList<TPCCWorker> createTerminals() throws SQLException {
+    protected ArrayList<TPCCWorker> createTerminals() throws SQLException {
 
-		TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
+        TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
 
-		int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
-		if (numWarehouses <= 0) {
-			numWarehouses = 1;
-		}
-		int numTerminals = workConf.getTerminals();
-		assert (numTerminals >= numWarehouses) :
-		    String.format("Insufficient number of terminals '%d' [numWarehouses=%d]",
-		                  numTerminals, numWarehouses);
+        int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
+        if (numWarehouses <= 0) {
+            numWarehouses = 1;
+        }
+        int numTerminals = workConf.getTerminals();
+        assert (numTerminals >= numWarehouses) :
+                String.format("Insufficient number of terminals '%d' [numWarehouses=%d]",
+                        numTerminals, numWarehouses);
 
-		// TODO: This is currently broken: fix it!
-		int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
-		assert warehouseOffset == 1;
+        // TODO: This is currently broken: fix it!
+        int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
+        assert warehouseOffset == 1;
 
-		// We distribute terminals evenly across the warehouses
-		// Eg. if there are 10 terminals across 7 warehouses, they
-		// are distributed as
-		// 1, 1, 2, 1, 2, 1, 2
-		final double terminalsPerWarehouse = (double) numTerminals
-				/ numWarehouses;
-		int workerId = 0;
-		assert terminalsPerWarehouse >= 1;
-		for (int w = 0; w < numWarehouses; w++) {
-			// Compute the number of terminals in *this* warehouse
-			int lowerTerminalId = (int) (w * terminalsPerWarehouse);
-			int upperTerminalId = (int) ((w + 1) * terminalsPerWarehouse);
-			// protect against double rounding errors
-			int w_id = w + 1;
-			if (w_id == numWarehouses)
-				upperTerminalId = numTerminals;
-			int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
+        // We distribute terminals evenly across the warehouses
+        // Eg. if there are 10 terminals across 7 warehouses, they
+        // are distributed as
+        // 1, 1, 2, 1, 2, 1, 2
+        final double terminalsPerWarehouse = (double) numTerminals
+                / numWarehouses;
+        int workerId = 0;
+        assert terminalsPerWarehouse >= 1;
+        for (int w = 0; w < numWarehouses; w++) {
+            // Compute the number of terminals in *this* warehouse
+            int lowerTerminalId = (int) (w * terminalsPerWarehouse);
+            int upperTerminalId = (int) ((w + 1) * terminalsPerWarehouse);
+            // protect against double rounding errors
+            int w_id = w + 1;
+            if (w_id == numWarehouses)
+                upperTerminalId = numTerminals;
+            int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
-			if (LOG.isDebugEnabled())
-			    LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
-			                            w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
+            if (LOG.isDebugEnabled())
+                LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
+                        w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
 
-			final double districtsPerTerminal = TPCCConfig.configDistPerWhse
-					/ (double) numWarehouseTerminals;
-			assert districtsPerTerminal >= 1 :
-			    String.format("Too many terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
-			                  districtsPerTerminal, numWarehouseTerminals);
-			for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
-				int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
-				int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
-				if (terminalId + 1 == numWarehouseTerminals) {
-					upperDistrictId = TPCCConfig.configDistPerWhse;
-				}
-				lowerDistrictId += 1;
+            final double districtsPerTerminal = TPCCConfig.configDistPerWhse
+                    / (double) numWarehouseTerminals;
+            assert districtsPerTerminal >= 1 :
+                    String.format("Too many terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
+                            districtsPerTerminal, numWarehouseTerminals);
+            for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
+                int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
+                int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
+                if (terminalId + 1 == numWarehouseTerminals) {
+                    upperDistrictId = TPCCConfig.configDistPerWhse;
+                }
+                lowerDistrictId += 1;
 
-				TPCCWorker terminal = new TPCCWorker(this, workerId++,
-						w_id, lowerDistrictId, upperDistrictId,
-						numWarehouses);
-				terminals[lowerTerminalId + terminalId] = terminal;
-			}
+                TPCCWorker terminal = new TPCCWorker(this, workerId++,
+                        w_id, lowerDistrictId, upperDistrictId,
+                        numWarehouses);
+                terminals[lowerTerminalId + terminalId] = terminal;
+            }
 
-		}
-		assert terminals[terminals.length - 1] != null;
+        }
+        assert terminals[terminals.length - 1] != null;
 
-		ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
-		for (TPCCWorker w : terminals)
-			ret.add(w);
-		return ret;
-	}
-	
-   /**
+        ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
+        for (TPCCWorker w : terminals)
+            ret.add(w);
+        return ret;
+    }
+
+    /**
      * Hack to support postgres-specific timestamps
+     *
      * @param time
      * @return
      */
     public Timestamp getTimestamp(long time) {
         Timestamp timestamp;
-        
+
         // HACK: Peloton doesn't support JDBC timestamps.
         // We have to use the postgres-specific type
         if (this.workConf.getDBType() == DatabaseType.PELOTON) {

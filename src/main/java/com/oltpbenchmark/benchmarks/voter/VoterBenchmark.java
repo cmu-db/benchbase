@@ -31,7 +31,7 @@ import java.util.List;
 public class VoterBenchmark extends BenchmarkModule {
 
     public final int numContestants;
-    
+
     public VoterBenchmark(WorkloadConfiguration workConf) {
         super("voter", workConf, true);
         numContestants = VoterUtil.getScaledNumContestants(workConf.getScaleFactor());
@@ -53,7 +53,7 @@ public class VoterBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-       return Vote.class.getPackage();
+        return Vote.class.getPackage();
     }
 
 }

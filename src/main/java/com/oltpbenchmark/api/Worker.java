@@ -75,7 +75,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         try {
             this.conn = this.benchmarkModule.makeConnection();
             this.conn.setAutoCommit(false);
-            
+
             // 2018-01-11: Since we want to support NoSQL systems 
             // that do not support txns, we will not invoke certain JDBC functions
             // that may cause an error in them.
@@ -115,9 +115,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     @Override
     public String toString() {
         return String.format("%s<%03d>",
-                             this.getClass().getSimpleName(), this.getId());
+                this.getClass().getSimpleName(), this.getId());
     }
-    
+
     /**
      * Get the the total number of workers in this benchmark invocation
      */
@@ -227,7 +227,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         TransactionType invalidTT = TransactionType.INVALID;
         assert (invalidTT != null);
 
-        work: while (true) {
+        work:
+        while (true) {
 
             // PART 1: Init and check if done
 
@@ -351,7 +352,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * Called in a loop in the thread to exercise the system under test. Each
      * implementing worker should return the TransactionType handle that was
      * executed.
-     * 
+     *
      * @param llr
      */
     protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
@@ -380,8 +381,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     status = TransactionStatus.UNKNOWN;
                     status = this.executeWork(next);
 
-                // User Abort Handling
-                // These are not errors
+                    // User Abort Handling
+                    // These are not errors
                 } catch (UserAbortException ex) {
                     if (LOG.isTraceEnabled())
                         LOG.trace(next + " Aborted", ex);
@@ -401,50 +402,50 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     } else {
                         this.conn.rollback();
                     }
-                    
+
                     status = TransactionStatus.USER_ABORTED;
                     break;
 
-                // Database System Specific Exception Handling
+                    // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                     // TODO: Handle acceptable error codes for every DBMS
-                        LOG.warn(String.format("%s thrown when executing '%s' on '%s' " +
-                                               "[Message='%s', ErrorCode='%d', SQLState='%s']", 
-                                               ex.getClass().getSimpleName(), next, this.toString(),
-                                               ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
+                    LOG.warn(String.format("%s thrown when executing '%s' on '%s' " +
+                                    "[Message='%s', ErrorCode='%d', SQLState='%s']",
+                            ex.getClass().getSimpleName(), next, this.toString(),
+                            ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
 
                     this.txnErrors.put(next);
 
-		    if (this.wrkld.getDBType().shouldUseTransactions()) {
-			if (savepoint != null) {
-			    this.conn.rollback(savepoint);
-			} else {
-			    this.conn.rollback();
-			}
-		    }
+                    if (this.wrkld.getDBType().shouldUseTransactions()) {
+                        if (savepoint != null) {
+                            this.conn.rollback(savepoint);
+                        } else {
+                            this.conn.rollback();
+                        }
+                    }
 
                     if (ex.getSQLState() == null) {
                         continue;
-                    // ------------------
-                    // MYSQL
-                    // ------------------
+                        // ------------------
+                        // MYSQL
+                        // ------------------
                     } else if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
                         // MySQLTransactionRollbackException
                         continue;
                     } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("41000")) {
                         // MySQL Lock timeout
                         continue;
-                        
-                    // ------------------
-                    // SQL SERVER
-                    // ------------------
+
+                        // ------------------
+                        // SQL SERVER
+                        // ------------------
                     } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
                         // SQLServerException Deadlock
                         continue;
-                    
-                    // ------------------
-                    // POSTGRES
-                    // ------------------
+
+                        // ------------------
+                        // POSTGRES
+                        // ------------------
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
                         continue;
@@ -454,22 +455,22 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("XX000")) {
                         // Postgres no pinned buffers available
                         throw ex;
-                        
-                    // ------------------
-                    // ORACLE
-                    // ------------------
+
+                        // ------------------
+                        // ORACLE
+                        // ------------------
                     } else if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
                         // ORA-08177: Oracle Serialization
                         continue;
-                        
-                    // ------------------
-                    // DB2
-                    // ------------------
+
+                        // ------------------
+                        // DB2
+                        // ------------------
                     } else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
                         // DB2Exception Deadlock
                         continue;
                     } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) ||
-                               (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
+                            (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
                         // Query cancelled by benchmark because we changed
                         // state. That's fine! We expected/caused this.
                         status = TransactionStatus.RETRY_DIFFERENT;
@@ -481,9 +482,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         status = TransactionStatus.RETRY_DIFFERENT;
                         continue;
 
-                    // ------------------
-                    // UNKNOWN!
-                    // ------------------
+                        // ------------------
+                        // UNKNOWN!
+                        // ------------------
                     } else {
                         // UNKNOWN: In this case .. Retry as well!
                         LOG.warn("The DBMS rejected the transaction without an error code", ex);
@@ -491,19 +492,19 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         // FIXME Disable this for now
                         // throw ex;
                     }
-                // Assertion Error
+                    // Assertion Error
                 } catch (Error ex) {
                     LOG.error("Fatal error when invoking " + next, ex);
                     throw ex;
-                 // Random Error
+                    // Random Error
                 } catch (Exception ex) {
                     LOG.error("Fatal error when invoking " + next, ex);
                     throw new RuntimeException(ex);
-                    
+
                 } finally {
-                     if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled())
                         LOG.debug(String.format("%s %s Result: %s", this, next, status));
-                    
+
                     switch (status) {
                         case SUCCESS:
                             this.txnSuccess.put(next);
@@ -524,7 +525,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             } // WHILE
         } catch (SQLException ex) {
             String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
-                                       this, next, dbType);
+                    this, next, dbType);
             // FIXME: PAVLO 2016-12-29
             // Right now our DBMS throws an exception when the txn gets aborted
             // due to a conflict, so for now we have to not kill ourselves.
@@ -552,21 +553,18 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     /**
      * Invoke a single transaction for the given TransactionType
-     * 
+     *
      * @param txnType
      * @return TODO
-     * @throws UserAbortException
-     *             TODO
-     * @throws SQLException
-     *             TODO
+     * @throws UserAbortException TODO
+     * @throws SQLException       TODO
      */
     protected abstract TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException;
 
     /**
      * Called at the end of the test to do any clean up that may be required.
-     * 
-     * @param error
-     *            TODO
+     *
+     * @param error TODO
      */
     public void tearDown(boolean error) {
         try {

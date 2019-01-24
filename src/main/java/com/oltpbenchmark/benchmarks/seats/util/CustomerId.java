@@ -22,23 +22,23 @@ import com.oltpbenchmark.util.CompositeId;
 public class CustomerId extends CompositeId {
 
     private static final int COMPOSITE_BITS[] = {
-        48, // ID
-        16, // AIRPORT_ID
+            48, // ID
+            16, // AIRPORT_ID
     };
     private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
-    
+
     private int id;
     private long depart_airport_id;
-    
+
     public CustomerId(int id, long depart_airport_id) {
         this.id = id;
         this.depart_airport_id = depart_airport_id;
     }
-    
+
     public CustomerId(long composite_id) {
         this.decode(composite_id);
     }
-    
+
     @Override
     public long encode() {
         return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
@@ -47,15 +47,15 @@ public class CustomerId extends CompositeId {
     @Override
     public void decode(long composite_id) {
         long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.id = (int)values[0];
+        this.id = (int) values[0];
         this.depart_airport_id = values[1];
     }
 
     @Override
     public long[] toArray() {
-        return (new long[]{ this.id, this.depart_airport_id });
+        return (new long[]{this.id, this.depart_airport_id});
     }
-    
+
     /**
      * @return the id
      */
@@ -69,7 +69,7 @@ public class CustomerId extends CompositeId {
     public long getDepartAirportId() {
         return depart_airport_id;
     }
-    
+
     @Override
     public String toString() {
         return String.format("CustomerId{airport=%d,id=%d}", this.depart_airport_id, this.id);

@@ -22,9 +22,9 @@ import com.oltpbenchmark.catalog.Catalog;
 public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
 
     private final String IGNORED_TABLES[] = {
-        TwitterConstants.TABLENAME_ADDED_TWEETS
+            TwitterConstants.TABLENAME_ADDED_TWEETS
     };
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp(TwitterBenchmark.class, IGNORED_TABLES, TestTwitterBenchmark.PROC_CLASSES);

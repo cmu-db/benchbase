@@ -136,7 +136,7 @@ public abstract class PageHistograms {
             this.put(141, 1);
         }
     };
-    
+
     /**
      * Revisions per page
      * This seems way off because I think our sample data set is incomplete
@@ -334,7 +334,7 @@ public abstract class PageHistograms {
             this.put(1000, 1);
         }
     };
-    
+
     /**
      * The histogram of the PAGE_NAMESPACE column
      */
@@ -360,7 +360,7 @@ public abstract class PageHistograms {
             this.put(101, 29);
         }
     };
-    
+
     /**
      * The histogram of the PAGE_RESTRICTIONS column
      */
@@ -379,5 +379,5 @@ public abstract class PageHistograms {
             this.put("sysop", 2);
         }
     };
-    
+
 }

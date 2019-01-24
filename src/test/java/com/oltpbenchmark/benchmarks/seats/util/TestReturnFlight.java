@@ -17,19 +17,19 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import java.sql.Timestamp;
-
 import junit.framework.TestCase;
 
+import java.sql.Timestamp;
+
 public class TestReturnFlight extends TestCase {
-    
-    private final int customer_base_id  = 1000;
+
+    private final int customer_base_id = 1000;
     private final long depart_airport_id = 9999;
-    private final int return_days[]      = { 1, 5, 14 };
-    
+    private final int return_days[] = {1, 5, 14};
+
     private Timestamp flight_date;
     private CustomerId customer_id;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -51,7 +51,7 @@ public class TestReturnFlight extends TestCase {
             assertTrue(this.flight_date.getTime() < return_flight.getReturnDate().getTime());
         } // FOR
     }
-    
+
     /**
      * testCalculateReturnDate
      */

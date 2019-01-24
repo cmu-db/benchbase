@@ -16,15 +16,14 @@
 
 package com.oltpbenchmark.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import junit.framework.TestCase;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class TestFileUtil extends TestCase {
 
@@ -35,16 +34,17 @@ public class TestFileUtil extends TestCase {
     @After
     public void tearDown() throws Exception {
     }
-    
+
     void touch(String name) {
         try {
             File f = new File(name);
             if (!f.exists())
                 new FileOutputStream(f).close();
             f.setLastModified(TimeUtil.getCurrentTime().getTime());
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
-    
+
     void rm(String name) {
         File file = new File(name);
         file.delete();
@@ -52,7 +52,7 @@ public class TestFileUtil extends TestCase {
 
     @Test
     public void testIncrementFileNames() {
-        
+
         String basename = "base.res";
         assertEquals("base.res", FileUtil.getNextFilename(basename));
         touch("base.res");
@@ -61,7 +61,7 @@ public class TestFileUtil extends TestCase {
         touch("base.1.res");
         assertEquals("base.2.res", FileUtil.getNextFilename(basename));
 
-        
+
         rm("base.res");
         rm("base.1.res");
         rm("base.2.res");

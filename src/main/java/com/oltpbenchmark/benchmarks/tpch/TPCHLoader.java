@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 
-
 /***
  *   TPC-H implementation
  *
@@ -66,97 +65,99 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     public TPCHLoader(TPCHBenchmark benchmark, Connection c) {
         super(benchmark, c);
-        conn =c;
+        conn = c;
     }
 
-    private static enum CastTypes { LONG, DOUBLE, STRING, DATE };
+    private static enum CastTypes {LONG, DOUBLE, STRING, DATE}
+
+    ;
 
 
     private static final CastTypes[] customerTypes = {
-        CastTypes.LONG,   // c_custkey
-        CastTypes.STRING, // c_name
-        CastTypes.STRING, // c_address
-        CastTypes.LONG,   // c_nationkey
-        CastTypes.STRING, // c_phone
-        CastTypes.DOUBLE, // c_acctbal
-        CastTypes.STRING, // c_mktsegment
-        CastTypes.STRING  // c_comment
+            CastTypes.LONG,   // c_custkey
+            CastTypes.STRING, // c_name
+            CastTypes.STRING, // c_address
+            CastTypes.LONG,   // c_nationkey
+            CastTypes.STRING, // c_phone
+            CastTypes.DOUBLE, // c_acctbal
+            CastTypes.STRING, // c_mktsegment
+            CastTypes.STRING  // c_comment
     };
 
     private static final CastTypes[] lineitemTypes = {
-        CastTypes.LONG, // l_orderkey
-        CastTypes.LONG, // l_partkey
-        CastTypes.LONG, // l_suppkey
-        CastTypes.LONG, // l_linenumber
-        CastTypes.DOUBLE, // l_quantity
-        CastTypes.DOUBLE, // l_extendedprice
-        CastTypes.DOUBLE, // l_discount
-        CastTypes.DOUBLE, // l_tax
-        CastTypes.STRING, // l_returnflag
-        CastTypes.STRING, // l_linestatus
-        CastTypes.DATE, // l_shipdate
-        CastTypes.DATE, // l_commitdate
-        CastTypes.DATE, // l_receiptdate
-        CastTypes.STRING, // l_shipinstruct
-        CastTypes.STRING, // l_shipmode
-        CastTypes.STRING  // l_comment
+            CastTypes.LONG, // l_orderkey
+            CastTypes.LONG, // l_partkey
+            CastTypes.LONG, // l_suppkey
+            CastTypes.LONG, // l_linenumber
+            CastTypes.DOUBLE, // l_quantity
+            CastTypes.DOUBLE, // l_extendedprice
+            CastTypes.DOUBLE, // l_discount
+            CastTypes.DOUBLE, // l_tax
+            CastTypes.STRING, // l_returnflag
+            CastTypes.STRING, // l_linestatus
+            CastTypes.DATE, // l_shipdate
+            CastTypes.DATE, // l_commitdate
+            CastTypes.DATE, // l_receiptdate
+            CastTypes.STRING, // l_shipinstruct
+            CastTypes.STRING, // l_shipmode
+            CastTypes.STRING  // l_comment
     };
 
     private static final CastTypes[] nationTypes = {
-        CastTypes.LONG,   // n_nationkey
-        CastTypes.STRING, // n_name
-        CastTypes.LONG,   // n_regionkey
-        CastTypes.STRING  // n_comment
+            CastTypes.LONG,   // n_nationkey
+            CastTypes.STRING, // n_name
+            CastTypes.LONG,   // n_regionkey
+            CastTypes.STRING  // n_comment
     };
 
     private static final CastTypes[] ordersTypes = {
-        CastTypes.LONG,   // o_orderkey
-        CastTypes.LONG,   // o_LONG, custkey
-        CastTypes.STRING, // o_orderstatus
-        CastTypes.DOUBLE, // o_totalprice
-        CastTypes.DATE,   // o_orderdate
-        CastTypes.STRING, // o_orderpriority
-        CastTypes.STRING, // o_clerk
-        CastTypes.LONG,   // o_shippriority
-        CastTypes.STRING  // o_comment
+            CastTypes.LONG,   // o_orderkey
+            CastTypes.LONG,   // o_LONG, custkey
+            CastTypes.STRING, // o_orderstatus
+            CastTypes.DOUBLE, // o_totalprice
+            CastTypes.DATE,   // o_orderdate
+            CastTypes.STRING, // o_orderpriority
+            CastTypes.STRING, // o_clerk
+            CastTypes.LONG,   // o_shippriority
+            CastTypes.STRING  // o_comment
     };
 
     private static final CastTypes[] partTypes = {
-        CastTypes.LONG,   // p_partkey
-        CastTypes.STRING, // p_name
-        CastTypes.STRING, // p_mfgr
-        CastTypes.STRING, // p_brand
-        CastTypes.STRING, // p_type
-        CastTypes.LONG,   // p_size
-        CastTypes.STRING, // p_container
-        CastTypes.DOUBLE, // p_retailprice
-        CastTypes.STRING  // p_comment
+            CastTypes.LONG,   // p_partkey
+            CastTypes.STRING, // p_name
+            CastTypes.STRING, // p_mfgr
+            CastTypes.STRING, // p_brand
+            CastTypes.STRING, // p_type
+            CastTypes.LONG,   // p_size
+            CastTypes.STRING, // p_container
+            CastTypes.DOUBLE, // p_retailprice
+            CastTypes.STRING  // p_comment
     };
 
     private static final CastTypes[] partsuppTypes = {
-        CastTypes.LONG,   // ps_partkey
-        CastTypes.LONG,   // ps_suppkey
-        CastTypes.LONG,   // ps_availqty
-        CastTypes.DOUBLE, // ps_supplycost
-        CastTypes.STRING  // ps_comment
+            CastTypes.LONG,   // ps_partkey
+            CastTypes.LONG,   // ps_suppkey
+            CastTypes.LONG,   // ps_availqty
+            CastTypes.DOUBLE, // ps_supplycost
+            CastTypes.STRING  // ps_comment
     };
 
     private static final CastTypes[] regionTypes = {
-        CastTypes.LONG,   // r_regionkey
-        CastTypes.STRING, // r_name
-        CastTypes.STRING  // r_comment
+            CastTypes.LONG,   // r_regionkey
+            CastTypes.STRING, // r_name
+            CastTypes.STRING  // r_comment
     };
 
     private static final CastTypes[] supplierTypes = {
-        CastTypes.LONG,   // s_suppkey
-        CastTypes.STRING, // s_name
-        CastTypes.STRING, // s_address
-        CastTypes.LONG,   // s_nationkey
-        CastTypes.STRING, // s_phone
-        CastTypes.DOUBLE, // s_acctbal
-        CastTypes.STRING, // s_comment
+            CastTypes.LONG,   // s_suppkey
+            CastTypes.STRING, // s_name
+            CastTypes.STRING, // s_address
+            CastTypes.LONG,   // s_nationkey
+            CastTypes.STRING, // s_phone
+            CastTypes.DOUBLE, // s_acctbal
+            CastTypes.STRING, // s_comment
     };
-    
+
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub
@@ -284,7 +285,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             try {
                 if (loaders[i] != null)
                     loaders[i].join();
-            } catch(InterruptedException e) {
+            } catch (InterruptedException e) {
                 LOG.error(e.getMessage());
             }
         }
@@ -301,45 +302,44 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         private Connection conn;
 
         TableLoader(String tableName, CastTypes[] types
-                  , PreparedStatement prepStmt, TPCHLoader parent)
-        {
+                , PreparedStatement prepStmt, TPCHLoader parent) {
             this.tableName = tableName;
             this.prepStmt = prepStmt;
             this.types = types;
             this.parent = parent;
         }
-        
-        private String getFileFormat(){
+
+        private String getFileFormat() {
             String format = workConf.getXmlConfig().getString("fileFormat");
             /*
                Previouse configuration migh not have a fileFormat and assume
                 that the files are csv.
             */
             if (format == null) return "csv";
-            
-            if((!"csv".equals(format) && !"tbl".equals(format))){
+
+            if ((!"csv".equals(format) && !"tbl".equals(format))) {
                 throw new IllegalArgumentException("Configuration doesent"
                         + " have a valid fileFormat");
             }
             return format;
         }
-        
-        private Pattern getFormatPattern(String format){
-            
-            if("csv".equals(format)){
+
+        private Pattern getFormatPattern(String format) {
+
+            if ("csv".equals(format)) {
                 // The following pattern parses the lines by commas, except for
                 // ones surrounded by double-quotes. Further, strings that are
                 // double-quoted have the quotes dropped (we don't need them).
-               return  Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
-            }else{
+                return Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
+            } else {
                 return Pattern.compile("[^\\|]*\\|");
             }
         }
-        
-        private int getFormatGroup(String format){
-            if("csv".equals(format)){
-               return  1;
-            }else{
+
+        private int getFormatGroup(String format) {
+            if ("csv".equals(format)) {
+                return 1;
+            } else {
                 return 0;
             }
         }
@@ -369,8 +369,8 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     LOG.debug("\nStart " + tableName + " load @ " + now + "...");
                     String format = getFileFormat();
                     File file = new File(workConf.getDataDir()
-                                         , tableName.toLowerCase() + "." 
-                                                 + format);
+                            , tableName.toLowerCase() + "."
+                            + format);
                     br = new BufferedReader(new FileReader(file));
                     String line;
                     // The following pattern parses the lines by commas, except for
@@ -390,20 +390,20 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                                 if (field.charAt(0) == '\"') {
                                     field = field.substring(1, field.length() - 1);
                                 }
-                                
-                                if(group==0){
-                                    field = field.substring(0, field.length() -1);
+
+                                if (group == 0) {
+                                    field = field.substring(0, field.length() - 1);
                                 }
 
-                                switch(types[i]) {
+                                switch (types[i]) {
                                     case DOUBLE:
-                                        prepStmt.setDouble(i+1, Double.parseDouble(field));
+                                        prepStmt.setDouble(i + 1, Double.parseDouble(field));
                                         break;
                                     case LONG:
-                                        prepStmt.setLong(i+1, Long.parseLong(field));
+                                        prepStmt.setLong(i + 1, Long.parseLong(field));
                                         break;
                                     case STRING:
-                                        prepStmt.setString(i+1, field);
+                                        prepStmt.setString(i + 1, field);
                                         break;
                                     case DATE:
                                         // Four possible formats for date
@@ -426,37 +426,33 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                                                     Integer.parseInt(isoMatcher.group(1)) - 1900,
                                                     Integer.parseInt(isoMatcher.group(2)),
                                                     Integer.parseInt(isoMatcher.group(3)));
-                                        }
-                                        else if (nondelimMatcher.find()) {
+                                        } else if (nondelimMatcher.find()) {
                                             fieldAsDate = new java.sql.Date(
                                                     Integer.parseInt(nondelimMatcher.group(1)) - 1900,
                                                     Integer.parseInt(nondelimMatcher.group(2)),
                                                     Integer.parseInt(nondelimMatcher.group(3)));
-                                        }
-                                        else if (usaMatcher.find()) {
+                                        } else if (usaMatcher.find()) {
                                             fieldAsDate = new java.sql.Date(
                                                     Integer.parseInt(usaMatcher.group(3)) - 1900,
                                                     Integer.parseInt(usaMatcher.group(1)),
                                                     Integer.parseInt(usaMatcher.group(2)));
-                                        }
-                                        else if (eurMatcher.find()) {
+                                        } else if (eurMatcher.find()) {
                                             fieldAsDate = new java.sql.Date(
                                                     Integer.parseInt(eurMatcher.group(3)) - 1900,
                                                     Integer.parseInt(eurMatcher.group(2)),
                                                     Integer.parseInt(eurMatcher.group(1)));
-                                        }
-                                        else {
+                                        } else {
                                             throw new RuntimeException("Unrecognized date \""
-                                                + field + "\" in CSV file: "
-                                                + file.getAbsolutePath());
+                                                    + field + "\" in CSV file: "
+                                                    + file.getAbsolutePath());
                                         }
-                                        prepStmt.setDate(i+1, fieldAsDate, null);
+                                        prepStmt.setDate(i + 1, fieldAsDate, null);
                                         break;
                                     default:
                                         throw new RuntimeException("Unrecognized type for prepared statement");
                                 }
                             }
-                        } catch(IllegalStateException e) {
+                        } catch (IllegalStateException e) {
                             // This happens if there wasn't a match against the regex.
                             LOG.error("Invalid CSV file: " + file.getAbsolutePath());
                         }
@@ -467,9 +463,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                         if ((recordsRead % configCommitCount) == 0) {
                             long currTime = new java.util.Date().getTime();
                             String elapsedStr = "  Elapsed Time(ms): "
-                                + ((currTime - lastTimeMS) / 1000.000)
-                                + "                    ";
-                            LOG.debug(elapsedStr.substring(0,30)
+                                    + ((currTime - lastTimeMS) / 1000.000)
+                                    + "                    ";
+                            LOG.debug(elapsedStr.substring(0, 30)
                                     + "  Writing record " + recordsRead);
                             lastTimeMS = currTime;
                             prepStmt.executeBatch();
@@ -480,9 +476,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                     long currTime = new java.util.Date().getTime();
                     String elapsedStr = "  Elapsed Time(ms): "
-                        + ((currTime - lastTimeMS) / 1000.000)
-                        + "                    ";
-                    LOG.debug(elapsedStr.substring(0,30)
+                            + ((currTime - lastTimeMS) / 1000.000)
+                            + "                    ";
+                    LOG.debug(elapsedStr.substring(0, 30)
                             + "  Writing record " + recordsRead);
                     lastTimeMS = currTime;
                     prepStmt.executeBatch();
@@ -497,11 +493,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     conn.rollback();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                }  catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     conn.rollback();
                 } finally {
-                    if (br != null){
+                    if (br != null) {
                         try {
                             br.close();
                         } catch (IOException e) {
@@ -510,14 +506,16 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     }
                 }
 
-                synchronized(parent) {
+                synchronized (parent) {
                     parent.totalRows += recordsRead;
                 }
                 this.conn.close();
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 LOG.debug(e.getMessage());
             }
         }
 
-    };
+    }
+
+    ;
 }

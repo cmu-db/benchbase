@@ -69,7 +69,7 @@ public class ResultUploader {
     String dbUrl, dbType;
     String username, password;
     String benchType;
-//    int windowSize;
+    //    int windowSize;
     String uploadCode, uploadUrl;
 
     public ResultUploader(Results r, XMLConfiguration conf, CommandLine argsLine) {
@@ -92,9 +92,9 @@ public class ResultUploader {
         uploadUrl = expConf.getString("uploadUrl");
 
         this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
-        assert(this.collector != null);
+        assert (this.collector != null);
     }
-    
+
     public DBParameterCollector getConfCollector() {
         return (this.collector);
     }
@@ -103,21 +103,21 @@ public class ResultUploader {
         String dbConf = collector.collectParameters();
         os.print(dbConf);
     }
-    
+
     public void writeDBMetrics(PrintStream os) {
-    	os.print(collector.collectMetrics());
+        os.print(collector.collectMetrics());
     }
 
     public void writeBenchmarkConf(PrintStream os) throws ConfigurationException {
         XMLConfiguration outputConf = (XMLConfiguration) expConf.clone();
-        for (String key: IGNORE_CONF) {
+        for (String key : IGNORE_CONF) {
             outputConf.clearProperty(key);
         }
         outputConf.save(os);
     }
 
     public void writeSummary(PrintStream os) {
-    	Map<String, Object> summaryMap = new TreeMap<String, Object>();
+        Map<String, Object> summaryMap = new TreeMap<String, Object>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
@@ -126,8 +126,8 @@ public class ResultUploader {
         summaryMap.put("Benchmark Type", benchType);
         summaryMap.put("Latency Distribution", results.latencyDistribution.toMap());
         summaryMap.put("Throughput (requests/second)", results.getRequestsPerSecond());
-        for (String field: BENCHMARK_KEY_FIELD) {
-        	summaryMap.put(field, expConf.getString(field));
+        for (String field : BENCHMARK_KEY_FIELD) {
+            summaryMap.put(field, expConf.getString(field));
         }
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }

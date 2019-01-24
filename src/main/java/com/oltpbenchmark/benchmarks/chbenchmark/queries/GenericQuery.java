@@ -30,70 +30,68 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class GenericQuery extends Procedure {
-    
+
     private static final Logger LOG = Logger.getLogger(GenericQuery.class);
 
-	private PreparedStatement stmt;
+    private PreparedStatement stmt;
     private Worker owner;
 
     public void setOwner(Worker w) {
         this.owner = w;
     }
-	
-	protected static SQLStmt initSQLStmt(String queryFile) {
-		StringBuilder query = new StringBuilder();
-		
-		try{
-			
-			FileReader input = new FileReader("src/com/oltpbenchmark/benchmarks/chbenchmark/queries/" + queryFile);
-			BufferedReader reader = new BufferedReader(input);
-			String line = reader.readLine();
-			while (line != null) {
-				query.append(line);
-				query.append(" ");
-				line = reader.readLine();
-			}
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
-		return new SQLStmt(query.toString());
-	}
-	
-	protected abstract SQLStmt get_query();
-    
+
+    protected static SQLStmt initSQLStmt(String queryFile) {
+        StringBuilder query = new StringBuilder();
+
+        try {
+
+            FileReader input = new FileReader("src/com/oltpbenchmark/benchmarks/chbenchmark/queries/" + queryFile);
+            BufferedReader reader = new BufferedReader(input);
+            String line = reader.readLine();
+            while (line != null) {
+                query.append(line);
+                query.append(" ");
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new SQLStmt(query.toString());
+    }
+
+    protected abstract SQLStmt get_query();
+
     public ResultSet run(Connection conn) throws SQLException {
-		
-		//initializing all prepared statements
-    	stmt=this.getPreparedStatement(conn, get_query());
+
+        //initializing all prepared statements
+        stmt = this.getPreparedStatement(conn, get_query());
         if (owner != null)
             owner.setCurrStatement(stmt);
 
-    	LOG.debug(this.getClass());
+        LOG.debug(this.getClass());
         ResultSet rs = null;
         try {
             rs = stmt.executeQuery();
-        } catch(SQLException ex) {
+        } catch (SQLException ex) {
             // If the system thinks we're missing a prepared statement, then we
             // should regenerate them.
             if (ex.getErrorCode() == 0 && ex.getSQLState() != null
-                && ex.getSQLState().equals("07003"))
-            {
+                    && ex.getSQLState().equals("07003")) {
                 this.resetPreparedStatements();
                 rs = stmt.executeQuery();
-            }
-            else {
+            } else {
                 throw ex;
             }
         }
-    	while (rs.next()) {
-    		//do nothing
-    	}
-    	
+        while (rs.next()) {
+            //do nothing
+        }
+
         if (owner != null)
             owner.setCurrStatement(null);
 
-		return null;
-    
+        return null;
+
     }
 }

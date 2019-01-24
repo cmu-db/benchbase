@@ -31,33 +31,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
-	private static final Logger LOG = Logger.getLogger(ResourceStresserBenchmark.class);
+    private static final Logger LOG = Logger.getLogger(ResourceStresserBenchmark.class);
 
-	public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
-		super("resourcestresser", workConf, true);
-	}
-	
-	@Override
-	protected Package getProcedurePackageImpl() {
-	    return CPU1.class.getPackage();
-	}
-	
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
-		int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
-		int keyRange = numKeys / workConf.getTerminals();
-		LOG.warn("numkeys=" + numKeys + ", keyRange=" + keyRange);
-		// TODO: check ranges
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
-		} // FOR
+    public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
+        super("resourcestresser", workConf, true);
+    }
 
-		return workers;
-	}
-	
-	@Override
-	protected Loader<ResourceStresserBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new ResourceStresserLoader(this, conn);
-	}
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return CPU1.class.getPackage();
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
+        int keyRange = numKeys / workConf.getTerminals();
+        LOG.warn("numkeys=" + numKeys + ", keyRange=" + keyRange);
+        // TODO: check ranges
+        for (int i = 0; i < workConf.getTerminals(); ++i) {
+            workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
+        } // FOR
+
+        return workers;
+    }
+
+    @Override
+    protected Loader<ResourceStresserBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return new ResourceStresserLoader(this, conn);
+    }
 }

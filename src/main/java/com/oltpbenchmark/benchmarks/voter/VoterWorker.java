@@ -28,7 +28,7 @@ import java.sql.SQLException;
 public class VoterWorker extends Worker<VoterBenchmark> {
 
     private final PhoneCallGenerator switchboard;
-    
+
     public VoterWorker(VoterBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         switchboard = new PhoneCallGenerator(0, benchmarkModule.numContestants);

@@ -33,12 +33,12 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
     private static final Logger LOG = Logger.getLogger(NoOpWorker.class);
 
     private NoOp procNoOp;
-    
+
     public NoOpWorker(NoOpBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.procNoOp = this.getProcedure(NoOp.class);
     }
-    
+
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         // Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
@@ -52,7 +52,7 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
             ex.printStackTrace();
             System.exit(1);
         }
-        
+
         return (TransactionStatus.SUCCESS);
     }
 }

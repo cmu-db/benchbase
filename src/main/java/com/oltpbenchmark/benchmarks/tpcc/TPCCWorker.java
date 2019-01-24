@@ -39,45 +39,47 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
 
     private static final Logger LOG = Logger.getLogger(TPCCWorker.class);
 
-	private final int terminalWarehouseID;
-	/** Forms a range [lower, upper] (inclusive). */
-	private final int terminalDistrictLowerID;
-	private final int terminalDistrictUpperID;
-	// private boolean debugMessages;
-	private final Random gen = new Random();
+    private final int terminalWarehouseID;
+    /**
+     * Forms a range [lower, upper] (inclusive).
+     */
+    private final int terminalDistrictLowerID;
+    private final int terminalDistrictUpperID;
+    // private boolean debugMessages;
+    private final Random gen = new Random();
 
-	private int numWarehouses;
+    private int numWarehouses;
 
-	public TPCCWorker(TPCCBenchmark benchmarkModule, int id,
-			int terminalWarehouseID, int terminalDistrictLowerID,
-			int terminalDistrictUpperID, int numWarehouses)
-			throws SQLException {
-		super(benchmarkModule, id);
-		
-		this.terminalWarehouseID = terminalWarehouseID;
-		this.terminalDistrictLowerID = terminalDistrictLowerID;
-		this.terminalDistrictUpperID = terminalDistrictUpperID;
-		assert this.terminalDistrictLowerID >= 1;
-		assert this.terminalDistrictUpperID <= TPCCConfig.configDistPerWhse;
-		assert this.terminalDistrictLowerID <= this.terminalDistrictUpperID;
-		this.numWarehouses = numWarehouses;
-	}
+    public TPCCWorker(TPCCBenchmark benchmarkModule, int id,
+                      int terminalWarehouseID, int terminalDistrictLowerID,
+                      int terminalDistrictUpperID, int numWarehouses)
+            throws SQLException {
+        super(benchmarkModule, id);
 
-	/**
-	 * Executes a single TPCC transaction of type transactionType.
-	 */
-	@Override
+        this.terminalWarehouseID = terminalWarehouseID;
+        this.terminalDistrictLowerID = terminalDistrictLowerID;
+        this.terminalDistrictUpperID = terminalDistrictUpperID;
+        assert this.terminalDistrictLowerID >= 1;
+        assert this.terminalDistrictUpperID <= TPCCConfig.configDistPerWhse;
+        assert this.terminalDistrictLowerID <= this.terminalDistrictUpperID;
+        this.numWarehouses = numWarehouses;
+    }
+
+    /**
+     * Executes a single TPCC transaction of type transactionType.
+     */
+    @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
         try {
             TPCCProcedure proc = (TPCCProcedure) this.getProcedure(nextTransaction.getProcedureClass());
             proc.run(conn, gen, terminalWarehouseID, numWarehouses,
                     terminalDistrictLowerID, terminalDistrictUpperID, this);
-        } catch (ClassCastException ex){
+        } catch (ClassCastException ex) {
             //fail gracefully
-        	LOG.error("We have been invoked with an INVALID transactionType?!", ex);
-        	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
-	    }
+            LOG.error("We have been invoked with an INVALID transactionType?!", ex);
+            throw new RuntimeException("Bad transaction type = " + nextTransaction);
+        }
         conn.commit();
         return (TransactionStatus.SUCCESS);
-	}
+    }
 }

@@ -26,16 +26,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class GetNode extends Procedure{
+public class GetNode extends Procedure {
 
     private static final Logger LOG = Logger.getLogger(GetNode.class);
 
     private PreparedStatement stmt = null;
-    
+
     public final SQLStmt getNodeStmt = new SQLStmt(
             "SELECT id, type, version, time, data " +
-            "FROM nodetable " +
-            "WHERE id= ?"
+                    "FROM nodetable " +
+                    "WHERE id= ?"
     );
 
     //FIXME: return the RS rather than boolean
@@ -43,25 +43,25 @@ public class GetNode extends Procedure{
         if (LOG.isDebugEnabled()) {
             LOG.debug("getNode : " + type + " " + id);
         }
-        if(stmt == null)
+        if (stmt == null)
             stmt = this.getPreparedStatement(conn, getNodeStmt);
-        stmt.setLong(1, id);          
+        stmt.setLong(1, id);
         ResultSet rs = stmt.executeQuery();
         conn.commit();
         if (rs.next()) {
             Node res = new Node(rs.getLong(1), rs.getInt(2),
-                 rs.getLong(3), rs.getInt(4), rs.getBytes(5));
+                    rs.getLong(3), rs.getInt(4), rs.getBytes(5));
 
             // Check that multiple rows weren't returned
-            assert(rs.next() == false);
+            assert (rs.next() == false);
             rs.close();
             if (res.type != type) {
-              return null;
+                return null;
             } else {
-              return res;
+                return res;
             }
-          }
-          return null;
+        }
+        return null;
     }
 
 }

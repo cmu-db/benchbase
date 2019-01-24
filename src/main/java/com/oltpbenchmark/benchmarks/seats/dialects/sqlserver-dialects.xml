@@ -3,8 +3,8 @@
     <dialect type="SQLSERVER">
         <procedure name="LoadConfig">
             <statement name="getFlights">
-                 SELECT TOP 10000 f_id FROM FLIGHT ORDER BY F_DEPART_TIME DESC
+                SELECT TOP 10000 f_id FROM FLIGHT ORDER BY F_DEPART_TIME DESC
             </statement>
         </procedure>
-	</dialect>
+    </dialect>
 </dialects>

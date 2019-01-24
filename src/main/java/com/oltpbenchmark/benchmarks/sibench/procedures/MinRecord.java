@@ -24,21 +24,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MinRecord extends Procedure{
+public class MinRecord extends Procedure {
     public final SQLStmt minStmt = new SQLStmt(
-        "SELECT id FROM SITEST ORDER BY value ASC LIMIT 1"
+            "SELECT id FROM SITEST ORDER BY value ASC LIMIT 1"
     );
 
     public int run(Connection conn) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, minStmt);
-        ResultSet r=stmt.executeQuery();
+        ResultSet r = stmt.executeQuery();
         int minId = 0;
-        while(r.next())
-        {
-        	minId = r.getInt(1);
+        while (r.next()) {
+            minId = r.getInt(1);
         }
         r.close();
-	conn.commit();
+        conn.commit();
         return minId;
     }
 }

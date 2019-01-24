@@ -18,5 +18,5 @@
 package com.oltpbenchmark.util;
 
 public interface SimplePrinter {
-	public void println(String msg);
+    public void println(String msg);
 }

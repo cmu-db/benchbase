@@ -128,8 +128,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     }
 
     /**
-     * @author Djellel Load num_users users.
      * @throws SQLException
+     * @author Djellel Load num_users users.
      */
     protected void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_USER);
@@ -181,10 +181,10 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     }
 
     /**
-     * @author Djellel What's going on here?: The number of tweets is fixed to
-     *         num_tweets We simply select using the distribution who issued the
-     *         tweet
      * @throws SQLException
+     * @author Djellel What's going on here?: The number of tweets is fixed to
+     * num_tweets We simply select using the distribution who issued the
+     * tweet
      */
     protected void loadTweets(Connection conn, long lo, long hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
@@ -230,13 +230,13 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     }
 
     /**
-     * @author Djellel What's going on here?: For each user (follower) we select
-     *         how many users he is following (followees List) then select users
-     *         to fill up that list. Selecting is based on the distribution.
-     *         NOTE: We are using two different distribution to avoid
-     *         correlation: ZipfianGenerator (describes the followed most)
-     *         ScrambledZipfianGenerator (describes the heavy tweeters)
      * @throws SQLException
+     * @author Djellel What's going on here?: For each user (follower) we select
+     * how many users he is following (followees List) then select users
+     * to fill up that list. Selecting is based on the distribution.
+     * NOTE: We are using two different distribution to avoid
+     * correlation: ZipfianGenerator (describes the followed most)
+     * ScrambledZipfianGenerator (describes the heavy tweeters)
      */
     protected void loadFollowData(Connection conn, int lo, int hi) throws SQLException {
         String sql;
@@ -262,7 +262,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             if (time == 0) {
                 time = 1; // At least this follower will follow 1 user
             }
-            for (int f = 0; f < time;) {
+            for (int f = 0; f < time; ) {
                 int followee = zipfFollowee.nextInt();
                 if (follower != followee && !followees.contains(followee)) {
                     followsInsert.setInt(1, follower);

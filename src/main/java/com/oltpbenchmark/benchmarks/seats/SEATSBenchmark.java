@@ -80,7 +80,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     /**
      * Return the path of the CSV file that has data for the given Table catalog
      * handle
-     * 
+     *
      * @param data_dir
      * @param catalog_tbl
      * @return

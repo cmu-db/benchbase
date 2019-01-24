@@ -54,46 +54,46 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Vote extends Procedure {
-	
+
     // potential return codes
     public static final long VOTE_SUCCESSFUL = 0;
     public static final long ERR_INVALID_CONTESTANT = 1;
     public static final long ERR_VOTER_OVER_VOTE_LIMIT = 2;
-	
+
     // Checks if the vote is for a valid contestant
     public final SQLStmt checkContestantStmt = new SQLStmt(
-	   "SELECT contestant_number FROM CONTESTANTS WHERE contestant_number = ?;"
+            "SELECT contestant_number FROM CONTESTANTS WHERE contestant_number = ?;"
     );
-	
+
     // Checks if the voter has exceeded their allowed number of votes
     public final SQLStmt checkVoterStmt = new SQLStmt(
-		"SELECT COUNT(*) FROM VOTES WHERE phone_number = ?;"
+            "SELECT COUNT(*) FROM VOTES WHERE phone_number = ?;"
     );
-	
+
     // Checks an area code to retrieve the corresponding state
     public final SQLStmt checkStateStmt = new SQLStmt(
-		"SELECT state FROM AREA_CODE_STATE WHERE area_code = ?;"
+            "SELECT state FROM AREA_CODE_STATE WHERE area_code = ?;"
     );
-	
+
     // Records a vote
     public final SQLStmt insertVoteStmt = new SQLStmt(
-		"INSERT INTO VOTES (vote_id, phone_number, state, contestant_number, created) " +
-    "VALUES (?, ?, ?, ?, NOW());"
+            "INSERT INTO VOTES (vote_id, phone_number, state, contestant_number, created) " +
+                    "VALUES (?, ?, ?, ?, NOW());"
     );
-	
+
     public long run(Connection conn, long voteId, long phoneNumber, int contestantNumber, long maxVotesPerPhoneNumber) throws SQLException {
-		
+
         PreparedStatement ps = getPreparedStatement(conn, checkContestantStmt);
         ps.setInt(1, contestantNumber);
         ResultSet rs = ps.executeQuery();
         try {
             if (!rs.next()) {
-                return ERR_INVALID_CONTESTANT;    
+                return ERR_INVALID_CONTESTANT;
             }
         } finally {
             rs.close();
         }
-        
+
         ps = getPreparedStatement(conn, checkVoterStmt);
         ps.setLong(1, phoneNumber);
         rs = ps.executeQuery();
@@ -105,9 +105,9 @@ public class Vote extends Procedure {
         } finally {
             rs.close();
         }
-        
+
         ps = getPreparedStatement(conn, checkStateStmt);
-        ps.setShort(1, (short)(phoneNumber / 10000000l));
+        ps.setShort(1, (short) (phoneNumber / 10000000l));
         rs = ps.executeQuery();
         // Some sample client libraries use the legacy random phone generation that mostly
         // created invalid phone numbers. Until refactoring, re-assign all such votes to
@@ -123,7 +123,7 @@ public class Vote extends Procedure {
         ps.setString(3, state);
         ps.setInt(4, contestantNumber);
         ps.execute();
-		
+
         // Set the return value to 0: successful vote
         return VOTE_SUCCESSFUL;
     }

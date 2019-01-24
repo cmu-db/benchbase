@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 
-
 /***
  *   TPC-H implementation
  *
@@ -23,7 +22,7 @@
  *   Ippokratis Pandis (ipandis@us.ibm.com)
  *
  ***/
- 
+
 package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.WorkloadConfiguration;
@@ -42,34 +41,34 @@ import java.util.List;
 public class TPCHBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(TPCHBenchmark.class);
 
-	public TPCHBenchmark(WorkloadConfiguration workConf) {
-		super("tpch", workConf, true);
-	}
+    public TPCHBenchmark(WorkloadConfiguration workConf) {
+        super("tpch", workConf, true);
+    }
 
-	@Override
-	protected Package getProcedurePackageImpl() {
-		return (Q1.class.getPackage());
-	}
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return (Q1.class.getPackage());
+    }
 
-	
-	/**
-	 * @param Bool
-	 */
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
 
-		int numTerminals = workConf.getTerminals();
+    /**
+     * @param Bool
+     */
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+
+        int numTerminals = workConf.getTerminals();
         LOG.info(String.format("Creating %d workers for TPC-H", numTerminals));
         for (int i = 0; i < numTerminals; i++) {
             workers.add(new TPCHWorker(this, i));
-		}
-		return workers;
-	}
+        }
+        return workers;
+    }
 
-	@Override
-	protected Loader<TPCHBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new TPCHLoader(this, conn);
-	}
+    @Override
+    protected Loader<TPCHBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return new TPCHLoader(this, conn);
+    }
 
 } 

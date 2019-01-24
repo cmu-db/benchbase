@@ -13,7 +13,7 @@
             <statement name="getTweets">
                 SELECT * FROM "tweets" WHERE uid IN (??)
             </statement>
-        </procedure>        
+        </procedure>
         <procedure name="GetFollowers">
             <statement name="getFollowers">
                 SELECT f2 FROM "followers" WHERE f1 = ? LIMIT 20

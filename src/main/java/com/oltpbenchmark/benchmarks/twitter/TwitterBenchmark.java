@@ -35,38 +35,38 @@ import java.util.Collections;
 import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
-	
-	private TwitterConfiguration twitterConf;
 
-	public TwitterBenchmark(WorkloadConfiguration workConf) {
-		super("twitter", workConf, true);
-		this.twitterConf = new TwitterConfiguration(workConf);
-	}
-	
-	@Override
-	protected Package getProcedurePackageImpl() {
-	    return GetFollowers.class.getPackage();
-	}
+    private TwitterConfiguration twitterConf;
 
-	@Override
-	protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-		TransactionSelector transSel = new TransactionSelector(
-		twitterConf.getTracefile(), 
-		twitterConf.getTracefile2(), 
-		workConf.getTransTypes());
-		List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
-		transSel.close();
-		List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
-		for (int i = 0; i < workConf.getTerminals(); ++i) {
-			TransactionGenerator<TwitterOperation> generator = 
-			    new TraceTransactionGenerator(trace);
-			workers.add(new TwitterWorker(this, i, generator));
-		} // FOR
-		return workers;
-	}
-	
-	@Override
-	protected Loader<TwitterBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new TwitterLoader(this, conn);
-	}
+    public TwitterBenchmark(WorkloadConfiguration workConf) {
+        super("twitter", workConf, true);
+        this.twitterConf = new TwitterConfiguration(workConf);
+    }
+
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return GetFollowers.class.getPackage();
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+        TransactionSelector transSel = new TransactionSelector(
+                twitterConf.getTracefile(),
+                twitterConf.getTracefile2(),
+                workConf.getTransTypes());
+        List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
+        transSel.close();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        for (int i = 0; i < workConf.getTerminals(); ++i) {
+            TransactionGenerator<TwitterOperation> generator =
+                    new TraceTransactionGenerator(trace);
+            workers.add(new TwitterWorker(this, i, generator));
+        } // FOR
+        return workers;
+    }
+
+    @Override
+    protected Loader<TwitterBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+        return new TwitterLoader(this, conn);
+    }
 }

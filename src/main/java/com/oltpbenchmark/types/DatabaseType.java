@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * List of the database management systems that we support 
+ * List of the database management systems that we support
  * in the framework.
+ *
  * @author pavlo
  */
 public enum DatabaseType {
@@ -54,7 +55,7 @@ public enum DatabaseType {
     MEMSQL("com.mysql.jdbc.Driver", true, false, false),
     COCKROACHDB("org.postgresql.Driver", false, false, true),
     ;
-    
+
     private DatabaseType(String driver,
                          boolean escapeNames,
                          boolean includeColNames,
@@ -64,25 +65,25 @@ public enum DatabaseType {
         this.includeColNames = includeColNames;
         this.supportTxns = supportTxns;
     }
-    
+
     /**
      * This is the suggested driver string to use in the configuration xml
-     * This corresponds to the <B>'driver'</b> attribute. 
+     * This corresponds to the <B>'driver'</b> attribute.
      */
     private final String driver;
-    
+
     /**
      * If this flag is set to true, then the framework will escape names in
-     * the INSERT queries  
+     * the INSERT queries
      */
     private final boolean escapeNames;
-    
+
     /**
      * If this flag is set to true, then the framework will include the column names
-     * when generating INSERT queries for loading data.  
+     * when generating INSERT queries for loading data.
      */
     private final boolean includeColNames;
-    
+
     /**
      * If this flag is set to true, then the framework will invoke the JDBC transaction
      * api to do various things during execution. This should only be disabled
@@ -91,59 +92,64 @@ public enum DatabaseType {
      * when the framework tries to set the isolation level.
      */
     private boolean supportTxns;
-    
+
     // ---------------------------------------------------------------
     // ACCESSORS
     // ----------------------------------------------------------------
-    
+
     /**
      * Returns the suggested driver string to use for the given database type
+     *
      * @return
      */
     public String getSuggestedDriver() {
         return (this.driver);
     }
-    
+
     /**
-     * Returns true if the framework should escape the names of columns/tables when 
+     * Returns true if the framework should escape the names of columns/tables when
      * generating SQL to load in data for the target database type.
+     *
      * @return
      */
     public boolean shouldEscapeNames() {
         return (this.escapeNames);
     }
-    
+
     /**
-     * Returns true if the framework should include the names of columns when 
+     * Returns true if the framework should include the names of columns when
      * generating SQL to load in data for the target database type.
+     *
      * @return
      */
     public boolean shouldIncludeColumnNames() {
         return (this.includeColNames);
     }
-    
+
     /**
      * Returns true if the framework should use transactions when executing
      * any SQL queries on the target DBMS.
+     *
      * @return
      */
     public boolean shouldUseTransactions() {
         return (this.supportTxns);
     }
-    
+
     // ----------------------------------------------------------------
     // STATIC METHODS + MEMBERS
     // ----------------------------------------------------------------
-    
+
     protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<Integer, DatabaseType>();
     protected static final Map<String, DatabaseType> name_lookup = new HashMap<String, DatabaseType>();
+
     static {
         for (DatabaseType vt : EnumSet.allOf(DatabaseType.class)) {
             DatabaseType.idx_lookup.put(vt.ordinal(), vt);
             DatabaseType.name_lookup.put(vt.name().toUpperCase(), vt);
         }
     }
-    
+
     public static DatabaseType get(String name) {
         DatabaseType ret = DatabaseType.name_lookup.get(name.toUpperCase());
         return (ret);

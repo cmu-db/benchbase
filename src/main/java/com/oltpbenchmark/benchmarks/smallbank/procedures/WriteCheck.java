@@ -37,31 +37,32 @@ import java.sql.SQLException;
 /**
  * WriteCheck Procedure
  * Original version by Mohammad Alomari and Michael Cahill
+ *
  * @author pavlo
  */
 public class WriteCheck extends Procedure {
-    
+
     public final SQLStmt GetAccount = new SQLStmt(
-        "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
-        " WHERE name = ?"
+            "SELECT * FROM " + SmallBankConstants.TABLENAME_ACCOUNTS +
+                    " WHERE name = ?"
     );
-    
+
     public final SQLStmt GetSavingsBalance = new SQLStmt(
-        "SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS +
-        " WHERE custid = ?"
+            "SELECT bal FROM " + SmallBankConstants.TABLENAME_SAVINGS +
+                    " WHERE custid = ?"
     );
-    
+
     public final SQLStmt GetCheckingBalance = new SQLStmt(
-        "SELECT bal FROM " + SmallBankConstants.TABLENAME_CHECKING +
-        " WHERE custid = ?"
+            "SELECT bal FROM " + SmallBankConstants.TABLENAME_CHECKING +
+                    " WHERE custid = ?"
     );
-    
+
     public final SQLStmt UpdateCheckingBalance = new SQLStmt(
-        "UPDATE " + SmallBankConstants.TABLENAME_CHECKING + 
-        "   SET bal = bal - ? " +
-        " WHERE custid = ?"
+            "UPDATE " + SmallBankConstants.TABLENAME_CHECKING +
+                    "   SET bal = bal - ? " +
+                    " WHERE custid = ?"
     );
-    
+
     public void run(Connection conn, String custName, double amount) throws SQLException {
         // First convert the custName to the custId
         PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName);
@@ -71,27 +72,27 @@ public class WriteCheck extends Procedure {
             throw new UserAbortException(msg);
         }
         long custId = r0.getLong(1);
-        
+
         // Then get their account balances
         PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetSavingsBalance, custId);
         ResultSet balRes0 = balStmt0.executeQuery();
         if (balRes0.next() == false) {
             String msg = String.format("No %s for customer #%d",
-                                       SmallBankConstants.TABLENAME_SAVINGS, 
-                                       custId);
+                    SmallBankConstants.TABLENAME_SAVINGS,
+                    custId);
             throw new UserAbortException(msg);
         }
-        
+
         PreparedStatement balStmt1 = this.getPreparedStatement(conn, GetCheckingBalance, custId);
         ResultSet balRes1 = balStmt1.executeQuery();
         if (balRes1.next() == false) {
             String msg = String.format("No %s for customer #%d",
-                                       SmallBankConstants.TABLENAME_CHECKING, 
-                                       custId);
+                    SmallBankConstants.TABLENAME_CHECKING,
+                    custId);
             throw new UserAbortException(msg);
         }
         double total = balRes0.getDouble(1) + balRes1.getDouble(1);
-        
+
         PreparedStatement updateStmt = null;
         if (total < amount) {
             updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount - 1, custId);
@@ -99,10 +100,10 @@ public class WriteCheck extends Procedure {
             updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
         }
         int status = updateStmt.executeUpdate();
-        assert(status == 1) :
-            String.format("Failed to update %s for customer #%d [total=%.2f / amount=%.2f]",
-                          SmallBankConstants.TABLENAME_CHECKING, custId, total, amount);
-        
+        assert (status == 1) :
+                String.format("Failed to update %s for customer #%d [total=%.2f / amount=%.2f]",
+                        SmallBankConstants.TABLENAME_CHECKING, custId, total, amount);
+
         return;
     }
 }

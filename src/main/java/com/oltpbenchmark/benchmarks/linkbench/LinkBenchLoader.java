@@ -34,7 +34,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
             LOG.debug("# of RECORDS:  " + this.num_record);
         }
     }
-    
+
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         // TODO Auto-generated method stub

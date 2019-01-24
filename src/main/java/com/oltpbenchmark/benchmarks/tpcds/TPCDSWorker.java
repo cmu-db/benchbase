@@ -8,7 +8,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import java.sql.SQLException;
 
 
-public class TPCDSWorker extends Worker<TPCDSBenchmark>{
+public class TPCDSWorker extends Worker<TPCDSBenchmark> {
     public TPCDSWorker(TPCDSBenchmark benchmarkModule, int id)
             throws SQLException {
         super(benchmarkModule, id);

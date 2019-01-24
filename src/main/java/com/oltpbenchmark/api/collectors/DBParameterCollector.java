@@ -23,9 +23,14 @@ import java.util.Map;
 
 public interface DBParameterCollector {
     boolean hasParameters();
+
     boolean hasMetrics();
+
     String collectParameters();
+
     String collectMetrics();
+
     String collectVersion();
-    List<Map<String, String>> getMetrics(ResultSet out) throws SQLException ;
+
+    List<Map<String, String>> getMetrics(ResultSet out) throws SQLException;
 }

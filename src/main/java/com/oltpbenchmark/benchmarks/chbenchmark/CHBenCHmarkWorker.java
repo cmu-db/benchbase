@@ -25,23 +25,23 @@ import com.oltpbenchmark.types.TransactionStatus;
 import java.sql.SQLException;
 
 public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
-	public CHBenCHmarkWorker(CHBenCHmark benchmarkModule, int id) {
-		super(benchmarkModule, id);
-	}
-	
-	@Override
-	protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
-		try {
+    public CHBenCHmarkWorker(CHBenCHmark benchmarkModule, int id) {
+        super(benchmarkModule, id);
+    }
+
+    @Override
+    protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
+        try {
             GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
             proc.setOwner(this);
-			proc.run(conn);
-		} catch (ClassCastException e) {
-        	System.err.println("We have been invoked with an INVALID transactionType?!");
-        	throw new RuntimeException("Bad transaction type = "+ nextTransaction);
-		}
+            proc.run(conn);
+        } catch (ClassCastException e) {
+            System.err.println("We have been invoked with an INVALID transactionType?!");
+            throw new RuntimeException("Bad transaction type = " + nextTransaction);
+        }
 
         conn.commit();
         return (TransactionStatus.SUCCESS);
 
-	}
+    }
 }

@@ -24,44 +24,44 @@ import java.sql.*;
 public class Q15 extends GenericQuery {
 
     public final SQLStmt createview_stmt = new SQLStmt(
-              "create view revenue0 (supplier_no, total_revenue) as "
-            +     "select "
-            +         "l_suppkey, "
-            +         "sum(l_extendedprice * (1 - l_discount)) "
-            +     "from "
-            +         "lineitem "
-            +     "where "
-            +         "l_shipdate >= date ? "
-            +         "and l_shipdate < date ? + interval '3' month "
-            +     "group by "
-            +         "l_suppkey"
-        );
+            "create view revenue0 (supplier_no, total_revenue) as "
+                    + "select "
+                    + "l_suppkey, "
+                    + "sum(l_extendedprice * (1 - l_discount)) "
+                    + "from "
+                    + "lineitem "
+                    + "where "
+                    + "l_shipdate >= date ? "
+                    + "and l_shipdate < date ? + interval '3' month "
+                    + "group by "
+                    + "l_suppkey"
+    );
 
-    public final SQLStmt query_stmt = new SQLStmt (
-              "select "
-            +     "s_suppkey, "
-            +     "s_name, "
-            +     "s_address, "
-            +     "s_phone, "
-            +     "total_revenue "
-            + "from "
-            +     "supplier, "
-            +     "revenue0 "
-            + "where "
-            +     "s_suppkey = supplier_no "
-            +     "and total_revenue = ( "
-            +         "select "
-            +             "max(total_revenue) "
-            +         "from "
-            +             "revenue0 "
-            +     ") "
-            + "order by "
-            +     "s_suppkey"
-        );
+    public final SQLStmt query_stmt = new SQLStmt(
+            "select "
+                    + "s_suppkey, "
+                    + "s_name, "
+                    + "s_address, "
+                    + "s_phone, "
+                    + "total_revenue "
+                    + "from "
+                    + "supplier, "
+                    + "revenue0 "
+                    + "where "
+                    + "s_suppkey = supplier_no "
+                    + "and total_revenue = ( "
+                    + "select "
+                    + "max(total_revenue) "
+                    + "from "
+                    + "revenue0 "
+                    + ") "
+                    + "order by "
+                    + "s_suppkey"
+    );
 
     public final SQLStmt dropview_stmt = new SQLStmt(
-              "drop view revenue0"
-        );
+            "drop view revenue0"
+    );
 
     @Override
     public ResultSet run(Connection conn, RandomGenerator rand) throws SQLException {

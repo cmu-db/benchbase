@@ -13,7 +13,9 @@
         </procedure>
         <procedure name="UpdateRecord">
             <statement name="updateAllStmt">
-                UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?
+                UPDATE USERTABLE SET
+                FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE
+                YCSB_KEY=?
             </statement>
         </procedure>
         <procedure name="InsertRecord">
@@ -31,7 +33,9 @@
                 Select * from USERTABLE where YCSB_KEY=? FOR UPDATE
             </statement>
             <statement name="updateAllStmt">
-                UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?
+                UPDATE USERTABLE SET
+                FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE
+                YCSB_KEY=?
             </statement>
         </procedure>
     </dialect>

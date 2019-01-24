@@ -17,41 +17,41 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.io.File;
-
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 
+import java.io.File;
+
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
-	
+
     public static final Class<?> PROC_CLASSES[] = {
-        GetItem.class,
-        GetUserInfo.class,
-        NewBid.class,
-        NewComment.class,
-        NewCommentResponse.class,
-        NewFeedback.class,
-        NewItem.class,
-        NewPurchase.class,
-        UpdateItem.class
+            GetItem.class,
+            GetUserInfo.class,
+            NewBid.class,
+            NewComment.class,
+            NewCommentResponse.class,
+            NewFeedback.class,
+            NewItem.class,
+            NewPurchase.class,
+            UpdateItem.class
     };
-    
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp(AuctionMarkBenchmark.class, PROC_CLASSES);
-		AuctionMarkProfile.clearCachedProfile();
-	}
-	
-	/**
-	 * testGetDataDir
-	 */
-	public void testGetDataDir() throws Exception {
-	    File data_dir = this.benchmark.getDataDir();
-	    System.err.println("Data Dir: " + data_dir);
-	    assertNotNull(data_dir);
-	    assertTrue(data_dir.exists());
-	}
-	
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp(AuctionMarkBenchmark.class, PROC_CLASSES);
+        AuctionMarkProfile.clearCachedProfile();
+    }
+
+    /**
+     * testGetDataDir
+     */
+    public void testGetDataDir() throws Exception {
+        File data_dir = this.benchmark.getDataDir();
+        System.err.println("Data Dir: " + data_dir);
+        assertNotNull(data_dir);
+        assertTrue(data_dir.exists());
+    }
+
 //	/**
 //	 * testSupplementalClasses
 //	 */

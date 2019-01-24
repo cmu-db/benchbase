@@ -35,50 +35,62 @@ import java.util.Arrays;
 
 /**
  * Object node in social graph
+ *
  * @author tarmstrong
  */
 public class Node {
-  /** Unique identifier for node */
-  public long id;
+    /**
+     * Unique identifier for node
+     */
+    public long id;
 
-  /** Type of node */
-  public int type;
+    /**
+     * Type of node
+     */
+    public int type;
 
-  /** Version of node: typically updated on every change */
-  public long version;
+    /**
+     * Version of node: typically updated on every change
+     */
+    public long version;
 
-  /** Last update time of node as UNIX timestamp */
-  public int time;
+    /**
+     * Last update time of node as UNIX timestamp
+     */
+    public int time;
 
-  /** Arbitrary payload data */
-  public byte data[];
+    /**
+     * Arbitrary payload data
+     */
+    public byte data[];
 
-  public Node(long id, int type, long version, int time,
-      byte data[]) {
-    super();
-    this.id = id;
-    this.type = type;
-    this.version = version;
-    this.time = time;
-    this.data = data;
-  }
-
-  public Node clone() {
-    return new Node(id, type, version, time, data);
-  }
-  @Override
-  public boolean equals(Object other) {
-    if (!(other instanceof Node)) {
-      return false;
+    public Node(long id, int type, long version, int time,
+                byte data[]) {
+        super();
+        this.id = id;
+        this.type = type;
+        this.version = version;
+        this.time = time;
+        this.data = data;
     }
-    Node o = (Node) other;
-    return id == o.id && type == o.type && version == o.version
-        && time == o.time && Arrays.equals(data, o.data);
-  }
 
-  public String toString() {
-    return "Node(" + "id=" + id + ",type=" + type + ",version=" + version + ","
-                   + "timestamp=" + time + ",data="
-                   + Arrays.toString(data) + ")";
-  }
+    public Node clone() {
+        return new Node(id, type, version, time, data);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Node)) {
+            return false;
+        }
+        Node o = (Node) other;
+        return id == o.id && type == o.type && version == o.version
+                && time == o.time && Arrays.equals(data, o.data);
+    }
+
+    public String toString() {
+        return "Node(" + "id=" + id + ",type=" + type + ",version=" + version + ","
+                + "timestamp=" + time + ",data="
+                + Arrays.toString(data) + ")";
+    }
 }

@@ -23,8 +23,8 @@ import org.apache.log4j.Logger;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class UpdateLink extends Procedure{
-    
+public class UpdateLink extends Procedure {
+
     private static final Logger LOG = Logger.getLogger(UpdateLink.class);
 
     public void run(Connection conn, Link l, boolean noinverse) throws SQLException {

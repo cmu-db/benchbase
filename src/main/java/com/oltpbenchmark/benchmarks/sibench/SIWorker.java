@@ -31,7 +31,7 @@ public class SIWorker extends Worker<SIBenchmark> {
 
     private static Random updateRecordIdGenerator = null;
     private int recordCount;
-    
+
     public SIWorker(SIBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
         synchronized (SIWorker.class) {
@@ -40,13 +40,13 @@ public class SIWorker extends Worker<SIBenchmark> {
                 updateRecordIdGenerator = benchmarkModule.rng();
             }
         }
-        this.recordCount= init_record_count;
+        this.recordCount = init_record_count;
     }
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
-        
+
         if (procClass.equals(MinRecord.class)) {
             minRecord();
         } else if (procClass.equals(UpdateRecord.class)) {

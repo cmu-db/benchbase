@@ -25,7 +25,7 @@ import java.sql.SQLException;
 
 public class InsertRecord extends Procedure {
     public final SQLStmt insertStmt = new SQLStmt(
-        "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+            "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
     );
 
     // FIXME: The value in ysqb is a byteiterator

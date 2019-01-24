@@ -17,26 +17,18 @@
 
 package com.oltpbenchmark.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.collections4.set.ListOrderedSet;
+
+import java.util.*;
 
 /**
  * @author pavlo
  */
 public class TestCollectionUtil extends TestCase {
-    
+
     private final Random rand = new Random();
-    
+
     /**
      * testIterableEnumeration
      */
@@ -44,44 +36,46 @@ public class TestCollectionUtil extends TestCase {
         final int size = 10;
         Enumeration<Integer> e = new Enumeration<Integer>() {
             int ctr = 0;
+
             @Override
             public Integer nextElement() {
                 return (ctr++);
             }
+
             @Override
             public boolean hasMoreElements() {
                 return (ctr < size);
             }
         };
-        
+
         List<Integer> found = new ArrayList<Integer>();
         for (Integer i : CollectionUtil.iterable(e))
             found.add(i);
         assertEquals(size, found.size());
     }
-    
+
     /**
      * testAddAll
      */
     public void testAddAll() {
-        int cnt = rand.nextInt(50) + 1; 
+        int cnt = rand.nextInt(50) + 1;
         List<Integer> l = new ArrayList<Integer>();
         Integer a[] = new Integer[cnt];
         for (int i = 0; i < cnt; i++) {
-            int next = rand.nextInt(); 
+            int next = rand.nextInt();
             l.add(next);
             a[i] = next;
         } // FOR
-        
+
         Collection<Integer> c = CollectionUtil.addAll(new HashSet<Integer>(), l);
         assertEquals(l.size(), c.size());
-        assert(c.containsAll(l));
-        
+        assert (c.containsAll(l));
+
         c = CollectionUtil.addAll(new HashSet<Integer>(), a);
         assertEquals(l.size(), c.size());
-        assert(c.containsAll(l));
+        assert (c.containsAll(l));
     }
-    
+
     /**
      * testGetGreatest
      */
@@ -94,7 +88,7 @@ public class TestCollectionUtil extends TestCase {
         String key = CollectionUtil.getGreatest(map);
         assertEquals("c", key);
     }
-    
+
     /**
      * testGetFirst
      */
@@ -106,7 +100,7 @@ public class TestCollectionUtil extends TestCase {
         String key = CollectionUtil.first(list);
         assertEquals("a", key);
     }
-    
+
     /**
      * testPop
      */
@@ -117,20 +111,20 @@ public class TestCollectionUtil extends TestCase {
         for (int i = 0; i < expected.length; i++) {
             expected[i] = rng.astring(1, 32);
         } // FOR
-        
-        Collection<String> collections[] = new Collection[] {
-            CollectionUtil.addAll(new ListOrderedSet<String>(), expected),
-            CollectionUtil.addAll(new HashSet<String>(), expected),
-            CollectionUtil.addAll(new ArrayList<String>(), expected),
+
+        Collection<String> collections[] = new Collection[]{
+                CollectionUtil.addAll(new ListOrderedSet<String>(), expected),
+                CollectionUtil.addAll(new HashSet<String>(), expected),
+                CollectionUtil.addAll(new ArrayList<String>(), expected),
         };
         for (Collection<String> c : collections) {
             assertNotNull(c);
             assertEquals(c.getClass().getSimpleName(), expected.length, c.size());
             String pop = CollectionUtil.pop(c);
             assertNotNull(c.getClass().getSimpleName(), pop);
-            assertEquals(c.getClass().getSimpleName(), expected.length-1, c.size());
+            assertEquals(c.getClass().getSimpleName(), expected.length - 1, c.size());
             assertFalse(c.getClass().getSimpleName(), c.contains(pop));
-            
+
             if (c instanceof List || c instanceof ListOrderedSet) {
                 assertEquals(c.getClass().getSimpleName(), expected[0], pop);
             }

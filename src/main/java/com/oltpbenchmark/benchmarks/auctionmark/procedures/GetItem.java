@@ -26,6 +26,7 @@ import java.sql.*;
 /**
  * Get Item Information
  * Returns all of the attributes for a particular item
+ *
  * @author pavlo
  */
 public class GetItem extends Procedure {
@@ -33,24 +34,24 @@ public class GetItem extends Procedure {
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------
-    
+
     public final SQLStmt getItem = new SQLStmt(
-        "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
-         " FROM " + AuctionMarkConstants.TABLENAME_ITEM + 
-         " WHERE i_id = ? AND i_u_id = ?" 
+            "SELECT " + AuctionMarkConstants.ITEM_COLUMNS_STR +
+                    " FROM " + AuctionMarkConstants.TABLENAME_ITEM +
+                    " WHERE i_id = ? AND i_u_id = ?"
     );
-    
+
     public final SQLStmt getUser = new SQLStmt(
-        "SELECT u_id, u_rating, u_created, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name " +
-        "  FROM " + AuctionMarkConstants.TABLENAME_USERACCT + ", " +
+            "SELECT u_id, u_rating, u_created, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name " +
+                    "  FROM " + AuctionMarkConstants.TABLENAME_USERACCT + ", " +
                     AuctionMarkConstants.TABLENAME_REGION +
-        " WHERE u_id = ? AND u_r_id = r_id"
+                    " WHERE u_id = ? AND u_r_id = r_id"
     );
 
     // -----------------------------------------------------------------
     // RUN METHOD
     // -----------------------------------------------------------------
-    
+
     public Object[][] run(Connection conn, Timestamp benchmarkTimes[],
                           long item_id, long seller_id) throws SQLException {
         PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
@@ -61,10 +62,10 @@ public class GetItem extends Procedure {
         }
         Object item_row[] = new Object[item_results.getMetaData().getColumnCount()];
         for (int i = 0; i < item_row.length; i++) {
-            item_row[i] = item_results.getObject(i+1);
+            item_row[i] = item_results.getObject(i + 1);
         } // FOR
         item_results.close();
-        
+
         PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id);
         ResultSet user_results = user_stmt.executeQuery();
         Object user_row[] = null;
@@ -74,13 +75,13 @@ public class GetItem extends Procedure {
             }
             user_row = new Object[user_results.getMetaData().getColumnCount()];
             for (int i = 0; i < user_row.length; i++) {
-                user_row[i] = user_results.getObject(i+1);
+                user_row[i] = user_results.getObject(i + 1);
             } // FOR
         } finally {
             user_results.close();
         }
-        
-        return (new Object[][]{ item_row, user_row });
+
+        return (new Object[][]{item_row, user_row});
     }
-    
+
 }

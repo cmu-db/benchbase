@@ -74,6 +74,7 @@ public class LinkBenchBenchmark extends BenchmarkModule {
      * Create a new random number generated, optionally seeded to a known
      * value from the config file.  If seed value not provided, a seed
      * is chosen.  In either case the seed is logged for later reproducibility.
+     *
      * @param props
      * @param configKey config key for the seed value
      * @return
@@ -84,7 +85,7 @@ public class LinkBenchBenchmark extends BenchmarkModule {
             seed = ConfigUtil.getLong(props, configKey);
             LOG.info("Using configured random seed " + configKey + "=" + seed);
         } else {
-            seed = System.nanoTime() ^ (long)configKey.hashCode();
+            seed = System.nanoTime() ^ (long) configKey.hashCode();
             LOG.info("Using random seed " + seed + " since " + configKey
                     + " not specified");
         }
@@ -94,7 +95,7 @@ public class LinkBenchBenchmark extends BenchmarkModule {
             masterRandom = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException e) {
             LOG.warn("SHA1PRNG not available, defaulting to default SecureRandom" +
-            " implementation");
+                    " implementation");
             masterRandom = new SecureRandom();
         }
         masterRandom.setSeed(ByteBuffer.allocate(8).putLong(seed).array());

@@ -17,26 +17,25 @@
 
 package com.oltpbenchmark.api;
 
-import java.io.File;
-import java.net.URL;
-
-import org.apache.commons.io.IOUtils;
-
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.net.URL;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
     protected static final int NUM_TERMINALS = 10;
-    
+
     /**
      * testGetDatabaseDDL
      */
     public void testGetDatabaseDDL() throws Exception {
         URL ddl = this.benchmark.getDatabaseDDL();
         assertNotNull(ddl);
-        assertNotNull (IOUtils.toString(ddl));
+        assertNotNull(IOUtils.toString(ddl));
     }
 
     /**
@@ -56,13 +55,13 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             System.err.println(catalog_tbl);
         } // FOR
     }
-    
+
     /**
      * testGetTransactionType
      */
     public void testGetTransactionType() throws Exception {
         int id = 1;
-        for (Class<? extends Procedure> procClass: this.procClasses) {
+        for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
             TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
@@ -71,7 +70,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             System.err.println(procClass + " -> " + txnType);
         } // FOR
     }
-    
+
     /**
      * testGetTransactionTypeInvalidId
      */
@@ -87,7 +86,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         }
         assertNull(txnType);
     }
-    
+
     /**
      * testGetSQLDialect
      */
@@ -97,21 +96,21 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
         }
     }
-    
+
     /**
      * testLoadSQLDialect
      */
     public void testLoadSQLDialect() throws Exception {
         File xmlFile = this.benchmark.getSQLDialect();
         if (xmlFile == null) return;
-        
+
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDBType(dbType);
-            
+
             // Just make sure that we can load it
             StatementDialects dialects = new StatementDialects(dbType, xmlFile);
             dialects.load();
-            
+
             for (String procName : dialects.getProcedureNames()) {
                 for (String stmtName : dialects.getStatementNames(procName)) {
                     String sql = dialects.getSQL(procName, stmtName);
@@ -120,11 +119,11 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
                     // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
                 } // FOR
             } // FOR
-            
+
             // TODO: We should XSD to validate the SQL
         } // FOR (dbtype)
     }
-    
+
     /**
      * testMakeWorkers
      */

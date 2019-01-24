@@ -29,24 +29,24 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
     private Long last_airport_id = null;
     private int last_id = -1;
     private long last_max_id = -1;
-    
-    public CustomerIdIterable(Histogram<Long> airport_max_customer_id, long...airport_ids) {
+
+    public CustomerIdIterable(Histogram<Long> airport_max_customer_id, long... airport_ids) {
         this.airport_max_customer_id = airport_max_customer_id;
         for (long id : airport_ids) {
             this.airport_ids.add(id);
         } // FOR
     }
-    
+
     public CustomerIdIterable(Histogram<Long> airport_max_customer_id) {
         this.airport_max_customer_id = airport_max_customer_id;
         this.airport_ids.addAll(airport_max_customer_id.values());
     }
-    
+
     public CustomerIdIterable(Histogram<Long> airport_max_customer_id, Collection<Long> airport_ids) {
         this.airport_max_customer_id = airport_max_customer_id;
         this.airport_ids.addAll(airport_ids);
     }
-    
+
     @Override
     public Iterator<CustomerId> iterator() {
         return new Iterator<CustomerId>() {
@@ -54,17 +54,19 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
             public boolean hasNext() {
                 return (!CustomerIdIterable.this.airport_ids.isEmpty() || (last_id != -1 && last_id < last_max_id));
             }
+
             @Override
             public CustomerId next() {
                 if (last_airport_id == null) {
                     last_airport_id = airport_ids.remove(0);
                     last_id = 0;
                     last_max_id = airport_max_customer_id.get(last_airport_id);
-                } 
+                }
                 CustomerId next_id = new CustomerId(last_id, last_airport_id);
                 if (++last_id == last_max_id) last_airport_id = null;
                 return next_id;
             }
+
             @Override
             public void remove() {
                 // Not implemented

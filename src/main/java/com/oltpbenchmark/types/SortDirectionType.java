@@ -41,15 +41,15 @@ import java.util.Map;
  *
  */
 public enum SortDirectionType {
-    INVALID      (0),
-    ASC          (1),
-    DESC         (2);
+    INVALID(0),
+    ASC(1),
+    DESC(2);
 
     SortDirectionType(int val) {
         assert (this.ordinal() == val) :
-            "Enum element " + this.name() +
-            " in position " + this.ordinal() +
-            " instead of position " + val;
+                "Enum element " + this.name() +
+                        " in position " + this.ordinal() +
+                        " instead of position " + val;
     }
 
     public int getValue() {
@@ -58,6 +58,7 @@ public enum SortDirectionType {
 
     protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<Integer, SortDirectionType>();
     protected static final Map<String, SortDirectionType> name_lookup = new HashMap<String, SortDirectionType>();
+
     static {
         for (SortDirectionType vt : EnumSet.allOf(SortDirectionType.class)) {
             SortDirectionType.idx_lookup.put(vt.ordinal(), vt);
@@ -74,7 +75,7 @@ public enum SortDirectionType {
     }
 
     public static SortDirectionType get(Integer idx) {
-        assert(idx >= 0);
+        assert (idx >= 0);
         SortDirectionType ret = SortDirectionType.idx_lookup.get(idx);
         return (ret == null ? SortDirectionType.INVALID : ret);
     }

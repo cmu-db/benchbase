@@ -21,19 +21,19 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.*;
 
 public class TestYCSBBenchmark extends AbstractTestBenchmarkModule<YCSBBenchmark> {
-	
+
     public static final Class<?> PROC_CLASSES[] = {
-        DeleteRecord.class,
-        InsertRecord.class,
-        ReadModifyWriteRecord.class,
-        ReadRecord.class,
-        ScanRecord.class,
-        UpdateRecord.class,
+            DeleteRecord.class,
+            InsertRecord.class,
+            ReadModifyWriteRecord.class,
+            ReadRecord.class,
+            ScanRecord.class,
+            UpdateRecord.class,
     };
-    
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp(YCSBBenchmark.class, PROC_CLASSES);
-	}
-	
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp(YCSBBenchmark.class, PROC_CLASSES);
+    }
+
 }

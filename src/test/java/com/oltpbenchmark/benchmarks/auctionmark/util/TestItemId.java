@@ -21,9 +21,9 @@ import junit.framework.TestCase;
 
 public class TestItemId extends TestCase {
 
-    private final long user_ids[] = { 66666, 77777, 88888 };
+    private final long user_ids[] = {66666, 77777, 88888};
     private final int num_items = 10;
-    
+
     /**
      * testItemId
      */
@@ -38,7 +38,7 @@ public class TestItemId extends TestCase {
             } // FOR
         } // FOR
     }
-    
+
     /**
      * testItemIdEncode
      */
@@ -47,8 +47,8 @@ public class TestItemId extends TestCase {
             UserId user_id = new UserId(u_id);
             for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
                 long encoded = new ItemId(user_id, item_ctr).encode();
-                assert(encoded >= 0);
-                
+                assert (encoded >= 0);
+
                 ItemId customer_id = new ItemId(encoded);
                 assertNotNull(customer_id);
                 assertEquals(user_id, customer_id.getSellerId());

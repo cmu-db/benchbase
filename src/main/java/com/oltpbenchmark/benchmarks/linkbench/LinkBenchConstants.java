@@ -25,14 +25,14 @@ public abstract class LinkBenchConstants {
     // visibility
     public static final byte VISIBILITY_HIDDEN = 0;
     public static final byte VISIBILITY_DEFAULT = 1;
-    
+
     public static final long DEFAULT_LINK_TYPE = 123456789;
     public static final long MAX_ID2 = Long.MAX_VALUE;
     public static final int DEFAULT_NODE_TYPE = 2048;
     public static final long MAX_LINK_DATA = 255;
 
     public static final int DEFAULT_LIMIT = 10000;
-    
+
     public static final String DEBUGLEVEL = "debuglevel";
 
     /* Control store implementations used */
@@ -55,7 +55,7 @@ public abstract class LinkBenchConstants {
     public static final String NLINKS_FUNC = "nlinks_func";
     public static final String NLINKS_CONFIG = "nlinks_config";
     public static final String NLINKS_DEFAULT = "nlinks_default";
-    public static final String LINK_TYPE_COUNT ="link_type_count";
+    public static final String LINK_TYPE_COUNT = "link_type_count";
 
     /* Data generation */
     public static final String LINK_DATASIZE = "link_datasize";
@@ -99,14 +99,14 @@ public abstract class LinkBenchConstants {
     public static final String READ_UNCORR_CONFIG_PREFIX = "read_uncorr_";
     public static final String WRITE_UNCORR_CONFIG_PREFIX = "read_uncorr_";
     public static final String READ_UNCORR_FUNCTION = READ_UNCORR_CONFIG_PREFIX
-                                                      + ACCESS_FUNCTION_SUFFIX;
+            + ACCESS_FUNCTION_SUFFIX;
     public static final String WRITE_UNCORR_FUNCTION = WRITE_UNCORR_CONFIG_PREFIX
-                                                      + ACCESS_FUNCTION_SUFFIX;
+            + ACCESS_FUNCTION_SUFFIX;
     public static final String BLEND_SUFFIX = "blend";
-    public static final String READ_UNCORR_BLEND =  READ_UNCORR_CONFIG_PREFIX
-                                                      + BLEND_SUFFIX;
+    public static final String READ_UNCORR_BLEND = READ_UNCORR_CONFIG_PREFIX
+            + BLEND_SUFFIX;
     public static final String WRITE_UNCORR_BLEND = WRITE_UNCORR_CONFIG_PREFIX
-                                                      + BLEND_SUFFIX;
+            + BLEND_SUFFIX;
 
     // Probability of different operations
     public static final String PR_ADD_LINK = "addlink";

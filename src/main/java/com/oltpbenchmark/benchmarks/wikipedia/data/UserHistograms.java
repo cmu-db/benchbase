@@ -80,7 +80,7 @@ public abstract class UserHistograms {
             this.put(63, 1);
         }
     };
-    
+
     /**
      * The length of the USER_REAL_NAME column
      */
@@ -141,9 +141,9 @@ public abstract class UserHistograms {
             this.put(63, 1);
         }
     };
-    
+
     /**
-     * The histogram of the number of users per revision updates 
+     * The histogram of the number of users per revision updates
      */
     public static final Histogram<Integer> REVISION_COUNT = new Histogram<Integer>() {
         {

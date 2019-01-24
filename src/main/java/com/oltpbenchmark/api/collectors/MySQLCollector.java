@@ -39,19 +39,19 @@ public class MySQLCollector extends DBCollector {
             // Collect DBMS version
             ResultSet out = s.executeQuery(VERSION_SQL);
             if (out.next()) {
-            	this.version.append(out.getString(1));
+                this.version.append(out.getString(1));
             }
 
             // Collect DBMS parameters
             out = s.executeQuery(PARAMETERS_SQL);
-            while(out.next()) {
+            while (out.next()) {
                 dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
             }
 
             // Collect DBMS internal metrics
             out = s.executeQuery(METRICS_SQL);
             while (out.next()) {
-            	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
+                dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
             }
         } catch (SQLException e) {
             LOG.error("Error while collecting DB parameters: " + e.getMessage());

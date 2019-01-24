@@ -31,7 +31,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * 
  * @author pavlo
  */
 public class StatementDialects {
@@ -41,50 +40,51 @@ public class StatementDialects {
 
     private final String xmlContext;
     private final URL xmlSchemaURL;
-    
+
     private final DatabaseType dbType;
     private final File xmlFile;
-    
+
     /**
      * ProcName -> StmtName -> SQL
      */
-    private final Map<String, Map<String, String>> dialectsMap = new HashMap<String, Map<String,String>>(); 
+    private final Map<String, Map<String, String>> dialectsMap = new HashMap<String, Map<String, String>>();
 
     /**
      * Constructor
+     *
      * @param dbType
      * @param xmlFile
      */
     public StatementDialects(DatabaseType dbType, File xmlFile) {
         this.dbType = dbType;
         this.xmlFile = xmlFile;
-        
+
         this.xmlContext = this.getClass().getPackage().getName() + ".dialects";
         this.xmlSchemaURL = this.getClass().getResource("dialects.xsd");
-        assert(this.xmlSchemaURL != null) :
-            "Failed to find 'dialects.xml' for " + this.getClass().getName();
+        assert (this.xmlSchemaURL != null) :
+                "Failed to find 'dialects.xml' for " + this.getClass().getName();
         if (this.xmlFile != null && this.dbType != null) {
             this.load();
-        } else  {
+        } else {
             LOG.warn("DatabaseType is null. Not loading StatementDialect XML");
         }
-        
+
     }
-    
+
     /**
      * Load in the assigned XML file and populate the internal dialects map
+     *
      * @return
      */
     protected boolean load() {
         if (this.xmlFile == null) {
             LOG.warn(String.format("SKIP - No SQL dialect file was given.", this.xmlFile));
             return (false);
-        }
-        else if (this.xmlFile.exists() == false) {
+        } else if (this.xmlFile.exists() == false) {
             LOG.warn(String.format("SKIP - The SQL dialect file '%s' does not exist", this.xmlFile));
             return (false);
         }
-        
+
         // COPIED FROM VoltDB's VoltCompiler.java
         DialectsType dialects = null;
         try {
@@ -98,25 +98,23 @@ public class StatementDialects {
             @SuppressWarnings("unchecked")
             JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(this.xmlFile);
             dialects = result.getValue();
-        }
-        catch (JAXBException ex) {
+        } catch (JAXBException ex) {
             // Convert some linked exceptions to more friendly errors.
             if (ex.getLinkedException() instanceof org.xml.sax.SAXParseException) {
                 throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getLinkedException().getMessage()), ex);
             }
             throw new RuntimeException(ex);
-        }
-        catch (SAXException ex) {
+        } catch (SAXException ex) {
             throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
         }
-        
+
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Loading the SQL dialect file '%s' for %s",
-                                    this.xmlFile.getName(), this.dbType));
+                    this.xmlFile.getName(), this.dbType));
 
         for (DialectType dialect : dialects.getDialect()) {
-            assert(this.dbType != null);
-            assert(dialect != null);
+            assert (this.dbType != null);
+            assert (dialect != null);
             if (dialect.getType().equalsIgnoreCase(this.dbType.name()) == false)
                 continue;
 
@@ -129,12 +127,12 @@ public class StatementDialects {
                 Map<String, String> procDialects = this.dialectsMap.get(procName);
                 for (StatementType statement : procedure.getStatement()) {
                     String stmtName = statement.getName();
-                    assert(stmtName.isEmpty() == false) :
-                        String.format("Invalid Statement for %s.%s", this.dbType, procName);
+                    assert (stmtName.isEmpty() == false) :
+                            String.format("Invalid Statement for %s.%s", this.dbType, procName);
                     String stmtSQL = statement.getValue().trim();
-                    assert(stmtSQL.isEmpty() == false) :
-                        String.format("Invalid SQL for %s.%s.%s", this.dbType, procName, stmtName);
-                    
+                    assert (stmtSQL.isEmpty() == false) :
+                            String.format("Invalid SQL for %s.%s.%s", this.dbType, procName, stmtName);
+
                     if (procDialects == null) {
                         procDialects = new HashMap<String, String>();
                         this.dialectsMap.put(procName, procDialects);
@@ -145,36 +143,37 @@ public class StatementDialects {
             } // FOR (proc)
         } // FOR (dbtype)
         if (this.dialectsMap.isEmpty()) {
-                LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
-                                       this.dbType, DEFAULT_DB_TYPE));
+            LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
+                    this.dbType, DEFAULT_DB_TYPE));
             return (false);
         }
-        
+
         return (true);
     }
-    
+
     /**
      * Export the original SQL for all of the SQLStmt in the given list of Procedures
+     *
      * @param dbType
      * @param procedures
      * @return A well-formed XML export of the SQL for the given Procedures
      */
     public String export(DatabaseType dbType, Collection<Procedure> procedures) {
-        assert(procedures.isEmpty() == false) : "No procedures passed";
+        assert (procedures.isEmpty() == false) : "No procedures passed";
         Marshaller marshaller = null;
         JAXBContext jc = null;
-                
+
         try {
             jc = JAXBContext.newInstance(this.xmlContext);
             marshaller = jc.createMarshaller();
-            
+
             SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = sf.newSchema(this.xmlSchemaURL);
             marshaller.setSchema(schema);
         } catch (Exception ex) {
             throw new RuntimeException("Unable to initialize serializer", ex);
         }
-        
+
         List<Procedure> sorted = new ArrayList<Procedure>(procedures);
         Collections.sort(sorted, new Comparator<Procedure>() {
             @Override
@@ -182,13 +181,13 @@ public class StatementDialects {
                 return (o1.getProcedureName().compareTo(o2.getProcedureName()));
             }
         });
-        
+
         ObjectFactory factory = new ObjectFactory();
         DialectType dType = factory.createDialectType();
         dType.setType(dbType.name());
         for (Procedure proc : sorted) {
             if (proc.getStatments().isEmpty()) continue;
-            
+
             ProcedureType pType = factory.createProcedureType();
             pType.setName(proc.getProcedureName());
             for (Entry<String, SQLStmt> e : proc.getStatments().entrySet()) {
@@ -201,7 +200,7 @@ public class StatementDialects {
         } // FOR
         DialectsType dialects = factory.createDialectsType();
         dialects.getDialect().add(dType);
-        
+
         StringWriter st = new StringWriter();
         try {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -209,30 +208,33 @@ public class StatementDialects {
         } catch (JAXBException ex) {
             throw new RuntimeException("Failed to generate XML", ex);
         }
-        
+
         return (st.toString());
     }
 
     /**
      * Return the DatabaseType loaded from the XML file
+     *
      * @return
      */
     public DatabaseType getDatabaseType() {
         return (this.dbType);
     }
-    
+
     /**
      * Return the list of Procedure names that we have dialect information for
+     *
      * @return
      */
     protected Collection<String> getProcedureNames() {
         return (this.dialectsMap.keySet());
     }
-    
+
     /**
      * Return the list of Statement names that we have dialect information
      * for the given Procedure name. If there are SQL dialects for the given
      * Procedure, then the result will be null.
+     *
      * @param procName
      * @return
      */
@@ -240,9 +242,10 @@ public class StatementDialects {
         Map<String, String> procDialects = this.dialectsMap.get(procName);
         return (procDialects != null ? procDialects.keySet() : null);
     }
-    
+
     /**
      * Return the SQL dialect for the given Statement in the Procedure
+     *
      * @param procName
      * @param stmtName
      * @return

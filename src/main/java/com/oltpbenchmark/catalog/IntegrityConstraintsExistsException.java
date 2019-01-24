@@ -18,7 +18,6 @@
 package com.oltpbenchmark.catalog;
 
 /**
- * 
  * @author Carlo A. Curino (carlo@curino.us)
  */
 public class IntegrityConstraintsExistsException extends Exception {

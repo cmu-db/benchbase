@@ -27,13 +27,13 @@ import java.sql.SQLException;
 public class GetItemAverageRating extends Procedure {
 
     public final SQLStmt getAverageRating = new SQLStmt(
-        "SELECT avg(rating) FROM review r WHERE r.i_id=?"
+            "SELECT avg(rating) FROM review r WHERE r.i_id=?"
     );
-    
+
     public void run(Connection conn, long iid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getAverageRating);
         stmt.setLong(1, iid);
-        ResultSet r= stmt.executeQuery();
+        ResultSet r = stmt.executeQuery();
         while (r.next()) {
             continue;
         }

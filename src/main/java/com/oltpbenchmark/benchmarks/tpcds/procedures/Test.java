@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class Test extends Procedure {
 
-        public void run(Connection conn, long incomeID) throws SQLException {
-            return;
-        }
+    public void run(Connection conn, long incomeID) throws SQLException {
+        return;
+    }
 }
