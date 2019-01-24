@@ -16,35 +16,19 @@
 
 package com.oltpbenchmark.api;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-
+import com.oltpbenchmark.api.dialects.*;
+import com.oltpbenchmark.types.DatabaseType;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
-import com.oltpbenchmark.api.dialects.DialectType;
-import com.oltpbenchmark.api.dialects.DialectsType;
-import com.oltpbenchmark.api.dialects.ObjectFactory;
-import com.oltpbenchmark.api.dialects.ProcedureType;
-import com.oltpbenchmark.api.dialects.StatementType;
-import com.oltpbenchmark.types.DatabaseType;
+import javax.xml.bind.*;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import java.io.File;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * 

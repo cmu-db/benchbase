@@ -17,14 +17,14 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
-import java.sql.Connection;
-import java.sql.Timestamp;
-import java.sql.SQLException;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 /**
  * NewCommentResponse

@@ -15,15 +15,14 @@
  */
 package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Random;
-
+import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
+import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
-import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.Random;
 
 
 public class ZipfDistribution implements ProbabilityDistribution {

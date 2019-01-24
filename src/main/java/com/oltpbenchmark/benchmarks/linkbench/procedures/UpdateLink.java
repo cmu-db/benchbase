@@ -16,13 +16,12 @@
 
 package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
-import com.oltpbenchmark.api.Procedure;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class UpdateLink extends Procedure{
     

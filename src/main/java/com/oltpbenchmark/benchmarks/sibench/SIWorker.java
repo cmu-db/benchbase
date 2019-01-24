@@ -16,9 +16,6 @@
 
 package com.oltpbenchmark.benchmarks.sibench;
 
-import java.sql.SQLException;
-import java.util.Random;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
@@ -26,6 +23,9 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.sibench.procedures.MinRecord;
 import com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord;
 import com.oltpbenchmark.types.TransactionStatus;
+
+import java.sql.SQLException;
+import java.util.Random;
 
 public class SIWorker extends Worker<SIBenchmark> {
 

@@ -16,17 +16,16 @@
 
 package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 
 public class DeleteLink extends Procedure{
     

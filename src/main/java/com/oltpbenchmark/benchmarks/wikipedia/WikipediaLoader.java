@@ -16,19 +16,6 @@
 
 package com.oltpbenchmark.benchmarks.wikipedia;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
@@ -42,6 +29,13 @@ import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.TimeUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Synthetic Wikipedia Data Loader

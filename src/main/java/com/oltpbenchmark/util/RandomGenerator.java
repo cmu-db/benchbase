@@ -17,7 +17,9 @@
 
 package com.oltpbenchmark.util;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 @SuppressWarnings("serial")
 public class RandomGenerator extends Random {

@@ -16,47 +16,17 @@
 
 package com.oltpbenchmark.benchmarks.hyadapt;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord1;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord2;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord3;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord4;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord5;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord6;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord7;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord8;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord9;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord10;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord1;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord2;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord3;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord4;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord5;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord6;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord7;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord8;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord9;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord10;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord1;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord2;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord3;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord4;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord5;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord6;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord7;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord8;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord9;
-import com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord10;
+import com.oltpbenchmark.benchmarks.hyadapt.procedures.*;
 import com.oltpbenchmark.distributions.CounterGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
+import org.apache.log4j.Logger;
+
+import java.sql.SQLException;
+import java.util.HashMap;
 
 public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     private static final Logger LOG = Logger.getLogger(HYADAPTWorker.class);

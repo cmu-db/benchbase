@@ -17,9 +17,10 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.util.*;
-
 import com.oltpbenchmark.util.StringUtil;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 public abstract class AuctionMarkConstants {
     

@@ -16,23 +16,7 @@
 
 package com.oltpbenchmark.api;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.LatencyRecord;
-import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.SubmittedProcedure;
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.WorkloadState;
+import com.oltpbenchmark.*;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.types.DatabaseType;
@@ -40,6 +24,17 @@ import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.StringUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = Logger.getLogger(Worker.class);

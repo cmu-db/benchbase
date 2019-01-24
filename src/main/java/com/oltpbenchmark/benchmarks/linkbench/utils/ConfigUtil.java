@@ -31,18 +31,13 @@
  */
 package com.oltpbenchmark.benchmarks.linkbench.utils;
 
+import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
+import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
+import org.apache.log4j.Level;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 
 public class ConfigUtil {
   public static final String linkbenchHomeEnvVar = "LINKBENCH_HOME";

@@ -16,9 +16,6 @@
 
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class TPCHConstants {
 
     // 4.2.2.13 CONTAINERS SYLLABLE 1

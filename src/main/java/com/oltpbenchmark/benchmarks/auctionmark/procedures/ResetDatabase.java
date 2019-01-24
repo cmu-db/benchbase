@@ -16,18 +16,13 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import org.apache.log4j.Logger;
+
+import java.sql.*;
 
 /**
  * Remove ITEM entries created after the loader started

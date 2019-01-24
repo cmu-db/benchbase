@@ -16,14 +16,13 @@
 
 package com.oltpbenchmark.benchmarks.seats.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.api.Procedure;
-
-import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 
 public class LoadConfig extends Procedure {
 

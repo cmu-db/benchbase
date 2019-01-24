@@ -16,13 +16,13 @@
 
 package com.oltpbenchmark.benchmarks.chbenchmark;
 
-import java.sql.SQLException;
-
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.GenericQuery;
 import com.oltpbenchmark.types.TransactionStatus;
+
+import java.sql.SQLException;
 
 public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
 	public CHBenCHmarkWorker(CHBenCHmark benchmarkModule, int id) {

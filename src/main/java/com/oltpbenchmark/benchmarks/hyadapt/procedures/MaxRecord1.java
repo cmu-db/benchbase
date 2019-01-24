@@ -16,17 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.hyadapt.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTConstants;
 
 public class MaxRecord1 extends Procedure{
     private static final Logger LOG = Logger.getLogger(MaxRecord1.class);

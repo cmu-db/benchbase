@@ -15,13 +15,12 @@
  */
 package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
-import java.util.Properties;
-import java.util.Random;
-
-import org.apache.commons.math3.util.FastMath;
-
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
+import org.apache.commons.math3.util.FastMath;
+
+import java.util.Properties;
+import java.util.Random;
 
 /**
  * Geometric distribution

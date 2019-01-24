@@ -16,6 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.linkbench;
 
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.linkbench.procedures.AddNode;
+import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
+import org.apache.log4j.Logger;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,16 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.linkbench.procedures.AddNode;
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
-import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 
 
 public class LinkBenchBenchmark extends BenchmarkModule {

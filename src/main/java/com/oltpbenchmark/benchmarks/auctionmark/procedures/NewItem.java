@@ -17,14 +17,6 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
-import java.sql.Connection;
-import java.sql.Timestamp;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
@@ -32,6 +24,9 @@ import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdExcept
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.*;
 
 /**
  * NewItem

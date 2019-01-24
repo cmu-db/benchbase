@@ -17,25 +17,20 @@
 package com.oltpbenchmark.benchmarks.chbenchmark;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
+import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
+import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
+import com.oltpbenchmark.util.RandomGenerator;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
-import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
-import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
-import com.oltpbenchmark.util.RandomGenerator;
 
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 	private static final Logger LOG = Logger.getLogger(CHBenCHmarkLoader.class);

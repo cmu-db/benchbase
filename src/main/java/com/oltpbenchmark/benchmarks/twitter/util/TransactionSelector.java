@@ -17,18 +17,12 @@
 
 package com.oltpbenchmark.benchmarks.twitter.util;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
-
+import ch.ethz.ssh2.util.Tokenizer;
 import com.oltpbenchmark.api.TransactionTypes;
 
-import ch.ethz.ssh2.util.Tokenizer;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class TransactionSelector {
 

@@ -16,9 +16,9 @@
 
 package com.oltpbenchmark.catalog;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang.NotImplementedException;
+
+import java.io.Serializable;
 
 /**
  * 

@@ -16,16 +16,15 @@
 
 package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
 
 public class GetLink extends Procedure{
 

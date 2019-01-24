@@ -15,11 +15,11 @@
  */
 package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
-import java.util.Properties;
-import java.util.Random;
-
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
+
+import java.util.Properties;
+import java.util.Random;
 
 
 /**

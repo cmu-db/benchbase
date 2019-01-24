@@ -16,33 +16,24 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.JSONUtil;
+import com.oltpbenchmark.util.*;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
-import com.oltpbenchmark.util.RandomGenerator;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.sql.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class SEATSProfile {
     private static final Logger LOG = Logger.getLogger(SEATSProfile.class);

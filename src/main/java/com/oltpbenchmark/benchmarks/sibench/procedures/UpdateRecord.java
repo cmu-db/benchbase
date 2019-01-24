@@ -16,11 +16,12 @@
 
 package com.oltpbenchmark.benchmarks.sibench.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
 
 public class UpdateRecord extends Procedure{
     public final SQLStmt updateStmt = new SQLStmt(

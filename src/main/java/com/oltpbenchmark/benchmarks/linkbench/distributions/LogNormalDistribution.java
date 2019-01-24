@@ -15,12 +15,11 @@
  */
 package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
-import java.util.Properties;
-import java.util.Random;
-
+import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import org.apache.commons.math3.util.FastMath;
 
-import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
+import java.util.Properties;
+import java.util.Random;
 
 public class LogNormalDistribution implements ProbabilityDistribution {
   private long min;

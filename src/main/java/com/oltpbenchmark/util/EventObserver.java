@@ -17,7 +17,8 @@
 
 package com.oltpbenchmark.util;
 
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * EventObservable

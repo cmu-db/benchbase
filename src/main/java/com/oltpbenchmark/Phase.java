@@ -16,12 +16,12 @@
 
 package com.oltpbenchmark;
 
+import com.oltpbenchmark.util.StringUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
-import com.oltpbenchmark.util.StringUtil;
 
 public class Phase {
     public enum Arrival {

@@ -16,18 +16,17 @@
 
 package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
+import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
+import com.oltpbenchmark.util.StringUtil;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
-import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.util.StringUtil;
 
 public class AddLink extends Procedure{
 

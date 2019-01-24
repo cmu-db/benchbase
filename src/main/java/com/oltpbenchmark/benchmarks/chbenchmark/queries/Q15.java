@@ -17,10 +17,11 @@
 package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
 import com.oltpbenchmark.api.SQLStmt;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class Q15 extends GenericQuery {
 	

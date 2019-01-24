@@ -33,7 +33,9 @@
 
 package com.oltpbenchmark.types;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *

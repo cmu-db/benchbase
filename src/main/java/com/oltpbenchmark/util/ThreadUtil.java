@@ -27,19 +27,15 @@
  ***************************************************************************/
 package com.oltpbenchmark.util;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-
-import org.apache.log4j.Logger;
+import java.util.concurrent.*;
 
 public abstract class ThreadUtil {
     private static final Logger LOG = Logger.getLogger(ThreadUtil.class);

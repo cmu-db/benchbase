@@ -17,26 +17,19 @@
 
 package com.oltpbenchmark.benchmarks.tatp;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.tatp.procedures.*;
+import com.oltpbenchmark.types.TransactionStatus;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.TransactionType;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
-import com.oltpbenchmark.benchmarks.tatp.procedures.GetAccessData;
-import com.oltpbenchmark.benchmarks.tatp.procedures.GetNewDestination;
-import com.oltpbenchmark.benchmarks.tatp.procedures.GetSubscriberData;
-import com.oltpbenchmark.benchmarks.tatp.procedures.InsertCallForwarding;
-import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation;
-import com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData;
-import com.oltpbenchmark.types.TransactionStatus;
 
 public class TATPWorker extends Worker<TATPBenchmark> {
 	private static final Logger LOG = Logger.getLogger(TATPWorker.class);

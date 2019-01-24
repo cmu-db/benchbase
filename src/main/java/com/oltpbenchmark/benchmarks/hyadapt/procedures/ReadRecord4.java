@@ -16,15 +16,15 @@
 
 package com.oltpbenchmark.benchmarks.hyadapt.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTConstants;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTConstants;
 
 public class ReadRecord4 extends Procedure{
     public final SQLStmt readStmt = new SQLStmt(

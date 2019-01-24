@@ -17,10 +17,10 @@
 
 package com.oltpbenchmark.api;
 
+import org.apache.log4j.Logger;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
 
 /**
  * Wrapper Class for SQL Statements

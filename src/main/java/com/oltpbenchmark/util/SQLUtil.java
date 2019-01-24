@@ -16,25 +16,18 @@
 
 package com.oltpbenchmark.util;
 
+import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
+import org.apache.log4j.Logger;
+
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.catalog.Column;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.types.DatabaseType;
 
 public abstract class SQLUtil {
     private static final Logger LOG = Logger.getLogger(SQLUtil.class);

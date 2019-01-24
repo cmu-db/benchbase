@@ -17,14 +17,15 @@
 
 package com.oltpbenchmark.util;
 
+import com.oltpbenchmark.util.json.JSONException;
+import com.oltpbenchmark.util.json.JSONObject;
+import com.oltpbenchmark.util.json.JSONStringer;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.util.json.*;
 
 /**
  * A very nice and simple generic Histogram

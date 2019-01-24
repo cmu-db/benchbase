@@ -16,14 +16,14 @@
 
 package com.oltpbenchmark;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.LinkedList;
-
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class is used to share a state among the workers of a single

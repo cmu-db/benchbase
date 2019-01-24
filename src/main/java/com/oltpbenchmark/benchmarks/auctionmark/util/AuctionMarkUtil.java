@@ -17,15 +17,14 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Timestamp;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkProfile;
 import com.oltpbenchmark.util.FileUtil;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
 
 public abstract class AuctionMarkUtil {
     private static final Logger LOG = Logger.getLogger(AuctionMarkUtil.class);

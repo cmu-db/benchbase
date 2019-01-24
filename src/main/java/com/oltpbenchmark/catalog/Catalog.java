@@ -17,32 +17,22 @@
 
 package com.oltpbenchmark.catalog;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
-import org.apache.commons.io.IOUtils;
-
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
 import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.net.URL;
+import java.sql.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 

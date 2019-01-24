@@ -17,10 +17,10 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
+import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
-
-import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 
 public class ReturnFlight implements Comparable<ReturnFlight> {
     

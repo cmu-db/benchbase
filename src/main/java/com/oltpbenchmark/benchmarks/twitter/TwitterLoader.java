@@ -16,15 +16,6 @@
 
 package com.oltpbenchmark.benchmarks.twitter;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.twitter.util.NameHistogram;
 import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
@@ -34,6 +25,14 @@ import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class TwitterLoader extends Loader<TwitterBenchmark> {
     private static final Logger LOG = Logger.getLogger(TwitterLoader.class);

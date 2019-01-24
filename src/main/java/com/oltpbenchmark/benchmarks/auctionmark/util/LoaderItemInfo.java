@@ -17,19 +17,15 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
+import com.oltpbenchmark.util.CollectionUtil;
+import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.collections4.map.ListOrderedMap;
+
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.collections4.map.ListOrderedMap;
-
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
-import com.oltpbenchmark.util.CollectionUtil;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.StringUtil;
 
 public class LoaderItemInfo extends ItemInfo {
     private final List<Bid> bids = new ArrayList<Bid>();

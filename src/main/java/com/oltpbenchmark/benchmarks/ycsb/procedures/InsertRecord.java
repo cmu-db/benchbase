@@ -16,12 +16,12 @@
 
 package com.oltpbenchmark.benchmarks.ycsb.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
 
 public class InsertRecord extends Procedure {
     public final SQLStmt insertStmt = new SQLStmt(

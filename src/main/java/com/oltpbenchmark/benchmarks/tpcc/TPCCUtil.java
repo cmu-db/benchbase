@@ -26,14 +26,14 @@ package com.oltpbenchmark.benchmarks.tpcc;
  *
  */
 
-import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.*;
+import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
+import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
 
-import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
-import com.oltpbenchmark.util.RandomGenerator;
+import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.*;
 
 public class TPCCUtil {
 

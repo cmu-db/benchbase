@@ -16,9 +16,8 @@
 
 package com.oltpbenchmark.benchmarks.twitter;
 
-import org.apache.commons.configuration.XMLConfiguration;
-
 import com.oltpbenchmark.WorkloadConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 
 public class TwitterConfiguration {
     

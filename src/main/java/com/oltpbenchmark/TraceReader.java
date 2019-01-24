@@ -16,14 +16,12 @@
 
 package com.oltpbenchmark;
 
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Iterator;
-import java.util.ListIterator;
-import java.util.List;
 import java.util.LinkedList;
-
-import org.apache.log4j.Logger;
+import java.util.ListIterator;
 
 /**
  * This class reads in one of the tracefiles (.raw output from a previous

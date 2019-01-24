@@ -17,14 +17,14 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import java.io.IOException;
-import java.sql.Timestamp;
-
 import com.oltpbenchmark.util.JSONSerializable;
 import com.oltpbenchmark.util.JSONUtil;
 import com.oltpbenchmark.util.json.JSONException;
 import com.oltpbenchmark.util.json.JSONObject;
 import com.oltpbenchmark.util.json.JSONStringer;
+
+import java.io.IOException;
+import java.sql.Timestamp;
 
 public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     public ItemId itemId;

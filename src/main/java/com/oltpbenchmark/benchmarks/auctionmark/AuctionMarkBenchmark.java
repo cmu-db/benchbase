@@ -17,15 +17,6 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -36,6 +27,15 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomGenerator;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuctionMarkBenchmark extends BenchmarkModule {
 

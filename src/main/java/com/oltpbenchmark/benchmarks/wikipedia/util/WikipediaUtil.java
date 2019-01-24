@@ -16,11 +16,11 @@
 
 package com.oltpbenchmark.benchmarks.wikipedia.util;
 
-import java.util.Random;
-
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
+
+import java.util.Random;
 
 public abstract class WikipediaUtil {
 

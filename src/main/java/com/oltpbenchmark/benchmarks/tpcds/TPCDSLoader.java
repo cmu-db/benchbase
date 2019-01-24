@@ -16,28 +16,20 @@
 
 package com.oltpbenchmark.benchmarks.tpcds;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
+import java.io.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.Loader.LoaderThread;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.SQLUtil;
 
 public class TPCDSLoader extends Loader<TPCDSBenchmark> {
     private static final Logger LOG = Logger.getLogger(TPCDSLoader.class);

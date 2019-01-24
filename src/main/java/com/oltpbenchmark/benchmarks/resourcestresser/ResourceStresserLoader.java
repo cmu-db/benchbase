@@ -1,17 +1,16 @@
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.TextGenerator;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.TextGenerator;
 
 public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 	

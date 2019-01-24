@@ -16,14 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.voter;
 
-import java.sql.SQLException;
-
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.voter.PhoneCallGenerator.PhoneCall;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 import com.oltpbenchmark.types.TransactionStatus;
+
+import java.sql.SQLException;
 
 public class VoterWorker extends Worker<VoterBenchmark> {
 

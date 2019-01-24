@@ -16,13 +16,13 @@
 
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 
 public abstract class TPCCProcedure extends Procedure {
 

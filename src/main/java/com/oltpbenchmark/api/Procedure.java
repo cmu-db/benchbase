@@ -16,6 +16,10 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
+import com.oltpbenchmark.types.DatabaseType;
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
@@ -26,11 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
-import com.oltpbenchmark.types.DatabaseType;
 
 public abstract class Procedure {
     private static final Logger LOG = Logger.getLogger(Procedure.class);

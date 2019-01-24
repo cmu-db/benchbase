@@ -17,10 +17,10 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import java.sql.Timestamp;
-
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.util.CompositeId;
+
+import java.sql.Timestamp;
 
 public class FlightId extends CompositeId {
     

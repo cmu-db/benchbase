@@ -17,15 +17,11 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+
+import java.sql.*;
 
 /**
  * Get Item Information

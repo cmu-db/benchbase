@@ -17,14 +17,6 @@
 
 package com.oltpbenchmark.api;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-import java.util.Random;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
@@ -32,6 +24,13 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author pavlo

@@ -16,27 +16,21 @@
 
 package com.oltpbenchmark.benchmarks.wikipedia;
 
-import java.net.UnknownHostException;
-import java.sql.SQLException;
-import java.util.Random;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
-import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous;
-import com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated;
-import com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList;
-import com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage;
+import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaUtil;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import com.oltpbenchmark.util.TextGenerator;
+import org.apache.log4j.Logger;
+
+import java.net.UnknownHostException;
+import java.sql.SQLException;
 
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);

@@ -16,13 +16,14 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import java.util.ArrayList;
-import java.sql.SQLException;
-import org.apache.log4j.Logger;
-import java.sql.ResultSet;
 import com.oltpbenchmark.util.JSONUtil;
-import java.util.List;
+import org.apache.log4j.Logger;
+
+import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 

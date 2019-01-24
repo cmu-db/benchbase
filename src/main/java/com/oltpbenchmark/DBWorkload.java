@@ -17,22 +17,13 @@
 
 package com.oltpbenchmark;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.*;
+import org.apache.commons.cli.*;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -40,18 +31,10 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.TransactionType;
-import com.oltpbenchmark.api.TransactionTypes;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.util.ClassUtil;
-import com.oltpbenchmark.util.FileUtil;
-import com.oltpbenchmark.util.QueueLimitException;
-import com.oltpbenchmark.util.ResultUploader;
-import com.oltpbenchmark.util.StringBoxUtil;
-import com.oltpbenchmark.util.StringUtil;
-import com.oltpbenchmark.util.TimeUtil;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.*;
 
 public class DBWorkload {
     private static final Logger LOG = Logger.getLogger(DBWorkload.class);

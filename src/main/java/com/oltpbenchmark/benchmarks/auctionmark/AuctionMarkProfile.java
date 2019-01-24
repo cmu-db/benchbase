@@ -17,45 +17,20 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
-import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
-import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemCommentResponse;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
+import com.oltpbenchmark.benchmarks.auctionmark.util.*;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.JSONUtil;
+import com.oltpbenchmark.util.*;
 import com.oltpbenchmark.util.RandomDistribution.DiscreteRNG;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
-import com.oltpbenchmark.util.RandomGenerator;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.log4j.Logger;
+
+import java.sql.*;
+import java.util.*;
 
 
 /**

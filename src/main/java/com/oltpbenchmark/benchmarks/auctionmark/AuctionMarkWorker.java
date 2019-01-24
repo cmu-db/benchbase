@@ -17,42 +17,22 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.sql.Timestamp;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdException;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetUserInfo;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewBid;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewComment;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewCommentResponse;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewFeedback;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewItem;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.NewPurchase;
-import com.oltpbenchmark.benchmarks.auctionmark.procedures.UpdateItem;
-import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
-import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemCommentResponse;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
+import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
+import com.oltpbenchmark.benchmarks.auctionmark.util.*;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     private static final Logger LOG = Logger.getLogger(AuctionMarkWorker.class);

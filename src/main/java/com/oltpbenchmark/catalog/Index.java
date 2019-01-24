@@ -16,17 +16,11 @@
 
 package com.oltpbenchmark.catalog;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import org.apache.commons.collections4.map.ListOrderedMap;
-
 import com.oltpbenchmark.types.SortDirectionType;
 import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.collections4.map.ListOrderedMap;
+
+import java.util.*;
 
 public class Index extends AbstractCatalogObject {
     private static final long serialVersionUID = 1l;

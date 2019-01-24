@@ -17,12 +17,12 @@
 
 package com.oltpbenchmark.util;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import com.oltpbenchmark.util.json.JSONException;
 import com.oltpbenchmark.util.json.JSONObject;
 import com.oltpbenchmark.util.json.JSONStringer;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Pack multiple values into a single long using bit-shifting

@@ -17,12 +17,11 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import java.util.Collection;
-import java.util.Iterator;
-
+import com.oltpbenchmark.util.Histogram;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
-import com.oltpbenchmark.util.Histogram;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class CustomerIdIterable implements Iterable<CustomerId> {
     private final Histogram<Long> airport_max_customer_id;

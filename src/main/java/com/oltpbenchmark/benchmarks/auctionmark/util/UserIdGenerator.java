@@ -17,15 +17,14 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
-
+import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.lang.NotImplementedException;
 
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.StringUtil;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 public class UserIdGenerator implements Iterator<UserId> {
 

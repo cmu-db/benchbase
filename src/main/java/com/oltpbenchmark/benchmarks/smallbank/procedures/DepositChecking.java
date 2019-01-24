@@ -25,14 +25,14 @@
  ***************************************************************************/
 package com.oltpbenchmark.benchmarks.smallbank.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.smallbank.SmallBankConstants;
 
 /**
  * DepositChecking Procedure

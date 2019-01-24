@@ -16,15 +16,15 @@
 
 package com.oltpbenchmark.benchmarks.ycsb.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
 
 public class ScanRecord extends Procedure{
     public final SQLStmt scanStmt = new SQLStmt(

@@ -16,16 +16,6 @@
 
 package com.oltpbenchmark.benchmarks.hyadapt;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -33,6 +23,15 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord1;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HYADAPTBenchmark extends BenchmarkModule {
     private static final Logger LOG = Logger.getLogger(HYADAPTBenchmark.class);

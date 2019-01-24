@@ -15,15 +15,14 @@
  */
 package com.oltpbenchmark.benchmarks.linkbench.distributions;
 
-import java.util.Properties;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.DistributionType;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
+import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.DistributionType;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import com.oltpbenchmark.util.ClassUtil;
+import org.apache.log4j.Logger;
+
+import java.util.Properties;
 
 public class LinkDistributions {
   public static interface LinkDistribution {

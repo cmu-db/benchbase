@@ -16,16 +16,15 @@
 
 package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Node;
 import com.oltpbenchmark.util.StringUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class UpdateNode extends Procedure{
     

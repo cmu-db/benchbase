@@ -16,15 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.noop;
 
-import java.sql.SQLException;
-
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
 import com.oltpbenchmark.types.TransactionStatus;
-
 import org.apache.log4j.Logger;
+
+import java.sql.SQLException;
 
 /**
  * @author pavlo

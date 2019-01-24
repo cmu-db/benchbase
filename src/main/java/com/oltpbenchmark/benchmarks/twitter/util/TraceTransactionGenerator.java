@@ -17,11 +17,10 @@
 
 package com.oltpbenchmark.benchmarks.twitter.util;
 
-import java.util.List;
-import java.util.Random;
-
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.distributions.CounterGenerator;
+
+import java.util.List;
 
 public class TraceTransactionGenerator implements TransactionGenerator<TwitterOperation> {
     private static CounterGenerator nextInTrace;

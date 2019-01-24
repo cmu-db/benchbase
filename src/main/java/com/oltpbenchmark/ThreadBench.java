@@ -17,21 +17,6 @@
 
 package com.oltpbenchmark;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
@@ -40,6 +25,13 @@ import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = Logger.getLogger(ThreadBench.class);

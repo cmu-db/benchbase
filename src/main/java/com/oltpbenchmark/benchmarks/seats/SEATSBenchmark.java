@@ -16,6 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.RandomGenerator;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,14 +32,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.api.BenchmarkModule;
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.RandomGenerator;
 
 public class SEATSBenchmark extends BenchmarkModule {
 

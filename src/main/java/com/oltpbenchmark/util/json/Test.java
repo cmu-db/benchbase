@@ -16,10 +16,10 @@
 
 package com.oltpbenchmark.util.json;
 
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.io.StringWriter;
 
 /**
  * Test class. This file is not formally a member of the com.oltpbenchmark.util.json library.

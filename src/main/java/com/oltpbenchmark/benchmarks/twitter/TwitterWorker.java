@@ -17,23 +17,19 @@
 
 package com.oltpbenchmark.benchmarks.twitter;
 
-import java.sql.SQLException;
-import java.sql.Time;
-
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
-import com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets;
-import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
+import com.oltpbenchmark.benchmarks.twitter.procedures.*;
 import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
 import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
+
+import java.sql.SQLException;
+import java.sql.Time;
 
 public class TwitterWorker extends Worker<TwitterBenchmark> {
     private TransactionGenerator<TwitterOperation> generator;

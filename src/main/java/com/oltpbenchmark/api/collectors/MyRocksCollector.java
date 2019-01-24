@@ -16,20 +16,14 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.util.JSONUtil;
+import org.apache.log4j.Logger;
+
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.ArrayList;
-import com.oltpbenchmark.util.JSONUtil;
-import java.sql.ResultSetMetaData;
-import org.apache.log4j.Logger;
-import com.oltpbenchmark.catalog.Catalog;
 
 public class MyRocksCollector extends DBCollector {
     private static final Logger LOG = Logger.getLogger(MyRocksCollector.class);

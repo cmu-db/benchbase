@@ -17,17 +17,15 @@
 
 package com.oltpbenchmark.benchmarks.seats.procedures;
 
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+import com.oltpbenchmark.benchmarks.seats.util.ErrorType;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.api.Procedure;
-
-import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
-import com.oltpbenchmark.benchmarks.seats.util.ErrorType;
 
 public class UpdateCustomer extends Procedure {
     private static final Logger LOG = Logger.getLogger(UpdateCustomer.class);

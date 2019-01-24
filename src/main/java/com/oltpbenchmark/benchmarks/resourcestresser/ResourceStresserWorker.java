@@ -17,19 +17,14 @@
 
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
-import java.sql.SQLException;
-import java.util.Random;
-
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1;
-import com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2;
+import com.oltpbenchmark.benchmarks.resourcestresser.procedures.*;
 import com.oltpbenchmark.types.TransactionStatus;
+
+import java.sql.SQLException;
+import java.util.Random;
 
 public class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
     public static final int CONTENTION1_howManyKeys = 10;

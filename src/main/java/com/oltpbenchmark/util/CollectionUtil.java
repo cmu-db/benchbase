@@ -17,22 +17,11 @@
 
 package com.oltpbenchmark.util;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
-import java.util.SortedMap;
-
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.apache.commons.lang.NotImplementedException;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * 

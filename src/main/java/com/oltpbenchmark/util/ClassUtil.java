@@ -17,23 +17,15 @@
 
 package com.oltpbenchmark.util;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import java.util.*;
 
 /**
  * 

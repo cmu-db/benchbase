@@ -16,20 +16,15 @@
 
 package com.oltpbenchmark.benchmarks.tpch.procedures;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import com.oltpbenchmark.api.Procedure;
+import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.util.RandomGenerator;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import com.oltpbenchmark.util.RandomGenerator;
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.api.Worker;
 
 public abstract class GenericQuery extends Procedure {
 

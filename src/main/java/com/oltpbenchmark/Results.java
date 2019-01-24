@@ -17,18 +17,14 @@
 
 package com.oltpbenchmark;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.ThreadBench.TimeBucketIterable;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.StringUtil;
+
+import java.io.PrintStream;
+import java.util.*;
 
 public final class Results {
     public final long nanoSeconds;

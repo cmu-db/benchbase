@@ -16,19 +16,18 @@
 
 package com.oltpbenchmark.benchmarks.tpcc.procedures;
 
+import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 
 public class NewOrder extends TPCCProcedure {
 

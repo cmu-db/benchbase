@@ -17,10 +17,9 @@
 
 package com.oltpbenchmark.util;
 
-import java.io.*;
-
 import org.apache.log4j.Logger;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;

@@ -16,50 +16,28 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.benchmarks.auctionmark.util.*;
+import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.*;
+import com.oltpbenchmark.util.RandomDistribution.Flat;
+import com.oltpbenchmark.util.RandomDistribution.Zipf;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.benchmarks.auctionmark.util.Category;
-import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
-import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeGroupId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.GlobalAttributeValueId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import com.oltpbenchmark.benchmarks.auctionmark.util.LoaderItemInfo;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserIdGenerator;
-import com.oltpbenchmark.catalog.Column;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.CollectionUtil;
-import com.oltpbenchmark.util.CompositeId;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.Pair;
-import com.oltpbenchmark.util.RandomDistribution.Flat;
-import com.oltpbenchmark.util.RandomDistribution.Zipf;
-import com.oltpbenchmark.util.SQLUtil;
 
 /**
  * @author pavlo

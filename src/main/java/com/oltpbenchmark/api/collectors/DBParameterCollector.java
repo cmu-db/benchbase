@@ -15,10 +15,10 @@
  ******************************************************************************/
 
 package com.oltpbenchmark.api.collectors;
-import java.sql.SQLException;
+
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.sql.ResultSetMetaData;
 import java.util.Map;
 
 public interface DBParameterCollector {

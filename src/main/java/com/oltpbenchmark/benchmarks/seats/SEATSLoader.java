@@ -16,54 +16,28 @@
 
 package com.oltpbenchmark.benchmarks.seats;
 
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.benchmarks.seats.util.*;
+import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.*;
+import com.oltpbenchmark.util.RandomDistribution.Flat;
+import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
+import com.oltpbenchmark.util.RandomDistribution.Gaussian;
+import com.oltpbenchmark.util.RandomDistribution.Zipf;
+import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.commons.collections4.set.ListOrderedSet;
+import org.apache.log4j.Logger;
+
 import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLDataException;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
-
-import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.collections4.set.ListOrderedSet;
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
-import com.oltpbenchmark.benchmarks.seats.util.CustomerIdIterable;
-import com.oltpbenchmark.benchmarks.seats.util.DistanceUtil;
-import com.oltpbenchmark.benchmarks.seats.util.FlightId;
-import com.oltpbenchmark.benchmarks.seats.util.ReturnFlight;
-import com.oltpbenchmark.benchmarks.seats.util.SEATSHistogramUtil;
-import com.oltpbenchmark.catalog.Column;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.CollectionUtil;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.Pair;
-import com.oltpbenchmark.util.RandomDistribution;
-import com.oltpbenchmark.util.RandomDistribution.Flat;
-import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
-import com.oltpbenchmark.util.RandomDistribution.Gaussian;
-import com.oltpbenchmark.util.RandomDistribution.Zipf;
-import com.oltpbenchmark.util.RandomGenerator;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.StringUtil;
-import com.oltpbenchmark.util.TableDataIterable;
 
 public class SEATSLoader extends Loader<SEATSBenchmark> {
     private static final Logger LOG = Logger.getLogger(SEATSLoader.class);

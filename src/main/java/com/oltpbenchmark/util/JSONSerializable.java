@@ -16,12 +16,12 @@
 
 package com.oltpbenchmark.util;
 
-import java.io.IOException;
-
 import com.oltpbenchmark.util.json.JSONException;
 import com.oltpbenchmark.util.json.JSONObject;
 import com.oltpbenchmark.util.json.JSONString;
 import com.oltpbenchmark.util.json.JSONStringer;
+
+import java.io.IOException;
 
 public interface JSONSerializable extends JSONString {
     public void save(String output_path) throws IOException;

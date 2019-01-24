@@ -17,25 +17,17 @@
 
 package com.oltpbenchmark.benchmarks.epinions;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Random;
-
-import org.apache.log4j.Logger;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetItemReviewsByTrustedUser;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById;
-import com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser;
-import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle;
-import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating;
-import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating;
-import com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName;
+import com.oltpbenchmark.benchmarks.epinions.procedures.*;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
+import org.apache.log4j.Logger;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 	

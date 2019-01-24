@@ -16,16 +16,15 @@
 
 package com.oltpbenchmark.benchmarks.resourcestresser.procedures;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
+import org.apache.log4j.Logger;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Uses random keys and OR on primary key

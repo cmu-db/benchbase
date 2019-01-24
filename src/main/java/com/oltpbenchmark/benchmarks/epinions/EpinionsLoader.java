@@ -16,6 +16,14 @@
 
 package com.oltpbenchmark.benchmarks.epinions;
 
+import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.util.TextGenerator;
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -23,15 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
-import com.oltpbenchmark.distributions.ZipfianGenerator;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.TextGenerator;
 
 public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 

@@ -17,11 +17,11 @@
 
 package com.oltpbenchmark;
 
+import org.apache.log4j.Logger;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 public class DistributionStatistics {
 	private static final Logger LOG = Logger.getLogger(DistributionStatistics.class);
