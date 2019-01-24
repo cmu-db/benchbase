@@ -183,7 +183,7 @@ public abstract class BenchmarkModule {
 
         for (String ddlName : ddlNames) {
             if (ddlName == null) continue;
-            URL ddlURL = this.getClass().getResource(DDLS_DIR + File.separator + ddlName);
+            URL ddlURL = this.getClass().getClassLoader().getResource(DDLS_DIR + File.separator + ddlName);
             if (ddlURL != null) {
                 if (LOG.isDebugEnabled())
                     LOG.debug("Found DDL file for " + db_type + ": " + ddlURL );
