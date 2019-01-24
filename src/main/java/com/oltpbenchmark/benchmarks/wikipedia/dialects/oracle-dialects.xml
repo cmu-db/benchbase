@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="ORACLE">
+        <procedure name="AddWatchList">
+            <statement name="insertWatchList">
+                INSERT /*+ ignore_row_on_dupkey_index(watchlist(wl_user,wl_namespace,wl_title)) */ INTO watchlist (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL)
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE useracct SET user_touched = ? WHERE user_id =  ?
+            </statement>
+        </procedure>
+        <procedure name="RemoveWatchList">
+            <statement name="removeWatchList">
+                DELETE FROM watchlist WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE useracct SET user_touched = ? WHERE user_id =  ? 
+            </statement>
+        </procedure>
+        <procedure name="GetPageAnonymous">
+            <statement name="selectPage">
+                SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
+            </statement>
+           <statement name="selectPageRevision">
+                SELECT * FROM page,revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest) AND ROWNUM = 1
+            </statement>
+            <statement name="selectText">
+                SELECT old_text,old_flags FROM text WHERE old_id = ? AND ROWNUM = 1
+            </statement>
+        </procedure>
+        <procedure name="UpdatePage">
+        	<statement name="insertText">
+        		INSERT INTO text (old_id,old_page,old_text,old_flags) VALUES (text_seq.NEXTVAL,?,?,'utf-8') 
+        	</statement>
+        	<statement name="insertRevision">
+        		INSERT INTO revision (rev_id,rev_page,rev_text_id,rev_comment,rev_minor_edit,rev_user,rev_user_text,rev_timestamp,rev_deleted,rev_len,rev_parent_id) 
+        		VALUES (revision_seq.NEXTVAL,?, ?, ? ,'0',?, ?, ? ,'0',?,?)
+        	</statement>
+        	<statement name="insertRecentChanges">
+        		INSERT INTO recentchanges (rc_id,rc_timestamp,rc_cur_time,rc_namespace,rc_title,rc_type,rc_minor,rc_cur_id,rc_user,rc_user_text,rc_comment,rc_this_oldid,
+        		rc_last_oldid,rc_bot,rc_moved_to_ns,rc_moved_to_title,rc_ip,rc_patrolled,rc_new,rc_old_len,rc_new_len,rc_deleted,rc_logid,rc_log_type,rc_log_action,rc_params) 
+        		VALUES (recentchanges_seq.NEXTVAL,?, ?, ? , ? ,'0','0', ? , ? , ? ,'', ? , ? ,'0','0','',?,'1','0', ? , ? ,'0','0',NULL,'','')
+        	</statement>
+            <statement name="selectUser">
+                SELECT  *  FROM useracct  WHERE user_id = ?
+            </statement>
+           <statement name="updateUserEdit">
+                UPDATE useracct SET user_editcount=user_editcount+1 WHERE user_id = ?
+            </statement>
+            <statement name="updateUserTouched">
+                UPDATE  useracct SET user_touched = ? WHERE user_id = ?
+            </statement>
+            <statement name="insertLogging">
+                INSERT INTO logging (log_id,log_type,log_action,log_timestamp,log_user,log_user_text,log_namespace,log_title,log_page,log_comment,log_params)
+				VALUES (logging_seq.NEXTVAL,'patrol','patrol',?,?,?,?,?,?,'',?)
+            </statement>
+        </procedure>
+        <procedure name="GetPageAuthenticated">
+            <statement name="selectUser">
+                SELECT * FROM useracct  WHERE user_id = ? AND ROWNUM = 1
+            </statement>
+            <statement name="selectPage">
+                SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
+            </statement>
+            <statement name="selectPageRevision">
+                SELECT * FROM page, revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest) AND ROWNUM = 1
+            </statement>
+            <statement name="selectText">
+                SELECT old_text,old_flags FROM text WHERE old_id = ? AND ROWNUM = 1
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

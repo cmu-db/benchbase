@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="DeleteCallForwarding">
+            <statement name="getSubscriber">
+                SELECT s_id FROM subscriber WHERE sub_nbr = ?
+            </statement>
+            <statement name="updateCallForwarding">
+                DELETE FROM call_forwarding WHERE s_id = ? AND sf_type = ? AND start_time = ?
+            </statement>
+        </procedure>
+        <procedure name="GetAccessData">
+            <statement name="getAccessInfo">
+                SELECT data1, data2, data3, data4 FROM access_info WHERE s_id = ? AND ai_type = ?
+            </statement>
+        </procedure>
+	    <procedure name="GetNewDestination">
+            <statement name="getNewDestination">
+            SELECT cf.numberx FROM special_facility sf, call_forwarding cf WHERE sf.s_id = ? AND sf.sf_type = ? AND sf.is_active = 1 AND cf.s_id = sf.s_id AND cf.sf_type = sf.sf_type AND cf.start_time &lt;= ? AND cf.end_time &gt; ?
+            </statement>
+        </procedure>
+        <procedure name="GetSubscriberData">
+            <statement name="getSubscriber">
+                SELECT * FROM subscriber WHERE s_id = ?
+            </statement>
+        </procedure>
+        <procedure name="InsertCallForwarding">
+            <statement name="getSubscriber">
+                SELECT s_id FROM subscriber WHERE sub_nbr = ?
+            </statement>
+            <statement name="getSpecialFacility">
+                SELECT sf_type FROM special_facility WHERE s_id = ?
+            </statement>
+			<statement name="insertCallForwarding">
+                INSERT INTO call_forwarding VALUES (?, ?, ?, ?, ?)
+            </statement>
+        </procedure>
+        <procedure name="UpdateLocation">
+            <statement name="getSubscriber">
+                SELECT s_id FROM subscriber WHERE sub_nbr = ?
+            </statement>
+            <statement name="updateSubscriber">
+                UPDATE subscriber SET vlr_location = ? WHERE s_id = ?
+            </statement>
+        </procedure>
+        <procedure name="UpdateSubscriberData">
+            <statement name="updateSubscriber">
+                UPDATE subscriber SET bit_1 = ? WHERE s_id = ?
+            </statement>
+            <statement name="updateSpecialFacility">
+                UPDATE special_facility SET data_a = ? WHERE s_id = ? AND sf_type = ?
+            </statement>
+        </procedure>
+	</dialect>
+</dialects>

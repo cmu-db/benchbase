@@ -20,7 +20,7 @@ Together with the framework we provide the following OLTP/Web benchmarks:
   * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
   * SEATS
   * [YCSB](https://github.com/brianfrankcooper/YCSB)
-  * [JPAB](http://www.jpab.org) (Hibernate)
+  * [JPAB](http://www.jpab.org) (Hibernate), REMOVED!!!!!
   * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en)
   * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
   * [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf) (Snapshot Isolation)
