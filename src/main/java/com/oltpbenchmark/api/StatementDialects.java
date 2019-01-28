@@ -60,7 +60,7 @@ public class StatementDialects {
         this.xmlFile = xmlFile;
 
         this.xmlContext = this.getClass().getPackage().getName() + ".dialects";
-        this.xmlSchemaURL = this.getClass().getResource("dialects.xsd");
+        this.xmlSchemaURL = this.getClass().getClassLoader().getResource("dialects" + File.separator + "dialects.xsd");
         assert (this.xmlSchemaURL != null) :
                 "Failed to find 'dialects.xml' for " + this.getClass().getName();
         if (this.xmlFile != null && this.dbType != null) {
@@ -108,15 +108,17 @@ public class StatementDialects {
             throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
         }
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loading the SQL dialect file '%s' for %s",
                     this.xmlFile.getName(), this.dbType));
+        }
 
         for (DialectType dialect : dialects.getDialect()) {
             assert (this.dbType != null);
             assert (dialect != null);
-            if (dialect.getType().equalsIgnoreCase(this.dbType.name()) == false)
+            if (dialect.getType().equalsIgnoreCase(this.dbType.name()) == false) {
                 continue;
+            }
 
             // For each Procedure in the XML file, go through its list of Statements
             // and populate our dialects map with the mapped SQL
@@ -186,7 +188,9 @@ public class StatementDialects {
         DialectType dType = factory.createDialectType();
         dType.setType(dbType.name());
         for (Procedure proc : sorted) {
-            if (proc.getStatments().isEmpty()) continue;
+            if (proc.getStatments().isEmpty()) {
+                continue;
+            }
 
             ProcedureType pType = factory.createProcedureType();
             pType.setName(proc.getProcedureName());

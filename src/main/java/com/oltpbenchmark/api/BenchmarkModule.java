@@ -180,11 +180,14 @@ public abstract class BenchmarkModule {
         };
 
         for (String ddlName : ddlNames) {
-            if (ddlName == null) continue;
+            if (ddlName == null) {
+                continue;
+            }
             URL ddlURL = this.getClass().getClassLoader().getResource(DDLS_DIR + File.separator + ddlName);
             if (ddlURL != null) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Found DDL file for " + db_type + ": " + ddlURL);
+                }
                 return ddlURL;
             }
         } // FOR
@@ -220,7 +223,7 @@ public abstract class BenchmarkModule {
                 this.benchmarkName + "-dialects.xml",
         };
         for (String xmlName : xmlNames) {
-            URL ddlURL = this.getClass().getResource(DIALECTS_DIR + File.separator + xmlName);
+            URL ddlURL = this.getClass().getClassLoader().getResource(DIALECTS_DIR + File.separator + this.benchmarkName + File.separator + xmlName);
             if (ddlURL != null) {
                 try {
                     return new File(ddlURL.toURI().getPath());
@@ -262,7 +265,9 @@ public abstract class BenchmarkModule {
             URL ddl = this.getDatabaseDDL(dbType);
             assert (ddl != null) : "Failed to get DDL for " + this;
             ScriptRunner runner = new ScriptRunner(conn, true, true);
-            if (LOG.isDebugEnabled()) LOG.debug("Executing script '" + ddl + "'");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Executing script '" + ddl + "'");
+            }
             runner.runScript(ddl);
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
@@ -319,16 +324,18 @@ public abstract class BenchmarkModule {
                 if (loaderThreads != null) {
                     int maxConcurrent = workConf.getLoaderThreads();
                     assert (maxConcurrent > 0);
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]",
                                 loaderThreads.size(),
                                 loader.getClass().getSimpleName(),
                                 maxConcurrent));
+                    }
                     ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
                 } else {
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Using legacy %s.load() method",
                                 loader.getClass().getSimpleName()));
+                    }
                     loader.load();
                 }
                 conn.commit();
@@ -342,9 +349,10 @@ public abstract class BenchmarkModule {
                     this.benchmarkName.toUpperCase());
             throw new RuntimeException(msg, ex);
         }
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Finished loading the %s database",
                     this.getBenchmarkName().toUpperCase()));
+        }
     }
 
     /**
