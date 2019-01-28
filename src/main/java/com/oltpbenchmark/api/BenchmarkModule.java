@@ -208,6 +208,8 @@ public abstract class BenchmarkModule {
      * @return
      */
     public File getSQLDialect(DatabaseType db_type) {
+        // TODO MOVE DIALECTS TO RESOURCES
+
 
         // String xmlName = this.benchmarkName + "-dialects.xml";
         // URL ddlURL = this.getClass().getResource(xmlName);
