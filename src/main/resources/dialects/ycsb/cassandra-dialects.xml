@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <dialects>
-    <dialect type="CASSANDRA">
+    <dialect type="COCKROACHDB">
 
         <procedure name="ScanRecord">
             <statement name="scanStmt">

@@ -78,7 +78,6 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
                 if (++batch >= YCSBConstants.COMMIT_BATCH_SIZE) {
                     int result[] = stmt.executeBatch();
                     assert (result != null);
-                    conn.commit();
                     batch = 0;
                     if (LOG.isDebugEnabled())
                         LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
@@ -86,7 +85,6 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
             } // FOR
             if (batch > 0) {
                 stmt.executeBatch();
-                conn.commit();
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
             }
