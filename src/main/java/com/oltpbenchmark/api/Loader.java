@@ -55,7 +55,6 @@ public abstract class Loader<T extends BenchmarkModule> {
 
         public LoaderThread() throws SQLException {
             this.conn = Loader.this.benchmark.makeConnection();
-            this.conn.setAutoCommit(false);
         }
 
         @Override
@@ -179,15 +178,23 @@ public abstract class Loader<T extends BenchmarkModule> {
      * @throws SQLException
      */
     public void unload(Catalog catalog) throws SQLException {
-        conn.setAutoCommit(false);
+        boolean autoCommit = conn.getAutoCommit();
+
+        if (autoCommit) {
+            conn.setAutoCommit(false);
+        }
+
         conn.setTransactionIsolation(workConf.getIsolationMode());
-        Statement st = conn.createStatement();
-        for (Table catalog_tbl : catalog.getTables()) {
-            LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
-            String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
-            st.execute(sql);
-        } // FOR
-        conn.commit();
+        try (Statement st = conn.createStatement()) {
+            for (Table catalog_tbl : catalog.getTables()) {
+                LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
+                String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
+                st.execute(sql);
+            } // FOR
+            conn.commit();
+        } finally {
+            conn.setAutoCommit(autoCommit);
+        }
     }
 
     protected void updateAutoIncrement(Column catalog_col, int value) throws SQLException {
@@ -202,12 +209,15 @@ public abstract class Loader<T extends BenchmarkModule> {
                 // Nothing!
         }
         if (sql != null) {
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Updating %s auto-increment counter with value '%d'", catalog_col.fullName(), value));
-            Statement stmt = this.conn.createStatement();
-            boolean result = stmt.execute(sql);
-            if (LOG.isDebugEnabled())
-                LOG.debug(String.format("%s => [%s]", sql, result));
+            }
+            try (Statement stmt = this.conn.createStatement()) {
+                boolean result = stmt.execute(sql);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("%s => [%s]", sql, result));
+                }
+            }
         }
     }
 }
