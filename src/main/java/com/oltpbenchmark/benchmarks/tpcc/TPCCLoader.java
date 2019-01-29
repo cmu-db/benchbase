@@ -73,17 +73,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
-                final boolean autoCommit = conn.getAutoCommit();
-
-                LOG.debug("current autocomit " + autoCommit);
-
-                if (!autoCommit){
-                    conn.setAutoCommit(true);
-                }
                 loadItems(conn, TPCCConfig.configItemCount);
-
-                conn.setAutoCommit(autoCommit)
-                ;
                 itemLatch.countDown();
             }
         });
@@ -98,14 +88,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     // Make sure that we load the ITEM table first
-
-                    final boolean autoCommit = conn.getAutoCommit();
-
-                    LOG.debug("current autocomit " + autoCommit);
-
-                    if (!autoCommit){
-                        conn.setAutoCommit(true);
-                    }
 
                     try {
                         itemLatch.await();
@@ -133,7 +115,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     // ORDERS
                     loadOrders(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
 
-                    conn.setAutoCommit(autoCommit);
                 }
             };
             threads.add(t);
