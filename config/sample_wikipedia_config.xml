@@ -4,40 +4,40 @@
     <!-- Connection details -->
     <dbtype>cockroachdb</dbtype>
     <driver>org.postgresql.Driver</driver>
-	<DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=wikipedia&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=wikipedia&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+
     <!-- Scale factor is the number of wikipages *1000 -->
     <scalefactor>10</scalefactor>
-    
-	<!-- The workload -->
- 	<terminals>100</terminals>
+
+    <!-- The workload -->
+    <terminals>100</terminals>
     <works>
         <work>
-          <time>10</time>
-          <rate>1000</rate>
-          <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
+            <time>10</time>
+            <rate>1000</rate>
+            <weights>0.07,0.07,7.6725,91.2656,0.9219</weights>
         </work>
     </works>
-    
+
     <!-- Wikipedia Procedures Declaration -->
-	<transactiontypes>
+    <transactiontypes>
         <transactiontype>
-                <name>AddWatchList</name>
+            <name>AddWatchList</name>
         </transactiontype>
         <transactiontype>
-                <name>RemoveWatchList</name>
+            <name>RemoveWatchList</name>
         </transactiontype>
         <transactiontype>
-                <name>UpdatePage</name>
+            <name>UpdatePage</name>
         </transactiontype>
         <transactiontype>
-                <name>GetPageAnonymous</name>
+            <name>GetPageAnonymous</name>
         </transactiontype>
         <transactiontype>
-                <name>GetPageAuthenticated</name>
+            <name>GetPageAuthenticated</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

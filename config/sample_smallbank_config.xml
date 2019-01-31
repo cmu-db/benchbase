@@ -6,21 +6,21 @@
     <driver>com.mysql.jdbc.Driver</driver>
     <DBUrl>jdbc:mysql://localhost:3306/oltpbench</DBUrl>
     <username>user</username>
-    <password>pass</password>    
+    <password>pass</password>
     <isolation>TRANSACTION_READ_COMMITTED</isolation>
-    
+
     <scalefactor>1</scalefactor>
-    
+
     <!-- The workload -->
     <terminals>1</terminals>
     <works>
         <work>
-          <time>20</time>
-          <rate>100</rate>
-          <weights>15,15,15,25,15,15</weights>
+            <time>20</time>
+            <rate>100</rate>
+            <weights>15,15,15,25,15,15</weights>
         </work>
     </works>
-        
+
     <!-- SmallBank Procedures declaration -->
     <transactiontypes>
         <transactiontype>

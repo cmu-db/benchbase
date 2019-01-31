@@ -161,7 +161,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             if ((batchSize % configCommitCount) == 0) {
                 int result[] = userInsert.executeBatch();
                 assert (result != null);
-                conn.commit();
                 userInsert.clearBatch();
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
@@ -171,7 +170,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         } // FOR
         if (batchSize > 0) {
             userInsert.executeBatch();
-            conn.commit();
             userInsert.clearBatch();
         }
         userInsert.close();
@@ -211,7 +209,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
             if ((batchSize % configCommitCount) == 0) {
                 tweetInsert.executeBatch();
-                conn.commit();
                 tweetInsert.clearBatch();
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
@@ -221,7 +218,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         }
         if (batchSize > 0) {
             tweetInsert.executeBatch();
-            conn.commit();
         }
         tweetInsert.close();
         if (LOG.isDebugEnabled()) {
@@ -282,7 +278,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                     if ((batchSize % configCommitCount) == 0) {
                         followsInsert.executeBatch();
                         followersInsert.executeBatch();
-                        conn.commit();
                         followsInsert.clearBatch();
                         followersInsert.clearBatch();
                         batchSize = 0;
@@ -296,7 +291,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         if (batchSize > 0) {
             followsInsert.executeBatch();
             followersInsert.executeBatch();
-            conn.commit();
         }
         followsInsert.close();
         followersInsert.close();

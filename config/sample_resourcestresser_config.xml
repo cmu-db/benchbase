@@ -11,9 +11,9 @@
 
     <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
     <scalefactor>2</scalefactor>
-    
-    <!-- The workload -->   
-    <terminals>2</terminals>    
+
+    <!-- The workload -->
+    <terminals>2</terminals>
     <works>
         <work>
             <time>300</time>
@@ -21,7 +21,7 @@
             <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
         </work>
     </works>
-    
+
     <!-- R/S Procedures declaration -->
     <transactiontypes>
         <transactiontype>

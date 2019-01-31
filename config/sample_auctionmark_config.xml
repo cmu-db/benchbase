@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <parameters>
-	
+
     <!-- Connection details -->
     <dbtype>cockroachdb</dbtype>
     <driver>org.postgresql.Driver</driver>
@@ -8,7 +8,7 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+
     <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
     <scalefactor>10</scalefactor>
 
@@ -16,40 +16,40 @@
     <terminals>10</terminals>
     <works>
         <work>
-          <time>300</time>
-          <rate>10000</rate>
-          <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
         </work>
     </works>
-    
+
     <!-- AuctionMark Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-                <name>GetItem</name>
+            <name>GetItem</name>
         </transactiontype>
         <transactiontype>
-                <name>GetUserInfo</name>
+            <name>GetUserInfo</name>
         </transactiontype>
         <transactiontype>
-                <name>NewBid</name>
+            <name>NewBid</name>
         </transactiontype>
         <transactiontype>
-                <name>NewComment</name>
+            <name>NewComment</name>
         </transactiontype>
         <transactiontype>
-                <name>NewCommentResponse</name>
+            <name>NewCommentResponse</name>
         </transactiontype>
         <transactiontype>
-                <name>NewFeedback</name>
+            <name>NewFeedback</name>
         </transactiontype>
         <transactiontype>
-                <name>NewItem</name>
+            <name>NewItem</name>
         </transactiontype>
         <transactiontype>
-                <name>NewPurchase</name>
+            <name>NewPurchase</name>
         </transactiontype>
         <transactiontype>
-                <name>UpdateItem</name>
+            <name>UpdateItem</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

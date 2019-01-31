@@ -4,43 +4,43 @@
     <!-- Connection details -->
     <dbtype>cockroachdb</dbtype>
     <driver>org.postgresql.Driver</driver>
-	<DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=ycsb&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=ycsb&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
     <scalefactor>1200</scalefactor>
-    
+
     <!-- The workload -->
     <terminals>50</terminals>
     <works>
         <work>
-          <time>300</time>
-          <rate>10000</rate>
-          <weights>50,5,15,10,10,10</weights>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>50,5,15,10,10,10</weights>
         </work>
     </works>
 
     <!-- YCSB Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-                <name>ReadRecord</name>
+            <name>ReadRecord</name>
         </transactiontype>
         <transactiontype>
-                <name>InsertRecord</name>
+            <name>InsertRecord</name>
         </transactiontype>
         <transactiontype>
-                <name>ScanRecord</name>
+            <name>ScanRecord</name>
         </transactiontype>
         <transactiontype>
-                <name>UpdateRecord</name>
+            <name>UpdateRecord</name>
         </transactiontype>
         <transactiontype>
-                <name>DeleteRecord</name>
+            <name>DeleteRecord</name>
         </transactiontype>
         <transactiontype>
-                <name>ReadModifyWriteRecord</name>
+            <name>ReadModifyWriteRecord</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

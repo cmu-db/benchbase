@@ -8,7 +8,7 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+
     <!-- This parameter has no affect on this benchmark-->
     <!-- There is no data to load -->
     <scalefactor>1</scalefactor>
@@ -17,16 +17,16 @@
     <terminals>10</terminals>
     <works>
         <work>
-          <time>300</time>
-          <rate>1000</rate>
-          <weights>100</weights>
+            <time>300</time>
+            <rate>1000</rate>
+            <weights>100</weights>
         </work>
     </works>
 
     <!-- NoOp Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-                <name>NoOp</name>
+            <name>NoOp</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

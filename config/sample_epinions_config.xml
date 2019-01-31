@@ -8,7 +8,7 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
     <scalefactor>100</scalefactor>
 
@@ -16,9 +16,9 @@
     <terminals>10</terminals>
     <works>
         <work>
-          <time>300</time>
-          <rate>10000</rate>
-          <weights>10,10,10,10,10,10,10,10,20</weights>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>10,10,10,10,10,10,10,10,20</weights>
         </work>
     </works>
 
@@ -51,5 +51,5 @@
         <transactiontype>
             <name>UpdateTrustRating</name>
         </transactiontype>
-    </transactiontypes>	
+    </transactiontypes>
 </parameters>
