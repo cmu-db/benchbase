@@ -32,8 +32,6 @@
 package com.oltpbenchmark.benchmarks.linkbench.utils;
 
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
-import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
-import org.apache.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,37 +53,6 @@ public class ConfigUtil {
             }
         }
         return null;
-    }
-
-    public static Level getDebugLevel(Properties props)
-            throws LinkBenchConfigError {
-        if (props == null) {
-            return Level.DEBUG;
-        }
-        String levStr = props.getProperty(LinkBenchConstants.DEBUGLEVEL);
-
-        if (levStr == null) {
-            return Level.DEBUG;
-        }
-
-        try {
-            int level = Integer.parseInt(levStr);
-            if (level <= 0) {
-                return Level.INFO;
-            } else if (level == 1) {
-                return Level.DEBUG;
-            } else {
-                return Level.TRACE;
-            }
-        } catch (NumberFormatException e) {
-            Level lev = Level.toLevel(levStr, null);
-            if (lev != null) {
-                return lev;
-            } else {
-                throw new LinkBenchConfigError("Invalid setting for debug level: " +
-                        levStr);
-            }
-        }
     }
 
     /**
