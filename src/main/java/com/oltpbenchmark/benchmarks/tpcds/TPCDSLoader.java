@@ -460,13 +460,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         }
     }
 
-    protected void transRollback(Connection conn) {
-        try {
-            conn.rollback();
-        } catch (SQLException se) {
-            LOG.debug(se.getMessage());
-        }
-    }
 
     private void loadData(Connection conn, String table, PreparedStatement ps, TPCDSConstants.CastTypes[] types) {
         BufferedReader br = null;
@@ -562,7 +555,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     ps.addBatch();
                     if (++batchSize % TPCDSConstants.BATCH_SIZE == 0) {
                         ps.executeBatch();
-                        conn.commit();
                         ps.clearBatch();
                         this.addToTableCount(table, batchSize);
                         batchSize = 0;
@@ -577,7 +569,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             if (batchSize > 0) {
                 this.addToTableCount(table, batchSize);
                 ps.executeBatch();
-                conn.commit();
                 ps.clearBatch();
             }
             ps.close();
@@ -589,12 +580,10 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             LOG.error("Failed to load data for TPC-DS: " + field + ", LINE " + line, se);
             se = se.getNextException();
             if (se != null) LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
-            transRollback(conn);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-            transRollback(conn);
         } finally {
             if (br != null) {
                 try {
