@@ -222,7 +222,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
                 userInsert.executeBatch();
-                conn.commit();
                 userInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
@@ -238,11 +237,10 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         if (batchSize > 0) {
             this.addToTableCount(catalog_tbl.getName(), batchSize);
             userInsert.executeBatch();
-            conn.commit();
             userInsert.clearBatch();
         }
         userInsert.close();
-        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
             this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_users);
         }
         if (LOG.isDebugEnabled()) {
@@ -291,7 +289,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
                 pageInsert.executeBatch();
-                conn.commit();
                 pageInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
@@ -306,12 +303,11 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         } // FOR
         if (batchSize > 0) {
             pageInsert.executeBatch();
-            conn.commit();
             pageInsert.clearBatch();
             this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
         pageInsert.close();
-        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
             this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_pages);
         }
         if (LOG.isDebugEnabled()) {
@@ -380,7 +376,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             if (batchSize >= maxBatchSize) {
                 watchInsert.executeBatch();
-                conn.commit();
                 watchInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 batchSize = 0;
@@ -397,7 +392,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         if (batchSize > 0) {
             watchInsert.executeBatch();
             watchInsert.clearBatch();
-            conn.commit();
             this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
         watchInsert.close();
@@ -507,7 +501,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             if (batchSize > WikipediaConstants.BATCH_SIZE) {
                 textInsert.executeBatch();
                 revisionInsert.executeBatch();
-                conn.commit();
                 this.addToTableCount(textTable.getName(), batchSize);
                 this.addToTableCount(revTable.getName(), batchSize);
                 batchSize = 0;
@@ -523,7 +516,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         } // FOR (page)
         revisionInsert.close();
         textInsert.close();
-        if (this.getDatabaseType() == DatabaseType.POSTGRES) {
+        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
             this.updateAutoIncrement(textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(revTable.getColumn(0), rev_id);
         }
@@ -544,14 +537,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             userUpdate.addBatch();
             if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
                 userUpdate.executeBatch();
-                conn.commit();
                 userUpdate.clearBatch();
                 batchSize = 0;
             }
         } // FOR
         if (batchSize > 0) {
             userUpdate.executeBatch();
-            conn.commit();
             userUpdate.clearBatch();
         }
         userUpdate.close();
@@ -578,14 +569,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             pageUpdate.addBatch();
             if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
                 pageUpdate.executeBatch();
-                conn.commit();
                 pageUpdate.clearBatch();
                 batchSize = 0;
             }
         } // FOR
         if (batchSize > 0) {
             pageUpdate.executeBatch();
-            conn.commit();
             pageUpdate.clearBatch();
         }
         pageUpdate.close();

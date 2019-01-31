@@ -22,11 +22,11 @@ public class Article {
     public String userText;
     public int pageId;
     public String oldText;
-    public int textId;
-    public int revisionId;
+    public long textId;
+    public long revisionId;
 
-    public Article(String userText, int pageId, String oldText, int textId,
-                   int revisionId) {
+    public Article(String userText, int pageId, String oldText, long textId,
+                   long revisionId) {
         super();
         this.userText = userText;
         this.pageId = pageId;
