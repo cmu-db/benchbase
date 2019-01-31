@@ -174,25 +174,27 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public URL getDatabaseDDL(DatabaseType db_type) {
-        String ddlNames[] = {
-                this.benchmarkName + "-" + (db_type != null ? db_type.name().toLowerCase() : "") + "-ddl.sql",
-                this.benchmarkName + "-ddl.sql",
-        };
+        String fileName = null;
 
-        for (String ddlName : ddlNames) {
-            if (ddlName == null) {
-                continue;
+        if (db_type == null || (db_type != null && DatabaseType.HSQLDB.equals(db_type))) {
+            fileName = "ddl.sql";
+        } else {
+            fileName = "ddl-" + db_type.name().toLowerCase() + ".sql";
+        }
+
+        final String path = "benchmarks" + File.separator + this.benchmarkName + File.separator + fileName;
+
+        URL url = this.getClass().getClassLoader().getResource(path);
+        if (url != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Found DDL file for " + db_type + ": " + url);
             }
-            URL ddlURL = this.getClass().getClassLoader().getResource(DDLS_DIR + File.separator + ddlName);
-            if (ddlURL != null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found DDL file for " + db_type + ": " + ddlURL);
-                }
-                return ddlURL;
-            }
-        } // FOR
-        LOG.trace(ddlNames[0] + " :or: " + ddlNames[1]);
-        LOG.error("Failed to find DDL file for " + this.benchmarkName);
+            return url;
+        }
+
+
+        LOG.error("Failed to find DDL file for " + path);
+
         return null;
     }
 
@@ -211,28 +213,27 @@ public abstract class BenchmarkModule {
      * @return
      */
     public File getSQLDialect(DatabaseType db_type) {
-        // TODO MOVE DIALECTS TO RESOURCES
+        String fileName = null;
+
+        if (db_type == null) {
+            fileName = "dialect-" + db_type.name().toLowerCase() + ".sql";
+        }
 
 
-        // String xmlName = this.benchmarkName + "-dialects.xml";
-        // URL ddlURL = this.getClass().getResource(xmlName);
-        String xmlNames[] = {
-                (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml",
+        if (fileName != null) {
 
-                // TODO: We need to remove this!
-                this.benchmarkName + "-dialects.xml",
-        };
-        for (String xmlName : xmlNames) {
-            URL ddlURL = this.getClass().getClassLoader().getResource(DIALECTS_DIR + File.separator + this.benchmarkName + File.separator + xmlName);
-            if (ddlURL != null) {
-                try {
-                    return new File(ddlURL.toURI().getPath());
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", xmlName));
-                }
+            final String path = "benchmarks" + File.separator + this.benchmarkName + File.separator + fileName;
+
+            URL url = this.getClass().getClassLoader().getResource(path);
+
+            try {
+                return new File(url.toURI().getPath());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", path));
             }
         }
+
         return (null);
     }
 

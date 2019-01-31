@@ -43,7 +43,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     }
 
     public File getDataDir() {
-        URL url = SEATSBenchmark.class.getClassLoader().getResource("data" + File.separator + "seats");
+        URL url = SEATSBenchmark.class.getClassLoader().getResource("benchmarks" + File.separator + this.benchmarkName);
         try {
             if (url != null) {
                 return new File(url.toURI().getPath());

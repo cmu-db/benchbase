@@ -60,7 +60,7 @@ public class StatementDialects {
         this.xmlFile = xmlFile;
 
         this.xmlContext = this.getClass().getPackage().getName() + ".dialects";
-        this.xmlSchemaURL = this.getClass().getClassLoader().getResource("dialects" + File.separator + "dialects.xsd");
+        this.xmlSchemaURL = this.getClass().getClassLoader().getResource("dialect.xsd");
         assert (this.xmlSchemaURL != null) :
                 "Failed to find 'dialects.xml' for " + this.getClass().getName();
         if (this.xmlFile != null && this.dbType != null) {
