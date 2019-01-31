@@ -22,7 +22,8 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.List;
  * @author pavlo
  */
 public class CreateDialects {
-    private static final Logger LOG = Logger.getLogger(CreateDialects.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CreateDialects.class);
 
     protected static final String DB_CONNECTION = "jdbc:sqlite:";
     private static final String SPACER = "   ";

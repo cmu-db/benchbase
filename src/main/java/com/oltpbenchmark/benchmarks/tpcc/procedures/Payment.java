@@ -22,7 +22,8 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ import java.util.Random;
 
 public class Payment extends TPCCProcedure {
 
-    private static final Logger LOG = Logger.getLogger(Payment.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Payment.class);
 
     public SQLStmt payUpdateWhseSQL = new SQLStmt(
             "UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE +

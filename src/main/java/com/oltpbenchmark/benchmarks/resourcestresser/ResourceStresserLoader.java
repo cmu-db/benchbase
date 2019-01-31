@@ -4,7 +4,8 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
-    private static final Logger LOG = Logger.getLogger(ResourceStresserLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserLoader.class);
     private final int numEmployees;
 
     public ResourceStresserLoader(ResourceStresserBenchmark benchmark, Connection conn) {

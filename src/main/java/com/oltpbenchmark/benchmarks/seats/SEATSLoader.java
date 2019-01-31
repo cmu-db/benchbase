@@ -27,7 +27,8 @@ import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.collections4.set.ListOrderedSet;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.*;
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
 public class SEATSLoader extends Loader<SEATSBenchmark> {
-    private static final Logger LOG = Logger.getLogger(SEATSLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SEATSLoader.class);
 
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS
@@ -463,9 +464,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         int row_idx = 0;
         int row_batch = 0;
 
-        try {
-            String insert_sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-            PreparedStatement insert_stmt = conn.prepareStatement(insert_sql);
+        String insert_sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        try (PreparedStatement insert_stmt = conn.prepareStatement(insert_sql)) {
             int sqlTypes[] = catalog_tbl.getColumnTypes();
 
             for (Object tuple[] : iterable) {
@@ -560,7 +560,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             if (row_batch > 0) {
                 insert_stmt.executeBatch();
             }
-            insert_stmt.close();
+
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load table " + catalog_tbl.getName(), ex);
         }

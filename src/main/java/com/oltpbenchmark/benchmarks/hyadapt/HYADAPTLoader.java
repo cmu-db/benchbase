@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.hyadapt;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
-    private static final Logger LOG = Logger.getLogger(HYADAPTLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HYADAPTLoader.class);
     private final int num_record;
     private static final Random rand = new Random();
 

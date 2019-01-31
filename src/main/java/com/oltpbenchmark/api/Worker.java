@@ -24,7 +24,8 @@ import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,7 +38,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
-    private static final Logger LOG = Logger.getLogger(Worker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
     private WorkloadState wrkldState;
     private LatencyRecord latencies;

@@ -27,13 +27,14 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import com.oltpbenchmark.util.TextGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
 import java.sql.SQLException;
 
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
-    private static final Logger LOG = Logger.getLogger(WikipediaWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WikipediaWorker.class);
 
     private final int num_users;
     private final int num_pages;

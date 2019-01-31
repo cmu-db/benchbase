@@ -18,7 +18,8 @@ package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,7 +27,7 @@ import java.sql.SQLException;
 
 public class DeleteNode extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(DeleteNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeleteNode.class);
 
     private PreparedStatement stmt = null;
 

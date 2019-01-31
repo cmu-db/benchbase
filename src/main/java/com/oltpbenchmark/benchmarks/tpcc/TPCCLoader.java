@@ -38,7 +38,8 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.*;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ import java.util.concurrent.CountDownLatch;
  * TPC-C Benchmark Loader
  */
 public class TPCCLoader extends Loader<TPCCBenchmark> {
-    private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TPCCLoader.class);
 
     public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
         super(benchmark, c);

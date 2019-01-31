@@ -19,7 +19,8 @@ package com.oltpbenchmark.util;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -30,7 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class SQLUtil {
-    private static final Logger LOG = Logger.getLogger(SQLUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SQLUtil.class);
 
     private static final DateFormat timestamp_formats[] = new DateFormat[]{
             new SimpleDateFormat("yyyy-MM-dd"),

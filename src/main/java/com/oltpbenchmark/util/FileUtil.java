@@ -17,7 +17,8 @@
 
 package com.oltpbenchmark.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ import java.util.zip.GZIPInputStream;
  * @author pavlo
  */
 public abstract class FileUtil {
-    private static final Logger LOG = Logger.getLogger(FileUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
     private static final Pattern EXT_SPLIT = Pattern.compile("\\.");
 
@@ -97,7 +98,7 @@ public abstract class FileUtil {
         try {
             ret = f.getCanonicalPath();
         } catch (Exception ex) {
-            LOG.warn(ex);
+            LOG.warn(ex.getMessage(), ex);
         }
         return (ret);
     }

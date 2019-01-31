@@ -22,7 +22,8 @@ import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
 import com.oltpbenchmark.util.RandomGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.Connection;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
-    private static final Logger LOG = Logger.getLogger(CHBenCHmarkLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CHBenCHmarkLoader.class);
 
     private final static int configCommitCount = 1000; // commit every n records
     private static final RandomGenerator ran = new RandomGenerator(0);

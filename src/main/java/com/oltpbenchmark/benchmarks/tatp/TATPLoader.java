@@ -20,7 +20,8 @@ package com.oltpbenchmark.benchmarks.tatp;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TATPLoader extends Loader<TATPBenchmark> {
-    private static final Logger LOG = Logger.getLogger(TATPLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TATPLoader.class);
 
     private final long subscriberSize;
 

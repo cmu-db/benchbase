@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.tpcds;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.Connection;
@@ -32,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TPCDSLoader extends Loader<TPCDSBenchmark> {
-    private static final Logger LOG = Logger.getLogger(TPCDSLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TPCDSLoader.class);
 
     public TPCDSLoader(TPCDSBenchmark benchmark, Connection c) {
         super(benchmark, c);

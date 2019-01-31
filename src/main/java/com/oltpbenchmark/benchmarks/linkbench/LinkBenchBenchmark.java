@@ -22,7 +22,8 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.linkbench.procedures.AddNode;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,7 +40,7 @@ import java.util.Random;
 
 public class LinkBenchBenchmark extends BenchmarkModule {
 
-    private static final Logger LOG = Logger.getLogger(LinkBenchBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinkBenchBenchmark.class);
     private LinkBenchConfiguration linkBenchConf;
     private Properties props;
 

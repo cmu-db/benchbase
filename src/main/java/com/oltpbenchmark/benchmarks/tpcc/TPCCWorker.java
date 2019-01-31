@@ -30,14 +30,15 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.TPCCProcedure;
 import com.oltpbenchmark.types.TransactionStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Random;
 
 public class TPCCWorker extends Worker<TPCCBenchmark> {
 
-    private static final Logger LOG = Logger.getLogger(TPCCWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TPCCWorker.class);
 
     private final int terminalWarehouseID;
     /**

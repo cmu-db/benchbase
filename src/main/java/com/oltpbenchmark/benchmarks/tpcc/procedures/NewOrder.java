@@ -21,7 +21,8 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +32,7 @@ import java.util.Random;
 
 public class NewOrder extends TPCCProcedure {
 
-    private static final Logger LOG = Logger.getLogger(NewOrder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewOrder.class);
 
     public final SQLStmt stmtGetCustSQL = new SQLStmt(
             "SELECT C_DISCOUNT, C_LAST, C_CREDIT" +

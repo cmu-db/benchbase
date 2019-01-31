@@ -22,7 +22,8 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.FileUtil;
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.Connection;
@@ -32,7 +33,7 @@ import java.util.Random;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
 
-    private static final Logger LOG = Logger.getLogger(AbstractTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTestCase.class);
 
     // HACK
     static {

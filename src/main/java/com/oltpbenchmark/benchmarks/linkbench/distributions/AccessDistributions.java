@@ -21,7 +21,8 @@ import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.Dis
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import com.oltpbenchmark.benchmarks.linkbench.utils.InvertibleShuffler;
 import com.oltpbenchmark.util.ClassUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.Random;
@@ -159,7 +160,7 @@ public class AccessDistributions {
 
     public static AccessDistribution loadAccessDistribution(Properties props,
                                                             long minid, long maxid, DistributionType kind) throws LinkBenchConfigError {
-        Logger logger = Logger.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+        Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
         String keyPrefix;
         switch (kind) {
             case LINK_READS:
@@ -226,7 +227,7 @@ public class AccessDistributions {
                                                      Properties props, String keyPrefix, long minid, long maxid,
                                                      DistributionType kind) {
         try {
-            Logger logger = Logger.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+            Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
             logger.debug("Using ProbabilityDistribution class " + className +
                     " for " + kind.toString().toLowerCase());
             ProbabilityDistribution pDist = ClassUtil.newInstance(className,

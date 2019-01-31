@@ -21,7 +21,8 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
 import com.oltpbenchmark.types.TransactionStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 
@@ -30,7 +31,7 @@ import java.sql.SQLException;
  * @author eric-haibin-lin
  */
 public class NoOpWorker extends Worker<NoOpBenchmark> {
-    private static final Logger LOG = Logger.getLogger(NoOpWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NoOpWorker.class);
 
     private NoOp procNoOp;
 

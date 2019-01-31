@@ -23,7 +23,8 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.*;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import java.util.Random;
 
 public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
-    private static final Logger LOG = Logger.getLogger(EpinionsWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EpinionsWorker.class);
 
     private ArrayList<String> user_ids;
     private ArrayList<String> item_ids;

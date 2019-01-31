@@ -18,7 +18,8 @@ package com.oltpbenchmark.api.collectors;
 
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.util.JSONUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MyRocksCollector extends DBCollector {
-    private static final Logger LOG = Logger.getLogger(MyRocksCollector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MyRocksCollector.class);
 
     private static final String VERSION_SQL = "SELECT @@GLOBAL.version;";
 

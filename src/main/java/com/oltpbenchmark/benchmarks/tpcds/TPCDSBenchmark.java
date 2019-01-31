@@ -5,7 +5,8 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tpcds.procedures.Test;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TPCDSBenchmark extends BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(TPCDSBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TPCDSBenchmark.class);
 
     public TPCDSBenchmark(WorkloadConfiguration workConf) {
         super("tpcds", workConf, true);

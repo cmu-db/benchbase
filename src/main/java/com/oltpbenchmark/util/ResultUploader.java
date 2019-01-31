@@ -33,7 +33,8 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,7 +44,7 @@ import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 public class ResultUploader {
-    private static final Logger LOG = Logger.getLogger(ResultUploader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResultUploader.class);
 
     private static String[] IGNORE_CONF = {
             "dbtype",

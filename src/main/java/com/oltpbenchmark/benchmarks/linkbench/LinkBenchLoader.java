@@ -17,14 +17,15 @@
 package com.oltpbenchmark.benchmarks.linkbench;
 
 import com.oltpbenchmark.api.Loader;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
-    private static final Logger LOG = Logger.getLogger(LinkBenchLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinkBenchLoader.class);
     private final int num_record;
 
     public LinkBenchLoader(LinkBenchBenchmark benchmark, Connection c) {

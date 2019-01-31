@@ -20,14 +20,15 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkProfile;
 import com.oltpbenchmark.util.FileUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 
 public abstract class AuctionMarkUtil {
-    private static final Logger LOG = Logger.getLogger(AuctionMarkUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkUtil.class);
 
     public static File getDataDirectory() {
         File dataDir = null;

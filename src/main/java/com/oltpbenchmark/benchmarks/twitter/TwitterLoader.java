@@ -25,7 +25,8 @@ import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TwitterLoader extends Loader<TwitterBenchmark> {
-    private static final Logger LOG = Logger.getLogger(TwitterLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TwitterLoader.class);
 
     public final static int configCommitCount = 1000;
 

@@ -18,7 +18,8 @@ package com.oltpbenchmark.benchmarks.noop.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,7 +33,7 @@ import java.sql.SQLException;
  * @author eric-haibin-lin
  */
 public class NoOp extends Procedure {
-    private static final Logger LOG = Logger.getLogger(NoOp.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NoOp.class);
 
 
     // The query only contains a semi-colon

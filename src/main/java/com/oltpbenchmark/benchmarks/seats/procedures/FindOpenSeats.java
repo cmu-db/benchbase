@@ -43,7 +43,8 @@ package com.oltpbenchmark.benchmarks.seats.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,7 +52,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class FindOpenSeats extends Procedure {
-    private static final Logger LOG = Logger.getLogger(FindOpenSeats.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FindOpenSeats.class);
 
 //    private final VoltTable.ColumnInfo outputColumns[] = {
 //        new VoltTable.ColumnInfo("F_ID", VoltType.BIGINT),

@@ -18,7 +18,8 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.FileUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,7 +28,7 @@ import java.util.TreeMap;
 
 
 public class CategoryParser {
-    private static final Logger LOG = Logger.getLogger(CategoryParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CategoryParser.class);
 
     Map<String, Category> _categoryMap;
     private int _nextCategoryID;

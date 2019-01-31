@@ -20,7 +20,8 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ import java.util.Random;
 
 public class StockLevel extends TPCCProcedure {
 
-    private static final Logger LOG = Logger.getLogger(StockLevel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StockLevel.class);
 
     public SQLStmt stockGetDistOrderIdSQL = new SQLStmt(
             "SELECT D_NEXT_O_ID " +

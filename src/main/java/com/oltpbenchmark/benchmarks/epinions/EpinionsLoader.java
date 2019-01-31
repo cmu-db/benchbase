@@ -22,7 +22,8 @@ import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
-    private static final Logger LOG = Logger.getLogger(EpinionsLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EpinionsLoader.class);
 
     private final int num_users;
     private final int num_items;

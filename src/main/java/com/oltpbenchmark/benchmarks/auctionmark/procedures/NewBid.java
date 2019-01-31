@@ -24,7 +24,8 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
@@ -35,7 +36,7 @@ import java.sql.*;
  * @author visawee
  */
 public class NewBid extends Procedure {
-    private static final Logger LOG = Logger.getLogger(NewBid.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewBid.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS

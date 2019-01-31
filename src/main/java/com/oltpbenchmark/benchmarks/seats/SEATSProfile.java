@@ -25,7 +25,8 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.*;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.*;
@@ -36,7 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class SEATSProfile {
-    private static final Logger LOG = Logger.getLogger(SEATSProfile.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SEATSProfile.class);
 
     // ----------------------------------------------------------------
     // PERSISTENT DATA MEMBERS

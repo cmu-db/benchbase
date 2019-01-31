@@ -18,7 +18,8 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.QueueLimitException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public class WorkloadState {
     private static final int RATE_QUEUE_LIMIT = 10000;
-    private static final Logger LOG = Logger.getLogger(WorkloadState.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorkloadState.class);
 
     private LinkedList<SubmittedProcedure> workQueue = new LinkedList<SubmittedProcedure>();
     private BenchmarkState benchmarkState;

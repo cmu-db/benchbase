@@ -19,7 +19,8 @@ package com.oltpbenchmark.util;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -31,7 +32,7 @@ import java.util.*;
  * @author pavlo
  */
 public abstract class ClassUtil {
-    private static final Logger LOG = Logger.getLogger(ClassUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClassUtil.class);
 
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
 

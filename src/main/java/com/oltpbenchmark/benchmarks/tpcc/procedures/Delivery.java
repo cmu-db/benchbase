@@ -21,14 +21,15 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Random;
 
 public class Delivery extends TPCCProcedure {
 
-    private static final Logger LOG = Logger.getLogger(Delivery.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Delivery.class);
 
     public SQLStmt delivGetOrderIdSQL = new SQLStmt(
             "SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER +

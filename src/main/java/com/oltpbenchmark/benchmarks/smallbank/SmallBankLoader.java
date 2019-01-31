@@ -5,7 +5,8 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomDistribution.DiscreteRNG;
 import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +20,7 @@ import java.util.List;
  * @author pavlo
  */
 public class SmallBankLoader extends Loader<SmallBankBenchmark> {
-    private static final Logger LOG = Logger.getLogger(SmallBankLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SmallBankLoader.class);
 
     private final Table catalogAccts;
     private final Table catalogSavings;

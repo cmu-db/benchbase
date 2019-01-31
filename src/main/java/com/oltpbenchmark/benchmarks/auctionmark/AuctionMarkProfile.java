@@ -27,7 +27,8 @@ import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -39,7 +40,7 @@ import java.util.*;
  * @author pavlo
  */
 public class AuctionMarkProfile {
-    private static final Logger LOG = Logger.getLogger(AuctionMarkProfile.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkProfile.class);
 
     /**
      * We maintain a cached version of the profile that we will copy from

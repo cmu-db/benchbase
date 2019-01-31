@@ -24,7 +24,8 @@ import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,7 +39,7 @@ import java.util.regex.Pattern;
  * @author pavlo
  */
 public final class Catalog {
-    private static final Logger LOG = Logger.getLogger(Catalog.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Catalog.class);
 
     /**
      * TODO

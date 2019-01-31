@@ -25,7 +25,8 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ import java.util.*;
  * Base class for all benchmark implementations
  */
 public abstract class BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(BenchmarkModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkModule.class);
 
     /**
      * Each benchmark must put their all of the DBMS-specific DDLs

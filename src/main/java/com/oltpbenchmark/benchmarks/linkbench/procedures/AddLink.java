@@ -21,7 +21,8 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
 import com.oltpbenchmark.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ import java.util.Date;
 
 public class AddLink extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(AddLink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AddLink.class);
     //TODO: give the these better names
     private PreparedStatement stmt1 = null;
     private PreparedStatement stmt2 = null;
@@ -154,7 +155,7 @@ public class AddLink extends Procedure {
             stmt2.setLong(5, update_count);
             stmt2.setLong(6, currentTime);
             if (LOG.isTraceEnabled()) {
-                LOG.trace(updateCount);
+                LOG.trace(updateCount.toString());
             }
             stmt2.executeUpdate();
         }
@@ -172,7 +173,7 @@ public class AddLink extends Procedure {
             stmt3.setLong(5, l.id2);
             stmt3.setLong(6, l.link_type);
             if (LOG.isTraceEnabled()) {
-                LOG.trace(updateData);
+                LOG.trace(updateData.toString());
             }
             stmt3.executeUpdate();
             conn.commit();

@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.sibench;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Random;
 
 public class SILoader extends Loader<SIBenchmark> {
-    private static final Logger LOG = Logger.getLogger(SILoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SILoader.class);
     private final int num_record;
 
     public SILoader(SIBenchmark benchmark, Connection c) {

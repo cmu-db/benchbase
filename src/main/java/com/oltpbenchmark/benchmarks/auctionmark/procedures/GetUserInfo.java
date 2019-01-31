@@ -21,7 +21,8 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.List;
  * @author visawee
  */
 public class GetUserInfo extends Procedure {
-    private static final Logger LOG = Logger.getLogger(GetUserInfo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GetUserInfo.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS

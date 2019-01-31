@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.api.Worker;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -31,7 +32,7 @@ import java.sql.SQLException;
 
 public abstract class GenericQuery extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(GenericQuery.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
     private PreparedStatement stmt;
     private Worker owner;
@@ -69,7 +70,6 @@ public abstract class GenericQuery extends Procedure {
         if (owner != null)
             owner.setCurrStatement(stmt);
 
-        LOG.debug(this.getClass());
         ResultSet rs = null;
         try {
             rs = stmt.executeQuery();

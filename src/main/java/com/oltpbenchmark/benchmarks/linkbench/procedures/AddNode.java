@@ -20,7 +20,8 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Node;
 import com.oltpbenchmark.util.StringUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +30,7 @@ import java.sql.SQLException;
 
 public class AddNode extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(AddNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AddNode.class);
 
     public final SQLStmt addNode = new SQLStmt(
             "INSERT INTO nodetable " +

@@ -20,14 +20,15 @@ package com.oltpbenchmark.benchmarks.seats.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FindFlights extends Procedure {
-    private static final Logger LOG = Logger.getLogger(FindFlights.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FindFlights.class);
 
     // -----------------------------------------------------------------
     // STATIC MEMBERS

@@ -18,14 +18,15 @@ package com.oltpbenchmark.benchmarks.linkbench.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Link;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class UpdateLink extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(UpdateLink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateLink.class);
 
     public void run(Connection conn, Link l, boolean noinverse) throws SQLException {
         // executed through addLink Procedure

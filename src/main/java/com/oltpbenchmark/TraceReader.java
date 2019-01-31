@@ -16,7 +16,8 @@
 
 package com.oltpbenchmark;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -31,7 +32,7 @@ import java.util.ListIterator;
  * @author breilly
  */
 public class TraceReader {
-    private static final Logger LOG = Logger.getLogger(TraceReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TraceReader.class);
 
     // POD for tracking submitted/read procedures.
     private class TraceElement {

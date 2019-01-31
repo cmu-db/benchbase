@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.linkbench.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,7 +30,7 @@ import java.util.Date;
 
 public class DeleteLink extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(DeleteLink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeleteLink.class);
 
     private PreparedStatement stmt1 = null;
     private PreparedStatement stmt2 = null;
@@ -93,7 +94,7 @@ public class DeleteLink extends Procedure {
         stmt1.setLong(3, link_type);
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace(selectLink);
+            LOG.trace(selectLink.toString());
         }
 
         ResultSet result = stmt1.executeQuery();
@@ -140,7 +141,7 @@ public class DeleteLink extends Procedure {
             }
 
             if (LOG.isTraceEnabled()) {
-                LOG.trace(p);
+                LOG.trace(p.toString());
             }
 
             p.executeUpdate();
@@ -159,7 +160,7 @@ public class DeleteLink extends Procedure {
             stmt4.setLong(4, currentTime);
 
             if (LOG.isTraceEnabled()) {
-                LOG.trace(updateLink);
+                LOG.trace(updateLink.toString());
             }
 
             stmt4.executeUpdate();

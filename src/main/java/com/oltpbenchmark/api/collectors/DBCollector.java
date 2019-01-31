@@ -17,7 +17,8 @@
 package com.oltpbenchmark.api.collectors;
 
 import com.oltpbenchmark.util.JSONUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -29,7 +30,7 @@ import java.util.TreeMap;
 
 public class DBCollector implements DBParameterCollector {
 
-    private static final Logger LOG = Logger.getLogger(DBCollector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DBCollector.class);
 
     protected final Map<String, String> dbParameters = new TreeMap<String, String>();
 

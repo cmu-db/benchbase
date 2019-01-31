@@ -24,7 +24,8 @@ import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdExcept
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
@@ -35,7 +36,7 @@ import java.sql.*;
  * @author visawee
  */
 public class NewItem extends Procedure {
-    private static final Logger LOG = Logger.getLogger(NewItem.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewItem.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS

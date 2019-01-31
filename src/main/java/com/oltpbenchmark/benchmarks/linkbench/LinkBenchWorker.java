@@ -33,7 +33,8 @@ import com.oltpbenchmark.benchmarks.linkbench.procedures.*;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.ClassUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ import java.util.Random;
 
 public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
-    private static final Logger LOG = Logger.getLogger(LinkBenchWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LinkBenchWorker.class);
     private Random rng;
 
     private Properties props;
@@ -424,7 +425,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                 multigetDist.init(multigetMin, multigetMax, props,
                         LinkBenchConstants.LINK_MULTIGET_DIST_PREFIX);
             } catch (ClassNotFoundException e) {
-                LOG.error(e);
+                LOG.error(e.getMessage(), e);
                 throw new LinkBenchConfigError("Class" + multigetDistClass +
                         " could not be loaded as ProbabilityDistribution");
             }
@@ -450,7 +451,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                     DataGenerator.class);
             linkUpDataGen.init(props, LinkBenchConstants.LINK_UP_DATAGEN_PREFIX);
         } catch (ClassNotFoundException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new LinkBenchConfigError("Error loading data generator class: "
                     + ex.getMessage());
         }
@@ -476,7 +477,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                     DataGenerator.class);
             nodeUpDataGen.init(props, LinkBenchConstants.NODE_UP_DATAGEN_PREFIX);
         } catch (ClassNotFoundException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new LinkBenchConfigError("Error loading data generator class: "
                     + ex.getMessage());
         }

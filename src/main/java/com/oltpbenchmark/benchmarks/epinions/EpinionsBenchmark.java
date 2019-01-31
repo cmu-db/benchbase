@@ -24,7 +24,8 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -36,7 +37,7 @@ import java.util.List;
 
 public class EpinionsBenchmark extends BenchmarkModule {
 
-    private static final Logger LOG = Logger.getLogger(EpinionsBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
         super("epinions", workConf, true);

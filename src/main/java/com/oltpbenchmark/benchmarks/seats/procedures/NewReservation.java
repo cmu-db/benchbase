@@ -22,7 +22,8 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.ErrorType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class NewReservation extends Procedure {
-    private static final Logger LOG = Logger.getLogger(NewReservation.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NewReservation.class);
 
     public final SQLStmt GetFlight = new SQLStmt(
             "SELECT F_AL_ID, F_SEATS_LEFT, " +

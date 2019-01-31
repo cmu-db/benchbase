@@ -23,13 +23,14 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.hyadapt.procedures.*;
 import com.oltpbenchmark.distributions.CounterGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 
 public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
-    private static final Logger LOG = Logger.getLogger(HYADAPTWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HYADAPTWorker.class);
 
     private static CounterGenerator insertRecord;
     private double selectivity = wrkld.getSelectivity();

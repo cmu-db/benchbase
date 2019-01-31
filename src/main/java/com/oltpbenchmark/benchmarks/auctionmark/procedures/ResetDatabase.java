@@ -20,7 +20,8 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
@@ -30,7 +31,7 @@ import java.sql.*;
  * @author pavlo
  */
 public class ResetDatabase extends Procedure {
-    private static final Logger LOG = Logger.getLogger(ResetDatabase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResetDatabase.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS

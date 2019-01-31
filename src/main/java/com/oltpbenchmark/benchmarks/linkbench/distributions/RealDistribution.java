@@ -19,7 +19,8 @@ import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import com.oltpbenchmark.benchmarks.linkbench.utils.InvertibleShuffler;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,7 +40,7 @@ public class RealDistribution extends PiecewiseLinearDistribution {
 
     public static final String DISTRIBUTION_CONFIG = "realdist";
     private static final Logger logger =
-            Logger.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+            LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
     /* params to shuffler for link degree */
     public static final long NLINKS_SHUFFLER_SEED = 20343988438726021L;
     public static final int NLINKS_SHUFFLER_GROUPS = 1024;

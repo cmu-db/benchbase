@@ -23,7 +23,8 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord1;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HYADAPTBenchmark extends BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(HYADAPTBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HYADAPTBenchmark.class);
 
     public HYADAPTBenchmark(WorkloadConfiguration workConf) {
         super("hyadapt", workConf, true);

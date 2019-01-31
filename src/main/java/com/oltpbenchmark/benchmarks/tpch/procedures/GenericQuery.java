@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.tpch.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +29,7 @@ import java.sql.SQLException;
 
 public abstract class GenericQuery extends Procedure {
 
-    protected static final Logger LOG = Logger.getLogger(GenericQuery.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
     private PreparedStatement stmt;
     private Connection conn;
@@ -47,7 +48,6 @@ public abstract class GenericQuery extends Procedure {
         if (owner != null)
             owner.setCurrStatement(stmt);
 
-        LOG.debug(this.getClass());
         ResultSet rs = null;
         try {
             rs = stmt.executeQuery();

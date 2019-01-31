@@ -20,7 +20,8 @@
  */
 package com.oltpbenchmark.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -31,7 +32,7 @@ import java.sql.*;
  * http://pastebin.com/f10584951
  */
 public class ScriptRunner {
-    private static final Logger LOG = Logger.getLogger(ScriptRunner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScriptRunner.class);
 
     private static final String DEFAULT_DELIMITER = ";";
 

@@ -23,7 +23,8 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tatp.procedures.*;
 import com.oltpbenchmark.types.TransactionStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TATPWorker extends Worker<TATPBenchmark> {
-    private static final Logger LOG = Logger.getLogger(TATPWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TATPWorker.class);
 
     /**
      * Each Transaction element provides an TransactionInvoker to create the proper

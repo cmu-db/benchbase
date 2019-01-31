@@ -17,12 +17,13 @@
 package com.oltpbenchmark.api.collectors;
 
 import com.oltpbenchmark.catalog.Catalog;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
 public class MySQLCollector extends DBCollector {
-    private static final Logger LOG = Logger.getLogger(MySQLCollector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MySQLCollector.class);
 
     private static final String VERSION_SQL = "SELECT @@GLOBAL.version;";
 

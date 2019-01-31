@@ -17,14 +17,15 @@
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.types.State;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class BenchmarkState {
 
-    private static final Logger LOG = Logger.getLogger(BenchmarkState.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BenchmarkState.class);
 
     private volatile State state = State.WARMUP;
 

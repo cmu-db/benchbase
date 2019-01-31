@@ -27,7 +27,8 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 import com.oltpbenchmark.benchmarks.auctionmark.util.*;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -35,7 +36,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
-    private static final Logger LOG = Logger.getLogger(AuctionMarkWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkWorker.class);
 
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS

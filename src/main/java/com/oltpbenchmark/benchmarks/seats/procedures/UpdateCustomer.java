@@ -21,14 +21,15 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.benchmarks.seats.util.ErrorType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UpdateCustomer extends Procedure {
-    private static final Logger LOG = Logger.getLogger(UpdateCustomer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateCustomer.class);
 
     public final SQLStmt GetCustomerIdStr = new SQLStmt(
             "SELECT C_ID " +

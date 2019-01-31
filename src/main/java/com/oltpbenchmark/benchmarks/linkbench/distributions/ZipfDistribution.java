@@ -18,7 +18,8 @@ package com.oltpbenchmark.benchmarks.linkbench.distributions;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import org.apache.commons.math3.util.FastMath;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Properties;
@@ -26,7 +27,7 @@ import java.util.Random;
 
 
 public class ZipfDistribution implements ProbabilityDistribution {
-    private final Logger logger = Logger.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+    private final Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
 
     private long min = 0;
     private long max = 1;

@@ -24,7 +24,8 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WikipediaBenchmark extends BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WikipediaBenchmark.class);
 
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;

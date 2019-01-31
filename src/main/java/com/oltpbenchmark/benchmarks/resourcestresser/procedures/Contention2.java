@@ -20,7 +20,8 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserConstants;
 import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserWorker;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +31,7 @@ import java.sql.SQLException;
  * Uses a range of primary keys.
  */
 public class Contention2 extends Procedure {
-    private static final Logger LOG = Logger.getLogger(Contention2.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Contention2.class);
 
     public final SQLStmt lockUpdate = new SQLStmt(
             "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +

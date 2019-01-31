@@ -51,14 +51,15 @@ import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomGenerator;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
 public class SEATSWorker extends Worker<SEATSBenchmark> {
-    private static final Logger LOG = Logger.getLogger(SEATSWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SEATSWorker.class);
 
     /**
      * Airline Benchmark Transactions

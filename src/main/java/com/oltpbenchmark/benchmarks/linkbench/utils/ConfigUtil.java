@@ -101,7 +101,7 @@ public class ConfigUtil {
 //    Layout fmt = new EnhancedPatternLayout("%p %d [%t]: %m%n%throwable{30}");
 //    Level logLevel = ConfigUtil.getDebugLevel(props);
 //    Logger.getRootLogger().removeAllAppenders();
-//    Logger lbLogger = Logger.getLogger(LINKBENCH_LOGGER);
+//    Logger lbLogger = LoggerFactory.getLogger(LINKBENCH_LOGGER);
 //    lbLogger.setLevel(logLevel);
 //    ConsoleAppender console = new ConsoleAppender(fmt, "System.err");
 //

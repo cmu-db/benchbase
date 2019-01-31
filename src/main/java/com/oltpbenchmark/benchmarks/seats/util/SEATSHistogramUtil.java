@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.seats.util;
 
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.util.Histogram;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collection;
@@ -30,7 +31,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 public abstract class SEATSHistogramUtil {
-    private static final Logger LOG = Logger.getLogger(SEATSHistogramUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SEATSHistogramUtil.class);
 
 //    private static final Pattern p = Pattern.compile("\\|");
 

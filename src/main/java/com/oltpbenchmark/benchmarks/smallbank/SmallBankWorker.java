@@ -8,7 +8,8 @@ import com.oltpbenchmark.benchmarks.smallbank.procedures.*;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.DiscreteRNG;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import java.util.Arrays;
  * @author pavlo
  */
 public class SmallBankWorker extends Worker<SmallBankBenchmark> {
-    private static final Logger LOG = Logger.getLogger(SmallBankWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SmallBankWorker.class);
 
     private final Amalgamate procAmalgamate;
     private final Balance procBalance;

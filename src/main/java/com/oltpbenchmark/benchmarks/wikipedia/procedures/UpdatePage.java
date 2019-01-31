@@ -21,7 +21,8 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.util.TimeUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 
 //import ch.ethz.ssh2.log.Logger;
 public class UpdatePage extends Procedure {
-    private static final Logger LOG = Logger.getLogger(UpdatePage.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UpdatePage.class);
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------

@@ -17,7 +17,8 @@
 package com.oltpbenchmark.benchmarks.noop;
 
 import com.oltpbenchmark.api.Loader;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,7 +31,7 @@ import java.util.List;
  * @author eric-haibin-lin
  */
 public class NoOpLoader extends Loader<NoOpBenchmark> {
-    private static final Logger LOG = Logger.getLogger(NoOpLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NoOpLoader.class);
 
     public NoOpLoader(NoOpBenchmark benchmark, Connection c) {
         super(benchmark, c);

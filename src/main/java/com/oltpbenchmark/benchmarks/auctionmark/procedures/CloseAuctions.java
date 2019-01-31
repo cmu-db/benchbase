@@ -22,7 +22,8 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import java.util.List;
  * @author visawee
  */
 public class CloseAuctions extends Procedure {
-    private static final Logger LOG = Logger.getLogger(CloseAuctions.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CloseAuctions.class);
 
     // -----------------------------------------------------------------
     // STATEMENTS

@@ -17,14 +17,15 @@
 
 package com.oltpbenchmark;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DistributionStatistics {
-    private static final Logger LOG = Logger.getLogger(DistributionStatistics.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DistributionStatistics.class);
 
     private static final double[] PERCENTILES = {0.0, 0.25, 0.5, 0.75, 0.9,
             0.95, 0.99, 1.0};

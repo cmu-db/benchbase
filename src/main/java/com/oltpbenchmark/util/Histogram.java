@@ -20,7 +20,8 @@ package com.oltpbenchmark.util;
 import com.oltpbenchmark.util.json.JSONException;
 import com.oltpbenchmark.util.json.JSONObject;
 import com.oltpbenchmark.util.json.JSONStringer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -34,7 +35,7 @@ import java.util.Map.Entry;
  * @author pavlo
  */
 public class Histogram<X> implements JSONSerializable {
-    private static final Logger LOG = Logger.getLogger(Histogram.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Histogram.class);
 
     private static final String MARKER = "*";
     private static final Integer MAX_CHARS = 80;

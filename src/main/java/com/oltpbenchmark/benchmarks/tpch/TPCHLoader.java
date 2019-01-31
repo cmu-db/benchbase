@@ -26,7 +26,8 @@
 package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.Connection;
@@ -39,7 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
-    private static final Logger LOG = Logger.getLogger(TPCHLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TPCHLoader.class);
     private final static int configCommitCount = 10000; // commit every n records
     private static PreparedStatement customerPrepStmt;
     private static PreparedStatement lineitemPrepStmt;

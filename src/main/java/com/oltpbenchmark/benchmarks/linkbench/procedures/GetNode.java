@@ -19,7 +19,8 @@ package com.oltpbenchmark.benchmarks.linkbench.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.linkbench.pojo.Node;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +29,7 @@ import java.sql.SQLException;
 
 public class GetNode extends Procedure {
 
-    private static final Logger LOG = Logger.getLogger(GetNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GetNode.class);
 
     private PreparedStatement stmt = null;
 

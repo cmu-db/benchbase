@@ -29,7 +29,8 @@ import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.TimeUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +45,7 @@ import java.util.concurrent.CountDownLatch;
  * @author djellel
  */
 public class WikipediaLoader extends Loader<WikipediaBenchmark> {
-    private static final Logger LOG = Logger.getLogger(WikipediaLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WikipediaLoader.class);
 
     private final int num_users;
     private final int num_pages;

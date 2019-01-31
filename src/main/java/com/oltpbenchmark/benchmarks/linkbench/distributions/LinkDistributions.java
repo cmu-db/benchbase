@@ -20,7 +20,8 @@ import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConstants;
 import com.oltpbenchmark.benchmarks.linkbench.distributions.RealDistribution.DistributionType;
 import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import com.oltpbenchmark.util.ClassUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -143,7 +144,7 @@ public class LinkDistributions {
 
     public static LinkDistribution loadLinkDistribution(Properties props,
                                                         long minid1, long maxid1) {
-        Logger logger = Logger.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+        Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
         String nlinks_func; // distribution function for #links
 
         nlinks_func = ConfigUtil.getPropertyRequired(props, LinkBenchConstants.NLINKS_FUNC);
@@ -194,7 +195,7 @@ public class LinkDistributions {
     private static LinkDistribution tryDynamicLoad(String className,
                                                    Properties props, long minid1, long maxid1) {
         try {
-            Logger logger = Logger.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+            Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
             logger.debug("Using LinkDistribution class " + className);
             ProbabilityDistribution pDist = ClassUtil.newInstance(className,
                     ProbabilityDistribution.class);

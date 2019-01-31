@@ -18,7 +18,8 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.api.dialects.*;
 import com.oltpbenchmark.types.DatabaseType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.*;
@@ -34,7 +35,7 @@ import java.util.Map.Entry;
  * @author pavlo
  */
 public class StatementDialects {
-    private static final Logger LOG = Logger.getLogger(StatementDialects.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatementDialects.class);
 
     private static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.MYSQL;
 

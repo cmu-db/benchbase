@@ -26,7 +26,8 @@ import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
-    private static final Logger LOG = Logger.getLogger(ThreadBench.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadBench.class);
 
 
     private static BenchmarkState testState;
