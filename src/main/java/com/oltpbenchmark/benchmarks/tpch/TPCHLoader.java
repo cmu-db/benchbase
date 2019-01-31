@@ -218,17 +218,14 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         } // end try
 
         loadHelper();
-        conn.commit();
     }
 
     static void truncateTable(String strTable) throws SQLException {
         LOG.debug("Truncating '" + strTable + "' ...");
         try {
             conn.createStatement().execute("DELETE FROM " + strTable);
-            conn.commit();
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            conn.rollback();
         }
     }
 
@@ -362,7 +359,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 this.conn = DriverManager.getConnection(workConf.getDBConnection(),
                         workConf.getDBUsername(),
                         workConf.getDBPassword());
-                this.conn.setAutoCommit(false);
 
                 try {
                     now = new java.util.Date();
@@ -470,7 +466,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             lastTimeMS = currTime;
                             prepStmt.executeBatch();
                             prepStmt.clearBatch();
-                            conn.commit();
                         }
                     }
 
@@ -482,7 +477,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             + "  Writing record " + recordsRead);
                     lastTimeMS = currTime;
                     prepStmt.executeBatch();
-                    conn.commit();
                     now = new java.util.Date();
                     LOG.debug("End " + tableName + " Load @ " + now);
 
@@ -490,12 +484,10 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     LOG.debug(se.getMessage());
                     se = se.getNextException();
                     LOG.debug(se.getMessage());
-                    conn.rollback();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    conn.rollback();
                 } finally {
                     if (br != null) {
                         try {

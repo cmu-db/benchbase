@@ -1,5 +1,9 @@
 # OLTPBench
 
+Known Issues:
+
+TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+
 [![Build Status](https://travis-ci.org/oltpbenchmark/oltpbench.png)](https://travis-ci.org/oltpbenchmark/oltpbench)
 
 Benchmarking is incredibly useful, yet endlessly painful. This benchmark suite is the result of a group of
