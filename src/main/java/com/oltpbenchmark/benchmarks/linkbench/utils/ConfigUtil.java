@@ -56,33 +56,6 @@ public class ConfigUtil {
     }
 
     /**
-     * Setup log4j to log to stderr with a timestamp and thread id
-     * Could add in configuration from file later if it was really necessary
-     * @param props
-     * @param logFile if not null, info logging will be diverted to this file
-     * @throws IOException
-     * @throws Exception
-     */
-//  public static void setupLogging(Properties props, String logFile)
-//                                    throws LinkBenchConfigError, IOException {
-//    Layout fmt = new EnhancedPatternLayout("%p %d [%t]: %m%n%throwable{30}");
-//    Level logLevel = ConfigUtil.getDebugLevel(props);
-//    Logger.getRootLogger().removeAllAppenders();
-//    Logger lbLogger = LoggerFactory.getLogger(LINKBENCH_LOGGER);
-//    lbLogger.setLevel(logLevel);
-//    ConsoleAppender console = new ConsoleAppender(fmt, "System.err");
-//
-//    /* If logfile is specified, put full stream in logfile and only
-//     * print important messages to terminal
-//     */
-//    if (logFile != null) {
-//      console.setThreshold(Level.WARN); // Only print salient messages
-//      lbLogger.addAppender(new FileAppender(fmt, logFile));
-//    }
-//    lbLogger.addAppender(console);
-//  }
-
-    /**
      * Look up key in props, failing if not present
      *
      * @param props

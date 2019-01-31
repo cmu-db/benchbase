@@ -2,8 +2,9 @@
 
 Known Issues:
 
-TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
-TPCDS doesnt have a sample config and would references files and diretory that don't exist.  not clear what they should be.  see TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+* TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+* TPCDS doesnt have a sample config and would references files and diretory that don't exist.  not clear what they should be.  see TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+* having difficult loading `seats`
 
 
 [![Build Status](https://travis-ci.org/oltpbenchmark/oltpbench.png)](https://travis-ci.org/oltpbenchmark/oltpbench)
