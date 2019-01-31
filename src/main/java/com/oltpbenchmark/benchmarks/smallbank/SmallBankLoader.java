@@ -129,7 +129,6 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
             this.stmtAccts.executeBatch();
             this.stmtSavings.executeBatch();
             this.stmtChecking.executeBatch();
-            conn.commit();
 
         }
     }

@@ -2,11 +2,11 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>mysql</dbtype>
-    <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://localhost:3306/oltpbench</DBUrl>
-    <username>user</username>
-    <password>pass</password>
+    <dbtype>cockroachdb</dbtype>
+    <driver>org.postgresql.Driver</driver>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=smallbank&amp;reWriteBatchedInserts=true</DBUrl>
+    <username>root</username>
+    <password></password>
     <isolation>TRANSACTION_READ_COMMITTED</isolation>
 
     <scalefactor>1</scalefactor>
