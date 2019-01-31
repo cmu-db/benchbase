@@ -1,4 +1,8 @@
 DROP TABLE IF EXISTS subscriber cascade;
+DROP TABLE IF EXISTS access_info cascade;
+DROP TABLE IF EXISTS special_facility cascade;
+DROP TABLE IF EXISTS call_forwarding cascade;
+
 CREATE TABLE subscriber (
    s_id INTEGER NOT NULL PRIMARY KEY,
    sub_nbr VARCHAR(15) NOT NULL UNIQUE,
@@ -36,7 +40,7 @@ CREATE TABLE subscriber (
    vlr_location INTEGER
 );
 
-DROP TABLE IF EXISTS access_info cascade;
+
 CREATE TABLE access_info (
    s_id INTEGER NOT NULL,
    ai_type SMALLINT NOT NULL,
@@ -48,7 +52,7 @@ CREATE TABLE access_info (
    FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-DROP TABLE IF EXISTS special_facility cascade;
+
 CREATE TABLE special_facility (
    s_id INTEGER NOT NULL,
    sf_type SMALLINT NOT NULL,
@@ -60,7 +64,7 @@ CREATE TABLE special_facility (
    FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-DROP TABLE IF EXISTS call_forwarding cascade;
+
 CREATE TABLE call_forwarding (
    s_id INTEGER NOT NULL,
    sf_type SMALLINT NOT NULL,

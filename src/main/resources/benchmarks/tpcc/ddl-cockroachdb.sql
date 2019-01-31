@@ -1,4 +1,13 @@
-DROP TABLE IF EXISTS order_line;
+DROP TABLE IF EXISTS order_line CASCADE;
+DROP TABLE IF EXISTS new_order CASCADE;
+DROP TABLE IF EXISTS stock CASCADE;
+DROP TABLE IF EXISTS oorder CASCADE;
+DROP TABLE IF EXISTS history CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS district CASCADE;
+DROP TABLE IF EXISTS item CASCADE;
+DROP TABLE IF EXISTS warehouse CASCADE;
+
 CREATE TABLE order_line (
   ol_w_id int NOT NULL,
   ol_d_id int NOT NULL,
@@ -13,7 +22,7 @@ CREATE TABLE order_line (
   PRIMARY KEY (ol_w_id,ol_d_id,ol_o_id,ol_number)
 );
 
-DROP TABLE IF EXISTS new_order;
+
 CREATE TABLE new_order (
   no_w_id int NOT NULL,
   no_d_id int NOT NULL,
@@ -21,7 +30,7 @@ CREATE TABLE new_order (
   PRIMARY KEY (no_w_id,no_d_id,no_o_id)
 );
 
-DROP TABLE IF EXISTS stock;
+
 CREATE TABLE stock (
   s_w_id int NOT NULL,
   s_i_id int NOT NULL,
@@ -43,7 +52,7 @@ CREATE TABLE stock (
   PRIMARY KEY (s_w_id,s_i_id)
 );
 
-DROP TABLE IF EXISTS oorder;
+
 CREATE TABLE oorder (
   o_w_id int NOT NULL,
   o_d_id int NOT NULL,
@@ -57,7 +66,7 @@ CREATE TABLE oorder (
   UNIQUE (o_w_id,o_d_id,o_c_id,o_id)
 );
 
-DROP TABLE IF EXISTS history;
+
 CREATE TABLE history (
   h_c_id int NOT NULL,
   h_c_d_id int NOT NULL,
@@ -69,7 +78,7 @@ CREATE TABLE history (
   h_data varchar(24) NOT NULL
 );
 
-DROP TABLE IF EXISTS customer;
+
 CREATE TABLE customer (
   c_w_id int NOT NULL,
   c_d_id int NOT NULL,
@@ -95,7 +104,7 @@ CREATE TABLE customer (
   PRIMARY KEY (c_w_id,c_d_id,c_id)
 );
 
-DROP TABLE IF EXISTS district;
+
 CREATE TABLE district (
   d_w_id int NOT NULL,
   d_id int NOT NULL,
@@ -112,7 +121,7 @@ CREATE TABLE district (
 );
 
 
-DROP TABLE IF EXISTS item;
+
 CREATE TABLE item (
   i_id int NOT NULL,
   i_name varchar(24) NOT NULL,
@@ -122,7 +131,7 @@ CREATE TABLE item (
   PRIMARY KEY (i_id)
 );
 
-DROP TABLE IF EXISTS warehouse;
+
 CREATE TABLE warehouse (
   w_id int NOT NULL,
   w_ytd float NOT NULL,
