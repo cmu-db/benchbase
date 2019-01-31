@@ -137,7 +137,6 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
                 int results[] = pstmt.executeBatch();
-                conn.commit();
                 assert (results != null);
                 batch = 0;
             }
@@ -146,7 +145,6 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
             int results[] = pstmt.executeBatch();
-            conn.commit();
             assert (results != null);
         }
 
@@ -186,7 +184,6 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                     LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
                 int results[] = pstmt.executeBatch();
                 assert (results != null);
-                conn.commit();
                 batch = 0;
             }
         } // WHILE
@@ -195,7 +192,6 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
             int results[] = pstmt.executeBatch();
             assert (results != null);
-            conn.commit();
         }
         pstmt.close();
     }
@@ -265,7 +261,6 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 assert (results != null);
 
                 spe_batch = 0;
-                conn.commit();
             }
         } // WHILE
         LOG.debug("spe_batch = " + spe_batch);
@@ -280,7 +275,6 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             results = cal_pstmt.executeBatch();
             assert (results != null);
 
-            conn.commit();
         }
         cal_pstmt.close();
         spe_pstmt.close();
