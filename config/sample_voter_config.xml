@@ -4,27 +4,27 @@
     <!-- Connection details -->
     <dbtype>cockroachdb</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=voter&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+
     <scalefactor>10</scalefactor>
-    
+
     <!-- The workload -->
     <terminals>10</terminals>
     <works>
         <work>
-          <time>300</time>
-          <rate>10000</rate>
-          <weights>100</weights>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>100</weights>
         </work>
     </works>
 
     <!-- Voter Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-                <name>Vote</name>
+            <name>Vote</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

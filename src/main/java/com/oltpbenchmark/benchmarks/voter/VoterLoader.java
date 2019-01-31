@@ -109,7 +109,6 @@ public class VoterLoader extends Loader<VoterBenchmark> {
             ps.addBatch();
         }
         ps.executeBatch();
-        conn.commit();
         ps.close();
     }
 
@@ -123,7 +122,6 @@ public class VoterLoader extends Loader<VoterBenchmark> {
             ps.addBatch();
         }
         ps.executeBatch();
-        conn.commit();
         ps.close();
     }
 }
