@@ -551,7 +551,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 if (++row_batch >= batch_size) {
                     LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName(), row_idx));
                     insert_stmt.executeBatch();
-                    conn.commit();
                     insert_stmt.clearBatch();
                     row_batch = 0;
                 }
@@ -560,7 +559,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
             if (row_batch > 0) {
                 insert_stmt.executeBatch();
-                conn.commit();
             }
             insert_stmt.close();
         } catch (Exception ex) {
