@@ -4,12 +4,12 @@
     <!-- Connection details -->
     <dbtype>cockroachdb</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=sibench&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
-    <scalefactor>100</scalefactor>
+    <scalefactor>2</scalefactor>
 
     <!-- The workload -->
     <terminals>2</terminals>
