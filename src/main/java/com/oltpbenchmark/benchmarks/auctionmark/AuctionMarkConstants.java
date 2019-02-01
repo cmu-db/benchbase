@@ -215,7 +215,7 @@ public abstract class AuctionMarkConstants {
      * query the item table. This must match the ordering expected
      * in AuctionMarkWorker.processItemRecord()
      */
-    public static final String ITEM_COLUMNS[] = {"i_id",
+    public static final String[] ITEM_COLUMNS = {"i_id",
             "i_u_id",
             "i_name",
             "i_current_price",
@@ -266,7 +266,7 @@ public abstract class AuctionMarkConstants {
     public static final String TABLENAME_ITEM_MAX_BID = "ITEM_MAX_BID";
     public static final String TABLENAME_ITEM_PURCHASE = "ITEM_PURCHASE";
 
-    public static final String TABLENAMES[] = {
+    public static final String[] TABLENAMES = {
             AuctionMarkConstants.TABLENAME_REGION,
             AuctionMarkConstants.TABLENAME_CATEGORY,
             AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP,
@@ -291,7 +291,7 @@ public abstract class AuctionMarkConstants {
 
     // If a table exists in this set, then the number of tuples loaded into the table
     // should not be modified by the scale factor
-    public static final Collection<String> FIXED_TABLES = new HashSet<String>();
+    public static final Collection<String> FIXED_TABLES = new HashSet<>();
 
     static {
         FIXED_TABLES.add(AuctionMarkConstants.TABLENAME_REGION);
@@ -299,7 +299,7 @@ public abstract class AuctionMarkConstants {
         FIXED_TABLES.add(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE);
     }
 
-    public static final Collection<String> DYNAMIC_TABLES = new HashSet<String>();
+    public static final Collection<String> DYNAMIC_TABLES = new HashSet<>();
 
     static {
         DYNAMIC_TABLES.add(AuctionMarkConstants.TABLENAME_USERACCT_ATTRIBUTES);
@@ -315,7 +315,7 @@ public abstract class AuctionMarkConstants {
     }
 
     // These tables are loaded from static data files
-    public static final Collection<String> DATAFILE_TABLES = new HashSet<String>();
+    public static final Collection<String> DATAFILE_TABLES = new HashSet<>();
 
     static {
         DATAFILE_TABLES.add(AuctionMarkConstants.TABLENAME_CATEGORY);

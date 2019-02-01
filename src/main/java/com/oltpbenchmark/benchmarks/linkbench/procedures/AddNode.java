@@ -61,7 +61,7 @@ public class AddNode extends Procedure {
         //Need to check how many ideas were inserted
         ResultSet rs = stmt.getGeneratedKeys();
 
-        long newIds[] = new long[1];
+        long[] newIds = new long[1];
         // Find the generated id
         int i = 0;
         while (rs.next() && i < 1) {

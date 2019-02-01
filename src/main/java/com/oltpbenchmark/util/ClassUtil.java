@@ -36,8 +36,8 @@ public abstract class ClassUtil {
 
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
 
-    private static final Map<Class<?>, List<Class<?>>> CACHE_getSuperClasses = new HashMap<Class<?>, List<Class<?>>>();
-    private static final Map<Class<?>, Set<Class<?>>> CACHE_getInterfaceClasses = new HashMap<Class<?>, Set<Class<?>>>();
+    private static final Map<Class<?>, List<Class<?>>> CACHE_getSuperClasses = new HashMap<>();
+    private static final Map<Class<?>, Set<Class<?>>> CACHE_getInterfaceClasses = new HashMap<>();
 
     /**
      * Check if the given object is an array (primitve or native).
@@ -50,8 +50,8 @@ public abstract class ClassUtil {
         return (obj != null ? obj.getClass().isArray() : false);
     }
 
-    public static boolean[] isArray(final Object objs[]) {
-        boolean is_array[] = new boolean[objs.length];
+    public static boolean[] isArray(final Object[] objs) {
+        boolean[] is_array = new boolean[objs.length];
         for (int i = 0; i < objs.length; i++) {
             is_array[i] = ClassUtil.isArray(objs[i]);
         } // FOR
@@ -68,8 +68,8 @@ public abstract class ClassUtil {
      * @return
      * @throws NoSuchFieldException
      */
-    public static <E extends Enum<?>> Field[] getFieldsFromMembersEnum(Class<?> clazz, E members[]) throws NoSuchFieldException {
-        Field fields[] = new Field[members.length];
+    public static <E extends Enum<?>> Field[] getFieldsFromMembersEnum(Class<?> clazz, E[] members) throws NoSuchFieldException {
+        Field[] fields = new Field[members.length];
         for (int i = 0; i < members.length; i++) {
             fields[i] = clazz.getDeclaredField(members[i].name().toLowerCase());
         } // FOR
@@ -83,7 +83,7 @@ public abstract class ClassUtil {
      * @return
      */
     public static List<Class<?>> getGenericTypes(Field field) {
-        ArrayList<Class<?>> generic_classes = new ArrayList<Class<?>>();
+        ArrayList<Class<?>> generic_classes = new ArrayList<>();
         Type gtype = field.getGenericType();
         if (gtype instanceof ParameterizedType) {
             ParameterizedType ptype = (ParameterizedType) gtype;
@@ -118,7 +118,7 @@ public abstract class ClassUtil {
     public static List<Class<?>> getSuperClasses(Class<?> element_class) {
         List<Class<?>> ret = ClassUtil.CACHE_getSuperClasses.get(element_class);
         if (ret == null) {
-            ret = new ArrayList<Class<?>>();
+            ret = new ArrayList<>();
             while (element_class != null) {
                 ret.add(element_class);
                 element_class = element_class.getSuperclass();
@@ -160,12 +160,12 @@ public abstract class ClassUtil {
     }
 
 
-    public static <T> T newInstance(String class_name, Object params[], Class<?> classes[]) {
+    public static <T> T newInstance(String class_name, Object[] params, Class<?>[] classes) {
         return ((T) ClassUtil.newInstance(ClassUtil.getClass(class_name), params, classes));
     }
 
 
-    public static <T> T newInstance(Class<T> target_class, Object params[], Class<?> classes[]) {
+    public static <T> T newInstance(Class<T> target_class, Object[] params, Class<?>[] classes) {
 //        Class<?> const_params[] = new Class<?>[params.length];
 //        for (int i = 0; i < params.length; i++) {
 //            const_params[i] = params[i].getClass();
@@ -205,7 +205,7 @@ public abstract class ClassUtil {
             LOG.debug("TARGET PARAMS: {}", Arrays.toString(params));
         }
 
-        List<Class<?>> paramSuper[] = (List<Class<?>>[]) new List[params.length];
+        List<Class<?>>[] paramSuper = (List<Class<?>>[]) new List[params.length];
         for (int i = 0; i < params.length; i++) {
             paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
             if (LOG.isDebugEnabled()) {
@@ -214,7 +214,7 @@ public abstract class ClassUtil {
         } // FOR
 
         for (Constructor<?> c : target_class.getConstructors()) {
-            Class<?> cTypes[] = c.getParameterTypes();
+            Class<?>[] cTypes = c.getParameterTypes();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("CANDIDATE: {}", c);
                 LOG.debug("CANDIDATE PARAMS: {}", Arrays.toString(cTypes));

@@ -58,7 +58,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         final int numToLoad = this.num_items + this.num_users;
         final int loadPerThread = Math.max(numToLoad / numLoaders, 1);
@@ -225,7 +225,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         int total = 0;
         int batch = 0;
         for (int i = 0; i < num_items; i++) {
-            List<Integer> reviewers = new ArrayList<Integer>();
+            List<Integer> reviewers = new ArrayList<>();
             int review_count = numReviews.nextInt();
             if (review_count == 0) {
                 review_count = 1; // make sure at least each item has a review
@@ -288,7 +288,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         ScrambledZipfianGenerator reviewed = new ScrambledZipfianGenerator(num_users);
         Random isTrusted = new Random(System.currentTimeMillis());
         for (int i = 0; i < num_users; i++) {
-            List<Integer> trusted = new ArrayList<Integer>();
+            List<Integer> trusted = new ArrayList<>();
             int trust_count = numTrust.nextInt();
             for (int tc = 0; tc < trust_count; ) {
                 int u_id = reviewed.nextInt();

@@ -45,7 +45,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
         int keyRange = numKeys / workConf.getTerminals();
         LOG.warn("numkeys={}, keyRange={}", numKeys, keyRange);

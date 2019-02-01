@@ -86,10 +86,10 @@ public class FindFlights extends Procedure {
             final boolean debug = LOG.isDebugEnabled();
 
 
-            final List<Long> arrive_aids = new ArrayList<Long>();
+            final List<Long> arrive_aids = new ArrayList<>();
             arrive_aids.add(arrive_aid);
 
-            final List<Object[]> finalResults = new ArrayList<Object[]>();
+            final List<Object[]> finalResults = new ArrayList<>();
 
             if (distance > 0) {
                 // First get the nearby airports for the departure and arrival cities
@@ -141,7 +141,7 @@ public class FindFlights extends Procedure {
                     long f_depart_airport = flightResults.getLong(4);
                     long f_arrive_airport = flightResults.getLong(6);
 
-                    Object row[] = new Object[13];
+                    Object[] row = new Object[13];
                     int r = 0;
 
                     row[r++] = flightResults.getLong(1);    // [00] F_ID

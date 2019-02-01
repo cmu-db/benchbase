@@ -13,11 +13,11 @@ public abstract class StringBoxUtil {
 
     private static final String DEFAULT_MARKER = "*";
 
-    public static final String UNICODE_BOX_CORNERS[] = {"\u250C", "\u2510", "\u2514", "\u2518"};
+    public static final String[] UNICODE_BOX_CORNERS = {"\u250C", "\u2510", "\u2514", "\u2518"};
     public static final String UNICODE_BOX_VERTICAL = "\u2502";
     public static final String UNICODE_BOX_HORIZONTAL = "\u2500";
 
-    public static final String UNICODE_HEAVYBOX_CORNERS[] = {"\u250F", "\u2513", "\u2517", "\u251B"};
+    public static final String[] UNICODE_HEAVYBOX_CORNERS = {"\u250F", "\u2513", "\u2517", "\u251B"};
     public static final String UNICODE_HEAVYBOX_VERTICAL = "\u2503";
     public static final String UNICODE_HEAVYBOX_HORIZONTAL = "\u2501";
 
@@ -29,8 +29,8 @@ public abstract class StringBoxUtil {
      * @param corners
      * @return
      */
-    public static String box(String str, String horzMark, String vertMark, Integer max_len, String corners[]) {
-        String lines[] = LINE_SPLIT.split(str);
+    public static String box(String str, String horzMark, String vertMark, Integer max_len, String[] corners) {
+        String[] lines = LINE_SPLIT.split(str);
         if (lines.length == 0) {
             return ("");
         }

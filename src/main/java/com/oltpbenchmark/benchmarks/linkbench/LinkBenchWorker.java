@@ -182,8 +182,8 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
             initNodeRequestDistributions(props);
         }
         listTailHistoryLimit = 2048; // Hardcoded limit for now
-        listTailHistory = new ArrayList<Link>(listTailHistoryLimit);
-        listTailHistoryIndex = new HashMap<HistoryKey, Integer>();
+        listTailHistory = new ArrayList<>(listTailHistoryLimit);
+        listTailHistoryIndex = new HashMap<>();
         p_historical_getlinklist = ConfigUtil.getDouble(this.props,
                 LinkBenchConstants.PR_GETLINKLIST_HISTORY, 0.0) / 100;
         lastNodeId = startid1;
@@ -268,7 +268,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         if (multigetDist != null) {
             nid2s = (int) multigetDist.choose(rng);
         }
-        long id2s[] = id2chooser.chooseMultipleForOp(rng, id1, link_type, nid2s,
+        long[] id2s = id2chooser.chooseMultipleForOp(rng, id1, link_type, nid2s,
                 ID2Chooser.P_GET_EXIST);
 
         int found = getLink(id1, link_type, id2s);
@@ -347,7 +347,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         GetLinkList proc = this.getProcedure(GetLinkList.class);
 
         Link link = new Link();
-        Link links[];
+        Link[] links;
         if (rng.nextDouble() < p_historical_getlinklist &&
                 !this.listTailHistory.isEmpty()) {
             links = getLinkListTail();
@@ -522,7 +522,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
      * @return
      */
     private Node createAddNode() {
-        byte data[] = nodeAddDataGen.fill(rng, new byte[(int) nodeDataSize.choose(rng)]);
+        byte[] data = nodeAddDataGen.fill(rng, new byte[(int) nodeDataSize.choose(rng)]);
         return new Node(-1, LinkBenchConstants.DEFAULT_NODE_TYPE, 1,
                 (int) (System.currentTimeMillis() / 1000), data);
     }
@@ -581,19 +581,19 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
      * Create new node for updating in database
      */
     private Node createUpdateNode(long id) {
-        byte data[] = nodeUpDataGen.fill(rng, new byte[(int) nodeDataSize.choose(rng)]);
+        byte[] data = nodeUpDataGen.fill(rng, new byte[(int) nodeDataSize.choose(rng)]);
         return new Node(id, LinkBenchConstants.DEFAULT_NODE_TYPE, 2,
                 (int) (System.currentTimeMillis() / 1000), data);
     }
 
-    int getLink(long id1, long link_type, long id2s[]) throws SQLException {
-        Link links[] = multigetLinks(id1, link_type, id2s);
+    int getLink(long id1, long link_type, long[] id2s) throws SQLException {
+        Link[] links = multigetLinks(id1, link_type, id2s);
         return links == null ? 0 : links.length;
     }
 
-    Link[] multigetLinks(long id1, long link_type, long id2s[]) throws SQLException {
+    Link[] multigetLinks(long id1, long link_type, long[] id2s) throws SQLException {
         GetLink proc = this.getProcedure(GetLink.class);
-        Link links[] = proc.run(conn, id1, link_type, id2s);
+        Link[] links = proc.run(conn, id1, link_type, id2s);
         if (LOG.isTraceEnabled()) {
             LOG.trace("getLinkList(id1={}, link_type={}) => count={}", id1, link_type, links == null ? 0 : links.length);
         }
@@ -611,7 +611,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     Link[] getLinkList(long id1, long link_type) throws SQLException {
         GetLinkList proc = this.getProcedure(GetLinkList.class);
-        Link links[] = proc.run(conn, id1, link_type);
+        Link[] links = proc.run(conn, id1, link_type);
         if (LOG.isTraceEnabled()) {
             LOG.trace("getLinkList(id1={}, link_type={}) => count={}", id1, link_type, links == null ? 0 : links.length);
         }
@@ -635,7 +635,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         Link prevLast = listTailHistory.get(choice);
 
         // Get links past the oldest last retrieved
-        Link links[] = proc.run(conn, prevLast.id1,
+        Link[] links = proc.run(conn, prevLast.id1,
                 prevLast.link_type, 0, prevLast.time, 1, LinkBenchConstants.DEFAULT_LIMIT);
 
         if (LOG.isTraceEnabled()) {

@@ -74,9 +74,9 @@ public class UpdateItem extends Procedure {
      * A small percentage of the transactions will be for auctions that are
      * uneditable (1.0%?); when this occurs, the transaction will abort.
      */
-    public boolean run(Connection conn, Timestamp benchmarkTimes[],
+    public boolean run(Connection conn, Timestamp[] benchmarkTimes,
                        long item_id, long seller_id, String description,
-                       boolean delete_attribute, long add_attribute[]) throws SQLException {
+                       boolean delete_attribute, long[] add_attribute) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, updateItem, description, currentTime, item_id, seller_id);

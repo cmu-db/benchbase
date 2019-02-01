@@ -38,20 +38,20 @@ public abstract class CollectionUtil {
      * @param items
      * @param array
      */
-    public static <T> void toArray(Collection<T> items, Object array[], boolean convert_to_primitive) {
+    public static <T> void toArray(Collection<T> items, Object[] array, boolean convert_to_primitive) {
 
 
         int i = 0;
         for (T t : items) {
             if (convert_to_primitive) {
                 if (t instanceof Long) {
-                    array[i] = ((Long) t).longValue();
+                    array[i] = (Long) t;
                 } else if (t instanceof Integer) {
-                    array[i] = ((Integer) t).intValue();
+                    array[i] = (Integer) t;
                 } else if (t instanceof Double) {
-                    array[i] = ((Double) t).doubleValue();
+                    array[i] = (Double) t;
                 } else if (t instanceof Boolean) {
-                    array[i] = ((Boolean) t).booleanValue();
+                    array[i] = (Boolean) t;
                 }
             } else {
                 array[i] = t;
@@ -61,11 +61,11 @@ public abstract class CollectionUtil {
     }
 
     public static int[] toIntArray(Collection<Integer> items) {
-        int ret[] = new int[items.size()];
+        int[] ret = new int[items.size()];
         int idx = 0;
         for (Integer i : items) {
 
-            ret[idx++] = i.intValue();
+            ret[idx++] = i;
         } // FOR
         return (ret);
     }
@@ -78,7 +78,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> List<T> list(Iterator<T> it) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         CollectionUtil.addAll(list, it);
         return (list);
     }
@@ -113,7 +113,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> Set<T> set(Iterator<T> it) {
-        Set<T> set = new HashSet<T>();
+        Set<T> set = new HashSet<>();
         CollectionUtil.addAll(set, it);
         return (set);
     }
@@ -137,7 +137,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> List<String> toStringList(Collection<T> data) {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         for (T t : data) {
             ret.add(t.toString());
         }
@@ -152,7 +152,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> Set<String> toStringSet(Collection<T> data) {
-        Set<String> ret = new HashSet<String>();
+        Set<String> ret = new HashSet<>();
         for (T t : data) {
             ret.add(t.toString());
         }
@@ -202,23 +202,23 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <T> T random(Iterable<T> it, Random rand) {
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         for (T t : it) {
             list.add(t);
         } // FOR
         return (CollectionUtil.random(list, rand));
     }
 
-    public static <E extends Enum<?>> Set<E> getAllExcluding(E elements[], E... excluding) {
-        Set<E> exclude_set = new HashSet<E>();
+    public static <E extends Enum<?>> Set<E> getAllExcluding(E[] elements, E... excluding) {
+        Set<E> exclude_set = new HashSet<>();
         for (E e : excluding) {
             exclude_set.add(e);
         }
 
-        Set<E> elements_set = new HashSet<E>();
-        for (int i = 0; i < elements.length; i++) {
-            if (!exclude_set.contains(elements[i])) {
-                elements_set.add(elements[i]);
+        Set<E> elements_set = new HashSet<>();
+        for (E element : elements) {
+            if (!exclude_set.contains(element)) {
+                elements_set.add(element);
             }
         } // FOR
         return (elements_set);
@@ -398,7 +398,7 @@ public abstract class CollectionUtil {
      * @return
      */
     public static <K extends Comparable<?>, V> List<V> getSortedList(SortedMap<K, Collection<V>> map) {
-        List<V> ret = new ArrayList<V>();
+        List<V> ret = new ArrayList<>();
         for (Collection<V> col : map.values()) {
             ret.addAll(col);
         } // FOR
@@ -421,7 +421,7 @@ public abstract class CollectionUtil {
         });
     }
 
-    public static <T> Iterable<T> iterable(final T values[]) {
+    public static <T> Iterable<T> iterable(final T[] values) {
         return (new Iterable<T>() {
             @Override
             public Iterator<T> iterator() {

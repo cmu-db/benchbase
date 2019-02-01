@@ -26,7 +26,7 @@ public class Index extends AbstractCatalogObject {
     private static final long serialVersionUID = 1l;
 
     private final Table catalog_tbl;
-    private final SortedMap<Integer, IndexColumn> columns = new TreeMap<Integer, Index.IndexColumn>();
+    private final SortedMap<Integer, IndexColumn> columns = new TreeMap<>();
     private final int type;
     private final boolean unique;
 
@@ -80,7 +80,7 @@ public class Index extends AbstractCatalogObject {
      * @return
      */
     public Collection<String> getColumnNames() {
-        List<String> colNames = new ArrayList<String>();
+        List<String> colNames = new ArrayList<>();
         for (IndexColumn idx_col : this.columns.values()) {
             colNames.add(idx_col.name);
         } // FOR
@@ -108,12 +108,12 @@ public class Index extends AbstractCatalogObject {
 
 
     public String debug() {
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         m.put("Name", this.name);
         m.put("Type", this.type);
         m.put("Is Unique", this.unique);
 
-        Map<String, Object> inner = new ListOrderedMap<String, Object>();
+        Map<String, Object> inner = new ListOrderedMap<>();
         for (int i = 0, cnt = this.columns.size(); i < cnt; i++) {
             IndexColumn idx_col = this.columns.get(i);
             inner.put(String.format("[%02d]", i), idx_col);

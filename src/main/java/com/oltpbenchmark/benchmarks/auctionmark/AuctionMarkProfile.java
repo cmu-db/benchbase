@@ -92,7 +92,7 @@ public class AuctionMarkProfile {
      * A histogram for the number of users that have the number of items listed
      * ItemCount -> # of Users
      */
-    protected Histogram<Long> users_per_itemCount = new Histogram<Long>();
+    protected Histogram<Long> users_per_itemCount = new Histogram<>();
 
     // ----------------------------------------------------------------
     // TRANSIENT DATA MEMBERS
@@ -101,7 +101,7 @@ public class AuctionMarkProfile {
     /**
      * Histogram for number of items per category (stored as category_id)
      */
-    protected transient Histogram<Integer> items_per_category = new Histogram<Integer>();
+    protected transient Histogram<Integer> items_per_category = new Histogram<>();
 
     /**
      * Three status types for an item:
@@ -112,13 +112,13 @@ public class AuctionMarkProfile {
      * (3) Complete (The auction is closed and (There is no bid winner or
      * the bid winner has already purchased the item)
      */
-    private transient final LinkedList<ItemInfo> items_available = new LinkedList<ItemInfo>();
-    private transient final LinkedList<ItemInfo> items_endingSoon = new LinkedList<ItemInfo>();
-    private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<ItemInfo>();
-    private transient final LinkedList<ItemInfo> items_completed = new LinkedList<ItemInfo>();
+    private transient final LinkedList<ItemInfo> items_available = new LinkedList<>();
+    private transient final LinkedList<ItemInfo> items_endingSoon = new LinkedList<>();
+    private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<>();
+    private transient final LinkedList<ItemInfo> items_completed = new LinkedList<>();
 
 
-    protected transient final LinkedList<ItemInfo> allItemSets[] = new LinkedList[]{
+    protected transient final LinkedList<ItemInfo>[] allItemSets = new LinkedList[]{
             this.items_available,
             this.items_endingSoon,
             this.items_waitingForPurchase,
@@ -128,7 +128,7 @@ public class AuctionMarkProfile {
     /**
      * Internal list of GlobalAttributeGroupIds
      */
-    protected transient List<GlobalAttributeGroupId> gag_ids = new ArrayList<GlobalAttributeGroupId>();
+    protected transient List<GlobalAttributeGroupId> gag_ids = new ArrayList<>();
 
     /**
      * Internal map of UserIdGenerators
@@ -170,19 +170,19 @@ public class AuctionMarkProfile {
     /**
      * TODO
      */
-    protected transient final Histogram<UserId> seller_item_cnt = new Histogram<UserId>();
+    protected transient final Histogram<UserId> seller_item_cnt = new Histogram<>();
 
     /**
      * TODO
      */
-    protected transient final List<ItemCommentResponse> pending_commentResponses = new ArrayList<ItemCommentResponse>();
+    protected transient final List<ItemCommentResponse> pending_commentResponses = new ArrayList<>();
 
     // -----------------------------------------------------------------
     // TEMPORARY VARIABLES
     // -----------------------------------------------------------------
 
-    private transient final Set<ItemInfo> tmp_seenItems = new HashSet<ItemInfo>();
-    private transient final Histogram<UserId> tmp_userIdHistogram = new Histogram<UserId>(true);
+    private transient final Set<ItemInfo> tmp_seenItems = new HashSet<>();
+    private transient final Histogram<UserId> tmp_userIdHistogram = new Histogram<>(true);
     private transient final Timestamp tmp_now = new Timestamp(System.currentTimeMillis());
 
     // -----------------------------------------------------------------
@@ -348,7 +348,7 @@ public class AuctionMarkProfile {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Loading AuctionMarkProfile for the first time");
                 }
-                ResultSet results[] = worker.getProcedure(LoadConfig.class).run(conn);
+                ResultSet[] results = worker.getProcedure(LoadConfig.class).run(conn);
                 int result_idx = 0;
 
                 // CONFIG_PROFILE
@@ -580,7 +580,7 @@ public class AuctionMarkProfile {
         // We use the UserIdGenerator to ensure that we always select the next UserId for
         // a given client from the same set of UserIds
         if (this.randomItemCount == null) {
-            this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_itemCount);
+            this.randomItemCount = new FlatHistogram<>(this.rng, this.users_per_itemCount);
         }
         if (this.userIdGenerator == null) {
             this.initializeUserIdGenerator(clientId);
@@ -679,7 +679,7 @@ public class AuctionMarkProfile {
 
         LOG.trace("New Histogram:\n{}", tmp_userIdHistogram);
 
-        FlatHistogram<UserId> rand_h = new FlatHistogram<UserId>(rng, tmp_userIdHistogram);
+        FlatHistogram<UserId> rand_h = new FlatHistogram<>(rng, tmp_userIdHistogram);
         return (rand_h.nextValue());
     }
 
@@ -714,7 +714,7 @@ public class AuctionMarkProfile {
             this.seller_item_cnt.put(seller_id, cnt);
         }
         this.seller_item_cnt.put(seller_id);
-        return (new ItemId(seller_id, cnt.intValue()));
+        return (new ItemId(seller_id, cnt));
     }
 
     private boolean addItem(LinkedList<ItemInfo> items, ItemInfo itemInfo) {
@@ -765,7 +765,7 @@ public class AuctionMarkProfile {
         }
 
         if (LOG.isDebugEnabled()) {
-            Map<ItemStatus, Integer> m = new HashMap<ItemStatus, Integer>();
+            Map<ItemStatus, Integer> m = new HashMap<>();
             m.put(ItemStatus.OPEN, this.items_available.size());
             m.put(ItemStatus.ENDING_SOON, this.items_endingSoon.size());
             m.put(ItemStatus.WAITING_FOR_PURCHASE, this.items_waitingForPurchase.size());
@@ -1010,14 +1010,14 @@ public class AuctionMarkProfile {
 
     public int getRandomCategoryId() {
         if (this.randomCategory == null) {
-            this.randomCategory = new FlatHistogram<Integer>(this.rng, this.items_per_category);
+            this.randomCategory = new FlatHistogram<>(this.rng, this.items_per_category);
         }
         return randomCategory.nextInt();
     }
 
     @Override
     public String toString() {
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         m.put("Scale Factor", this.scale_factor);
         m.put("Loader Start", this.loaderStartTime);
         m.put("Loader Stop", this.loaderStopTime);
@@ -1027,7 +1027,7 @@ public class AuctionMarkProfile {
         m.put("Pending ItemCommentResponses", this.pending_commentResponses.size());
 
         // Item Queues
-        Histogram<ItemStatus> itemCounts = new Histogram<ItemStatus>(true);
+        Histogram<ItemStatus> itemCounts = new Histogram<>(true);
         for (ItemStatus status : ItemStatus.values()) {
             int cnt = 0;
             switch (status) {

@@ -38,17 +38,17 @@ public class WikipediaBenchmark extends BenchmarkModule {
 
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;
-    private final FlatHistogram<Integer> revisionDeltas[];
+    private final FlatHistogram<Integer>[] revisionDeltas;
 
 
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
         super(workConf, true);
 
-        this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
-        this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
+        this.commentLength = new FlatHistogram<>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
+        this.minorEdit = new FlatHistogram<>(this.rng(), RevisionHistograms.MINOR_EDIT);
         this.revisionDeltas = new FlatHistogram[RevisionHistograms.REVISION_DELTA_SIZES.length];
         for (int i = 0; i < this.revisionDeltas.length; i++) {
-            this.revisionDeltas[i] = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
+            this.revisionDeltas[i] = new FlatHistogram<>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
         } // FOR
     }
 
@@ -61,7 +61,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
      * @param orig_text
      * @return
      */
-    protected char[] generateRevisionText(char orig_text[]) {
+    protected char[] generateRevisionText(char[] orig_text) {
         // Figure out how much we are going to change
         // If the delta is greater than the length of the original
         // text, then we will just cut our length in half.
@@ -79,7 +79,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
         }
 
 
-        int delta = h.nextValue().intValue();
+        int delta = h.nextValue();
         if (orig_text.length + delta <= 0) {
             delta = -1 * (int) Math.round(orig_text.length / 1.5);
             if (Math.abs(delta) == orig_text.length && delta < 0) {
@@ -106,7 +106,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         LOG.debug(String.format("Initializing %d %s", this.workConf.getTerminals(), WikipediaWorker.class.getSimpleName()));
 
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < this.workConf.getTerminals(); ++i) {
             WikipediaWorker worker = new WikipediaWorker(this, i);
             workers.add(worker);

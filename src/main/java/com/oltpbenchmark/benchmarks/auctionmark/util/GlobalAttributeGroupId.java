@@ -21,12 +21,12 @@ import com.oltpbenchmark.util.CompositeId;
 
 public class GlobalAttributeGroupId extends CompositeId {
 
-    private static final int COMPOSITE_BITS[] = {
+    private static final int[] COMPOSITE_BITS = {
             16, // CATEGORY
             8,  // ID
             8   // COUNT
     };
-    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
+    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private int category_id;
     private int id;
@@ -49,7 +49,7 @@ public class GlobalAttributeGroupId extends CompositeId {
 
     @Override
     public void decode(long composite_id) {
-        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.category_id = (int) values[0];
         this.id = (int) values[1];
         this.count = (int) values[2];

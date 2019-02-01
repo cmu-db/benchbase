@@ -141,8 +141,8 @@ public class TATPWorker extends Worker<TATPBenchmark> {
 
         public final TransactionInvoker<? extends Procedure> generator;
 
-        protected static final Map<Integer, Transaction> idx_lookup = new HashMap<Integer, Transaction>();
-        protected static final Map<String, Transaction> name_lookup = new HashMap<String, Transaction>();
+        protected static final Map<Integer, Transaction> idx_lookup = new HashMap<>();
+        protected static final Map<String, Transaction> name_lookup = new HashMap<>();
 
         static {
             for (Transaction vt : EnumSet.allOf(Transaction.class)) {

@@ -43,7 +43,7 @@ public class SILoader extends Loader<SIBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         final int itemsPerThread = Math.max(this.num_record / numLoaders, 1);
         final int numRecordThreads = (int) Math.ceil((double) this.num_record / itemsPerThread);
@@ -78,7 +78,7 @@ public class SILoader extends Loader<SIBenchmark> {
             stmt.addBatch();
 
             if (++batch >= SIConstants.configCommitCount) {
-                int result[] = stmt.executeBatch();
+                int[] result = stmt.executeBatch();
 
                 batch = 0;
             }

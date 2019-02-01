@@ -62,7 +62,7 @@ public final class Catalog {
 //    private static final DatabaseType DB_TYPE = DatabaseType.H2;
 
     private final BenchmarkModule benchmark;
-    private final Map<String, Table> tables = new HashMap<String, Table>();
+    private final Map<String, Table> tables = new HashMap<>();
     private final Map<String, String> origTableNames;
     private final Connection conn;
 
@@ -135,7 +135,7 @@ public final class Catalog {
         this.benchmark.createDatabase(DB_TYPE, this.conn);
 
         // TableName -> ColumnName -> <FkeyTable, FKeyColumn>
-        Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<String, Map<String, Pair<String, String>>>();
+        Map<String, Map<String, Pair<String, String>>> foreignKeys = new HashMap<>();
 
         DatabaseMetaData md = conn.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
@@ -190,7 +190,7 @@ public final class Catalog {
                 LOG.debug("Retrieving PRIMARY KEY information for {}", table_name);
             }
             ResultSet pkey_rs = md.getPrimaryKeys(null, null, internal_table_name);
-            SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
+            SortedMap<Integer, String> pkey_cols = new TreeMap<>();
             while (pkey_rs.next()) {
                 String col_name = pkey_rs.getString(4);
                 int col_idx = pkey_rs.getShort(5);
@@ -243,7 +243,7 @@ public final class Catalog {
                 LOG.debug("Retrieving FOREIGN KEY information for {}", table_name);
             }
             ResultSet fk_rs = md.getImportedKeys(null, null, internal_table_name);
-            foreignKeys.put(table_name, new HashMap<String, Pair<String, String>>());
+            foreignKeys.put(table_name, new HashMap<>());
             while (fk_rs.next()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("{} => {}", table_name, SQLUtil.debug(fk_rs));
@@ -296,7 +296,7 @@ public final class Catalog {
     }
 
     protected Map<String, String> getOriginalTableNames() {
-        Map<String, String> origTableNames = new HashMap<String, String>();
+        Map<String, String> origTableNames = new HashMap<>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
         String ddlPath = this.benchmark.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;

@@ -80,7 +80,7 @@ public class ProcedureType {
      */
     public List<StatementType> getStatement() {
         if (statement == null) {
-            statement = new ArrayList<StatementType>();
+            statement = new ArrayList<>();
         }
         return this.statement;
     }

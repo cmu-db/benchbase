@@ -80,7 +80,7 @@ public class DialectType {
      */
     public List<ProcedureType> getProcedure() {
         if (procedure == null) {
-            procedure = new ArrayList<ProcedureType>();
+            procedure = new ArrayList<>();
         }
         return this.procedure;
     }

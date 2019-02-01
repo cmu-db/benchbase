@@ -48,7 +48,7 @@ public class Phase {
 
 
     Phase(String benchmarkName, int id, int t, int wt, int r, List<String> o, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
-        ArrayList<Double> w = new ArrayList<Double>();
+        ArrayList<Double> w = new ArrayList<>();
         for (String s : o) {
             w.add(Double.parseDouble(s));
         }
@@ -144,7 +144,7 @@ public class Phase {
 
                 // Serial runs should not execute queries with non-positive
                 // weights.
-                while (ret <= this.num_weights && weights.get(ret - 1).doubleValue() <= 0.0) {
+                while (ret <= this.num_weights && weights.get(ret - 1) <= 0.0) {
                     ret = ++this.nextSerial;
                 }
 
@@ -168,7 +168,7 @@ public class Phase {
             int randomPercentage = gen.nextInt((int) totalWeight()) + 1;
             double weight = 0.0;
             for (int i = 0; i < this.num_weights; i++) {
-                weight += weights.get(i).doubleValue();
+                weight += weights.get(i);
                 if (randomPercentage <= weight) {
                     return i + 1;
                 }
@@ -182,7 +182,7 @@ public class Phase {
      * Returns a string for logging purposes when entering the phase
      */
     public String currentPhaseString() {
-        List<String> inner = new ArrayList<String>();
+        List<String> inner = new ArrayList<>();
         inner.add("[Workload=" + benchmarkName.toUpperCase() + "]");
         if (isDisabled()) {
             inner.add("[Disabled=true]");

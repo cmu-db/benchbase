@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 public class CustomerIdIterable implements Iterable<CustomerId> {
     private final Histogram<Long> airport_max_customer_id;
-    private final ListOrderedSet<Long> airport_ids = new ListOrderedSet<Long>();
+    private final ListOrderedSet<Long> airport_ids = new ListOrderedSet<>();
     private Long last_airport_id = null;
     private int last_id = -1;
     private long last_max_id = -1;

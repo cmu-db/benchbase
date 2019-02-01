@@ -38,7 +38,7 @@ public abstract class Procedure {
     private final String procName;
     private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
-    private final Map<SQLStmt, String> stmt_name_xref = new HashMap<SQLStmt, String>();
+    private final Map<SQLStmt, String> stmt_name_xref = new HashMap<>();
 
     /**
      * Constructor
@@ -197,7 +197,7 @@ public abstract class Procedure {
 
     protected static Map<String, SQLStmt> getStatments(Procedure proc) {
         Class<? extends Procedure> c = proc.getClass();
-        Map<String, SQLStmt> stmts = new HashMap<String, SQLStmt>();
+        Map<String, SQLStmt> stmts = new HashMap<>();
         for (Field f : c.getDeclaredFields()) {
             int modifiers = f.getModifiers();
             if (Modifier.isTransient(modifiers) == false &&

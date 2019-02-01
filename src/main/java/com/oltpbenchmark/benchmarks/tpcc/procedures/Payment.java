@@ -403,7 +403,7 @@ public class Payment extends TPCCProcedure {
     // attention this code is repeated in other transacitons... ok for now to
     // allow for separate statements.
     public Customer getCustomerByName(int c_w_id, int c_d_id, String customerLastName) throws SQLException {
-        ArrayList<Customer> customers = new ArrayList<Customer>();
+        ArrayList<Customer> customers = new ArrayList<>();
 
         customerByName.setInt(1, c_w_id);
         customerByName.setInt(2, c_d_id);

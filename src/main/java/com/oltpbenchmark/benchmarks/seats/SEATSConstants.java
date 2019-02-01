@@ -45,7 +45,7 @@ public abstract class SEATSConstants {
     // public static final int DISTANCES[] = { 5 }; // , 10, 25, 50, 100 };
 
     // Zhenwu made the changes. The original code is above
-    public static final int DISTANCES[] = {5, 10, 25, 50, 100};
+    public static final int[] DISTANCES = {5, 10, 25, 50, 100};
 
     /**
      * The number of days in the past and future that we will generate flight information for
@@ -232,7 +232,7 @@ public abstract class SEATSConstants {
     /**
      * Tables that are loaded from data files
      */
-    public static final String TABLES_DATAFILES[] = {
+    public static final String[] TABLES_DATAFILES = {
             SEATSConstants.TABLENAME_COUNTRY,
             SEATSConstants.TABLENAME_AIRPORT,
             SEATSConstants.TABLENAME_AIRLINE,
@@ -242,7 +242,7 @@ public abstract class SEATSConstants {
      * Tables generated from random data
      * IMPORTANT: FLIGHT must come before FREQUENT_FLYER
      */
-    public static final String TABLES_SCALING[] = {
+    public static final String[] TABLES_SCALING = {
             SEATSConstants.TABLENAME_CUSTOMER,
             SEATSConstants.TABLENAME_AIRPORT_DISTANCE,
             SEATSConstants.TABLENAME_FLIGHT,
@@ -253,7 +253,7 @@ public abstract class SEATSConstants {
     /**
      * Configuration Tables
      */
-    public static final String TABLES_CONFIG[] = {
+    public static final String[] TABLES_CONFIG = {
             SEATSConstants.TABLENAME_CONFIG_PROFILE,
             SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS,
     };
@@ -261,7 +261,7 @@ public abstract class SEATSConstants {
     /**
      * Histograms generated from data files
      */
-    public static final String HISTOGRAM_DATA_FILES[] = {
+    public static final String[] HISTOGRAM_DATA_FILES = {
             SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT,
             SEATSConstants.HISTOGRAM_FLIGHTS_PER_DEPART_TIMES,
     };
@@ -273,7 +273,7 @@ public abstract class SEATSConstants {
      * will use the unique code in the input data tables instead of the id. Thus, we need
      * to keep a table of how to map these codes to the ids when loading.
      */
-    public static final String CODE_TO_ID_COLUMNS[][] = {
+    public static final String[][] CODE_TO_ID_COLUMNS = {
             {TABLENAME_COUNTRY, "CO_CODE_3", "CO_ID"},
             {TABLENAME_AIRPORT, "AP_CODE", "AP_ID"},
             {TABLENAME_AIRLINE, "AL_IATA_CODE", "AL_ID"},

@@ -118,7 +118,7 @@ public class ResultUploader {
     }
 
     public void writeSummary(PrintStream os) {
-        Map<String, Object> summaryMap = new TreeMap<String, Object>();
+        Map<String, Object> summaryMap = new TreeMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
@@ -190,9 +190,7 @@ public class ResultUploader {
             } finally {
                 response.close();
             }
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (ConfigurationException e) {
+        } catch (IOException | ConfigurationException e) {
             LOG.error(e.getMessage(), e);
         }
     }

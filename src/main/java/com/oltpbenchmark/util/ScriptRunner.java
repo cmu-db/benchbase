@@ -185,9 +185,7 @@ public class ScriptRunner {
             if (!autoCommit) {
                 conn.commit();
             }
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             LOG.error(e.getMessage(), e);
         } finally {
             if (!autoCommit) {

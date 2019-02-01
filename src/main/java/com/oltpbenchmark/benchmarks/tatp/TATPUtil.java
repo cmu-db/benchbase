@@ -81,13 +81,13 @@ public abstract class TATPUtil {
      * Returns sub array of arr, with length in range [min_len, max_len].
      * Each element in arr appears at most once in sub array.
      */
-    public static int[] subArr(int arr[], int min_len, int max_len) {
+    public static int[] subArr(int[] arr, int min_len, int max_len) {
 
         int sub_len = number(min_len, max_len).intValue();
         int arr_len = arr.length;
 
 
-        int sub[] = new int[sub_len];
+        int[] sub = new int[sub_len];
         for (int i = 0; i < sub_len; i++) {
             int j = number(0, arr_len - 1).intValue();
             sub[i] = arr[j];

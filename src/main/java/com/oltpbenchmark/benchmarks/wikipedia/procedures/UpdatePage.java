@@ -231,7 +231,7 @@ public class UpdatePage extends Procedure {
         ps.setInt(param++, userId);
         rs = ps.executeQuery();
 
-        ArrayList<Integer> wlUser = new ArrayList<Integer>();
+        ArrayList<Integer> wlUser = new ArrayList<>();
         while (rs.next()) {
             wlUser.add(rs.getInt(1));
         }
@@ -253,7 +253,7 @@ public class UpdatePage extends Procedure {
             ps.setString(param++, pageTitle);
             ps.setInt(param++, pageNamespace);
             for (Integer otherUserId : wlUser) {
-                ps.setInt(param, otherUserId.intValue());
+                ps.setInt(param, otherUserId);
                 ps.addBatch();
             } // FOR
 //			ps.executeUpdate(); // This is an error
@@ -274,7 +274,7 @@ public class UpdatePage extends Procedure {
             ps = this.getPreparedStatement(conn, selectUser);
             param = 1;
             for (Integer otherUserId : wlUser) {
-                ps.setInt(param, otherUserId.intValue());
+                ps.setInt(param, otherUserId);
                 rs = ps.executeQuery();
                 rs.next();
                 rs.close();

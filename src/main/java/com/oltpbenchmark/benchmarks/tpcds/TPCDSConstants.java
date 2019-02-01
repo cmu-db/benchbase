@@ -30,8 +30,6 @@ public abstract class TPCDSConstants {
 
     public enum CastTypes {LONG, DOUBLE, STRING, DATE}
 
-    ;
-
     public static final CastTypes[] callcenterTypes = {
             CastTypes.LONG,   // cc_call_center_sk
             CastTypes.STRING, // cc_call_center_id

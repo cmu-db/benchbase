@@ -33,10 +33,10 @@ import java.util.List;
 public class Table extends AbstractCatalogObject {
     private static final long serialVersionUID = 1L;
 
-    private final List<Column> columns = new ArrayList<Column>();
-    private final List<IntegrityConstraint> constraints = new ArrayList<IntegrityConstraint>();
-    private final List<String> primaryKeys = new ArrayList<String>();
-    private final List<Index> indexes = new ArrayList<Index>();
+    private final List<Column> columns = new ArrayList<>();
+    private final List<IntegrityConstraint> constraints = new ArrayList<>();
+    private final List<String> primaryKeys = new ArrayList<>();
+    private final List<Index> indexes = new ArrayList<>();
 
 
     public Table(String tableName) {
@@ -99,7 +99,7 @@ public class Table extends AbstractCatalogObject {
     }
 
     public int[] getColumnTypes() {
-        int types[] = new int[this.getColumnCount()];
+        int[] types = new int[this.getColumnCount()];
         for (Column catalog_col : this.getColumns()) {
             types[catalog_col.getIndex()] = catalog_col.getType();
         } // FOR
@@ -204,8 +204,8 @@ public class Table extends AbstractCatalogObject {
         StringBuilder sb = new StringBuilder();
 
         sb.append(getName()).append(" (\n");
-        for (int i = 0, cnt = this.columns.size(); i < cnt; i++) {
-            sb.append("  ").append(this.columns.get(i)).append("\n");
+        for (Column column : this.columns) {
+            sb.append("  ").append(column).append("\n");
         } // FOR
         sb.append(")");
 

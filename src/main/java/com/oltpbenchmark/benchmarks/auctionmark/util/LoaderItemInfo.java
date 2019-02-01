@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoaderItemInfo extends ItemInfo {
-    private final List<Bid> bids = new ArrayList<Bid>();
-    private Histogram<UserId> bidderHistogram = new Histogram<UserId>();
+    private final List<Bid> bids = new ArrayList<>();
+    private Histogram<UserId> bidderHistogram = new Histogram<>();
 
     public short numImages;
     public short numAttributes;
@@ -79,7 +79,7 @@ public class LoaderItemInfo extends ItemInfo {
     @Override
     public String toString() {
         Class<?> hints_class = this.getClass();
-        ListOrderedMap<String, Object> m = new ListOrderedMap<String, Object>();
+        ListOrderedMap<String, Object> m = new ListOrderedMap<>();
         for (Field f : hints_class.getDeclaredFields()) {
             String key = f.getName().toUpperCase();
             Object val = null;
@@ -117,7 +117,7 @@ public class LoaderItemInfo extends ItemInfo {
         @Override
         public String toString() {
             Class<?> hints_class = this.getClass();
-            ListOrderedMap<String, Object> m = new ListOrderedMap<String, Object>();
+            ListOrderedMap<String, Object> m = new ListOrderedMap<>();
             for (Field f : hints_class.getFields()) {
                 String key = f.getName().toUpperCase();
                 Object val = null;

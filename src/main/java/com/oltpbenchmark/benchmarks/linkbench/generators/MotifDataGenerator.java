@@ -73,7 +73,7 @@ public class MotifDataGenerator implements DataGenerator {
      * pasted into output.  Starts off null, initialized
      * on demand.
      */
-    private byte motifs[];
+    private byte[] motifs;
     /**
      * Size of motif buffer
      */

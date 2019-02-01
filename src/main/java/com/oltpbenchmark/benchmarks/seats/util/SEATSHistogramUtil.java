@@ -35,7 +35,7 @@ public abstract class SEATSHistogramUtil {
 
 //    private static final Pattern p = Pattern.compile("\\|");
 
-    private static final Map<File, Histogram<String>> cached_Histograms = new HashMap<File, Histogram<String>>();
+    private static final Map<File, Histogram<String>> cached_Histograms = new HashMap<>();
 
     private static Map<String, Histogram<String>> cached_AirportFlights;
 
@@ -48,7 +48,7 @@ public abstract class SEATSHistogramUtil {
     }
 
     public static Histogram<String> collapseAirportFlights(Map<String, Histogram<String>> m) {
-        Histogram<String> h = new Histogram<String>();
+        Histogram<String> h = new Histogram<>();
         for (Entry<String, Histogram<String>> e : m.entrySet()) {
             String depart = e.getKey();
             Histogram<String> depart_h = e.getValue();
@@ -73,17 +73,17 @@ public abstract class SEATSHistogramUtil {
         }
 
         File file = getHistogramFile(data_path, SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);
-        Histogram<String> h = new Histogram<String>();
+        Histogram<String> h = new Histogram<>();
         h.load(file.getAbsolutePath());
 
-        Map<String, Histogram<String>> m = new TreeMap<String, Histogram<String>>();
+        Map<String, Histogram<String>> m = new TreeMap<>();
         Pattern pattern = Pattern.compile("-");
         Collection<String> values = h.values();
         for (String value : values) {
-            String split[] = pattern.split(value);
+            String[] split = pattern.split(value);
             Histogram<String> src_h = m.get(split[0]);
             if (src_h == null) {
-                src_h = new Histogram<String>();
+                src_h = new Histogram<>();
                 m.put(split[0], src_h);
             }
             src_h.put(split[1], h.get(value));
@@ -106,7 +106,7 @@ public abstract class SEATSHistogramUtil {
         File file = getHistogramFile(data_path, name);
         Histogram<String> histogram = cached_Histograms.get(file);
         if (histogram == null) {
-            histogram = new Histogram<String>();
+            histogram = new Histogram<>();
             histogram.load(file.getAbsolutePath());
             cached_Histograms.put(file, histogram);
         }

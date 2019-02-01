@@ -35,7 +35,7 @@ public class RandomGenerator extends Random {
 
     public Set<Integer> getRandomIntSet(int cnt, int max) {
 
-        Set<Integer> ret = new HashSet<Integer>();
+        Set<Integer> ret = new HashSet<>();
         do {
             ret.add(this.nextInt(max));
         } while (ret.size() < cnt);

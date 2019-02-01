@@ -55,16 +55,16 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     /**
      * Data Generator Classes TableName -> AbstactTableGenerator
      */
-    private final Map<String, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<String, AbstractTableGenerator>());
+    private final Map<String, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<>());
 
-    private final Collection<String> sub_generators = new HashSet<String>();
+    private final Collection<String> sub_generators = new HashSet<>();
 
     /**
      * The set of tables that we have finished loading
      **/
-    private final transient Collection<String> finished = Collections.synchronizedCollection(new HashSet<String>());
+    private final transient Collection<String> finished = Collections.synchronizedCollection(new HashSet<>());
 
-    private final Histogram<String> tableSizes = new Histogram<String>();
+    private final Histogram<String> tableSizes = new Histogram<>();
 
     private boolean fail = false;
 
@@ -156,7 +156,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
 
         final CountDownLatch loadLatch = new CountDownLatch(this.generators.size());
 
@@ -209,7 +209,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         final List<Object[]> volt_table = generator.getVoltTable();
         final String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         final PreparedStatement stmt = conn.prepareStatement(sql);
-        final int types[] = catalog_tbl.getColumnTypes();
+        final int[] types = catalog_tbl.getColumnTypes();
 
         while (generator.hasMore()) {
             generator.generateBatch();
@@ -223,7 +223,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 //                LOG.info(sb.toString() + "\n");
 //            }
 
-            for (Object row[] : volt_table) {
+            for (Object[] row : volt_table) {
                 for (int i = 0; i < row.length; i++) {
                     if (row[i] != null) {
                         stmt.setObject(i + 1, row[i]);
@@ -275,32 +275,32 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected abstract class AbstractTableGenerator extends LoaderThread {
         private final String tableName;
         private final Table catalog_tbl;
-        protected final List<Object[]> table = new ArrayList<Object[]>();
+        protected final List<Object[]> table = new ArrayList<>();
         protected Long tableSize;
         protected Long batchSize;
         protected final CountDownLatch latch = new CountDownLatch(1);
-        protected final List<String> dependencyTables = new ArrayList<String>();
+        protected final List<String> dependencyTables = new ArrayList<>();
 
         /**
          * Some generators have children tables that we want to load tuples for each batch of this generator.
          * The queues we need to update every time we generate a new LoaderItemInfo
          */
-        protected final Set<SubTableGenerator<?>> sub_generators = new HashSet<SubTableGenerator<?>>();
+        protected final Set<SubTableGenerator<?>> sub_generators = new HashSet<>();
 
-        protected final List<Object> subGenerator_hold = new ArrayList<Object>();
+        protected final List<Object> subGenerator_hold = new ArrayList<>();
 
         protected long count = 0;
 
         /**
          * Any column with the name XX_SATTR## will automatically be filled with a random string
          */
-        protected final List<Column> random_str_cols = new ArrayList<Column>();
+        protected final List<Column> random_str_cols = new ArrayList<>();
         protected final Pattern random_str_regex = Pattern.compile("[\\w]+\\_SATTR[\\d]+", Pattern.CASE_INSENSITIVE);
 
         /**
          * Any column with the name XX_IATTR## will automatically be filled with a random integer
          */
-        protected List<Column> random_int_cols = new ArrayList<Column>();
+        protected List<Column> random_int_cols = new ArrayList<>();
         protected final Pattern random_int_regex = Pattern.compile("[\\w]+\\_IATTR[\\d]+", Pattern.CASE_INSENSITIVE);
 
         /**
@@ -454,14 +454,14 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         public Collection<String> getSubGeneratorTableNames() {
-            List<String> names = new ArrayList<String>();
+            List<String> names = new ArrayList<>();
             for (AbstractTableGenerator gen : this.sub_generators) {
                 names.add(gen.catalog_tbl.getName());
             }
             return (names);
         }
 
-        protected int populateRandomColumns(Object row[]) {
+        protected int populateRandomColumns(Object[] row) {
             int cols = 0;
 
             // STRINGS
@@ -547,7 +547,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
          * When called, the generator will populate a new row record and append it to the underlying VoltTable
          */
         public synchronized void addRow() {
-            Object row[] = new Object[this.catalog_tbl.getColumnCount()];
+            Object[] row = new Object[this.catalog_tbl.getColumnCount()];
 
             // Main Columns
             int cols = this.populateRow(row);
@@ -614,7 +614,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      **********************************************************************************************/
     protected abstract class SubTableGenerator<T> extends AbstractTableGenerator {
 
-        private final LinkedBlockingDeque<T> queue = new LinkedBlockingDeque<T>();
+        private final LinkedBlockingDeque<T> queue = new LinkedBlockingDeque<>();
         private T current;
         private short currentCounter;
         private boolean stop = false;
@@ -728,7 +728,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int col = 0;
 
             // R_ID
-            row[col++] = Integer.valueOf((int) this.count);
+            row[col++] = (int) this.count;
             // R_NAME
             row[col++] = profile.rng.astring(6, 32);
 
@@ -741,7 +741,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      **********************************************************************************************/
     protected class CategoryGenerator extends AbstractTableGenerator {
         private final Map<String, Category> categoryMap;
-        private final LinkedList<Category> categories = new LinkedList<Category>();
+        private final LinkedList<Category> categories = new LinkedList<>();
 
         public CategoryGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_CATEGORY);
@@ -788,8 +788,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      **********************************************************************************************/
     protected class GlobalAttributeGroupGenerator extends AbstractTableGenerator {
         private long num_categories = 0l;
-        private final Histogram<Integer> category_groups = new Histogram<Integer>();
-        private final LinkedList<GlobalAttributeGroupId> group_ids = new LinkedList<GlobalAttributeGroupId>();
+        private final Histogram<Integer> category_groups = new Histogram<>();
+        private final LinkedList<GlobalAttributeGroupId> group_ids = new LinkedList<>();
 
         public GlobalAttributeGroupGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP,
@@ -809,7 +809,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             for (int i = 0; i < this.tableSize; i++) {
                 int category_id = profile.rng.number(0, (int) this.num_categories);
                 this.category_groups.put(category_id);
-                int id = this.category_groups.get(category_id).intValue();
+                int id = this.category_groups.get(category_id);
                 int count = (int) profile.rng.number(1, AuctionMarkConstants.TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP);
                 GlobalAttributeGroupId gag_id = new GlobalAttributeGroupId(category_id, id, count);
 
@@ -841,7 +841,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      **********************************************************************************************/
     protected class GlobalAttributeValueGenerator extends AbstractTableGenerator {
 
-        private Histogram<GlobalAttributeGroupId> gag_counters = new Histogram<GlobalAttributeGroupId>(true);
+        private Histogram<GlobalAttributeGroupId> gag_counters = new Histogram<>(true);
         private Iterator<GlobalAttributeGroupId> gag_iterator;
         private GlobalAttributeGroupId gag_current;
         private int gav_counter = -1;
@@ -1017,7 +1017,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         /**
          * BidDurationDay -> Pair<NumberOfBids, NumberOfWatches>
          */
-        private final Map<Long, Pair<Zipf, Zipf>> item_bid_watch_zipfs = new HashMap<Long, Pair<Zipf, Zipf>>();
+        private final Map<Long, Pair<Zipf, Zipf>> item_bid_watch_zipfs = new HashMap<>();
 
         public ItemGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_ITEM,
@@ -1255,7 +1255,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int col = 0;
 
             // IC_ID
-            row[col++] = Integer.valueOf((int) this.count);
+            row[col++] = (int) this.count;
             // IC_I_ID
             row[col++] = itemInfo.itemId;
             // IC_U_ID
@@ -1364,7 +1364,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             }
 
             // IB_ID
-            row[col++] = Long.valueOf(this.bid.id);
+            row[col++] = this.bid.id;
             // IB_I_ID
             row[col++] = itemInfo.itemId;
             // IB_U_ID
@@ -1572,7 +1572,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      **********************************************************************************************/
     protected class UserWatchGenerator extends SubTableGenerator<LoaderItemInfo> {
 
-        final Set<UserId> watchers = new HashSet<UserId>();
+        final Set<UserId> watchers = new HashSet<>();
 
         public UserWatchGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_USERACCT_WATCH,

@@ -71,7 +71,7 @@ public class CreateDialects {
         sb.append("CREATE TABLE ").append(catalog_tbl.getName()).append(" (\n");
 
         // INNER
-        List<String> inner_rows = new ArrayList<String>();
+        List<String> inner_rows = new ArrayList<>();
         StringBuilder inner;
 
         // INNER -------------------------------------------------

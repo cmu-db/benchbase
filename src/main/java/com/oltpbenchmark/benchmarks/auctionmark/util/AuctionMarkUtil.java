@@ -73,7 +73,7 @@ public abstract class AuctionMarkUtil {
      * @param benchmarkTimes
      * @return
      */
-    public static Timestamp getProcTimestamp(Timestamp benchmarkTimes[]) {
+    public static Timestamp getProcTimestamp(Timestamp[] benchmarkTimes) {
 
 
         Timestamp tmp = new Timestamp(System.currentTimeMillis());

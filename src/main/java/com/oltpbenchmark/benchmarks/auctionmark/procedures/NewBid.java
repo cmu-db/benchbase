@@ -132,7 +132,7 @@ public class NewBid extends Procedure {
                     ")"
     );
 
-    public Object[] run(Connection conn, Timestamp benchmarkTimes[],
+    public Object[] run(Connection conn, Timestamp[] benchmarkTimes,
                         long item_id, long seller_id, long buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();

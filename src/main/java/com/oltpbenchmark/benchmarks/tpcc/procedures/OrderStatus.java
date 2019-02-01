@@ -96,7 +96,7 @@ public class OrderStatus extends TPCCProcedure {
 
         int o_id = -1, o_carrier_id = -1;
         Timestamp o_entry_d;
-        ArrayList<String> orderLines = new ArrayList<String>();
+        ArrayList<String> orderLines = new ArrayList<>();
 
         Customer c;
         if (c_by_name) {
@@ -265,7 +265,7 @@ public class OrderStatus extends TPCCProcedure {
     // attention this code is repeated in other transacitons... ok for now to
     // allow for separate statements.
     public Customer getCustomerByName(int c_w_id, int c_d_id, String c_last) throws SQLException {
-        ArrayList<Customer> customers = new ArrayList<Customer>();
+        ArrayList<Customer> customers = new ArrayList<>();
         boolean trace = LOG.isDebugEnabled();
 
         customerByName.setInt(1, c_w_id);

@@ -85,7 +85,7 @@ public class CloseAuctions extends Procedure {
      * @param bid_ids    - ItemBid Ids
      * @return
      */
-    public List<Object[]> run(Connection conn, Timestamp benchmarkTimes[],
+    public List<Object[]> run(Connection conn, Timestamp[] benchmarkTimes,
                               Timestamp startTime, Timestamp endTime) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
@@ -110,7 +110,7 @@ public class CloseAuctions extends Procedure {
         PreparedStatement maxBidStmt = this.getPreparedStatement(conn, getMaxBid);
         ResultSet maxBidResults = null;
 
-        final List<Object[]> output_rows = new ArrayList<Object[]>();
+        final List<Object[]> output_rows = new ArrayList<>();
         while (round-- > 0) {
             param = 1;
             dueItemsStmt.setTimestamp(param++, startTime);
@@ -174,7 +174,7 @@ public class CloseAuctions extends Procedure {
                     LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
                 }
 
-                Object row[] = new Object[]{
+                Object[] row = new Object[]{
                         itemId,               // i_id
                         sellerId,             // i_u_id
                         i_name,               // i_name

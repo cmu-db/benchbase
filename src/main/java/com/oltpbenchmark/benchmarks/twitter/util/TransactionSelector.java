@@ -93,7 +93,7 @@ public class TransactionSelector {
     }
 
     public ArrayList<TwitterOperation> readAll() throws IOException {
-        ArrayList<TwitterOperation> transactions = new ArrayList<TwitterOperation>();
+        ArrayList<TwitterOperation> transactions = new ArrayList<>();
 
         while (dis.available() > 0 && dis2.available() > 0) {
             transactions.add(readNextTransaction());

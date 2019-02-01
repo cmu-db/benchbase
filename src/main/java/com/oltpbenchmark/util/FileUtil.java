@@ -72,7 +72,7 @@ public abstract class FileUtil {
 
         File f = new File(basename);
         if (f != null && f.isFile()) {
-            String parts[] = EXT_SPLIT.split(basename);
+            String[] parts = EXT_SPLIT.split(basename);
 
             // Check how many files already exist
             int counter = 1;
@@ -110,7 +110,7 @@ public abstract class FileUtil {
 
     public static String getExtension(File f) {
         if (f != null && f.isFile()) {
-            String parts[] = EXT_SPLIT.split(f.getName());
+            String[] parts = EXT_SPLIT.split(f.getName());
             if (parts.length > 1) {
                 return (parts[parts.length - 1]);
             }

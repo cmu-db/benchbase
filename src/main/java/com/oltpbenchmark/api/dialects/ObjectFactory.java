@@ -87,7 +87,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "", name = "dialects")
     public JAXBElement<DialectsType> createDialects(DialectsType value) {
-        return new JAXBElement<DialectsType>(_Dialects_QNAME, DialectsType.class, null, value);
+        return new JAXBElement<>(_Dialects_QNAME, DialectsType.class, null, value);
     }
 
 }

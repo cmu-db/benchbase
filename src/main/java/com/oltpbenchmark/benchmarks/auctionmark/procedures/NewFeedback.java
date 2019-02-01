@@ -72,7 +72,7 @@ public class NewFeedback extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
 
-    public void run(Connection conn, Timestamp benchmarkTimes[],
+    public void run(Connection conn, Timestamp[] benchmarkTimes,
                     long user_id, long i_id, long seller_id, long from_id, long rating, String comment) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 

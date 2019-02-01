@@ -74,7 +74,7 @@ public class UpdateReservation extends Procedure {
     public final SQLStmt ReserveSeat3 = new SQLStmt(String.format(BASE_SQL, "R_IATTR03"));
 
     public static final int NUM_UPDATES = 4;
-    public final SQLStmt ReserveSeats[] = {
+    public final SQLStmt[] ReserveSeats = {
             ReserveSeat0,
             ReserveSeat1,
             ReserveSeat2,

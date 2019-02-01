@@ -113,7 +113,7 @@ public class NewReservation extends Procedure {
                     "   ? " +   // R_ATTR08
                     ")");
 
-    public void run(Connection conn, long r_id, long c_id, long f_id, long seatnum, double price, long attrs[]) throws SQLException {
+    public void run(Connection conn, long r_id, long c_id, long f_id, long seatnum, double price, long[] attrs) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
         boolean found;
 

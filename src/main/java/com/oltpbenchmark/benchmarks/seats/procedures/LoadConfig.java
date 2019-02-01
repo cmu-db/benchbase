@@ -58,7 +58,7 @@ public class LoadConfig extends Procedure {
     );
 
     public ResultSet[] run(Connection conn) throws SQLException {
-        ResultSet results[] = new ResultSet[6];
+        ResultSet[] results = new ResultSet[6];
         int result_idx = 0;
 
         results[result_idx++] = this.getPreparedStatement(conn, getConfigProfile).executeQuery();

@@ -37,14 +37,14 @@ public class WorkloadState {
     private static final int RATE_QUEUE_LIMIT = 10000;
     private static final Logger LOG = LoggerFactory.getLogger(WorkloadState.class);
 
-    private LinkedList<SubmittedProcedure> workQueue = new LinkedList<SubmittedProcedure>();
+    private LinkedList<SubmittedProcedure> workQueue = new LinkedList<>();
     private BenchmarkState benchmarkState;
     private int workersWaiting = 0;
     private int workersWorking = 0;
     private int num_terminals;
     private int workerNeedSleep;
 
-    private List<Phase> works = new ArrayList<Phase>();
+    private List<Phase> works = new ArrayList<>();
     private Iterator<Phase> phaseIterator;
     private Phase currentPhase = null;
     private long phaseStartNs = 0;

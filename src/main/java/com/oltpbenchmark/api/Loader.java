@@ -44,7 +44,7 @@ public abstract class Loader<T extends BenchmarkModule> {
     protected Connection conn;
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
-    private final Histogram<String> tableSizes = new Histogram<String>(true);
+    private final Histogram<String> tableSizes = new Histogram<>(true);
 
     /**
      * A LoaderThread is responsible for loading some portion of a

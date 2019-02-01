@@ -32,16 +32,16 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
 
     private transient int hashCode = -1;
 
-    protected static final long[] compositeBitsPreCompute(int offset_bits[]) {
-        long pows[] = new long[offset_bits.length];
+    protected static final long[] compositeBitsPreCompute(int[] offset_bits) {
+        long[] pows = new long[offset_bits.length];
         for (int i = 0; i < offset_bits.length; i++) {
             pows[i] = (long) (Math.pow(2, offset_bits[i]) - 1l);
         } // FOR
         return (pows);
     }
 
-    protected final long encode(int offset_bits[], long offset_pows[]) {
-        long values[] = this.toArray();
+    protected final long encode(int[] offset_bits, long[] offset_pows) {
+        long[] values = this.toArray();
 
         long id = 0;
         int offset = 0;
@@ -59,8 +59,8 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
         return (id);
     }
 
-    protected final long[] decode(long composite_id, int offset_bits[], long offset_pows[]) {
-        long values[] = new long[offset_bits.length];
+    protected final long[] decode(long composite_id, int[] offset_bits, long[] offset_pows) {
+        long[] values = new long[offset_bits.length];
         int offset = 0;
         for (int i = 0; i < values.length; i++) {
             values[i] = (composite_id >> offset & offset_pows[i]);

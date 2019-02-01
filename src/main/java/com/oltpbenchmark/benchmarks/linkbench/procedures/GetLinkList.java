@@ -81,7 +81,7 @@ public class GetLinkList extends Procedure {
         }
 
         // Fetch the link data
-        Link links[] = new Link[count];
+        Link[] links = new Link[count];
         int i = 0;
         while (rs.next()) {
             Link l = createLinkFromRow(rs);

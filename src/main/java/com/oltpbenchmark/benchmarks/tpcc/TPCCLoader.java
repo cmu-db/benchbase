@@ -66,7 +66,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         final CountDownLatch itemLatch = new CountDownLatch(1);
 
         // ITEM
@@ -190,13 +190,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 itemPrepStmt.executeBatch();
             }
 
-        } catch (BatchUpdateException ex) {
-            SQLException next = ex.getNextException();
-            LOG.error("Failed to load data for TPC-C", ex);
-            if (next != null) {
-                LOG.error("{} Cause => {}", ex.getClass().getSimpleName(), next.getMessage());
-            }
-            fail = true;
         } catch (SQLException ex) {
             SQLException next = ex.getNextException();
             LOG.error("Failed to load data for TPC-C", ex);
@@ -680,10 +673,8 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             nworPrepStmt.executeBatch();
             orlnPrepStmt.executeBatch();
 
-        } catch (SQLException se) {
+        } catch (Exception se) {
             LOG.error(se.getMessage(), se);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
         } finally {
             closeStatement(ordrPrepStmt);
             closeStatement(nworPrepStmt);

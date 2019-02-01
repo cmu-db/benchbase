@@ -50,7 +50,7 @@ public class TPCCBenchmark extends BenchmarkModule {
      */
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-        ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         try {
             List<TPCCWorker> terminals = createTerminals();
@@ -123,7 +123,7 @@ public class TPCCBenchmark extends BenchmarkModule {
         }
 
 
-        ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
+        ArrayList<TPCCWorker> ret = new ArrayList<>();
         for (TPCCWorker w : terminals) {
             ret.add(w);
         }

@@ -107,7 +107,7 @@ public class GetUserInfo extends Procedure {
      * @return
      * @throws SQLException
      */
-    public List<Object[]>[] run(Connection conn, Timestamp benchmarkTimes[],
+    public List<Object[]>[] run(Connection conn, Timestamp[] benchmarkTimes,
                                 long user_id,
                                 boolean get_feedback,
                                 boolean get_comments,
@@ -116,7 +116,7 @@ public class GetUserInfo extends Procedure {
                                 boolean get_watched_items) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
 
-        ResultSet results[] = new ResultSet[6];
+        ResultSet[] results = new ResultSet[6];
         int result_idx = 0;
 
         // The first VoltTable in the output will always be the user's information
@@ -181,14 +181,14 @@ public class GetUserInfo extends Procedure {
         result_idx++;
 
 
-        List<Object[]> final_results[] = new List[results.length];
+        List<Object[]>[] final_results = new List[results.length];
         for (result_idx = 0; result_idx < results.length; result_idx++) {
             List<Object[]> inner = null;
             if (results[result_idx] != null) {
-                inner = new ArrayList<Object[]>();
+                inner = new ArrayList<>();
                 int num_cols = results[result_idx].getMetaData().getColumnCount();
                 while (results[result_idx].next()) {
-                    Object row[] = new Object[num_cols];
+                    Object[] row = new Object[num_cols];
                     for (int i = 0; i < num_cols; i++) {
                         row[i] = results[result_idx].getObject(i + 1);
                     } // FOR

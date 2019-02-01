@@ -52,8 +52,8 @@ public enum SortDirectionType {
         return this.ordinal();
     }
 
-    protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<Integer, SortDirectionType>();
-    protected static final Map<String, SortDirectionType> name_lookup = new HashMap<String, SortDirectionType>();
+    protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<>();
+    protected static final Map<String, SortDirectionType> name_lookup = new HashMap<>();
 
     static {
         for (SortDirectionType vt : EnumSet.allOf(SortDirectionType.class)) {

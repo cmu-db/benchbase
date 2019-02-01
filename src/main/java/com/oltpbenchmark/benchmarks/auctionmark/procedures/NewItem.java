@@ -147,10 +147,10 @@ public class NewItem extends Procedure {
      * and so on. After these records are inserted, the transaction then updates
      * the USER record to add the listing fee to the seller's balance.
      */
-    public Object[] run(Connection conn, Timestamp benchmarkTimes[],
+    public Object[] run(Connection conn, Timestamp[] benchmarkTimes,
                         long item_id, long seller_id, long category_id,
                         String name, String description, long duration, double initial_price, String attributes,
-                        long gag_ids[], long gav_ids[], String images[]) throws SQLException {
+                        long[] gag_ids, long[] gav_ids, String[] images) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
 

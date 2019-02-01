@@ -45,7 +45,6 @@ import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -111,7 +110,7 @@ public class JSONArray {
      * Construct an empty JSONArray.
      */
     public JSONArray() {
-        this.myArrayList = new ArrayList<Object>();
+        this.myArrayList = new ArrayList<>();
     }
 
     /**
@@ -155,7 +154,7 @@ public class JSONArray {
                 case ']':
                 case ')':
                     if (q != c) {
-                        throw x.syntaxError("Expected a '" + new Character(q) + "'");
+                        throw x.syntaxError("Expected a '" + q + "'");
                     }
                     return;
                 default:
@@ -185,8 +184,8 @@ public class JSONArray {
      */
     public JSONArray(Collection<?> collection) {
         this.myArrayList = (collection == null) ?
-                new ArrayList<Object>() :
-                new ArrayList<Object>(collection);
+                new ArrayList<>() :
+                new ArrayList<>(collection);
     }
 
     /**
@@ -195,10 +194,10 @@ public class JSONArray {
      */
 
     public JSONArray(Collection<?> collection, boolean includeSuperClass) {
-        this.myArrayList = new ArrayList<Object>();
+        this.myArrayList = new ArrayList<>();
         if (collection != null) {
-            for (Iterator<?> iter = collection.iterator(); iter.hasNext(); ) {
-                this.myArrayList.add(new JSONObject(iter.next(), includeSuperClass));
+            for (Object o : collection) {
+                this.myArrayList.add(new JSONObject(o, includeSuperClass));
             }
         }
     }
@@ -293,7 +292,7 @@ public class JSONArray {
         try {
             return o instanceof Number ?
                     ((Number) o).doubleValue() :
-                    Double.valueOf((String) o).doubleValue();
+                    Double.valueOf((String) o);
         } catch (Exception e) {
             throw new JSONException("JSONArray[" + index +
                     "] is not a number.");
@@ -402,7 +401,7 @@ public class JSONArray {
      */
     public String join(String separator) throws JSONException {
         int len = length();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < len; i += 1) {
             if (i > 0) {
@@ -648,7 +647,7 @@ public class JSONArray {
      * @throws JSONException if the value is not finite.
      */
     public JSONArray put(double value) throws JSONException {
-        Double d = new Double(value);
+        Double d = value;
         JSONObject.testValidity(d);
         put(d);
         return this;
@@ -909,7 +908,7 @@ public class JSONArray {
             return "[]";
         }
         int i;
-        StringBuffer sb = new StringBuffer("[");
+        StringBuilder sb = new StringBuilder("[");
         if (len == 1) {
             sb.append(JSONObject.valueToString(this.myArrayList.get(0),
                     indentFactor, indent));

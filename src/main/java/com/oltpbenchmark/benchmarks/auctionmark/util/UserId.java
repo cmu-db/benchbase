@@ -21,11 +21,11 @@ import com.oltpbenchmark.util.CompositeId;
 
 public class UserId extends CompositeId {
 
-    private static final int COMPOSITE_BITS[] = {
+    private static final int[] COMPOSITE_BITS = {
             16, // ITEM_COUNT
             24, // OFFSET
     };
-    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
+    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     /**
      * The size index is the position in the histogram for the number
@@ -70,7 +70,7 @@ public class UserId extends CompositeId {
 
     @Override
     public void decode(long composite_id) {
-        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.offset = (int) values[0];
         this.itemCount = (int) values[1];
     }

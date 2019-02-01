@@ -38,7 +38,7 @@ public class CategoryParser {
 
     public CategoryParser() {
 
-        _categoryMap = new TreeMap<String, Category>();
+        _categoryMap = new TreeMap<>();
         _nextCategoryID = 0;
 
 

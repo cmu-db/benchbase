@@ -68,7 +68,7 @@ public class GetLink extends Procedure {
         int count = rs.getRow();
         rs.beforeFirst();
 
-        Link results[] = new Link[count];
+        Link[] results = new Link[count];
         int i = 0;
         while (rs.next()) {
             Link l = createLinkFromRow(rs);

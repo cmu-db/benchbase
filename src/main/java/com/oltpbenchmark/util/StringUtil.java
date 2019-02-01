@@ -129,8 +129,8 @@ public abstract class StringUtil {
      * @return
      */
     public static String columns(String... strs) {
-        String lines[][] = new String[strs.length][];
-        String prefixes[] = new String[strs.length];
+        String[][] lines = new String[strs.length][];
+        String[] prefixes = new String[strs.length];
         int max_length = 0;
         int max_lines = 0;
 
@@ -207,17 +207,17 @@ public abstract class StringUtil {
         // Figure out the largest key size so we can get spacing right
         int max_key_size = 0;
         int max_title_size = 0;
-        final Map<Object, String[]> map_keys[] = (Map<Object, String[]>[]) new Map[maps.length];
-        final boolean map_titles[] = new boolean[maps.length];
+        final Map<Object, String[]>[] map_keys = (Map<Object, String[]>[]) new Map[maps.length];
+        final boolean[] map_titles = new boolean[maps.length];
         for (int i = 0; i < maps.length; i++) {
             Map<?, ?> m = maps[i];
             if (m == null) {
                 continue;
             }
-            Map<Object, String[]> keys = new HashMap<Object, String[]>();
+            Map<Object, String[]> keys = new HashMap<>();
             boolean first = true;
             for (Object k : m.keySet()) {
-                String k_str[] = LINE_SPLIT.split(k != null ? k.toString() : "");
+                String[] k_str = LINE_SPLIT.split(k != null ? k.toString() : "");
                 keys.put(k, k_str);
 
                 // If the first element has a null value, then we can let it be the title for this map
@@ -248,7 +248,7 @@ public abstract class StringUtil {
         // Now make StringBuilder blocks for each map
         // We do it in this way so that we can get the max length of the values
         int max_value_size = 0;
-        StringBuilder blocks[] = new StringBuilder[maps.length];
+        StringBuilder[] blocks = new StringBuilder[maps.length];
         for (int map_i = 0; map_i < maps.length; map_i++) {
             blocks[map_i] = new StringBuilder();
             Map<?, ?> m = maps[map_i];
@@ -259,7 +259,7 @@ public abstract class StringUtil {
 
             boolean first = true;
             for (Entry<?, ?> e : m.entrySet()) {
-                String key[] = keys.get(e.getKey());
+                String[] key = keys.get(e.getKey());
 
                 if (first && map_titles[map_i]) {
                     blocks[map_i].append(StringUtil.join("\n", key));
@@ -283,7 +283,7 @@ public abstract class StringUtil {
 
 
                     // If the key or value is multiple lines, format them nicely!
-                    String value[] = LINE_SPLIT.split(v);
+                    String[] value = LINE_SPLIT.split(v);
                     int total_lines = Math.max(key.length, value.length);
                     for (int line_i = 0; line_i < total_lines; line_i++) {
                         String k_line = (line_i < key.length ? key[line_i] : "");
@@ -399,7 +399,7 @@ public abstract class StringUtil {
      * @return
      */
     public static String box(String str, String mark, Integer max_len) {
-        String lines[] = LINE_SPLIT.split(str);
+        String[] lines = LINE_SPLIT.split(str);
         if (lines.length == 0) {
             return "";
         }
@@ -433,7 +433,7 @@ public abstract class StringUtil {
      * @return
      */
     public static String prefix(String str, String prefix) {
-        String lines[] = LINE_SPLIT.split(str);
+        String[] lines = LINE_SPLIT.split(str);
         if (lines.length == 0) {
             return "";
         }
@@ -605,7 +605,7 @@ public abstract class StringUtil {
      * @param arr
      * @return
      */
-    public static String stringLiteral(byte arr[]) {
+    public static String stringLiteral(byte[] arr) {
         CharBuffer cb = Charset.forName("ISO-8859-1").decode(ByteBuffer.wrap(arr));
         StringBuilder sb = new StringBuilder();
         sb.append('\'');
@@ -656,8 +656,7 @@ public abstract class StringUtil {
     private static String hexStringLiteral(byte[] arr) {
         StringBuilder sb = new StringBuilder();
         sb.append("x'");
-        for (int i = 0; i < arr.length; i++) {
-            byte b = arr[i];
+        for (byte b : arr) {
             int lo = b & 0xf;
             int hi = (b >> 4) & 0xf;
             sb.append(Character.forDigit(hi, 16));

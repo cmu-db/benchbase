@@ -32,9 +32,9 @@ public class DBCollector implements DBParameterCollector {
 
     private static final Logger LOG = LoggerFactory.getLogger(DBCollector.class);
 
-    protected final Map<String, String> dbParameters = new TreeMap<String, String>();
+    protected final Map<String, String> dbParameters = new TreeMap<>();
 
-    protected final Map<String, String> dbMetrics = new TreeMap<String, String>();
+    protected final Map<String, String> dbMetrics = new TreeMap<>();
 
     protected final StringBuilder version = new StringBuilder();
 
@@ -72,9 +72,9 @@ public class DBCollector implements DBParameterCollector {
             columnNames[i] = metadata.getColumnName(i + 1).toLowerCase();
         }
 
-        List<Map<String, String>> metrics = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> metrics = new ArrayList<>();
         while (out.next()) {
-            Map<String, String> metricMap = new TreeMap<String, String>();
+            Map<String, String> metricMap = new TreeMap<>();
             for (int i = 0; i < numColumns; ++i) {
                 metricMap.put(columnNames[i], out.getString(i + 1));
             }

@@ -44,7 +44,7 @@ public abstract class TATPConstants {
     public static final String TABLENAME_SPECIAL_FACILITY = "SPECIAL_FACILITY";
     public static final String TABLENAME_CALL_FORWARDING = "CALL_FORWARDING";
 
-    public static final String TABLENAMES[] = {
+    public static final String[] TABLENAMES = {
             TABLENAME_SUBSCRIBER,
             TABLENAME_ACCESS_INFO,
             TABLENAME_SPECIAL_FACILITY,

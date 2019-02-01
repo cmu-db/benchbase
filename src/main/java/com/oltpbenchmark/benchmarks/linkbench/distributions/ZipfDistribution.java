@@ -101,7 +101,7 @@ public class ZipfDistribution implements ProbabilityDistribution {
     private static final int MAX_CACHE_ENTRIES = 1024;
 
     private static ArrayList<CacheEntry> zetanCache =
-            new ArrayList<CacheEntry>(MAX_CACHE_ENTRIES);
+            new ArrayList<>(MAX_CACHE_ENTRIES);
 
     private double calcZetan(long n) {
         if (n < MIN_CACHE_VALUE) {
@@ -109,8 +109,7 @@ public class ZipfDistribution implements ProbabilityDistribution {
         }
 
         synchronized (ZipfDistribution.class) {
-            for (int i = 0; i < zetanCache.size(); i++) {
-                CacheEntry ce = zetanCache.get(i);
+            for (CacheEntry ce : zetanCache) {
                 if (ce.n == n && ce.shape == shape) {
                     return ce.zetan;
                 }

@@ -22,7 +22,10 @@ import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -41,7 +44,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         final CountDownLatch custAddrLatch = new CountDownLatch(1);
         final CountDownLatch custDemLatch = new CountDownLatch(1);
         final CountDownLatch dateLatch = new CountDownLatch(1);
@@ -584,8 +587,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             if (se != null) {
                 LOG.error("{} Cause => {}", se.getClass().getSimpleName(), se.getMessage());
             }
-        } catch (FileNotFoundException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         } finally {

@@ -27,7 +27,7 @@ public abstract class WikipediaUtil {
     public static String generatePageTitle(Random rand, int page_id) {
         rand.setSeed(page_id);
 
-        FlatHistogram<Integer> h_titleLength = new FlatHistogram<Integer>(rand, PageHistograms.TITLE_LENGTH);
+        FlatHistogram<Integer> h_titleLength = new FlatHistogram<>(rand, PageHistograms.TITLE_LENGTH);
         // HACK: Always append the page id to the title
         // so that it's guaranteed to be unique.
         // Otherwise we can get collisions with larger scale factors.
@@ -38,7 +38,7 @@ public abstract class WikipediaUtil {
     public static int generatePageNamespace(Random rand, int page_id) {
         rand.setSeed(page_id);
 
-        FlatHistogram<Integer> h_namespace = new FlatHistogram<Integer>(rand, PageHistograms.NAMESPACE);
+        FlatHistogram<Integer> h_namespace = new FlatHistogram<>(rand, PageHistograms.NAMESPACE);
         return h_namespace.nextInt();
     }
 }

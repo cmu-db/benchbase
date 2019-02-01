@@ -43,7 +43,7 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
         this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.getWorkloadConfiguration().getScaleFactor());
 
         TweetHistogram tweet_h = new TweetHistogram();
-        this.tweet_len_rng = new FlatHistogram<Integer>(this.rng(), tweet_h);
+        this.tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
         } else if (nextTrans.getProcedureClass().equals(GetUserTweets.class)) {
             doSelectTweetsForUid(t.uid);
         } else if (nextTrans.getProcedureClass().equals(InsertTweet.class)) {
-            int len = this.tweet_len_rng.nextValue().intValue();
+            int len = this.tweet_len_rng.nextValue();
             String text = TextGenerator.randomStr(this.rng(), len);
             doInsertTweet(t.uid, text);
         }

@@ -78,7 +78,7 @@ public class LoadConfig extends Procedure {
     public ResultSet[] run(Connection conn) throws SQLException {
         PreparedStatement stmt = null;
 
-        List<ResultSet> results = new ArrayList<ResultSet>();
+        List<ResultSet> results = new ArrayList<>();
         results.add(this.getPreparedStatement(conn, getConfigProfile).executeQuery());
         results.add(this.getPreparedStatement(conn, getCategoryCounts).executeQuery());
         results.add(this.getPreparedStatement(conn, getAttributes).executeQuery());

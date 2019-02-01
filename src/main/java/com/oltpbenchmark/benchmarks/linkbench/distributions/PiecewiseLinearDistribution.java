@@ -73,10 +73,10 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
     }
 
     protected void init(long min, long max, ArrayList<Point> cdf) {
-        double pdf[] = getPDF(cdf);
-        double ccdf[] = getCCDF(pdf);
-        double cs[] = getCumulativeSum(ccdf);
-        long right_points[] = new long[cs.length];
+        double[] pdf = getPDF(cdf);
+        double[] ccdf = getCCDF(pdf);
+        double[] cs = getCumulativeSum(ccdf);
+        long[] right_points = new long[cs.length];
         init(min, max, cdf, cs, right_points, expectedValue(cdf));
     }
 
@@ -91,7 +91,7 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
      * @param expectedValue
      */
     protected void init(long min, long max, ArrayList<Point> cdf,
-                        double cs[], long right_points[], double expectedValue) {
+                        double[] cs, long[] right_points, double expectedValue) {
         this.min = min;
         this.max = max;
         this.cdf = cdf;

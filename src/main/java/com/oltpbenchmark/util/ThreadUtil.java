@@ -102,7 +102,7 @@ public abstract class ThreadUtil {
      * @param command
      * @return
      */
-    public static Pair<Integer, Process> exec(String command[]) {
+    public static Pair<Integer, Process> exec(String[] command) {
         ProcessBuilder pb = new ProcessBuilder(command);
         Process p = null;
         try {
@@ -136,7 +136,7 @@ public abstract class ThreadUtil {
      *
      * @param command
      */
-    public static <T> void fork(String command[], EventObservable<T> stop_observable) {
+    public static <T> void fork(String[] command, EventObservable<T> stop_observable) {
         ThreadUtil.fork(command, stop_observable, null, false);
     }
 
@@ -146,7 +146,7 @@ public abstract class ThreadUtil {
      * @param stop_observable
      * @param print_output
      */
-    public static <T> void fork(String command[], final EventObservable<T> stop_observable, final String prefix, final boolean print_output) {
+    public static <T> void fork(String[] command, final EventObservable<T> stop_observable, final String prefix, final boolean print_output) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Forking off process: {}", Arrays.toString(command));
         }

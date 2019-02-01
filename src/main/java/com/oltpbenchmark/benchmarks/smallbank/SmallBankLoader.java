@@ -53,7 +53,7 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         int batchSize = 100000;
         long start = 0;
         while (start < this.numAccounts) {
@@ -133,7 +133,5 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
 
         }
     }
-
-    ;
 
 }

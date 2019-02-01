@@ -77,7 +77,7 @@ public class FindOpenSeats extends Procedure {
         final boolean debug = LOG.isDebugEnabled();
 
         // 150 seats
-        final long seatmap[] = new long[]
+        final long[] seatmap = new long[]
                 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

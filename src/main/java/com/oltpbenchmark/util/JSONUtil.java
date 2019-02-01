@@ -37,20 +37,20 @@ public abstract class JSONUtil {
     private static final Logger LOG = LoggerFactory.getLogger(JSONUtil.class.getName());
 
     private static final String JSON_CLASS_SUFFIX = "_class";
-    private static final Map<Class<?>, Field[]> SERIALIZABLE_FIELDS = new HashMap<Class<?>, Field[]>();
+    private static final Map<Class<?>, Field[]> SERIALIZABLE_FIELDS = new HashMap<>();
 
     /**
      * @param clazz
      * @return
      */
     public static Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
-        Field ret[] = SERIALIZABLE_FIELDS.get(clazz);
+        Field[] ret = SERIALIZABLE_FIELDS.get(clazz);
         if (ret == null) {
-            Collection<String> exclude = CollectionUtil.addAll(new HashSet<String>(), fieldsToExclude);
+            Collection<String> exclude = CollectionUtil.addAll(new HashSet<>(), fieldsToExclude);
             synchronized (SERIALIZABLE_FIELDS) {
                 ret = SERIALIZABLE_FIELDS.get(clazz);
                 if (ret == null) {
-                    List<Field> fields = new ArrayList<Field>();
+                    List<Field> fields = new ArrayList<>();
                     for (Field f : clazz.getFields()) {
                         int modifiers = f.getModifiers();
                         if (Modifier.isTransient(modifiers) == false &&
@@ -211,7 +211,7 @@ public abstract class JSONUtil {
      * @param members
      * @throws JSONException
      */
-    public static <E extends Enum<?>, T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, E members[]) throws JSONException {
+    public static <E extends Enum<?>, T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, E[] members) throws JSONException {
         try {
             fieldsToJSON(stringer, object, base_class, ClassUtil.getFieldsFromMembersEnum(base_class, members));
         } catch (NoSuchFieldException ex) {
@@ -230,7 +230,7 @@ public abstract class JSONUtil {
      * @param fields
      * @throws JSONException
      */
-    public static <T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, Field fields[]) throws JSONException {
+    public static <T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, Field[] fields) throws JSONException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Serializing out {} elements for {}", fields.length, base_class.getSimpleName());
         }
@@ -339,7 +339,7 @@ public abstract class JSONUtil {
 
 
         for (String json_key : CollectionUtil.iterable(json_object.keys())) {
-            final Stack<Class> next_inner_classes = new Stack<Class>();
+            final Stack<Class> next_inner_classes = new Stack<>();
             next_inner_classes.addAll(inner_classes);
 
 
@@ -387,7 +387,7 @@ public abstract class JSONUtil {
         Collection<Class<?>> inner_interfaces = ClassUtil.getInterfaces(inner_class);
 
         for (int i = 0, cnt = json_array.length(); i < cnt; i++) {
-            final Stack<Class> next_inner_classes = new Stack<Class>();
+            final Stack<Class> next_inner_classes = new Stack<>();
             next_inner_classes.addAll(inner_classes);
 
             Object value = null;
@@ -445,7 +445,7 @@ public abstract class JSONUtil {
                 LOG.debug("Field {} is a collection", json_key);
             }
 
-            Stack<Class> inner_classes = new Stack<Class>();
+            Stack<Class> inner_classes = new Stack<>();
             inner_classes.addAll(ClassUtil.getGenericTypes(field_handle));
             Collections.reverse(inner_classes);
 
@@ -461,7 +461,7 @@ public abstract class JSONUtil {
                 LOG.debug("Field {} is a map", json_key);
             }
 
-            Stack<Class> inner_classes = new Stack<Class>();
+            Stack<Class> inner_classes = new Stack<>();
             inner_classes.addAll(ClassUtil.getGenericTypes(field_handle));
             Collections.reverse(inner_classes);
 
@@ -685,42 +685,42 @@ public abstract class JSONUtil {
             if (value != null) {
                 return (Class.class);
             }
-        } catch (Throwable ex) {
+        } catch (Throwable ignored) {
         } // IGNORE
 
         // Short
         try {
             value = Short.parseShort(json_value);
             return (Short.class);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ignored) {
         } // IGNORE
 
         // Integer
         try {
             value = Integer.parseInt(json_value);
             return (Integer.class);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ignored) {
         } // IGNORE
 
         // Long
         try {
             value = Long.parseLong(json_value);
             return (Long.class);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ignored) {
         } // IGNORE
 
         // Float
         try {
             value = Float.parseFloat(json_value);
             return (Float.class);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ignored) {
         } // IGNORE
 
         // Double
         try {
             value = Double.parseDouble(json_value);
             return (Double.class);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ignored) {
         } // IGNORE
 
 

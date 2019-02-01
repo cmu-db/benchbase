@@ -62,10 +62,10 @@ public class Node {
     /**
      * Arbitrary payload data
      */
-    public byte data[];
+    public byte[] data;
 
     public Node(long id, int type, long version, int time,
-                byte data[]) {
+                byte[] data) {
         super();
         this.id = id;
         this.type = type;

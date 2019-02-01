@@ -82,8 +82,8 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         public final String displayName;
         public final String execName;
 
-        protected static final Map<Integer, Transaction> idx_lookup = new HashMap<Integer, Transaction>();
-        protected static final Map<String, Transaction> name_lookup = new HashMap<String, Transaction>();
+        protected static final Map<Integer, Transaction> idx_lookup = new HashMap<>();
+        protected static final Map<String, Transaction> name_lookup = new HashMap<>();
 
         static {
             for (Transaction vt : EnumSet.allOf(Transaction.class)) {
@@ -127,17 +127,17 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         private final int limit;
     }
 
-    protected final Map<CacheType, LinkedList<Reservation>> CACHE_RESERVATIONS = new HashMap<SEATSWorker.CacheType, LinkedList<Reservation>>();
+    protected final Map<CacheType, LinkedList<Reservation>> CACHE_RESERVATIONS = new HashMap<>();
 
     {
         for (CacheType ctype : CacheType.values()) {
-            CACHE_RESERVATIONS.put(ctype, new LinkedList<Reservation>());
+            CACHE_RESERVATIONS.put(ctype, new LinkedList<>());
         } // FOR
     }
 
 
-    protected final Map<CustomerId, Set<FlightId>> CACHE_CUSTOMER_BOOKED_FLIGHTS = new HashMap<CustomerId, Set<FlightId>>();
-    protected final Map<FlightId, BitSet> CACHE_BOOKED_SEATS = new HashMap<FlightId, BitSet>();
+    protected final Map<CustomerId, Set<FlightId>> CACHE_CUSTOMER_BOOKED_FLIGHTS = new HashMap<>();
+    protected final Map<FlightId, BitSet> CACHE_BOOKED_SEATS = new HashMap<>();
 
     private static final BitSet FULL_FLIGHT_BITSET = new BitSet(SEATSConstants.FLIGHTS_NUM_SEATS);
 
@@ -189,7 +189,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         if (f_ids == null) {
             f_ids = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
             if (f_ids == null) {
-                f_ids = new HashSet<FlightId>();
+                f_ids = new HashSet<>();
                 CACHE_CUSTOMER_BOOKED_FLIGHTS.put(customer_id, f_ids);
             }
         }
@@ -198,7 +198,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
     @Override
     public String toString() {
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         for (CacheType ctype : CACHE_RESERVATIONS.keySet()) {
             m.put(ctype.name(), CACHE_RESERVATIONS.get(ctype).size());
         } // FOR
@@ -215,7 +215,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
     private final SEATSProfile profile;
     private final RandomGenerator rng;
-    private final List<Reservation> tmp_reservations = new ArrayList<Reservation>();
+    private final List<Reservation> tmp_reservations = new ArrayList<>();
 
     /**
      * When a customer looks for an open seat, they will then attempt to book that seat in
@@ -538,7 +538,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         if (results.size() > 1) {
             // Convert the data into a FlightIds that other transactions can use
             int ctr = 0;
-            for (Object row[] : results) {
+            for (Object[] row : results) {
                 FlightId flight_id = new FlightId((Long) row[0]);
 
                 boolean added = profile.addFlightId(flight_id);
@@ -587,7 +587,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         BitSet seats = getSeatsBitSet(search_flight);
         tmp_reservations.clear();
 
-        for (Object row[] : results) {
+        for (Object[] row : results) {
             if (row == null) {
                 continue; //  || rng.nextInt(100) < 75) continue; // HACK
             }
@@ -612,7 +612,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             Reservation r = new Reservation(profile.getNextReservationId(getId()),
                     search_flight,
                     customer_id,
-                    seatnum.intValue());
+                    seatnum);
             seats.set(seatnum);
             tmp_reservations.add(r);
             if (LOG.isTraceEnabled()) {
@@ -687,7 +687,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 SEATSConstants.RESERVATION_PRICE_MAX);
 
         // Generate random attributes
-        long attributes[] = new long[9];
+        long[] attributes = new long[9];
         for (int i = 0; i < attributes.length; i++) {
             attributes[i] = rng.nextLong();
         } // FOR

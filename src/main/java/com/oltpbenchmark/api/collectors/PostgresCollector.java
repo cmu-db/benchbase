@@ -42,7 +42,7 @@ public class PostgresCollector extends DBCollector {
     private final Map<String, List<Map<String, String>>> pgMetrics;
 
     public PostgresCollector(String oriDBUrl, String username, String password) {
-        pgMetrics = new HashMap<String, List<Map<String, String>>>();
+        pgMetrics = new HashMap<>();
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
             Catalog.setSeparator(conn);

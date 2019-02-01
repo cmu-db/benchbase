@@ -58,11 +58,11 @@ public abstract class TextGenerator {
      * @return
      */
     public static char[] randomChars(Random rng, int strLen) {
-        char chars[] = new char[strLen];
+        char[] chars = new char[strLen];
         return randomFastChars(rng, chars);
     }
 
-    public static char[] randomChars(Random rng, char chars[]) {
+    public static char[] randomChars(Random rng, char[] chars) {
         for (int i = 0; i < chars.length; i++) {
             chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
@@ -76,7 +76,7 @@ public abstract class TextGenerator {
      * @param chars
      * @return
      */
-    public static char[] randomFastChars(Random rng, char chars[]) {
+    public static char[] randomFastChars(Random rng, char[] chars) {
         // Ok so now the goal of this is to reduce the number of times that we have to 
         // invoke a random number. We'll do this by grabbing a single random int
         // and then taking different bitmasks
@@ -119,7 +119,7 @@ public abstract class TextGenerator {
      */
     public static String randomStr(Random rng, int strLen, String prefix) {
         // Generate the random chars and then add in our prefix
-        char chars[] = randomChars(rng, strLen);
+        char[] chars = randomChars(rng, strLen);
         prefix.getChars(0, Math.min(prefix.length(), strLen), chars, 0);
         return new String(chars);
     }
@@ -133,8 +133,8 @@ public abstract class TextGenerator {
      * @param delta
      * @return
      */
-    public static char[] resizeText(Random rng, char orig[], int delta) {
-        char chars[] = Arrays.copyOf(orig, orig.length + delta);
+    public static char[] resizeText(Random rng, char[] orig, int delta) {
+        char[] chars = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
             chars[i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
@@ -149,7 +149,7 @@ public abstract class TextGenerator {
      * @param chars
      * @return
      */
-    public static char[] permuteText(Random rng, char chars[]) {
+    public static char[] permuteText(Random rng, char[] chars) {
         // We will try to be fast about this and permute the text by blocks
         int idx = 0;
         int blockSize = chars.length / 32;

@@ -30,7 +30,7 @@ public class UserIdGenerator implements Iterator<UserId> {
 
     private final int numClients;
     private final Integer clientId;
-    private final int usersPerItemCounts[];
+    private final int[] usersPerItemCounts;
     private final int minItemCount;
     private final int maxItemCount;
     private final long totalUsers;
@@ -149,7 +149,7 @@ public class UserIdGenerator implements Iterator<UserId> {
             tmp_position += num_users;
             tmp_count++;
         }
-        return (tmp_position % this.numClients == this.clientId.intValue());
+        return (tmp_position % this.numClients == this.clientId);
     }
 
     private UserId findNextUserId() {
@@ -167,7 +167,7 @@ public class UserIdGenerator implements Iterator<UserId> {
                     break;
                 }
                 // Otherwise we have to spin through and find one for our client
-                else if (this.currentPosition % this.numClients == this.clientId.intValue()) {
+                else if (this.currentPosition % this.numClients == this.clientId) {
                     found = nextCtr;
                     break;
                 }
@@ -210,7 +210,7 @@ public class UserIdGenerator implements Iterator<UserId> {
 
     @Override
     public String toString() {
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         m.put("numClients", this.numClients);
         m.put("clientId", this.clientId);
         m.put("minItemCount", this.minItemCount);

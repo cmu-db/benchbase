@@ -22,7 +22,7 @@ import java.util.*;
 
 public class TransactionTypes implements Collection<TransactionType> {
 
-    private final ListOrderedMap<String, TransactionType> types = new ListOrderedMap<String, TransactionType>();
+    private final ListOrderedMap<String, TransactionType> types = new ListOrderedMap<>();
 
     protected TransactionTypes() {
         // Nothing to see... nothing to do...

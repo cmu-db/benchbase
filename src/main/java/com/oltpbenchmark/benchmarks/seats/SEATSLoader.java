@@ -53,19 +53,19 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * Mapping from Airports to their geolocation coordinates AirportCode ->
      * <Latitude, Longitude>
      */
-    private final ListOrderedMap<String, Pair<Double, Double>> airport_locations = new ListOrderedMap<String, Pair<Double, Double>>();
+    private final ListOrderedMap<String, Pair<Double, Double>> airport_locations = new ListOrderedMap<>();
 
     /**
      * AirportCode -> Set<AirportCode, Distance> Only store the records for
      * those airports in HISTOGRAM_FLIGHTS_PER_AIRPORT
      */
-    private final Map<String, Map<String, Short>> airport_distances = new HashMap<String, Map<String, Short>>();
+    private final Map<String, Map<String, Short>> airport_distances = new HashMap<>();
 
     /**
      * Store a list of FlightIds and the number of seats remaining for a
      * particular flight.
      */
-    private final ListOrderedMap<FlightId, Short> seats_remaining = new ListOrderedMap<FlightId, Short>();
+    private final ListOrderedMap<FlightId, Short> seats_remaining = new ListOrderedMap<>();
 
     /**
      * Counter for the number of tables that we have finished loading
@@ -75,7 +75,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     /**
      * A histogram of the number of flights in the database per airline code
      */
-    private final Histogram<String> flights_per_airline = new Histogram<String>(true);
+    private final Histogram<String> flights_per_airline = new Histogram<>(true);
 
     private final RandomGenerator rng; // FIXME
 
@@ -101,7 +101,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
 
         // High level locking overview, where step N+1 depends on step N
         // and latches are countDown()'d from top to bottom:
@@ -351,7 +351,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     // into a single histogram that just counts the number of
                     // departing flights per airport. We will use this
                     // to get the distribution of where Customers are located
-                    hist = new Histogram<String>();
+                    hist = new Histogram<>();
                     for (Entry<String, Histogram<String>> e : m.entrySet()) {
                         hist.put(e.getKey(), e.getValue().getSampleCount());
                     } // FOR
@@ -422,8 +422,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         final List<Column> columns = catalog_tbl.getColumns();
 
         // Check whether we have any special mappings that we need to maintain
-        Map<Integer, Integer> code_2_id = new HashMap<Integer, Integer>();
-        Map<Integer, Map<String, Long>> mapping_columns = new HashMap<Integer, Map<String, Long>>();
+        Map<Integer, Integer> code_2_id = new HashMap<>();
+        Map<Integer, Map<String, Long>> mapping_columns = new HashMap<>();
         for (int col_code_idx = 0, cnt = columns.size(); col_code_idx < cnt; col_code_idx++) {
             Column catalog_col = columns.get(col_code_idx);
             String col_name = catalog_col.getName();
@@ -456,9 +456,9 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         String insert_sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement insert_stmt = conn.prepareStatement(insert_sql)) {
-            int sqlTypes[] = catalog_tbl.getColumnTypes();
+            int[] sqlTypes = catalog_tbl.getColumnTypes();
 
-            for (Object tuple[] : iterable) {
+            for (Object[] tuple : iterable) {
 
 
                 // AIRPORT
@@ -587,10 +587,10 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * fields
      */
     protected class FixedDataIterable extends TableDataIterable {
-        private final Set<Integer> rnd_string = new HashSet<Integer>();
-        private final Map<Integer, Integer> rnd_string_min = new HashMap<Integer, Integer>();
-        private final Map<Integer, Integer> rnd_string_max = new HashMap<Integer, Integer>();
-        private final Set<Integer> rnd_integer = new HashSet<Integer>();
+        private final Set<Integer> rnd_string = new HashSet<>();
+        private final Map<Integer, Integer> rnd_string_min = new HashMap<>();
+        private final Map<Integer, Integer> rnd_string_max = new HashMap<>();
+        private final Set<Integer> rnd_integer = new HashSet<>();
 
         public FixedDataIterable(Table catalog_tbl, File filename) throws Exception {
             super(catalog_tbl, filename, true, true);
@@ -686,9 +686,9 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      */
     protected abstract class ScalingDataIterable implements Iterable<Object[]> {
         private final Table catalog_tbl;
-        private final boolean special[];
+        private final boolean[] special;
         private final Object[] data;
-        private final int types[];
+        private final int[] types;
         protected long total;
         private long last_id = 0;
 
@@ -710,7 +710,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          *                        specialValue() to get their values
          * @throws Exception
          */
-        public ScalingDataIterable(Table catalog_tbl, long total, int special_columns[]) {
+        public ScalingDataIterable(Table catalog_tbl, long total, int[] special_columns) {
             this.catalog_tbl = catalog_tbl;
             this.total = total;
             this.data = new Object[this.catalog_tbl.getColumns().size()];
@@ -777,7 +777,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                             // Id column (always first unless overridden in
                             // special)
                         } else if (i == 0) {
-                            ScalingDataIterable.this.data[i] = Long.valueOf(ScalingDataIterable.this.last_id);
+                            ScalingDataIterable.this.data[i] = ScalingDataIterable.this.last_id;
 
                             // Strings
                         } else if (SQLUtil.isStringType(ScalingDataIterable.this.types[i])) {
@@ -818,7 +818,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             // Use the flights per airport histogram to select where people are
             // located
             Histogram<String> histogram = SEATSLoader.this.profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);
-            this.rand = new FlatHistogram<String>(SEATSLoader.this.rng, histogram);
+            this.rand = new FlatHistogram<>(SEATSLoader.this.rng, histogram);
             if (LOG.isDebugEnabled()) {
                 this.rand.enableHistory();
             }
@@ -890,12 +890,12 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     // ----------------------------------------------------------------
     protected class FrequentFlyerIterable extends ScalingDataIterable {
         private final Iterator<CustomerId> customer_id_iterator;
-        private final short ff_per_customer[];
+        private final short[] ff_per_customer;
         private final FlatHistogram<String> airline_rand;
 
         private int customer_idx = 0;
         private CustomerId last_customer_id = null;
-        private Collection<String> customer_airlines = new HashSet<String>();
+        private Collection<String> customer_airlines = new HashSet<>();
 
         public FrequentFlyerIterable(Table catalog_tbl, long num_customers) {
             super(catalog_tbl, num_customers, new int[]{0, 1, 2});
@@ -910,7 +910,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             // in an infinite loop
 
             SEATSLoader.this.flights_per_airline.putAll();
-            this.airline_rand = new FlatHistogram<String>(SEATSLoader.this.rng, SEATSLoader.this.flights_per_airline);
+            this.airline_rand = new FlatHistogram<>(SEATSLoader.this.rng, SEATSLoader.this.flights_per_airline);
             if (LOG.isTraceEnabled()) {
                 this.airline_rand.enableHistory();
             }
@@ -1099,12 +1099,12 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     protected class FlightIterable extends ScalingDataIterable {
         private final FlatHistogram<String> airlines;
         private final FlatHistogram<String> airports;
-        private final Map<String, FlatHistogram<String>> flights_per_airport = new HashMap<String, FlatHistogram<String>>();
+        private final Map<String, FlatHistogram<String>> flights_per_airport = new HashMap<>();
         private final FlatHistogram<String> flight_times;
         private final Flat prices;
 
-        private final Set<FlightId> todays_flights = new HashSet<FlightId>();
-        private final ListOrderedMap<Timestamp, Integer> flights_per_day = new ListOrderedMap<Timestamp, Integer>();
+        private final Set<FlightId> todays_flights = new HashSet<>();
+        private final ListOrderedMap<Timestamp, Integer> flights_per_day = new ListOrderedMap<>();
 
         private int day_idx = 0;
         private Timestamp today;
@@ -1127,25 +1127,25 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
             // Flights per Airline
             Collection<String> all_airlines = SEATSLoader.this.profile.getAirlineCodes();
-            Histogram<String> histogram = new Histogram<String>();
+            Histogram<String> histogram = new Histogram<>();
             histogram.putAll(all_airlines);
 
             // Embed a Gaussian distribution
             Gaussian gauss_rng = new Gaussian(SEATSLoader.this.rng, 0, all_airlines.size());
-            this.airlines = new FlatHistogram<String>(gauss_rng, histogram);
+            this.airlines = new FlatHistogram<>(gauss_rng, histogram);
 
             // Flights Per Airport
             histogram = SEATSLoader.this.profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);
-            this.airports = new FlatHistogram<String>(SEATSLoader.this.rng, histogram);
+            this.airports = new FlatHistogram<>(SEATSLoader.this.rng, histogram);
             for (String airport_code : histogram.values()) {
                 histogram = SEATSLoader.this.profile.getFightsPerAirportHistogram(airport_code);
 
-                this.flights_per_airport.put(airport_code, new FlatHistogram<String>(SEATSLoader.this.rng, histogram));
+                this.flights_per_airport.put(airport_code, new FlatHistogram<>(SEATSLoader.this.rng, histogram));
             } // FOR
 
             // Flights Per Departure Time
             histogram = SEATSLoader.this.profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_DEPART_TIMES);
-            this.flight_times = new FlatHistogram<String>(SEATSLoader.this.rng, histogram);
+            this.flight_times = new FlatHistogram<>(SEATSLoader.this.rng, histogram);
 
             // Figure out how many flights that we want for each day
             this.today = new Timestamp(System.currentTimeMillis());
@@ -1345,7 +1345,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         }
                         SEATSLoader.this.decrementFlightSeat(this.flight_id);
                     } // FOR
-                    value = Long.valueOf(SEATSLoader.this.getFlightRemainingSeats(this.flight_id));
+                    value = (long) SEATSLoader.this.getFlightRemainingSeats(this.flight_id);
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("{} SEATS REMAINING: {}", this.flight_id, value);
                     }
@@ -1370,7 +1370,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          * represent customers that need return flights back to their home
          * airport ArriveAirportId -> ReturnFlights
          */
-        private final Map<Long, TreeSet<ReturnFlight>> airport_returns = new HashMap<Long, TreeSet<ReturnFlight>>();
+        private final Map<Long, TreeSet<ReturnFlight>> airport_returns = new HashMap<>();
 
         /**
          * When this flag is true, then the data generation thread is finished
@@ -1384,8 +1384,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          */
         private final Gaussian rand_returns = new Gaussian(SEATSLoader.this.rng, SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MIN, SEATSConstants.CUSTOMER_RETURN_FLIGHT_DAYS_MAX);
 
-        private final LinkedBlockingDeque<Object[]> queue = new LinkedBlockingDeque<Object[]>(100);
-        private Object current[] = null;
+        private final LinkedBlockingDeque<Object[]> queue = new LinkedBlockingDeque<>(100);
+        private Object[] current = null;
         private Throwable error = null;
 
         /**
@@ -1400,7 +1400,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
             for (long airport_id : SEATSLoader.this.profile.getAirportIds()) {
                 // Return Flights per airport
-                this.airport_returns.put(airport_id, new TreeSet<ReturnFlight>());
+                this.airport_returns.put(airport_id, new TreeSet<>());
             } // FOR
 
             // Data Generation Thread
@@ -1435,8 +1435,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 LOG.debug("Reservation data generation thread started");
             }
 
-            Collection<CustomerId> flight_customer_ids = new HashSet<CustomerId>();
-            Collection<ReturnFlight> returning_customers = new ListOrderedSet<ReturnFlight>();
+            Collection<CustomerId> flight_customer_ids = new HashSet<>();
+            Collection<ReturnFlight> returning_customers = new ListOrderedSet<>();
 
             // Loop through the flights and generate reservations
             for (FlightId flight_id : SEATSLoader.this.getFlightIds()) {
@@ -1453,7 +1453,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 int booked_seats = SEATSConstants.FLIGHTS_NUM_SEATS - SEATSLoader.this.getFlightRemainingSeats(flight_id);
 
                 if (LOG.isTraceEnabled()) {
-                    Map<String, Object> m = new ListOrderedMap<String, Object>();
+                    Map<String, Object> m = new ListOrderedMap<>();
                     m.put("Flight Id", flight_id + " / " + flight_id.encode());
                     m.put("Departure", String.format("%s / %s", SEATSLoader.this.profile.getAirportCode(depart_airport_id), depart_time));
                     m.put("Arrival", String.format("%s / %s", SEATSLoader.this.profile.getAirportCode(arrive_airport_id), arrive_time));
@@ -1465,7 +1465,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 for (int seatnum = 0; seatnum < booked_seats; seatnum++) {
                     CustomerId customer_id = null;
                     Integer airport_customer_cnt = SEATSLoader.this.profile.getCustomerIdCount(depart_airport_id);
-                    boolean local_customer = airport_customer_cnt != null && (flight_customer_ids.size() < airport_customer_cnt.intValue());
+                    boolean local_customer = airport_customer_cnt != null && (flight_customer_ids.size() < airport_customer_cnt);
                     int tries = 2000;
                     ReturnFlight return_flight = null;
                     while (tries > 0) {
@@ -1725,9 +1725,9 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
     public void setDistance(String airport0, String airport1, double distance) {
         short short_distance = (short) Math.round(distance);
-        for (String a[] : new String[][]{{airport0, airport1}, {airport1, airport0}}) {
+        for (String[] a : new String[][]{{airport0, airport1}, {airport1, airport0}}) {
             if (!this.airport_distances.containsKey(a[0])) {
-                this.airport_distances.put(a[0], new HashMap<String, Short>());
+                this.airport_distances.put(a[0], new HashMap<>());
             }
             this.airport_distances.get(a[0]).put(a[1], short_distance);
         } // FOR

@@ -150,10 +150,10 @@ public class DBWorkload {
         String targetBenchmarks = argsLine.getOptionValue("b");
 
         String[] targetList = targetBenchmarks.split(",");
-        List<BenchmarkModule> benchList = new ArrayList<BenchmarkModule>();
+        List<BenchmarkModule> benchList = new ArrayList<>();
 
         // Use this list for filtering of the output
-        List<TransactionType> activeTXTypes = new ArrayList<TransactionType>();
+        List<TransactionType> activeTXTypes = new ArrayList<>();
 
         String configFile = argsLine.getOptionValue("c");
         XMLConfiguration xmlConfig = new XMLConfiguration(configFile);
@@ -224,7 +224,7 @@ public class DBWorkload {
             BenchmarkModule bench = ClassUtil.newInstance(classname,
                     new Object[]{wrkld},
                     new Class<?>[]{WorkloadConfiguration.class});
-            Map<String, Object> initDebug = new ListOrderedMap<String, Object>();
+            Map<String, Object> initDebug = new ListOrderedMap<>();
             initDebug.put("Benchmark", String.format("%s {%s}", plugin.toUpperCase(), classname));
             initDebug.put("Configuration", configFile);
             initDebug.put("Type", wrkld.getDBType());
@@ -251,7 +251,7 @@ public class DBWorkload {
             }
             wrkld.setNumTxnTypes(numTxnTypes);
 
-            List<TransactionType> ttypes = new ArrayList<TransactionType>();
+            List<TransactionType> ttypes = new ArrayList<>();
             ttypes.add(TransactionType.INVALID);
             int txnIdOffset = lastTxnId;
             for (int i = 1; i <= wrkld.getNumTxnTypes(); i++) {
@@ -281,7 +281,7 @@ public class DBWorkload {
 
             // Read in the groupings of transactions (if any) defined for this
             // benchmark
-            HashMap<String, List<String>> groupings = new HashMap<String, List<String>>();
+            HashMap<String, List<String>> groupings = new HashMap<>();
             int numGroupings = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/groupings/grouping").size();
             LOG.debug("Num groupings: {}", numGroupings);
             for (int i = 1; i < numGroupings + 1; i++) {
@@ -317,7 +317,7 @@ public class DBWorkload {
 
             // All benchmarks should also have an "all" grouping that gives
             // even weight to all transactions in the benchmark.
-            List<String> weightAll = new ArrayList<String>();
+            List<String> weightAll = new ArrayList<>();
             for (int i = 0; i < numTxnTypes; ++i) {
                 weightAll.add("1");
             }
@@ -621,7 +621,7 @@ public class DBWorkload {
         }
         String filePrefix = "";
         if (argsLine.hasOption("t")) {
-            filePrefix = String.valueOf(TimeUtil.getCurrentTime().getTime()) + "_";
+            filePrefix = TimeUtil.getCurrentTime().getTime() + "_";
         }
 
         // Special result uploader
@@ -756,7 +756,7 @@ public class DBWorkload {
      */
     private static List<String> getWeights(String plugin, SubnodeConfiguration work) {
 
-        List<String> weight_strings = new LinkedList<String>();
+        List<String> weight_strings = new LinkedList<>();
         List<SubnodeConfiguration> weights = work.configurationsAt("weights");
         boolean weights_started = false;
 
@@ -795,8 +795,8 @@ public class DBWorkload {
     }
 
     private static Results runWorkload(List<BenchmarkModule> benchList, boolean verbose, int intervalMonitor) throws QueueLimitException, IOException {
-        List<Worker<?>> workers = new ArrayList<Worker<?>>();
-        List<WorkloadConfiguration> workConfs = new ArrayList<WorkloadConfiguration>();
+        List<Worker<?>> workers = new ArrayList<>();
+        List<WorkloadConfiguration> workConfs = new ArrayList<>();
         for (BenchmarkModule bench : benchList) {
             LOG.info("Creating {} virtual terminals...", bench.getWorkloadConfiguration().getTerminals());
             workers.addAll(bench.makeWorkers(verbose));

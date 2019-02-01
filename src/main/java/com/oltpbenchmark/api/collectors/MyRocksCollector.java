@@ -49,7 +49,7 @@ public class MyRocksCollector extends DBCollector {
 
     public MyRocksCollector(String oriDBUrl, String username, String password) {
 
-        myroMetrics = new HashMap<String, List<Map<String, String>>>();
+        myroMetrics = new HashMap<>();
 
         try {
             Connection conn = DriverManager.getConnection(oriDBUrl, username, password);

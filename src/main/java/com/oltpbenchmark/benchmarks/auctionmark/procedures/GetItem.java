@@ -52,7 +52,7 @@ public class GetItem extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
 
-    public Object[][] run(Connection conn, Timestamp benchmarkTimes[],
+    public Object[][] run(Connection conn, Timestamp[] benchmarkTimes,
                           long item_id, long seller_id) throws SQLException {
         PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
         ResultSet item_results = item_stmt.executeQuery();
@@ -60,7 +60,7 @@ public class GetItem extends Procedure {
             item_results.close();
             throw new UserAbortException("Invalid item " + item_id);
         }
-        Object item_row[] = new Object[item_results.getMetaData().getColumnCount()];
+        Object[] item_row = new Object[item_results.getMetaData().getColumnCount()];
         for (int i = 0; i < item_row.length; i++) {
             item_row[i] = item_results.getObject(i + 1);
         } // FOR
@@ -68,7 +68,7 @@ public class GetItem extends Procedure {
 
         PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id);
         ResultSet user_results = user_stmt.executeQuery();
-        Object user_row[] = null;
+        Object[] user_row = null;
         try {
             if (user_results.next() == false) {
                 throw new UserAbortException("Invalid user id " + seller_id);

@@ -44,7 +44,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     // private File profileFile;
     private List<WorkloadConfiguration> workConfs;
     private List<WorkloadState> workStates;
-    ArrayList<LatencyRecord.Sample> samples = new ArrayList<LatencyRecord.Sample>();
+    ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
     private int intervalMonitor = 0;
 
     private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs) {
@@ -54,7 +54,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     public ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, File profileFile, List<WorkloadConfiguration> workConfs) {
         this.workers = workers;
         this.workConfs = workConfs;
-        this.workerThreads = new ArrayList<Thread>(workers.size());
+        this.workerThreads = new ArrayList<>(workers.size());
     }
 
     public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {
@@ -113,7 +113,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
 
             // Collect all samples in the time window
-            ArrayList<Integer> latencies = new ArrayList<Integer>();
+            ArrayList<Integer> latencies = new ArrayList<>();
             long endNs = nextStartNs + windowSizeSeconds * 1000000000L;
             while (sample != null && sample.startNs < endNs) {
 
@@ -220,7 +220,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         @Override
         public void run() {
-            Map<String, Object> m = new ListOrderedMap<String, Object>();
+            Map<String, Object> m = new ListOrderedMap<>();
             LOG.info("Starting WatchDogThread");
             while (true) {
                 try {
@@ -296,7 +296,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
 
         testState = new BenchmarkState(workers.size() + 1);
-        workStates = new ArrayList<WorkloadState>();
+        workStates = new ArrayList<>();
 
         for (WorkloadConfiguration workState : this.workConfs) {
             workStates.add(workState.initializeState(testState));
@@ -510,7 +510,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             Results results = new Results(measureEnd - start, requests, stats, samples);
 
             // Compute transaction histogram
-            Set<TransactionType> txnTypes = new HashSet<TransactionType>();
+            Set<TransactionType> txnTypes = new HashSet<>();
             for (WorkloadConfiguration workConf : workConfs) {
                 txnTypes.addAll(workConf.getTransTypes());
             }
@@ -530,7 +530,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 for (Entry<TransactionType, Histogram<String>> e : w.getTransactionAbortMessageHistogram().entrySet()) {
                     Histogram<String> h = results.txnAbortMessages.get(e.getKey());
                     if (h == null) {
-                        h = new Histogram<String>(true);
+                        h = new Histogram<>(true);
                         results.txnAbortMessages.put(e.getKey(), h);
                     }
                     h.putHistogram(e.getValue());

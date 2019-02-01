@@ -33,7 +33,7 @@ import java.util.Set;
 public abstract class SQLUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SQLUtil.class);
 
-    private static final DateFormat timestamp_formats[] = new DateFormat[]{
+    private static final DateFormat[] timestamp_formats = new DateFormat[]{
             new SimpleDateFormat("yyyy-MM-dd"),
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
             new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS"),
@@ -190,7 +190,7 @@ public abstract class SQLUtil {
     public static String debug(ResultSet rs) throws SQLException {
         ResultSetMetaData rs_md = rs.getMetaData();
         int num_cols = rs_md.getColumnCount();
-        Object data[] = new Object[num_cols];
+        Object[] data = new Object[num_cols];
         for (int i = 0; i < num_cols; i++) {
             data[i] = rs.getObject(i + 1);
         } // FOR
@@ -384,7 +384,7 @@ public abstract class SQLUtil {
         first = true;
 
         // These are the column offset that we want to exclude
-        Set<Integer> excluded = new HashSet<Integer>();
+        Set<Integer> excluded = new HashSet<>();
         for (int ex : exclude_columns) {
             excluded.add(ex);
         }

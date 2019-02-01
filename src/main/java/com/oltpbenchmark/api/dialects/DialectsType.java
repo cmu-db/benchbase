@@ -80,7 +80,7 @@ public class DialectsType {
      */
     public List<DialectType> getDialect() {
         if (dialect == null) {
-            dialect = new ArrayList<DialectType>();
+            dialect = new ArrayList<>();
         }
         return this.dialect;
     }

@@ -71,8 +71,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     private static enum CastTypes {LONG, DOUBLE, STRING, DATE}
 
-    ;
-
 
     private static final CastTypes[] customerTypes = {
             CastTypes.LONG,   // c_custkey
@@ -264,7 +262,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     protected long totalRows = 0;
 
     protected long loadHelper() {
-        Thread loaders[] = new Thread[8];
+        Thread[] loaders = new Thread[8];
         loaders[0] = loadCustomers();
         loaders[1] = loadLineItems();
         loaders[2] = loadNations();
@@ -481,8 +479,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     now = new java.util.Date();
                     LOG.debug("End {} Load @ {}", tableName, now);
 
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage(), e);
                 } catch (FileNotFoundException e) {
                     LOG.error(e.getMessage(), e);
                 } catch (Exception e) {
@@ -508,5 +504,4 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     }
 
-    ;
 }

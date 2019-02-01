@@ -74,7 +74,7 @@ public abstract class BenchmarkModule {
     /**
      * Supplemental Procedures
      */
-    private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<Class<? extends Procedure>>();
+    private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<>();
 
     /**
      * A single Random object that should be re-used by all a benchmark's components
@@ -187,7 +187,7 @@ public abstract class BenchmarkModule {
                 }
 
             } catch (IOException e) {
-
+                LOG.error(e.getMessage(), e);
             }
         }
 
@@ -409,7 +409,7 @@ public abstract class BenchmarkModule {
      * @return
      */
     public Map<TransactionType, Procedure> getProcedures() {
-        Map<TransactionType, Procedure> proc_xref = new HashMap<TransactionType, Procedure>();
+        Map<TransactionType, Procedure> proc_xref = new HashMap<>();
         TransactionTypes txns = this.workConf.getTransTypes();
 
         if (txns != null) {

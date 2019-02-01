@@ -125,61 +125,61 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     private void readRecord1() throws SQLException {
         ReadRecord1 proc = this.getProcedure(ReadRecord1.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord2() throws SQLException {
         ReadRecord2 proc = this.getProcedure(ReadRecord2.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord3() throws SQLException {
         ReadRecord3 proc = this.getProcedure(ReadRecord3.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord4() throws SQLException {
         ReadRecord4 proc = this.getProcedure(ReadRecord4.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord5() throws SQLException {
         ReadRecord5 proc = this.getProcedure(ReadRecord5.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord6() throws SQLException {
         ReadRecord6 proc = this.getProcedure(ReadRecord6.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord7() throws SQLException {
         ReadRecord7 proc = this.getProcedure(ReadRecord7.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord8() throws SQLException {
         ReadRecord8 proc = this.getProcedure(ReadRecord8.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord9() throws SQLException {
         ReadRecord9 proc = this.getProcedure(ReadRecord9.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     private void readRecord10() throws SQLException {
         ReadRecord10 proc = this.getProcedure(ReadRecord10.class);
 
-        proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
+        proc.run(conn, key_lower_bound, new HashMap<>());
     }
 
     /////////////////////////

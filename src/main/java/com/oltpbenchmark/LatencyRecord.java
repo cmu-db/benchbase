@@ -35,7 +35,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
      * increments, starting from startNs. A 32-bit integer provides sufficient resolution
      * for an interval of 2146 seconds, or 35 minutes.
      */
-    private final ArrayList<Sample[]> values = new ArrayList<Sample[]>();
+    private final ArrayList<Sample[]> values = new ArrayList<>();
     private int nextIndex;
 
     private final long startNs;

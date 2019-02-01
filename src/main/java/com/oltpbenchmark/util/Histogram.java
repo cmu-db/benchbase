@@ -48,7 +48,7 @@ public class Histogram<X> implements JSONSerializable {
         KEEP_ZERO_ENTRIES,
     }
 
-    protected final SortedMap<X, Integer> histogram = new TreeMap<X, Integer>();
+    protected final SortedMap<X, Integer> histogram = new TreeMap<>();
     protected int num_samples = 0;
     private transient boolean dirty = false;
 
@@ -122,7 +122,7 @@ public class Histogram<X> implements JSONSerializable {
         if (this.debug_names == null) {
             synchronized (this) {
                 if (this.debug_names == null) {
-                    this.debug_names = new HashMap<Object, String>();
+                    this.debug_names = new HashMap<>();
                 }
             } // SYNCH
         }
@@ -217,15 +217,15 @@ public class Histogram<X> implements JSONSerializable {
         this.max_value = null;
 
         if (this.min_count_values == null) {
-            this.min_count_values = new ArrayList<X>();
+            this.min_count_values = new ArrayList<>();
         }
         if (this.max_count_values == null) {
-            this.max_count_values = new ArrayList<X>();
+            this.max_count_values = new ArrayList<>();
         }
 
         for (Entry<X, Integer> e : this.histogram.entrySet()) {
             X value = e.getKey();
-            int cnt = e.getValue().intValue();
+            int cnt = e.getValue();
 
             // Is this value the new min/max values?
             if (this.min_value == null || this.min_value.compareTo(value) > 0) {
@@ -350,7 +350,7 @@ public class Histogram<X> implements JSONSerializable {
      * @return
      */
     public SortedSet<X> sortedValues() {
-        SortedSet<X> sorted = new TreeSet<X>(new Comparator<X>() {
+        SortedSet<X> sorted = new TreeSet<>(new Comparator<X>() {
             public int compare(final X item0, final X item1) {
                 final Integer v0 = Histogram.this.get(item0);
                 final Integer v1 = Histogram.this.get(item1);
@@ -372,9 +372,9 @@ public class Histogram<X> implements JSONSerializable {
      * @return
      */
     public Set<X> getValuesForCount(int count) {
-        Set<X> ret = new HashSet<X>();
+        Set<X> ret = new HashSet<>();
         for (Entry<X, Integer> e : this.histogram.entrySet()) {
-            if (e.getValue().intValue() == count) {
+            if (e.getValue() == count) {
                 ret.add(e.getKey());
             }
         } // FOR
@@ -673,7 +673,7 @@ public class Histogram<X> implements JSONSerializable {
                 str = str.substring(0, max_length - 3) + "...";
             }
 
-            int cnt = (value != null ? this.histogram.get(value).intValue() : 0);
+            int cnt = (value != null ? this.histogram.get(value) : 0);
             int chars = (int) ((cnt / (double) this.max_count) * max_chars);
             s.append(String.format(f, str, cnt));
             for (int i = 0; i < chars; i++) {

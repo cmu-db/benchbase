@@ -52,7 +52,7 @@ public class SEATSProfile {
      * airport as their local airport. The customer ids will be stored as
      * follows in the dbms: <16-bit AirportId><48-bit CustomerId>
      */
-    protected final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
+    protected final Histogram<Long> airport_max_customer_id = new Histogram<>();
     /**
      * The date when flights total data set begins
      */
@@ -87,15 +87,15 @@ public class SEATSProfile {
     /**
      * TODO
      **/
-    protected final Map<String, Histogram<String>> histograms = new HashMap<String, Histogram<String>>();
+    protected final Map<String, Histogram<String>> histograms = new HashMap<>();
 
     /**
      * Each AirportCode will have a histogram of the number of flights that
      * depart from that airport to all the other airports
      */
-    protected final Map<String, Histogram<String>> airport_histograms = new HashMap<String, Histogram<String>>();
+    protected final Map<String, Histogram<String>> airport_histograms = new HashMap<>();
 
-    protected final Map<String, Map<String, Long>> code_id_xref = new HashMap<String, Map<String, Long>>();
+    protected final Map<String, Map<String, Long>> code_id_xref = new HashMap<>();
 
     // ----------------------------------------------------------------
     // TRANSIENT DATA MEMBERS
@@ -113,17 +113,17 @@ public class SEATSProfile {
      * has something to work with. We obviously don't want to store the entire
      * set here
      */
-    protected transient final LinkedList<FlightId> cached_flight_ids = new LinkedList<FlightId>();
+    protected transient final LinkedList<FlightId> cached_flight_ids = new LinkedList<>();
 
     /**
      * Key -> Id Mappings
      */
-    protected transient final Map<String, String> code_columns = new HashMap<String, String>();
+    protected transient final Map<String, String> code_columns = new HashMap<>();
 
     /**
      * Foreign Key Mappings Column Name -> Xref Mapper
      */
-    protected transient final Map<String, String> fkey_value_xref = new HashMap<String, String>();
+    protected transient final Map<String, String> fkey_value_xref = new HashMap<>();
 
     /**
      * Data Directory
@@ -139,7 +139,7 @@ public class SEATSProfile {
      * Depart Airport Code -> Arrive Airport Code Random number generators based
      * on the flight distributions
      */
-    private final Map<String, FlatHistogram<String>> airport_distributions = new HashMap<String, FlatHistogram<String>>();
+    private final Map<String, FlatHistogram<String>> airport_distributions = new HashMap<>();
 
     // ----------------------------------------------------------------
     // CONSTRUCTOR
@@ -155,7 +155,7 @@ public class SEATSProfile {
         }
 
         // Tuple Code to Tuple Id Mapping
-        for (String xref[] : SEATSConstants.CODE_TO_ID_COLUMNS) {
+        for (String[] xref : SEATSConstants.CODE_TO_ID_COLUMNS) {
 
             String tableName = xref[0];
             String codeCol = xref[1];
@@ -163,7 +163,7 @@ public class SEATSProfile {
 
             if (this.code_columns.containsKey(codeCol) == false) {
                 this.code_columns.put(codeCol, idCol);
-                this.code_id_xref.put(idCol, new HashMap<String, Long>());
+                this.code_id_xref.put(idCol, new HashMap<>());
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Added %s mapping from Code Column '%s' to Id Column '%s'", tableName, codeCol, idCol));
                 }
@@ -305,7 +305,7 @@ public class SEATSProfile {
 
             // Otherwise we have to go fetch everything again
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
-            ResultSet results[] = proc.run(worker.getConnection());
+            ResultSet[] results = proc.run(worker.getConnection());
             int result_idx = 0;
 
             // CONFIG_PROFILE
@@ -361,7 +361,7 @@ public class SEATSProfile {
         while (vt.next()) {
             int col = 1;
             String name = vt.getString(col++);
-            Histogram<String> h = JSONUtil.fromJSONString(new Histogram<String>(), vt.getString(col++));
+            Histogram<String> h = JSONUtil.fromJSONString(new Histogram<>(), vt.getString(col++));
             boolean is_airline = (vt.getLong(col++) == 1);
 
             if (is_airline) {
@@ -530,7 +530,7 @@ public class SEATSProfile {
                 if (f == null) {
                     Histogram<String> h = this.airport_histograms.get(code);
 
-                    f = new FlatHistogram<String>(this.rng, h);
+                    f = new FlatHistogram<>(this.rng, h);
                     this.airport_distributions.put(code, f);
                 }
             } // SYCH
@@ -549,7 +549,7 @@ public class SEATSProfile {
     public CustomerId getRandomCustomerId(Long airport_id) {
         Integer cnt = this.getCustomerIdCount(airport_id);
         if (cnt != null) {
-            int base_id = this.rng.nextInt(cnt.intValue());
+            int base_id = this.rng.nextInt(cnt);
             return (new CustomerId(base_id, airport_id));
         }
         return (null);
@@ -677,7 +677,7 @@ public class SEATSProfile {
     }
 
     public Histogram<String> getAirportCustomerHistogram() {
-        Histogram<String> h = new Histogram<String>();
+        Histogram<String> h = new Histogram<>();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Generating Airport-CustomerCount histogram [numAirports={}]", this.getAirportCount());
         }
@@ -776,7 +776,7 @@ public class SEATSProfile {
 
     @Override
     public String toString() {
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         m.put("Scale Factor", this.scale_factor);
         m.put("Data Directory", this.airline_data_dir);
         m.put("# of Reservations", this.num_reservations);

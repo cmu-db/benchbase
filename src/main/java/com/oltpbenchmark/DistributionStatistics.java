@@ -76,14 +76,14 @@ public class DistributionStatistics {
         Arrays.sort(values);
 
         double sum = 0;
-        for (int i = 0; i < values.length; ++i) {
-            sum += values[i];
+        for (int value1 : values) {
+            sum += value1;
         }
         double average = sum / values.length;
 
         double sumDiffsSquared = 0;
-        for (int i = 0; i < values.length; ++i) {
-            double v = values[i] - average;
+        for (int value : values) {
+            double v = value - average;
             sumDiffsSquared += v * v;
         }
         double standardDeviation = 0;
@@ -166,7 +166,7 @@ public class DistributionStatistics {
     }
 
     public Map<String, Integer> toMap() {
-        Map<String, Integer> distMap = new LinkedHashMap<String, Integer>();
+        Map<String, Integer> distMap = new LinkedHashMap<>();
         distMap.put("Minimum Latency (microseconds)", (int) getMinimum());
         distMap.put("25th Percentile Latency (microseconds)", (int) get25thPercentile());
         distMap.put("Median Latency (microseconds)", (int) getMedian());

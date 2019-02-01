@@ -118,7 +118,7 @@ public class RandomDistribution {
          */
         public void enableHistory() {
 
-            this.history = new Histogram<Long>();
+            this.history = new Histogram<>();
         }
 
         public boolean isHistoryEnabled() {
@@ -165,7 +165,7 @@ public class RandomDistribution {
 
         public Set<Integer> getRandomIntSet(int cnt) {
 
-            Set<Integer> ret = new HashSet<Integer>();
+            Set<Integer> ret = new HashSet<>();
             do {
                 ret.add(this.nextInt());
             } while (ret.size() < cnt);
@@ -174,7 +174,7 @@ public class RandomDistribution {
 
         public Set<Integer> getRandomLongSet(int cnt) {
 
-            Set<Integer> ret = new HashSet<Integer>();
+            Set<Integer> ret = new HashSet<>();
             do {
                 ret.add(this.nextInt());
             } while (ret.size() < cnt);
@@ -279,7 +279,7 @@ public class RandomDistribution {
         private static final long serialVersionUID = 1L;
         private final Flat inner;
         private final Histogram<T> histogram;
-        private final SortedMap<Long, T> value_rle = new TreeMap<Long, T>();
+        private final SortedMap<Long, T> value_rle = new TreeMap<>();
         private Histogram<T> history;
 
         /**
@@ -301,7 +301,7 @@ public class RandomDistribution {
 
         @Override
         public void enableHistory() {
-            this.history = new Histogram<T>();
+            this.history = new Histogram<>();
         }
 
         @Override
@@ -410,8 +410,8 @@ public class RandomDistribution {
             if ((max <= min) || (sigma <= 1) || (epsilon <= 0) || (epsilon >= 0.5)) {
                 throw new IllegalArgumentException("Invalid arguments [min=" + min + ", max=" + max + ", sigma=" + sigma + ", epsilon=" + epsilon + "]");
             }
-            k = new ArrayList<Long>();
-            v = new ArrayList<Double>();
+            k = new ArrayList<>();
+            v = new ArrayList<>();
 
             double sum = 0;
             long last = -1;

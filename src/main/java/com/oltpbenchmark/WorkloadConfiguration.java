@@ -65,7 +65,7 @@ public class WorkloadConfiguration {
 
     private XMLConfiguration xmlConfig = null;
 
-    private List<Phase> works = new ArrayList<Phase>();
+    private List<Phase> works = new ArrayList<>();
     private WorkloadState workloadState;
 
     public WorkloadState getWorkloadState() {
@@ -300,7 +300,7 @@ public class WorkloadConfiguration {
     @Override
     public String toString() {
         Class<?> confClass = this.getClass();
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         for (Field f : confClass.getDeclaredFields()) {
             Object obj = null;
             try {

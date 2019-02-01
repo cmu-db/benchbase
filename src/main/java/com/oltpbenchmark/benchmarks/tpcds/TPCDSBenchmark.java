@@ -30,7 +30,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         LOG.debug(String.format("Initializing %d %s", this.workConf.getTerminals(), TPCDSWorker.class.getSimpleName()));
 
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         try {
             for (int i = 0; i < this.workConf.getTerminals(); ++i) {
                 TPCDSWorker worker = new TPCDSWorker(this, i);

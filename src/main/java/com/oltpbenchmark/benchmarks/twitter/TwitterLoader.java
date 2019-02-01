@@ -58,7 +58,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         // first we load USERS
         final int numItems = this.num_users;
@@ -137,14 +137,14 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         PreparedStatement userInsert = conn.prepareStatement(sql);
 
         NameHistogram name_h = new NameHistogram();
-        FlatHistogram<Integer> name_len_rng = new FlatHistogram<Integer>(this.rng(), name_h);
+        FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
 
         int total = 0;
         int batchSize = 0;
 
         for (int i = lo; i <= hi; i++) {
             // Generate a random username for this user
-            int name_length = name_len_rng.nextValue().intValue();
+            int name_length = name_len_rng.nextValue();
             String name = TextGenerator.randomStr(this.rng(), name_length);
 
             userInsert.setInt(1, i); // ID
@@ -158,7 +158,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             batchSize++;
             total++;
             if ((batchSize % configCommitCount) == 0) {
-                int result[] = userInsert.executeBatch();
+                int[] result = userInsert.executeBatch();
 
                 userInsert.clearBatch();
                 batchSize = 0;
@@ -194,7 +194,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.num_users);
 
         TweetHistogram tweet_h = new TweetHistogram();
-        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<Integer>(this.rng(), tweet_h);
+        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
 
         for (long i = lo; i <= hi; i++) {
             int uid = zy.nextInt();
@@ -250,7 +250,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
         ZipfianGenerator zipfFollowee = new ZipfianGenerator(1, this.num_users, 1.75);
         ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows, 1.75);
-        List<Integer> followees = new ArrayList<Integer>();
+        List<Integer> followees = new ArrayList<>();
         for (int follower = lo; follower <= hi; follower++) {
             followees.clear();
             int time = zipfFollows.nextInt();

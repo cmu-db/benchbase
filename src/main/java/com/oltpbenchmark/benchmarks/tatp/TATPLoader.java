@@ -45,7 +45,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         final long itemsPerThread = Math.max(this.subscriberSize / numLoaders, 1);
         final int numSubThreads = (int) Math.ceil((double) this.subscriberSize / itemsPerThread);
@@ -138,7 +138,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
                 }
-                int results[] = pstmt.executeBatch();
+                int[] results = pstmt.executeBatch();
 
                 batch = 0;
             }
@@ -147,7 +147,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
             }
-            int results[] = pstmt.executeBatch();
+            int[] results = pstmt.executeBatch();
 
         }
 
@@ -186,7 +186,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
                 }
-                int results[] = pstmt.executeBatch();
+                int[] results = pstmt.executeBatch();
 
                 batch = 0;
             }
@@ -195,7 +195,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
             }
-            int results[] = pstmt.executeBatch();
+            int[] results = pstmt.executeBatch();
 
         }
         pstmt.close();
@@ -261,7 +261,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                             TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total,
                             TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 }
-                int results[] = spe_pstmt.executeBatch();
+                int[] results = spe_pstmt.executeBatch();
 
 
                 if (LOG.isDebugEnabled()) {
@@ -280,7 +280,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));
             }
-            int results[] = spe_pstmt.executeBatch();
+            int[] results = spe_pstmt.executeBatch();
 
 
             if (LOG.isDebugEnabled()) {

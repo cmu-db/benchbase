@@ -50,7 +50,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         try {
             Connection metaConn = this.makeConnection();
@@ -64,7 +64,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             String userCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "u_id");
             Statement stmt = metaConn.createStatement();
             ResultSet res = stmt.executeQuery(userCount);
-            ArrayList<String> user_ids = new ArrayList<String>();
+            ArrayList<String> user_ids = new ArrayList<>();
             while (res.next()) {
                 user_ids.add(res.getString(1));
             }
@@ -77,7 +77,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
 
             String itemCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "i_id");
             res = stmt.executeQuery(itemCount);
-            ArrayList<String> item_ids = new ArrayList<String>();
+            ArrayList<String> item_ids = new ArrayList<>();
             while (res.next()) {
                 item_ids.add(res.getString(1));
             }

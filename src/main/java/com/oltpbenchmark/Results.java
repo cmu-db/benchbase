@@ -30,11 +30,11 @@ public final class Results {
     public final long nanoSeconds;
     public final int measuredRequests;
     public final DistributionStatistics latencyDistribution;
-    final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>(true);
-    final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>(true);
-    final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>(true);
-    final Histogram<TransactionType> txnErrors = new Histogram<TransactionType>(true);
-    final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
+    final Histogram<TransactionType> txnSuccess = new Histogram<>(true);
+    final Histogram<TransactionType> txnAbort = new Histogram<>(true);
+    final Histogram<TransactionType> txnRetry = new Histogram<>(true);
+    final Histogram<TransactionType> txnErrors = new Histogram<>(true);
+    final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<>();
 
     public final List<LatencyRecord.Sample> latencySamples;
 
@@ -48,7 +48,7 @@ public final class Results {
             this.latencySamples = null;
         } else {
             // defensive copy
-            this.latencySamples = Collections.unmodifiableList(new ArrayList<LatencyRecord.Sample>(latencySamples));
+            this.latencySamples = Collections.unmodifiableList(new ArrayList<>(latencySamples));
 
         }
     }
@@ -107,7 +107,7 @@ public final class Results {
     }
 
     public void writeCSV2(int windowSizeSeconds, PrintStream out, TransactionType txType) {
-        String header[] = {
+        String[] header = {
                 "Time (seconds)",
                 "Requests",
                 "Throughput (requests/second)",
@@ -159,7 +159,7 @@ public final class Results {
         double offset = x - y;
 
         // long startNs = latencySamples.get(0).startNs;
-        String header[] = {
+        String[] header = {
                 "Transaction Type Index",
                 "Transaction Name",
                 "Start Time (microseconds)",
@@ -170,7 +170,7 @@ public final class Results {
         out.println(StringUtil.join(",", header));
         for (Sample s : latencySamples) {
             double startUs = ((double) s.startNs / (double) 1000000000);
-            String row[] = {
+            String[] row = {
                     Integer.toString(s.tranType),
                     // Important!
                     // The TxnType offsets start at 1!

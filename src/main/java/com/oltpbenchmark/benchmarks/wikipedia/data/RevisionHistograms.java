@@ -287,13 +287,13 @@ public abstract class RevisionHistograms {
     /**
      *
      */
-    public static final int REVISION_DELTA_SIZES[] = {1000, 10000, 100000};
+    public static final int[] REVISION_DELTA_SIZES = {1000, 10000, 100000};
 
     /**
      *
      */
 
-    public static final Histogram<Integer> REVISION_DELTAS[] = (Histogram<Integer>[]) new Histogram[]{
+    public static final Histogram<Integer>[] REVISION_DELTAS = (Histogram<Integer>[]) new Histogram[]{
             new Histogram<Integer>() {
                 {
                     this.put(-1000, 237);

@@ -52,15 +52,15 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     protected final Connection conn;
     protected final WorkloadConfiguration wrkld;
     protected final TransactionTypes transactionTypes;
-    protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
-    protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
-    protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<Class<? extends Procedure>, Procedure>();
+    protected final Map<TransactionType, Procedure> procedures = new HashMap<>();
+    protected final Map<String, Procedure> name_procedures = new HashMap<>();
+    protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<>();
 
-    private final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
-    private final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
-    private final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
-    private final Histogram<TransactionType> txnErrors = new Histogram<TransactionType>();
-    private final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
+    private final Histogram<TransactionType> txnSuccess = new Histogram<>();
+    private final Histogram<TransactionType> txnAbort = new Histogram<>();
+    private final Histogram<TransactionType> txnRetry = new Histogram<>();
+    private final Histogram<TransactionType> txnErrors = new Histogram<>();
+    private final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<>();
 
     private boolean seenDone = false;
 
@@ -396,7 +396,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     if (recordAbortMessages) {
                         Histogram<String> error_h = this.txnAbortMessages.get(next);
                         if (error_h == null) {
-                            error_h = new Histogram<String>();
+                            error_h = new Histogram<>();
                             this.txnAbortMessages.put(next, error_h);
                         }
                         error_h.put(StringUtil.abbrv(ex.getMessage(), 20));

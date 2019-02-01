@@ -48,7 +48,7 @@ public class CHBenCHmark extends BenchmarkModule {
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         // HACK: Turn off terminal messages
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         int numTerminals = workConf.getTerminals();
         LOG.info(String.format("Creating %d workers for CHBenCHMark", numTerminals));

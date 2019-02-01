@@ -161,7 +161,7 @@ public class JSONObject {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new LinkedHashMap<String, Object>();
+        this.map = new LinkedHashMap<>();
     }
 
 
@@ -176,8 +176,8 @@ public class JSONObject {
      */
     public JSONObject(JSONObject jo, String[] names) throws JSONException {
         this();
-        for (int i = 0; i < names.length; i += 1) {
-            putOnce(names[i], jo.opt(names[i]));
+        for (String name : names) {
+            putOnce(name, jo.opt(name));
         }
     }
 
@@ -252,7 +252,7 @@ public class JSONObject {
      */
     public JSONObject(Map<String, Object> map) {
 
-        this.map = (map == null) ? new LinkedHashMap<String, Object>() : map;
+        this.map = (map == null) ? new LinkedHashMap<>() : map;
     }
 
     /**
@@ -264,7 +264,7 @@ public class JSONObject {
      * @param includeSuperClass - Tell whether to include the super class properties.
      */
     public JSONObject(Map<String, Object> map, boolean includeSuperClass) {
-        this.map = new LinkedHashMap<String, Object>();
+        this.map = new LinkedHashMap<>();
         if (map != null) {
             for (Entry<String, Object> e : map.entrySet()) {
                 this.map.put(e.getKey(), new JSONObject(e.getValue(), includeSuperClass));
@@ -324,9 +324,9 @@ public class JSONObject {
 
         Method[] methods = (includeSuperClass) ?
                 klass.getMethods() : klass.getDeclaredMethods();
-        for (int i = 0; i < methods.length; i += 1) {
+        for (Method method1 : methods) {
             try {
-                Method method = methods[i];
+                Method method = method1;
                 String name = method.getName();
                 String key = "";
                 if (name.startsWith("get")) {
@@ -395,11 +395,10 @@ public class JSONObject {
      * @param names  An array of strings, the names of the fields to be obtained
      *               from the object.
      */
-    public JSONObject(Object object, String names[]) {
+    public JSONObject(Object object, String[] names) {
         this();
         Class<?> c = object.getClass();
-        for (int i = 0; i < names.length; i += 1) {
-            String name = names[i];
+        for (String name : names) {
             try {
                 putOpt(name, c.getField(name).get(object));
             } catch (Exception e) {
@@ -562,7 +561,7 @@ public class JSONObject {
         try {
             return o instanceof Number ?
                     ((Number) o).doubleValue() :
-                    Double.valueOf((String) o).doubleValue();
+                    Double.valueOf((String) o);
         } catch (Exception e) {
             throw new JSONException("JSONObject[" + quote(key) +
                     "] is not a number.");
@@ -857,7 +856,7 @@ public class JSONObject {
         try {
             Object o = opt(key);
             return o instanceof Number ? ((Number) o).doubleValue() :
-                    new Double((String) o).doubleValue();
+                    new Double((String) o);
         } catch (Exception e) {
             return defaultValue;
         }
@@ -1140,7 +1139,7 @@ public class JSONObject {
         char c = 0;
         int i;
         int len = string.length();
-        StringBuffer sb = new StringBuffer(len + 4);
+        StringBuilder sb = new StringBuilder(len + 4);
         String t;
 
         sb.append('"');
@@ -1206,7 +1205,7 @@ public class JSONObject {
      * @return An iterator of the keys.
      */
     public Iterator<String> sortedKeys() {
-        return new TreeSet<String>(this.map.keySet()).iterator();
+        return new TreeSet<>(this.map.keySet()).iterator();
     }
 
     /**
@@ -1244,14 +1243,14 @@ public class JSONObject {
                 if (s.length() > 2 &&
                         (s.charAt(1) == 'x' || s.charAt(1) == 'X')) {
                     try {
-                        return new Integer(Integer.parseInt(s.substring(2),
-                                16));
+                        return Integer.parseInt(s.substring(2),
+                                16);
                     } catch (Exception e) {
                         /* Ignore the error */
                     }
                 } else {
                     try {
-                        return new Integer(Integer.parseInt(s, 8));
+                        return Integer.parseInt(s, 8);
                     } catch (Exception e) {
                         /* Ignore the error */
                     }
@@ -1333,7 +1332,7 @@ public class JSONObject {
     public String toString() {
         try {
             Iterator<String> keys = keys();
-            StringBuffer sb = new StringBuffer("{");
+            StringBuilder sb = new StringBuilder("{");
 
             while (keys.hasNext()) {
                 if (sb.length() > 1) {
@@ -1391,7 +1390,7 @@ public class JSONObject {
             return "{}";
         }
         Iterator<String> keys = keys();
-        StringBuffer sb = new StringBuffer("{");
+        StringBuilder sb = new StringBuilder("{");
         int newindent = indent + indentFactor;
         Object o;
         if (n == 1) {

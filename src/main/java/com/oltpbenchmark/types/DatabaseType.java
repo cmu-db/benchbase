@@ -140,8 +140,8 @@ public enum DatabaseType {
     // STATIC METHODS + MEMBERS
     // ----------------------------------------------------------------
 
-    protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<Integer, DatabaseType>();
-    protected static final Map<String, DatabaseType> name_lookup = new HashMap<String, DatabaseType>();
+    protected static final Map<Integer, DatabaseType> idx_lookup = new HashMap<>();
+    protected static final Map<String, DatabaseType> name_lookup = new HashMap<>();
 
     static {
         for (DatabaseType vt : EnumSet.allOf(DatabaseType.class)) {

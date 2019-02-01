@@ -47,7 +47,7 @@ public class TraceReader {
         }
     }
 
-    private LinkedList<TraceElement> tracedProcedures = new LinkedList<TraceElement>();
+    private LinkedList<TraceElement> tracedProcedures = new LinkedList<>();
     private String tracefileName;
     private int currentPhaseId;
     private long phaseStartTime;
@@ -140,7 +140,7 @@ public class TraceReader {
     public LinkedList<SubmittedProcedure> getProcedures(long nowNs) {
         long timeSincePhaseStart = nowNs - phaseStartTime;
         // Nothing to do if the list is empty.
-        LinkedList<SubmittedProcedure> readyProcedures = new LinkedList<SubmittedProcedure>();
+        LinkedList<SubmittedProcedure> readyProcedures = new LinkedList<>();
         if (tracedProcedures.isEmpty()) {
             phaseComplete = true;
             return readyProcedures;

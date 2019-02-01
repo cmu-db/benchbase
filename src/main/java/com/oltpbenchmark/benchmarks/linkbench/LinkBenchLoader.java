@@ -63,7 +63,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
             stmt.addBatch();
             total++;
             if (++batch >= LinkBenchConstants.configCommitCount) {
-                int result[] = stmt.executeBatch();
+                int[] result = stmt.executeBatch();
 
                 conn.commit();
                 batch = 0;

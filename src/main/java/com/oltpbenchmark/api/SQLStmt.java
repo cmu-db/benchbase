@@ -40,7 +40,7 @@ public final class SQLStmt {
      * For each unique '??' that we encounter in the SQL for this Statement,
      * we will substitute it with the number of '?' specified in this array.
      */
-    private final int substitutions[];
+    private final int[] substitutions;
 
     /**
      * Constructor

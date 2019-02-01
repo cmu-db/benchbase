@@ -53,7 +53,7 @@ public class LinkBenchBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         Random masterRandom = createMasterRNG(props, LinkBenchConstants.REQUEST_RANDOM_SEED);
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new LinkBenchWorker(this, i, new Random(masterRandom.nextLong()), props, workConf.getTerminals()));

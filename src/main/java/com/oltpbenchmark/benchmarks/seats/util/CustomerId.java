@@ -21,11 +21,11 @@ import com.oltpbenchmark.util.CompositeId;
 
 public class CustomerId extends CompositeId {
 
-    private static final int COMPOSITE_BITS[] = {
+    private static final int[] COMPOSITE_BITS = {
             48, // ID
             16, // AIRPORT_ID
     };
-    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
+    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private int id;
     private long depart_airport_id;
@@ -46,7 +46,7 @@ public class CustomerId extends CompositeId {
 
     @Override
     public void decode(long composite_id) {
-        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.id = (int) values[0];
         this.depart_airport_id = values[1];
     }

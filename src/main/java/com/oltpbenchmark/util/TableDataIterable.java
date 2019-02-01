@@ -33,9 +33,9 @@ public class TableDataIterable implements Iterable<Object[]> {
     private final CSVReader reader;
     private final boolean auto_generate_first_column;
 
-    private final int types[];
-    private final boolean fkeys[];
-    private final boolean nullable[];
+    private final int[] types;
+    private final boolean[] fkeys;
+    private final boolean[] nullable;
     private int line_ctr = 0;
 
     /**
@@ -100,18 +100,18 @@ public class TableDataIterable implements Iterable<Object[]> {
             if (next == null) {
                 return (next);
             }
-            String row[] = null;
+            String[] row = null;
             synchronized (this) {
                 row = this.next;
                 this.next = null;
             } // SYNCH
 
-            Object tuple[] = new Object[types.length];
+            Object[] tuple = new Object[types.length];
             int row_idx = 0;
             for (int col_idx = 0; col_idx < types.length; col_idx++) {
                 // Auto-generate first column
                 if (col_idx == 0 && auto_generate_first_column) {
-                    tuple[col_idx] = Long.valueOf(line_ctr);
+                    tuple[col_idx] = (long) line_ctr;
                 }
                 // Null Values
                 else if (row_idx >= row.length) {

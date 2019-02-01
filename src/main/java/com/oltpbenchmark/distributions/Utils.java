@@ -39,7 +39,7 @@ import java.util.Random;
  */
 public class Utils {
     private static final Random rand = new Random();
-    private static final ThreadLocal<Random> rng = new ThreadLocal<Random>();
+    private static final ThreadLocal<Random> rng = new ThreadLocal<>();
 
     public static Random random() {
         Random ret = rng.get();

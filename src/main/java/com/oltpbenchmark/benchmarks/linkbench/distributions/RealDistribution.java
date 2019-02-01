@@ -221,7 +221,7 @@ public class RealDistribution extends PiecewiseLinearDistribution {
 
     //helper function:
     private static ArrayList<Point> readCDF(String filePath, Scanner scanner) {
-        ArrayList<Point> points = new ArrayList<Point>();
+        ArrayList<Point> points = new ArrayList<>();
         while (scanner.hasNextInt()) {
             int value = scanner.nextInt();
             // File on disk has percentages
@@ -255,7 +255,7 @@ public class RealDistribution extends PiecewiseLinearDistribution {
             return null;
         }
 
-        TreeMap<Integer, Double> map = new TreeMap<Integer, Double>();
+        TreeMap<Integer, Double> map = new TreeMap<>();
         for (Point point : points) {
             map.put(point.value, point.probability);
         }

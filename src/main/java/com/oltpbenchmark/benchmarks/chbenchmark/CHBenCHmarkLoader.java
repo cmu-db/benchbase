@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -186,8 +185,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             LOG.debug(se.getMessage());
             conn.rollback();
 
-        } catch (FileNotFoundException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -265,8 +262,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-        } catch (FileNotFoundException e) {
-            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

@@ -28,7 +28,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -81,7 +81,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
                 stmt.addBatch();
                 if (++batch >= ResourceStresserConstants.COMMIT_BATCH_SIZE) {
-                    int result[] = stmt.executeBatch();
+                    int[] result = stmt.executeBatch();
 
                     batch = 0;
                     if (LOG.isDebugEnabled()) {

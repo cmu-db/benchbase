@@ -44,7 +44,7 @@ public class SIBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         try {
             Connection metaConn = this.makeConnection();
 

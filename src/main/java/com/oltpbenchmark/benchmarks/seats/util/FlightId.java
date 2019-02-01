@@ -24,13 +24,13 @@ import java.sql.Timestamp;
 
 public class FlightId extends CompositeId {
 
-    private static final int COMPOSITE_BITS[] = {
+    private static final int[] COMPOSITE_BITS = {
             14, // AIRLINE_ID
             16, // DEPART AIRPORT_ID
             16, // ARRIVE AIRPORT_ID
             16, // DEPART DATE
     };
-    private static final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
+    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     /**
      * The airline for this flight
@@ -93,7 +93,7 @@ public class FlightId extends CompositeId {
 
     @Override
     public void decode(long composite_id) {
-        long values[] = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.airline_id = (int) values[0];
         this.depart_airport_id = (int) values[1];
         this.arrive_airport_id = (int) values[2];

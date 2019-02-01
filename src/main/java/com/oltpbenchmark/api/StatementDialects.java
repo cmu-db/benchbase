@@ -47,7 +47,7 @@ public class StatementDialects {
     /**
      * ProcName -> StmtName -> SQL
      */
-    private final Map<String, Map<String, String>> dialectsMap = new HashMap<String, Map<String, String>>();
+    private final Map<String, Map<String, String>> dialectsMap = new HashMap<>();
 
     /**
      * Constructor
@@ -87,7 +87,7 @@ public class StatementDialects {
                 }
 
             } catch (IOException e) {
-
+                LOG.error(e.getMessage(), e);
             }
 
             LOG.warn("Failed to find dialect file for {}", path);
@@ -157,7 +157,7 @@ public class StatementDialects {
                     String stmtName = statement.getName();
                     String stmtSQL = statement.getValue().trim();
                     if (procDialects == null) {
-                        procDialects = new HashMap<String, String>();
+                        procDialects = new HashMap<>();
                         this.dialectsMap.put(procName, procDialects);
                     }
                     procDialects.put(stmtName, stmtSQL);
@@ -199,7 +199,7 @@ public class StatementDialects {
             throw new RuntimeException("Unable to initialize serializer", ex);
         }
 
-        List<Procedure> sorted = new ArrayList<Procedure>(procedures);
+        List<Procedure> sorted = new ArrayList<>(procedures);
         Collections.sort(sorted, new Comparator<Procedure>() {
             @Override
             public int compare(Procedure o1, Procedure o2) {

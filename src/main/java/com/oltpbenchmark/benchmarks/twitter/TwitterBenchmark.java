@@ -56,7 +56,7 @@ public class TwitterBenchmark extends BenchmarkModule {
                 workConf.getTransTypes());
         List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
         transSel.close();
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             TransactionGenerator<TwitterOperation> generator =
                     new TraceTransactionGenerator(trace);
