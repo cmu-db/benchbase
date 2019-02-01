@@ -84,7 +84,6 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
             if (++batch >= HYADAPTConstants.configCommitCount) {
                 int result[] = stmt.executeBatch();
                 assert (result != null);
-                conn.commit();
                 batch = 0;
                 LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
             }

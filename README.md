@@ -16,8 +16,7 @@ Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench
 * TPC-H references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
 * TPC-DS doesnt have a sample config and would references files and diretory that don't exist.  not clear what they should be.  see TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
 * having difficult loading `seats`
-* having difficult loading `resourcestresser`
-
+* no sample config for `hyadapt`
 
 ## Supported Benchmarks
 
