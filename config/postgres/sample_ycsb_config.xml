@@ -2,45 +2,45 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>COCKROACHDB</dbtype>
+    <dbtype>POSTGRES</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=seats&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=ycsb&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
-    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
-    <scalefactor>1</scalefactor>
+    <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
+    <scalefactor>1200</scalefactor>
 
     <!-- The workload -->
-    <terminals>2</terminals>
+    <terminals>50</terminals>
     <works>
         <work>
             <time>300</time>
             <rate>10000</rate>
-            <weights>10, 10, 35, 20, 10, 15</weights>
+            <weights>50,5,15,10,10,10</weights>
         </work>
     </works>
 
-    <!-- SEATS Procedures declaration -->
+    <!-- YCSB Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>DeleteReservation</name>
+            <name>ReadRecord</name>
         </transactiontype>
         <transactiontype>
-            <name>FindFlights</name>
+            <name>InsertRecord</name>
         </transactiontype>
         <transactiontype>
-            <name>FindOpenSeats</name>
+            <name>ScanRecord</name>
         </transactiontype>
         <transactiontype>
-            <name>NewReservation</name>
+            <name>UpdateRecord</name>
         </transactiontype>
         <transactiontype>
-            <name>UpdateCustomer</name>
+            <name>DeleteRecord</name>
         </transactiontype>
         <transactiontype>
-            <name>UpdateReservation</name>
+            <name>ReadModifyWriteRecord</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

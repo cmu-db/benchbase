@@ -2,7 +2,7 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>COCKROACHDB</dbtype>
+    <dbtype>POSTGRES</dbtype>
     <driver>org.postgresql.Driver</driver>
     <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=twitter&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>

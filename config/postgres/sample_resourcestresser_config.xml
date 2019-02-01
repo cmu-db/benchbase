@@ -2,15 +2,15 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>COCKROACHDB</dbtype>
+    <dbtype>POSTGRES</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=seats&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=resourcestresser&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
-    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
-    <scalefactor>1</scalefactor>
+    <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
+    <scalefactor>2</scalefactor>
 
     <!-- The workload -->
     <terminals>2</terminals>
@@ -18,29 +18,30 @@
         <work>
             <time>300</time>
             <rate>10000</rate>
-            <weights>10, 10, 35, 20, 10, 15</weights>
+            <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
         </work>
     </works>
 
-    <!-- SEATS Procedures declaration -->
+    <!-- R/S Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>DeleteReservation</name>
+            <name>CPU1</name>
         </transactiontype>
         <transactiontype>
-            <name>FindFlights</name>
+            <name>CPU2</name>
         </transactiontype>
         <transactiontype>
-            <name>FindOpenSeats</name>
+            <name>IO1</name>
         </transactiontype>
         <transactiontype>
-            <name>NewReservation</name>
+            <name>IO2</name>
         </transactiontype>
         <transactiontype>
-            <name>UpdateCustomer</name>
+            <name>Contention1</name>
         </transactiontype>
         <transactiontype>
-            <name>UpdateReservation</name>
+            <name>Contention2</name>
         </transactiontype>
     </transactiontypes>
+
 </parameters>

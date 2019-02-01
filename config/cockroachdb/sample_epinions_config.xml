@@ -2,7 +2,7 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>cockroachdb</dbtype>
+    <dbtype>COCKROACHDB</dbtype>
     <driver>org.postgresql.Driver</driver>
     <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=epinions&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>

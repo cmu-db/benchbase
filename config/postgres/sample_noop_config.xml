@@ -2,29 +2,31 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>COCKROACHDB</dbtype>
+    <dbtype>POSTGRES</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=voter&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=noop&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
-    <scalefactor>10</scalefactor>
+    <!-- This parameter has no affect on this benchmark-->
+    <!-- There is no data to load -->
+    <scalefactor>1</scalefactor>
 
     <!-- The workload -->
     <terminals>10</terminals>
     <works>
         <work>
             <time>300</time>
-            <rate>10000</rate>
+            <rate>1000</rate>
             <weights>100</weights>
         </work>
     </works>
 
-    <!-- Voter Procedures declaration -->
+    <!-- NoOp Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>Vote</name>
+            <name>NoOp</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

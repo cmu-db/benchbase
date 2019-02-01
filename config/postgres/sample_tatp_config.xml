@@ -2,15 +2,15 @@
 <parameters>
 
     <!-- Connection details -->
-    <dbtype>COCKROACHDB</dbtype>
+    <dbtype>POSTGRES</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=seats&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=tatp&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
-    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
-    <scalefactor>1</scalefactor>
+    <!-- Scalefactor increases the number of subscribers -->
+    <scalefactor>2</scalefactor>
 
     <!-- The workload -->
     <terminals>2</terminals>
@@ -18,29 +18,32 @@
         <work>
             <time>300</time>
             <rate>10000</rate>
-            <weights>10, 10, 35, 20, 10, 15</weights>
+            <weights>2, 35, 10, 35, 2, 14, 2</weights>
         </work>
     </works>
 
-    <!-- SEATS Procedures declaration -->
+    <!-- Twitter Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>DeleteReservation</name>
+            <name>DeleteCallForwarding</name>
         </transactiontype>
         <transactiontype>
-            <name>FindFlights</name>
+            <name>GetAccessData</name>
         </transactiontype>
         <transactiontype>
-            <name>FindOpenSeats</name>
+            <name>GetNewDestination</name>
         </transactiontype>
         <transactiontype>
-            <name>NewReservation</name>
+            <name>GetSubscriberData</name>
         </transactiontype>
         <transactiontype>
-            <name>UpdateCustomer</name>
+            <name>InsertCallForwarding</name>
         </transactiontype>
         <transactiontype>
-            <name>UpdateReservation</name>
+            <name>UpdateLocation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateSubscriberData</name>
         </transactiontype>
     </transactiontypes>
 </parameters>
