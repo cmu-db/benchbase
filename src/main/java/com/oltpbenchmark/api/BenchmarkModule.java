@@ -216,8 +216,8 @@ public abstract class BenchmarkModule {
     public File getSQLDialect(DatabaseType db_type) {
         String fileName = null;
 
-        if (db_type == null) {
-            fileName = "dialect-" + db_type.name().toLowerCase() + ".sql";
+        if (db_type != null) {
+            fileName = "dialect-" + db_type.name().toLowerCase() + ".xml";
         }
 
 
