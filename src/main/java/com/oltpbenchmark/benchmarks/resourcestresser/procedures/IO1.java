@@ -65,7 +65,7 @@ public class IO1 extends Procedure {
             stmt.setInt(howManyColsPerRow + 2, rightKey);
             int result = stmt.executeUpdate();
             if (result != howManyRowsPerUpdate) {
-                LOG.warn("supposedtochange=" + howManyRowsPerUpdate + " but result=" + result);
+                LOG.warn("supposedtochange={} but result={}", howManyRowsPerUpdate, result);
             }
         } // FOR
     }

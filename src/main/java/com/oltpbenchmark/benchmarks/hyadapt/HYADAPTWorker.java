@@ -38,7 +38,7 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
 
     public HYADAPTWorker(HYADAPTBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
-        LOG.info("Key lower bound :: " + key_lower_bound);
+        LOG.info("Key lower bound :: {}", key_lower_bound);
 
         synchronized (HYADAPTWorker.class) {
             // We must know where to start inserting

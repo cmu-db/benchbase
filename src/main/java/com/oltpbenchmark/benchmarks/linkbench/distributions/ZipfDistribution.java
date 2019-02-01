@@ -142,9 +142,7 @@ public class ZipfDistribution implements ProbabilityDistribution {
             // If calculation will take more than 5 or so seconds, let user know
             // what is happening
             if (n > 20000000) {
-                logger.info("Precalculating constants for Zipf distribution over "
-                        + n + " items with shape = " + shape
-                        + ".  Please be patient, this can take a little time.");
+                logger.info("Precalculating constants for Zipf distribution over {} items with shape = {}.  Please be patient, this can take a little time.", n, shape);
             }
 
             calcZetan = Harmonic.generalizedHarmonic(n, shape);

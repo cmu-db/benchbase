@@ -158,7 +158,7 @@ public abstract class JSONUtil {
      */
     public static <T extends JSONSerializable> void save(T object, String output_path) throws IOException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Writing out contents of " + object.getClass().getSimpleName() + " to '" + output_path + "'");
+            LOG.debug("Writing out contents of {} to '{}'", object.getClass().getSimpleName(), output_path);
         }
         File f = new File(output_path);
         try {
@@ -166,7 +166,7 @@ public abstract class JSONUtil {
             String json = object.toJSONString();
             FileUtil.writeStringToFile(f, format(json));
         } catch (Exception ex) {
-            LOG.error("Failed to serialize the " + object.getClass().getSimpleName() + " file '" + f + "'", ex);
+            LOG.error("Failed to serialize the {} file '{}'", object.getClass().getSimpleName(), f, ex);
             throw new IOException(ex);
         }
     }
@@ -181,7 +181,7 @@ public abstract class JSONUtil {
      */
     public static <T extends JSONSerializable> void load(T object, String input_path) throws IOException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Loading in serialized " + object.getClass().getSimpleName() + " from '" + input_path + "'");
+            LOG.debug("Loading in serialized {} from '{}'", object.getClass().getSimpleName(), input_path);
         }
         String contents = FileUtil.readFile(input_path);
         if (contents.isEmpty()) {
@@ -190,11 +190,11 @@ public abstract class JSONUtil {
         try {
             object.fromJSON(new JSONObject(contents));
         } catch (Exception ex) {
-            LOG.error("Failed to deserialize the " + object.getClass().getSimpleName() + " from file '" + input_path + "'", ex);
+            LOG.error("Failed to deserialize the {} from file '{}'", object.getClass().getSimpleName(), input_path, ex);
             throw new IOException(ex);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("The loading of the " + object.getClass().getSimpleName() + " is complete");
+            LOG.debug("The loading of the {} is complete", object.getClass().getSimpleName());
         }
     }
 
@@ -232,7 +232,7 @@ public abstract class JSONUtil {
      */
     public static <T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, Field fields[]) throws JSONException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Serializing out " + fields.length + " elements for " + base_class.getSimpleName());
+            LOG.debug("Serializing out {} elements for {}", fields.length, base_class.getSimpleName());
         }
         for (Field f : fields) {
             String json_key = f.getName().toUpperCase();
@@ -268,14 +268,14 @@ public abstract class JSONUtil {
         // Null
         if (field_value == null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("writeNullFieldValue(" + field_class + ", " + field_value + ")");
+                LOG.debug("writeNullFieldValue({}, {})", field_class, field_value);
             }
             stringer.value(null);
 
             // Collections
         } else if (ClassUtil.getInterfaces(field_class).contains(Collection.class)) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("writeCollectionFieldValue(" + field_class + ", " + field_value + ")");
+                LOG.debug("writeCollectionFieldValue({}, {})", field_class, field_value);
             }
             stringer.array();
             for (Object value : (Collection<?>) field_value) {
@@ -290,7 +290,7 @@ public abstract class JSONUtil {
             // Maps
         } else if (field_value instanceof Map) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("writeMapFieldValue(" + field_class + ", " + field_value + ")");
+                LOG.debug("writeMapFieldValue({}, {})", field_class, field_value);
             }
             stringer.object();
             for (Entry<?, ?> e : ((Map<?, ?>) field_value).entrySet()) {
@@ -315,7 +315,7 @@ public abstract class JSONUtil {
             // Primitive
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("writePrimitiveFieldValue(" + field_class + ", " + field_value + ")");
+                LOG.debug("writePrimitiveFieldValue({}, {})", field_class, field_value);
             }
             stringer.value(makePrimitiveValue(field_class, field_value));
         }
@@ -435,14 +435,14 @@ public abstract class JSONUtil {
         // Null
         if (json_object.isNull(json_key)) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Field " + json_key + " is null");
+                LOG.debug("Field {} is null", json_key);
             }
             field_handle.set(object, null);
 
             // Collections
         } else if (ClassUtil.getInterfaces(field_class).contains(Collection.class)) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Field " + json_key + " is a collection");
+                LOG.debug("Field {} is a collection", json_key);
             }
 
             Stack<Class> inner_classes = new Stack<Class>();
@@ -458,7 +458,7 @@ public abstract class JSONUtil {
             // Maps
         } else if (field_object instanceof Map) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Field " + json_key + " is a map");
+                LOG.debug("Field {} is a map", json_key);
             }
 
             Stack<Class> inner_classes = new Stack<Class>();
@@ -477,16 +477,16 @@ public abstract class JSONUtil {
             if (explicit_field_class != null) {
                 field_class = explicit_field_class;
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found explict field class " + field_class.getSimpleName() + " for " + json_key);
+                    LOG.debug("Found explict field class {} for {}", field_class.getSimpleName(), json_key);
                 }
             }
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Field " + json_key + " is primitive type " + field_class.getSimpleName());
+                LOG.debug("Field {} is primitive type {}", json_key, field_class.getSimpleName());
             }
             Object value = JSONUtil.getPrimitiveValue(json_object.getString(json_key), field_class);
             field_handle.set(object, value);
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Set field " + json_key + " to '" + value + "'");
+                LOG.debug("Set field {} to '{}'", json_key, value);
             }
         }
     }
@@ -545,7 +545,7 @@ public abstract class JSONUtil {
         for (Field field_handle : fields) {
             String json_key = field_handle.getName().toUpperCase();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Retreiving value for field '" + json_key + "'");
+                LOG.debug("Retreiving value for field '{}'", json_key);
             }
 
             if (!json_object.has(json_key)) {
@@ -562,7 +562,7 @@ public abstract class JSONUtil {
                 readFieldValue(json_object, json_key, field_handle, object);
             } catch (Exception ex) {
                 // System.err.println(field_class + ": " + ClassUtil.getSuperClasses(field_class));
-                LOG.error("Unable to deserialize field '" + json_key + "' from " + base_class.getSimpleName(), ex);
+                LOG.error("Unable to deserialize field '{}' from {}", json_key, base_class.getSimpleName(), ex);
                 throw new JSONException(ex);
             }
         } // FOR
@@ -584,7 +584,7 @@ public abstract class JSONUtil {
             try {
                 field_class = ClassUtil.getClass(json_object.getString(json_key + JSON_CLASS_SUFFIX));
             } catch (Exception ex) {
-                LOG.error("Failed to include class for field '" + json_key + "'", ex);
+                LOG.error("Failed to include class for field '{}'", json_key, ex);
                 throw new JSONException(ex);
             }
         }

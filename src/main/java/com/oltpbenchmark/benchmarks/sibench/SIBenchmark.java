@@ -23,6 +23,8 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -33,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SIBenchmark extends BenchmarkModule {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SIBenchmark.class);
 
     public SIBenchmark(WorkloadConfiguration workConf) {
         super(workConf, true);

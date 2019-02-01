@@ -294,7 +294,7 @@ public class RealDistribution extends PiecewiseLinearDistribution {
 //      }
 //    }
 
-        logger.info("Loading real distribution data from " + filename);
+        logger.info("Loading real distribution data from {}", filename);
 
         Scanner scanner = new Scanner(new File(filename));
         scanner.useLocale(INPUT_FILE_LOCALE);

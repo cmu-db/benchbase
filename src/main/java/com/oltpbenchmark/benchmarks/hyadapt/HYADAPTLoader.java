@@ -36,7 +36,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     public HYADAPTLoader(HYADAPTBenchmark benchmark, Connection c) {
         super(benchmark, c);
         this.num_record = (int) Math.round(HYADAPTConstants.RECORD_COUNT * this.scaleFactor);
-        LOG.info("# of RECORDS:  " + this.num_record);
+        LOG.info("# of RECORDS:  {}", this.num_record);
     }
 
     /**
@@ -93,6 +93,6 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
             LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
         }
         stmt.close();
-        LOG.info("Finished loading " + catalog_tbl.getName());
+        LOG.info("Finished loading {}", catalog_tbl.getName());
     }
 }

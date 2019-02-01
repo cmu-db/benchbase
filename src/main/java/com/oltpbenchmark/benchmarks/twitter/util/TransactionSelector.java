@@ -17,7 +17,6 @@
 
 package com.oltpbenchmark.benchmarks.twitter.util;
 
-import ch.ethz.ssh2.util.Tokenizer;
 import com.oltpbenchmark.api.TransactionTypes;
 
 import java.io.*;
@@ -83,11 +82,11 @@ public class TransactionSelector {
 
     private TwitterOperation readNextTransaction() throws IOException {
         String line = dis.readLine();
-        String[] sa = Tokenizer.parseTokens(line, ' ');
+        String[] sa = line.split("\\s++");
         int tweetid = Integer.parseInt(sa[0]);
 
         String line2 = dis2.readLine();
-        String[] sa2 = Tokenizer.parseTokens(line2, ' ');
+        String[] sa2 = line2.split("\\s++");
         int uid = Integer.parseInt(sa2[0]);
 
         return new TwitterOperation(tweetid, uid);

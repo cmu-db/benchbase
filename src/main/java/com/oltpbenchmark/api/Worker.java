@@ -199,7 +199,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 this.currStatement.cancel();
             }
         } catch (SQLException e) {
-            LOG.error("Failed to cancel statement: " + e.getMessage());
+            LOG.error("Failed to cancel statement: {}", e.getMessage());
         }
     }
 
@@ -389,7 +389,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // These are not errors
                 } catch (UserAbortException ex) {
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace(next + " Aborted", ex);
+                        LOG.trace("{} Aborted", next, ex);
                     }
 
                     /* PAVLO */
@@ -499,11 +499,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     }
                     // Assertion Error
                 } catch (Error ex) {
-                    LOG.error("Fatal error when invoking " + next, ex);
+                    LOG.error("Fatal error when invoking {}", next, ex);
                     throw ex;
                     // Random Error
                 } catch (Exception ex) {
-                    LOG.error("Fatal error when invoking " + next, ex);
+                    LOG.error("Fatal error when invoking {}", next, ex);
                     throw new RuntimeException(ex);
 
                 } finally {

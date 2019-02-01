@@ -39,7 +39,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         super(benchmark, c);
         this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("CONSTRUCTOR: " + TATPLoader.class.getName());
+            LOG.debug("CONSTRUCTOR: {}", TATPLoader.class.getName());
         }
     }
 
@@ -222,7 +222,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         int[] spe_arr = {1, 2, 3, 4};
         int[] cal_arr = {0, 8, 6};
         if (LOG.isDebugEnabled()) {
-            LOG.debug("subscriberSize = " + subscriberSize);
+            LOG.debug("subscriberSize = {}", subscriberSize);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("batchSize = " + TATPConstants.BATCH_SIZE);
@@ -275,7 +275,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 spe_batch = 0;
             }
         } // WHILE
-        LOG.debug("spe_batch = " + spe_batch);
+        LOG.debug("spe_batch = {}", spe_batch);
         if (spe_batch > 0) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));

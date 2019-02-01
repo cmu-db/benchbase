@@ -103,7 +103,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             }
             this.conn.commit();
         } catch (SQLException esql) {
-            LOG.error("Caught SQL Exception in WikipediaWorker for procedure" + procClass.getName() + ":" + esql, esql);
+            LOG.error("Caught SQL Exception in WikipediaWorker for procedure{}:{}", procClass.getName(), esql, esql);
             throw esql;
         }
         return (TransactionStatus.SUCCESS);
@@ -168,7 +168,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         char newText[] = b.generateRevisionText(a.oldText.toCharArray());
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("UPDATING: Page: id:" + a.pageId + " ns:" + nameSpace + " title" + pageTitle);
+            LOG.trace("UPDATING: Page: id:{} ns:{} title{}", a.pageId, nameSpace, pageTitle);
         }
         UpdatePage proc = this.getProcedure(UpdatePage.class);
 

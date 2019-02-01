@@ -159,12 +159,12 @@ public class NewItem extends Procedure {
 
         if (debug) {
             LOG.debug("NewItem :: run ");
-            LOG.debug(">> item_id = " + item_id + " , seller_id = " + seller_id + ", category_id = " + category_id);
-            LOG.debug(">> name = " + name + " , description length = " + description.length());
-            LOG.debug(">> initial_price = " + initial_price + " , attributes length = " + attributes.length());
-            LOG.debug(">> gag_ids[].length = " + gag_ids.length + " , gav_ids[] length = " + gav_ids.length);
-            LOG.debug(">> image length = " + images.length + " ");
-            LOG.debug(">> start = " + currentTime + ", end = " + end_date);
+            LOG.debug(">> item_id = {} , seller_id = {}, category_id = {}", item_id, seller_id, category_id);
+            LOG.debug(">> name = {} , description length = {}", name, description.length());
+            LOG.debug(">> initial_price = {} , attributes length = {}", initial_price, attributes.length());
+            LOG.debug(">> gag_ids[].length = {} , gav_ids[] length = {}", gag_ids.length, gav_ids.length);
+            LOG.debug(">> image length = {} ", images.length);
+            LOG.debug(">> start = {}, end = {}", currentTime, end_date);
         }
 
         // Get attribute names and category path and append

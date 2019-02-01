@@ -75,7 +75,7 @@ public final class SQLStmt {
         } // FOR
         this.sql = sql;
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialized SQL:\n" + this.sql);
+            LOG.debug("Initialized SQL:\n{}", this.sql);
         }
     }
 

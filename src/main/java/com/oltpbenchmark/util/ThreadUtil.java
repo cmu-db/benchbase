@@ -120,13 +120,13 @@ public abstract class ThreadUtil {
             pid_field.setAccessible(true);
             pid = pid_field.getInt(p);
         } catch (Exception ex) {
-            LOG.error("Faild to get pid for " + p, ex);
+            LOG.error("Faild to get pid for {}", p, ex);
             return (null);
         }
 
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Starting new process with PID " + pid);
+            LOG.debug("Starting new process with PID {}", pid);
         }
         return (Pair.of(pid, p));
     }
@@ -148,7 +148,7 @@ public abstract class ThreadUtil {
      */
     public static <T> void fork(String command[], final EventObservable<T> stop_observable, final String prefix, final boolean print_output) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Forking off process: " + Arrays.toString(command));
+            LOG.debug("Forking off process: {}", Arrays.toString(command));
         }
 
         // Copied from ShellTools
@@ -174,7 +174,7 @@ public abstract class ThreadUtil {
                 public void update(EventObservable<T> arg0, T arg1) {
 
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Stopping Process -> " + prog_name);
+                        LOG.debug("Stopping Process -> {}", prog_name);
                     }
                     p.destroy();
                     first = false;
@@ -227,7 +227,7 @@ public abstract class ThreadUtil {
             if (ThreadUtil.pool == null) {
                 int max_threads = ThreadUtil.getMaxGlobalThreads();
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Creating new fixed thread pool [num_threads=" + max_threads + "]");
+                    LOG.debug("Creating new fixed thread pool [num_threads={}]", max_threads);
                 }
                 ThreadUtil.pool = Executors.newFixedThreadPool(max_threads, factory);
             }

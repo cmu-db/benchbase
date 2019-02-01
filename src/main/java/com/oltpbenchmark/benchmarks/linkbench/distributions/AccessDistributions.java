@@ -203,15 +203,12 @@ public class AccessDistributions {
                 realDist.init(props, minid, maxid, kind);
                 InvertibleShuffler shuffler = RealDistribution.getShuffler(kind,
                         maxid - minid);
-                logger.debug("Using real access distribution" +
-                        " for " + kind.toString().toLowerCase());
+                logger.debug("Using real access distribution for {}", kind.toString().toLowerCase());
                 return new ProbAccessDistribution(realDist, shuffler);
             } else {
                 String config_key = keyPrefix + LinkBenchConstants.ACCESS_CONFIG_SUFFIX;
                 long config_val = ConfigUtil.getLong(props, config_key);
-                logger.debug("Using built-in access distribution " + mode +
-                        " with config param " + config_val +
-                        " for " + kind.toString().toLowerCase());
+                logger.debug("Using built-in access distribution {} with config param {} for {}", mode, config_val, kind.toString().toLowerCase());
                 return new BuiltinAccessDistribution(mode, minid, maxid, config_val);
             }
         } catch (IllegalArgumentException e) {
@@ -232,8 +229,7 @@ public class AccessDistributions {
                                                      DistributionType kind) {
         try {
             Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
-            logger.debug("Using ProbabilityDistribution class " + className +
-                    " for " + kind.toString().toLowerCase());
+            logger.debug("Using ProbabilityDistribution class {} for {}", className, kind.toString().toLowerCase());
             ProbabilityDistribution pDist = ClassUtil.newInstance(className,
                     ProbabilityDistribution.class);
             pDist.init(minid, maxid, props, keyPrefix);

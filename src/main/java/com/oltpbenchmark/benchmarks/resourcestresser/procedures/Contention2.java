@@ -58,7 +58,7 @@ public class Contention2 extends Procedure {
             stmtUpdate.setInt(3, rightKey + 1);
             int result = stmtUpdate.executeUpdate();
             if (result != howManyKeys) {
-                LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
+                LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
             }
 
             stmtSleep.setInt(1, sleepLength);

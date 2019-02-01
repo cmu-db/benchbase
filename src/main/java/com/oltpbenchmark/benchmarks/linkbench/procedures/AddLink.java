@@ -59,9 +59,7 @@ public class AddLink extends Procedure {
 
     public boolean run(Connection conn, Link l, boolean noinverse) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("addlink: " + l.id1 +
-                    "." + l.id2 +
-                    "." + l.link_type);
+            LOG.debug("addlink: {}.{}.{}", l.id1, l.id2, l.link_type);
         }
 
         //gross hack
@@ -81,7 +79,7 @@ public class AddLink extends Procedure {
         stmt1.setInt(6, l.version);
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace(insertNoCount + " " + StringUtil.stringLiteral(l.data));
+            LOG.trace("{} {}", insertNoCount, StringUtil.stringLiteral(l.data));
         }
         int nrows = stmt1.executeUpdate();
 
@@ -90,7 +88,7 @@ public class AddLink extends Procedure {
         // further updates without concurrency issues.
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("nrows = " + nrows);
+            LOG.trace("nrows = {}", nrows);
         }
 
         // based on nrows, determine whether the previous query was an insert
@@ -131,7 +129,7 @@ public class AddLink extends Procedure {
             default:
                 String msg = "Value of affected-rows number is not valid: " + nrows;
                 row_found = true;
-                LOG.error("SQL Error: " + msg);
+                LOG.error("SQL Error: {}", msg);
                 throw new RuntimeException(msg);
         }
 

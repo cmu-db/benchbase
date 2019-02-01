@@ -43,7 +43,7 @@ public class GetLink extends Procedure {
 
     public Link[] run(Connection conn, long id1, long link_type, long[] id2s) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("getLink : " + id1 + " " + link_type + " " + id2s);
+            LOG.debug("getLink : {} {} {}", id1, link_type, id2s);
         }
         boolean first = true;
         String ids = "";
@@ -73,8 +73,7 @@ public class GetLink extends Procedure {
         while (rs.next()) {
             Link l = createLinkFromRow(rs);
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Lookup result: " + id1 + "," + link_type + "," +
-                        l.id2 + " found");
+                LOG.debug("Lookup result: {},{},{} found", id1, link_type, l.id2);
             }
             results[i++] = l;
         }

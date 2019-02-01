@@ -50,9 +50,9 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         this.num_tweets = (int) Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
         this.num_follows = (int) Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of USERS:  " + this.num_users);
-            LOG.debug("# of TWEETS: " + this.num_tweets);
-            LOG.debug("# of FOLLOWS: " + this.num_follows);
+            LOG.debug("# of USERS:  {}", this.num_users);
+            LOG.debug("# of TWEETS: {}", this.num_tweets);
+            LOG.debug("# of FOLLOWS: {}", this.num_follows);
         }
     }
 
@@ -211,7 +211,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                 tweetInsert.clearBatch();
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("tweet % " + total + "/" + this.num_tweets);
+                    LOG.debug("tweet % {}/{}", total, this.num_tweets);
                 }
             }
         }
@@ -220,7 +220,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         }
         tweetInsert.close();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("[Tweets Loaded] " + this.num_tweets);
+            LOG.debug("[Tweets Loaded] {}", this.num_tweets);
         }
     }
 
@@ -281,7 +281,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                         followersInsert.clearBatch();
                         batchSize = 0;
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Follows  % " + (int) (((double) follower / (double) this.num_users) * 100));
+                            LOG.debug("Follows  % {}", (int) (((double) follower / (double) this.num_users) * 100));
                         }
                     }
                 }
@@ -294,7 +294,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         followsInsert.close();
         followersInsert.close();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("[Follows Loaded] " + total);
+            LOG.debug("[Follows Loaded] {}", total);
         }
     }
 }

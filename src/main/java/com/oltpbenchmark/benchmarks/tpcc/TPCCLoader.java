@@ -97,7 +97,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     }
 
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Starting to load WAREHOUSE " + w_id);
+                        LOG.debug("Starting to load WAREHOUSE {}", w_id);
                     }
 
                     // WAREHOUSE
@@ -194,14 +194,14 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             SQLException next = ex.getNextException();
             LOG.error("Failed to load data for TPC-C", ex);
             if (next != null) {
-                LOG.error(ex.getClass().getSimpleName() + " Cause => " + next.getMessage());
+                LOG.error("{} Cause => {}", ex.getClass().getSimpleName(), next.getMessage());
             }
             fail = true;
         } catch (SQLException ex) {
             SQLException next = ex.getNextException();
             LOG.error("Failed to load data for TPC-C", ex);
             if (next != null) {
-                LOG.error(ex.getClass().getSimpleName() + " Cause => " + next.getMessage());
+                LOG.error("{} Cause => {}", ex.getClass().getSimpleName(), next.getMessage());
             }
             fail = true;
         } catch (Exception ex) {
@@ -674,7 +674,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("  Writing final records " + k + " of " + t);
+                LOG.debug("  Writing final records {} of {}", k, t);
             }
             ordrPrepStmt.executeBatch();
             nworPrepStmt.executeBatch();

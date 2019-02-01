@@ -105,7 +105,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     static void truncateTable(String strTable) throws SQLException {
 
-        LOG.debug("Truncating '" + strTable + "' ...");
+        LOG.debug("Truncating '{}' ...", strTable);
         try (Statement statement = conn.createStatement()) {
             statement.execute("DELETE FROM " + strTable);
         } catch (SQLException se) {
@@ -125,8 +125,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         truncateTable("supplier");
 
         now = new java.util.Date();
-        LOG.debug("\nStart Region Load @ " + now
-                + " ...");
+        LOG.debug("\nStart Region Load @ {} ...", now);
 
         Region region = new Region();
 
@@ -139,19 +138,19 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             for (String line : lines) {
                 StringTokenizer st = new StringTokenizer(line, "|");
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 region.r_regionkey = Integer.parseInt(st.nextToken());
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 region.r_name = st.nextToken();
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 region.r_comment = st.nextToken();
                 if (st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
 
                 k++;
@@ -165,8 +164,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 String etStr = "  Elasped Time(ms): "
                         + ((tmpTime - lastTimeMS) / 1000.000)
                         + "                    ";
-                LOG.debug(etStr.substring(0, 30)
-                        + "  Writing record " + k + " of " + t);
+                LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
                 lastTimeMS = tmpTime;
                 regionPrepStmt.executeBatch();
                 regionPrepStmt.clearBatch();
@@ -176,14 +174,13 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             String etStr = "  Elasped Time(ms): "
                     + ((tmpTime - lastTimeMS) / 1000.000)
                     + "                    ";
-            LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-                    + " of " + t);
+            LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
             lastTimeMS = tmpTime;
 
             regionPrepStmt.executeBatch();
 
             now = new java.util.Date();
-            LOG.debug("End Region Load @  " + now);
+            LOG.debug("End Region Load @  {}", now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
@@ -206,8 +203,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
 
         now = new java.util.Date();
-        LOG.debug("\nStart Nation Load @ " + now
-                + " ...");
+        LOG.debug("\nStart Nation Load @ {} ...", now);
 
         Nation nation = new Nation();
 
@@ -220,23 +216,23 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             for (String line : lines) {
                 StringTokenizer st = new StringTokenizer(line, "|");
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 nation.n_nationkey = Integer.parseInt(st.nextToken());
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 nation.n_name = st.nextToken();
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 nation.n_regionkey = Integer.parseInt(st.nextToken());
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
                 nation.n_comment = st.nextToken();
                 if (st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + path);
+                    LOG.error("invalid input file: {}", path);
                 }
 
                 k++;
@@ -251,8 +247,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 String etStr = "  Elasped Time(ms): "
                         + ((tmpTime - lastTimeMS) / 1000.000)
                         + "                    ";
-                LOG.debug(etStr.substring(0, 30)
-                        + "  Writing record " + k + " of " + t);
+                LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
                 lastTimeMS = tmpTime;
                 nationPrepStmt.executeBatch();
                 nationPrepStmt.clearBatch();
@@ -262,12 +257,11 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             String etStr = "  Elasped Time(ms): "
                     + ((tmpTime - lastTimeMS) / 1000.000)
                     + "                    ";
-            LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-                    + " of " + t);
+            LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
             lastTimeMS = tmpTime;
 
             now = new java.util.Date();
-            LOG.debug("End Region Load @  " + now);
+            LOG.debug("End Region Load @  {}", now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
@@ -289,8 +283,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         try {
 
             now = new java.util.Date();
-            LOG.debug("\nStart Supplier Load @ " + now
-                    + " ...");
+            LOG.debug("\nStart Supplier Load @ {} ...", now);
 
             Supplier supplier = new Supplier();
 
@@ -319,8 +312,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                     String etStr = "  Elasped Time(ms): "
                             + ((tmpTime - lastTimeMS) / 1000.000)
                             + "                    ";
-                    LOG.debug(etStr.substring(0, 30)
-                            + "  Writing record " + k + " of " + t);
+                    LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
                     lastTimeMS = tmpTime;
                     supplierPrepStmt.executeBatch();
                     supplierPrepStmt.clearBatch();
@@ -331,14 +323,13 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             String etStr = "  Elasped Time(ms): "
                     + ((tmpTime - lastTimeMS) / 1000.000)
                     + "                    ";
-            LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-                    + " of " + t);
+            LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
             lastTimeMS = tmpTime;
 
             supplierPrepStmt.executeBatch();
 
             now = new java.util.Date();
-            LOG.debug("End Region Load @  " + now);
+            LOG.debug("End Region Load @  {}", now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());

@@ -36,7 +36,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
         super(benchmark, c);
         this.num_record = (int) Math.round(this.scaleFactor - LinkBenchConstants.START_ID + 1);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of RECORDS:  " + this.num_record);
+            LOG.debug("# of RECORDS:  {}", this.num_record);
         }
     }
 
@@ -80,7 +80,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
         }
         stmt.close();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Finished loading " + catalog_tbl.getName());
+            LOG.debug("Finished loading {}", catalog_tbl.getName());
         }
     }
 }

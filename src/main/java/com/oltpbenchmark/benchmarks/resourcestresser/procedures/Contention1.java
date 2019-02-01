@@ -63,7 +63,7 @@ public class Contention1 extends Procedure {
             stmtUpdate.setInt(1, ResourceStresserWorker.gen.nextInt());
             int result = stmtUpdate.executeUpdate();
             if (result != howManyKeys) {
-                LOG.warn("LOCK1UPDATE: supposedtochange=" + howManyKeys + " but only changed " + result);
+                LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
             }
 
             stmtSleep.setInt(1, sleepLength);

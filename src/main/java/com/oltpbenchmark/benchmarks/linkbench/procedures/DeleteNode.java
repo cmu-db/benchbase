@@ -38,7 +38,7 @@ public class DeleteNode extends Procedure {
 
     public boolean run(Connection conn, int type, long id) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("deleteNode : " + id + "." + type);
+            LOG.debug("deleteNode : {}.{}", id, type);
         }
         if (stmt == null) {
             stmt = this.getPreparedStatement(conn, deleteStmt);

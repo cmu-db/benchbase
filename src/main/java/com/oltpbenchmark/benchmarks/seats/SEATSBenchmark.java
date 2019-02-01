@@ -23,6 +23,8 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SEATSBenchmark extends BenchmarkModule {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SEATSBenchmark.class);
+
 
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 

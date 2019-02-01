@@ -221,7 +221,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     }
 
     static void truncateTable(String strTable) throws SQLException {
-        LOG.debug("Truncating '" + strTable + "' ...");
+        LOG.debug("Truncating '{}' ...", strTable);
         try {
             conn.createStatement().execute("DELETE FROM " + strTable);
         } catch (SQLException se) {
@@ -355,9 +355,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             try {
                 truncateTable(this.tableName.toLowerCase());
             } catch (SQLException e) {
-                LOG.error("Failed to truncate table \""
-                        + this.tableName.toLowerCase()
-                        + "\".");
+                LOG.error("Failed to truncate table \"{}\".", this.tableName.toLowerCase());
             }
 
             try {
@@ -367,7 +365,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                 try {
                     now = new java.util.Date();
-                    LOG.debug("\nStart " + tableName + " load @ " + now + "...");
+                    LOG.debug("\nStart {} load @ {}...", tableName, now);
                     String format = getFileFormat();
                     File file = new File(workConf.getDataDir()
                             , tableName.toLowerCase() + "."
@@ -455,7 +453,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             }
                         } catch (IllegalStateException e) {
                             // This happens if there wasn't a match against the regex.
-                            LOG.error("Invalid CSV file: " + file.getAbsolutePath());
+                            LOG.error("Invalid CSV file: {}", file.getAbsolutePath());
                         }
 
                         prepStmt.addBatch();
@@ -466,8 +464,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             String elapsedStr = "  Elapsed Time(ms): "
                                     + ((currTime - lastTimeMS) / 1000.000)
                                     + "                    ";
-                            LOG.debug(elapsedStr.substring(0, 30)
-                                    + "  Writing record " + recordsRead);
+                            LOG.debug("{}  Writing record {}", elapsedStr.substring(0, 30), recordsRead);
                             lastTimeMS = currTime;
                             prepStmt.executeBatch();
                             prepStmt.clearBatch();
@@ -478,12 +475,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     String elapsedStr = "  Elapsed Time(ms): "
                             + ((currTime - lastTimeMS) / 1000.000)
                             + "                    ";
-                    LOG.debug(elapsedStr.substring(0, 30)
-                            + "  Writing record " + recordsRead);
+                    LOG.debug("{}  Writing record {}", elapsedStr.substring(0, 30), recordsRead);
                     lastTimeMS = currTime;
                     prepStmt.executeBatch();
                     now = new java.util.Date();
-                    LOG.debug("End " + tableName + " Load @ " + now);
+                    LOG.debug("End {} Load @ {}", tableName, now);
 
                 } catch (SQLException e) {
                     LOG.error(e.getMessage(), e);

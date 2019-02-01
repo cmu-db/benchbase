@@ -111,7 +111,7 @@ public class StockLevel extends TPCCProcedure {
         }
         stock_count = rs.getInt("STOCK_COUNT");
         if (trace) {
-            LOG.trace("stockGetCountStock RESULT=" + stock_count);
+            LOG.trace("stockGetCountStock RESULT={}", stock_count);
         }
 
         conn.commit();

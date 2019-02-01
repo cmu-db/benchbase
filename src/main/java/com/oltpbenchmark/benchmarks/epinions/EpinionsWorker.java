@@ -76,12 +76,10 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
                 if (error_code == 8177) {
                     conn.rollback();
                 } else {
-                    LOG.error("caught sql error in Epinions Benchmark for the procedure "
-                            + nextTrans.getName() + ":" + esql);
+                    LOG.error("caught sql error in Epinions Benchmark for the procedure {}:{}", nextTrans.getName(), esql);
                 }
             } catch (Exception e) {
-                LOG.error("caught Exceptions in Epinions for the procedure "
-                        + nextTrans.getName() + ":" + e);
+                LOG.error("caught Exceptions in Epinions for the procedure {}:{}", nextTrans.getName(), e);
             }
         }
 

@@ -26,6 +26,7 @@ import java.io.Serializable;
 public abstract class IntegrityConstraint implements Serializable {
     private static final long serialVersionUID = 1L;
 
+
     private String id;
 
     public IntegrityConstraint() {
@@ -35,12 +36,8 @@ public abstract class IntegrityConstraint implements Serializable {
     @Override
     public IntegrityConstraint clone() {
 
-        try {
-            throw new NotImplementedException("The clone method should be implemented in the subtypes!");
-        } catch (NotImplementedException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return null;
+        throw new NotImplementedException("The clone method should be implemented in the subtypes!");
+
     }
 
     public String getId() {

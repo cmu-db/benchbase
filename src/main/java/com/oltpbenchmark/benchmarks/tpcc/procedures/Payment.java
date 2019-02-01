@@ -410,7 +410,7 @@ public class Payment extends TPCCProcedure {
         customerByName.setString(3, customerLastName);
         ResultSet rs = customerByName.executeQuery();
         if (LOG.isTraceEnabled()) {
-            LOG.trace("C_LAST=" + customerLastName + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id);
+            LOG.trace("C_LAST={} C_D_ID={} C_W_ID={}", customerLastName, c_d_id, c_w_id);
         }
 
         while (rs.next()) {

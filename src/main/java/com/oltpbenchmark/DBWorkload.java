@@ -52,7 +52,7 @@ public class DBWorkload {
     public static void main(String[] args) throws Exception {
 
         if (ClassUtil.isAssertsEnabled()) {
-            LOG.warn("\n" + getAssertWarning());
+            LOG.warn("\n{}", getAssertWarning());
         }
 
         // create the command line parser
@@ -237,7 +237,7 @@ public class DBWorkload {
                 initDebug.put("Selectivity", selectivity);
             }
 
-            LOG.info(SINGLE_LINE + "\n\n" + StringUtil.formatMaps(initDebug));
+            LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
             LOG.info(SINGLE_LINE);
 
             // ----------------------------------------------------------------
@@ -277,13 +277,13 @@ public class DBWorkload {
             // Wrap the list of transactions and save them
             TransactionTypes tt = new TransactionTypes(ttypes);
             wrkld.setTransTypes(tt);
-            LOG.debug("Using the following transaction types: " + tt);
+            LOG.debug("Using the following transaction types: {}", tt);
 
             // Read in the groupings of transactions (if any) defined for this
             // benchmark
             HashMap<String, List<String>> groupings = new HashMap<String, List<String>>();
             int numGroupings = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/groupings/grouping").size();
-            LOG.debug("Num groupings: " + numGroupings);
+            LOG.debug("Num groupings: {}", numGroupings);
             for (int i = 1; i < numGroupings + 1; i++) {
                 String key = "transactiontypes" + pluginTest + "/groupings/grouping[" + i + "]";
 
@@ -311,7 +311,7 @@ public class DBWorkload {
                     System.exit(-1);
                 }
 
-                LOG.debug("Creating grouping with name, weights: " + groupingName + ", " + groupingWeights);
+                LOG.debug("Creating grouping with name, weights: {}, {}", groupingName, groupingWeights);
                 groupings.put(groupingName, groupingWeights);
             }
 
@@ -479,7 +479,7 @@ public class DBWorkload {
         if (isBooleanOptionSet(argsLine, "dialects-export")) {
             BenchmarkModule bench = benchList.get(0);
             if (bench.getStatementDialects() != null) {
-                LOG.info("Exporting StatementDialects for " + bench);
+                LOG.info("Exporting StatementDialects for {}", bench);
                 String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDBType(),
                         bench.getProcedures().values());
                 LOG.debug(xml);
@@ -495,7 +495,7 @@ public class DBWorkload {
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
             for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Creating new " + benchmark.getBenchmarkName().toUpperCase() + " database...");
+                LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runCreator(benchmark, verbose);
                 LOG.info("Finished!");
                 LOG.info(SINGLE_LINE);
@@ -508,7 +508,7 @@ public class DBWorkload {
         // Clear the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "clear")) {
             for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Resetting " + benchmark.getBenchmarkName().toUpperCase() + " database...");
+                LOG.info("Resetting {} database...", benchmark.getBenchmarkName().toUpperCase());
                 benchmark.clearDatabase();
                 LOG.info("Finished!");
                 LOG.info(SINGLE_LINE);
@@ -521,7 +521,7 @@ public class DBWorkload {
         // Execute Loader
         if (isBooleanOptionSet(argsLine, "load")) {
             for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Loading data into " + benchmark.getBenchmarkName().toUpperCase() + " database...");
+                LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runLoader(benchmark, verbose);
                 LOG.info("Finished!");
                 LOG.info(SINGLE_LINE);
@@ -535,7 +535,7 @@ public class DBWorkload {
         if (argsLine.hasOption("runscript")) {
             for (BenchmarkModule benchmark : benchList) {
                 String script = argsLine.getOptionValue("runscript");
-                LOG.info("Running a SQL script: " + script);
+                LOG.info("Running a SQL script: {}", script);
                 runScript(benchmark, script);
                 LOG.info("Finished!");
                 LOG.info(SINGLE_LINE);
@@ -598,7 +598,7 @@ public class DBWorkload {
         }
 
         LOG.info(SINGLE_LINE);
-        LOG.info("Workload Histograms:\n" + sb.toString());
+        LOG.info("Workload Histograms:\n{}", sb.toString());
         LOG.info(SINGLE_LINE);
     }
 
@@ -628,7 +628,7 @@ public class DBWorkload {
         ResultUploader ru = null;
         if (xmlConfig.containsKey("uploadUrl")) {
             ru = new ResultUploader(r, xmlConfig, argsLine);
-            LOG.info("Upload Results URL: " + ru);
+            LOG.info("Upload Results URL: {}", ru);
         }
 
         // Output target 
@@ -661,7 +661,7 @@ public class DBWorkload {
                 // RAW OUTPUT
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
                 rs = new PrintStream(new File(nextName));
-                LOG.info("Output Raw data into file: " + nextName);
+                LOG.info("Output Raw data into file: {}", nextName);
                 r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
                 rs.close();
             }
@@ -670,7 +670,7 @@ public class DBWorkload {
                 // Write samples using 1 second window
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
                 rs = new PrintStream(new File(nextName));
-                LOG.info("Output samples into file: " + nextName);
+                LOG.info("Output samples into file: {}", nextName);
                 r.writeCSV2(rs);
                 rs.close();
             }
@@ -680,28 +680,28 @@ public class DBWorkload {
                 // Summary Data
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
                 PrintStream ss = new PrintStream(new File(nextName));
-                LOG.info("Output summary data into file: " + nextName);
+                LOG.info("Output summary data into file: {}", nextName);
                 ru.writeSummary(ss);
                 ss.close();
 
                 // DBMS Parameters
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".params"));
                 ss = new PrintStream(new File(nextName));
-                LOG.info("Output DBMS parameters into file: " + nextName);
+                LOG.info("Output DBMS parameters into file: {}", nextName);
                 ru.writeDBParameters(ss);
                 ss.close();
 
                 // DBMS Metrics
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".metrics"));
                 ss = new PrintStream(new File(nextName));
-                LOG.info("Output DBMS metrics into file: " + nextName);
+                LOG.info("Output DBMS metrics into file: {}", nextName);
                 ru.writeDBMetrics(ss);
                 ss.close();
 
                 // Experiment Configuration
                 nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".expconfig"));
                 ss = new PrintStream(new File(nextName));
-                LOG.info("Output experiment config into file: " + nextName);
+                LOG.info("Output experiment config into file: {}", nextName);
                 ru.writeBenchmarkConf(ss);
                 ss.close();
             }
@@ -718,10 +718,10 @@ public class DBWorkload {
         if (argsLine.hasOption("s")) {
             nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
             ps = new PrintStream(new File(nextName));
-            LOG.info("Output into file: " + nextName);
+            LOG.info("Output into file: {}", nextName);
 
             int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
-            LOG.info("Grouped into Buckets of " + windowSize + " seconds");
+            LOG.info("Grouped into Buckets of {} seconds", windowSize);
             r.writeCSV(windowSize, ps);
 
             // Allow more detailed reporting by transaction to make it easier to check
@@ -798,7 +798,7 @@ public class DBWorkload {
         List<Worker<?>> workers = new ArrayList<Worker<?>>();
         List<WorkloadConfiguration> workConfs = new ArrayList<WorkloadConfiguration>();
         for (BenchmarkModule bench : benchList) {
-            LOG.info("Creating " + bench.getWorkloadConfiguration().getTerminals() + " virtual terminals...");
+            LOG.info("Creating {} virtual terminals...", bench.getWorkloadConfiguration().getTerminals());
             workers.addAll(bench.makeWorkers(verbose));
             // LOG.info("done.");
 
@@ -810,7 +810,7 @@ public class DBWorkload {
         }
         Results r = ThreadBench.runRateLimitedBenchmark(workers, workConfs, intervalMonitor);
         LOG.info(SINGLE_LINE);
-        LOG.info("Rate limited reqs/s: " + r);
+        LOG.info("Rate limited reqs/s: {}", r);
         return r;
     }
 
@@ -829,7 +829,7 @@ public class DBWorkload {
      */
     private static boolean isBooleanOptionSet(CommandLine argsLine, String key) {
         if (argsLine.hasOption(key)) {
-            LOG.debug("CommandLine has option '" + key + "'. Checking whether set to true");
+            LOG.debug("CommandLine has option '{}'. Checking whether set to true", key);
             String val = argsLine.getOptionValue(key);
             LOG.debug(String.format("CommandLine %s => %s", key, val));
             return (val != null ? val.equalsIgnoreCase("true") : false);

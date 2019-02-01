@@ -564,7 +564,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
                 } catch (IllegalStateException e) {
                     // This happens if there wasn't a match against the regex.
-                    LOG.error("Invalid file: " + file.getAbsolutePath());
+                    LOG.error("Invalid file: {}", file.getAbsolutePath());
                 }
             }
 
@@ -575,14 +575,14 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             }
             ps.close();
             if (LOG.isDebugEnabled()) {
-                LOG.debug(table + " loaded");
+                LOG.debug("{} loaded", table);
             }
 
         } catch (SQLException se) {
-            LOG.error("Failed to load data for TPC-DS: " + field + ", LINE " + line, se);
+            LOG.error("Failed to load data for TPC-DS: {}, LINE {}", field, line, se);
             se = se.getNextException();
             if (se != null) {
-                LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
+                LOG.error("{} Cause => {}", se.getClass().getSimpleName(), se.getMessage());
             }
         } catch (FileNotFoundException e) {
             LOG.error(e.getMessage(), e);

@@ -61,7 +61,7 @@ public class GetLinkList extends Procedure {
         stmt.setInt(7, limit);
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Query is " + stmt);
+            LOG.trace("Query is {}", stmt);
         }
 
         ResultSet rs = stmt.executeQuery();
@@ -74,8 +74,7 @@ public class GetLinkList extends Procedure {
         rs.beforeFirst();
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Range lookup result: " + id1 + "," + link_type +
-                    " is " + count);
+            LOG.trace("Range lookup result: {},{} is {}", id1, link_type, count);
         }
         if (count == 0) {
             return null;

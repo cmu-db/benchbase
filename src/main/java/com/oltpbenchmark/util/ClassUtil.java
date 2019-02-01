@@ -201,23 +201,23 @@ public abstract class ClassUtil {
 
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("TARGET CLASS:  " + target_class);
-            LOG.debug("TARGET PARAMS: " + Arrays.toString(params));
+            LOG.debug("TARGET CLASS:  {}", target_class);
+            LOG.debug("TARGET PARAMS: {}", Arrays.toString(params));
         }
 
         List<Class<?>> paramSuper[] = (List<Class<?>>[]) new List[params.length];
         for (int i = 0; i < params.length; i++) {
             paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
             if (LOG.isDebugEnabled()) {
-                LOG.debug("  SUPER[" + params[i].getSimpleName() + "] => " + paramSuper[i]);
+                LOG.debug("  SUPER[{}] => {}", params[i].getSimpleName(), paramSuper[i]);
             }
         } // FOR
 
         for (Constructor<?> c : target_class.getConstructors()) {
             Class<?> cTypes[] = c.getParameterTypes();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("CANDIDATE: " + c);
-                LOG.debug("CANDIDATE PARAMS: " + Arrays.toString(cTypes));
+                LOG.debug("CANDIDATE: {}", c);
+                LOG.debug("CANDIDATE PARAMS: {}", Arrays.toString(cTypes));
             }
             if (params.length != cTypes.length) {
                 continue;
@@ -226,7 +226,7 @@ public abstract class ClassUtil {
             for (int i = 0; i < params.length; i++) {
                 List<Class<?>> cSuper = ClassUtil.getSuperClasses(cTypes[i]);
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("  SUPER[" + cTypes[i].getSimpleName() + "] => " + cSuper);
+                    LOG.debug("  SUPER[{}] => {}", cTypes[i].getSimpleName(), cSuper);
                 }
                 if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
                     return ((Constructor<T>) c);

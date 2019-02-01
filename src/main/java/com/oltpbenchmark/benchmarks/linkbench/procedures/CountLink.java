@@ -51,7 +51,7 @@ public class CountLink extends Procedure {
         while (rs.next()) {
             // found
             if (found) {
-                LOG.trace("Count query 2nd row!: " + id1 + "," + link_type);
+                LOG.trace("Count query 2nd row!: {},{}", id1, link_type);
             }
 
             found = true;
@@ -61,8 +61,7 @@ public class CountLink extends Procedure {
         // check done
         rs.close();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Count result: " + id1 + "," + link_type +
-                    " is " + found + " and " + count);
+            LOG.debug("Count result: {},{} is {} and {}", id1, link_type, found, count);
         }
         return count;
     }

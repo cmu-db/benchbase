@@ -48,7 +48,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
         int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
         int keyRange = numKeys / workConf.getTerminals();
-        LOG.warn("numkeys=" + numKeys + ", keyRange=" + keyRange);
+        LOG.warn("numkeys={}, keyRange={}", numKeys, keyRange);
         // TODO: check ranges
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));

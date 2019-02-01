@@ -41,7 +41,7 @@ public class UpdateNode extends Procedure {
 
     public boolean run(Connection conn, Node node) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("updateNode : " + node.type + "." + node.version + "." + node.time);
+            LOG.debug("updateNode : {}.{}.{}", node.type, node.version, node.time);
         }
         //gross hack
         updateNodeStmt.setSQL(updateNodeStmt.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));

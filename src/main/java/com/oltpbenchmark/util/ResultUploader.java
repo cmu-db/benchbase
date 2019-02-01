@@ -181,7 +181,7 @@ public class ResultUploader {
 
             httppost.setEntity(reqEntity);
 
-            LOG.info("executing request " + httppost.getRequestLine());
+            LOG.info("executing request {}", httppost.getRequestLine());
             CloseableHttpResponse response = httpclient.execute(httppost);
             try {
                 HttpEntity resEntity = response.getEntity();

@@ -44,7 +44,7 @@ public class AddNode extends Procedure {
     public long run(Connection conn, Node node) throws SQLException {
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("addNode : " + node.type + "." + node.version + "." + node.time);
+            LOG.debug("addNode : {}.{}.{}", node.type, node.version, node.time);
         }
         //gross hack
         addNode.setSQL(addNode.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));

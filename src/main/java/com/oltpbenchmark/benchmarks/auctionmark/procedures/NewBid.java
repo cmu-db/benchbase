@@ -174,7 +174,7 @@ public class NewBid extends Procedure {
         if (i_num_bids > 0) {
             // Get the next ITEM_BID id for this item
             if (debug) {
-                LOG.debug("Retrieving ITEM_MAX_BID information for " + ItemId.toString(item_id));
+                LOG.debug("Retrieving ITEM_MAX_BID information for {}", ItemId.toString(item_id));
             }
             stmt = this.getPreparedStatement(conn, getMaxBidId, item_id, seller_id);
             results = stmt.executeQuery();

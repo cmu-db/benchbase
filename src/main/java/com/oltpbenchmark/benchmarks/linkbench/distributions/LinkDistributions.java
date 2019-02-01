@@ -172,9 +172,7 @@ public class LinkDistributions {
             int nlinks_config = ConfigUtil.getInt(props, LinkBenchConstants.NLINKS_CONFIG);
             // minimum #links - expected to be 0 or 1
             int nlinks_default = ConfigUtil.getInt(props, LinkBenchConstants.NLINKS_DEFAULT);
-            logger.debug("Using built-in arithmetic link distribution " + mode
-                    + " with default #links " + nlinks_config + " and "
-                    + " config parameter " + nlinks_config);
+            logger.debug("Using built-in arithmetic link distribution {} with default #links {} and  config parameter {}", mode, nlinks_config, nlinks_config);
             return new ArithLinkDistribution(minid1, maxid1, mode, nlinks_config,
                     nlinks_default);
 
@@ -196,7 +194,7 @@ public class LinkDistributions {
                                                    Properties props, long minid1, long maxid1) {
         try {
             Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
-            logger.debug("Using LinkDistribution class " + className);
+            logger.debug("Using LinkDistribution class {}", className);
             ProbabilityDistribution pDist = ClassUtil.newInstance(className,
                     ProbabilityDistribution.class);
             pDist.init(minid1, maxid1, props, LinkBenchConstants.NLINKS_PREFIX);

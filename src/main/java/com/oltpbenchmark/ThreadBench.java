@@ -235,7 +235,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 for (Thread t : workerThreads) {
                     m.put(t.getName(), t.isAlive());
                 }
-                LOG.info("Worker Thread Status:\n" + StringUtil.formatMaps(m));
+                LOG.info("Worker Thread Status:\n{}", StringUtil.formatMaps(m));
             } // WHILE
         }
     } // CLASS
@@ -256,7 +256,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         @Override
         public void run() {
-            LOG.info("Starting MonitorThread Interval [" + this.intervalMonitor + "ms]");
+            LOG.info("Starting MonitorThread Interval [{}ms]", this.intervalMonitor);
             while (true) {
                 try {
                     Thread.sleep(this.intervalMonitor);
@@ -275,7 +275,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 }
                 double seconds = this.intervalMonitor / 1000d;
                 double tps = (double) measuredRequests / seconds;
-                LOG.info("Throughput: " + tps + " txn/sec");
+                LOG.info("Throughput: {} txn/sec", tps);
             } // WHILE
         }
     } // CLASS
@@ -426,7 +426,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                                 lastEntry = true;
                                 testState.startCoolDown();
                                 measureEnd = now;
-                                LOG.info(StringUtil.bold("TERMINATE") + " :: Waiting for all terminals to finish ..");
+                                LOG.info("{} :: Waiting for all terminals to finish ..", StringUtil.bold("TERMINATE"));
                             } else if (phase != null) {
                                 phase.resetSerial();
                                 LOG.info(phase.currentPhaseString());
@@ -471,7 +471,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     interruptWorkers();
                 }
                 start = now;
-                LOG.info(StringUtil.bold("MEASURE") + " :: Warmup complete, starting measurements.");
+                LOG.info("{} :: Warmup complete, starting measurements.", StringUtil.bold("MEASURE"));
                 // measureEnd = measureStart + measureSeconds * 1000000000L;
 
                 // For serial executions, we want to do every query exactly

@@ -153,7 +153,7 @@ public abstract class SQLUtil {
                 return String.format("pg_get_serial_sequence('%s', '%s')",
                         catalog_tbl.getName(), catalog_col.getName());
             default:
-                LOG.warn("Unexpected request for sequence name on " + catalog_col + " using " + dbType);
+                LOG.warn("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
         } // SWITCH
         return (null);
     }
@@ -262,7 +262,7 @@ public abstract class SQLUtil {
                 break;
             }
             default:
-                LOG.warn("Unexpected SQL Type '" + sqlType + "' for value '" + value + "'");
+                LOG.warn("Unexpected SQL Type '{}' for value '{}'", sqlType, value);
         } // SWITCH
         return (ret);
     }

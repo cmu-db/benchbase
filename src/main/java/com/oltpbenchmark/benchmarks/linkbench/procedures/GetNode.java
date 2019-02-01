@@ -42,7 +42,7 @@ public class GetNode extends Procedure {
     //FIXME: return the RS rather than boolean
     public Node run(Connection conn, int type, long id) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("getNode : " + type + " " + id);
+            LOG.debug("getNode : {} {}", type, id);
         }
         if (stmt == null) {
             stmt = this.getPreparedStatement(conn, getNodeStmt);

@@ -104,7 +104,7 @@ public class MyRocksCollector extends DBCollector {
             myroMetrics.put("index_statistics", getMetrics(out));
 
         } catch (SQLException e) {
-            LOG.error("Error while collecting DB parameters: " + e.getMessage());
+            LOG.error("Error while collecting DB parameters: {}", e.getMessage());
         }
     }
 

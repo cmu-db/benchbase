@@ -91,7 +91,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         this.profile = new SEATSProfile(benchmark, this.rng);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("CONSTRUCTOR: " + SEATSLoader.class.getName());
+            LOG.debug("CONSTRUCTOR: {}", SEATSLoader.class.getName());
         }
     }
 
@@ -325,11 +325,11 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // flight data
         for (String histogramName : SEATSConstants.HISTOGRAM_DATA_FILES) {
             if (this.profile.histograms.containsKey(histogramName)) {
-                LOG.warn("Already loaded histogram '" + histogramName + "'. Skipping...");
+                LOG.warn("Already loaded histogram '{}'. Skipping...", histogramName);
                 continue;
             }
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loading in histogram data file for '" + histogramName + "'");
+                LOG.debug("Loading in histogram data file for '{}'", histogramName);
             }
             Histogram<String> hist = null;
 
@@ -529,7 +529,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                             insert_stmt.setNull(i + 1, sqlTypes[i]);
                         }
                     } catch (SQLDataException ex) {
-                        LOG.error("INVALID " + catalog_tbl.getName() + " TUPLE: " + Arrays.toString(tuple));
+                        LOG.error("INVALID {} TUPLE: {}", catalog_tbl.getName(), Arrays.toString(tuple));
                         throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).fullName(), ex);
                     }
                 } // FOR
@@ -843,11 +843,11 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     int next_customer_id = SEATSLoader.this.profile.incrementAirportCustomerCount(airport_id);
                     this.last_id = new CustomerId(next_customer_id, airport_id);
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("NEW CUSTOMER: " + this.last_id.encode() + " / " + this.last_id);
+                        LOG.trace("NEW CUSTOMER: {} / {}", this.last_id.encode(), this.last_id);
                     }
                     value = this.last_id.encode();
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace(value + " => " + this.airport_code + " [" + SEATSLoader.this.profile.getCustomerIdCount(airport_id) + "]");
+                        LOG.trace("{} => {} [{}]", value, this.airport_code, SEATSLoader.this.profile.getCustomerIdCount(airport_id));
                     }
                     break;
                 }
@@ -915,7 +915,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 this.airline_rand.enableHistory();
             }
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Flights Per Airline:\n" + SEATSLoader.this.flights_per_airline);
+                LOG.debug("Flights Per Airline:\n{}", SEATSLoader.this.flights_per_airline);
             }
 
             // Loop through for the total customers and figure out how many
@@ -927,7 +927,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             long new_total = 0;
             long total = SEATSLoader.this.profile.getCustomerIdCount();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Num of Customers: " + total);
+                LOG.debug("Num of Customers: {}", total);
             }
             this.ff_per_customer = new short[(int) total];
             for (int i = 0; i < total; i++) {
@@ -939,7 +939,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             } // FOR
             this.total = new_total;
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Constructing " + this.total + " FrequentFlyer tuples...");
+                LOG.debug("Constructing {} FrequentFlyer tuples...", this.total);
             }
         }
 
@@ -970,7 +970,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     } while (this.customer_airlines.contains(value));
                     this.customer_airlines.add((String) value);
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace(this.last_customer_id + " => " + value);
+                        LOG.trace("{} => {}", this.last_customer_id, value);
                     }
                     break;
                 }
@@ -1347,7 +1347,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     } // FOR
                     value = Long.valueOf(SEATSLoader.this.getFlightRemainingSeats(this.flight_id));
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace(this.flight_id + " SEATS REMAINING: " + value);
+                        LOG.trace("{} SEATS REMAINING: {}", this.flight_id, value);
                     }
                     break;
                 }
@@ -1459,7 +1459,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     m.put("Arrival", String.format("%s / %s", SEATSLoader.this.profile.getAirportCode(arrive_airport_id), arrive_time));
                     m.put("Booked Seats", booked_seats);
                     m.put(String.format("Returning Customers[%d]", returning_customers.size()), StringUtil.join("\n", returning_customers));
-                    LOG.trace("Flight Information\n" + StringUtil.formatMaps(m));
+                    LOG.trace("Flight Information\n{}", StringUtil.formatMaps(m));
                 }
 
                 for (int seatnum = 0; seatnum < booked_seats; seatnum++) {
@@ -1498,7 +1498,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     // we need to do
                     if (return_flight != null) {
                         if (LOG.isTraceEnabled()) {
-                            LOG.trace("Booked return flight: " + return_flight + " [remaining=" + returning_customers.size() + "]");
+                            LOG.trace("Booked return flight: {} [remaining={}]", return_flight, returning_customers.size());
                         }
 
                         // If it's a new outbound flight, then we will randomly

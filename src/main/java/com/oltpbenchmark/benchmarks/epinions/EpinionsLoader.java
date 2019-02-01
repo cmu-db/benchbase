@@ -49,10 +49,10 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         this.num_reviews = (int) Math.round(EpinionsConstants.REVIEW * this.scaleFactor);
         this.num_trust = (int) Math.round(EpinionsConstants.TRUST * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# USERS:  " + this.num_users);
-            LOG.debug("# ITEMS: " + this.num_items);
-            LOG.debug("# Max of REVIEWS per item: " + this.num_reviews);
-            LOG.debug("# Max of TRUSTS per user: " + this.num_trust);
+            LOG.debug("# USERS:  {}", this.num_users);
+            LOG.debug("# ITEMS: {}", this.num_items);
+            LOG.debug("# Max of REVIEWS per item: {}", this.num_reviews);
+            LOG.debug("# Max of TRUSTS per user: {}", this.num_trust);
         }
     }
 
@@ -249,7 +249,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         reviewInsert.clearBatch();
                         if (LOG.isDebugEnabled()) {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Reviewed items  % " + (int) (((double) i / (double) this.num_items) * 100));
+                                LOG.debug("Reviewed items  % {}", (int) (((double) i / (double) this.num_items) * 100));
                             }
                         }
                     }
@@ -307,7 +307,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         batch = 0;
                         trustInsert.clearBatch();
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Rated users  % " + (int) (((double) i / (double) this.num_users) * 100));
+                            LOG.debug("Rated users  % {}", (int) (((double) i / (double) this.num_users) * 100));
                         }
 
                     }

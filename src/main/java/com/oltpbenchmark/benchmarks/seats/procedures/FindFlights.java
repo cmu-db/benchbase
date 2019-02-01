@@ -99,7 +99,7 @@ public class FindFlights extends Procedure {
                     long aid = nearby_results.getLong(1);
                     double aid_distance = nearby_results.getDouble(2);
                     if (debug) {
-                        LOG.debug("DEPART NEARBY: " + aid + " distance=" + aid_distance + " miles");
+                        LOG.debug("DEPART NEARBY: {} distance={} miles", aid, aid_distance);
                     }
                     arrive_aids.add(aid);
                 } // WHILE
@@ -183,14 +183,14 @@ public class FindFlights extends Procedure {
                 //f_stmt.close();
             }
             if (debug) {
-                LOG.debug("Flight Information:\n" + finalResults);
+                LOG.debug("Flight Information:\n{}", finalResults);
             }
             return (finalResults);
         } catch (SQLException esql) {
-            LOG.error("caught SQLException in FindFlights:" + esql, esql);
+            LOG.error("caught SQLException in FindFlights:{}", esql, esql);
             throw esql;
         } catch (Exception e) {
-            LOG.error("caught Exception in FindFlights:" + e, e);
+            LOG.error("caught Exception in FindFlights:{}", e, e);
         }
         return null;
     }

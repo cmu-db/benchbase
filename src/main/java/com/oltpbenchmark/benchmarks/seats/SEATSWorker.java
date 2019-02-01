@@ -290,7 +290,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             throw new RuntimeException(ex);
         }
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Airport Max Customer Id:\n" + this.profile.airport_max_customer_id);
+            LOG.trace("Airport Max Customer Id:\n{}", this.profile.airport_max_customer_id);
         }
 
         // Make sure we have the information we need in the BenchmarkProfile
@@ -316,7 +316,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialized SEATSWorker:\n" + this.toString());
+            LOG.debug("Initialized SEATSWorker:\n{}", this.toString());
         }
     }
 
@@ -328,7 +328,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Attempting to execute " + proc);
+            LOG.debug("Attempting to execute {}", proc);
         }
         boolean ret = false;
         try {
@@ -361,20 +361,20 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
             } // SWITCH
         } catch (SQLException esql) {
-            LOG.error("caught SQLException in SEATSWorker for procedure " + txnType.getName() + ":" + esql, esql);
+            LOG.error("caught SQLException in SEATSWorker for procedure {}:{}", txnType.getName(), esql, esql);
             throw esql;
         }/*catch(Exception e) {
         	LOG.error("caught Exception in SEATSWorker for procedure "+txnType.getName() +":" + e, e);
         }*/
         if (ret == false) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to execute " + proc + " right now");
+                LOG.debug("Unable to execute {} right now", proc);
             }
             return (TransactionStatus.RETRY_DIFFERENT);
         }
 
         if (ret && LOG.isDebugEnabled()) {
-            LOG.debug("Executed a new invocation of " + txn);
+            LOG.debug("Executed a new invocation of {}", txn);
         }
         return (TransactionStatus.SUCCESS);
     }
@@ -442,7 +442,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Calling " + proc);
+            LOG.trace("Calling {}", proc);
         }
 
         boolean successful = false;
@@ -525,7 +525,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Calling " + proc);
+            LOG.trace("Calling {}", proc);
         }
         List<Object[]> results = proc.run(conn,
                 depart_airport_id,
@@ -569,7 +569,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         Long airport_depart_id = search_flight.getDepartAirportId();
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Calling " + proc);
+            LOG.trace("Calling {}", proc);
         }
         Object[][] results = proc.run(conn, search_flight.encode());
         conn.commit();
@@ -595,7 +595,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
             // We first try to get a CustomerId based at this departure airport
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Looking for a random customer to fly on " + search_flight);
+                LOG.trace("Looking for a random customer to fly on {}", search_flight);
             }
             CustomerId customer_id = profile.getRandomCustomerId(airport_depart_id);
 
@@ -606,7 +606,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             while (tries-- > 0 && (customer_id == null)) { //  || isCustomerBookedOnFlight(customer_id, flight_id))) {
                 customer_id = profile.getRandomCustomerId();
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("RANDOM CUSTOMER: " + customer_id);
+                    LOG.trace("RANDOM CUSTOMER: {}", customer_id);
                 }
             } // WHILE
             Reservation r = new Reservation(profile.getNextReservationId(getId()),
@@ -616,7 +616,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             seats.set(seatnum);
             tmp_reservations.add(r);
             if (LOG.isTraceEnabled()) {
-                LOG.trace("QUEUED INSERT: " + search_flight + " / " + search_flight.encode() + " -> " + customer_id);
+                LOG.trace("QUEUED INSERT: {} / {} -> {}", search_flight, search_flight.encode(), customer_id);
             }
         } // WHILE
 
@@ -651,7 +651,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         while (reservation == null) {
             Reservation r = cache.poll();
             if (r == null) {
-                LOG.warn("Unable to execute " + proc + " - No available reservations to insert");
+                LOG.warn("Unable to execute {} - No available reservations to insert", proc);
                 break;
             }
 
@@ -678,7 +678,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             reservation = r;
         } // WHILE
         if (reservation == null) {
-            LOG.warn("Failed to find a valid pending insert Reservation\n" + this.toString());
+            LOG.warn("Failed to find a valid pending insert Reservation\n{}", this.toString());
             return (false);
         }
 
@@ -693,7 +693,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         } // FOR
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Calling " + proc);
+            LOG.trace("Calling {}", proc);
         }
 
         boolean successful = false;
@@ -758,7 +758,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Calling " + proc);
+            LOG.trace("Calling {}", proc);
         }
 
 
@@ -808,7 +808,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             return (false);
         }
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Ok let's try to update " + r);
+            LOG.trace("Ok let's try to update {}", r);
         }
 
         long value = rng.number(1, 1 << 20);
@@ -816,7 +816,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         long seatnum = rng.number(0, SEATSConstants.FLIGHTS_NUM_SEATS - 1);
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Calling " + proc);
+            LOG.trace("Calling {}", proc);
         }
 
         boolean successful = false;

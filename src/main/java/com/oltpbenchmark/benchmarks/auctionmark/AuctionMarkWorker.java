@@ -269,7 +269,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
          */
         public boolean canExecute(AuctionMarkWorker client) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Checking whether we can execute " + this + " now");
+                LOG.debug("Checking whether we can execute {} now", this);
             }
             return this.generator.canGenerateParam(client);
         }
@@ -346,7 +346,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
             if (txn.canExecute(this) == false) {
-                LOG.warn("Unable to execute " + txn + " because it is not ready");
+                LOG.warn("Unable to execute {} because it is not ready", txn);
                 return (TransactionStatus.RETRY_DIFFERENT);
             }
         }
@@ -355,7 +355,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         Procedure proc = this.getProcedure(txnType);
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace(txnType + " -> " + txn + " -> " + txnType.getProcedureClass() + " -> " + proc);
+            LOG.trace("{} -> {} -> {} -> {}", txnType, txn, txnType.getProcedureClass(), proc);
         }
 
         boolean ret = false;
@@ -395,7 +395,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } // SWITCH
 //        assert(ret);
         if (ret && LOG.isDebugEnabled()) {
-            LOG.debug("Executed a new invocation of " + txn);
+            LOG.debug("Executed a new invocation of {}", txn);
         }
 
         return (TransactionStatus.SUCCESS);
@@ -457,7 +457,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
     protected boolean executeCloseAuctions(CloseAuctions proc) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Executing " + proc);
+            LOG.debug("Executing {}", proc);
         }
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         Timestamp startTime = profile.getLastCloseAuctionsTime();
@@ -474,7 +474,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         profile.updateItemQueues();
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Finished " + proc);
+            LOG.debug("Finished {}", proc);
         }
         return (true);
     }

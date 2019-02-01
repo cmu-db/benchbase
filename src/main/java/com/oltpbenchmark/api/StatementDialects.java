@@ -90,7 +90,7 @@ public class StatementDialects {
 
             }
 
-            LOG.warn("Failed to find dialect file for " + path);
+            LOG.warn("Failed to find dialect file for {}", path);
         }
 
 

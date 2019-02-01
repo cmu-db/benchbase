@@ -70,7 +70,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             }
             res.close();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded: " + user_ids.size() + " User ids");
+                LOG.debug("Loaded: {} User ids", user_ids.size());
             }
             // LIST OF ITEMS AND
             t = this.catalog.getTable("ITEM");
@@ -83,7 +83,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             }
             res.close();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded: " + item_ids.size() + " Item ids");
+                LOG.debug("Loaded: {} Item ids", item_ids.size());
             }
             metaConn.close();
             // Now create the workers.

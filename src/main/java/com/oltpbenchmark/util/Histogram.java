@@ -157,7 +157,7 @@ public class Histogram<X> implements JSONSerializable {
                     }
                 } // WHILE
                 if (ctr > 0) {
-                    LOG.debug("Removed " + ctr + " zero entries from histogram");
+                    LOG.debug("Removed {} zero entries from histogram", ctr);
                 }
             } // SYNCHRONIZED
         }

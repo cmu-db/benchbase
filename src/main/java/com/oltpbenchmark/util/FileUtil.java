@@ -290,10 +290,10 @@ public abstract class FileUtil {
             FileInputStream fin = new FileInputStream(file);
             GZIPInputStream gzis = new GZIPInputStream(fin);
             in = new BufferedReader(new InputStreamReader(gzis));
-            LOG.debug("Reading in the zipped contents of '" + file.getName() + "'");
+            LOG.debug("Reading in the zipped contents of '{}'", file.getName());
         } else {
             in = new BufferedReader(new FileReader(file));
-            LOG.debug("Reading in the contents of '" + file.getName() + "'");
+            LOG.debug("Reading in the contents of '{}'", file.getName());
         }
         return (in);
     }
@@ -306,7 +306,7 @@ public abstract class FileUtil {
         long length = file.length();
         byte[] bytes = new byte[(int) length];
 
-        LOG.debug("Reading in the contents of '" + file.getAbsolutePath() + "'");
+        LOG.debug("Reading in the contents of '{}'", file.getAbsolutePath());
 
         // Read in the bytes
         int offset = 0;
@@ -346,7 +346,7 @@ public abstract class FileUtil {
     }
 
     private static final File find(String name, File current, boolean isdir) throws IOException {
-        LOG.debug("Find Current Location = " + current);
+        LOG.debug("Find Current Location = {}", current);
         boolean has_svn = false;
         for (File file : current.listFiles()) {
             if (file.getCanonicalPath().endsWith(File.separator + name) && file.isDirectory() == isdir) {

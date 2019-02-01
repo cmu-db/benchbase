@@ -22,7 +22,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
         super(benchmark, conn);
         this.numEmployees = (int) (this.scaleFactor * ResourceStresserConstants.RECORD_COUNT);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of EMPLOYEES:  " + this.numEmployees);
+            LOG.debug("# of EMPLOYEES:  {}", this.numEmployees);
         }
     }
 
@@ -61,7 +61,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Start loading " + tableName);
+            LOG.debug("Start loading {}", tableName);
         }
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -97,7 +97,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Finished loading " + tableName);
+            LOG.debug("Finished loading {}", tableName);
         }
         return;
     }

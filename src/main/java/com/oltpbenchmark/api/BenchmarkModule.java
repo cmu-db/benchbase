@@ -227,7 +227,7 @@ public abstract class BenchmarkModule {
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing script '" + ddlPath + "'");
+                LOG.debug("Executing script '{}'", ddlPath);
             }
 
             runner.runScript(ddlPath);
@@ -298,7 +298,7 @@ public abstract class BenchmarkModule {
                 conn.commit();
 
                 if (loader.getTableCounts().isEmpty() == false) {
-                    LOG.info("Table Counts:\n" + loader.getTableCounts());
+                    LOG.info("Table Counts:\n{}", loader.getTableCounts());
                 }
             }
         } catch (SQLException ex) {
@@ -431,7 +431,7 @@ public abstract class BenchmarkModule {
             } // FOR
         }
         if (proc_xref.isEmpty()) {
-            LOG.warn("No procedures defined for " + this);
+            LOG.warn("No procedures defined for {}", this);
         }
         return (proc_xref);
     }

@@ -69,9 +69,7 @@ public class DeleteLink extends Procedure {
     public boolean run(Connection conn, long id1, long link_type, long id2,
                        boolean noinverse, boolean expunge) throws SQLException {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("deleteLink " + id1 +
-                    "." + id2 +
-                    "." + link_type);
+            LOG.debug("deleteLink {}.{}.{}", id1, id2, link_type);
         }
 
         // conn.setAutoCommit(false);

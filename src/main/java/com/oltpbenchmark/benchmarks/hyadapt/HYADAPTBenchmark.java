@@ -69,7 +69,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
             } // FOR
             metaConn.close();
 
-            LOG.info("Init Record Count :: " + init_record_count);
+            LOG.info("Init Record Count :: {}", init_record_count);
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
         }

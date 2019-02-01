@@ -266,7 +266,7 @@ public class AuctionMarkProfile {
 
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Saving profile information into " + catalog_tbl);
+            LOG.debug("Saving profile information into {}", catalog_tbl);
         }
         return;
     }
@@ -309,7 +309,7 @@ public class AuctionMarkProfile {
         } // FOR
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("SellerItemCounts:\n" + this.seller_item_cnt);
+            LOG.trace("SellerItemCounts:\n{}", this.seller_item_cnt);
         }
 
         return (this);
@@ -383,7 +383,7 @@ public class AuctionMarkProfile {
                 conn.commit();
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Loaded profile:\n" + cachedProfile.toString());
+                    LOG.debug("Loaded profile:\n{}", cachedProfile.toString());
                 }
             }
         } // SYNCH
@@ -496,7 +496,7 @@ public class AuctionMarkProfile {
     public synchronized Timestamp updateAndGetCurrentTime() {
         this.getScaledCurrentTimestamp(this.currentTime);
         if (LOG.isTraceEnabled()) {
-            LOG.trace("CurrentTime: " + currentTime);
+            LOG.trace("CurrentTime: {}", currentTime);
         }
         return this.currentTime;
     }
@@ -613,7 +613,7 @@ public class AuctionMarkProfile {
                 for (UserId ex : exclude) {
                     if (ex != null && ex.equals(user_id)) {
                         if (LOG.isTraceEnabled()) {
-                            LOG.trace("Excluding " + user_id);
+                            LOG.trace("Excluding {}", user_id);
                         }
                         user_id = null;
                         break;
@@ -626,7 +626,7 @@ public class AuctionMarkProfile {
 
             // If we don't care about skew, then we're done right here
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Selected " + user_id);
+                LOG.trace("Selected {}", user_id);
             }
             break;
         } // WHILE
@@ -677,7 +677,7 @@ public class AuctionMarkProfile {
         tmp_userIdHistogram.put(this.getRandomBuyerId(exclude));
 
 
-        LOG.trace("New Histogram:\n" + tmp_userIdHistogram);
+        LOG.trace("New Histogram:\n{}", tmp_userIdHistogram);
 
         FlatHistogram<UserId> rand_h = new FlatHistogram<UserId>(rng, tmp_userIdHistogram);
         return (rand_h.nextValue());
@@ -886,7 +886,7 @@ public class AuctionMarkProfile {
             if (needFutureEndDate) {
                 boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("CurrentTime:" + currentTime + " / EndTime:" + temp.getEndDate() + " [compareTo=" + compareTo + "]");
+                    LOG.trace("CurrentTime:{} / EndTime:{} [compareTo={}]", currentTime, temp.getEndDate(), compareTo);
                 }
                 if (temp.hasEndDate() == false || compareTo) {
                     continue;
@@ -899,7 +899,7 @@ public class AuctionMarkProfile {
         } // WHILE
         if (itemInfo == null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Failed to find ItemInfo [hasCurrentPrice=" + needCurrentPrice + ", needFutureEndDate=" + needFutureEndDate + "]");
+                LOG.debug("Failed to find ItemInfo [hasCurrentPrice={}, needFutureEndDate={}]", needCurrentPrice, needFutureEndDate);
             }
             return (null);
         }

@@ -85,8 +85,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Arrays.fill(this.page_last_rev_length, -1);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of USERS:  " + this.num_users);
-            LOG.debug("# of PAGES: " + this.num_pages);
+            LOG.debug("# of USERS:  {}", this.num_users);
+            LOG.debug("# of PAGES: {}", this.num_pages);
         }
     }
 
@@ -227,7 +227,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) i / (double) this.num_users) * 100);
                     if (percent != lastPercent) {
-                        LOG.debug("USERACCT (" + percent + "%)");
+                        LOG.debug("USERACCT ({}%)", percent);
                     }
                     lastPercent = percent;
                 }
@@ -243,7 +243,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_users);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Users  % " + this.num_users);
+            LOG.debug("Users  % {}", this.num_users);
         }
     }
 
@@ -294,7 +294,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) i / (double) this.num_pages) * 100);
                     if (percent != lastPercent) {
-                        LOG.debug("PAGE (" + percent + "%)");
+                        LOG.debug("PAGE ({}%)", percent);
                     }
                     lastPercent = percent;
                 }
@@ -310,7 +310,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_pages);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Users  % " + this.num_pages);
+            LOG.debug("Users  % {}", this.num_pages);
         }
     }
 
@@ -340,7 +340,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         for (int user_id = 1; user_id <= this.num_users; user_id++) {
             int num_watches = h_numWatches.nextInt();
             if (LOG.isTraceEnabled()) {
-                LOG.trace(user_id + " => " + num_watches);
+                LOG.trace("{} => {}", user_id, num_watches);
             }
             if (num_watches == 0) {
                 continue;
@@ -381,7 +381,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) user_id / (double) this.num_users) * 100);
                     if (percent != lastPercent) {
-                        LOG.debug("WATCHLIST (" + percent + "%)");
+                        LOG.debug("WATCHLIST ({}%)", percent);
                     }
                     lastPercent = percent;
                 }
@@ -507,7 +507,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     int percent = (int) (((double) page_id / (double) this.num_pages) * 100);
                     if (percent != lastPercent) {
-                        LOG.debug("REVISIONS (" + percent + "%)");
+                        LOG.debug("REVISIONS ({}%)", percent);
                     }
                     lastPercent = percent;
                 }

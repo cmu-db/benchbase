@@ -156,7 +156,7 @@ public final class Catalog {
 
             // COLUMNS
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieving COLUMN information for " + table_name);
+                LOG.debug("Retrieving COLUMN information for {}", table_name);
             }
             ResultSet col_rs = md.getColumns(null, null, internal_table_name, null);
             while (col_rs.next()) {
@@ -187,7 +187,7 @@ public final class Catalog {
 
             // PRIMARY KEYS
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieving PRIMARY KEY information for " + table_name);
+                LOG.debug("Retrieving PRIMARY KEY information for {}", table_name);
             }
             ResultSet pkey_rs = md.getPrimaryKeys(null, null, internal_table_name);
             SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
@@ -208,7 +208,7 @@ public final class Catalog {
 
             // INDEXES
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieving INDEX information for " + table_name);
+                LOG.debug("Retrieving INDEX information for {}", table_name);
             }
             ResultSet idx_rs = md.getIndexInfo(null, null, internal_table_name, false, false);
             while (idx_rs.next()) {
@@ -240,13 +240,13 @@ public final class Catalog {
 
             // FOREIGN KEYS
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieving FOREIGN KEY information for " + table_name);
+                LOG.debug("Retrieving FOREIGN KEY information for {}", table_name);
             }
             ResultSet fk_rs = md.getImportedKeys(null, null, internal_table_name);
             foreignKeys.put(table_name, new HashMap<String, Pair<String, String>>());
             while (fk_rs.next()) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(table_name + " => " + SQLUtil.debug(fk_rs));
+                    LOG.debug("{} => {}", table_name, SQLUtil.debug(fk_rs));
                 }
 
 
@@ -264,7 +264,7 @@ public final class Catalog {
 
         // FOREIGN KEYS
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Foreign Key Mappings:\n" + StringUtil.formatMaps(foreignKeys));
+            LOG.debug("Foreign Key Mappings:\n{}", StringUtil.formatMaps(foreignKeys));
         }
         for (Table catalog_tbl : tables.values()) {
             Map<String, Pair<String, String>> fk = foreignKeys.get(catalog_tbl.getName());
@@ -286,7 +286,7 @@ public final class Catalog {
                 }
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(catalog_col.fullName() + " -> " + fkey_col.fullName());
+                    LOG.debug("{} -> {}", catalog_col.fullName(), fkey_col.fullName());
                 }
                 catalog_col.setForeignKey(fkey_col);
             } // FOR
@@ -313,7 +313,7 @@ public final class Catalog {
 //            origTableNames.put(tableName, tableName);
         } // WHILE
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Original Table Names:\n" + StringUtil.formatMaps(origTableNames));
+            LOG.debug("Original Table Names:\n{}", StringUtil.formatMaps(origTableNames));
         }
 
         return (origTableNames);

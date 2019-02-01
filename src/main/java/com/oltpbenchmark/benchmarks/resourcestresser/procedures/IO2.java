@@ -59,7 +59,7 @@ public class IO2 extends Procedure {
 
             int result = stmt.executeUpdate();
             if (result != 1) {
-                LOG.warn("supposedtochange=" + 1 + " but rc=" + result);
+                LOG.warn("supposedtochange=" + 1 + " but rc={}", result);
             }
 
         } // FOR

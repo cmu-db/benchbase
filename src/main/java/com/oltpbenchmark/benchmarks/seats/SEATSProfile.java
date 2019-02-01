@@ -226,7 +226,7 @@ public class SEATSProfile {
         stmt.close();
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved profile information into " + catalog_tbl.getName());
+            LOG.debug("Saved profile information into {}", catalog_tbl.getName());
         }
 
         // CONFIG_HISTOGRAMS
@@ -242,7 +242,7 @@ public class SEATSProfile {
 
         } // FOR
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved airport histogram information into " + catalog_tbl.getName());
+            LOG.debug("Saved airport histogram information into {}", catalog_tbl.getName());
         }
 
         for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
@@ -256,7 +256,7 @@ public class SEATSProfile {
         conn.commit();
         stmt.close();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
+            LOG.debug("Saved benchmark histogram information into {}", catalog_tbl.getName());
         }
 
         return;
@@ -329,10 +329,10 @@ public class SEATSProfile {
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded profile:\n" + this.toString());
+                LOG.debug("Loaded profile:\n{}", this.toString());
             }
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
+                LOG.trace("Airport Max Customer Id:\n{}", this.airport_max_customer_id);
             }
 
             cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
@@ -597,7 +597,7 @@ public class SEATSProfile {
         int idx = this.rng.nextInt(this.cached_flight_ids.size());
         FlightId flight_id = this.cached_flight_ids.get(idx);
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Got random " + flight_id);
+            LOG.trace("Got random {}", flight_id);
         }
         return (flight_id);
     }
@@ -679,7 +679,7 @@ public class SEATSProfile {
     public Histogram<String> getAirportCustomerHistogram() {
         Histogram<String> h = new Histogram<String>();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Generating Airport-CustomerCount histogram [numAirports=" + this.getAirportCount() + "]");
+            LOG.debug("Generating Airport-CustomerCount histogram [numAirports={}]", this.getAirportCount());
         }
         for (Long airport_id : this.airport_max_customer_id.values()) {
             String airport_code = this.getAirportCode(airport_id);

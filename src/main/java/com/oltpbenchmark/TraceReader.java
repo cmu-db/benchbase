@@ -67,7 +67,7 @@ public class TraceReader {
             String line = br.readLine();
 
             if (line == null) {
-                LOG.error("Trace file " + filename + "is empty.");
+                LOG.error("Trace file {}is empty.", filename);
                 System.exit(1);
             }
 
@@ -89,8 +89,7 @@ public class TraceReader {
             }
 
             // If any of the columns were not found, then die.
-            LOG.info("Parsing trace file using indexes: "
-                    + txnIdCol + "," + phaseIdCol + "," + startTimeCol);
+            LOG.info("Parsing trace file using indexes: {},{},{}", txnIdCol, phaseIdCol, startTimeCol);
             if (txnIdCol < 0 || phaseIdCol < 0 || startTimeCol < 0) {
                 LOG.error("Could not understand column headers in trace file.");
                 System.exit(1);
@@ -124,7 +123,7 @@ public class TraceReader {
                             , startTimeNs - phaseBaseTime));
                 }
             } catch (Exception e) {
-                LOG.error("Encountered a bad line in the trace file: " + line);
+                LOG.error("Encountered a bad line in the trace file: {}", line);
                 LOG.error(e.getMessage());
             }
         } catch (Exception e) {
@@ -184,9 +183,7 @@ public class TraceReader {
         // remaining procedures from earlier phases.
         TraceElement head = tracedProcedures.peek();
         if (head.phaseId < newPhaseId) {
-            LOG.error("Changing to phase " + newPhaseId
-                    + " but head procedure is from"
-                    + " phase" + head.phaseId + ".");
+            LOG.error("Changing to phase {} but head procedure is from phase{}.", newPhaseId, head.phaseId);
             System.exit(1);
         }
 
