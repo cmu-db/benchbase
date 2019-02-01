@@ -175,26 +175,30 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public URL getDatabaseDDL(DatabaseType db_type) {
-        String fileName = null;
 
-        if (db_type == null || (db_type != null && DatabaseType.HSQLDB.equals(db_type))) {
-            fileName = "ddl.sql";
-        } else {
-            fileName = "ddl-" + db_type.name().toLowerCase() + ".sql";
+        List<String> names = new ArrayList<>();
+        if (db_type != null) {
+            names.add("ddl-" + db_type.name().toLowerCase() + ".sql");
         }
 
-        final String path = "benchmarks" + File.separator + this.benchmarkName + File.separator + fileName;
+        names.add("ddl.sql");
 
-        URL url = this.getClass().getClassLoader().getResource(path);
-        if (url != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Found DDL file for " + db_type + ": " + url);
+        for (String fileName : names) {
+
+            final String path = "benchmarks" + File.separator + this.benchmarkName + File.separator + fileName;
+
+            URL url = this.getClass().getClassLoader().getResource(path);
+            if (url != null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Found DDL file for " + db_type + ": " + url);
+                }
+                return url;
             }
-            return url;
+
+            LOG.warn("Failed to find DDL file for " + path);
         }
 
 
-        LOG.warn("Failed to find DDL file for " + path);
 
         return null;
     }
