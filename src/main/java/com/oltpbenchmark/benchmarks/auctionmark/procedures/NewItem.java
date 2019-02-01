@@ -192,7 +192,7 @@ public class NewItem extends Procedure {
         stmt = this.getPreparedStatement(conn, getCategory, category_id);
         results = stmt.executeQuery();
         boolean adv = results.next();
-        assert (adv);
+
         String category_name = String.format("%s[%d]", results.getString(2), results.getInt(1));
         results.close();
 
@@ -238,13 +238,13 @@ public class NewItem extends Procedure {
                 conn.rollback();
                 results = this.getPreparedStatement(conn, getSellerItemCount, seller_id).executeQuery();
                 adv = results.next();
-                assert (adv);
+
                 int item_count = results.getInt(1);
                 results.close();
                 throw new DuplicateItemIdException(item_id, seller_id, item_count, ex);
             } else throw ex;
         }
-        assert (updated == 1);
+
 
         // Insert ITEM_ATTRIBUTE tuples
         stmt = this.getPreparedStatement(conn, insertItemAttribute);
@@ -256,7 +256,7 @@ public class NewItem extends Procedure {
             stmt.setLong(param++, gag_ids[i]);
             stmt.setLong(param++, gag_ids[i]);
             updated = stmt.executeUpdate();
-            assert (updated == 1);
+
         } // FOR
 
         // Insert ITEM_IMAGE tuples
@@ -268,12 +268,12 @@ public class NewItem extends Procedure {
             stmt.setLong(param++, seller_id);
             stmt.setString(param++, images[i]);
             updated = stmt.executeUpdate();
-            assert (updated == 1);
+
         } // FOR
 
         // Update listing fee
         updated = this.getPreparedStatement(conn, updateUserBalance, currentTime, seller_id).executeUpdate();
-        assert (updated == 1);
+
 
         // Return new item_id and user_id
         return new Object[]{

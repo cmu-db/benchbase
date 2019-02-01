@@ -85,7 +85,7 @@ public class RandomDistribution {
          * Enable keeping track of the values that the RNG generates
          */
         public void enableHistory() {
-            assert (this.history == null) : "Trying to enable history tracking more than once";
+
             this.history = new Histogram<Long>();
         }
 
@@ -98,7 +98,7 @@ public class RandomDistribution {
          * @return
          */
         public Histogram<Long> getHistory() {
-            assert (this.history != null) : "Trying to get value history but tracking wasn't enabled";
+
             return (this.history);
         }
 
@@ -132,7 +132,7 @@ public class RandomDistribution {
         }
 
         public Set<Integer> getRandomIntSet(int cnt) {
-            assert (cnt < this.range_size);
+
             Set<Integer> ret = new HashSet<Integer>();
             do {
                 ret.add(this.nextInt());
@@ -141,7 +141,7 @@ public class RandomDistribution {
         }
 
         public Set<Integer> getRandomLongSet(int cnt) {
-            assert (cnt < this.range_size);
+
             Set<Integer> ret = new HashSet<Integer>();
             do {
                 ret.add(this.nextInt());
@@ -230,8 +230,8 @@ public class RandomDistribution {
                 val = bits % (this.range_size - 1);
             } while (bits - val + (this.range_size - 1) < 0L);
             val += this.min;
-            assert (val >= min);
-            assert (val < max);
+
+
             return val;
         }
     }

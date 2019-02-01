@@ -72,7 +72,7 @@ public class AddNode extends Procedure {
                     + " expected " + 1 + " actual " + i);
         }
 
-        assert (!rs.next()); // check done
+         // check done
         rs.close();
         return newIds[0];
     }

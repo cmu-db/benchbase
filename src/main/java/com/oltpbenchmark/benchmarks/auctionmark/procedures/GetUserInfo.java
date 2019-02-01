@@ -168,7 +168,7 @@ public class GetUserInfo extends Procedure {
         }
         result_idx++;
 
-        @SuppressWarnings("unchecked")
+
         List<Object[]> final_results[] = new List[results.length];
         for (result_idx = 0; result_idx < results.length; result_idx++) {
             List<Object[]> inner = null;

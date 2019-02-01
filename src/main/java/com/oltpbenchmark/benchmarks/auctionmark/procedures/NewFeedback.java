@@ -94,12 +94,7 @@ public class NewFeedback extends Procedure {
                 currentTime,
                 comment);
         int updated = stmt.executeUpdate();
-        assert (updated == 1) :
-                "Failed to add feedback for Item #" + i_id;
-        updated = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
-        assert (updated == 1) :
-                "Failed to updated User #" + user_id;
-
-        return;
+       updated = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
+       return;
     }
 }

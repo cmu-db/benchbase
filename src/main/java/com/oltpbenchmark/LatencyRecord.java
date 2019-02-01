@@ -42,7 +42,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     private long lastNs;
 
     public LatencyRecord(long startNs) {
-        assert startNs > 0;
+
 
         this.startNs = startNs;
         lastNs = startNs;
@@ -51,9 +51,9 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     }
 
     public void addLatency(int transType, long startNs, long endNs, int workerId, int phaseId) {
-        assert lastNs > 0;
-        assert lastNs - 500 <= startNs;
-        assert endNs >= startNs;
+
+
+
 
         if (nextIndex == ALLOC_SIZE) {
             allocateChunk();
@@ -61,9 +61,9 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
         Sample[] chunk = values.get(values.size() - 1);
 
         long startOffsetNs = (startNs - lastNs + 500);
-        assert startOffsetNs >= 0;
+
         int latencyUs = (int) ((endNs - startNs + 500) / 1000);
-        assert latencyUs >= 0;
+
 
         chunk[nextIndex] = new Sample(transType, startOffsetNs, latencyUs
                 , workerId, phaseId);
@@ -73,9 +73,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     }
 
     private void allocateChunk() {
-        assert (values.isEmpty() && nextIndex == 0)
-                || nextIndex == ALLOC_SIZE;
-        values.add(new Sample[ALLOC_SIZE]);
+       values.add(new Sample[ALLOC_SIZE]);
         nextIndex = 0;
     }
 
@@ -119,7 +117,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
             else if (diff < 0)
                 return -1;
             else {
-                assert diff == 0;
+
                 return 0;
             }
         }
@@ -136,12 +134,12 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
                 return true;
             }
 
-            assert chunkIndex == values.size() - 1;
+
             if (subIndex < nextIndex) {
                 return true;
             }
 
-            assert chunkIndex == values.size() - 1 && subIndex == nextIndex;
+
             return false;
         }
 
@@ -152,7 +150,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
 
             // Iterate in chunk, and wrap to next one
             ++subIndex;
-            assert subIndex <= ALLOC_SIZE;
+
             if (subIndex == ALLOC_SIZE) {
                 chunkIndex += 1;
                 subIndex = 0;

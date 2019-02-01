@@ -175,7 +175,7 @@ public class NewBid extends Procedure {
             stmt = this.getPreparedStatement(conn, getMaxBidId, item_id, seller_id);
             results = stmt.executeQuery();
             boolean advanceRow = results.next();
-            assert (advanceRow);
+
             newBidId = results.getLong(1) + 1;
             results.close();
 
@@ -183,7 +183,7 @@ public class NewBid extends Procedure {
             stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
             results = stmt.executeQuery();
             advanceRow = results.next();
-            assert (advanceRow);
+
             col = 1;
             long currentBidId = results.getLong(col++);
             double currentBidAmount = results.getDouble(col++);
@@ -192,10 +192,7 @@ public class NewBid extends Procedure {
             results.close();
 
             boolean updateMaxBid = false;
-            assert ((int) currentBidAmount == (int) i_current_price) :
-                    String.format("%.2f == %.2f", currentBidAmount, i_current_price);
-
-            // Check whether this bidder is already the max bidder
+           // Check whether this bidder is already the max bidder
             // This means we just need to increase their current max bid amount without
             // changing the current auction price
             if (buyer_id == currentBuyerId) {
@@ -223,7 +220,7 @@ public class NewBid extends Procedure {
                 // max bid amount 
                 if (newBid > currentBidMax) {
                     i_current_price = Math.min(newBid, currentBidMax + (i_initial_price * AuctionMarkConstants.ITEM_BID_PERCENT_STEP));
-                    assert (i_current_price > currentBidMax);
+
                     // Defer the update to ITEM_MAX_BID until after we insert our new ITEM_BID record
                     updateMaxBid = true;
                 }
@@ -234,7 +231,7 @@ public class NewBid extends Procedure {
                 else {
                     newBidMaxBuyerId = currentBuyerId;
                     i_current_price = Math.min(currentBidMax, newBid + (i_initial_price * AuctionMarkConstants.ITEM_BID_PERCENT_STEP));
-                    assert (i_current_price >= newBid) : String.format("%.2f > %.2f", i_current_price, newBid);
+
                     this.getPreparedStatement(conn, updateBid, i_current_price,
                             i_current_price,
                             currentTime,

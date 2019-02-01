@@ -40,7 +40,7 @@ public class UpdateLocation extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
         stmt.setString(1, sub_nbr);
         ResultSet results = stmt.executeQuery();
-        assert (results != null);
+
 
         if (results.next()) {
             long s_id = results.getLong(1);

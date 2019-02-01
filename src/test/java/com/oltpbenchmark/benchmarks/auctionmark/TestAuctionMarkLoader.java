@@ -100,7 +100,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
             } // FOR
             clientItemCtr.put(i, clientItemInfos.size());
             allItemInfos.addAll(clientItemInfos);
-            assert (clientItemInfos.size() > 0);
+
         } // FOR
         System.err.println(clientItemCtr);
     }

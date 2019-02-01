@@ -100,12 +100,12 @@ public class OrderStatus extends TPCCProcedure {
 
         Customer c;
         if (c_by_name) {
-            assert c_id <= 0;
+
             // TODO: This only needs c_balance, c_first, c_middle, c_id
             // only fetch those columns?
             c = getCustomerByName(w_id, d_id, c_last);
         } else {
-            assert c_last == null;
+
             c = getCustomerById(w_id, d_id, c_id, conn);
         }
 

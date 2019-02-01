@@ -80,7 +80,7 @@ public final class Catalog {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-        assert (conn != null) : "Null Connection!";
+
         this.conn = conn;
 
         // HACK: HSQLDB always uppercase the table names. So we just need to
@@ -144,7 +144,7 @@ public final class Catalog {
             if (LOG.isDebugEnabled()) LOG.debug(SQLUtil.debug(table_rs));
             String internal_table_name = table_rs.getString(3);
             String table_name = origTableNames.get(table_rs.getString(3).toUpperCase());
-            assert (table_name != null) : "Unexpected table '" + table_rs.getString(3) + "' from catalog";
+
             LOG.debug(String.format("ORIG:%s -> CATALOG:%s", internal_table_name, table_name));
 
             String table_type = table_rs.getString(4);
@@ -185,14 +185,12 @@ public final class Catalog {
             SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
             while (pkey_rs.next()) {
                 String col_name = pkey_rs.getString(4);
-                assert (catalog_tbl.getColumnByName(col_name) != null) :
-                        String.format("Unexpected primary key column %s.%s", table_name, col_name);
-                int col_idx = pkey_rs.getShort(5);
+               int col_idx = pkey_rs.getShort(5);
                 // HACK: SQLite doesn't return the KEY_SEQ, so if we get back
                 //       a zero for this value, then we'll just length of the pkey_cols map
                 if (col_idx == 0) col_idx = pkey_cols.size();
                 LOG.debug(String.format("PKEY[%02d]: %s.%s", col_idx, table_name, col_name));
-                assert (pkey_cols.containsKey(col_idx) == false);
+
                 pkey_cols.put(col_idx, col_name);
             } // WHILE
             pkey_rs.close();
@@ -222,7 +220,7 @@ public final class Catalog {
                     catalog_idx = new Index(catalog_tbl, idx_name, idx_type, idx_unique);
                     catalog_tbl.addIndex(catalog_idx);
                 }
-                assert (catalog_idx != null);
+
                 catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
             } // WHILE
             idx_rs.close();
@@ -235,7 +233,7 @@ public final class Catalog {
             while (fk_rs.next()) {
                 if (LOG.isDebugEnabled())
                     LOG.debug(table_name + " => " + SQLUtil.debug(fk_rs));
-                assert (fk_rs.getString(7).equalsIgnoreCase(table_name));
+
 
                 String colName = fk_rs.getString(8);
                 String fk_tableName = origTableNames.get(fk_rs.getString(3).toUpperCase());
@@ -257,10 +255,10 @@ public final class Catalog {
             for (Entry<String, Pair<String, String>> e : fk.entrySet()) {
                 String colName = e.getKey();
                 Column catalog_col = catalog_tbl.getColumnByName(colName);
-                assert (catalog_col != null);
+
 
                 Pair<String, String> fkey = e.getValue();
-                assert (fkey != null);
+
 
                 Table fkey_tbl = tables.get(fkey.first);
                 if (fkey_tbl == null) {
@@ -290,17 +288,14 @@ public final class Catalog {
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
-        assert (ddlContents.isEmpty() == false);
+
         Matcher m = p.matcher(ddlContents);
         while (m.find()) {
             String tableName = m.group(1).trim();
             origTableNames.put(tableName.toUpperCase(), tableName);
 //            origTableNames.put(tableName, tableName);
         } // WHILE
-        assert (origTableNames.isEmpty() == false) :
-                "Failed to extract original table names for " + this.benchmark.getBenchmarkName();
-
-        if (LOG.isDebugEnabled())
+       if (LOG.isDebugEnabled())
             LOG.debug("Original Table Names:\n" + StringUtil.formatMaps(origTableNames));
 
         return (origTableNames);

@@ -40,7 +40,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
     protected final FlatHistogram<Integer> minorEdit;
     private final FlatHistogram<Integer> revisionDeltas[];
 
-    @SuppressWarnings("unchecked")
+
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
         super(workConf, true);
 
@@ -77,7 +77,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
         if (h == null) {
             h = this.revisionDeltas[this.revisionDeltas.length - 1];
         }
-        assert (h != null);
+
 
         int delta = h.nextValue().intValue();
         if (orig_text.length + delta <= 0) {

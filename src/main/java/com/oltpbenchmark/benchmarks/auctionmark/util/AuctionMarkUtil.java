@@ -37,7 +37,7 @@ public abstract class AuctionMarkUtil {
         // then walk our way up the tree to get to our benchmark's directory
         try {
             File tests_dir = FileUtil.findDirectory("tests");
-            assert (tests_dir != null);
+
 
             dataDir = new File(tests_dir.getAbsolutePath() + File.separator + "frontend" + File.separator +
                     AuctionMarkProfile.class.getPackage().getName().replace('.', File.separatorChar) +
@@ -63,13 +63,8 @@ public abstract class AuctionMarkUtil {
      */
     public static long getUniqueElementId(long item_id, int idx) {
         // The idx cannot be more than 7bits
-        assert (idx >= 0 && idx <= 128) :
-                String.format("Invalid element idx %d", idx);
-        long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
-        assert (id >= 0) :
-                String.format("Invalid negative element id %d [item_id=%d, idx=%d]",
-                        id, item_id, idx);
-        return (id);
+       long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
+       return (id);
     }
 
     /**
@@ -77,7 +72,7 @@ public abstract class AuctionMarkUtil {
      * @return
      */
     public static Timestamp getProcTimestamp(Timestamp benchmarkTimes[]) {
-        assert (benchmarkTimes.length == 2);
+
 
         Timestamp tmp = new Timestamp(System.currentTimeMillis());
         long timestamp = getScaledTimestamp(benchmarkTimes[0], benchmarkTimes[1], tmp);

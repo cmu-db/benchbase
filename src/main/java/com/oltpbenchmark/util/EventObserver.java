@@ -29,7 +29,7 @@ public abstract class EventObserver<T> {
         @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public void update(Observable o, Object arg) {
-            assert (o instanceof EventObservable<?>.InnerObservable);
+
             EventObserver.this.update(((EventObservable.InnerObservable) o).getEventObservable(), (T) arg);
         }
 

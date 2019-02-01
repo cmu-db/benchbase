@@ -68,7 +68,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     @Override
     public void load() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("HTABLE");
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
@@ -83,7 +83,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
             total++;
             if (++batch >= HYADAPTConstants.configCommitCount) {
                 int result[] = stmt.executeBatch();
-                assert (result != null);
+
                 batch = 0;
                 LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
             }

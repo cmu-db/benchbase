@@ -50,7 +50,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
 
         // Just make sure that there are no empty tables
         for (Table catalog_tbl : catalog.getTables()) {
-            assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
+
             System.err.println(catalog_tbl);
         } // FOR
     }

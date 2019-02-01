@@ -598,7 +598,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
     private void loadTable(Connection conn, String tableName, TPCDSConstants.CastTypes[] types) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement prepStmt = conn.prepareStatement(sql);

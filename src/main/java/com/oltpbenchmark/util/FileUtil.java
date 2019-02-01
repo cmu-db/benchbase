@@ -369,7 +369,7 @@ public abstract class FileUtil {
      * @throws IOException
      */
     public static List<File> getFilesInDirectory(final File dir, final String filePrefix) throws IOException {
-        assert (dir.isDirectory()) : "Invalid search directory path: " + dir;
+
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {

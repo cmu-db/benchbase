@@ -58,7 +58,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
     private void loadTable(Connection conn, String tableName) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
-        assert (catalog_tbl != null);
+
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Start loading " + tableName);
@@ -76,15 +76,13 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
                         stmt.setString(j, TextGenerator.randomStr(rng(), ResourceStresserConstants.STRING_LENGTH));
                     }
                 } else {
-                    assert (tableName.equals(ResourceStresserConstants.TABLENAME_LOCKTABLE) ||
-                            tableName.equals(ResourceStresserConstants.TABLENAME_IOTABLESMALLROW));
-                    stmt.setInt(2, rng().nextInt());
+                   stmt.setInt(2, rng().nextInt());
                 }
 
                 stmt.addBatch();
                 if (++batch >= ResourceStresserConstants.COMMIT_BATCH_SIZE) {
                     int result[] = stmt.executeBatch();
-                    assert (result != null);
+
                     batch = 0;
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Records Loaded %d / %d", i + 1, this.numEmployees));

@@ -156,7 +156,7 @@ public class SEATSProfile {
 
         // Tuple Code to Tuple Id Mapping
         for (String xref[] : SEATSConstants.CODE_TO_ID_COLUMNS) {
-            assert (xref.length == 3);
+
             String tableName = xref[0];
             String codeCol = xref[1];
             String idCol = xref[2];
@@ -207,7 +207,7 @@ public class SEATSProfile {
 
         // CONFIG_PROFILE
         Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
-        assert (catalog_tbl != null);
+
         sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
         stmt = conn.prepareStatement(sql);
         int param_idx = 1;
@@ -224,7 +224,7 @@ public class SEATSProfile {
         int result = stmt.executeUpdate();
         conn.commit();
         stmt.close();
-        assert (result == 1);
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Saved profile information into " + catalog_tbl.getName());
         }
@@ -239,7 +239,7 @@ public class SEATSProfile {
             stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
             stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
             result = stmt.executeUpdate();
-            assert (result == 1);
+
         } // FOR
         if (LOG.isDebugEnabled()) {
             LOG.debug("Saved airport histogram information into " + catalog_tbl.getName());
@@ -251,7 +251,7 @@ public class SEATSProfile {
             stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
             stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
             result = stmt.executeUpdate();
-            assert (result == 1);
+
         } // FOR
         conn.commit();
         stmt.close();
@@ -341,7 +341,7 @@ public class SEATSProfile {
 
     private final void loadConfigProfile(ResultSet vt) throws SQLException {
         boolean adv = vt.next();
-        assert (adv);
+
         int col = 1;
         this.scale_factor = vt.getDouble(col++);
         JSONUtil.fromJSONString(this.airport_max_customer_id, vt.getString(col++));
@@ -417,8 +417,8 @@ public class SEATSProfile {
 
     private Map<String, Long> getCodeXref(String col_name) {
         Map<String, Long> m = this.code_id_xref.get(col_name);
-        assert (m != null) : "Invalid code xref mapping column '" + col_name + "'";
-        assert (m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'\n" + StringUtil.formatMaps(this.code_id_xref);
+
+
         return (m);
     }
 
@@ -486,7 +486,7 @@ public class SEATSProfile {
      */
     public Histogram<String> getHistogram(String name) {
         Histogram<String> h = this.histograms.get(name);
-        assert (h != null) : "Invalid histogram '" + name + "'";
+
         return (h);
     }
 
@@ -529,13 +529,13 @@ public class SEATSProfile {
                 f = this.airport_distributions.get(code);
                 if (f == null) {
                     Histogram<String> h = this.airport_histograms.get(code);
-                    assert (h != null);
+
                     f = new FlatHistogram<String>(this.rng, h);
                     this.airport_distributions.put(code, f);
                 }
             } // SYCH
         }
-        assert (f != null);
+
         String other = f.nextValue();
         return this.getAirportId(other);
     }
@@ -590,7 +590,7 @@ public class SEATSProfile {
      * @return
      */
     public FlightId getRandomFlightId() {
-        assert (this.cached_flight_ids.isEmpty() == false);
+
         if (LOG.isTraceEnabled()) {
             LOG.trace("Attempting to get a random FlightId");
         }

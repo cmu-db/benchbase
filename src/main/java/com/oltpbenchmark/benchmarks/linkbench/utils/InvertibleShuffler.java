@@ -94,7 +94,7 @@ public class InvertibleShuffler {
             } else {
                 rotate = minGroupSize - rotate;
             }
-            assert (rotate >= 0);
+
         }
 
         long j = (i + shuffleGroups * rotate);
@@ -113,7 +113,7 @@ public class InvertibleShuffler {
                 result = group;
             }
         }
-        assert (result % shuffleGroups == group);
+
         return result;
     }
 

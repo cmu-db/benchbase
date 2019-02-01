@@ -94,7 +94,7 @@ public class UpdateItem extends Procedure {
         }
         // ADD ITEM_ATTRIBUTE
         if (add_attribute.length > 0 && add_attribute[0] != -1) {
-            assert (add_attribute.length == 2);
+
             long gag_id = add_attribute[0];
             long gav_id = add_attribute[1];
             long ia_id = -1;
@@ -107,11 +107,11 @@ public class UpdateItem extends Procedure {
                 ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
             }
             results.close();
-            assert (ia_id > 0);
+
 
             stmt = this.getPreparedStatement(conn, insertItemAttribute, ia_id, item_id, seller_id, gag_id, gav_id);
             updated = stmt.executeUpdate();
-            assert (updated == 1);
+
         }
 
         return (true);

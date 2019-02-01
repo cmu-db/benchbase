@@ -76,7 +76,7 @@ public class WorkloadConfiguration {
      * Initiate a new benchmark and workload state
      */
     public WorkloadState initializeState(BenchmarkState benchmarkState) {
-        assert (workloadState == null);
+
         workloadState = new WorkloadState(benchmarkState, works, terminals, traceReader);
         return workloadState;
     }

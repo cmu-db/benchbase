@@ -46,11 +46,7 @@ public enum SortDirectionType {
     DESC(2);
 
     SortDirectionType(int val) {
-        assert (this.ordinal() == val) :
-                "Enum element " + this.name() +
-                        " in position " + this.ordinal() +
-                        " instead of position " + val;
-    }
+       }
 
     public int getValue() {
         return this.ordinal();
@@ -75,7 +71,7 @@ public enum SortDirectionType {
     }
 
     public static SortDirectionType get(Integer idx) {
-        assert (idx >= 0);
+
         SortDirectionType ret = SortDirectionType.idx_lookup.get(idx);
         return (ret == null ? SortDirectionType.INVALID : ret);
     }

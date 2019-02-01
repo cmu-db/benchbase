@@ -51,7 +51,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
             // LIST OF USERS
 
             Table t = this.catalog.getTable("HTABLE");
-            assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
+
             String userCount = SQLUtil.getCountSQL(this.workConf.getDBType(), t);
             Statement stmt = metaConn.createStatement();
             ResultSet res = stmt.executeQuery(userCount);
@@ -59,7 +59,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
             while (res.next()) {
                 init_record_count = res.getInt(1);
             }
-            assert init_record_count > 0;
+
             res.close();
             //
             for (int i = 0; i < workConf.getTerminals(); ++i) {

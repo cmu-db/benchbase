@@ -61,7 +61,7 @@ public class Index extends AbstractCatalogObject {
     }
 
     public void addColumn(String colName, SortDirectionType colOrder, int colPosition) {
-        assert (this.columns.containsKey(colPosition) == false);
+
         this.columns.put(colPosition, new IndexColumn(colName, colOrder));
     }
 

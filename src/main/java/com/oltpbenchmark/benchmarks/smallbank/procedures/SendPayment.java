@@ -94,17 +94,9 @@ public class SendPayment extends Procedure {
         // Debt
         PreparedStatement updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount * -1d, sendAcct);
         int status = updateStmt.executeUpdate();
-        assert (status == 1) :
-                String.format("Failed to update %s for customer #%d [amount=%.2f]",
-                        SmallBankConstants.TABLENAME_CHECKING, sendAcct, amount);
-
-        // Credit
+       // Credit
         updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct);
         status = updateStmt.executeUpdate();
-        assert (status == 1) :
-                String.format("Failed to update %s for customer #%d [amount=%.2f]",
-                        SmallBankConstants.TABLENAME_CHECKING, destAcct, amount);
-
-        return;
+       return;
     }
 }

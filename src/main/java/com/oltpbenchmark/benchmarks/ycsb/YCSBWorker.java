@@ -98,41 +98,41 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
     }
 
     private void updateRecord() throws SQLException {
-        assert (this.procUpdateRecord != null);
+
         int keyname = readRecord.nextInt();
         this.buildParameters();
         this.procUpdateRecord.run(conn, keyname, this.params);
     }
 
     private void scanRecord() throws SQLException {
-        assert (this.procScanRecord != null);
+
         int keyname = readRecord.nextInt();
         int count = randScan.nextInt();
         this.procScanRecord.run(conn, keyname, count, new ArrayList<>());
     }
 
     private void readRecord() throws SQLException {
-        assert (this.procReadRecord != null);
+
         int keyname = readRecord.nextInt();
         this.procReadRecord.run(conn, keyname, this.results);
     }
 
     private void readModifyWriteRecord() throws SQLException {
-        assert (this.procReadModifyWriteRecord != null);
+
         int keyname = readRecord.nextInt();
         this.buildParameters();
         this.procReadModifyWriteRecord.run(conn, keyname, this.params, this.results);
     }
 
     private void insertRecord() throws SQLException {
-        assert (this.procInsertRecord != null);
+
         int keyname = insertRecord.nextInt();
         this.buildParameters();
         this.procInsertRecord.run(conn, keyname, this.params);
     }
 
     private void deleteRecord() throws SQLException {
-        assert (this.procDeleteRecord != null);
+
         int keyname = readRecord.nextInt();
         this.procDeleteRecord.run(conn, keyname);
     }

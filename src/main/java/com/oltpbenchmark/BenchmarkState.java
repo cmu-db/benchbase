@@ -52,7 +52,7 @@ public final class BenchmarkState {
         startBarrier = new CountDownLatch(numThreads);
         notDoneCount = new AtomicInteger(numThreads);
 
-        assert numThreads > 0;
+
 
         testStartNs = System.nanoTime();
     }
@@ -68,8 +68,8 @@ public final class BenchmarkState {
      * entered.
      */
     public void blockForStart() {
-        assert state == State.WARMUP;
-        assert startBarrier.getCount() > 0;
+
+
         startBarrier.countDown();
         try {
             startBarrier.await();
@@ -79,33 +79,33 @@ public final class BenchmarkState {
     }
 
     public void startMeasure() {
-        assert state == State.WARMUP;
+
 
         state = State.MEASURE;
     }
 
     public void startColdQuery() {
-        assert state == State.MEASURE;
+
         state = State.COLD_QUERY;
     }
 
     public void startHotQuery() {
-        assert state == State.COLD_QUERY;
+
         state = State.MEASURE;
     }
 
     public void signalLatencyComplete() {
-        assert state == State.MEASURE;
+
         state = State.LATENCY_COMPLETE;
     }
 
     public void ackLatencyComplete() {
-        assert state == State.LATENCY_COMPLETE;
+
         state = State.MEASURE;
     }
 
     public void startCoolDown() {
-        assert state == State.MEASURE;
+
         state = State.DONE;
 
         // The master thread must also signal that it is done
@@ -116,9 +116,9 @@ public final class BenchmarkState {
      * Notify that this thread has entered the done state.
      */
     public int signalDone() {
-        assert state == State.DONE;
+
         int current = notDoneCount.decrementAndGet();
-        assert current >= 0;
+
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("%d workers are not done. Waiting until they finish", current));
         if (current == 0) {

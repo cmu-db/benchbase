@@ -125,7 +125,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
     private PreparedStatement getInsertStatement(Connection conn, String tableName) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
-        assert (catalog_tbl != null);
+
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = conn.prepareStatement(sql);
         return stmt;
@@ -560,7 +560,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 for (int i = 0; i < c_ids.length - 1; ++i) {
                     int remaining = c_ids.length - i - 1;
                     int swapIndex = benchmark.rng().nextInt(remaining) + i + 1;
-                    assert i < swapIndex;
+
                     int temp = c_ids[swapIndex];
                     c_ids[swapIndex] = c_ids[i];
                     c_ids[i] = temp;

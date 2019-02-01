@@ -134,7 +134,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      */
     protected void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_USER);
-        assert (catalog_tbl != null);
+
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement userInsert = conn.prepareStatement(sql);
 
@@ -161,7 +161,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             total++;
             if ((batchSize % configCommitCount) == 0) {
                 int result[] = userInsert.executeBatch();
-                assert (result != null);
+
                 userInsert.clearBatch();
                 batchSize = 0;
                 if (LOG.isDebugEnabled()) {
@@ -187,7 +187,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      */
     protected void loadTweets(Connection conn, long lo, long hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
-        assert (catalog_tbl != null);
+
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement tweetInsert = conn.prepareStatement(sql);
 
@@ -238,12 +238,12 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     protected void loadFollowData(Connection conn, int lo, int hi) throws SQLException {
         String sql;
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
-        assert (catalog_tbl != null);
+
         sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         final PreparedStatement followsInsert = conn.prepareStatement(sql);
 
         catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
-        assert (catalog_tbl != null);
+
         sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         final PreparedStatement followersInsert = conn.prepareStatement(sql);
 

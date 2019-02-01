@@ -43,9 +43,9 @@ public class Contention2 extends Procedure {
     );
 
     public void run(Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
-        assert howManyKeys > 0;
-        assert howManyUpdates > 0;
-        assert sleepLength >= 0;
+
+
+
 
         PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate);
         PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep);

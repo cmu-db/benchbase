@@ -143,7 +143,7 @@ public class StatementDialects {
 
         for (DialectType dialect : dialects.getDialect()) {
 
-            assert (dialect != null);
+
             if (dialect.getType().equalsIgnoreCase(dbType.name()) == false) {
                 continue;
             }
@@ -157,13 +157,8 @@ public class StatementDialects {
                 Map<String, String> procDialects = this.dialectsMap.get(procName);
                 for (StatementType statement : procedure.getStatement()) {
                     String stmtName = statement.getName();
-                    assert (stmtName.isEmpty() == false) :
-                            String.format("Invalid Statement for %s.%s", dbType, procName);
-                    String stmtSQL = statement.getValue().trim();
-                    assert (stmtSQL.isEmpty() == false) :
-                            String.format("Invalid SQL for %s.%s.%s", dbType, procName, stmtName);
-
-                    if (procDialects == null) {
+                   String stmtSQL = statement.getValue().trim();
+                   if (procDialects == null) {
                         procDialects = new HashMap<String, String>();
                         this.dialectsMap.put(procName, procDialects);
                     }
@@ -189,7 +184,7 @@ public class StatementDialects {
      * @return A well-formed XML export of the SQL for the given Procedures
      */
     public String export(DatabaseType dbType, Collection<Procedure> procedures) {
-        assert (procedures.isEmpty() == false) : "No procedures passed";
+
         Marshaller marshaller = null;
         JAXBContext jc = null;
 

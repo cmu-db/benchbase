@@ -134,9 +134,7 @@ public abstract class TextGenerator {
      * @return
      */
     public static char[] resizeText(Random rng, char orig[], int delta) {
-        assert (orig.length + delta > 0) :
-                String.format("Invalid resize (orig:%d, delta:%d)", orig.length, delta);
-        char chars[] = Arrays.copyOf(orig, orig.length + delta);
+       char chars[] = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
             chars[i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR

@@ -316,17 +316,17 @@ public abstract class JSONUtil {
      * @param inner_classes
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+
     protected static void readMapField(final JSONObject json_object, final Map map, final Stack<Class> inner_classes) throws Exception {
         Class<?> key_class = inner_classes.pop();
         Class<?> val_class = inner_classes.pop();
         Collection<Class<?>> val_interfaces = ClassUtil.getInterfaces(val_class);
 
-        assert (json_object != null);
+
         for (String json_key : CollectionUtil.iterable(json_object.keys())) {
             final Stack<Class> next_inner_classes = new Stack<Class>();
             next_inner_classes.addAll(inner_classes);
-            assert (next_inner_classes.equals(inner_classes));
+
 
             // KEY
             Object key = JSONUtil.getPrimitiveValue(json_key, key_class);
@@ -367,7 +367,7 @@ public abstract class JSONUtil {
      * @param inner_classes
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+
     protected static void readCollectionField(final JSONArray json_array, final Collection collection, final Stack<Class> inner_classes) throws Exception {
         // We need to figure out what the inner type of the collection is
         // If it's a Collection or a Map, then we need to instantiate it before 
@@ -378,7 +378,7 @@ public abstract class JSONUtil {
         for (int i = 0, cnt = json_array.length(); i < cnt; i++) {
             final Stack<Class> next_inner_classes = new Stack<Class>();
             next_inner_classes.addAll(inner_classes);
-            assert (next_inner_classes.equals(inner_classes));
+
             Object value = null;
 
             // Null
@@ -414,9 +414,9 @@ public abstract class JSONUtil {
      * @param object
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+
     public static void readFieldValue(final JSONObject json_object, final String json_key, Field field_handle, Object object) throws Exception {
-        assert (json_object.has(json_key)) : "No entry exists for '" + json_key + "'";
+
         Class<?> field_class = field_handle.getType();
         Object field_object = field_handle.get(object);
         // String field_name = field_handle.getName();
@@ -429,7 +429,7 @@ public abstract class JSONUtil {
             // Collections
         } else if (ClassUtil.getInterfaces(field_class).contains(Collection.class)) {
             if (LOG.isDebugEnabled()) LOG.debug("Field " + json_key + " is a collection");
-            assert (field_object != null);
+
             Stack<Class> inner_classes = new Stack<Class>();
             inner_classes.addAll(ClassUtil.getGenericTypes(field_handle));
             Collections.reverse(inner_classes);
@@ -441,7 +441,7 @@ public abstract class JSONUtil {
             // Maps
         } else if (field_object instanceof Map) {
             if (LOG.isDebugEnabled()) LOG.debug("Field " + json_key + " is a map");
-            assert (field_object != null);
+
             Stack<Class> inner_classes = new Stack<Class>();
             inner_classes.addAll(ClassUtil.getGenericTypes(field_handle));
             Collections.reverse(inner_classes);

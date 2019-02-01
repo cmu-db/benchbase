@@ -100,7 +100,7 @@ public class Histogram<X> implements JSONSerializable {
      * @param other
      */
     public Histogram(Histogram<X> other) {
-        assert (other != null);
+
         this.putHistogram(other);
     }
 
@@ -184,7 +184,7 @@ public class Histogram<X> implements JSONSerializable {
         if (this.histogram.containsKey(value)) {
             count += this.histogram.get(value);
         }
-        assert (count >= 0) : "Invalid negative count for key '" + value + "' [count=" + count + "]";
+
         // If the new count is zero, then completely remove it if we're not allowed to have zero entries
         if (count == 0 && !this.keep_zero_entries) {
             this.histogram.remove(value);
@@ -198,7 +198,7 @@ public class Histogram<X> implements JSONSerializable {
      * Recalculate the min/max count value sets
      * Since this is expensive, this should only be done whenever that information is needed
      */
-    @SuppressWarnings("unchecked")
+
     private synchronized void calculateInternalValues() {
         if (this.dirty == false) return;
 
@@ -264,7 +264,7 @@ public class Histogram<X> implements JSONSerializable {
      *
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     public X getMinValue() {
         this.calculateInternalValues();
         return ((X) this.min_value);
@@ -276,7 +276,7 @@ public class Histogram<X> implements JSONSerializable {
      *
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     public X getMaxValue() {
         this.calculateInternalValues();
         return ((X) this.max_value);
@@ -376,7 +376,7 @@ public class Histogram<X> implements JSONSerializable {
         this.max_count = 0;
         if (this.max_count_values != null) this.max_count_values.clear();
         this.max_value = null;
-        assert (this.histogram.isEmpty());
+
         this.dirty = true;
     }
 
@@ -486,7 +486,7 @@ public class Histogram<X> implements JSONSerializable {
      * @param count
      */
     public synchronized void remove(X value, int count) {
-        assert (this.histogram.containsKey(value));
+
         this._put(value, count * -1);
 //        this.calculateInternalValues();
     }
@@ -701,7 +701,7 @@ public class Histogram<X> implements JSONSerializable {
         if (object.has(Members.VALUE_TYPE.name())) {
             String className = object.getString(Members.VALUE_TYPE.name());
             value_type = ClassUtil.getClass(className);
-            assert (value_type != null) : "Invalid VALUE_TYPE '" + className + "'";
+
         }
 
         // This code sucks ass...
@@ -715,7 +715,7 @@ public class Histogram<X> implements JSONSerializable {
                     Iterator<String> keys = jsonObject.keys();
                     while (keys.hasNext()) {
                         String key_name = keys.next();
-                        @SuppressWarnings("unchecked")
+
                         X key_value = (X) JSONUtil.getPrimitiveValue(key_name, value_type);
                         int count = jsonObject.getInt(key_name);
                         this.histogram.put(key_value, count);

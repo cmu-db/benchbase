@@ -93,7 +93,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         public static Transaction get(Integer idx) {
-            assert (idx >= 0);
+
             return (Transaction.idx_lookup.get(idx));
         }
 
@@ -167,7 +167,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
      * @return
      */
     protected boolean isFlightFull(BitSet seats) {
-        assert (FULL_FLIGHT_BITSET.size() == seats.size());
+
         return FULL_FLIGHT_BITSET.equals(seats);
     }
 
@@ -232,8 +232,8 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             this.flight_id = flight_id;
             this.customer_id = customer_id;
             this.seatnum = seatnum;
-            assert (this.seatnum >= 0) : "Invalid seat number\n" + this;
-            assert (this.seatnum < SEATSConstants.FLIGHTS_NUM_SEATS) : "Invalid seat number\n" + this;
+
+
         }
 
         @Override
@@ -304,7 +304,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         FindOpenSeats proc = this.getProcedure(FindOpenSeats.class);
         try {
             boolean ret = this.executeFindOpenSeats(proc);
-            assert (ret);
+
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -316,13 +316,11 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     @Override
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         Transaction txn = Transaction.get(txnType.getName());
-        assert (txn != null) : "Unexpected " + txnType;
+
 
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
-        assert (proc != null) : String.format("Failed to get Procedure handle for %s.%s",
-                this.getBenchmarkModule().getBenchmarkName(), txnType);
-        if (LOG.isDebugEnabled())
+       if (LOG.isDebugEnabled())
             LOG.debug("Attempting to execute " + proc);
         boolean ret = false;
         try {
@@ -352,7 +350,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                     break;
                 }
                 default:
-                    assert (false) : "Unexpected transaction: " + txn;
+
             } // SWITCH
         } catch (SQLException esql) {
             LOG.error("caught SQLException in SEATSWorker for procedure " + txnType.getName() + ":" + esql, esql);
@@ -386,10 +384,10 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         } else {
             ctype = CacheType.PENDING_UPDATES;
         }
-        assert (ctype != null);
+
 
         LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(ctype);
-        assert (cache != null);
+
         cache.add(r);
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Queued %s for %s [cache=%d]", r, ctype, cache.size()));
@@ -526,7 +524,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             int ctr = 0;
             for (Object row[] : results) {
                 FlightId flight_id = new FlightId((Long) row[0]);
-                assert (flight_id != null);
+
                 boolean added = profile.addFlightId(flight_id);
                 if (added) ctr++;
             } // WHILE
@@ -547,7 +545,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
      */
     private boolean executeFindOpenSeats(FindOpenSeats proc) throws SQLException {
         final FlightId search_flight = this.profile.getRandomFlightId();
-        assert (search_flight != null);
+
         Long airport_depart_id = search_flight.getDepartAirportId();
 
         if (LOG.isTraceEnabled()) LOG.trace("Calling " + proc);
@@ -555,15 +553,9 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         conn.commit();
 
         int rowCount = results.length;
-        assert (rowCount <= SEATSConstants.FLIGHTS_NUM_SEATS) :
-                String.format("Unexpected %d open seats returned for %s", rowCount, search_flight);
+       // there is some tiny probability of an empty flight .. maybe 1/(20**150)
+        // if you hit thisLinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
 
-        // there is some tiny probability of an empty flight .. maybe 1/(20**150)
-        // if you hit this assert (with valid code), play the lottery!
-        if (rowCount == 0) return (true);
-
-        LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
-        assert (cache != null) : "Unexpected " + CacheType.PENDING_INSERTS;
 
         // Store pending reservations in our queue for a later transaction            
         BitSet seats = getSeatsBitSet(search_flight);
@@ -587,10 +579,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 if (LOG.isTraceEnabled())
                     LOG.trace("RANDOM CUSTOMER: " + customer_id);
             } // WHILE
-            assert (customer_id != null) :
-                    String.format("Failed to find a unique Customer to reserve for seat #%d on %s", seatnum, search_flight);
-
-            Reservation r = new Reservation(profile.getNextReservationId(getId()),
+           Reservation r = new Reservation(profile.getNextReservationId(getId()),
                     search_flight,
                     customer_id,
                     seatnum.intValue());
@@ -621,7 +610,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         Reservation reservation = null;
         BitSet seats = null;
         LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
-        assert (cache != null) : "Unexpected " + CacheType.PENDING_INSERTS;
+
 
         if (LOG.isDebugEnabled())
             LOG.debug(String.format("Attempting to get a new pending insert Reservation [totalPendingInserts=%d]",
@@ -762,7 +751,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
     private boolean executeUpdateReservation(UpdateReservation proc) throws SQLException {
         LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_UPDATES);
-        assert (cache != null) : "Unexpected " + CacheType.PENDING_UPDATES;
+
 
         if (LOG.isTraceEnabled())
             LOG.trace("Let's look for a Reservation that we can update");

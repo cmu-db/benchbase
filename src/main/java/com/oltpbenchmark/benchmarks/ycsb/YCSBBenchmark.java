@@ -52,7 +52,7 @@ public class YCSBBenchmark extends BenchmarkModule {
             // LIST OF USERS
 
             Table t = this.catalog.getTable("USERTABLE");
-            assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
+
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "ycsb_key");
 
             try (Connection metaConn = this.makeConnection();
@@ -62,7 +62,7 @@ public class YCSBBenchmark extends BenchmarkModule {
                 while (res.next()) {
                     init_record_count = res.getInt(1);
                 }
-                assert init_record_count > 0;
+
                 //
                 for (int i = 0; i < workConf.getTerminals(); ++i) {
                     workers.add(new YCSBWorker(this, i, init_record_count + 1));

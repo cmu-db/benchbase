@@ -39,7 +39,7 @@ public abstract class CollectionUtil {
      * @param array
      */
     public static <T> void toArray(Collection<T> items, Object array[], boolean convert_to_primitive) {
-        assert (items.size() == array.length);
+
 
         int i = 0;
         for (T t : items) {
@@ -64,7 +64,7 @@ public abstract class CollectionUtil {
         int ret[] = new int[items.size()];
         int idx = 0;
         for (Integer i : items) {
-            assert (i != null);
+
             ret[idx++] = i.intValue();
         } // FOR
         return (ret);
@@ -474,7 +474,7 @@ public abstract class CollectionUtil {
         T t = CollectionUtil.first(items);
         if (t != null) {
             boolean ret = items.remove(t);
-            assert (ret);
+
         }
         return (t);
     }

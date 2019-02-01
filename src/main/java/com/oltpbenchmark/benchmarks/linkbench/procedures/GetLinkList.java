@@ -67,7 +67,7 @@ public class GetLinkList extends Procedure {
 
         // Find result set size
         // be sure we fast forward to find result set size
-        assert (rs.getType() != ResultSet.TYPE_FORWARD_ONLY);
+
         rs.last();
         int count = rs.getRow();
         rs.beforeFirst();
@@ -88,9 +88,9 @@ public class GetLinkList extends Procedure {
             links[i] = l;
             i++;
         }
-        assert (!rs.next()); // check done
+         // check done
         rs.close();
-        assert (i == count);
+
         return links;
     }
     // lookup using just id1, type

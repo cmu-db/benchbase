@@ -80,12 +80,12 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         // AddWatchList
         try {
             if (procClass.equals(AddWatchList.class)) {
-                assert (userId > 0);
+
                 this.addToWatchlist(userId, nameSpace, pageTitle);
             }
             // RemoveWatchList
             else if (procClass.equals(RemoveWatchList.class)) {
-                assert (userId > 0);
+
                 this.removeFromWatchlist(userId, nameSpace, pageTitle);
             }
             // UpdatePage
@@ -98,7 +98,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             }
             // GetPageAuthenticated
             else if (procClass.equals(GetPageAuthenticated.class)) {
-                assert (userId > 0);
+
                 this.getPageAuthenticated(true, this.generateUserIP(), userId, nameSpace, pageTitle);
             }
             this.conn.commit();
@@ -126,25 +126,25 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
      */
     public Article getPageAnonymous(boolean forSelect, String userIp, int nameSpace, String pageTitle) throws SQLException {
         GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);
-        assert (proc != null);
+
         return proc.run(this.conn, forSelect, userIp, nameSpace, pageTitle);
     }
 
     public Article getPageAuthenticated(boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
         GetPageAuthenticated proc = this.getProcedure(GetPageAuthenticated.class);
-        assert (proc != null);
+
         return proc.run(this.conn, forSelect, userIp, userId, nameSpace, pageTitle);
     }
 
     public void addToWatchlist(int userId, int nameSpace, String pageTitle) throws SQLException {
         AddWatchList proc = this.getProcedure(AddWatchList.class);
-        assert (proc != null);
+
         proc.run(this.conn, userId, nameSpace, pageTitle);
     }
 
     public void removeFromWatchlist(int userId, int nameSpace, String pageTitle) throws SQLException {
         RemoveWatchList proc = this.getProcedure(RemoveWatchList.class);
-        assert (proc != null);
+
         proc.run(this.conn, userId, nameSpace, pageTitle);
     }
 
@@ -171,7 +171,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             LOG.trace("UPDATING: Page: id:" + a.pageId + " ns:" + nameSpace + " title" + pageTitle);
         }
         UpdatePage proc = this.getProcedure(UpdatePage.class);
-        assert (proc != null);
+
 
         proc.run(this.conn, a.textId, a.pageId, pageTitle, new String(newText), nameSpace, userId, userIp, a.userText, a.revisionId, revComment, revMinorEdit);
         //

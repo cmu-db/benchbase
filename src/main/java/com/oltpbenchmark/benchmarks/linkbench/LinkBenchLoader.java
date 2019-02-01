@@ -49,7 +49,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
     @Override
     public void load() throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = this.conn.prepareStatement(sql);
@@ -64,7 +64,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
             total++;
             if (++batch >= LinkBenchConstants.configCommitCount) {
                 int result[] = stmt.executeBatch();
-                assert (result != null);
+
                 conn.commit();
                 batch = 0;
                 if (LOG.isDebugEnabled())

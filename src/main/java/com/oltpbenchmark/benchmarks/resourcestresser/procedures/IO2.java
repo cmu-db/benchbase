@@ -42,7 +42,7 @@ public class IO2 extends Procedure {
 
     public void run(Connection conn, int myId, int howManyUpdatesPerTransaction,
                     boolean makeSureWorkerSetFitsInMemory, int keyRange) throws SQLException {
-        assert howManyUpdatesPerTransaction > 0;
+
 
         PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
 
@@ -53,7 +53,7 @@ public class IO2 extends Procedure {
         for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
             int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;
             int value = ResourceStresserWorker.gen.nextInt();
-            assert key >= startingKey && key <= lastKey;
+
             stmt.setInt(1, value);
             stmt.setInt(2, key);
 

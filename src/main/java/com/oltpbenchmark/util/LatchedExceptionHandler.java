@@ -35,7 +35,7 @@ public class LatchedExceptionHandler implements Thread.UncaughtExceptionHandler 
     private Throwable last_error;
 
     public LatchedExceptionHandler(CountDownLatch latch) {
-        assert (latch.getCount() > 0);
+
         this.latch = latch;
     }
 

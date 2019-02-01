@@ -79,11 +79,11 @@ public class TestClassUtil extends TestCase {
         };
         List<Class<?>> results = ClassUtil.getSuperClasses(target_class);
         // System.err.println(target_class + " => " + results);
-        assert (!results.isEmpty());
+
         assertEquals(expected.length, results.size());
 
         for (Class<?> e : expected) {
-            assert (results.contains(e));
+
         } // FOR
     }
 
@@ -98,11 +98,11 @@ public class TestClassUtil extends TestCase {
                 Object.class,
         };
         List<Class<?>> results = ClassUtil.getSuperClasses(MockObject3.class);
-        assert (!results.isEmpty());
+
         assertEquals(expected.length, results.size());
 
         for (Class<?> e : expected) {
-            assert (results.contains(e));
+
         } // FOR
     }
 
@@ -120,11 +120,11 @@ public class TestClassUtil extends TestCase {
         };
         Collection<Class<?>> results = ClassUtil.getInterfaces(target_class);
         // System.err.println(target_class + " => " + results);
-        assert (!results.isEmpty());
+
         assertEquals(expected.length, results.size());
 
         for (Class<?> e : expected) {
-            assert (results.contains(e));
+
         } // FOR
     }
 }

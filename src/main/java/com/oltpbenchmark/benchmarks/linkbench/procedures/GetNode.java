@@ -54,7 +54,7 @@ public class GetNode extends Procedure {
                     rs.getLong(3), rs.getInt(4), rs.getBytes(5));
 
             // Check that multiple rows weren't returned
-            assert (rs.next() == false);
+
             rs.close();
             if (res.type != type) {
                 return null;

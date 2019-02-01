@@ -218,7 +218,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void addNode() throws SQLException {
         AddNode proc = this.getProcedure(AddNode.class);
-        assert (proc != null);
+
         Node newNode = createAddNode();
         lastNodeId = proc.run(conn, newNode);
         if (LOG.isDebugEnabled()) {
@@ -228,7 +228,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void getNode() throws SQLException {
         GetNode proc = this.getProcedure(GetNode.class);
-        assert (proc != null);
+
         long idToFetch = chooseRequestID(DistributionType.NODE_READS,
                 lastNodeId);
         Node fetched = proc.run(conn, LinkBenchConstants.DEFAULT_NODE_TYPE, idToFetch);
@@ -237,7 +237,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void deleteNode() throws SQLException {
         DeleteNode proc = this.getProcedure(DeleteNode.class);
-        assert (proc != null);
+
         long idToDelete = chooseRequestID(DistributionType.NODE_DELETES,
                 lastNodeId);
         proc.run(conn, LinkBenchConstants.DEFAULT_NODE_TYPE, idToDelete);
@@ -246,7 +246,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void updateNode() throws SQLException {
         UpdateNode proc = this.getProcedure(UpdateNode.class);
-        assert (proc != null);
+
         // Choose an id that has previously been created (but might have
         // been since deleted
         long upId = chooseRequestID(DistributionType.NODE_UPDATES,
@@ -259,7 +259,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void getLink() throws SQLException {
         GetLink proc = this.getProcedure(GetLink.class);
-        assert (proc != null);
+
         Link link = new Link();
         long id1 = chooseRequestID(DistributionType.LINK_READS, link.id1);
         long link_type = id2chooser.chooseRandomLinkType(rng);
@@ -271,7 +271,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                 ID2Chooser.P_GET_EXIST);
 
         int found = getLink(id1, link_type, id2s);
-        assert (found >= 0 && found <= nid2s);
+
 
         if (found > 0) {
             numfound += found;
@@ -282,7 +282,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void addLink() throws SQLException {
         AddLink proc = this.getProcedure(AddLink.class);
-        assert (proc != null);
+
         // generate add request
         Link link = new Link();
         link.id1 = chooseRequestID(DistributionType.LINK_WRITES, link.id1);
@@ -301,7 +301,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     private void deleteLink() throws SQLException {
         DeleteLink proc = this.getProcedure(DeleteLink.class);
-        assert (proc != null);
+
         Link link = new Link();
         long id1 = chooseRequestID(DistributionType.LINK_WRITES, link.id1);
         long link_type = id2chooser.chooseRandomLinkType(rng);
@@ -314,7 +314,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     private void updateLink() throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         AddLink proc = this.getProcedure(AddLink.class);
-        assert (proc != null);
+
         Link link = new Link();
         link.id1 = chooseRequestID(DistributionType.LINK_WRITES, link.id1);
         link.link_type = id2chooser.chooseRandomLinkType(rng);
@@ -334,7 +334,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     private void countLink() throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         CountLink proc = this.getProcedure(CountLink.class);
-        assert (proc != null);
+
         Link link = new Link();
         long id1 = chooseRequestID(DistributionType.LINK_READS, link.id1);
         long link_type = id2chooser.chooseRandomLinkType(rng);
@@ -344,7 +344,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     private void getLinkList() throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         GetLinkList proc = this.getProcedure(GetLinkList.class);
-        assert (proc != null);
+
         Link link = new Link();
         Link links[];
         if (rng.nextDouble() < p_historical_getlinklist &&
@@ -566,7 +566,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         }
         long newid1 = dist.nextID(rng, previousId1);
         // Distribution responsible for generating number in range
-        assert ((newid1 >= startid1) && (newid1 < maxid1));
+
         if (LOG.isTraceEnabled()) {
             LOG.trace("id1 generated = " + newid1 +
                     " for access distribution: " + dist.getClass().getName() + ": " +
@@ -637,8 +637,8 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
     Link[] getLinkListTail() throws SQLException {
         GetLinkList proc = this.getProcedure(GetLinkList.class);
-        assert (!listTailHistoryIndex.isEmpty());
-        assert (!listTailHistory.isEmpty());
+
+
         int choice = rng.nextInt(listTailHistory.size());
         Link prevLast = listTailHistory.get(choice);
 

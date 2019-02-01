@@ -89,7 +89,7 @@ public abstract class BenchmarkModule {
     protected boolean verbose;
 
     public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
-        assert (workConf != null) : "The WorkloadConfiguration instance is null.";
+
 
         this.workConf = workConf;
         this.catalog = (withCatalog ? new Catalog(this) : null);
@@ -223,7 +223,7 @@ public abstract class BenchmarkModule {
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
             String ddlPath = this.getDatabaseDDLPath(dbType);
-            assert (ddlPath != null) : "Failed to get DDL path for  " + this;
+
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
             if (LOG.isDebugEnabled()) {
@@ -280,7 +280,7 @@ public abstract class BenchmarkModule {
                 List<? extends LoaderThread> loaderThreads = loader.createLoaderThreads();
                 if (loaderThreads != null) {
                     int maxConcurrent = workConf.getLoaderThreads();
-                    assert (maxConcurrent > 0);
+
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]",
                                 loaderThreads.size(),
@@ -355,7 +355,7 @@ public abstract class BenchmarkModule {
      */
     public Table getTableCatalog(String tableName) {
         Table catalog_tbl = this.catalog.getTable(tableName.toUpperCase());
-        assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";
+
         return (catalog_tbl);
     }
 
@@ -380,7 +380,7 @@ public abstract class BenchmarkModule {
      * @param id
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     public final TransactionType initTransactionType(String procName, int id) {
         if (id == TransactionType.INVALID_ID) {
             LOG.error(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s",
@@ -390,10 +390,10 @@ public abstract class BenchmarkModule {
         }
 
         Package pkg = this.getProcedurePackageImpl();
-        assert (pkg != null) : "Null Procedure package for " + getBenchmarkName();
+
         String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
-        assert (procClass != null) : "Unexpected Procedure name " + getBenchmarkName() + "." + procName;
+
         return new TransactionType(procClass, id);
     }
 

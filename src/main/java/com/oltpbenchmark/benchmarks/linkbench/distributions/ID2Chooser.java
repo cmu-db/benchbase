@@ -188,7 +188,7 @@ public class ID2Chooser {
      * @return
      */
     private long chooseForOpInternal(Random rng, long id1, long range) {
-        assert (range >= 1);
+
         // We want to sometimes add a link that already exists and sometimes
         // add a new link. So generate id2 such that it has roughly pExisting
         // chance of already existing.
@@ -218,7 +218,7 @@ public class ID2Chooser {
      * @return number of links for this id1
      */
     public long calcTotalLinkCount(long id1) {
-        assert (id1 >= startid1 && id1 < maxid1);
+
         // Shuffle.  A low id after shuffling means many links, a high means few
         long shuffled;
         if (linkDist.doShuffle()) {
@@ -226,7 +226,7 @@ public class ID2Chooser {
         } else {
             shuffled = id1;
         }
-        assert (shuffled >= startid1 && shuffled < maxid1);
+
         sameShuffle = shuffled == id1;
         long nlinks = linkDist.getNlinks(shuffled);
         return nlinks;

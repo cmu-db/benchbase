@@ -98,7 +98,7 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
             return false;
         }
 
-        @SuppressWarnings("unchecked")
+
         Pair<T, U> other = (Pair<T, U>) o;
 
         return (first == null ? other.first == null : first.equals(other.first))

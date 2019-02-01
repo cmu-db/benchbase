@@ -48,7 +48,7 @@ public class SIBenchmark extends BenchmarkModule {
             // LIST OF USERS
 
             Table t = this.catalog.getTable("SITEST");
-            assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
+
             String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "id");
             Statement stmt = metaConn.createStatement();
             ResultSet res = stmt.executeQuery(recordCount);
@@ -56,7 +56,7 @@ public class SIBenchmark extends BenchmarkModule {
             while (res.next()) {
                 init_record_count = res.getInt(1);
             }
-            assert init_record_count > 0;
+
             res.close();
             //
             for (int i = 0; i < workConf.getTerminals(); ++i) {

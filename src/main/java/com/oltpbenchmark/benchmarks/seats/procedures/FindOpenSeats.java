@@ -88,7 +88,7 @@ public class FindOpenSeats extends Procedure {
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-        assert (seatmap.length == SEATSConstants.FLIGHTS_NUM_SEATS);
+
 
         // First calculate the seat price using the flight's base price
         // and the number of seats that remaining
@@ -96,7 +96,7 @@ public class FindOpenSeats extends Procedure {
         f_stmt.setLong(1, f_id);
         ResultSet f_results = f_stmt.executeQuery();
         boolean adv = f_results.next();
-        assert (adv);
+
         // long status = results[0].getLong(0);
         double base_price = f_results.getDouble(2);
         long seats_total = f_results.getLong(3);
@@ -123,7 +123,7 @@ public class FindOpenSeats extends Procedure {
             long r_id = s_results.getLong(1);
             int seatnum = s_results.getInt(3);
             if (debug) LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
-            assert (seatmap[seatnum] == -1) : "Duplicate seat reservation: R_ID=" + r_id;
+
             seatmap[seatnum] = 1;
         } // WHILE
         s_results.close();

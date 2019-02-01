@@ -251,7 +251,7 @@ public class JSONObject {
      *            the JSONObject.
      */
     public JSONObject(Map<String, Object> map) {
-        assert (map instanceof LinkedHashMap);
+
         this.map = (map == null) ? new LinkedHashMap<String, Object>() : map;
     }
 

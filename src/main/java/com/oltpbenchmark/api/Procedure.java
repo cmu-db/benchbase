@@ -55,7 +55,7 @@ public abstract class Procedure {
      * @param <T>
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     protected final <T extends Procedure> T initialize(DatabaseType dbType) {
         this.dbType = dbType;
         this.name_stmt_xref = Procedure.getStatments(this);
@@ -123,13 +123,10 @@ public abstract class Procedure {
      * @throws SQLException
      */
     public final PreparedStatement getPreparedStatementReturnKeys(Connection conn, SQLStmt stmt, int[] is) throws SQLException {
-        assert (this.name_stmt_xref != null) : "The Procedure " + this + " has not been initialized yet!";
+
         PreparedStatement pStmt = this.prepardStatements.get(stmt);
         if (pStmt == null) {
-            assert (this.stmt_name_xref.containsKey(stmt)) :
-                    "Unexpected SQLStmt handle in " + this.getClass().getSimpleName() + "\n" + this.name_stmt_xref;
-
-            // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
+           // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
             //       one that fakes the getGeneratedKeys().
             if (is != null && (this.dbType == DatabaseType.POSTGRES || this.dbType == DatabaseType.COCKROACHDB)) {
                 pStmt = new AutoIncrementPreparedStatement(this.dbType, conn.prepareStatement(stmt.getSQL()));
@@ -144,7 +141,7 @@ public abstract class Procedure {
             }
             this.prepardStatements.put(stmt, pStmt);
         }
-        assert (pStmt != null) : "Unexpected null PreparedStatement for " + stmt;
+
         return (pStmt);
     }
 
@@ -171,24 +168,14 @@ public abstract class Procedure {
      * @param dialectMap
      */
     protected final void loadSQLDialect(StatementDialects dialects) {
-        assert (this.name_stmt_xref != null) :
-                "Trying to access Procedure " + this.procName + " before it is initialized!";
-        Collection<String> stmtNames = dialects.getStatementNames(this.procName);
+       Collection<String> stmtNames = dialects.getStatementNames(this.procName);
         if (stmtNames == null) return;
-        assert (this.name_stmt_xref.isEmpty() == false) :
-                "There are no SQLStmts for Procedure " + this.procName + "?";
-        for (String stmtName : stmtNames) {
-            assert (this.name_stmt_xref.containsKey(stmtName)) :
-                    String.format("Unexpected Statement '%s' in dialects for Procedure %s\n%s",
-                            stmtName, this.procName, this.stmt_name_xref.keySet());
-            String sql = dialects.getSQL(this.procName, stmtName);
-            assert (sql != null);
+       for (String stmtName : stmtNames) {
+           String sql = dialects.getSQL(this.procName, stmtName);
+
 
             SQLStmt stmt = this.name_stmt_xref.get(stmtName);
-            assert (stmt != null) :
-                    String.format("Unexpected null SQLStmt handle for %s.%s",
-                            this.procName, stmtName);
-            if (LOG.isDebugEnabled())
+           if (LOG.isDebugEnabled())
                 LOG.debug(String.format("Setting %s SQL dialect for %s.%s",
                         dialects.getDatabaseType(), this.procName, stmtName));
             stmt.setSQL(sql);
@@ -201,9 +188,7 @@ public abstract class Procedure {
      * @return
      */
     protected final Map<String, SQLStmt> getStatments() {
-        assert (this.name_stmt_xref != null) :
-                "Trying to access Procedure " + this.procName + " before it is initialized!";
-        return (Collections.unmodifiableMap(this.name_stmt_xref));
+       return (Collections.unmodifiableMap(this.name_stmt_xref));
     }
 
     /**
@@ -213,9 +198,7 @@ public abstract class Procedure {
      * @return
      */
     protected final SQLStmt getStatment(String stmtName) {
-        assert (this.name_stmt_xref != null) :
-                "Trying to access Procedure " + this.procName + " before it is initialized!";
-        return (this.name_stmt_xref.get(stmtName));
+       return (this.name_stmt_xref.get(stmtName));
     }
 
     protected static Map<String, SQLStmt> getStatments(Procedure proc) {

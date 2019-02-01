@@ -38,9 +38,7 @@ public class TransactionTypes implements Collection<TransactionType> {
         for (TransactionType tt : transactiontypes) {
             // System.err.println("Adding " + tt + " - " + this.types + " / " + transactiontypes);
             String key = tt.getName().toUpperCase();
-            assert (this.types.containsKey(key) == false) :
-                    "Duplicate TransactionType '" + tt + "'\n" + this.types;
-            this.types.put(key, tt);
+           this.types.put(key, tt);
         } // FOR
     }
 

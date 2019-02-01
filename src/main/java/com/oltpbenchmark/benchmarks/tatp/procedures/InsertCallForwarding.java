@@ -44,17 +44,17 @@ public class InsertCallForwarding extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, getSubscriber);
         stmt.setString(1, sub_nbr);
         ResultSet results = stmt.executeQuery();
-        assert (results != null);
+
         long s_id = -1;
         if (results.next()) {
             s_id = results.getLong(1);
         }
-        assert s_id != -1;
+
         results.close();
         stmt = this.getPreparedStatement(conn, getSpecialFacility);
         stmt.setLong(1, s_id);
         ResultSet results2 = stmt.executeQuery();
-        assert (results2 != null);
+
         results2.close();
 
         // Inserting a new CALL_FORWARDING record only succeeds 30% of the time

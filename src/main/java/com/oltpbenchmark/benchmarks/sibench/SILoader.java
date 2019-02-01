@@ -67,7 +67,7 @@ public class SILoader extends Loader<SIBenchmark> {
     private void loadSITest(Connection conn, int lo, int hi) throws SQLException {
         Random rand = this.benchmark.rng();
         Table catalog_tbl = this.benchmark.getTableCatalog("SITEST");
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement stmt = conn.prepareStatement(sql);
@@ -79,7 +79,7 @@ public class SILoader extends Loader<SIBenchmark> {
 
             if (++batch >= SIConstants.configCommitCount) {
                 int result[] = stmt.executeBatch();
-                assert (result != null);
+
                 batch = 0;
             }
         } // FOR

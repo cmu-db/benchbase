@@ -61,9 +61,9 @@ public class ResetDatabase extends Procedure {
         // We will then reset any changes that were made after this timestamp
         ResultSet rs = this.getPreparedStatement(conn, getLoaderStop).executeQuery();
         boolean adv = rs.next();
-        assert (adv);
+
         Timestamp loaderStop = rs.getTimestamp(1);
-        assert (loaderStop != null);
+
         rs.close();
 
         // Reset ITEM information

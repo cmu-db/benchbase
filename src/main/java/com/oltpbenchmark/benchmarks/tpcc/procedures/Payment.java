@@ -217,10 +217,10 @@ public class Payment extends TPCCProcedure {
 
         Customer c;
         if (customerByName) {
-            assert customerID <= 0;
+
             c = getCustomerByName(customerWarehouseID, customerDistrictID, customerLastName);
         } else {
-            assert customerLastName == null;
+
             c = getCustomerById(customerWarehouseID, customerDistrictID, customerID, conn);
         }
 

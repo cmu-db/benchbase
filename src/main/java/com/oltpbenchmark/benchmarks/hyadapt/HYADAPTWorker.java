@@ -124,61 +124,61 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
 
     private void readRecord1() throws SQLException {
         ReadRecord1 proc = this.getProcedure(ReadRecord1.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord2() throws SQLException {
         ReadRecord2 proc = this.getProcedure(ReadRecord2.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord3() throws SQLException {
         ReadRecord3 proc = this.getProcedure(ReadRecord3.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord4() throws SQLException {
         ReadRecord4 proc = this.getProcedure(ReadRecord4.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord5() throws SQLException {
         ReadRecord5 proc = this.getProcedure(ReadRecord5.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord6() throws SQLException {
         ReadRecord6 proc = this.getProcedure(ReadRecord6.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord7() throws SQLException {
         ReadRecord7 proc = this.getProcedure(ReadRecord7.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord8() throws SQLException {
         ReadRecord8 proc = this.getProcedure(ReadRecord8.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord9() throws SQLException {
         ReadRecord9 proc = this.getProcedure(ReadRecord9.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
     private void readRecord10() throws SQLException {
         ReadRecord10 proc = this.getProcedure(ReadRecord10.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound, new HashMap<Integer, Integer>());
     }
 
@@ -188,61 +188,61 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
 
     private void maxRecord1() throws SQLException {
         MaxRecord1 proc = this.getProcedure(MaxRecord1.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord2() throws SQLException {
         MaxRecord2 proc = this.getProcedure(MaxRecord2.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord3() throws SQLException {
         MaxRecord3 proc = this.getProcedure(MaxRecord3.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord4() throws SQLException {
         MaxRecord4 proc = this.getProcedure(MaxRecord4.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord5() throws SQLException {
         MaxRecord5 proc = this.getProcedure(MaxRecord5.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord6() throws SQLException {
         MaxRecord6 proc = this.getProcedure(MaxRecord6.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord7() throws SQLException {
         MaxRecord7 proc = this.getProcedure(MaxRecord7.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord8() throws SQLException {
         MaxRecord8 proc = this.getProcedure(MaxRecord8.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord9() throws SQLException {
         MaxRecord9 proc = this.getProcedure(MaxRecord9.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void maxRecord10() throws SQLException {
         MaxRecord10 proc = this.getProcedure(MaxRecord10.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
@@ -252,61 +252,61 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
 
     private void sumRecord1() throws SQLException {
         SumRecord1 proc = this.getProcedure(SumRecord1.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord2() throws SQLException {
         SumRecord2 proc = this.getProcedure(SumRecord2.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord3() throws SQLException {
         SumRecord3 proc = this.getProcedure(SumRecord3.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord4() throws SQLException {
         SumRecord4 proc = this.getProcedure(SumRecord4.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord5() throws SQLException {
         SumRecord5 proc = this.getProcedure(SumRecord5.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord6() throws SQLException {
         SumRecord6 proc = this.getProcedure(SumRecord6.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord7() throws SQLException {
         SumRecord7 proc = this.getProcedure(SumRecord7.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord8() throws SQLException {
         SumRecord8 proc = this.getProcedure(SumRecord8.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord9() throws SQLException {
         SumRecord9 proc = this.getProcedure(SumRecord9.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 
     private void sumRecord10() throws SQLException {
         SumRecord10 proc = this.getProcedure(SumRecord10.class);
-        assert (proc != null);
+
         proc.run(conn, key_lower_bound);
     }
 

@@ -112,7 +112,7 @@ public class GetPageAuthenticated extends Procedure {
             throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
         }
         int pageId = rs.getInt("page_id");
-        assert !rs.next();
+
         rs.close();
 
         st = this.getPreparedStatement(conn, selectPageRestriction);
@@ -120,7 +120,7 @@ public class GetPageAuthenticated extends Procedure {
         rs = st.executeQuery();
         while (rs.next()) {
             byte[] pr_type = rs.getBytes(1);
-            assert (pr_type != null);
+
         }
         rs.close();
 
@@ -131,7 +131,7 @@ public class GetPageAuthenticated extends Procedure {
         rs = st.executeQuery();
         while (rs.next()) {
             byte[] ipb_expiry = rs.getBytes(11);
-            assert (ipb_expiry != null);
+
         }
         rs.close();
 
@@ -146,7 +146,7 @@ public class GetPageAuthenticated extends Procedure {
 
         int revisionId = rs.getInt("rev_id");
         int textId = rs.getInt("rev_text_id");
-        assert !rs.next();
+
         rs.close();
 
         // NOTE: the following is our variation of wikipedia... the original did
@@ -164,7 +164,7 @@ public class GetPageAuthenticated extends Procedure {
         Article a = null;
         if (!forSelect)
             a = new Article(userText, pageId, rs.getString("old_text"), textId, revisionId);
-        assert !rs.next();
+
         rs.close();
 
         return a;

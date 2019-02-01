@@ -84,7 +84,7 @@ public class GetPageAnonymous extends Procedure {
         rs = st.executeQuery();
         while (rs.next()) {
             byte[] pr_type = rs.getBytes(1);
-            assert (pr_type != null);
+
         } // WHILE
         rs.close();
         // check using blocking of a user by either the IP address or the
@@ -95,7 +95,7 @@ public class GetPageAnonymous extends Procedure {
         rs = st.executeQuery();
         while (rs.next()) {
             byte[] ipb_expiry = rs.getBytes(11);
-            assert (ipb_expiry != null);
+
         } // WHILE
         rs.close();
 
@@ -111,7 +111,7 @@ public class GetPageAnonymous extends Procedure {
 
         long revisionId = rs.getLong("rev_id");
         long textId = rs.getLong("rev_text_id");
-        assert !rs.next();
+
         rs.close();
 
         // NOTE: the following is our variation of wikipedia... the original did
@@ -129,7 +129,7 @@ public class GetPageAnonymous extends Procedure {
         Article a = null;
         if (!forSelect)
             a = new Article(userIp, pageId, rs.getString("old_text"), textId, revisionId);
-        assert !rs.next();
+
         rs.close();
         return a;
     }

@@ -171,7 +171,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      */
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement userInsert = conn.prepareStatement(sql);
@@ -254,7 +254,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      */
     private void loadPages(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement pageInsert = conn.prepareStatement(sql);
@@ -270,7 +270,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             String title = WikipediaUtil.generatePageTitle(rand, i);
             int namespace = WikipediaUtil.generatePageNamespace(rand, i);
             String restrictions = h_restrictions.nextValue();
-            assert (restrictions.isEmpty() == false); // Check for Oracle
+             // Check for Oracle
             double pageRandom = rand.nextDouble();
             String pageTouched = TimeUtil.getCurrentTimeString14();
 
@@ -321,7 +321,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      */
     private void loadWatchlist(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_WATCHLIST);
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         PreparedStatement watchInsert = conn.prepareStatement(sql);
@@ -360,7 +360,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                         pageId = h_pageId.nextInt();
                     } // WHILE
                 }
-                assert (pageId > 0);
+
                 userPages.add(pageId);
 
                 Integer namespace = WikipediaUtil.generatePageNamespace(rand, pageId);
@@ -436,7 +436,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
             // Generate what the new revision is going to be
             int old_text_length = h_textLength.nextValue().intValue();
-            assert (old_text_length > 0);
+
             char old_text[] = TextGenerator.randomChars(rand, old_text_length);
 
             for (int i = 0; i < num_revised; i++) {
@@ -444,7 +444,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 // revised
                 // Makes sure that we always update their counter
                 int user_id = h_users.nextInt();
-                assert (user_id > 0 && user_id <= this.num_users) : "Invalid UserId '" + user_id + "'";
+
                 this.user_revision_ctr[user_id - 1]++;
 
                 // Generate what the new revision is going to be
@@ -455,7 +455,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
                 int rev_comment_len = Math.min(rev_comment_max, h_commentLength.nextValue().intValue() + 1); // HACK
                 String rev_comment = TextGenerator.randomStr(rand, rev_comment_len);
-                assert (rev_comment.length() <= rev_comment_max) : String.format("[len=%d] ==> %s", rev_comment.length(), rev_comment);
+
 
                 // The REV_USER_TEXT field is usually the username, but we'll
                 // just

@@ -75,8 +75,8 @@ public class UpdateCustomer extends Procedure {
 
         // Use C_ID_STR to get C_ID
         if (c_id == null) {
-            assert (c_id_str != null);
-            assert (c_id_str.isEmpty() == false);
+
+
             ResultSet rs = this.getPreparedStatement(conn, GetCustomerIdStr, c_id_str).executeQuery();
             if (rs.next()) {
                 c_id = rs.getLong(1);
@@ -86,14 +86,14 @@ public class UpdateCustomer extends Procedure {
             }
             rs.close();
         }
-        assert (c_id != null);
+
 
         ResultSet rs = this.getPreparedStatement(conn, GetCustomer, c_id).executeQuery();
         if (rs.next() == false) {
             rs.close();
             throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
         }
-        assert (c_id == rs.getLong(1));
+
         long base_airport = rs.getLong(3);
         rs.close();
 
@@ -102,7 +102,7 @@ public class UpdateCustomer extends Procedure {
         ResultSet airport_results = this.getPreparedStatement(conn, GetBaseAirport, base_airport).executeQuery();
         boolean adv = airport_results.next();
         airport_results.close();
-        assert (adv);
+
 
         if (update_ff != null) {
             ResultSet ff_results = this.getPreparedStatement(conn, GetFrequentFlyers, c_id).executeQuery();

@@ -135,7 +135,7 @@ public abstract class ClassUtil {
      * @param element_class
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     public static Collection<Class<?>> getInterfaces(Class<?> element_class) {
         Set<Class<?>> ret = ClassUtil.CACHE_getInterfaceClasses.get(element_class);
         if (ret == null) {
@@ -157,7 +157,7 @@ public abstract class ClassUtil {
         return (ret);
     }
 
-    @SuppressWarnings("unchecked")
+
     public static <T> T newInstance(String class_name, Object params[], Class<?> classes[]) {
         return ((T) ClassUtil.newInstance(ClassUtil.getClass(class_name), params, classes));
     }
@@ -186,7 +186,7 @@ public abstract class ClassUtil {
      * @param params
      * @return
      */
-    @SuppressWarnings("unchecked")
+
     public static <T> Constructor<T> getConstructor(Class<T> target_class, Class<?>... params) {
         NoSuchMethodException error = null;
         try {
@@ -196,7 +196,7 @@ public abstract class ClassUtil {
             // We'll try to be nice and find a match for them
             error = ex;
         }
-        assert (error != null);
+
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("TARGET CLASS:  " + target_class);
@@ -280,7 +280,7 @@ public abstract class ClassUtil {
     public static boolean isAssertsEnabled() {
         boolean ret = false;
         try {
-            assert (false);
+
         } catch (AssertionError ex) {
             ret = true;
         }

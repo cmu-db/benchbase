@@ -58,13 +58,13 @@ public class SIWorker extends Worker<SIBenchmark> {
 
     private void minRecord() throws SQLException {
         MinRecord proc = this.getProcedure(MinRecord.class);
-        assert (proc != null);
+
         int minId = proc.run(conn);
     }
 
     private void updateRecord() throws SQLException {
         UpdateRecord proc = this.getProcedure(UpdateRecord.class);
-        assert (proc != null);
+
         int id = updateRecordIdGenerator.nextInt(this.recordCount);
         proc.run(conn, id);
     }

@@ -138,7 +138,7 @@ public abstract class SQLUtil {
      */
     public static String getSequenceName(DatabaseType dbType, Column catalog_col) {
         Table catalog_tbl = catalog_col.getTable();
-        assert (catalog_tbl != null);
+
 
         switch (dbType) {
             case POSTGRES:

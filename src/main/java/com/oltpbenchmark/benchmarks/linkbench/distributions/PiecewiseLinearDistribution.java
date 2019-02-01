@@ -135,7 +135,7 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
         double u = 1.0 - (id - min) / (double) n;
         int ix = binarySearch(cdf, u);
         Point p1 = cdf.get(ix);
-        assert (u <= p1.probability);
+
 
         // Assuming piecewise linear, so equally as probably as p1.value
         return p1.value;

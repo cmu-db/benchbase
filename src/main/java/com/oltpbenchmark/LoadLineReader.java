@@ -28,7 +28,7 @@ public class LoadLineReader {
 
     public LoadLineReader(String fileLine) {
 
-        assert (fileLine != null);
+
         StringTokenizer st = new StringTokenizer(fileLine);
 
         transactionRatios = new double[st.countTokens() - 2];

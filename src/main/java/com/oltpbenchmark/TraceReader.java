@@ -109,14 +109,14 @@ public class TraceReader {
 
                     // We base transaction start times on the start of a phase
                     if (phaseId != currPhaseId) {
-                        assert phaseId > currPhaseId;
+
                         currPhaseId = phaseId;
                         phaseBaseTime = startTimeNs;
                     }
 
                     // Create the new procedure according to the entry in the
                     // trace file.
-                    assert phaseBaseTime <= startTimeNs;
+
                     tracedProcedures.add(new TraceElement(
                             Integer.parseInt(splitLine[txnIdCol])
                             , phaseId
@@ -151,7 +151,7 @@ public class TraceReader {
 
         // Shouldn't have a procedure from a previous phase, or else we
         // wouldn't have switched phases successfully.
-        assert curr.phaseId >= currentPhaseId;
+
 
         // Loop through the procedures until we find one that's out of the
         // phase or within the current phase but beyond the time marker.

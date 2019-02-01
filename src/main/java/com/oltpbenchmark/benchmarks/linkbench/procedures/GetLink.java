@@ -62,7 +62,7 @@ public class GetLink extends Procedure {
         stmt.setString(3, ids);
         ResultSet rs = stmt.executeQuery();
         // Get the row count to allocate result array
-        assert (rs.getType() != ResultSet.TYPE_FORWARD_ONLY);
+
         rs.last();
         int count = rs.getRow();
         rs.beforeFirst();
@@ -77,7 +77,7 @@ public class GetLink extends Procedure {
             }
             results[i++] = l;
         }
-        assert (!rs.next()); // check done
+         // check done
         rs.close();
         return results;
     }

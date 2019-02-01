@@ -91,7 +91,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
 
         for (String tableName : tableSizes.values()) {
             long count = tableSizes.get(tableName);
-            assert (count > 0) : "No tuples were inserted for table " + tableName;
+
         } // FOR
 
     }

@@ -208,11 +208,11 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected void generateTableData(Connection conn, String tableName) throws SQLException {
         LOG.info("*** START " + tableName);
         final AbstractTableGenerator generator = this.generators.get(tableName);
-        assert (generator != null);
+
 
         // Generate Data
         final Table catalog_tbl = benchmark.getCatalog().getTable(tableName);
-        assert (catalog_tbl != null) : tableName;
+
         final List<Object[]> volt_table = generator.getVoltTable();
         final String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         final PreparedStatement stmt = conn.prepareStatement(sql);
@@ -317,7 +317,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             super();
             this.tableName = tableName;
             this.catalog_tbl = benchmark.getCatalog().getTable(tableName);
-            assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";
+
 
             boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getName());
             boolean dynamic_size = AuctionMarkConstants.DYNAMIC_TABLES.contains(catalog_tbl.getName());
@@ -329,7 +329,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             String field_name = "BATCHSIZE_" + catalog_tbl.getName();
             try {
                 Field field_handle = AuctionMarkConstants.class.getField(field_name);
-                assert (field_handle != null);
+
                 this.batchSize = (Long) field_handle.get(null);
             } catch (Exception ex) {
                 throw new RuntimeException("Missing field '" + field_name + "' needed for '" + tableName + "'", ex);
@@ -341,7 +341,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 try {
 
                     Field field_handle = AuctionMarkConstants.class.getField(field_name);
-                    assert (field_handle != null);
+
                     this.tableSize = (Long) field_handle.get(null);
                     if (!fixed_size) {
                         this.tableSize = (long) Math.max(1, (int) Math.round(this.tableSize * profile.getScaleFactor()));
@@ -355,11 +355,11 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             for (Column catalog_col : this.catalog_tbl.getColumns()) {
                 if (random_str_regex.matcher(catalog_col.getName()).matches()) {
-                    assert (SQLUtil.isStringType(catalog_col.getType())) : catalog_col.fullName();
+
                     this.random_str_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) LOG.trace("Random String Column: " + catalog_col.fullName());
                 } else if (random_int_regex.matcher(catalog_col.getName()).matches()) {
-                    assert (SQLUtil.isIntegerType(catalog_col.getType())) : catalog_col.fullName();
+
                     this.random_int_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) LOG.trace("Random Integer Column: " + catalog_col.fullName());
                 }
@@ -397,7 +397,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         this.tableName, this.dependencyTables.size(), this.dependencyTables));
             for (String dependency : this.dependencyTables) {
                 AbstractTableGenerator gen = AuctionMarkLoader.this.generators.get(dependency);
-                assert (gen != null) : "Missing table generator for '" + dependency + "'";
+
                 try {
                     gen.latch.await();
                 } catch (InterruptedException ex) {
@@ -417,13 +417,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             }
         }
 
-        @SuppressWarnings("unchecked")
+
         public <T extends AbstractTableGenerator> T addSubTableGenerator(SubTableGenerator<?> sub_item) {
             this.sub_generators.add(sub_item);
             return ((T) this);
         }
 
-        @SuppressWarnings("unchecked")
+
         public void releaseHoldsToSubTableGenerators() {
             if (this.subGenerator_hold.isEmpty() == false) {
                 LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators",
@@ -553,11 +553,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // RANDOM COLS
             cols += this.populateRandomColumns(row);
 
-            assert (cols == this.catalog_tbl.getColumnCount()) :
-                    String.format("Invalid number of columns for %s [expected=%d, actual=%d]",
-                            this.tableName, this.catalog_tbl.getColumnCount(), cols);
-
-            // Convert all CompositeIds into their long encodings
+           // Convert all CompositeIds into their long encodings
             for (int i = 0; i < cols; i++) {
                 if (row[i] != null && row[i] instanceof CompositeId) {
                     row[i] = ((CompositeId) row[i]).encode();
@@ -637,7 +633,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public void init() {
             // Get the AbstractTableGenerator that will feed into this generator
             AbstractTableGenerator parent_gen = AuctionMarkLoader.this.generators.get(this.sourceTableName);
-            assert (parent_gen != null) : "Unexpected source TableGenerator '" + this.sourceTableName + "'";
+
             parent_gen.addSubTableGenerator(this);
 
             this.current = null;
@@ -657,7 +653,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @Override
         protected final int populateRow(Object[] row) {
             T t = this.getNext();
-            assert (t != null);
+
             this.currentCounter--;
             return (this.populateRow(t, row, this.currentCounter));
         }
@@ -761,7 +757,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int col = 0;
 
             Category category = this.categories.poll();
-            assert (category != null);
+
 
             // C_ID
             row[col++] = category.getCategoryID();
@@ -803,7 +799,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 int id = this.category_groups.get(category_id).intValue();
                 int count = (int) profile.rng.number(1, AuctionMarkConstants.TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP);
                 GlobalAttributeGroupId gag_id = new GlobalAttributeGroupId(category_id, id, count);
-                assert (profile.gag_ids.contains(gag_id) == false);
+
                 profile.gag_ids.add(gag_id);
                 this.group_ids.add(gag_id);
             } // FOR
@@ -814,7 +810,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int col = 0;
 
             GlobalAttributeGroupId gag_id = this.group_ids.poll();
-            assert (gag_id != null);
+
 
             // GAG_ID
             row[col++] = gag_id.encode();
@@ -863,7 +859,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             if (this.gav_counter == -1 || ++this.gav_counter == this.gag_current.getCount()) {
                 this.gag_current = this.gag_iterator.next();
-                assert (this.gag_current != null);
+
                 this.gav_counter = 0;
             }
 
@@ -906,7 +902,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // items that each user should have. This will then be used to calculate the
             // the user ids by placing them into numeric ranges
             int max_items = Math.max(1, (int) Math.ceil(AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MAX * profile.getScaleFactor()));
-            assert (max_items > 0);
+
             LOG.debug("Max Items Per Seller: " + max_items);
             Zipf randomNumItems = new Zipf(profile.rng,
                     AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN,
@@ -919,7 +915,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             if (LOG.isDebugEnabled())
                 LOG.debug("Users Per Item Count:\n" + profile.users_per_itemCount);
             this.idGenerator = new UserIdGenerator(profile.users_per_itemCount, benchmark.getWorkloadConfiguration().getTerminals());
-            assert (this.idGenerator.hasNext());
+
         }
 
         @Override
@@ -1053,7 +1049,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 p = Pair.of(randomNumBids, randomNumWatches);
                 this.item_bid_watch_zipfs.put(bidDurationDay, p);
             }
-            assert (p != null);
+
 
             // Calculate the number of bids and watches for this item
             short numBids = (short) p.first.nextInt();
@@ -1066,7 +1062,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             itemInfo.sellerId = seller_id;
             itemInfo.startDate = startDate;
             itemInfo.initialPrice = profile.randomInitialPrice.nextInt();
-            assert (itemInfo.initialPrice > 0) : "Invalid initial price for " + itemId;
+
             itemInfo.numImages = (short) profile.randomNumImages.nextInt();
             itemInfo.numAttributes = (short) profile.randomNumAttributes.nextInt();
             itemInfo.numBids = numBids;
@@ -1207,7 +1203,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
             int col = 0;
             GlobalAttributeValueId gav_id = profile.getRandomGlobalAttributeValue();
-            assert (gav_id != null);
+
 
             // IA_ID
             row[col++] = this.count;
@@ -1296,7 +1292,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @Override
         protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
             int col = 0;
-            assert (itemInfo.numBids > 0);
+
 
             UserId bidderId = null;
 
@@ -1325,19 +1321,19 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             }
             // The first bid for a two-bid item must always be different than the lastBidderId
             else if (itemInfo.numBids == 2) {
-                assert (remaining == 1);
+
                 bidderId = profile.getRandomBuyerId(itemInfo.lastBidderId, itemInfo.sellerId);
             }
             // Since there are multiple bids, we want randomly select one based on the previous bidders
             // We will get the histogram of bidders so that we are more likely to select
             // an existing bidder rather than a completely random one
             else {
-                assert (this.bid != null);
+
                 Histogram<UserId> bidderHistogram = itemInfo.getBidderHistogram();
                 bidderId = profile.getRandomBuyerId(bidderHistogram, this.bid.bidderId, itemInfo.sellerId);
                 this.currentPrice += this.currentBidPriceAdvanceStep;
             }
-            assert (bidderId != null);
+
 
             float last_bid = (this.new_item ? itemInfo.initialPrice : this.bid.maxBid);
             this.bid = itemInfo.getNextBid(this.count, bidderId);
@@ -1347,9 +1343,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             if (remaining == 0) {
                 this.bid.maxBid = itemInfo.currentPrice;
                 if (itemInfo.purchaseDate != null) {
-                    assert (itemInfo.getBidCount() == itemInfo.numBids) :
-                            String.format("%d != %d\n%s", itemInfo.getBidCount(), itemInfo.numBids, itemInfo);
-                }
+                   }
             } else {
                 this.bid.maxBid = last_bid + this.currentBidPriceAdvanceStep;
             }
@@ -1402,7 +1396,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
             int col = 0;
             LoaderItemInfo.Bid bid = itemInfo.getLastBid();
-            assert (bid != null) : "No bids?\n" + itemInfo;
+
 
             // IMB_I_ID
             row[col++] = itemInfo.itemId;
@@ -1442,7 +1436,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
             int col = 0;
             LoaderItemInfo.Bid bid = itemInfo.getLastBid();
-            assert (bid != null) : itemInfo;
+
 
             // IP_ID
             row[col++] = this.count;
@@ -1490,7 +1484,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             if (remaining == 1 || (bid.buyer_feedback && bid.seller_feedback == false)) {
                 is_buyer = true;
             } else {
-                assert (bid.seller_feedback);
+
                 is_buyer = false;
             }
             LoaderItemInfo itemInfo = bid.getLoaderItemInfo();
@@ -1531,7 +1525,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
             int col = 0;
             LoaderItemInfo.Bid bid = itemInfo.getLastBid();
-            assert (bid != null) : itemInfo;
+
 
             // UI_U_ID
             row[col++] = bid.bidderId;
@@ -1607,11 +1601,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     tries = 500;
                 }
             } // WHILE
-            assert (buyerId != null) :
-                    String.format("Failed to buyer for new USER_WATCH record\n" +
-                                    "Tries:%d / UseRandom:%s / Watchers:%d / Users:%d / BidderHistogram:%d",
-                            tries, use_random, num_watchers, num_users, bidderHistogram.getValueCount());
-            this.watchers.add(buyerId);
+           this.watchers.add(buyerId);
 
             // UW_U_ID
             row[col++] = buyerId;

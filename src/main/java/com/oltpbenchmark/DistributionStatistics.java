@@ -46,8 +46,8 @@ public class DistributionStatistics {
 
     public DistributionStatistics(int count, long[] percentiles,
                                   double average, double standardDeviation) {
-        assert count > 0;
-        assert percentiles.length == PERCENTILES.length;
+
+
         this.count = count;
         this.percentiles = Arrays.copyOfRange(percentiles, 0,
                 PERCENTILES.length);

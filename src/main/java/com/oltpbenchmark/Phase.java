@@ -152,7 +152,7 @@ public class Phase {
                     // times. Note that we do the modulus before the increment
                     // so that we end up in the range [1,num_weights]
                     if (isTimed()) {
-                        assert this.isThroughputRun();
+
                         this.nextSerial %= this.num_weights;
                     }
 

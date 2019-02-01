@@ -41,7 +41,7 @@ public class MaxRecord1 extends Procedure {
         if (r.next()) {
             max = r.getInt(1);
         }
-        assert (max != -1);
+
         r.close();
     }
 

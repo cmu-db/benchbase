@@ -48,9 +48,9 @@ public class Contention1 extends Procedure {
 
     public void run(Connection conn, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
         int howManyKeys = ResourceStresserWorker.CONTENTION1_howManyKeys;
-        assert howManyKeys > 0;
-        assert howManyUpdates > 0;
-        assert sleepLength >= 0;
+
+
+
 
         PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate);
         PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep);

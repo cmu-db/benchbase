@@ -84,7 +84,7 @@ public class FindFlights extends Procedure {
     public List<Object[]> run(Connection conn, long depart_aid, long arrive_aid, Timestamp start_date, Timestamp end_date, long distance) throws SQLException {
         try {
             final boolean debug = LOG.isDebugEnabled();
-            assert (start_date.equals(end_date) == false);
+
 
             final List<Long> arrive_aids = new ArrayList<Long>();
             arrive_aids.add(arrive_aid);
@@ -115,7 +115,7 @@ public class FindFlights extends Procedure {
                 } else {
                     f_stmt = this.getPreparedStatement(conn, GetFlights3);
                 }
-                assert (f_stmt != null);
+
 
                 // Set Parameters
                 f_stmt.setLong(1, depart_aid);
@@ -150,7 +150,7 @@ public class FindFlights extends Procedure {
                     ai_stmt.setLong(1, f_depart_airport);
                     ai_results = ai_stmt.executeQuery();
                     boolean adv = ai_results.next();
-                    assert (adv);
+
                     row[r++] = flightResults.getDate(5);    // [03] DEPART_TIME
                     row[r++] = ai_results.getString(1);     // [04] DEPART_AP_CODE
                     row[r++] = ai_results.getString(2);     // [05] DEPART_AP_NAME
@@ -162,7 +162,7 @@ public class FindFlights extends Procedure {
                     ai_stmt.setLong(1, f_arrive_airport);
                     ai_results = ai_stmt.executeQuery();
                     adv = ai_results.next();
-                    assert (adv);
+
                     row[r++] = flightResults.getDate(7);    // [08] ARRIVE_TIME
                     row[r++] = ai_results.getString(1);     // [09] ARRIVE_AP_CODE
                     row[r++] = ai_results.getString(2);     // [10] ARRIVE_AP_NAME

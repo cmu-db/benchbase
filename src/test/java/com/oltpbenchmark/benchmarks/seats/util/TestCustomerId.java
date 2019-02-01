@@ -49,7 +49,7 @@ public class TestCustomerId extends TestCase {
 //                System.err.println("airport_id=" + airport_id);
 //                System.err.println("encodd=" + encoded);
 //                System.exit(1);
-                assert (encoded >= 0);
+
 
                 CustomerId customer_id = new CustomerId(encoded);
                 assertNotNull(customer_id);
@@ -67,7 +67,7 @@ public class TestCustomerId extends TestCase {
             for (long airport_id : this.airport_ids) {
                 long values[] = {base_id, airport_id};
                 long encoded = new CustomerId((int) base_id, airport_id).encode();
-                assert (encoded >= 0);
+
 
                 long new_values[] = new CustomerId(encoded).toArray();
                 assertEquals(values.length, new_values.length);

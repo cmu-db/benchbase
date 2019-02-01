@@ -46,8 +46,8 @@ public class TestUserId extends TestCase {
      */
     public void testEquals() {
         UserId user_id = new UserId(rand.nextLong());
-        assert (user_id.getItemCount() > 0);
-        assert (user_id.getOffset() > 0);
+
+
 
         UserId clone = new UserId(user_id.getItemCount(), user_id.getOffset());
         assertEquals(user_id, clone);
@@ -70,8 +70,8 @@ public class TestUserId extends TestCase {
         int num_ids = 100;
         for (int i = 0; i < num_ids; i++) {
             UserId user_id = new UserId(rand.nextLong());
-            assert (user_id.getItemCount() > 0);
-            assert (user_id.getOffset() > 0);
+
+
             if (orig.contains(user_id)) {
                 i--;
                 continue;
@@ -138,7 +138,7 @@ public class TestUserId extends TestCase {
             int size = rand.nextInt(10000);
             for (int offset = 0; offset < 10; offset++) {
                 long encoded = new UserId(size, offset).encode();
-                assert (encoded >= 0);
+
 
                 UserId user_id = new UserId(encoded);
                 assertNotNull(user_id);
@@ -157,7 +157,7 @@ public class TestUserId extends TestCase {
             for (int offset = 0; offset < 10; offset++) {
                 long values[] = {offset, size};
                 long encoded = new UserId(size, offset).encode();
-                assert (encoded >= 0);
+
 
                 long new_values[] = new UserId(encoded).toArray();
                 assertEquals(values.length, new_values.length);

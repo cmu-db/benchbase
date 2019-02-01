@@ -292,7 +292,7 @@ public abstract class RevisionHistograms {
     /**
      *
      */
-    @SuppressWarnings("unchecked")
+
     public static final Histogram<Integer> REVISION_DELTAS[] = (Histogram<Integer>[]) new Histogram[]{
             new Histogram<Integer>() {
                 {

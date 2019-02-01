@@ -151,10 +151,10 @@ public class UpdatePage extends Procedure {
 
         rs = ps.getGeneratedKeys();
         adv = rs.next();
-        assert (adv) : "Problem inserting new tuples in table text";
+
         long nextTextId = rs.getLong(1);
         rs.close();
-        assert (nextTextId >= 0) : "Invalid nextTextId (" + nextTextId + ")";
+
 
         // INSERT NEW REVISION
         ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1});
@@ -176,7 +176,7 @@ public class UpdatePage extends Procedure {
         adv = rs.next();
         long nextRevId = rs.getLong(1);
         rs.close();
-        assert (nextRevId >= 0) : "Invalid nextRevID (" + nextRevId + ")";
+
 
         // I'm removing AND page_latest = "+a.revisionId+" from the query, since
         // it creates sometimes problem with the data, and page_id is a PK

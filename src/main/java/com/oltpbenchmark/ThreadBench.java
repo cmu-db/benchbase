@@ -110,9 +110,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
 
         private void calculateNext() {
-            assert next == null;
-            assert sample != null;
-            assert sample.startNs >= nextStartNs;
+
+
+
 
             // Collect all samples in the time window
             ArrayList<Integer> latencies = new ArrayList<Integer>();
@@ -133,7 +133,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
 
             // Set up the next time window
-            assert sample == null || endNs <= sample.startNs;
+
             nextStartNs = endNs;
 
             int[] l = new int[latencies.size()];
@@ -186,7 +186,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     private int finalizeWorkers(ArrayList<Thread> workerThreads) throws InterruptedException {
-        assert testState.getState() == State.DONE || testState.getState() == State.EXIT;
+
         int requests = 0;
 
         new WatchDogThread().start();
@@ -292,7 +292,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     }
 
     public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
-        assert testState == null;
+
         testState = new BenchmarkState(workers.size() + 1);
         workStates = new ArrayList<WorkloadState>();
 
@@ -372,7 +372,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 now = System.nanoTime();
                 diff = nextInterval - now;
             }
-            assert diff <= 0;
+
 
             boolean phaseComplete = false;
             if (phase != null) {
@@ -383,7 +383,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     for (WorkloadConfiguration workConf : workConfs) {
                         phaseComplete = false;
                         tr = workConf.getTraceReader();
-                        assert workConf.getTraceReader() != null;
+
                         if (!workConf.getWorkloadState().getScriptPhaseComplete()) {
                             break;
                         }
@@ -549,7 +549,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     // public Results runPoissonMultiPhase() throws QueueLimitException,
     // IOException {
-    // assert testState == null;
+    //
     // testState = new BenchmarkState(workers.size() + 1);
     // workStates = new ArrayList<WorkloadState>();
     //
@@ -620,7 +620,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     // now = System.nanoTime();
     // diff = nextInterval - now;
     // }
-    // assert diff <= 0;
+    //
     //
     // // End of Phase
     // if (start + delta < System.nanoTime() && !lastEntry) {
@@ -666,7 +666,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     // nextToAdd ++;
     // } while ( (-diff) > intervalNs && !lastEntry);
     // nextInterval += intervalNs;
-    // assert nextToAdd > 0;
+    //
     // }
     // // Update the test state appropriately
     // State state = testState.getState();

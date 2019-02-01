@@ -138,7 +138,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
                 int results[] = pstmt.executeBatch();
-                assert (results != null);
+
                 batch = 0;
             }
         } // WHILE
@@ -146,7 +146,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
             int results[] = pstmt.executeBatch();
-            assert (results != null);
+
         }
 
         pstmt.close();
@@ -184,7 +184,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
                 int results[] = pstmt.executeBatch();
-                assert (results != null);
+
                 batch = 0;
             }
         } // WHILE
@@ -192,7 +192,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
             int results[] = pstmt.executeBatch();
-            assert (results != null);
+
         }
         pstmt.close();
     }
@@ -252,14 +252,14 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                         TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total,
                         TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 int results[] = spe_pstmt.executeBatch();
-                assert (results != null);
+
 
 
                 if (LOG.isDebugEnabled()) LOG.debug(String.format("%s: %d (%s %d / %d)",
                         TATPConstants.TABLENAME_CALL_FORWARDING, cal_total,
                         TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 results = cal_pstmt.executeBatch();
-                assert (results != null);
+
 
                 spe_batch = 0;
             }
@@ -269,12 +269,12 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));
             int results[] = spe_pstmt.executeBatch();
-            assert (results != null);
+
 
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
             results = cal_pstmt.executeBatch();
-            assert (results != null);
+
 
         }
         cal_pstmt.close();

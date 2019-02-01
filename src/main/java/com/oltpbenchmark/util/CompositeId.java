@@ -43,16 +43,13 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
 
     protected final long encode(int offset_bits[], long offset_pows[]) {
         long values[] = this.toArray();
-        assert (values.length == offset_bits.length);
+
         long id = 0;
         int offset = 0;
         for (int i = 0; i < values.length; i++) {
             long max_value = offset_pows[i];
 
-            assert (values[i] >= 0) :
-                    String.format("%s value at position %d is %d %s",
-                            this.getClass().getSimpleName(), i, values[i], Arrays.toString(values));
-            assert (values[i] < max_value) :
+           assert (values[i] < max_value) :
                     String.format("%s value at position %d is %d. Max value is %d\n%s",
                             this.getClass().getSimpleName(), i, values[i], max_value, this);
 
@@ -88,7 +85,7 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
     public int hashCode() {
         if (this.hashCode == -1) {
             this.encode();
-            assert (this.hashCode != -1);
+
         }
         return (this.hashCode);
     }

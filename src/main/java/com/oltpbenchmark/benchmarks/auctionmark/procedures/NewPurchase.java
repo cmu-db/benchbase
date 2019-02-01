@@ -153,7 +153,7 @@ public class NewPurchase extends Procedure {
             stmt = this.getPreparedStatement(conn, getMaxBid, item_id, seller_id);
             results = stmt.executeQuery();
             adv = results.next();
-            assert (adv);
+
             long bid_id = results.getLong(1);
 
             updated = this.getPreparedStatement(conn, insertItemMaxBid, item_id,
@@ -163,10 +163,7 @@ public class NewPurchase extends Procedure {
                     seller_id,
                     currentTime,
                     currentTime).executeUpdate();
-            assert (updated == 1) :
-                    String.format("Failed to update %s for Seller #%d's Item #%d",
-                            AuctionMarkConstants.TABLENAME_ITEM_MAX_BID, seller_id, item_id);
-        }
+           }
         results.close();
 
         // Get the ITEM_MAX_BID record so that we know what we need to process
@@ -198,15 +195,11 @@ public class NewPurchase extends Procedure {
 
         // Set item_purchase_id
         updated = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime).executeUpdate();
-        assert (updated == 1);
+
 
         // Update item status to close
         updated = this.getPreparedStatement(conn, updateItem, currentTime, item_id, seller_id).executeUpdate();
-        assert (updated == 1) :
-                String.format("Failed to update %s for Seller #%d's Item #%d",
-                        AuctionMarkConstants.TABLENAME_ITEM, seller_id, item_id);
-
-        // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
+       // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
         // If we don't have a record to update, just go ahead and create it
         updated = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id,
                 ib_buyer_id, item_id, seller_id).executeUpdate();
@@ -215,23 +208,11 @@ public class NewPurchase extends Procedure {
                     ip_id, ib_id, item_id, seller_id,
                     currentTime).executeUpdate();
         }
-        assert (updated == 1) :
-                String.format("Failed to update %s for Buyer #%d's Item #%d",
-                        AuctionMarkConstants.TABLENAME_USERACCT_ITEM, ib_buyer_id, item_id);
-
-        // Decrement the buyer's account 
+       // Decrement the buyer's account
         updated = this.getPreparedStatement(conn, updateUserBalance, -1 * (i_current_price) + buyer_credit, ib_buyer_id).executeUpdate();
-        assert (updated == 1) :
-                String.format("Failed to update %s for Buyer #%d",
-                        AuctionMarkConstants.TABLENAME_USERACCT, ib_buyer_id);
-
-        // And credit the seller's account
+       // And credit the seller's account
         this.getPreparedStatement(conn, updateUserBalance, i_current_price, seller_id).executeUpdate();
-        assert (updated == 1) :
-                String.format("Failed to update %s for Seller #%d",
-                        AuctionMarkConstants.TABLENAME_USERACCT, seller_id);
-
-        // Return a tuple of the item that we just updated
+       // Return a tuple of the item that we just updated
         return new Object[]{
                 // ITEM ID
                 item_id,

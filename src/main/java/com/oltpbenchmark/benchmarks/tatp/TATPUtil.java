@@ -62,9 +62,9 @@ public abstract class TATPUtil {
 
     // taken from tpcc.RandomGenerator
     public static Long number(long minimum, long maximum) {
-        assert minimum <= maximum;
+
         long value = Math.abs(rand.nextLong()) % (maximum - minimum + 1) + minimum;
-        assert minimum <= value && value <= maximum;
+
         return value;
     }
 
@@ -81,11 +81,11 @@ public abstract class TATPUtil {
      * Each element in arr appears at most once in sub array.
      */
     public static int[] subArr(int arr[], int min_len, int max_len) {
-        assert min_len <= max_len && min_len >= 0;
+
         int sub_len = number(min_len, max_len).intValue();
         int arr_len = arr.length;
 
-        assert sub_len <= arr_len;
+
 
         int sub[] = new int[sub_len];
         for (int i = 0; i < sub_len; i++) {

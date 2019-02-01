@@ -36,10 +36,10 @@ public class VoterWorker extends Worker<VoterBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
-        assert (txnType.getProcedureClass().equals(Vote.class));
+
         PhoneCall call = switchboard.receive();
         Vote proc = getProcedure(Vote.class);
-        assert (proc != null);
+
         proc.run(conn, call.voteId, call.phoneNumber, call.contestantNumber, VoterConstants.MAX_VOTES);
         conn.commit();
         return TransactionStatus.SUCCESS;

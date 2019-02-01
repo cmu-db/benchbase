@@ -91,8 +91,8 @@ public class DeleteReservation extends Procedure {
             }
             // Otherwise use their FrequentFlyer information
             else {
-                assert (ff_c_id_str.isEmpty() == false);
-                assert (ff_al_id != null);
+
+
                 stmt = this.getPreparedStatement(conn, GetCustomerByFFNumber, ff_c_id_str);
                 has_al_id = true;
             }
@@ -129,7 +129,7 @@ public class DeleteReservation extends Procedure {
         // Now delete all of the flights that they have on this flight
         stmt = this.getPreparedStatement(conn, DeleteReservation, r_id, c_id, f_id);
         updated = stmt.executeUpdate();
-        assert (updated == 1);
+
 
         // Update Available Seats on Flight
         stmt = this.getPreparedStatement(conn, UpdateFlight, f_id);
@@ -138,15 +138,13 @@ public class DeleteReservation extends Procedure {
         // Update Customer's Balance
         stmt = this.getPreparedStatement(conn, UpdateCustomer, -1 * r_price, c_iattr00, c_id);
         updated = stmt.executeUpdate();
-        assert (updated == 1);
+
 
         // Update Customer's Frequent Flyer Information (Optional)
         if (ff_al_id != null) {
             stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id);
             updated = stmt.executeUpdate();
-            assert (updated == 1) :
-                    String.format("Failed to update FrequentFlyer info [c_id=%d, ff_al_id=%d]", c_id, ff_al_id);
-        }
+           }
 
         if (debug)
             LOG.debug(String.format("Deleted reservation on flight %d for customer %d [seatsLeft=%d]", f_id, c_id, seats_left + 1));

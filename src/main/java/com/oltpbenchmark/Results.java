@@ -44,12 +44,12 @@ public final class Results {
         this.latencyDistribution = latencyDistribution;
 
         if (latencyDistribution == null) {
-            assert latencySamples == null;
+
             this.latencySamples = null;
         } else {
             // defensive copy
             this.latencySamples = Collections.unmodifiableList(new ArrayList<LatencyRecord.Sample>(latencySamples));
-            assert !this.latencySamples.isEmpty();
+
         }
     }
 

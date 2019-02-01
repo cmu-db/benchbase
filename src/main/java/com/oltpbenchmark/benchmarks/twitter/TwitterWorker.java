@@ -70,31 +70,31 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
 
     public void doSelect1Tweet(int tweet_id) throws SQLException {
         GetTweet proc = this.getProcedure(GetTweet.class);
-        assert (proc != null);
+
         proc.run(conn, tweet_id);
     }
 
     public void doSelectTweetsFromPplIFollow(int uid) throws SQLException {
         GetTweetsFromFollowing proc = this.getProcedure(GetTweetsFromFollowing.class);
-        assert (proc != null);
+
         proc.run(conn, uid);
     }
 
     public void doSelectNamesOfPplThatFollowMe(int uid) throws SQLException {
         GetFollowers proc = this.getProcedure(GetFollowers.class);
-        assert (proc != null);
+
         proc.run(conn, uid);
     }
 
     public void doSelectTweetsForUid(int uid) throws SQLException {
         GetUserTweets proc = this.getProcedure(GetUserTweets.class);
-        assert (proc != null);
+
         proc.run(conn, uid);
     }
 
     public void doInsertTweet(int uid, String text) throws SQLException {
         InsertTweet proc = this.getProcedure(InsertTweet.class);
-        assert (proc != null);
+
         Time time = new Time(System.currentTimeMillis());
         try {
             proc.run(conn, uid, text, time);

@@ -44,7 +44,7 @@ public class SumRecord8 extends Procedure {
         if (r.next()) {
             sum = r.getInt(1);
         }
-        assert (sum != -1);
+
         r.close();
     }
 

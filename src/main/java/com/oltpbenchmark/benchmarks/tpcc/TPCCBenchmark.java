@@ -76,13 +76,9 @@ public class TPCCBenchmark extends BenchmarkModule {
             numWarehouses = 1;
         }
         int numTerminals = workConf.getTerminals();
-        assert (numTerminals >= numWarehouses) :
-                String.format("Insufficient number of terminals '%d' [numWarehouses=%d]",
-                        numTerminals, numWarehouses);
-
-        // TODO: This is currently broken: fix it!
+       // TODO: This is currently broken: fix it!
         int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
-        assert warehouseOffset == 1;
+
 
         // We distribute terminals evenly across the warehouses
         // Eg. if there are 10 terminals across 7 warehouses, they
@@ -91,7 +87,7 @@ public class TPCCBenchmark extends BenchmarkModule {
         final double terminalsPerWarehouse = (double) numTerminals
                 / numWarehouses;
         int workerId = 0;
-        assert terminalsPerWarehouse >= 1;
+
         for (int w = 0; w < numWarehouses; w++) {
             // Compute the number of terminals in *this* warehouse
             int lowerTerminalId = (int) (w * terminalsPerWarehouse);
@@ -108,10 +104,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 
             final double districtsPerTerminal = TPCCConfig.configDistPerWhse
                     / (double) numWarehouseTerminals;
-            assert districtsPerTerminal >= 1 :
-                    String.format("Too many terminals [districtsPerTerminal=%.2f, numWarehouseTerminals=%d]",
-                            districtsPerTerminal, numWarehouseTerminals);
-            for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
+           for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
                 int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
                 int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
                 if (terminalId + 1 == numWarehouseTerminals) {
@@ -126,7 +119,7 @@ public class TPCCBenchmark extends BenchmarkModule {
             }
 
         }
-        assert terminals[terminals.length - 1] != null;
+
 
         ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
         for (TPCCWorker w : terminals)

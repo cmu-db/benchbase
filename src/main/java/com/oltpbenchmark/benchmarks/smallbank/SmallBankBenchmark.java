@@ -58,7 +58,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
                 break;
             }
         } // FOR
-        assert (acctNameLength > 0);
+
         return (acctNameLength);
     }
 

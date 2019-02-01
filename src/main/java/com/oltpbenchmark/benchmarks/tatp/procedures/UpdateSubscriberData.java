@@ -40,7 +40,7 @@ public class UpdateSubscriberData extends Procedure {
         stmt.setByte(1, bit_1);
         stmt.setLong(2, s_id);
         int updated = stmt.executeUpdate();
-        assert (updated == 1);
+
 
         stmt = this.getPreparedStatement(conn, updateSpecialFacility);
         stmt.setShort(1, data_a);

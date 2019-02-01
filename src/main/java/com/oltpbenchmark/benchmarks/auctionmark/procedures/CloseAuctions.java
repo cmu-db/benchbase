@@ -134,7 +134,7 @@ public class CloseAuctions extends Procedure {
 
                 if (debug)
                     LOG.debug(String.format("Getting max bid for itemId=%d / sellerId=%d", itemId, sellerId));
-                assert (itemStatus == ItemStatus.OPEN);
+
 
                 // Has bid on this item - set status to WAITING_FOR_PURCHASE
                 // We'll also insert a new USER_ITEM record as needed
@@ -148,13 +148,13 @@ public class CloseAuctions extends Procedure {
                     maxBidStmt.setLong(param++, sellerId);
                     maxBidResults = maxBidStmt.executeQuery();
                     adv = maxBidResults.next();
-                    assert (adv);
+
 
                     col = 1;
                     bidId = maxBidResults.getLong(col++);
                     buyerId = maxBidResults.getLong(col++);
                     updated = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime).executeUpdate();
-                    assert (updated == 1);
+
                     itemStatus = ItemStatus.WAITING_FOR_PURCHASE;
                     maxBidResults.close();
                 }

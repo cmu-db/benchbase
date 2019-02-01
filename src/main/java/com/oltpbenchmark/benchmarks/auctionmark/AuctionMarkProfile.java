@@ -117,7 +117,7 @@ public class AuctionMarkProfile {
     private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<ItemInfo>();
     private transient final LinkedList<ItemInfo> items_completed = new LinkedList<ItemInfo>();
 
-    @SuppressWarnings("unchecked")
+
     protected transient final LinkedList<ItemInfo> allItemSets[] = new LinkedList[]{
             this.items_available,
             this.items_endingSoon,
@@ -251,7 +251,7 @@ public class AuctionMarkProfile {
 
         // CONFIG_PROFILE
         Table catalog_tbl = this.benchmark.getCatalog().getTable(AuctionMarkConstants.TABLENAME_CONFIG_PROFILE);
-        assert (catalog_tbl != null);
+
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
         PreparedStatement stmt = conn.prepareStatement(sql);
         int param_idx = 1;
@@ -262,7 +262,7 @@ public class AuctionMarkProfile {
         int result = stmt.executeUpdate();
         conn.commit();
         stmt.close();
-        assert (result == 1);
+
 
         if (LOG.isDebugEnabled())
             LOG.debug("Saving profile information into " + catalog_tbl);
@@ -281,13 +281,13 @@ public class AuctionMarkProfile {
         // Initialize the UserIdGenerator so we can figure out whether our 
         // client should even have these ids
         this.initializeUserIdGenerator(this.client_id);
-        assert (this.userIdGenerator != null);
+
 
         for (int i = 0; i < this.allItemSets.length; i++) {
             LinkedList<ItemInfo> list = this.allItemSets[i];
-            assert (list != null);
+
             LinkedList<ItemInfo> origList = other.allItemSets[i];
-            assert (origList != null);
+
 
             for (ItemInfo itemInfo : origList) {
                 UserId sellerId = itemInfo.getSellerId();
@@ -386,8 +386,8 @@ public class AuctionMarkProfile {
     }
 
     private final void initializeUserIdGenerator(int clientId) {
-        assert (this.users_per_itemCount != null);
-        assert (this.users_per_itemCount.isEmpty() == false);
+
+
         this.userIdGenerator = new UserIdGenerator(this.users_per_itemCount,
                 this.num_clients,
                 (clientId < 0 ? null : clientId));
@@ -395,10 +395,7 @@ public class AuctionMarkProfile {
 
     private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         boolean adv = vt.next();
-        assert (adv) :
-                String.format("Failed to get data from %s\n%s",
-                        AuctionMarkConstants.TABLENAME_CONFIG_PROFILE, vt);
-        int col = 1;
+       int col = 1;
         profile.scale_factor = vt.getDouble(col++);
         profile.loaderStartTime = vt.getTimestamp(col++);
         profile.loaderStopTime = vt.getTimestamp(col++);
@@ -471,7 +468,7 @@ public class AuctionMarkProfile {
     // -----------------------------------------------------------------
 
     private Timestamp getScaledCurrentTimestamp(Timestamp time) {
-        assert (this.clientStartTime != null);
+
         tmp_now.setTime(System.currentTimeMillis());
         time.setTime(AuctionMarkUtil.getScaledTimestamp(this.loaderStartTime, this.clientStartTime, tmp_now));
         if (LOG.isTraceEnabled())
@@ -499,7 +496,7 @@ public class AuctionMarkProfile {
     }
 
     public Timestamp setAndGetClientStartTime() {
-        assert (this.clientStartTime.getTime() == 0);
+
         this.clientStartTime.setTime(System.currentTimeMillis());
         return (this.clientStartTime);
     }
@@ -545,7 +542,7 @@ public class AuctionMarkProfile {
      * @param scale_factor
      */
     public void setScaleFactor(double scale_factor) {
-        assert (scale_factor > 0) : "Invalid scale factor " + scale_factor;
+
         this.scale_factor = scale_factor;
     }
 
@@ -703,11 +700,11 @@ public class AuctionMarkProfile {
             // HACK: Always swap existing ItemInfos with our new one, since it will
             // more up-to-date information
             ItemInfo existing = items.set(idx, itemInfo);
-            assert (existing != null);
+
             return (true);
         }
         if (itemInfo.hasCurrentPrice())
-            assert (itemInfo.getCurrentPrice() > 0) : "Negative current price for " + itemInfo;
+
 
         // If we have room, shove it right in
         // We'll throw it in the back because we know it hasn't been used yet
@@ -726,7 +723,7 @@ public class AuctionMarkProfile {
 
     public void updateItemQueues() {
         Timestamp currentTime = this.updateAndGetCurrentTime();
-        assert (currentTime != null);
+
 
         for (LinkedList<ItemInfo> items : allItemSets) {
             // If the items is already in the completed queue, then we don't need
@@ -752,8 +749,8 @@ public class AuctionMarkProfile {
     public ItemStatus addItemToProperQueue(ItemInfo itemInfo, boolean is_loader) {
         // Calculate how much time is left for this auction
         Timestamp baseTime = (is_loader ? this.getLoaderStartTime() : this.getCurrentTime());
-        assert (itemInfo.endDate != null);
-        assert (baseTime != null) : "is_loader=" + is_loader;
+
+
         return addItemToProperQueue(itemInfo, baseTime);
     }
 
@@ -785,10 +782,7 @@ public class AuctionMarkProfile {
 
         if (new_status != itemInfo.status) {
             if (itemInfo.status != null)
-                assert (new_status.ordinal() > itemInfo.status.ordinal()) :
-                        "Trying to improperly move " + itemInfo + " from " + itemInfo.status + " to " + new_status;
-
-            switch (new_status) {
+               switch (new_status) {
                 case OPEN:
                     this.addItem(this.items_available, itemInfo);
                     break;
@@ -841,7 +835,7 @@ public class AuctionMarkProfile {
         while (num_items > 0 && tries-- > 0 && tmp_seenItems.size() < num_items) {
             idx = this.rng.nextInt(num_items);
             ItemInfo temp = itemSet.get(idx);
-            assert (temp != null);
+
             if (tmp_seenItems.contains(temp)) continue;
             tmp_seenItems.add(temp);
 
@@ -870,18 +864,18 @@ public class AuctionMarkProfile {
                 LOG.debug("Failed to find ItemInfo [hasCurrentPrice=" + needCurrentPrice + ", needFutureEndDate=" + needFutureEndDate + "]");
             return (null);
         }
-        assert (idx >= 0);
+
 
         // Take the item out of the set and insert back to the front
         // This is so that we can maintain MRU->LRU ordering
         itemSet.remove(idx);
         itemSet.addFirst(itemInfo);
         if (needCurrentPrice) {
-            assert (itemInfo.hasCurrentPrice()) : "Missing currentPrice for " + itemInfo;
-            assert (itemInfo.getCurrentPrice() > 0) : "Negative currentPrice '" + itemInfo.getCurrentPrice() + "' for " + itemInfo;
+
+
         }
         if (needFutureEndDate) {
-            assert (itemInfo.hasEndDate()) : "Missing endDate for " + itemInfo;
+
         }
         return itemInfo;
     }
@@ -949,7 +943,7 @@ public class AuctionMarkProfile {
     }
 
     public ItemInfo getRandomItem() {
-        assert (this.getAllItemsCount() > 0);
+
         int idx = -1;
         while (idx == -1 || allItemSets[idx].isEmpty()) {
             idx = rng.nextInt(allItemSets.length);
@@ -969,7 +963,7 @@ public class AuctionMarkProfile {
     public GlobalAttributeValueId getRandomGlobalAttributeValue() {
         int offset = rng.nextInt(this.gag_ids.size());
         GlobalAttributeGroupId gag_id = this.gag_ids.get(offset);
-        assert (gag_id != null);
+
         int count = rng.nextInt(gag_id.getCount());
         GlobalAttributeValueId gav_id = new GlobalAttributeValueId(gag_id, count);
         return gav_id;
@@ -1011,7 +1005,7 @@ public class AuctionMarkProfile {
                     cnt = this.items_completed.size();
                     break;
                 default:
-                    assert (false) : "Unexpected " + status;
+
             } // SWITCH
             itemCounts.put(status, cnt);
         }

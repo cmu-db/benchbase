@@ -172,13 +172,11 @@ public class TATPWorker extends Worker<TATPBenchmark> {
     @Override
     protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
         Transaction t = Transaction.get(txnType.getName());
-        assert (t != null) : "Unexpected " + txnType;
+
 
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
-        assert (proc != null) : String.format("Failed to get Procedure handle for %s.%s",
-                this.getBenchmarkModule().getBenchmarkName(), txnType);
-        if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
+       if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
 
         t.invoke(this.conn, proc, subscriberSize);
         conn.commit();

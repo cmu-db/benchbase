@@ -70,7 +70,7 @@ public class WorkloadState {
             if (resetQueues)
                 workQueue.clear();
 
-            assert amount > 0;
+
 
             // Only use the work queue if the phase is enabled and rate limited.
             if (traceReader != null && currentPhase != null) {
@@ -99,7 +99,7 @@ public class WorkloadState {
     }
 
     public boolean getScriptPhaseComplete() {
-        assert (traceReader != null);
+
         synchronized (this) {
             return traceReader.getPhaseComplete() && workQueue.size() == 0 && workersWorking == 0;
         }
@@ -167,7 +167,7 @@ public class WorkloadState {
                 workersWaiting -= 1;
             }
 
-            assert workQueue.peek() != null;
+
             ++workersWorking;
 
             // Return and remove the topmost piece of work, unless we're in the
@@ -180,7 +180,7 @@ public class WorkloadState {
 
     public void finishedWork() {
         synchronized (this) {
-            assert workersWorking > 0;
+
             --workersWorking;
         }
     }
@@ -271,17 +271,17 @@ public class WorkloadState {
     }
 
     public void signalLatencyComplete() {
-        assert currentPhase.isSerial();
+
         benchmarkState.signalLatencyComplete();
     }
 
     public void startColdQuery() {
-        assert currentPhase.isSerial();
+
         benchmarkState.startColdQuery();
     }
 
     public void startHotQuery() {
-        assert currentPhase.isSerial();
+
         benchmarkState.startHotQuery();
     }
 

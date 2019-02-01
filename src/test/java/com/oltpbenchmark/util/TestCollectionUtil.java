@@ -69,11 +69,11 @@ public class TestCollectionUtil extends TestCase {
 
         Collection<Integer> c = CollectionUtil.addAll(new HashSet<Integer>(), l);
         assertEquals(l.size(), c.size());
-        assert (c.containsAll(l));
+
 
         c = CollectionUtil.addAll(new HashSet<Integer>(), a);
         assertEquals(l.size(), c.size());
-        assert (c.containsAll(l));
+
     }
 
     /**
@@ -104,7 +104,7 @@ public class TestCollectionUtil extends TestCase {
     /**
      * testPop
      */
-    @SuppressWarnings("unchecked")
+
     public void testPop() {
         String expected[] = new String[11];
         RandomGenerator rng = new RandomGenerator(0);

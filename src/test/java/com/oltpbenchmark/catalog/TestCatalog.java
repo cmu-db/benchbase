@@ -76,7 +76,7 @@ public class TestCatalog extends TestCase {
             num_tables++;
             offset++;
         } // FOR
-        assert (num_tables > 0);
+
 
         // Make sure that CatalogUtil returns the same number of tables
         assertEquals(num_tables, this.catalog.getTableCount());
@@ -119,7 +119,7 @@ public class TestCatalog extends TestCase {
         // The C table should have two foreign keys
         Table catalog_tbl = this.catalog.getTable("C");
         int found = 0;
-        assert (catalog_tbl != null) : this.catalog.getTableNames();
+
         for (Column catalog_col : catalog_tbl.getColumns()) {
             assertNotNull(catalog_col);
             Column fkey_col = catalog_col.getForeignKey();
@@ -142,7 +142,7 @@ public class TestCatalog extends TestCase {
             for (Index catalog_idx : catalog_tbl.getIndexes()) {
                 assertNotNull(catalog_idx);
                 assertEquals(catalog_tbl, catalog_idx.getTable());
-                assert (catalog_idx.getColumnCount() > 0);
+
 
                 for (int i = 0; i < catalog_idx.getColumnCount(); i++) {
                     assertNotNull(catalog_idx.getColumnName(i));

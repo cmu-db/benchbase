@@ -111,9 +111,9 @@ public abstract class ThreadUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assert (p != null);
+
         Class<? extends Process> p_class = p.getClass();
-        assert (p_class.getName().endsWith("UNIXProcess")) : "Unexpected Process class: " + p_class;
+
 
         Integer pid = null;
         try {
@@ -124,7 +124,7 @@ public abstract class ThreadUtil {
             LOG.error("Faild to get pid for " + p, ex);
             return (null);
         }
-        assert (pid != null) : "Failed to get pid for " + p;
+
 
         if (LOG.isDebugEnabled()) LOG.debug("Starting new process with PID " + pid);
         return (Pair.of(pid, p));
@@ -159,7 +159,7 @@ public abstract class ThreadUtil {
             LOG.error("Failed to fork command", e);
             return;
         }
-        assert (temp != null);
+
         final Process p = temp;
 
         // Register a observer if we have a stop observable
@@ -170,7 +170,7 @@ public abstract class ThreadUtil {
 
                 @Override
                 public void update(EventObservable<T> arg0, T arg1) {
-                    assert (first) : "Trying to stop the process twice??";
+
                     if (LOG.isDebugEnabled())
                         LOG.debug("Stopping Process -> " + prog_name);
                     p.destroy();

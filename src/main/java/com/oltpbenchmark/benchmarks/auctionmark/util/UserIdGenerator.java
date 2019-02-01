@@ -50,7 +50,7 @@ public class UserIdGenerator implements Iterator<UserId> {
      * @param clientId
      */
     public UserIdGenerator(Histogram<Long> users_per_item_count, int numClients, Integer clientId) {
-        assert (users_per_item_count != null);
+
         if (numClients <= 0)
             throw new IllegalArgumentException("numClients must be more than 0 : " + numClients);
         if (clientId != null && clientId < 0)
@@ -61,9 +61,7 @@ public class UserIdGenerator implements Iterator<UserId> {
 
         Long temp = users_per_item_count.getMaxValue();
         if (temp == null) temp = users_per_item_count.getMaxValue();
-        assert (temp != null) :
-                "Invalid Users Per Item Histogram:\n" + users_per_item_count;
-        this.maxItemCount = temp.intValue();
+       this.maxItemCount = temp.intValue();
         this.usersPerItemCounts = new int[this.maxItemCount + 2];
         for (int i = 0; i < this.usersPerItemCounts.length; i++) {
             this.usersPerItemCounts[i] = users_per_item_count.get((long) i, 0);
@@ -102,7 +100,7 @@ public class UserIdGenerator implements Iterator<UserId> {
     }
 
     public UserId seekToPosition(int position) {
-        assert (position <= this.getTotalUsers()) : String.format("%d < %d", position, this.getTotalUsers());
+
         UserId user_id = null;
 
         this.currentPosition = 0;
@@ -137,9 +135,7 @@ public class UserIdGenerator implements Iterator<UserId> {
         int tmp_count = 0;
         int tmp_position = 0;
         while (tmp_count <= this.maxItemCount) {
-            assert (tmp_count < this.usersPerItemCounts.length) :
-                    String.format("Unexpected itemCount '%d' [maxItemCount=%d]", tmp_count, this.maxItemCount);
-            int num_users = this.usersPerItemCounts[tmp_count];
+           int num_users = this.usersPerItemCounts[tmp_count];
             if (tmp_count == user_id.getItemCount()) {
                 tmp_position += (num_users - user_id.getOffset()) + 1;
                 break;

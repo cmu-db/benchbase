@@ -42,7 +42,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         assertNotNull(orig);
 
         SEATSProfile copy = new SEATSProfile(this.benchmark, new RandomGenerator(0));
-        assert (copy.airport_histograms.isEmpty());
+
 
         List<Worker<?>> workers = this.benchmark.makeWorkers(false);
         SEATSWorker worker = (SEATSWorker) workers.get(0);

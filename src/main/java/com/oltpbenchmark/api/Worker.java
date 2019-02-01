@@ -71,7 +71,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.wrkldState = this.wrkld.getWorkloadState();
         this.currStatement = null;
         this.transactionTypes = this.wrkld.getTransTypes();
-        assert (this.transactionTypes != null) : "The TransactionTypes from the WorkloadConfiguration is null!";
+
 
         try {
             this.conn = this.benchmarkModule.makeConnection();
@@ -89,9 +89,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         // Generate all the Procedures that we're going to need
         this.procedures.putAll(this.benchmarkModule.getProcedures());
-        assert (this.procedures.size() == this.transactionTypes.size()) : String.format("Failed to get all of the Procedures for %s [expected=%d, actual=%d]", this.benchmarkModule.getBenchmarkName(),
-                this.transactionTypes.size(), this.procedures.size());
-        for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
+       for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
             this.name_procedures.put(e.getKey().getName(), proc);
             this.class_procedures.put(proc.getClass(), proc);
@@ -163,7 +161,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return (this.name_procedures.get(name));
     }
 
-    @SuppressWarnings("unchecked")
+
     public final <P extends Procedure> P getProcedure(Class<P> procClass) {
         return (P) (this.class_procedures.get(procClass));
     }
@@ -226,7 +224,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         Phase phase;
 
         TransactionType invalidTT = TransactionType.INVALID;
-        assert (invalidTT != null);
+
 
         work:
         while (true) {
@@ -368,7 +366,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 if (next == null) {
                     next = transactionTypes.getType(pieceOfWork.getType());
                 }
-                assert (next.isSupplemental() == false) : "Trying to select a supplemental transaction " + next;
+
 
                 try {
                     // For Postgres, we have to create a savepoint in order
@@ -519,7 +517,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         case RETRY:
                             continue;
                         default:
-                            assert (false) : String.format("Unexpected status '%s' for %s", status, next);
+
                     } // SWITCH
                 }
 
@@ -576,7 +574,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
 
     public void initializeState() {
-        assert (this.wrkldState == null);
+
         this.wrkldState = this.wrkld.getWorkloadState();
     }
 }

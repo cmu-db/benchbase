@@ -93,7 +93,7 @@ public class ResultUploader {
         uploadUrl = expConf.getString("uploadUrl");
 
         this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
-        assert (this.collector != null);
+
     }
 
     public DBParameterCollector getConfCollector() {

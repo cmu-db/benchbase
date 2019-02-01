@@ -155,7 +155,7 @@ public abstract class Loader<T extends BenchmarkModule> {
     @Deprecated
     public Table getTableCatalog(String tableName) {
         Table catalog_tbl = this.benchmark.getCatalog().getTable(tableName.toUpperCase());
-        assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";
+
         return (catalog_tbl);
     }
 
@@ -203,7 +203,7 @@ public abstract class Loader<T extends BenchmarkModule> {
         switch (getDatabaseType()) {
             case POSTGRES:
                 String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
-                assert (seqName != null);
+
                 sql = String.format("SELECT setval(%s, %d)", seqName.toLowerCase(), value);
                 break;
             default:

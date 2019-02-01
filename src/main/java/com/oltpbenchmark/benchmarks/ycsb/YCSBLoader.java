@@ -63,7 +63,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
 
     private void loadRecords(Connection conn, int start, int stop) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
-        assert (catalog_tbl != null);
+
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -78,7 +78,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
                 total++;
                 if (++batch >= YCSBConstants.COMMIT_BATCH_SIZE) {
                     int[] result = stmt.executeBatch();
-                    assert (result != null);
+
                     batch = 0;
                     if (LOG.isDebugEnabled())
                         LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));

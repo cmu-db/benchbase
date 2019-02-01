@@ -44,9 +44,9 @@ public class IO1 extends Procedure {
 
     public void run(Connection conn, int myId, int howManyColsPerRow, int howManyUpdatesPerTransaction,
                     int howManyRowsPerUpdate, int keyRange) throws SQLException {
-        assert howManyUpdatesPerTransaction > 0;
-        assert howManyRowsPerUpdate > 0;
-        assert howManyColsPerRow > 0 && howManyColsPerRow <= 16;
+
+
+
 
         PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
 
@@ -57,8 +57,8 @@ public class IO1 extends Procedure {
         for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
             int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
             int rightKey = leftKey + howManyRowsPerUpdate;
-            assert leftKey >= startingKey && leftKey <= lastKey;
-            assert rightKey >= startingKey && rightKey <= lastKey;
+
+
 
             for (int col = 1; col <= howManyColsPerRow; ++col) {
                 double value = ResourceStresserWorker.gen.nextDouble() + ResourceStresserWorker.gen.nextDouble();

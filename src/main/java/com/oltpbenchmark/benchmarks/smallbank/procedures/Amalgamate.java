@@ -120,11 +120,11 @@ public class Amalgamate extends Procedure {
         // Update Balance Information
         PreparedStatement updateStmt0 = this.getPreparedStatement(conn, ZeroCheckingBalance, custId0);
         int status = updateStmt0.executeUpdate();
-        assert (status == 1);
+
 
         PreparedStatement updateStmt1 = this.getPreparedStatement(conn, UpdateSavingsBalance, total, custId1);
         status = updateStmt1.executeUpdate();
-        assert (status == 1);
+
 
 //        if (balance < 0) {
 //            String msg = String.format("Negative %s balance for customer #%d",

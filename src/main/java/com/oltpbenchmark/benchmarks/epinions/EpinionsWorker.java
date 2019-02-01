@@ -90,21 +90,21 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
     public void reviewItemByID() throws SQLException {
         GetReviewItemById proc = this.getProcedure(GetReviewItemById.class);
-        assert (proc != null);
+
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
     }
 
     public void reviewsByUser() throws SQLException {
         GetReviewsByUser proc = this.getProcedure(GetReviewsByUser.class);
-        assert (proc != null);
+
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         proc.run(conn, uid);
     }
 
     public void averageRatingByTrustedUser() throws SQLException {
         GetAverageRatingByTrustedUser proc = this.getProcedure(GetAverageRatingByTrustedUser.class);
-        assert (proc != null);
+
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         proc.run(conn, iid, uid);
@@ -112,14 +112,14 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
     public void averageRatingOfItem() throws SQLException {
         GetItemAverageRating proc = this.getProcedure(GetItemAverageRating.class);
-        assert (proc != null);
+
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
     }
 
     public void itemReviewsByTrustedUser() throws SQLException {
         GetItemReviewsByTrustedUser proc = this.getProcedure(GetItemReviewsByTrustedUser.class);
-        assert (proc != null);
+
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         proc.run(conn, iid, uid);
@@ -127,7 +127,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
     public void updateUserName() throws SQLException {
         UpdateUserName proc = this.getProcedure(UpdateUserName.class);
-        assert (proc != null);
+
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH); // FIXME
         proc.run(conn, uid, name);
@@ -135,7 +135,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
     public void updateItemTitle() throws SQLException {
         UpdateItemTitle proc = this.getProcedure(UpdateItemTitle.class);
-        assert (proc != null);
+
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH); // FIXME
         proc.run(conn, iid, title);
@@ -143,7 +143,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
     public void updateReviewRating() throws SQLException {
         UpdateReviewRating proc = this.getProcedure(UpdateReviewRating.class);
-        assert (proc != null);
+
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         int rating = rand.nextInt(1000); // ???

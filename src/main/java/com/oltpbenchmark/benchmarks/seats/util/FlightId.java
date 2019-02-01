@@ -66,7 +66,7 @@ public class FlightId extends CompositeId {
         this.depart_airport_id = (int) depart_airport_id;
         this.arrive_airport_id = (int) arrive_airport_id;
         this.depart_date = FlightId.calculateFlightDate(benchmark_start, flight_date);
-        assert (this.depart_date >= 0) : benchmark_start + " / " + flight_date;
+
     }
 
     public FlightId() {
@@ -114,8 +114,8 @@ public class FlightId extends CompositeId {
      * @return
      */
     protected static final int calculateFlightDate(Timestamp benchmark_start, Timestamp flight_date) {
-        assert (benchmark_start != null);
-        assert (flight_date != null);
+
+
         return (int) ((flight_date.getTime() - benchmark_start.getTime()) / 3600000); // 60s * 60m * 1000
     }
 

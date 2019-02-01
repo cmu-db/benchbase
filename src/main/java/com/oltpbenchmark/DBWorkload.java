@@ -463,11 +463,11 @@ public class DBWorkload {
             // Generate the dialect map
             wrkld.init();
 
-            assert (wrkld.getNumTxnTypes() >= 0);
-            assert (xmlConfig != null);
+
+
         }
-        assert (benchList.isEmpty() == false);
-        assert (benchList.get(0) != null);
+
+
 
         // Export StatementDialects
         if (isBooleanOptionSet(argsLine, "dialects-export")) {
@@ -546,7 +546,7 @@ public class DBWorkload {
                 LOG.error("Unexpected error when running benchmarks.", ex);
                 System.exit(1);
             }
-            assert (r != null);
+
 
             // WRITE OUTPUT
             writeOutputs(r, activeTXTypes, argsLine, xmlConfig);

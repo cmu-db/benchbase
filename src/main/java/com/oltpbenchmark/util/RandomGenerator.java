@@ -34,7 +34,7 @@ public class RandomGenerator extends Random {
     }
 
     public Set<Integer> getRandomIntSet(int cnt, int max) {
-        assert (cnt <= max);
+
         Set<Integer> ret = new HashSet<Integer>();
         do {
             ret.add(this.nextInt(max));
@@ -50,11 +50,11 @@ public class RandomGenerator extends Random {
      * @returns a int in the range [minimum, maximum]. Note that this is inclusive.
      */
     public int number(int minimum, int maximum) {
-        assert minimum <= maximum : String.format("%d <= %d", minimum, maximum);
+
         int range_size = maximum - minimum + 1;
         int value = this.nextInt(range_size);
         value += minimum;
-        assert minimum <= value && value <= maximum;
+
         return value;
     }
 
@@ -66,7 +66,7 @@ public class RandomGenerator extends Random {
      * @return
      */
     public long number(long minimum, long maximum) {
-        assert minimum <= maximum : String.format("%d <= %d", minimum, maximum);
+
         long range_size = (maximum - minimum) + 1;
 
         // error checking and 2^x checking removed for simplicity.
@@ -76,8 +76,8 @@ public class RandomGenerator extends Random {
             val = bits % range_size;
         } while (bits - val + range_size < 0L);
         val += minimum;
-        assert (val >= minimum);
-        assert (val <= maximum);
+
+
         return val;
     }
 
@@ -88,8 +88,8 @@ public class RandomGenerator extends Random {
      * @returns an int in the range [minimum, maximum], excluding excluding.
      */
     public int numberExcluding(int minimum, int maximum, int excluding) {
-        assert minimum < maximum;
-        assert minimum <= excluding && excluding <= maximum;
+
+
 
         // Generate 1 less number than the range
         int num = number(minimum, maximum - 1);
@@ -98,7 +98,7 @@ public class RandomGenerator extends Random {
         if (num >= excluding) {
             num += 1;
         }
-        assert minimum <= num && num <= maximum && num != excluding;
+
         return num;
     }
 
@@ -118,7 +118,7 @@ public class RandomGenerator extends Random {
         // than using our Gaussian distribution method below 
         if (skewFactor == 0) return (this.number(minimum, maximum));
 
-        assert minimum <= maximum;
+
         int range_size = maximum - minimum + 1;
         int mean = range_size / 2;
         double stddev = range_size - ((range_size / 1.1) * skewFactor);
@@ -127,7 +127,7 @@ public class RandomGenerator extends Random {
             value = (int) Math.round(this.nextGaussian() * stddev) + mean;
         }
         value += minimum;
-        assert minimum <= value && value <= maximum;
+
         return value;
     }
 
@@ -138,8 +138,8 @@ public class RandomGenerator extends Random {
      * @return
      */
     public double fixedPoint(int decimal_places, double minimum, double maximum) {
-        assert decimal_places > 0;
-        assert minimum < maximum : String.format("%f < %f", minimum, maximum);
+
+
 
         int multiplier = 1;
         for (int i = 0; i < decimal_places; ++i) {

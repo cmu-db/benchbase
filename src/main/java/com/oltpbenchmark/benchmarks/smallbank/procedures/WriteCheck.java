@@ -100,10 +100,6 @@ public class WriteCheck extends Procedure {
             updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
         }
         int status = updateStmt.executeUpdate();
-        assert (status == 1) :
-                String.format("Failed to update %s for customer #%d [total=%.2f / amount=%.2f]",
-                        SmallBankConstants.TABLENAME_CHECKING, custId, total, amount);
-
-        return;
+       return;
     }
 }

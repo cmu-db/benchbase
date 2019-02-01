@@ -59,12 +59,12 @@ public class LoaderItemInfo extends ItemInfo {
     }
 
     public Bid getNextBid(long id, UserId bidder_id) {
-        assert (bidder_id != null);
+
         Bid b = new Bid(id, bidder_id);
         this.bids.add(b);
-        assert (this.bids.size() <= this.numBids);
+
         this.bidderHistogram.put(bidder_id);
-        assert (this.bids.size() == this.bidderHistogram.getSampleCount());
+
         return (b);
     }
 

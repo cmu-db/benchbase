@@ -93,7 +93,7 @@ public class UniformDistribution implements ProbabilityDistribution {
      * Quantile function
      */
     public long quantile(double p) {
-        assert (p >= 0.0 && p <= 1.0);
+
         long n = max - min;
         long i = (long) Math.floor(p * n);
         if (i == n) return max - 1;
@@ -129,7 +129,7 @@ public class UniformDistribution implements ProbabilityDistribution {
      * @return
      */
     private long randint2(Random rng, long n) {
-        assert (n < UINT_RANGE);
+
         double p = Integer.MAX_VALUE / (double) n;
         if (rng.nextDouble() < p) {
             return rng.nextInt(Integer.MAX_VALUE);

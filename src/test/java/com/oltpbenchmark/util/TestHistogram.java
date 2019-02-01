@@ -98,8 +98,8 @@ public class TestHistogram extends TestCase {
         min_values = h.getMinCountValues();
         assertNotNull(min_values);
         assertEquals(2, min_values.size());
-        assert (min_values.contains(expected));
-        assert (min_values.contains(expected2));
+
+
     }
 
     /**
@@ -128,8 +128,8 @@ public class TestHistogram extends TestCase {
         max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(2, max_values.size());
-        assert (max_values.contains(expected));
-        assert (max_values.contains(expected2));
+
+
     }
 
     /**
@@ -188,10 +188,10 @@ public class TestHistogram extends TestCase {
 
         // Now enable zero entries and make sure that our entries make it in there
         h.setKeepZeroEntries(true);
-        assert (h.isZeroEntriesEnabled());
+
         for (Integer key : attempted) {
             h.put(key, 0);
-            assert (h.contains(key));
+
             assertEquals(0, h.get(key).longValue());
         } // FOR
 
