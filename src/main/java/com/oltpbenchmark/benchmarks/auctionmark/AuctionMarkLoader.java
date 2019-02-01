@@ -787,7 +787,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      * GLOBAL_ATTRIBUTE_GROUP Generator
      **********************************************************************************************/
     protected class GlobalAttributeGroupGenerator extends AbstractTableGenerator {
-        private long num_categories = 0l;
+        private long num_categories = 0L;
         private final Histogram<Integer> category_groups = new Histogram<>();
         private final LinkedList<GlobalAttributeGroupId> group_ids = new LinkedList<>();
 
@@ -858,7 +858,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         @Override
         public void prepare() {
-            this.tableSize = 0l;
+            this.tableSize = 0L;
             for (GlobalAttributeGroupId gag_id : profile.gag_ids) {
                 this.gag_counters.set(gag_id, 0);
                 this.tableSize += gag_id.getCount();
@@ -1033,7 +1033,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @Override
         public void init() {
             super.init();
-            this.tableSize = 0l;
+            this.tableSize = 0L;
             for (Long size : profile.users_per_itemCount.values()) {
                 this.tableSize += size.intValue() * profile.users_per_itemCount.get(size);
             } // FOR

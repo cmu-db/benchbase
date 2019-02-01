@@ -56,7 +56,7 @@ public abstract class AuctionMarkUtil {
         return (dataDir);
     }
 
-    private static final long ITEM_ID_MASK = 0xFFFFFFFFFFFFFFl; // 56 bits (ITEM_ID)
+    private static final long ITEM_ID_MASK = 0xFFFFFFFFFFFFFFL; // 56 bits (ITEM_ID)
 
     /**
      * @param item_id

@@ -35,7 +35,7 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
     protected static final long[] compositeBitsPreCompute(int[] offset_bits) {
         long[] pows = new long[offset_bits.length];
         for (int i = 0; i < offset_bits.length; i++) {
-            pows[i] = (long) (Math.pow(2, offset_bits[i]) - 1l);
+            pows[i] = (long) (Math.pow(2, offset_bits[i]) - 1L);
         } // FOR
         return (pows);
     }

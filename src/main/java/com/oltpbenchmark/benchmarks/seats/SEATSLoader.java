@@ -1752,7 +1752,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     public Timestamp calculateArrivalTime(String depart_airport, String arrive_airport, Timestamp depart_time) {
         Integer distance = this.getDistance(depart_airport, arrive_airport);
 
-        long flight_time = Math.round(distance / SEATSConstants.FLIGHT_TRAVEL_RATE) * 3600000000l;
+        long flight_time = Math.round(distance / SEATSConstants.FLIGHT_TRAVEL_RATE) * 3600000000L;
         // 60 sec * 60 min * 1,000,000
         return (new Timestamp(depart_time.getTime() + flight_time));
     }

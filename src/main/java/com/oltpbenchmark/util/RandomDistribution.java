@@ -182,7 +182,7 @@ public class RandomDistribution {
         }
 
         public double calculateMean(int num_samples) {
-            long total = 0l;
+            long total = 0L;
             for (int i = 0; i < num_samples; i++) {
                 total += this.nextLong();
             } // FOR

@@ -182,13 +182,10 @@ public class ResultUploader {
             httppost.setEntity(reqEntity);
 
             LOG.info("executing request {}", httppost.getRequestLine());
-            CloseableHttpResponse response = httpclient.execute(httppost);
-            try {
+            try (CloseableHttpResponse response = httpclient.execute(httppost)) {
                 HttpEntity resEntity = response.getEntity();
                 LOG.info(IOUtils.toString(resEntity.getContent()));
                 EntityUtils.consume(resEntity);
-            } finally {
-                response.close();
             }
         } catch (IOException | ConfigurationException e) {
             LOG.error(e.getMessage(), e);

@@ -82,7 +82,7 @@ public class SEATSProfile {
     /**
      * The number of reservations initially created.
      */
-    protected long num_reservations = 0l;
+    protected long num_reservations = 0L;
 
     /**
      * TODO

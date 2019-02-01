@@ -23,7 +23,7 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import java.util.*;
 
 public class Index extends AbstractCatalogObject {
-    private static final long serialVersionUID = 1l;
+    private static final long serialVersionUID = 1L;
 
     private final Table catalog_tbl;
     private final SortedMap<Integer, IndexColumn> columns = new TreeMap<>();

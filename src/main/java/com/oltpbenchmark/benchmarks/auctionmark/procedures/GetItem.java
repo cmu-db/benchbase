@@ -67,9 +67,8 @@ public class GetItem extends Procedure {
         item_results.close();
 
         PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id);
-        ResultSet user_results = user_stmt.executeQuery();
         Object[] user_row = null;
-        try {
+        try (ResultSet user_results = user_stmt.executeQuery()) {
             if (user_results.next() == false) {
                 throw new UserAbortException("Invalid user id " + seller_id);
             }
@@ -77,8 +76,6 @@ public class GetItem extends Procedure {
             for (int i = 0; i < user_row.length; i++) {
                 user_row[i] = user_results.getObject(i + 1);
             } // FOR
-        } finally {
-            user_results.close();
         }
 
         return (new Object[][]{item_row, user_row});

@@ -34,7 +34,7 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
     private final long numAccounts;
     private final int custNameLength;
     private final String custNameFormat;
-    private final long[] custIdsBuffer = {-1l, -1l};
+    private final long[] custIdsBuffer = {-1L, -1L};
 
     public SmallBankWorker(SmallBankBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);

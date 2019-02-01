@@ -107,7 +107,7 @@ public class Vote extends Procedure {
         }
 
         ps = getPreparedStatement(conn, checkStateStmt);
-        ps.setShort(1, (short) (phoneNumber / 10000000l));
+        ps.setShort(1, (short) (phoneNumber / 10000000L));
         rs = ps.executeQuery();
         // Some sample client libraries use the legacy random phone generation that mostly
         // created invalid phone numbers. Until refactoring, re-assign all such votes to

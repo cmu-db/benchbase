@@ -179,12 +179,12 @@ public abstract class SEATSConstants {
     /**
      * Number of microseconds in a day
      */
-    public static final long MILLISECONDS_PER_MINUTE = 60000l; // 60sec * 1,000
+    public static final long MILLISECONDS_PER_MINUTE = 60000L; // 60sec * 1,000
 
     /**
      * Number of microseconds in a day
      */
-    public static final long MILLISECONDS_PER_DAY = 86400000l; // 60sec * 60min * 24hr * 1,000 
+    public static final long MILLISECONDS_PER_DAY = 86400000L; // 60sec * 60min * 24hr * 1,000
 
     /**
      * The format of the time codes used in HISTOGRAM_FLIGHTS_PER_DEPART_TIMES

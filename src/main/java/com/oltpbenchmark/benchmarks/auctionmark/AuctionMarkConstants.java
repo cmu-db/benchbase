@@ -35,7 +35,7 @@ public abstract class AuctionMarkConstants {
     /**
      * 1 sec in real time equals this value in the benchmark's virtual time in seconds
      */
-    public static final long TIME_SCALE_FACTOR = 600l; // one hour
+    public static final long TIME_SCALE_FACTOR = 600L; // one hour
 
     /**
      * If the amount of time in seconds remaining for an item auction
@@ -43,7 +43,7 @@ public abstract class AuctionMarkConstants {
      * in the client. We will increase the likelihood that a users will bid on these
      * items as it gets closer to their end times
      */
-    public static final long ITEM_ENDING_SOON = 36000l; // 10 hours
+    public static final long ITEM_ENDING_SOON = 36000L; // 10 hours
 
     public static final int ITEM_ALREADY_ENDED = 100000;
 
@@ -58,7 +58,7 @@ public abstract class AuctionMarkConstants {
      *
      * @see AuctionMarkConstants.TIME_SCALE_FACTOR
      */
-    public static final long CLOSE_AUCTIONS_INTERVAL = 12000l; // Every 20 seconds
+    public static final long CLOSE_AUCTIONS_INTERVAL = 12000L; // Every 20 seconds
 
     /**
      * If set to true, the CloseAuctions transactions will be a executed

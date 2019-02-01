@@ -18,7 +18,10 @@ package com.oltpbenchmark.api;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 public class TransactionTypes implements Collection<TransactionType> {
 
@@ -29,7 +32,7 @@ public class TransactionTypes implements Collection<TransactionType> {
     }
 
     public TransactionTypes(List<TransactionType> transactiontypes) {
-        Collections.sort(transactiontypes, new Comparator<TransactionType>() {
+        transactiontypes.sort(new Comparator<TransactionType>() {
             @Override
             public int compare(TransactionType o1, TransactionType o2) {
                 return o1.compareTo(o2);

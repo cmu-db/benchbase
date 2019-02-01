@@ -33,6 +33,8 @@
 
 package com.oltpbenchmark.util;
 
+import java.util.Objects;
+
 /**
  * Class representing a pair of generic-ized types. Supports equality, hashing
  * and all that other nice Java stuff. Based on STL's pair class in C++.
@@ -112,8 +114,8 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
 
         Pair<T, U> other = (Pair<T, U>) o;
 
-        return (first == null ? other.first == null : first.equals(other.first))
-                && (second == null ? other.second == null : second.equals(other.second));
+        return (Objects.equals(first, other.first))
+                && (Objects.equals(second, other.second));
     }
 
     /**

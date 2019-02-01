@@ -200,7 +200,7 @@ public class StatementDialects {
         }
 
         List<Procedure> sorted = new ArrayList<>(procedures);
-        Collections.sort(sorted, new Comparator<Procedure>() {
+        sorted.sort(new Comparator<Procedure>() {
             @Override
             public int compare(Procedure o1, Procedure o2) {
                 return (o1.getProcedureName().compareTo(o2.getProcedureName()));

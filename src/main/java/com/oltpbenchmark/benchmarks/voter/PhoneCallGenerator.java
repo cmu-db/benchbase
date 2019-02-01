@@ -69,7 +69,7 @@ public class PhoneCallGenerator {
     }
 
     public PhoneCallGenerator(int clientId, int contestantCount) {
-        this.nextVoteId = clientId * 10000000l;
+        this.nextVoteId = clientId * 10000000L;
         this.contestantCount = contestantCount;
 
         // This is a just a small fudge to make the geographical voting map more interesting for the benchmark!
