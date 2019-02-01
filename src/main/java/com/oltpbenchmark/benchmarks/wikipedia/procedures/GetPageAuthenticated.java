@@ -144,8 +144,8 @@ public class GetPageAuthenticated extends Procedure {
             throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
 
-        int revisionId = rs.getInt("rev_id");
-        int textId = rs.getInt("rev_text_id");
+        long revisionId = rs.getLong("rev_id");
+        long textId = rs.getLong("rev_text_id");
 
         rs.close();
 
@@ -155,7 +155,7 @@ public class GetPageAuthenticated extends Procedure {
         // "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
         // For now we run the original one, which works on the data we have
         st = this.getPreparedStatement(conn, selectText);
-        st.setInt(1, textId);
+        st.setLong(1, textId);
         rs = st.executeQuery();
         if (!rs.next()) {
             rs.close();
