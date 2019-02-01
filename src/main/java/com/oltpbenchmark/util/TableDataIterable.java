@@ -97,7 +97,9 @@ public class TableDataIterable implements Iterable<Object[]> {
         @Override
         public Object[] next() {
             this.getNext();
-            if (next == null) return (next);
+            if (next == null) {
+                return (next);
+            }
             String row[] = null;
             synchronized (this) {
                 row = this.next;

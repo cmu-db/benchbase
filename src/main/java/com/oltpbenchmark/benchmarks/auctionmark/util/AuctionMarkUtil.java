@@ -42,7 +42,9 @@ public abstract class AuctionMarkUtil {
             dataDir = new File(tests_dir.getAbsolutePath() + File.separator + "frontend" + File.separator +
                     AuctionMarkProfile.class.getPackage().getName().replace('.', File.separatorChar) +
                     File.separator + "data").getCanonicalFile();
-            if (LOG.isDebugEnabled()) LOG.debug("Default data directory path = " + dataDir);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Default data directory path = " + dataDir);
+            }
             if (!dataDir.exists()) {
                 throw new RuntimeException("The default data directory " + dataDir + " does not exist");
             } else if (!dataDir.isDirectory()) {
@@ -63,8 +65,8 @@ public abstract class AuctionMarkUtil {
      */
     public static long getUniqueElementId(long item_id, int idx) {
         // The idx cannot be more than 7bits
-       long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
-       return (id);
+        long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
+        return (id);
     }
 
     /**

@@ -92,6 +92,6 @@ public class TransactSavings extends Procedure {
         // Then update their savings balance
         stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId);
         int status = stmt.executeUpdate();
-       return;
+        return;
     }
 }

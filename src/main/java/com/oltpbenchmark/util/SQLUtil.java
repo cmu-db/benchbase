@@ -47,7 +47,9 @@ public abstract class SQLUtil {
      * @return
      */
     public static Integer getInteger(Object obj) {
-        if (obj == null) return (null);
+        if (obj == null) {
+            return (null);
+        }
 
         if (obj instanceof Integer || obj.getClass().equals(int.class)) {
             return (Integer) obj;
@@ -65,7 +67,9 @@ public abstract class SQLUtil {
      * @return
      */
     public static Long getLong(Object obj) {
-        if (obj == null) return (null);
+        if (obj == null) {
+            return (null);
+        }
 
         if (obj instanceof Long) {
             return (Long) obj;
@@ -85,7 +89,9 @@ public abstract class SQLUtil {
      * @return
      */
     public static Double getDouble(Object obj) {
-        if (obj == null) return (null);
+        if (obj == null) {
+            return (null);
+        }
 
         if (obj instanceof Double || obj.getClass().equals(double.class)) {
             return (Double) obj;
@@ -105,7 +111,9 @@ public abstract class SQLUtil {
      * @return
      */
     public static Timestamp getTimestamp(Object obj) {
-        if (obj == null) return (null);
+        if (obj == null) {
+            return (null);
+        }
 
         if (obj instanceof Timestamp) {
             return (Timestamp) obj;
@@ -244,9 +252,13 @@ public abstract class SQLUtil {
                     } catch (ParseException ex) {
                         // Ignore...
                     }
-                    if (ret != null) break;
+                    if (ret != null) {
+                        break;
+                    }
                 } // FOR
-                if (ret == null) throw new RuntimeException("Failed to parse timestamp '" + value + "'");
+                if (ret == null) {
+                    throw new RuntimeException("Failed to parse timestamp '" + value + "'");
+                }
                 break;
             }
             default:
@@ -366,7 +378,9 @@ public abstract class SQLUtil {
 
         // Column Names
         // XXX: Disabled because of case issues with HSQLDB
-        if (show_cols) sb.append(" (");
+        if (show_cols) {
+            sb.append(" (");
+        }
         first = true;
 
         // These are the column offset that we want to exclude
@@ -375,22 +389,32 @@ public abstract class SQLUtil {
             excluded.add(ex);
 
         for (Column catalog_col : catalog_tbl.getColumns()) {
-            if (excluded.contains(catalog_col.getIndex())) continue;
+            if (excluded.contains(catalog_col.getIndex())) {
+                continue;
+            }
             if (first == false) {
-                if (show_cols) sb.append(", ");
+                if (show_cols) {
+                    sb.append(", ");
+                }
                 values.append(", ");
             }
-            if (show_cols) sb.append(escape_names ? catalog_col.getEscapedName() : catalog_col.getName());
+            if (show_cols) {
+                sb.append(escape_names ? catalog_col.getEscapedName() : catalog_col.getName());
+            }
             values.append("?");
             first = false;
         } // FOR
-        if (show_cols) sb.append(")");
+        if (show_cols) {
+            sb.append(")");
+        }
 
         // Values
         sb.append(" VALUES ");
         first = true;
         for (int i = 0; i < batchSize; i++) {
-            if (first == false) sb.append(", ");
+            if (first == false) {
+                sb.append(", ");
+            }
             sb.append("(").append(values.toString()).append(")");
         } // FOR
 //    	sb.append(";");

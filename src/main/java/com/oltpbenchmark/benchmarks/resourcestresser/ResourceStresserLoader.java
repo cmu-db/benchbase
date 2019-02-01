@@ -76,7 +76,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
                         stmt.setString(j, TextGenerator.randomStr(rng(), ResourceStresserConstants.STRING_LENGTH));
                     }
                 } else {
-                   stmt.setInt(2, rng().nextInt());
+                    stmt.setInt(2, rng().nextInt());
                 }
 
                 stmt.addBatch();

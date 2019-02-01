@@ -100,6 +100,6 @@ public class WriteCheck extends Procedure {
             updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
         }
         int status = updateStmt.executeUpdate();
-       return;
+        return;
     }
 }

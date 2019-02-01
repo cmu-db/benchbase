@@ -50,8 +50,6 @@ public class Contention1 extends Procedure {
         int howManyKeys = ResourceStresserWorker.CONTENTION1_howManyKeys;
 
 
-
-
         PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate);
         PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep);
         for (int sel = 0; sel < howManyUpdates; ++sel) {

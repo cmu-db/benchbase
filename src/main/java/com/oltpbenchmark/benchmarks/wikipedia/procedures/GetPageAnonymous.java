@@ -127,8 +127,9 @@ public class GetPageAnonymous extends Procedure {
             throw new UserAbortException(msg);
         }
         Article a = null;
-        if (!forSelect)
+        if (!forSelect) {
             a = new Article(userIp, pageId, rs.getString("old_text"), textId, revisionId);
+        }
 
         rs.close();
         return a;

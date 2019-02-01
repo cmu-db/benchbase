@@ -142,7 +142,7 @@ public class ScriptRunner {
                             try {
                                 statement.execute(sql);
                             } catch (SQLException e) {
-                               LOG.error(e.getMessage(), e);
+                                LOG.error(e.getMessage(), e);
                             }
                         }
 

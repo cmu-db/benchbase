@@ -59,7 +59,9 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
     }
 
     public int hashCode() {
-        if (hash != null) return (hash.intValue());
+        if (hash != null) {
+            return (hash.intValue());
+        }
         return (this.computeHashCode());
     }
 
@@ -73,8 +75,11 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
     }
 
     public Object get(int idx) {
-        if (idx == 0) return first;
-        else if (idx == 1) return second;
+        if (idx == 0) {
+            return first;
+        } else if (idx == 1) {
+            return second;
+        }
         return null;
     }
 
@@ -83,9 +88,15 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
      * @return Is the object equal to a value in the pair.
      */
     public boolean contains(Object o) {
-        if ((first != null) && (first.equals(o))) return true;
-        if ((second != null) && (second.equals(o))) return true;
-        if (o != null) return false;
+        if ((first != null) && (first.equals(o))) {
+            return true;
+        }
+        if ((second != null) && (second.equals(o))) {
+            return true;
+        }
+        if (o != null) {
+            return false;
+        }
         return ((first == null) || (second == null));
     }
 

@@ -150,8 +150,9 @@ public class NewOrder extends TPCCProcedure {
         }
 
         // we need to cause 1% of the new orders to be rolled back.
-        if (TPCCUtil.randomNumber(1, 100, gen) == 1)
+        if (TPCCUtil.randomNumber(1, 100, gen) == 1) {
             itemIDs[numItems - 1] = TPCCConfig.INVALID_ITEM_ID;
+        }
 
 
         newOrderTransaction(terminalWarehouseID, districtID,
@@ -185,9 +186,10 @@ public class NewOrder extends TPCCProcedure {
             stmtGetCust.setInt(2, d_id);
             stmtGetCust.setInt(3, c_id);
             ResultSet rs = stmtGetCust.executeQuery();
-            if (!rs.next())
+            if (!rs.next()) {
                 throw new RuntimeException("C_D_ID=" + d_id
                         + " C_ID=" + c_id + " not found!");
+            }
             c_discount = rs.getFloat("C_DISCOUNT");
             c_last = rs.getString("C_LAST");
             c_credit = rs.getString("C_CREDIT");
@@ -196,8 +198,9 @@ public class NewOrder extends TPCCProcedure {
 
             stmtGetWhse.setInt(1, w_id);
             rs = stmtGetWhse.executeQuery();
-            if (!rs.next())
+            if (!rs.next()) {
                 throw new RuntimeException("W_ID=" + w_id + " not found!");
+            }
             w_tax = rs.getFloat("W_TAX");
             rs.close();
             rs = null;
@@ -219,10 +222,11 @@ public class NewOrder extends TPCCProcedure {
             stmtUpdateDist.setInt(1, w_id);
             stmtUpdateDist.setInt(2, d_id);
             int result = stmtUpdateDist.executeUpdate();
-            if (result == 0)
+            if (result == 0) {
                 throw new RuntimeException(
                         "Error!! Cannot update next_order_id on district for D_ID="
                                 + d_id + " D_W_ID=" + w_id);
+            }
 
             o_id = d_next_o_id;
 
@@ -288,9 +292,10 @@ public class NewOrder extends TPCCProcedure {
                 stmtGetStock.setInt(1, ol_i_id);
                 stmtGetStock.setInt(2, ol_supply_w_id);
                 rs = stmtGetStock.executeQuery();
-                if (!rs.next())
+                if (!rs.next()) {
                     throw new RuntimeException("I_ID=" + ol_i_id
                             + " not found!");
+                }
                 s_quantity = rs.getInt("S_QUANTITY");
                 s_data = rs.getString("S_DATA");
                 s_dist_01 = rs.getString("S_DIST_01");
@@ -393,10 +398,12 @@ public class NewOrder extends TPCCProcedure {
             LOG.debug("Caught an expected error in New Order");
             throw userEx;
         } finally {
-            if (stmtInsertOrderLine != null)
+            if (stmtInsertOrderLine != null) {
                 stmtInsertOrderLine.clearBatch();
-            if (stmtUpdateStock != null)
+            }
+            if (stmtUpdateStock != null) {
                 stmtUpdateStock.clearBatch();
+            }
         }
 
     }

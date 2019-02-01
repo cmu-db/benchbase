@@ -100,11 +100,13 @@ public class ItemId extends CompositeId {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
 
-        if (!(obj instanceof ItemId) || obj == null)
+        if (!(obj instanceof ItemId) || obj == null) {
             return false;
+        }
 
         ItemId o = (ItemId) obj;
         return this.item_ctr == o.item_ctr &&

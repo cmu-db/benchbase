@@ -27,8 +27,12 @@ public class VoterUtil {
         int max_contestants = VoterConstants.CONTESTANT_NAMES_CSV.split(",").length;
 
         int num_contestants = (int) Math.round(VoterConstants.NUM_CONTESTANTS * scaleFactor);
-        if (num_contestants < min_contestants) num_contestants = min_contestants;
-        if (num_contestants > max_contestants) num_contestants = max_contestants;
+        if (num_contestants < min_contestants) {
+            num_contestants = min_contestants;
+        }
+        if (num_contestants > max_contestants) {
+            num_contestants = max_contestants;
+        }
 
         return (num_contestants);
     }

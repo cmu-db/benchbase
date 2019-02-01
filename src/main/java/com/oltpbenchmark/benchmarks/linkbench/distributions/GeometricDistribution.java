@@ -76,15 +76,21 @@ public class GeometricDistribution implements ProbabilityDistribution {
     }
 
     private double scaledPdf(long id, double scaleFactor) {
-        if (id < min || id >= max) return 0.0;
+        if (id < min || id >= max) {
+            return 0.0;
+        }
         long x = id - min;
         return FastMath.pow(1 - p, x) * scaleFactor * p;
     }
 
     @Override
     public double cdf(long id) {
-        if (id < min) return 0.0;
-        if (id >= max) return 1.0;
+        if (id < min) {
+            return 0.0;
+        }
+        if (id >= max) {
+            return 1.0;
+        }
         return 1 - FastMath.pow(1 - p, id - min + 1);
     }
 
@@ -101,7 +107,9 @@ public class GeometricDistribution implements ProbabilityDistribution {
          * quantile(r) = ceiling(ln(1 - r) / ln (1 - p))
          * Source: http://www.math.uah.edu/stat/bernoulli/Geometric.html
          */
-        if (r == 0.0) return min; // 0.0 must be handled specially
+        if (r == 0.0) {
+            return min; // 0.0 must be handled specially
+        }
 
         long x = min + (long) FastMath.ceil(
                 FastMath.log(1 - r) / FastMath.log(1 - p));

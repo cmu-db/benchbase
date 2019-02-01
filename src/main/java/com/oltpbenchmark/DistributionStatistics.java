@@ -98,8 +98,9 @@ public class DistributionStatistics {
         long[] percentiles = new long[PERCENTILES.length];
         for (int i = 0; i < percentiles.length; ++i) {
             int index = (int) (PERCENTILES[i] * values.length);
-            if (index == values.length)
+            if (index == values.length) {
                 index = values.length - 1;
+            }
             percentiles[i] = values[index];
         }
 

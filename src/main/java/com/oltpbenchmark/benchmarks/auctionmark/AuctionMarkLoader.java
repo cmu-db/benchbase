@@ -25,14 +25,10 @@ import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -86,7 +82,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         // BenchmarkProfile
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
-
 
 
         try {
@@ -244,7 +239,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 stmt.executeBatch();
                 stmt.clearBatch();
             } catch (SQLException ex) {
-                if (ex.getNextException() != null) ex = ex.getNextException();
+                if (ex.getNextException() != null) {
+                    ex = ex.getNextException();
+                }
                 LOG.warn(tableName + " - " + ex.getMessage(), ex);
                 throw ex;
                 // SKIP
@@ -357,18 +354,24 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 if (random_str_regex.matcher(catalog_col.getName()).matches()) {
 
                     this.random_str_cols.add(catalog_col);
-                    if (LOG.isTraceEnabled()) LOG.trace("Random String Column: " + catalog_col.fullName());
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Random String Column: " + catalog_col.fullName());
+                    }
                 } else if (random_int_regex.matcher(catalog_col.getName()).matches()) {
 
                     this.random_int_cols.add(catalog_col);
-                    if (LOG.isTraceEnabled()) LOG.trace("Random Integer Column: " + catalog_col.fullName());
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Random Integer Column: " + catalog_col.fullName());
+                    }
                 }
             } // FOR
             if (LOG.isDebugEnabled()) {
-                if (this.random_str_cols.size() > 0)
+                if (this.random_str_cols.size() > 0) {
                     LOG.debug(String.format("%s Random String Columns: %s", tableName, this.random_str_cols));
-                if (this.random_int_cols.size() > 0)
+                }
+                if (this.random_int_cols.size() > 0) {
                     LOG.debug(String.format("%s Random Integer Columns: %s", tableName, this.random_int_cols));
+                }
             }
         }
 
@@ -392,9 +395,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @Override
         public void load(Connection conn) throws SQLException {
             // First block on the CountDownLatches of all the tables that we depend on
-            if (this.dependencyTables.size() > 0 && LOG.isDebugEnabled())
+            if (this.dependencyTables.size() > 0 && LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: Table generator is blocked waiting for %d other tables: %s",
                         this.tableName, this.dependencyTables.size(), this.dependencyTables));
+            }
             for (String dependency : this.dependencyTables) {
                 AbstractTableGenerator gen = AuctionMarkLoader.this.generators.get(dependency);
 
@@ -437,9 +441,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         public void updateSubTableGenerators(Object obj) {
             // Queue up this item for our multi-threaded sub-generators
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace(String.format("%s: Updating %d sub-generators with %s: %s",
                         this.tableName, this.sub_generators.size(), obj, this.sub_generators));
+            }
             this.subGenerator_hold.add(obj);
         }
 
@@ -553,7 +558,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // RANDOM COLS
             cols += this.populateRandomColumns(row);
 
-           // Convert all CompositeIds into their long encodings
+            // Convert all CompositeIds into their long encodings
             for (int i = 0; i < cols; i++) {
                 if (row[i] != null && row[i] instanceof CompositeId) {
                     row[i] = ((CompositeId) row[i]).encode();
@@ -568,20 +573,24 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
          *
          */
         public void generateBatch() {
-            if (LOG.isTraceEnabled()) LOG.trace(String.format("%s: Generating new batch", this.getTableName()));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(String.format("%s: Generating new batch", this.getTableName()));
+            }
             long batch_count = 0;
             this.table.clear();
             while (this.hasMore() && this.table.size() < this.batchSize) {
                 this.addRow();
                 batch_count++;
             } // WHILE
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
+            }
         }
 
         public void markAsFinished() {
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: Marking as finished", this.tableName));
+            }
             this.latch.countDown();
             for (SubTableGenerator<?> sub_generator : this.sub_generators) {
                 sub_generator.stopWhenEmpty();
@@ -624,8 +633,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected abstract int populateRow(T t, Object[] row, short remaining);
 
         public void stopWhenEmpty() {
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: Will stop when queue is empty", this.getTableName()));
+            }
             this.stop = true;
         }
 
@@ -669,15 +679,21 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     }
                     // Check whether we should stop
                     if (this.current == null) {
-                        if (this.stop) break;
+                        if (this.stop) {
+                            break;
+                        }
                         continue;
                     }
                     this.currentCounter = this.getElementCounter(this.current);
                 } // WHILE
             }
             if (last != this.current) {
-                if (last != null) this.finishElementCallback(last);
-                if (this.current != null) this.newElementCallback(this.current);
+                if (last != null) {
+                    this.finishElementCallback(last);
+                }
+                if (this.current != null) {
+                    this.newElementCallback(this.current);
+                }
             }
             return this.current;
         }
@@ -912,8 +928,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 long num_items = randomNumItems.nextInt();
                 profile.users_per_itemCount.put(num_items);
             } // FOR
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Users Per Item Count:\n" + profile.users_per_itemCount);
+            }
             this.idGenerator = new UserIdGenerator(profile.users_per_itemCount, benchmark.getWorkloadConfiguration().getTerminals());
 
         }
@@ -1032,8 +1049,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             ItemId itemId = new ItemId(seller_id, remaining);
             Timestamp endDate = this.getRandomEndTimestamp();
             Timestamp startDate = this.getRandomStartTimestamp(endDate);
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("endDate = " + endDate + " : startDate = " + startDate);
+            }
 
             long bidDurationDay = ((endDate.getTime() - startDate.getTime()) / AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
             Pair<Zipf, Zipf> p = this.item_bid_watch_zipfs.get(bidDurationDay);
@@ -1343,7 +1361,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             if (remaining == 0) {
                 this.bid.maxBid = itemInfo.currentPrice;
                 if (itemInfo.purchaseDate != null) {
-                   }
+                }
             } else {
                 this.bid.maxBid = last_bid + this.currentBidPriceAdvanceStep;
             }
@@ -1366,7 +1384,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // IB_UPDATED
             row[col++] = this.bid.updateDate;
 
-            if (remaining == 0) this.updateSubTableGenerators(itemInfo);
+            if (remaining == 0) {
+                this.updateSubTableGenerators(itemInfo);
+            }
             return (col);
         }
 
@@ -1456,7 +1476,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 bid.seller_feedback = true;
             }
 
-            if (remaining == 0) this.updateSubTableGenerators(bid);
+            if (remaining == 0) {
+                this.updateSubTableGenerators(bid);
+            }
             return (col);
         }
     } // END CLASS
@@ -1576,9 +1598,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             boolean use_random = (num_watchers == bidderHistogram.getValueCount());
             long num_users = tableSizes.get(AuctionMarkConstants.TABLENAME_USERACCT);
 
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, watchers=%d]",
                         use_random, this.watchers.size()));
+            }
             int tries = 1000;
             while (buyerId == null && num_watchers < num_users && tries-- > 0) {
                 try {
@@ -1591,7 +1614,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     LOG.error("Busted Bidder Histogram:\n" + bidderHistogram);
                     throw ex;
                 }
-                if (this.watchers.contains(buyerId) == false) break;
+                if (this.watchers.contains(buyerId) == false) {
+                    break;
+                }
                 buyerId = null;
 
                 // If for some reason we unable to find a buyer from our bidderHistogram,
@@ -1601,7 +1626,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     tries = 500;
                 }
             } // WHILE
-           this.watchers.add(buyerId);
+            this.watchers.add(buyerId);
 
             // UW_U_ID
             row[col++] = buyerId;
@@ -1617,8 +1642,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         @Override
         protected void finishElementCallback(LoaderItemInfo t) {
-            if (LOG.isTraceEnabled())
+            if (LOG.isTraceEnabled()) {
                 LOG.trace("Clearing watcher cache [size=" + this.watchers.size() + "]");
+            }
             this.watchers.clear();
         }
 

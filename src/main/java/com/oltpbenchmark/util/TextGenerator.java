@@ -134,7 +134,7 @@ public abstract class TextGenerator {
      * @return
      */
     public static char[] resizeText(Random rng, char orig[], int delta) {
-       char chars[] = Arrays.copyOf(orig, orig.length + delta);
+        char chars[] = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
             chars[i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
@@ -160,7 +160,9 @@ public abstract class TextGenerator {
         int rand = rng.nextInt();
         // If the number is zero, then flip one bit so that we make sure that 
         // we change at least one block
-        if (rand == 0) rand = 1;
+        if (rand == 0) {
+            rand = 1;
+        }
         for (int bit = 0; bit < 32; bit++) {
             if ((rand >> bit & 1) == 1) {
                 for (int i = 0; i < blockSize; i++) {
@@ -168,7 +170,9 @@ public abstract class TextGenerator {
                 } // FOR
             }
             idx += blockSize;
-            if (idx >= chars.length) break;
+            if (idx >= chars.length) {
+                break;
+            }
         } // FOR
 
         return (chars);

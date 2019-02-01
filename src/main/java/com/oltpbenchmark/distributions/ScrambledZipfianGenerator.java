@@ -35,9 +35,9 @@ package com.oltpbenchmark.distributions;
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such that some items are more popular than others, according
  * to a zipfian distribution. When you construct an instance of this class, you specify the number of items in the set to draw from, either
- * by specifying an itemcount (so that the sequence is of items from 0 to itemcount-1) or by specifying a min and a max (so that the sequence is of 
+ * by specifying an itemcount (so that the sequence is of items from 0 to itemcount-1) or by specifying a min and a max (so that the sequence is of
  * items from min to max inclusive). After you construct the instance, you can change the number of items by calling nextInt(itemcount) or nextLong(itemcount).
- *
+ * <p>
  * Unlike @ZipfianGenerator, this class scatters the "popular" items across the itemspace. Use this, instead of @ZipfianGenerator, if you
  * don't want the head of the distribution (the popular items) clustered together.
  */
@@ -53,6 +53,7 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
 
     /**
      * Create a zipfian generator for the specified number of items.
+     *
      * @param _items The number of items in the distribution.
      */
     public ScrambledZipfianGenerator(long _items) {
@@ -61,6 +62,7 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
 
     /**
      * Create a zipfian generator for items between min and max.
+     *
      * @param _min The smallest integer to generate in the sequence.
      * @param _max The largest integer to generate in the sequence.
      */
@@ -85,8 +87,9 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
     /**
      * Create a zipfian generator for items between min and max (inclusive) for the specified zipfian constant. If you
      * use a zipfian constant other than 0.99, this will take a long time to complete because we need to recompute zeta.
-     * @param min The smallest integer to generate in the sequence.
-     * @param max The largest integer to generate in the sequence.
+     *
+     * @param min              The smallest integer to generate in the sequence.
+     * @param max              The largest integer to generate in the sequence.
      * @param _zipfianconstant The zipfian constant to use.
      */
     public ScrambledZipfianGenerator(long min, long max, double _zipfianconstant) {

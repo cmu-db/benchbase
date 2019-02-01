@@ -85,7 +85,9 @@ public class LoadConfig extends Procedure {
         results.add(this.getPreparedStatement(conn, getPendingComments).executeQuery());
 
         for (ItemStatus status : ItemStatus.values()) {
-            if (status.isInternal()) continue;
+            if (status.isInternal()) {
+                continue;
+            }
             // We have to create a new PreparedStatement to make sure that
             // the ResultSets don't get closed if we reuse the stmt handle
             stmt = conn.prepareStatement((status == ItemStatus.OPEN ? getFutureItems : getPastItems).getSQL());

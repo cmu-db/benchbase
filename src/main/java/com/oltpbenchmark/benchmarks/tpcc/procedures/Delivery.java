@@ -115,13 +115,19 @@ public class Delivery extends TPCCProcedure {
         for (d_id = 1; d_id <= terminalDistrictUpperID; d_id++) {
             delivGetOrderId.setInt(1, d_id);
             delivGetOrderId.setInt(2, w_id);
-            if (trace) LOG.trace("delivGetOrderId START");
+            if (trace) {
+                LOG.trace("delivGetOrderId START");
+            }
             ResultSet rs = delivGetOrderId.executeQuery();
-            if (trace) LOG.trace("delivGetOrderId END");
+            if (trace) {
+                LOG.trace("delivGetOrderId END");
+            }
             if (!rs.next()) {
                 // This district has no new orders
                 // This can happen but should be rare
-                if (trace) LOG.warn(String.format("District has no new orders [W_ID=%d, D_ID=%d]", w_id, d_id));
+                if (trace) {
+                    LOG.warn(String.format("District has no new orders [W_ID=%d, D_ID=%d]", w_id, d_id));
+                }
                 continue;
             }
 
@@ -133,9 +139,13 @@ public class Delivery extends TPCCProcedure {
             delivDeleteNewOrder.setInt(1, no_o_id);
             delivDeleteNewOrder.setInt(2, d_id);
             delivDeleteNewOrder.setInt(3, w_id);
-            if (trace) LOG.trace("delivDeleteNewOrder START");
+            if (trace) {
+                LOG.trace("delivDeleteNewOrder START");
+            }
             int result = delivDeleteNewOrder.executeUpdate();
-            if (trace) LOG.trace("delivDeleteNewOrder END");
+            if (trace) {
+                LOG.trace("delivDeleteNewOrder END");
+            }
             if (result != 1) {
                 // This code used to run in a loop in an attempt to make this work
                 // with MySQL's default weird consistency level. We just always run
@@ -151,14 +161,20 @@ public class Delivery extends TPCCProcedure {
             delivGetCustId.setInt(1, no_o_id);
             delivGetCustId.setInt(2, d_id);
             delivGetCustId.setInt(3, w_id);
-            if (trace) LOG.trace("delivGetCustId START");
+            if (trace) {
+                LOG.trace("delivGetCustId START");
+            }
             rs = delivGetCustId.executeQuery();
-            if (trace) LOG.trace("delivGetCustId END");
+            if (trace) {
+                LOG.trace("delivGetCustId END");
+            }
 
             if (!rs.next()) {
                 String msg = String.format("Failed to retrieve ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
                         w_id, d_id, no_o_id);
-                if (trace) LOG.warn(msg);
+                if (trace) {
+                    LOG.warn(msg);
+                }
                 throw new RuntimeException(msg);
             }
             c_id = rs.getInt("O_C_ID");
@@ -168,14 +184,20 @@ public class Delivery extends TPCCProcedure {
             delivUpdateCarrierId.setInt(2, no_o_id);
             delivUpdateCarrierId.setInt(3, d_id);
             delivUpdateCarrierId.setInt(4, w_id);
-            if (trace) LOG.trace("delivUpdateCarrierId START");
+            if (trace) {
+                LOG.trace("delivUpdateCarrierId START");
+            }
             result = delivUpdateCarrierId.executeUpdate();
-            if (trace) LOG.trace("delivUpdateCarrierId END");
+            if (trace) {
+                LOG.trace("delivUpdateCarrierId END");
+            }
 
             if (result != 1) {
                 String msg = String.format("Failed to update ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
                         w_id, d_id, no_o_id);
-                if (trace) LOG.warn(msg);
+                if (trace) {
+                    LOG.warn(msg);
+                }
                 throw new RuntimeException(msg);
             }
 
@@ -183,14 +205,20 @@ public class Delivery extends TPCCProcedure {
             delivUpdateDeliveryDate.setInt(2, no_o_id);
             delivUpdateDeliveryDate.setInt(3, d_id);
             delivUpdateDeliveryDate.setInt(4, w_id);
-            if (trace) LOG.trace("delivUpdateDeliveryDate START");
+            if (trace) {
+                LOG.trace("delivUpdateDeliveryDate START");
+            }
             result = delivUpdateDeliveryDate.executeUpdate();
-            if (trace) LOG.trace("delivUpdateDeliveryDate END");
+            if (trace) {
+                LOG.trace("delivUpdateDeliveryDate END");
+            }
 
             if (result == 0) {
                 String msg = String.format("Failed to update ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
                         w_id, d_id, no_o_id);
-                if (trace) LOG.warn(msg);
+                if (trace) {
+                    LOG.warn(msg);
+                }
                 throw new RuntimeException(msg);
             }
 
@@ -198,14 +226,20 @@ public class Delivery extends TPCCProcedure {
             delivSumOrderAmount.setInt(1, no_o_id);
             delivSumOrderAmount.setInt(2, d_id);
             delivSumOrderAmount.setInt(3, w_id);
-            if (trace) LOG.trace("delivSumOrderAmount START");
+            if (trace) {
+                LOG.trace("delivSumOrderAmount START");
+            }
             rs = delivSumOrderAmount.executeQuery();
-            if (trace) LOG.trace("delivSumOrderAmount END");
+            if (trace) {
+                LOG.trace("delivSumOrderAmount END");
+            }
 
             if (!rs.next()) {
                 String msg = String.format("Failed to retrieve ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
                         w_id, d_id, no_o_id);
-                if (trace) LOG.warn(msg);
+                if (trace) {
+                    LOG.warn(msg);
+                }
                 throw new RuntimeException(msg);
             }
             ol_total = rs.getFloat("OL_TOTAL");
@@ -216,14 +250,20 @@ public class Delivery extends TPCCProcedure {
             delivUpdateCustBalDelivCnt.setInt(idx++, w_id);
             delivUpdateCustBalDelivCnt.setInt(idx++, d_id);
             delivUpdateCustBalDelivCnt.setInt(idx++, c_id);
-            if (trace) LOG.trace("delivUpdateCustBalDelivCnt START");
+            if (trace) {
+                LOG.trace("delivUpdateCustBalDelivCnt START");
+            }
             result = delivUpdateCustBalDelivCnt.executeUpdate();
-            if (trace) LOG.trace("delivUpdateCustBalDelivCnt END");
+            if (trace) {
+                LOG.trace("delivUpdateCustBalDelivCnt END");
+            }
 
             if (result == 0) {
                 String msg = String.format("Failed to update CUSTOMER record [W_ID=%d, D_ID=%d, C_ID=%d]",
                         w_id, d_id, c_id);
-                if (trace) LOG.warn(msg);
+                if (trace) {
+                    LOG.warn(msg);
+                }
                 throw new RuntimeException(msg);
             }
         }

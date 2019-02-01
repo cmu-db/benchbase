@@ -171,11 +171,13 @@ public class FlightId extends CompositeId {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
 
-        if (!(obj instanceof FlightId) || obj == null)
+        if (!(obj instanceof FlightId) || obj == null) {
             return false;
+        }
 
         FlightId o = (FlightId) obj;
         return (this.airline_id == o.airline_id &&

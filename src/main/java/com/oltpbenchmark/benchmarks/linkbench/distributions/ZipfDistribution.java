@@ -165,14 +165,20 @@ public class ZipfDistribution implements ProbabilityDistribution {
     private double scaledPDF(long id, double scale) {
         // Calculate this way to avoid losing precision by calculating very
         // small pdf number
-        if (id < min || id >= max) return 0.0;
+        if (id < min || id >= max) {
+            return 0.0;
+        }
         return (scale / (double) FastMath.pow(id + 1 - min, shape)) / zetan;
     }
 
     @Override
     public double cdf(long id) {
-        if (id < min) return 0.0;
-        if (id >= max) return 1.0;
+        if (id < min) {
+            return 0.0;
+        }
+        if (id >= max) {
+            return 1.0;
+        }
         double harm;
         if (shape <= 1.0) {
             harm = ApproxHarmonic.generalizedHarmonic(id + 1 - min, shape);
@@ -203,10 +209,16 @@ public class ZipfDistribution implements ProbabilityDistribution {
     public long quantile(double p) {
         double uz = p * zetan;
         long n = max - min;
-        if (uz < 1) return min;
-        if (uz < 1 + point5theta) return min + 1;
+        if (uz < 1) {
+            return min;
+        }
+        if (uz < 1 + point5theta) {
+            return min + 1;
+        }
         long offset = (long) (n * FastMath.pow(eta * p - eta + 1, alpha));
-        if (offset >= n) return max - 1;
+        if (offset >= n) {
+            return max - 1;
+        }
         return min + offset;
     }
 }

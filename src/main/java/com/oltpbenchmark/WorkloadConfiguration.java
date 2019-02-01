@@ -272,29 +272,31 @@ public class WorkloadConfiguration {
     }
 
     public String getIsolationString() {
-        if (this.isolationMode == Connection.TRANSACTION_SERIALIZABLE)
+        if (this.isolationMode == Connection.TRANSACTION_SERIALIZABLE) {
             return "TRANSACTION_SERIALIZABLE";
-        else if (this.isolationMode == Connection.TRANSACTION_READ_COMMITTED)
+        } else if (this.isolationMode == Connection.TRANSACTION_READ_COMMITTED) {
             return "TRANSACTION_READ_COMMITTED";
-        else if (this.isolationMode == Connection.TRANSACTION_REPEATABLE_READ)
+        } else if (this.isolationMode == Connection.TRANSACTION_REPEATABLE_READ) {
             return "TRANSACTION_REPEATABLE_READ";
-        else if (this.isolationMode == Connection.TRANSACTION_READ_UNCOMMITTED)
+        } else if (this.isolationMode == Connection.TRANSACTION_READ_UNCOMMITTED) {
             return "TRANSACTION_READ_UNCOMMITTED";
-        else
+        } else {
             return "TRANSACTION_SERIALIZABLE [DEFAULT]";
+        }
     }
 
     public void setIsolationMode(String mode) {
-        if (mode.equals("TRANSACTION_SERIALIZABLE"))
+        if (mode.equals("TRANSACTION_SERIALIZABLE")) {
             this.isolationMode = Connection.TRANSACTION_SERIALIZABLE;
-        else if (mode.equals("TRANSACTION_READ_COMMITTED"))
+        } else if (mode.equals("TRANSACTION_READ_COMMITTED")) {
             this.isolationMode = Connection.TRANSACTION_READ_COMMITTED;
-        else if (mode.equals("TRANSACTION_REPEATABLE_READ"))
+        } else if (mode.equals("TRANSACTION_REPEATABLE_READ")) {
             this.isolationMode = Connection.TRANSACTION_REPEATABLE_READ;
-        else if (mode.equals("TRANSACTION_READ_UNCOMMITTED"))
+        } else if (mode.equals("TRANSACTION_READ_UNCOMMITTED")) {
             this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
-        else if (!mode.isEmpty())
+        } else if (!mode.isEmpty()) {
             System.out.println("Indefined isolation mode, set to default [TRANSACTION_SERIALIZABLE]");
+        }
     }
 
     @Override

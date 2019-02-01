@@ -60,8 +60,9 @@ public class AddWatchList extends Procedure {
                 ps.setString(3, pageTitle);
                 ps.executeUpdate();
             } catch (SQLException ex) {
-                if (ex.getErrorCode() != 2627 || !ex.getSQLState().equals("23000"))
+                if (ex.getErrorCode() != 2627 || !ex.getSQLState().equals("23000")) {
                     throw new RuntimeException("Unique Key Problem in this DBMS");
+                }
             }
 
             if (nameSpace == 0) {
@@ -74,8 +75,9 @@ public class AddWatchList extends Procedure {
                     ps.setString(3, pageTitle);
                     ps.executeUpdate();
                 } catch (SQLException ex) {
-                    if (ex.getErrorCode() != 2627 || !ex.getSQLState().equals("23000"))
+                    if (ex.getErrorCode() != 2627 || !ex.getSQLState().equals("23000")) {
                         throw new RuntimeException("Unique Key Problem in this DBMS");
+                    }
                 }
             }
 

@@ -76,7 +76,7 @@ public class TPCCBenchmark extends BenchmarkModule {
             numWarehouses = 1;
         }
         int numTerminals = workConf.getTerminals();
-       // TODO: This is currently broken: fix it!
+        // TODO: This is currently broken: fix it!
         int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
 
 
@@ -94,17 +94,19 @@ public class TPCCBenchmark extends BenchmarkModule {
             int upperTerminalId = (int) ((w + 1) * terminalsPerWarehouse);
             // protect against double rounding errors
             int w_id = w + 1;
-            if (w_id == numWarehouses)
+            if (w_id == numWarehouses) {
                 upperTerminalId = numTerminals;
+            }
             int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
                         w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
+            }
 
             final double districtsPerTerminal = TPCCConfig.configDistPerWhse
                     / (double) numWarehouseTerminals;
-           for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
+            for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
                 int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
                 int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
                 if (terminalId + 1 == numWarehouseTerminals) {

@@ -72,13 +72,15 @@ public class ResetDatabase extends Procedure {
                 ItemStatus.OPEN.ordinal(),
                 loaderStop);
         updated = stmt.executeUpdate();
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(AuctionMarkConstants.TABLENAME_ITEM + " Reset: " + updated);
+        }
 
         // Reset ITEM_PURCHASE
         stmt = this.getPreparedStatement(conn, deleteItemPurchases, loaderStop);
         updated = stmt.executeUpdate();
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(AuctionMarkConstants.TABLENAME_ITEM_PURCHASE + " Reset: " + updated);
+        }
     }
 }

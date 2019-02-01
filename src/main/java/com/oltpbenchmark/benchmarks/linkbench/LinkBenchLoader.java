@@ -67,16 +67,20 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
 
                 conn.commit();
                 batch = 0;
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
+                }
             }
         } // FOR
         if (batch > 0) {
             stmt.executeBatch();
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
+            }
         }
         stmt.close();
-        if (LOG.isDebugEnabled()) LOG.debug("Finished loading " + catalog_tbl.getName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Finished loading " + catalog_tbl.getName());
+        }
     }
 }

@@ -73,9 +73,13 @@ public class StockLevel extends TPCCProcedure {
 
         stockGetDistOrderId.setInt(1, w_id);
         stockGetDistOrderId.setInt(2, d_id);
-        if (trace) LOG.trace(String.format("stockGetDistOrderId BEGIN [W_ID=%d, D_ID=%d]", w_id, d_id));
+        if (trace) {
+            LOG.trace(String.format("stockGetDistOrderId BEGIN [W_ID=%d, D_ID=%d]", w_id, d_id));
+        }
         ResultSet rs = stockGetDistOrderId.executeQuery();
-        if (trace) LOG.trace("stockGetDistOrderId END");
+        if (trace) {
+            LOG.trace("stockGetDistOrderId END");
+        }
 
         if (!rs.next()) {
             throw new RuntimeException("D_W_ID=" + w_id + " D_ID=" + d_id + " not found!");
@@ -89,18 +93,26 @@ public class StockLevel extends TPCCProcedure {
         stockGetCountStock.setInt(4, o_id - 20);
         stockGetCountStock.setInt(5, w_id);
         stockGetCountStock.setInt(6, threshold);
-        if (trace) LOG.trace(String.format("stockGetCountStock BEGIN [W_ID=%d, D_ID=%d, O_ID=%d]", w_id, d_id, o_id));
+        if (trace) {
+            LOG.trace(String.format("stockGetCountStock BEGIN [W_ID=%d, D_ID=%d, O_ID=%d]", w_id, d_id, o_id));
+        }
         rs = stockGetCountStock.executeQuery();
-        if (trace) LOG.trace("stockGetCountStock END");
+        if (trace) {
+            LOG.trace("stockGetCountStock END");
+        }
 
         if (!rs.next()) {
             String msg = String.format("Failed to get StockLevel result for COUNT query " +
                     "[W_ID=%d, D_ID=%d, O_ID=%d]", w_id, d_id, o_id);
-            if (trace) LOG.warn(msg);
+            if (trace) {
+                LOG.warn(msg);
+            }
             throw new RuntimeException(msg);
         }
         stock_count = rs.getInt("STOCK_COUNT");
-        if (trace) LOG.trace("stockGetCountStock RESULT=" + stock_count);
+        if (trace) {
+            LOG.trace("stockGetCountStock RESULT=" + stock_count);
+        }
 
         conn.commit();
         rs.close();

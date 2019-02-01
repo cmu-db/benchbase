@@ -176,7 +176,9 @@ public class TATPWorker extends Worker<TATPBenchmark> {
 
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
-       if (LOG.isDebugEnabled()) LOG.debug("Executing " + proc);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Executing " + proc);
+        }
 
         t.invoke(this.conn, proc, subscriberSize);
         conn.commit();

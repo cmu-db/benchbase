@@ -46,7 +46,7 @@ public enum SortDirectionType {
     DESC(2);
 
     SortDirectionType(int val) {
-       }
+    }
 
     public int getValue() {
         return this.ordinal();

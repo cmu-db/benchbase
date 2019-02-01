@@ -209,11 +209,13 @@ public class RealDistribution extends PiecewiseLinearDistribution {
      * return the last cumulative sum (80%).
      */
     static double getArea(DistributionType type) {
-        if (type == DistributionType.LINK_READS)
+        if (type == DistributionType.LINK_READS) {
             return link_nreads_cs[link_nreads_cs.length - 1];
-        else if (type == DistributionType.LINK_WRITES)
+        } else if (type == DistributionType.LINK_WRITES) {
             return nwrites_cs[nwrites_cs.length - 1];
-        else return 0;
+        } else {
+            return 0;
+        }
     }
 
 
@@ -249,7 +251,9 @@ public class RealDistribution extends PiecewiseLinearDistribution {
                                         dist == DistributionType.NODE_READS ? node_nreads_cdf :
                                                 dist == DistributionType.NODE_UPDATES ? node_nwrites_cdf :
                                                         null;
-        if (points == null) return null;
+        if (points == null) {
+            return null;
+        }
 
         TreeMap<Integer, Double> map = new TreeMap<Integer, Double>();
         for (Point point : points) {

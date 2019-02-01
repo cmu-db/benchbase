@@ -163,7 +163,7 @@ public class NewPurchase extends Procedure {
                     seller_id,
                     currentTime,
                     currentTime).executeUpdate();
-           }
+        }
         results.close();
 
         // Get the ITEM_MAX_BID record so that we know what we need to process
@@ -199,7 +199,7 @@ public class NewPurchase extends Procedure {
 
         // Update item status to close
         updated = this.getPreparedStatement(conn, updateItem, currentTime, item_id, seller_id).executeUpdate();
-       // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
+        // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
         // If we don't have a record to update, just go ahead and create it
         updated = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id,
                 ib_buyer_id, item_id, seller_id).executeUpdate();
@@ -208,11 +208,11 @@ public class NewPurchase extends Procedure {
                     ip_id, ib_id, item_id, seller_id,
                     currentTime).executeUpdate();
         }
-       // Decrement the buyer's account
+        // Decrement the buyer's account
         updated = this.getPreparedStatement(conn, updateUserBalance, -1 * (i_current_price) + buyer_credit, ib_buyer_id).executeUpdate();
-       // And credit the seller's account
+        // And credit the seller's account
         this.getPreparedStatement(conn, updateUserBalance, i_current_price, seller_id).executeUpdate();
-       // Return a tuple of the item that we just updated
+        // Return a tuple of the item that we just updated
         return new Object[]{
                 // ITEM ID
                 item_id,

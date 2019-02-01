@@ -46,8 +46,6 @@ public class IO1 extends Procedure {
                     int howManyRowsPerUpdate, int keyRange) throws SQLException {
 
 
-
-
         PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
 
         //int keyRange = 20; //1024000 / 200; // FIXME
@@ -57,7 +55,6 @@ public class IO1 extends Procedure {
         for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
             int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
             int rightKey = leftKey + howManyRowsPerUpdate;
-
 
 
             for (int col = 1; col <= howManyColsPerRow; ++col) {

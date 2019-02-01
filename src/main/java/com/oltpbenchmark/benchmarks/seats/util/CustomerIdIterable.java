@@ -63,7 +63,9 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
                     last_max_id = airport_max_customer_id.get(last_airport_id);
                 }
                 CustomerId next_id = new CustomerId(last_id, last_airport_id);
-                if (++last_id == last_max_id) last_airport_id = null;
+                if (++last_id == last_max_id) {
+                    last_airport_id = null;
+                }
                 return next_id;
             }
 

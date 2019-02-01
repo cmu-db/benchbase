@@ -46,8 +46,9 @@ public class NoOpLoader extends Loader<NoOpBenchmark> {
     @Override
     public void load() throws SQLException {
         // Nothing to do
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("No data is no loaded because there is no table!");
+        }
 
     }
 }

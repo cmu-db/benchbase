@@ -94,9 +94,9 @@ public class SendPayment extends Procedure {
         // Debt
         PreparedStatement updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount * -1d, sendAcct);
         int status = updateStmt.executeUpdate();
-       // Credit
+        // Credit
         updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct);
         status = updateStmt.executeUpdate();
-       return;
+        return;
     }
 }

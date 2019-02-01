@@ -45,8 +45,6 @@ public class Contention2 extends Procedure {
     public void run(Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
 
 
-
-
         PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate);
         PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep);
 

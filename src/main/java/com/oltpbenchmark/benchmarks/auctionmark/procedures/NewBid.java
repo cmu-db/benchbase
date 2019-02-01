@@ -136,8 +136,10 @@ public class NewBid extends Procedure {
                         long item_id, long seller_id, long buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
-        if (debug) LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]",
-                item_id, buyer_id, newBid));
+        if (debug) {
+            LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]",
+                    item_id, buyer_id, newBid));
+        }
 
         PreparedStatement stmt = null;
         ResultSet results = null;
@@ -171,7 +173,9 @@ public class NewBid extends Procedure {
         // bidder or if the existing one just has their max_bid bumped up
         if (i_num_bids > 0) {
             // Get the next ITEM_BID id for this item
-            if (debug) LOG.debug("Retrieving ITEM_MAX_BID information for " + ItemId.toString(item_id));
+            if (debug) {
+                LOG.debug("Retrieving ITEM_MAX_BID information for " + ItemId.toString(item_id));
+            }
             stmt = this.getPreparedStatement(conn, getMaxBidId, item_id, seller_id);
             results = stmt.executeQuery();
             boolean advanceRow = results.next();
@@ -192,7 +196,7 @@ public class NewBid extends Procedure {
             results.close();
 
             boolean updateMaxBid = false;
-           // Check whether this bidder is already the max bidder
+            // Check whether this bidder is already the max bidder
             // This means we just need to increase their current max bid amount without
             // changing the current auction price
             if (buyer_id == currentBuyerId) {
@@ -200,7 +204,9 @@ public class NewBid extends Procedure {
                     String msg = String.format("%s is already the highest bidder for Item %d but is trying to " +
                                     "set a new max bid %.2f that is less than current max bid %.2f",
                             buyer_id, item_id, newBid, currentBidMax);
-                    if (debug) LOG.debug(msg);
+                    if (debug) {
+                        LOG.debug(msg);
+                    }
                     throw new UserAbortException(msg);
                 }
                 this.getPreparedStatement(conn, updateBid, i_current_price,
@@ -209,9 +215,10 @@ public class NewBid extends Procedure {
                         currentBidId,
                         item_id,
                         seller_id).executeUpdate();
-                if (debug)
+                if (debug) {
                     LOG.debug(String.format("Increasing the max bid the highest bidder %s from %.2f to %.2f for Item %d",
                             buyer_id, currentBidMax, newBid, item_id));
+                }
             }
             // Otherwise check whether this new bidder's max bid is greater than the current max
             else {
@@ -238,9 +245,10 @@ public class NewBid extends Procedure {
                             currentBidId,
                             item_id,
                             seller_id).executeUpdate();
-                    if (debug)
+                    if (debug) {
                         LOG.debug(String.format("Keeping the existing highest bidder of Item %d as %s but updating current price from %.2f to %.2f",
                                 item_id, buyer_id, currentBidAmount, i_current_price));
+                    }
                 }
 
                 // Always insert an new ITEM_BID record even if BuyerId doesn't become
@@ -269,9 +277,10 @@ public class NewBid extends Procedure {
                             currentTime,
                             item_id,
                             seller_id).executeUpdate();
-                    if (debug)
+                    if (debug) {
                         LOG.debug(String.format("Changing new highest bidder of Item %d to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
                                 item_id, UserId.toString(buyer_id), newBid, currentBidMax));
+                    }
                 }
             }
         }
@@ -296,9 +305,10 @@ public class NewBid extends Procedure {
                     currentTime,
                     item_id,
                     seller_id).execute();
-            if (debug)
+            if (debug) {
                 LOG.debug(String.format("Creating the first bid record for Item %d and setting %s as highest bidder at %.2f",
                         item_id, buyer_id, i_current_price));
+            }
         }
 
         // Return back information about the current state of the item auction

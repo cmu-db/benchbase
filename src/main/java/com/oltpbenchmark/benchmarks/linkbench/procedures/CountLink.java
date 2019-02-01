@@ -39,8 +39,9 @@ public class CountLink extends Procedure {
     public long run(Connection conn, long id1, long link_type) throws SQLException {
         long count = 0;
 
-        if (stmt == null)
+        if (stmt == null) {
             stmt = this.getPreparedStatement(conn, countStmt);
+        }
 
         stmt.setLong(1, id1);
         stmt.setLong(2, link_type);
@@ -57,7 +58,7 @@ public class CountLink extends Procedure {
             count = rs.getLong(1);
         }
 
-         // check done
+        // check done
         rs.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Count result: " + id1 + "," + link_type +

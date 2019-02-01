@@ -18,7 +18,6 @@ package com.oltpbenchmark.benchmarks.ycsb.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.ycsb.YCSBConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

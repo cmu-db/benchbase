@@ -276,13 +276,15 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         loaders[7] = loadSuppliers();
 
         for (int i = 0; i < 8; ++i)
-            if (loaders[i] != null)
+            if (loaders[i] != null) {
                 loaders[i].start();
+            }
 
         for (int i = 0; i < 8; ++i) {
             try {
-                if (loaders[i] != null)
+                if (loaders[i] != null) {
                     loaders[i].join();
+                }
             } catch (InterruptedException e) {
                 LOG.error(e.getMessage());
             }
@@ -313,7 +315,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                Previouse configuration migh not have a fileFormat and assume
                 that the files are csv.
             */
-            if (format == null) return "csv";
+            if (format == null) {
+                return "csv";
+            }
 
             if ((!"csv".equals(format) && !"tbl".equals(format))) {
                 throw new IllegalArgumentException("Configuration doesent"

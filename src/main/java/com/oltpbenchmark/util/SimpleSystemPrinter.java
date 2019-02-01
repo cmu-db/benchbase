@@ -27,7 +27,8 @@ public class SimpleSystemPrinter implements SimplePrinter {
     }
 
     public void println(String msg) {
-        if (out != null)
+        if (out != null) {
             out.println(msg);
+        }
     }
 }

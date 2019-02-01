@@ -34,7 +34,6 @@ package com.oltpbenchmark.benchmarks.linkbench.utils;
 import com.oltpbenchmark.benchmarks.linkbench.LinkBenchConfigError;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Properties;
 
 public class ConfigUtil {

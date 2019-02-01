@@ -154,8 +154,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                 userInsert.executeBatch();
                 batch = 0;
                 userInsert.clearBatch();
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Users %d / %d", total, num_users));
+                }
             }
         }
         if (batch > 0) {
@@ -163,8 +164,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             userInsert.clearBatch();
         }
         userInsert.close();
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Users Loaded [%d]", total));
+        }
     }
 
     /**
@@ -190,8 +192,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                 itemInsert.executeBatch();
                 batch = 0;
                 itemInsert.clearBatch();
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Items %d / %d", total, num_items));
+                }
             }
         }
         if (batch > 0) {
@@ -199,8 +202,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             itemInsert.clearBatch();
         }
         itemInsert.close();
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Items Loaded [%d]", total));
+        }
     }
 
     /**
@@ -225,8 +229,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         for (int i = 0; i < num_items; i++) {
             List<Integer> reviewers = new ArrayList<Integer>();
             int review_count = numReviews.nextInt();
-            if (review_count == 0)
+            if (review_count == 0) {
                 review_count = 1; // make sure at least each item has a review
+            }
             for (int rc = 0; rc < review_count; ) {
                 int u_id = reviewer.nextInt();
                 if (!reviewers.contains(u_id)) {
@@ -244,9 +249,11 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         reviewInsert.executeBatch();
                         batch = 0;
                         reviewInsert.clearBatch();
-                        if (LOG.isDebugEnabled())
-                            if (LOG.isDebugEnabled())
+                        if (LOG.isDebugEnabled()) {
+                            if (LOG.isDebugEnabled()) {
                                 LOG.debug("Reviewed items  % " + (int) (((double) i / (double) this.num_items) * 100));
+                            }
+                        }
                     }
                 }
             }
@@ -256,8 +263,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             reviewInsert.clearBatch();
         }
         reviewInsert.close();
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Reviews Loaded [%d]", total));
+        }
     }
 
     /**
@@ -300,8 +308,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         trustInsert.executeBatch();
                         batch = 0;
                         trustInsert.clearBatch();
-                        if (LOG.isDebugEnabled())
+                        if (LOG.isDebugEnabled()) {
                             LOG.debug("Rated users  % " + (int) (((double) i / (double) this.num_users) * 100));
+                        }
 
                     }
                 }
@@ -312,7 +321,8 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             trustInsert.clearBatch();
         }
         trustInsert.close();
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Trust Loaded [%d]", total));
+        }
     }
 }

@@ -23,7 +23,9 @@ public class EventObservableExceptionHandler extends EventObservable<Pair<Thread
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        if (this.error == null) this.error = e;
+        if (this.error == null) {
+            this.error = e;
+        }
         this.notifyObservers(Pair.of(t, e));
     }
 

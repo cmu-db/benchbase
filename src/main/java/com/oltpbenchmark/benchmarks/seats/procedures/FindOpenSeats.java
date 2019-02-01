@@ -111,9 +111,10 @@ public class FindOpenSeats extends Procedure {
         //                         such as numeric, for intermediate values.  (This is
         //                         more-or-less equivalent to java.math.BigDecimal.)
         double _seat_price = base_price + (base_price * (1.0 - (seats_left / (double) seats_total)));
-        if (debug)
+        if (debug) {
             LOG.debug(String.format("Flight %d - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
                     f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
+        }
 
         // Then build the seat map of the remaining seats
         PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats);
@@ -122,7 +123,9 @@ public class FindOpenSeats extends Procedure {
         while (s_results.next()) {
             long r_id = s_results.getLong(1);
             int seatnum = s_results.getInt(3);
-            if (debug) LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
+            if (debug) {
+                LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
+            }
 
             seatmap[seatnum] = 1;
         } // WHILE
@@ -136,7 +139,9 @@ public class FindOpenSeats extends Procedure {
                 double price = seat_price * (i < SEATSConstants.FLIGHTS_FIRST_CLASS_OFFSET ? 2.0 : 1.0);
                 Object[] row = new Object[]{f_id, i, price};
                 returnResults[ctr++] = row;
-                if (ctr == returnResults.length) break;
+                if (ctr == returnResults.length) {
+                    break;
+                }
             }
         } // FOR
 //        assert(seats_left == returnResults.getRowCount()) :

@@ -98,9 +98,13 @@ public class CreateDialects {
             String defaultValue = catalog_col.getDefaultValue();
             if (defaultValue != null || (defaultValue == null && catalog_col.isNullable())) {
                 inner.append("DEFAULT ");
-                if (isString && defaultValue != null) inner.append('"');
+                if (isString && defaultValue != null) {
+                    inner.append('"');
+                }
                 inner.append(defaultValue);
-                if (isString && defaultValue != null) inner.append('"');
+                if (isString && defaultValue != null) {
+                    inner.append('"');
+                }
             }
 
             inner_rows.add(inner.toString());

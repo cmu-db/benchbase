@@ -31,8 +31,9 @@ public abstract class StringBoxUtil {
      */
     public static String box(String str, String horzMark, String vertMark, Integer max_len, String corners[]) {
         String lines[] = LINE_SPLIT.split(str);
-        if (lines.length == 0)
+        if (lines.length == 0) {
             return ("");
+        }
 
         // CORNERS: 
         //  0: Top-Left
@@ -45,8 +46,9 @@ public abstract class StringBoxUtil {
 
         if (max_len == null) {
             for (String line : lines) {
-                if (max_len == null || line.length() > max_len)
+                if (max_len == null || line.length() > max_len) {
                     max_len = line.length();
+                }
             } // FOR
         }
 

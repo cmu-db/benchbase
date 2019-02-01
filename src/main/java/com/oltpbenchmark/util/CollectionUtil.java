@@ -211,7 +211,9 @@ public abstract class CollectionUtil {
 
         Set<E> elements_set = new HashSet<E>();
         for (int i = 0; i < elements.length; i++) {
-            if (!exclude_set.contains(elements[i])) elements_set.add(elements[i]);
+            if (!exclude_set.contains(elements[i])) {
+                elements_set.add(elements[i]);
+            }
         } // FOR
         return (elements_set);
 //      Crappy java....
@@ -342,7 +344,9 @@ public abstract class CollectionUtil {
         }
         int ctr = 0;
         for (T t : items) {
-            if (ctr++ == idx) return (t);
+            if (ctr++ == idx) {
+                return (t);
+            }
         }
         return (null);
     }
@@ -425,8 +429,9 @@ public abstract class CollectionUtil {
 
                     @Override
                     public T next() {
-                        if (this.idx == values.length)
+                        if (this.idx == values.length) {
                             throw new NoSuchElementException();
+                        }
                         return values[this.idx++];
                     }
 

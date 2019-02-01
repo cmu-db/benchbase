@@ -180,15 +180,18 @@ public class Table extends AbstractCatalogObject {
 
     public void addConstraint(IntegrityConstraint ic) throws IntegrityConstraintsExistsException {
         for (IntegrityConstraint c : constraints) {
-            if (c != null && c.getId().equals(ic.getId()))
+            if (c != null && c.getId().equals(ic.getId())) {
                 throw new IntegrityConstraintsExistsException("A constraint " + ic.getId() + " already exists in this table");
+            }
         }
         constraints.add(ic);
     }
 
     @Override
     public boolean equals(Object object) {
-        if ((object instanceof Table) == false) return (false);
+        if ((object instanceof Table) == false) {
+            return (false);
+        }
 
         Table table2 = (Table) object;
         return (this.name.equals(table2.name) &&

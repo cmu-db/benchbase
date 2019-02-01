@@ -94,7 +94,7 @@ public class NewFeedback extends Procedure {
                 currentTime,
                 comment);
         int updated = stmt.executeUpdate();
-       updated = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
-       return;
+        updated = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
+        return;
     }
 }

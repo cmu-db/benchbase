@@ -21,7 +21,6 @@ import com.oltpbenchmark.api.dialects.*;
 import com.oltpbenchmark.types.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
@@ -31,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -157,8 +155,8 @@ public class StatementDialects {
                 Map<String, String> procDialects = this.dialectsMap.get(procName);
                 for (StatementType statement : procedure.getStatement()) {
                     String stmtName = statement.getName();
-                   String stmtSQL = statement.getValue().trim();
-                   if (procDialects == null) {
+                    String stmtSQL = statement.getValue().trim();
+                    if (procDialects == null) {
                         procDialects = new HashMap<String, String>();
                         this.dialectsMap.put(procName, procDialects);
                     }

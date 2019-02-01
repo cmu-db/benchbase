@@ -63,8 +63,12 @@ public class LogNormalDistribution implements ProbabilityDistribution {
 
     @Override
     public double cdf(long id) {
-        if (id < min) return 0.0;
-        if (id >= max) return 1.0;
+        if (id < min) {
+            return 0.0;
+        }
+        if (id >= max) {
+            return 1.0;
+        }
         org.apache.commons.math3.distribution.LogNormalDistribution d =
                 new org.apache.commons.math3.distribution.LogNormalDistribution(mu, sigma);
         return d.cumulativeProbability(id);
@@ -73,12 +77,13 @@ public class LogNormalDistribution implements ProbabilityDistribution {
     @Override
     public long choose(Random rng) {
         long choice = (long) Math.round(FastMath.exp((rng.nextGaussian() * sigma) + mu));
-        if (choice < min)
+        if (choice < min) {
             return min;
-        else if (choice >= max)
+        } else if (choice >= max) {
             return max - 1;
-        else
+        } else {
             return choice;
+        }
     }
 
     @Override

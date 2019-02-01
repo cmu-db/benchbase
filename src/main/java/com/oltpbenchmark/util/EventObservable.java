@@ -70,8 +70,9 @@ public class EventObservable<T> {
      */
     public void notifyObservers(T arg) {
         this.observable.setChanged();
-        if (this.observer_ctr > 0)
+        if (this.observer_ctr > 0) {
             this.observable.notifyObservers(arg);
+        }
     }
 
     /**
@@ -79,7 +80,8 @@ public class EventObservable<T> {
      */
     public void notifyObservers() {
         this.observable.setChanged();
-        if (this.observer_ctr > 0)
+        if (this.observer_ctr > 0) {
             this.observable.notifyObservers();
+        }
     }
 } // END CLASS

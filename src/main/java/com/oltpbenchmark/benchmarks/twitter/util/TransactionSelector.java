@@ -39,11 +39,13 @@ public class TransactionSelector {
         this.filename = filename;
         this.filename2 = filename2;
 
-        if (filename == null || filename.isEmpty())
+        if (filename == null || filename.isEmpty()) {
             throw new FileNotFoundException("You must specify a filename to instantiate the TransactionSelector... (probably missing in your workload configuration?)");
+        }
 
-        if (filename2 == null || filename2.isEmpty())
+        if (filename2 == null || filename2.isEmpty()) {
             throw new FileNotFoundException("You must specify a filename to instantiate the TransactionSelector... (probably missing in your workload configuration?)");
+        }
 
 
         File file = new File(filename);
@@ -69,10 +71,12 @@ public class TransactionSelector {
     }
 
     public synchronized TwitterOperation nextTransaction() throws IOException {
-        if (dis.available() == 0)
+        if (dis.available() == 0) {
             dis.reset();
-        if (dis2.available() == 0)
+        }
+        if (dis2.available() == 0) {
             dis2.reset();
+        }
 
         return readNextTransaction();
     }

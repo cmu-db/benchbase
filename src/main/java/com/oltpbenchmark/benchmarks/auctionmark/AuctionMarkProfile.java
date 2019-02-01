@@ -238,8 +238,9 @@ public class AuctionMarkProfile {
                 AuctionMarkConstants.ITEM_NUM_COMMENTS_MAX,
                 AuctionMarkConstants.ITEM_NUM_COMMENTS_SIGMA);
 
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("AuctionMarkBenchmarkProfile :: constructor");
+        }
     }
 
     // -----------------------------------------------------------------
@@ -264,8 +265,9 @@ public class AuctionMarkProfile {
         stmt.close();
 
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Saving profile information into " + catalog_tbl);
+        }
         return;
     }
 
@@ -306,8 +308,9 @@ public class AuctionMarkProfile {
             }
         } // FOR
 
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace("SellerItemCounts:\n" + this.seller_item_cnt);
+        }
 
         return (this);
     }
@@ -335,14 +338,16 @@ public class AuctionMarkProfile {
                 // So first we want to reset the database
                 Connection conn = worker.getConnection();
                 if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug("Reseting database from last execution run");
+                    }
                     worker.getProcedure(ResetDatabase.class).run(conn);
                 }
 
                 // Then invoke LoadConfig to pull down the profile information we need
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Loading AuctionMarkProfile for the first time");
+                }
                 ResultSet results[] = worker.getProcedure(LoadConfig.class).run(conn);
                 int result_idx = 0;
 
@@ -375,12 +380,15 @@ public class AuctionMarkProfile {
 
                 conn.commit();
 
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Loaded profile:\n" + cachedProfile.toString());
+                }
             }
         } // SYNCH
 
-        if (LOG.isTraceEnabled()) LOG.trace("Using cached SEATSProfile");
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Using cached SEATSProfile");
+        }
         this.copyProfile(worker, cachedProfile);
 
     }
@@ -395,14 +403,15 @@ public class AuctionMarkProfile {
 
     private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
         boolean adv = vt.next();
-       int col = 1;
+        int col = 1;
         profile.scale_factor = vt.getDouble(col++);
         profile.loaderStartTime = vt.getTimestamp(col++);
         profile.loaderStopTime = vt.getTimestamp(col++);
         JSONUtil.fromJSONString(profile.users_per_itemCount, vt.getString(col++));
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
+        }
     }
 
     private static final void loadItemCategoryCounts(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
@@ -412,9 +421,10 @@ public class AuctionMarkProfile {
             int count = vt.getInt(col++);
             profile.items_per_category.put((int) i_c_id, count);
         } // WHILE
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d CATEGORY records from %s",
                     profile.items_per_category.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
+        }
     }
 
     private static final void loadItems(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
@@ -433,9 +443,10 @@ public class AuctionMarkProfile {
             ctr++;
         } // WHILE
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d records from %s",
                     ctr, AuctionMarkConstants.TABLENAME_ITEM));
+        }
     }
 
     private static final void loadPendingItemComments(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
@@ -447,9 +458,10 @@ public class AuctionMarkProfile {
             ItemCommentResponse cr = new ItemCommentResponse(ic_id, ic_i_id, ic_u_id);
             profile.pending_commentResponses.add(cr);
         } // WHILE
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d records from %s",
                     profile.pending_commentResponses.size(), AuctionMarkConstants.TABLENAME_ITEM_COMMENT));
+        }
     }
 
     private static final void loadGlobalAttributeGroups(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
@@ -458,9 +470,10 @@ public class AuctionMarkProfile {
             long gag_id = vt.getLong(col++);
             profile.gag_ids.add(new GlobalAttributeGroupId(gag_id));
         } // WHILE
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d records from %s",
                     profile.gag_ids.size(), AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP));
+        }
     }
 
     // -----------------------------------------------------------------
@@ -471,15 +484,18 @@ public class AuctionMarkProfile {
 
         tmp_now.setTime(System.currentTimeMillis());
         time.setTime(AuctionMarkUtil.getScaledTimestamp(this.loaderStartTime, this.clientStartTime, tmp_now));
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace(String.format("Scaled:%d / Now:%d / BenchmarkStart:%d / ClientStart:%d",
                     time.getTime(), tmp_now.getTime(), this.loaderStartTime.getTime(), this.clientStartTime.getTime()));
+        }
         return (time);
     }
 
     public synchronized Timestamp updateAndGetCurrentTime() {
         this.getScaledCurrentTimestamp(this.currentTime);
-        if (LOG.isTraceEnabled()) LOG.trace("CurrentTime: " + currentTime);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("CurrentTime: " + currentTime);
+        }
         return this.currentTime;
     }
 
@@ -564,7 +580,9 @@ public class AuctionMarkProfile {
         if (this.randomItemCount == null) {
             this.randomItemCount = new FlatHistogram<Long>(this.rng, this.users_per_itemCount);
         }
-        if (this.userIdGenerator == null) this.initializeUserIdGenerator(clientId);
+        if (this.userIdGenerator == null) {
+            this.initializeUserIdGenerator(clientId);
+        }
 
         UserId user_id = null;
         int tries = 1000;
@@ -583,23 +601,31 @@ public class AuctionMarkProfile {
             long cur_position = this.userIdGenerator.getCurrentPosition();
             long new_position = rng.number(cur_position, num_users);
             user_id = this.userIdGenerator.seekToPosition((int) new_position);
-            if (user_id == null) continue;
+            if (user_id == null) {
+                continue;
+            }
 
             // Make sure that we didn't select the same UserId as the one we were
             // told to exclude.
             if (exclude != null && exclude.length > 0) {
                 for (UserId ex : exclude) {
                     if (ex != null && ex.equals(user_id)) {
-                        if (LOG.isTraceEnabled()) LOG.trace("Excluding " + user_id);
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Excluding " + user_id);
+                        }
                         user_id = null;
                         break;
                     }
                 } // FOR
-                if (user_id == null) continue;
+                if (user_id == null) {
+                    continue;
+                }
             }
 
             // If we don't care about skew, then we're done right here
-            if (LOG.isTraceEnabled()) LOG.trace("Selected " + user_id);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Selected " + user_id);
+            }
             break;
         } // WHILE
         if (user_id == null && LOG.isDebugEnabled()) {
@@ -708,15 +734,17 @@ public class AuctionMarkProfile {
 
         // If we have room, shove it right in
         // We'll throw it in the back because we know it hasn't been used yet
-        if (items.size() < AuctionMarkConstants.ITEM_ID_CACHE_SIZE) {
-            items.addLast(itemInfo);
-            added = true;
+        {
+            if (items.size() < AuctionMarkConstants.ITEM_ID_CACHE_SIZE) {
+                items.addLast(itemInfo);
+                added = true;
 
-            // Otherwise, we can will randomly decide whether to pop one out
-        } else if (this.rng.nextBoolean()) {
-            items.pop();
-            items.addLast(itemInfo);
-            added = true;
+                // Otherwise, we can will randomly decide whether to pop one out
+            } else if (this.rng.nextBoolean()) {
+                items.pop();
+                items.addLast(itemInfo);
+                added = true;
+            }
         }
         return (added);
     }
@@ -728,7 +756,9 @@ public class AuctionMarkProfile {
         for (LinkedList<ItemInfo> items : allItemSets) {
             // If the items is already in the completed queue, then we don't need
             // to do anything with it.
-            if (items == this.items_completed) continue;
+            if (items == this.items_completed) {
+                continue;
+            }
 
             for (ItemInfo itemInfo : items) {
                 this.addItemToProperQueue(itemInfo, currentTime);
@@ -759,7 +789,9 @@ public class AuctionMarkProfile {
         // The loader's profile and the cache profile will always have a negative client_id,
         // which means that we always want to keep it
         if (this.client_id != -1) {
-            if (this.userIdGenerator == null) this.initializeUserIdGenerator(this.client_id);
+            if (this.userIdGenerator == null) {
+                this.initializeUserIdGenerator(this.client_id);
+            }
             if (this.userIdGenerator.checkClient(itemInfo.getSellerId()) == false) {
                 return (null);
             }
@@ -781,36 +813,39 @@ public class AuctionMarkProfile {
         }
 
         if (new_status != itemInfo.status) {
-            if (itemInfo.status != null)
-               switch (new_status) {
-                case OPEN:
-                    this.addItem(this.items_available, itemInfo);
-                    break;
-                case ENDING_SOON:
-                    this.items_available.remove(itemInfo);
-                    this.addItem(this.items_endingSoon, itemInfo);
-                    break;
-                case WAITING_FOR_PURCHASE:
-                    (itemInfo.status == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
-                    this.addItem(this.items_waitingForPurchase, itemInfo);
-                    break;
-                case CLOSED:
-                    if (itemInfo.status == ItemStatus.OPEN)
+            if (itemInfo.status != null) {
+                switch (new_status) {
+                    case OPEN:
+                        this.addItem(this.items_available, itemInfo);
+                        break;
+                    case ENDING_SOON:
                         this.items_available.remove(itemInfo);
-                    else if (itemInfo.status == ItemStatus.ENDING_SOON)
-                        this.items_endingSoon.remove(itemInfo);
-                    else
-                        this.items_waitingForPurchase.remove(itemInfo);
-                    this.addItem(this.items_completed, itemInfo);
-                    break;
-                default:
+                        this.addItem(this.items_endingSoon, itemInfo);
+                        break;
+                    case WAITING_FOR_PURCHASE:
+                        (itemInfo.status == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
+                        this.addItem(this.items_waitingForPurchase, itemInfo);
+                        break;
+                    case CLOSED:
+                        if (itemInfo.status == ItemStatus.OPEN) {
+                            this.items_available.remove(itemInfo);
+                        } else if (itemInfo.status == ItemStatus.ENDING_SOON) {
+                            this.items_endingSoon.remove(itemInfo);
+                        } else {
+                            this.items_waitingForPurchase.remove(itemInfo);
+                        }
+                        this.addItem(this.items_completed, itemInfo);
+                        break;
+                    default:
 
-            } // SWITCH
+                } // SWITCH
+            }
             itemInfo.status = new_status;
         }
 
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace(String.format("%s - #%d [%s]", new_status, itemInfo.itemId.encode(), itemInfo.getEndDate()));
+        }
 
         return (new_status);
     }
@@ -827,16 +862,19 @@ public class AuctionMarkProfile {
         int idx = -1;
         ItemInfo itemInfo = null;
 
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace(String.format("Getting random ItemInfo [numItems=%d, currentTime=%s, needCurrentPrice=%s]",
                     num_items, currentTime, needCurrentPrice));
+        }
         long tries = 1000;
         tmp_seenItems.clear();
         while (num_items > 0 && tries-- > 0 && tmp_seenItems.size() < num_items) {
             idx = this.rng.nextInt(num_items);
             ItemInfo temp = itemSet.get(idx);
 
-            if (tmp_seenItems.contains(temp)) continue;
+            if (tmp_seenItems.contains(temp)) {
+                continue;
+            }
             tmp_seenItems.add(temp);
 
             // Needs to have an embedded currentPrice
@@ -848,8 +886,9 @@ public class AuctionMarkProfile {
             // the current timestamp
             if (needFutureEndDate) {
                 boolean compareTo = (temp.getEndDate().compareTo(currentTime) < 0);
-                if (LOG.isTraceEnabled())
+                if (LOG.isTraceEnabled()) {
                     LOG.trace("CurrentTime:" + currentTime + " / EndTime:" + temp.getEndDate() + " [compareTo=" + compareTo + "]");
+                }
                 if (temp.hasEndDate() == false || compareTo) {
                     continue;
                 }
@@ -860,8 +899,9 @@ public class AuctionMarkProfile {
             break;
         } // WHILE
         if (itemInfo == null) {
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Failed to find ItemInfo [hasCurrentPrice=" + needCurrentPrice + ", needFutureEndDate=" + needFutureEndDate + "]");
+            }
             return (null);
         }
 

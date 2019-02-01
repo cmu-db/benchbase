@@ -53,8 +53,6 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     public void addLatency(int transType, long startNs, long endNs, int workerId, int phaseId) {
 
 
-
-
         if (nextIndex == ALLOC_SIZE) {
             allocateChunk();
         }
@@ -73,7 +71,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     }
 
     private void allocateChunk() {
-       values.add(new Sample[ALLOC_SIZE]);
+        values.add(new Sample[ALLOC_SIZE]);
         nextIndex = 0;
     }
 
@@ -112,11 +110,11 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
             long diff = this.startNs - other.startNs;
 
             // explicit comparison to avoid long to int overflow
-            if (diff > 0)
+            if (diff > 0) {
                 return 1;
-            else if (diff < 0)
+            } else if (diff < 0) {
                 return -1;
-            else {
+            } else {
 
                 return 0;
             }

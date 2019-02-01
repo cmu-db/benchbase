@@ -64,9 +64,9 @@ public class MeasureTargetSystem implements Runnable {
             while (true) {
                 double[] t = sc.getStats();
                 long curr = System.currentTimeMillis();
-                if (curr - lastPhaseChange < intermediateWarmupTime * 1000)
+                if (curr - lastPhaseChange < intermediateWarmupTime * 1000) {
                     out.write(buildoutString("warmup", speed, t));
-                else {
+                } else {
                     out.write(buildoutString("measure", speed, t));
                     s.add(t);
                 }

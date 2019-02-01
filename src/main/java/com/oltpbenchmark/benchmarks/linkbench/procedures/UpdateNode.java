@@ -46,18 +46,23 @@ public class UpdateNode extends Procedure {
         //gross hack
         updateNodeStmt.setSQL(updateNodeStmt.getSQL().replaceFirst("HEXDATA", StringUtil.stringLiteral(node.data)));
 
-        if (stmt == null)
+        if (stmt == null) {
             stmt = this.getPreparedStatement(conn, updateNodeStmt);
+        }
         stmt.setLong(1, node.version);
         stmt.setInt(2, node.time);
         stmt.setLong(3, node.id);
         stmt.setInt(4, node.type);
         int rows = stmt.executeUpdate();
         conn.commit();
-        if (rows == 1) return true;
-        else if (rows == 0) return false;
-        else throw new SQLException("Did not expect " + rows + "affected rows: only "
+        if (rows == 1) {
+            return true;
+        } else if (rows == 0) {
+            return false;
+        } else {
+            throw new SQLException("Did not expect " + rows + "affected rows: only "
                     + "expected update to affect at most one row");
+        }
     }
 
 }

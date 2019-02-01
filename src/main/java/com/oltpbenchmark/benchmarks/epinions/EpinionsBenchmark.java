@@ -69,7 +69,9 @@ public class EpinionsBenchmark extends BenchmarkModule {
                 user_ids.add(res.getString(1));
             }
             res.close();
-            if (LOG.isDebugEnabled()) LOG.debug("Loaded: " + user_ids.size() + " User ids");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Loaded: " + user_ids.size() + " User ids");
+            }
             // LIST OF ITEMS AND
             t = this.catalog.getTable("ITEM");
 
@@ -80,7 +82,9 @@ public class EpinionsBenchmark extends BenchmarkModule {
                 item_ids.add(res.getString(1));
             }
             res.close();
-            if (LOG.isDebugEnabled()) LOG.debug("Loaded: " + item_ids.size() + " Item ids");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Loaded: " + item_ids.size() + " Item ids");
+            }
             metaConn.close();
             // Now create the workers.
             for (int i = 0; i < workConf.getTerminals(); ++i) {

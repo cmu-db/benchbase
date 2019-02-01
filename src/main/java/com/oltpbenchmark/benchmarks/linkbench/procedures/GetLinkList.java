@@ -49,8 +49,9 @@ public class GetLinkList extends Procedure {
     public Link[] run(Connection conn, long id1, long link_type,
                       long minTimestamp, long maxTimestamp,
                       int offset, int limit) throws SQLException {
-        if (stmt == null)
+        if (stmt == null) {
             stmt = this.getPreparedStatement(conn, getLinkListsStmt);
+        }
         stmt.setLong(1, id1);
         stmt.setLong(2, link_type);
         stmt.setLong(3, minTimestamp);
@@ -88,7 +89,7 @@ public class GetLinkList extends Procedure {
             links[i] = l;
             i++;
         }
-         // check done
+        // check done
         rs.close();
 
         return links;

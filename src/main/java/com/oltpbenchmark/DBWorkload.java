@@ -177,7 +177,9 @@ public class DBWorkload {
                 scriptRun = true;
                 String traceFile = argsLine.getOptionValue("t");
                 wrkld.setTraceReader(new TraceReader(traceFile));
-                if (LOG.isDebugEnabled()) LOG.debug(wrkld.getTraceReader().toString());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(wrkld.getTraceReader().toString());
+                }
             }
 
             // Pull in database configuration
@@ -217,8 +219,9 @@ public class DBWorkload {
 
             String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
 
-            if (classname == null)
+            if (classname == null) {
                 throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
+            }
             BenchmarkModule bench = ClassUtil.newInstance(classname,
                     new Object[]{wrkld},
                     new Class<?>[]{WorkloadConfiguration.class});
@@ -231,8 +234,9 @@ public class DBWorkload {
             initDebug.put("Isolation", wrkld.getIsolationString());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
 
-            if (selectivity != -1)
+            if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);
+            }
 
             LOG.info(SINGLE_LINE + "\n\n" + StringUtil.formatMaps(initDebug));
             LOG.info(SINGLE_LINE);
@@ -333,16 +337,18 @@ public class DBWorkload {
                 // attributed workload
                 if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
                     String weightKey = work.getString("weights" + pluginTest).toLowerCase();
-                    if (groupings.containsKey(weightKey))
+                    if (groupings.containsKey(weightKey)) {
                         weight_strings = groupings.get(weightKey);
-                    else
+                    } else {
                         weight_strings = getWeights(plugin, work);
+                    }
                 } else {
                     String weightKey = work.getString("weights[not(@bench)]").toLowerCase();
-                    if (groupings.containsKey(weightKey))
+                    if (groupings.containsKey(weightKey)) {
                         weight_strings = groupings.get(weightKey);
-                    else
+                    } else {
                         weight_strings = work.getList("weights[not(@bench)]");
+                    }
                 }
                 int rate = 1;
                 boolean rateLimited = true;
@@ -375,8 +381,9 @@ public class DBWorkload {
                 }
                 Phase.Arrival arrival = Phase.Arrival.REGULAR;
                 String arrive = work.getString("@arrival", "regular");
-                if (arrive.toUpperCase().equals("POISSON"))
+                if (arrive.toUpperCase().equals("POISSON")) {
                     arrival = Phase.Arrival.POISSON;
+                }
 
                 // We now have the option to run all queries exactly once in
                 // a serial (rather than random) order.
@@ -416,18 +423,19 @@ public class DBWorkload {
                 if (scriptRun) {
                     LOG.info("Running a script; ignoring timer, serial, and weight settings.");
                 } else if (!timed) {
-                    if (serial)
+                    if (serial) {
                         LOG.info("Timer disabled for serial run; will execute"
                                 + " all queries exactly once.");
-                    else {
+                    } else {
                         LOG.error("Must provide positive time bound for"
                                 + " non-serial executions. Either provide"
                                 + " a valid time or enable serial mode.");
                         System.exit(-1);
                     }
-                } else if (serial)
+                } else if (serial) {
                     LOG.info("Timer enabled for serial run; will run queries"
                             + " serially in a loop until the timer expires.");
+                }
                 if (warmup < 0) {
                     LOG.error("Must provide nonnegative time bound for"
                             + " warmup.");
@@ -464,9 +472,7 @@ public class DBWorkload {
             wrkld.init();
 
 
-
         }
-
 
 
         // Export StatementDialects
@@ -584,11 +590,12 @@ public class DBWorkload {
                 .append("\n")
                 .append(r.getTransactionErrorHistogram());
 
-        if (r.getTransactionAbortMessageHistogram().isEmpty() == false)
+        if (r.getTransactionAbortMessageHistogram().isEmpty() == false) {
             sb.append("\n\n")
                     .append(StringUtil.bold("User Aborts:"))
                     .append("\n")
                     .append(r.getTransactionAbortMessageHistogram());
+        }
 
         LOG.info(SINGLE_LINE);
         LOG.info("Workload Histograms:\n" + sb.toString());
@@ -736,8 +743,12 @@ public class DBWorkload {
             LOG.warn("No bucket size specified");
         }
 
-        if (ps != null) ps.close();
-        if (rs != null) rs.close();
+        if (ps != null) {
+            ps.close();
+        }
+        if (rs != null) {
+            rs.close();
+        }
     }
 
     /* buggy piece of shit of Java XPath implementation made me do it 

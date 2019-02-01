@@ -114,12 +114,15 @@ public class UpdateReservation extends Procedure {
         int updated = stmt.executeUpdate();
         if (updated != 1) {
             String msg = String.format("Failed to update reservation on flight %d for customer #%d - Updated %d records", f_id, c_id, updated);
-            if (debug) LOG.warn(msg);
+            if (debug) {
+                LOG.warn(msg);
+            }
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
 
-        if (debug)
+        if (debug) {
             LOG.debug(String.format("Updated reservation on flight %d for customer %d", f_id, c_id));
+        }
         return;
     }
 }

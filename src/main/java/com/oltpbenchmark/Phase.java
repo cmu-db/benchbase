@@ -131,8 +131,9 @@ public class Phase {
     }
 
     public int chooseTransaction(boolean isColdQuery) {
-        if (isDisabled())
+        if (isDisabled()) {
             return -1;
+        }
 
         if (isSerial()) {
             int ret;

@@ -55,8 +55,9 @@ public class GetLink extends Procedure {
             }
             ids += id2;
         }
-        if (stmt == null)
+        if (stmt == null) {
             stmt = this.getPreparedStatement(conn, getLinkStmt);
+        }
         stmt.setLong(1, id1);
         stmt.setLong(2, link_type);
         stmt.setString(3, ids);
@@ -77,7 +78,7 @@ public class GetLink extends Procedure {
             }
             results[i++] = l;
         }
-         // check done
+        // check done
         rs.close();
         return results;
     }

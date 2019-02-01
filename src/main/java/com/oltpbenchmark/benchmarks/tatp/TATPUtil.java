@@ -86,7 +86,6 @@ public abstract class TATPUtil {
         int arr_len = arr.length;
 
 
-
         int sub[] = new int[sub_len];
         for (int i = 0; i < sub_len; i++) {
             int j = number(0, arr_len - 1).intValue();

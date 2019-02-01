@@ -156,8 +156,9 @@ public class Histogram<X> implements JSONSerializable {
                         this.dirty = true;
                     }
                 } // WHILE
-                if (ctr > 0)
+                if (ctr > 0) {
                     LOG.debug("Removed " + ctr + " zero entries from histogram");
+                }
             } // SYNCHRONIZED
         }
         this.keep_zero_entries = flag;
@@ -176,7 +177,9 @@ public class Histogram<X> implements JSONSerializable {
      * @param count
      */
     private void _put(X value, int count) {
-        if (value == null) return;
+        if (value == null) {
+            return;
+        }
         this.num_samples += count;
 
         // If we already have this value in our histogram, then add the new count
@@ -200,7 +203,9 @@ public class Histogram<X> implements JSONSerializable {
      */
 
     private synchronized void calculateInternalValues() {
-        if (this.dirty == false) return;
+        if (this.dirty == false) {
+            return;
+        }
 
         // New Min/Max Counts
         // The reason we have to loop through and check every time is that our 
@@ -211,8 +216,12 @@ public class Histogram<X> implements JSONSerializable {
         this.min_value = null;
         this.max_value = null;
 
-        if (this.min_count_values == null) this.min_count_values = new ArrayList<X>();
-        if (this.max_count_values == null) this.max_count_values = new ArrayList<X>();
+        if (this.min_count_values == null) {
+            this.min_count_values = new ArrayList<X>();
+        }
+        if (this.max_count_values == null) {
+            this.max_count_values = new ArrayList<X>();
+        }
 
         for (Entry<X, Integer> e : this.histogram.entrySet()) {
             X value = e.getKey();
@@ -226,12 +235,16 @@ public class Histogram<X> implements JSONSerializable {
             }
 
             if (cnt <= this.min_count) {
-                if (cnt < this.min_count) this.min_count_values.clear();
+                if (cnt < this.min_count) {
+                    this.min_count_values.clear();
+                }
                 this.min_count_values.add(value);
                 this.min_count = cnt;
             }
             if (cnt >= this.max_count) {
-                if (cnt > this.max_count) this.max_count_values.clear();
+                if (cnt > this.max_count) {
+                    this.max_count_values.clear();
+                }
                 this.max_count_values.add(value);
                 this.max_count = cnt;
             }
@@ -341,7 +354,9 @@ public class Histogram<X> implements JSONSerializable {
             public int compare(final X item0, final X item1) {
                 final Integer v0 = Histogram.this.get(item0);
                 final Integer v1 = Histogram.this.get(item1);
-                if (v0.equals(v1)) return (-1);
+                if (v0.equals(v1)) {
+                    return (-1);
+                }
                 return (v1.compareTo(v0));
             }
         });
@@ -359,7 +374,9 @@ public class Histogram<X> implements JSONSerializable {
     public Set<X> getValuesForCount(int count) {
         Set<X> ret = new HashSet<X>();
         for (Entry<X, Integer> e : this.histogram.entrySet()) {
-            if (e.getValue().intValue() == count) ret.add(e.getKey());
+            if (e.getValue().intValue() == count) {
+                ret.add(e.getKey());
+            }
         } // FOR
         return (ret);
     }
@@ -371,10 +388,14 @@ public class Histogram<X> implements JSONSerializable {
         this.histogram.clear();
         this.num_samples = 0;
         this.min_count = 0;
-        if (this.min_count_values != null) this.min_count_values.clear();
+        if (this.min_count_values != null) {
+            this.min_count_values.clear();
+        }
         this.min_value = null;
         this.max_count = 0;
-        if (this.max_count_values != null) this.max_count_values.clear();
+        if (this.max_count_values != null) {
+            this.max_count_values.clear();
+        }
         this.max_value = null;
 
         this.dirty = true;
@@ -391,10 +412,14 @@ public class Histogram<X> implements JSONSerializable {
             } // FOR
             this.num_samples = 0;
             this.min_count = 0;
-            if (this.min_count_values != null) this.min_count_values.clear();
+            if (this.min_count_values != null) {
+                this.min_count_values.clear();
+            }
             this.min_value = null;
             this.max_count = 0;
-            if (this.max_count_values != null) this.max_count_values.clear();
+            if (this.max_count_values != null) {
+                this.max_count_values.clear();
+            }
             this.max_value = null;
         } else {
             this.clear();
@@ -475,7 +500,9 @@ public class Histogram<X> implements JSONSerializable {
      */
     public synchronized void putHistogram(Histogram<X> other) {
         for (Entry<X, Integer> e : other.histogram.entrySet()) {
-            if (e.getValue() > 0) this._put(e.getKey(), e.getValue());
+            if (e.getValue() > 0) {
+                this._put(e.getKey(), e.getValue());
+            }
         } // FOR
     }
 
@@ -543,7 +570,9 @@ public class Histogram<X> implements JSONSerializable {
      */
     public synchronized void removeHistogram(Histogram<X> other) {
         for (Entry<X, Integer> e : other.histogram.entrySet()) {
-            if (e.getValue() > 0) this._put(e.getKey(), -1 * e.getValue());
+            if (e.getValue() > 0) {
+                this._put(e.getKey(), -1 * e.getValue());
+            }
         } // FOR
     }
 
@@ -612,7 +641,9 @@ public class Histogram<X> implements JSONSerializable {
      */
     public synchronized String toString(Integer max_chars, Integer max_length) {
         StringBuilder s = new StringBuilder();
-        if (max_length == null) max_length = MAX_VALUE_LENGTH;
+        if (max_length == null) {
+            max_length = MAX_VALUE_LENGTH;
+        }
 
         this.calculateInternalValues();
 
@@ -627,12 +658,20 @@ public class Histogram<X> implements JSONSerializable {
         boolean first = true;
         boolean has_labels = this.hasDebugLabels();
         for (Object value : this.histogram.keySet()) {
-            if (!first) s.append("\n");
+            if (!first) {
+                s.append("\n");
+            }
             String str = null;
-            if (has_labels) str = this.debug_names.get(value);
-            if (str == null) str = (value != null ? value.toString() : "null");
+            if (has_labels) {
+                str = this.debug_names.get(value);
+            }
+            if (str == null) {
+                str = (value != null ? value.toString() : "null");
+            }
             int value_str_len = str.length();
-            if (value_str_len > max_length) str = str.substring(0, max_length - 3) + "...";
+            if (value_str_len > max_length) {
+                str = str.substring(0, max_length - 3) + "...";
+            }
 
             int cnt = (value != null ? this.histogram.get(value).intValue() : 0);
             int chars = (int) ((cnt / (double) this.max_count) * max_chars);
@@ -640,7 +679,9 @@ public class Histogram<X> implements JSONSerializable {
             for (int i = 0; i < chars; i++) s.append(MARKER);
             first = false;
         } // FOR
-        if (this.histogram.isEmpty()) s.append("<EMPTY>");
+        if (this.histogram.isEmpty()) {
+            s.append("<EMPTY>");
+        }
         return (s.toString());
     }
 
@@ -667,18 +708,24 @@ public class Histogram<X> implements JSONSerializable {
     public void toJSON(JSONStringer stringer) throws JSONException {
         Class<?> value_type = null;
         for (Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.VALUE_TYPE) continue;
+            if (element == Histogram.Members.VALUE_TYPE) {
+                continue;
+            }
             try {
                 Field field = Histogram.class.getDeclaredField(element.toString().toLowerCase());
                 if (element == Members.HISTOGRAM) {
                     stringer.key(Members.HISTOGRAM.name()).object();
                     for (Object value : this.histogram.keySet()) {
-                        if (value != null && value_type == null) value_type = value.getClass();
+                        if (value != null && value_type == null) {
+                            value_type = value.getClass();
+                        }
                         stringer.key(value.toString()).value(this.histogram.get(value));
                     } // FOR
                     stringer.endObject();
                 } else if (element == Members.KEEP_ZERO_ENTRIES) {
-                    if (this.keep_zero_entries) stringer.key(element.name()).value(this.keep_zero_entries);
+                    if (this.keep_zero_entries) {
+                        stringer.key(element.name()).value(this.keep_zero_entries);
+                    }
                 } else {
                     stringer.key(element.name()).value(field.get(this));
                 }
@@ -706,7 +753,9 @@ public class Histogram<X> implements JSONSerializable {
 
         // This code sucks ass...
         for (Members element : Histogram.Members.values()) {
-            if (element == Members.KEEP_ZERO_ENTRIES || element == Members.VALUE_TYPE) continue;
+            if (element == Members.KEEP_ZERO_ENTRIES || element == Members.VALUE_TYPE) {
+                continue;
+            }
             try {
                 String field_name = element.toString().toLowerCase();
                 Field field = Histogram.class.getDeclaredField(field_name);

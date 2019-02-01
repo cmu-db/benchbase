@@ -53,7 +53,6 @@ public final class BenchmarkState {
         notDoneCount = new AtomicInteger(numThreads);
 
 
-
         testStartNs = System.nanoTime();
     }
 
@@ -119,8 +118,9 @@ public final class BenchmarkState {
 
         int current = notDoneCount.decrementAndGet();
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("%d workers are not done. Waiting until they finish", current));
+        }
         if (current == 0) {
             // We are the last thread to notice that we are done: wake any
             // blocked workers

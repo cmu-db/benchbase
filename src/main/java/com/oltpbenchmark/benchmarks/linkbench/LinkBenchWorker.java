@@ -126,8 +126,9 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
 
         @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof HistoryKey))
+            if (!(obj instanceof HistoryKey)) {
                 return false;
+            }
             HistoryKey other = (HistoryKey) obj;
             return id1 == other.id1 && link_type == other.link_type;
         }

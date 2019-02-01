@@ -931,8 +931,9 @@ public class JSONArray {
                     }
                 } else {
                     intType = true;
-                    if (i > 0)
+                    if (i > 0) {
                         sb.append(", ");
+                    }
                 }
                 sb.append(JSONObject.valueToString(this.myArrayList.get(i),
                         indentFactor, newindent));

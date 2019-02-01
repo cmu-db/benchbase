@@ -66,7 +66,9 @@ public class UniformDistribution implements ProbabilityDistribution {
     private double scaledPDF(long id, double scale) {
         // Calculate this way to avoid losing precision by calculating very
         // small pdf number
-        if (id < min || id >= max) return 0.0;
+        if (id < min || id >= max) {
+            return 0.0;
+        }
         return scale / (double) (max - min);
     }
 
@@ -96,7 +98,9 @@ public class UniformDistribution implements ProbabilityDistribution {
 
         long n = max - min;
         long i = (long) Math.floor(p * n);
-        if (i == n) return max - 1;
+        if (i == n) {
+            return max - 1;
+        }
         return i + min;
     }
 

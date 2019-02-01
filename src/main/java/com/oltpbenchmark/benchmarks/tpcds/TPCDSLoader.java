@@ -432,7 +432,9 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                Previouse configuration migh not have a fileFormat and assume
                 that the files are csv.
             */
-        if (format == null) return "csv";
+        if (format == null) {
+            return "csv";
+        }
 
         if ((!"csv".equals(format) && !"tbl".equals(format) && !"dat".equals(format))) {
             throw new IllegalArgumentException("Configuration doesent"
@@ -580,7 +582,9 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         } catch (SQLException se) {
             LOG.error("Failed to load data for TPC-DS: " + field + ", LINE " + line, se);
             se = se.getNextException();
-            if (se != null) LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
+            if (se != null) {
+                LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (Exception e) {

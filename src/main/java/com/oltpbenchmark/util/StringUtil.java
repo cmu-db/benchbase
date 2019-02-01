@@ -211,7 +211,9 @@ public abstract class StringUtil {
         final boolean map_titles[] = new boolean[maps.length];
         for (int i = 0; i < maps.length; i++) {
             Map<?, ?> m = maps[i];
-            if (m == null) continue;
+            if (m == null) {
+                continue;
+            }
             Map<Object, String[]> keys = new HashMap<Object, String[]>();
             boolean first = true;
             for (Object k : m.keySet()) {
@@ -229,7 +231,9 @@ public abstract class StringUtil {
                     for (String line : k_str) {
                         max_key_size = Math.max(max_key_size, line.length());
                     } // FOR
-                    if (first) map_titles[i] = false;
+                    if (first) {
+                        map_titles[i] = false;
+                    }
                 }
                 first = false;
             } // FOR
@@ -248,7 +252,9 @@ public abstract class StringUtil {
         for (int map_i = 0; map_i < maps.length; map_i++) {
             blocks[map_i] = new StringBuilder();
             Map<?, ?> m = maps[map_i];
-            if (m == null) continue;
+            if (m == null) {
+                continue;
+            }
             Map<Object, String[]> keys = map_keys[map_i];
 
             boolean first = true;
@@ -257,7 +263,9 @@ public abstract class StringUtil {
 
                 if (first && map_titles[map_i]) {
                     blocks[map_i].append(StringUtil.join("\n", key));
-                    if (CollectionUtil.last(key).endsWith("\n") == false) blocks[map_i].append("\n");
+                    if (CollectionUtil.last(key).endsWith("\n") == false) {
+                        blocks[map_i].append("\n");
+                    }
 
                 } else {
                     Object v_obj = e.getValue();
@@ -279,18 +287,26 @@ public abstract class StringUtil {
                     int total_lines = Math.max(key.length, value.length);
                     for (int line_i = 0; line_i < total_lines; line_i++) {
                         String k_line = (line_i < key.length ? key[line_i] : "");
-                        if (upper) k_line = k_line.toUpperCase();
+                        if (upper) {
+                            k_line = k_line.toUpperCase();
+                        }
 
                         String v_line = (line_i < value.length ? value[line_i] : "");
 
                         if (line_i == (key.length - 1) && (first == false || (first && v_line.isEmpty() == false))) {
-                            if (equalsDelimiter == false && k_line.trim().isEmpty() == false) k_line += ":";
+                            if (equalsDelimiter == false && k_line.trim().isEmpty() == false) {
+                                k_line += ":";
+                            }
                         }
 
                         blocks[map_i].append(String.format(f, k_line, v_line));
-                        if (need_divider) max_value_size = Math.max(max_value_size, v_line.length());
+                        if (need_divider) {
+                            max_value_size = Math.max(max_value_size, v_line.length());
+                        }
                     } // FOR
-                    if (v.endsWith("\n")) blocks[map_i].append("\n");
+                    if (v.endsWith("\n")) {
+                        blocks[map_i].append("\n");
+                    }
                 }
                 first = false;
             }
@@ -306,8 +322,12 @@ public abstract class StringUtil {
         } else {
             sb = new StringBuilder();
             for (int i = 0; i < maps.length; i++) {
-                if (blocks[i].length() == 0) continue;
-                if (i != 0 && maps[i].size() > 0) sb.append(dividing_line).append("\n");
+                if (blocks[i].length() == 0) {
+                    continue;
+                }
+                if (i != 0 && maps[i].size() > 0) {
+                    sb.append(dividing_line).append("\n");
+                }
                 sb.append(blocks[i]);
             } // FOR
         }
@@ -378,11 +398,15 @@ public abstract class StringUtil {
      */
     public static String box(String str, String mark, Integer max_len) {
         String lines[] = LINE_SPLIT.split(str);
-        if (lines.length == 0) return "";
+        if (lines.length == 0) {
+            return "";
+        }
 
         if (max_len == null) {
             for (String line : lines) {
-                if (max_len == null || line.length() > max_len) max_len = line.length();
+                if (max_len == null || line.length() > max_len) {
+                    max_len = line.length();
+                }
             } // FOR
         }
 
@@ -408,7 +432,9 @@ public abstract class StringUtil {
      */
     public static String prefix(String str, String prefix) {
         String lines[] = LINE_SPLIT.split(str);
-        if (lines.length == 0) return "";
+        if (lines.length == 0) {
+            return "";
+        }
 
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
@@ -544,17 +570,25 @@ public abstract class StringUtil {
      * @return
      */
     public static String join(String prefix, String delimiter, Iterable<?> items) {
-        if (items == null) return ("");
-        if (prefix == null) prefix = "";
+        if (items == null) {
+            return ("");
+        }
+        if (prefix == null) {
+            prefix = "";
+        }
 
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (Object x : items) {
-            if (prefix.isEmpty() == false) sb.append(prefix);
+            if (prefix.isEmpty() == false) {
+                sb.append(prefix);
+            }
             sb.append(x != null ? x.toString() : x).append(delimiter);
             i++;
         }
-        if (i == 0) return "";
+        if (i == 0) {
+            return "";
+        }
         sb.delete(sb.length() - delimiter.length(), sb.length());
 
         return sb.toString();

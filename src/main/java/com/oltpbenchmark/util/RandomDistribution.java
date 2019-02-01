@@ -27,6 +27,21 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with this
+ * work for additional information regarding copyright ownership. The ASF
+ * licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 /**
@@ -71,7 +86,9 @@ public class RandomDistribution {
         private Histogram<Long> history;
 
         public DiscreteRNG(Random random, long min, long max) {
-            if (min >= max) throw new IllegalArgumentException("Invalid range [" + min + " >= " + max + "]");
+            if (min >= max) {
+                throw new IllegalArgumentException("Invalid range [" + min + " >= " + max + "]");
+            }
             this.random = random;
             this.min = min;
             this.max = max;
@@ -164,7 +181,9 @@ public class RandomDistribution {
         @Override
         public final int nextInt() {
             long val = (int) this.nextLongImpl();
-            if (this.history != null) this.history.put(val);
+            if (this.history != null) {
+                this.history.put(val);
+            }
             return ((int) val);
         }
 
@@ -175,7 +194,9 @@ public class RandomDistribution {
         @Override
         public final long nextLong() {
             long val = this.nextLongImpl();
-            if (this.history != null) this.history.put(val);
+            if (this.history != null) {
+                this.history.put(val);
+            }
             return (val);
         }
 
@@ -284,7 +305,9 @@ public class RandomDistribution {
             int idx = this.inner.nextInt();
             Long total = this.value_rle.tailMap((long) idx).firstKey();
             T val = this.value_rle.get(total);
-            if (this.history != null) this.history.put(val);
+            if (this.history != null) {
+                this.history.put(val);
+            }
             return (val);
 //            assert(false) : "Went beyond our expected total '" + idx + "'";
 //            return (null);

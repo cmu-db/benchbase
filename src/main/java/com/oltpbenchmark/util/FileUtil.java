@@ -66,8 +66,9 @@ public abstract class FileUtil {
      */
     public static String getNextFilename(String basename) {
 
-        if (!exists(basename))
+        if (!exists(basename)) {
             return basename;
+        }
 
         File f = new File(basename);
         if (f != null && f.isFile()) {
@@ -125,8 +126,9 @@ public abstract class FileUtil {
      */
     public static void makeDirIfNotExists(String... paths) {
         for (String p : paths) {
-            if (p == null)
+            if (p == null) {
                 continue;
+            }
             File f = new File(p);
             if (f.exists() == false) {
                 f.mkdirs();
@@ -151,15 +153,18 @@ public abstract class FileUtil {
 
     public static File getTempFile(String prefix, String suffix, boolean deleteOnExit) {
         File tempFile;
-        if (suffix != null && suffix.startsWith(".") == false)
+        if (suffix != null && suffix.startsWith(".") == false) {
             suffix = "." + suffix;
-        if (prefix == null)
+        }
+        if (prefix == null) {
             prefix = "hstore";
+        }
 
         try {
             tempFile = File.createTempFile(prefix, suffix);
-            if (deleteOnExit)
+            if (deleteOnExit) {
                 tempFile.deleteOnExit();
+            }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -353,8 +358,9 @@ public abstract class FileUtil {
             }
         } // FOR
         // If we didn't see an .svn directory, then we went too far down
-        if (!has_svn)
+        if (!has_svn) {
             throw new RuntimeException("Unable to find directory '" + name + "' [last_dir=" + current.getAbsolutePath() + "]");
+        }
         File next = new File(current.getCanonicalPath() + File.separator + "..");
         return (FileUtil.find(name, next, isdir));
     }

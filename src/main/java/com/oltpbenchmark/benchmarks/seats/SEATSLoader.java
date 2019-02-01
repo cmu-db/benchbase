@@ -522,7 +522,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // Foreign Key Code -> Foreign Key Id
                 for (int col_code_idx : mapping_columns.keySet()) {
                     Column catalog_col = columns.get(col_code_idx);
-                   if (tuple[col_code_idx] != null) {
+                    if (tuple[col_code_idx] != null) {
                         String code = tuple[col_code_idx].toString();
                         tuple[col_code_idx] = mapping_columns.get(col_code_idx).get(code);
                         if (LOG.isTraceEnabled()) {
@@ -1133,7 +1133,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             super(catalog_tbl, Long.MAX_VALUE, new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 
-
             this.prices = new Flat(SEATSLoader.this.rng, SEATSConstants.RESERVATION_PRICE_MIN, SEATSConstants.RESERVATION_PRICE_MAX);
 
             // Flights per Airline
@@ -1667,7 +1666,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * @param flight_id
      */
     public boolean addFlightId(FlightId flight_id) {
-
 
 
         this.profile.addFlightId(flight_id);

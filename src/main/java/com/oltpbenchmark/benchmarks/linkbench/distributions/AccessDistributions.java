@@ -95,8 +95,12 @@ public class AccessDistributions {
 
                 case RECIPROCAL: // inverse function f(x) = 1/x.
                     newid = (long) (Math.ceil(drange / uniform.choose(rng)));
-                    if (newid < minid) newid = minid;
-                    if (newid >= maxid) newid = maxid;
+                    if (newid < minid) {
+                        newid = minid;
+                    }
+                    if (newid >= maxid) {
+                        newid = maxid;
+                    }
                     break;
                 case MULTIPLE: // generate id1 that is even multiple of config
                     newid = config * (long) (Math.ceil(uniform.choose(rng) / config));

@@ -74,8 +74,9 @@ public final class SQLStmt {
             sql = m.replaceFirst(replace);
         } // FOR
         this.sql = sql;
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Initialized SQL:\n" + this.sql);
+        }
     }
 
     public final String getSQL() {

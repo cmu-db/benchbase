@@ -89,7 +89,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         // Generate all the Procedures that we're going to need
         this.procedures.putAll(this.benchmarkModule.getProcedures());
-       for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
+        for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
             this.name_procedures.put(e.getKey().getName(), proc);
             this.class_procedures.put(proc.getClass(), proc);
@@ -195,8 +195,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      */
     synchronized public void cancelStatement() {
         try {
-            if (this.currStatement != null)
+            if (this.currStatement != null) {
                 this.currStatement.cancel();
+            }
         } catch (SQLException e) {
             LOG.error("Failed to cancel statement: " + e.getMessage());
         }
@@ -254,8 +255,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // Sleep if there's nothing to do.
             wrkldState.stayAwake();
             phase = this.wrkldState.getCurrentPhase();
-            if (phase == null)
+            if (phase == null) {
                 continue work;
+            }
 
             // Grab some work and update the state, in case it changed while we
             // waited.
@@ -263,8 +265,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             preState = wrkldState.getGlobalState();
 
             phase = this.wrkldState.getCurrentPhase();
-            if (phase == null)
+            if (phase == null) {
                 continue work;
+            }
 
             switch (preState) {
                 case DONE:
@@ -328,14 +331,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         latencies.addLatency(type.getId(), start, end, this.id, phase.id);
                         intervalRequests.incrementAndGet();
                     }
-                    if (phase.isLatencyRun())
+                    if (phase.isLatencyRun()) {
                         this.wrkldState.startColdQuery();
+                    }
                     break;
                 case COLD_QUERY:
                     // No recording for cold runs, but next time we will since
                     // it'll be a hot run.
-                    if (preState == State.COLD_QUERY)
+                    if (preState == State.COLD_QUERY) {
                         this.wrkldState.startHotQuery();
+                    }
                     break;
                 default:
                     // Do nothing
@@ -383,8 +388,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // User Abort Handling
                     // These are not errors
                 } catch (UserAbortException ex) {
-                    if (LOG.isTraceEnabled())
+                    if (LOG.isTraceEnabled()) {
                         LOG.trace(next + " Aborted", ex);
+                    }
 
                     /* PAVLO */
                     if (recordAbortMessages) {
@@ -501,8 +507,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     throw new RuntimeException(ex);
 
                 } finally {
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s %s Result: %s", this, next, status));
+                    }
 
                     switch (status) {
                         case SUCCESS:

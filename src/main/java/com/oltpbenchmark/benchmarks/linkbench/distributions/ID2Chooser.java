@@ -240,7 +240,9 @@ public class ID2Chooser {
                                long requesterID, long randomid2max) {
 
         long newid2 = id2 - (id2 % nrequesters) + requesterID;
-        if ((newid2 > randomid2max) && (randomid2max > 0)) newid2 -= nrequesters;
+        if ((newid2 > randomid2max) && (randomid2max > 0)) {
+            newid2 -= nrequesters;
+        }
         return newid2;
     }
 

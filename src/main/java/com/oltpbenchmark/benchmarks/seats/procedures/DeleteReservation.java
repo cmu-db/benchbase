@@ -99,7 +99,9 @@ public class DeleteReservation extends Procedure {
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 c_id = results.getLong(1);
-                if (has_al_id) ff_al_id = results.getLong(2);
+                if (has_al_id) {
+                    ff_al_id = results.getLong(2);
+                }
             } else {
                 results.close();
                 throw new UserAbortException(String.format("No Customer record was found [c_id_str=%s, ff_c_id_str=%s, ff_al_id=%s]",
@@ -144,10 +146,11 @@ public class DeleteReservation extends Procedure {
         if (ff_al_id != null) {
             stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id);
             updated = stmt.executeUpdate();
-           }
+        }
 
-        if (debug)
+        if (debug) {
             LOG.debug(String.format("Deleted reservation on flight %d for customer %d [seatsLeft=%d]", f_id, c_id, seats_left + 1));
+        }
     }
 
 }

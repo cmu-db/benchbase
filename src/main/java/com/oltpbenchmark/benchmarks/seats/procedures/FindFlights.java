@@ -98,7 +98,9 @@ public class FindFlights extends Procedure {
                 while (nearby_results.next()) {
                     long aid = nearby_results.getLong(1);
                     double aid_distance = nearby_results.getDouble(2);
-                    if (debug) LOG.debug("DEPART NEARBY: " + aid + " distance=" + aid_distance + " miles");
+                    if (debug) {
+                        LOG.debug("DEPART NEARBY: " + aid + " distance=" + aid_distance + " miles");
+                    }
                     arrive_aids.add(aid);
                 } // WHILE
                 nearby_results.close();
@@ -171,9 +173,10 @@ public class FindFlights extends Procedure {
                     ai_results.close();
 
                     finalResults.add(row);
-                    if (debug)
+                    if (debug) {
                         LOG.debug(String.format("Flight %d / %s /  %s -> %s / %s",
                                 row[0], row[2], row[4], row[9], row[03]));
+                    }
                 } // WHILE
                 //ai_stmt.close();
                 flightResults.close();

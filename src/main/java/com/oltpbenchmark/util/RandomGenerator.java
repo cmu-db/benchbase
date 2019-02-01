@@ -90,7 +90,6 @@ public class RandomGenerator extends Random {
     public int numberExcluding(int minimum, int maximum, int excluding) {
 
 
-
         // Generate 1 less number than the range
         int num = number(minimum, maximum - 1);
 
@@ -116,7 +115,9 @@ public class RandomGenerator extends Random {
     public int numberSkewed(int minimum, int maximum, double skewFactor) {
         // Calling number() when the skewFactor is zero will likely be faster
         // than using our Gaussian distribution method below 
-        if (skewFactor == 0) return (this.number(minimum, maximum));
+        if (skewFactor == 0) {
+            return (this.number(minimum, maximum));
+        }
 
 
         int range_size = maximum - minimum + 1;
@@ -138,7 +139,6 @@ public class RandomGenerator extends Random {
      * @return
      */
     public double fixedPoint(int decimal_places, double minimum, double maximum) {
-
 
 
         int multiplier = 1;

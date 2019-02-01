@@ -173,21 +173,27 @@ public class NewReservation extends Procedure {
         int updated = stmt.executeUpdate();
         if (updated != 1) {
             String msg = String.format("Failed to add reservation for flight #%d - Inserted %d records for InsertReservation", f_id, updated);
-            if (debug) LOG.warn(msg);
+            if (debug) {
+                LOG.warn(msg);
+            }
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
 
         updated = this.getPreparedStatement(conn, UpdateFlight, f_id).executeUpdate();
         if (updated != 1) {
             String msg = String.format("Failed to add reservation for flight #%d - Updated %d records for UpdateFlight", f_id, updated);
-            if (debug) LOG.warn(msg);
+            if (debug) {
+                LOG.warn(msg);
+            }
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
 
         updated = this.getPreparedStatement(conn, UpdateCustomer, attrs[0], attrs[1], attrs[2], attrs[3], c_id).executeUpdate();
         if (updated != 1) {
             String msg = String.format("Failed to add reservation for flight #%d - Updated %d records for UpdateCustomer", f_id, updated);
-            if (debug) LOG.warn(msg);
+            if (debug) {
+                LOG.warn(msg);
+            }
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
 
@@ -199,9 +205,10 @@ public class NewReservation extends Procedure {
 //            throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
 //        }
 
-        if (debug)
+        if (debug) {
             LOG.debug(String.format("Reserved new seat on flight %d for customer %d [seatsLeft=%d]",
                     f_id, c_id, seats_left - 1));
+        }
 
         return;
     }

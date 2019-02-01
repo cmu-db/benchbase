@@ -112,8 +112,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         private void calculateNext() {
 
 
-
-
             // Collect all samples in the time window
             ArrayList<Integer> latencies = new ArrayList<Integer>();
             long endNs = nextStartNs + windowSizeSeconds * 1000000000L;
@@ -122,8 +120,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // Check if a TX Type filter is set, in the default case,
                 // INVALID TXType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType == TransactionType.INVALID || txType.getId() == sample.tranType)
+                if (txType == TransactionType.INVALID || txType.getId() == sample.tranType) {
                     latencies.add(sample.latencyUs);
+                }
 
                 if (samples.hasNext()) {
                     sample = samples.next();
@@ -151,8 +150,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         @Override
         public DistributionStatistics next() {
-            if (next == null)
+            if (next == null) {
                 throw new NoSuchElementException();
+            }
             DistributionStatistics out = next;
             next = null;
             if (sample != null) {
@@ -228,8 +228,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 } catch (InterruptedException ex) {
                     return;
                 }
-                if (testState == null)
+                if (testState == null) {
                     return;
+                }
                 m.clear();
                 for (Thread t : workerThreads) {
                     m.put(t.getName(), t.isAlive());
@@ -262,8 +263,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 } catch (InterruptedException ex) {
                     return;
                 }
-                if (testState == null)
+                if (testState == null) {
                     return;
+                }
                 // Compute the last throughput
                 long measuredRequests = 0;
                 synchronized (testState) {
@@ -390,13 +392,15 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                         phaseComplete = true;
                     }
                 } else if (phase.isLatencyRun())
-                    // Latency runs (serial run through each query) have their own
-                    // state to mark completion
+                // Latency runs (serial run through each query) have their own
+                // state to mark completion
+                {
                     phaseComplete = testState.getState()
                             == State.LATENCY_COMPLETE;
-                else
+                } else {
                     phaseComplete = testState.getState() == State.MEASURE
                             && (start + delta <= now);
+                }
             }
 
             // Go to next phase if this one is complete
@@ -541,10 +545,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     private long getInterval(int lowestRate, Phase.Arrival arrival) {
         // TODO Auto-generated method stub
-        if (arrival == Phase.Arrival.POISSON)
+        if (arrival == Phase.Arrival.POISSON) {
             return (long) ((-Math.log(1 - Math.random()) / lowestRate) * 1000000000.);
-        else
+        } else {
             return (long) (1000000000. / (double) lowestRate + 0.5);
+        }
     }
 
     // public Results runPoissonMultiPhase() throws QueueLimitException,

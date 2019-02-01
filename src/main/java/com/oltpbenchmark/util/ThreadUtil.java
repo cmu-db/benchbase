@@ -126,7 +126,9 @@ public abstract class ThreadUtil {
         }
 
 
-        if (LOG.isDebugEnabled()) LOG.debug("Starting new process with PID " + pid);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Starting new process with PID " + pid);
+        }
         return (Pair.of(pid, p));
     }
 
@@ -146,8 +148,9 @@ public abstract class ThreadUtil {
      * @param print_output
      */
     public static <T> void fork(String command[], final EventObservable<T> stop_observable, final String prefix, final boolean print_output) {
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Forking off process: " + Arrays.toString(command));
+        }
 
         // Copied from ShellTools
         ProcessBuilder pb = new ProcessBuilder(command);
@@ -171,8 +174,9 @@ public abstract class ThreadUtil {
                 @Override
                 public void update(EventObservable<T> arg0, T arg1) {
 
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug("Stopping Process -> " + prog_name);
+                    }
                     p.destroy();
                     first = false;
                 }
@@ -194,8 +198,9 @@ public abstract class ThreadUtil {
             } catch (Exception e) {
                 p.destroy();
             }
-            if (buffer.length() > 0)
+            if (buffer.length() > 0) {
                 System.out.println(prefix + buffer);
+            }
         }
 
         try {
@@ -218,8 +223,9 @@ public abstract class ThreadUtil {
         }
         int max_threads = DEFAULT_NUM_THREADS;
         String prop = System.getProperty("hstore.max_threads");
-        if (prop != null && prop.startsWith("${") == false)
+        if (prop != null && prop.startsWith("${") == false) {
             max_threads = Integer.parseInt(prop);
+        }
         return (max_threads);
     }
 
@@ -239,8 +245,9 @@ public abstract class ThreadUtil {
         synchronized (ThreadUtil.lock) {
             if (ThreadUtil.pool == null) {
                 int max_threads = ThreadUtil.getMaxGlobalThreads();
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("Creating new fixed thread pool [num_threads=" + max_threads + "]");
+                }
                 ThreadUtil.pool = Executors.newFixedThreadPool(max_threads, factory);
             }
         } // SYNCHRONIZED
@@ -289,13 +296,15 @@ public abstract class ThreadUtil {
         final CountDownLatch latch = new CountDownLatch(num_threads);
         LatchedExceptionHandler handler = new LatchedExceptionHandler(latch);
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Executing %d threads and blocking until they finish", num_threads));
+        }
         for (R r : runnables) {
             pool.execute(new LatchRunnable(r, latch, handler));
         } // FOR
-        if (stop_pool)
+        if (stop_pool) {
             pool.shutdown();
+        }
 
         try {
             latch.await();

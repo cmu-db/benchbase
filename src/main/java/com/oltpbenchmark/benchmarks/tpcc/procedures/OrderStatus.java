@@ -115,14 +115,20 @@ public class OrderStatus extends TPCCProcedure {
         ordStatGetNewestOrd.setInt(1, w_id);
         ordStatGetNewestOrd.setInt(2, d_id);
         ordStatGetNewestOrd.setInt(3, c.c_id);
-        if (trace) LOG.trace("ordStatGetNewestOrd START");
+        if (trace) {
+            LOG.trace("ordStatGetNewestOrd START");
+        }
         ResultSet rs = ordStatGetNewestOrd.executeQuery();
-        if (trace) LOG.trace("ordStatGetNewestOrd END");
+        if (trace) {
+            LOG.trace("ordStatGetNewestOrd END");
+        }
 
         if (!rs.next()) {
             String msg = String.format("No order records for CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_ID=%d]",
                     w_id, d_id, c.c_id);
-            if (trace) LOG.warn(msg);
+            if (trace) {
+                LOG.warn(msg);
+            }
             throw new RuntimeException(msg);
         }
 
@@ -135,9 +141,13 @@ public class OrderStatus extends TPCCProcedure {
         ordStatGetOrderLines.setInt(1, o_id);
         ordStatGetOrderLines.setInt(2, d_id);
         ordStatGetOrderLines.setInt(3, w_id);
-        if (trace) LOG.trace("ordStatGetOrderLines START");
+        if (trace) {
+            LOG.trace("ordStatGetOrderLines START");
+        }
         rs = ordStatGetOrderLines.executeQuery();
-        if (trace) LOG.trace("ordStatGetOrderLines END");
+        if (trace) {
+            LOG.trace("ordStatGetOrderLines END");
+        }
 
         while (rs.next()) {
             StringBuilder sb = new StringBuilder();
@@ -150,10 +160,11 @@ public class OrderStatus extends TPCCProcedure {
             sb.append(" - ");
             sb.append(TPCCUtil.formattedDouble(rs.getDouble("OL_AMOUNT")));
             sb.append(" - ");
-            if (rs.getTimestamp("OL_DELIVERY_D") != null)
+            if (rs.getTimestamp("OL_DELIVERY_D") != null) {
                 sb.append(rs.getTimestamp("OL_DELIVERY_D"));
-            else
+            } else {
                 sb.append("99-99-9999");
+            }
             sb.append("]");
             orderLines.add(sb.toString());
         }
@@ -166,7 +177,9 @@ public class OrderStatus extends TPCCProcedure {
         if (orderLines.isEmpty()) {
             String msg = String.format("Order record had no order line items [C_W_ID=%d, C_D_ID=%d, C_ID=%d, O_ID=%d]",
                     w_id, d_id, c.c_id, o_id);
-            if (trace) LOG.warn(msg);
+            if (trace) {
+                LOG.warn(msg);
+            }
         }
 
         if (trace) {
@@ -226,13 +239,19 @@ public class OrderStatus extends TPCCProcedure {
         payGetCust.setInt(1, c_w_id);
         payGetCust.setInt(2, c_d_id);
         payGetCust.setInt(3, c_id);
-        if (trace) LOG.trace("payGetCust START");
+        if (trace) {
+            LOG.trace("payGetCust START");
+        }
         ResultSet rs = payGetCust.executeQuery();
-        if (trace) LOG.trace("payGetCust END");
+        if (trace) {
+            LOG.trace("payGetCust END");
+        }
         if (!rs.next()) {
             String msg = String.format("Failed to get CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_ID=%d]",
                     c_w_id, c_d_id, c_id);
-            if (trace) LOG.warn(msg);
+            if (trace) {
+                LOG.warn(msg);
+            }
             throw new RuntimeException(msg);
         }
 
@@ -252,9 +271,13 @@ public class OrderStatus extends TPCCProcedure {
         customerByName.setInt(1, c_w_id);
         customerByName.setInt(2, c_d_id);
         customerByName.setString(3, c_last);
-        if (trace) LOG.trace("customerByName START");
+        if (trace) {
+            LOG.trace("customerByName START");
+        }
         ResultSet rs = customerByName.executeQuery();
-        if (trace) LOG.trace("customerByName END");
+        if (trace) {
+            LOG.trace("customerByName END");
+        }
 
         while (rs.next()) {
             Customer c = TPCCUtil.newCustomerFromResults(rs);
@@ -267,7 +290,9 @@ public class OrderStatus extends TPCCProcedure {
         if (customers.size() == 0) {
             String msg = String.format("Failed to get CUSTOMER [C_W_ID=%d, C_D_ID=%d, C_LAST=%s]",
                     c_w_id, c_d_id, c_last);
-            if (trace) LOG.warn(msg);
+            if (trace) {
+                LOG.warn(msg);
+            }
             throw new RuntimeException(msg);
         }
 

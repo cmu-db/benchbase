@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.*;
@@ -141,22 +140,29 @@ public final class Catalog {
         DatabaseMetaData md = conn.getMetaData();
         ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"});
         while (table_rs.next()) {
-            if (LOG.isDebugEnabled()) LOG.debug(SQLUtil.debug(table_rs));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(SQLUtil.debug(table_rs));
+            }
             String internal_table_name = table_rs.getString(3);
             String table_name = origTableNames.get(table_rs.getString(3).toUpperCase());
 
             LOG.debug(String.format("ORIG:%s -> CATALOG:%s", internal_table_name, table_name));
 
             String table_type = table_rs.getString(4);
-            if (table_type.equalsIgnoreCase("TABLE") == false) continue;
+            if (table_type.equalsIgnoreCase("TABLE") == false) {
+                continue;
+            }
             Table catalog_tbl = new Table(table_name);
 
             // COLUMNS
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Retrieving COLUMN information for " + table_name);
+            }
             ResultSet col_rs = md.getColumns(null, null, internal_table_name, null);
             while (col_rs.next()) {
-                if (LOG.isTraceEnabled()) LOG.trace(SQLUtil.debug(col_rs));
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(SQLUtil.debug(col_rs));
+                }
                 String col_name = col_rs.getString(4);
                 int col_type = col_rs.getInt(5);
                 String col_typename = col_rs.getString(6);
@@ -171,24 +177,28 @@ public final class Catalog {
                 catalog_col.setNullable(col_nullable);
                 // FIXME col_catalog.setSigned();
 
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Adding %s.%s [%s / %d]",
                             table_name, col_name, col_typename, col_type));
+                }
                 catalog_tbl.addColumn(catalog_col);
             } // WHILE
             col_rs.close();
 
             // PRIMARY KEYS
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Retrieving PRIMARY KEY information for " + table_name);
+            }
             ResultSet pkey_rs = md.getPrimaryKeys(null, null, internal_table_name);
             SortedMap<Integer, String> pkey_cols = new TreeMap<Integer, String>();
             while (pkey_rs.next()) {
                 String col_name = pkey_rs.getString(4);
-               int col_idx = pkey_rs.getShort(5);
+                int col_idx = pkey_rs.getShort(5);
                 // HACK: SQLite doesn't return the KEY_SEQ, so if we get back
                 //       a zero for this value, then we'll just length of the pkey_cols map
-                if (col_idx == 0) col_idx = pkey_cols.size();
+                if (col_idx == 0) {
+                    col_idx = pkey_cols.size();
+                }
                 LOG.debug(String.format("PKEY[%02d]: %s.%s", col_idx, table_name, col_name));
 
                 pkey_cols.put(col_idx, col_name);
@@ -197,12 +207,14 @@ public final class Catalog {
             catalog_tbl.setPrimaryKeyColumns(pkey_cols.values());
 
             // INDEXES
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Retrieving INDEX information for " + table_name);
+            }
             ResultSet idx_rs = md.getIndexInfo(null, null, internal_table_name, false, false);
             while (idx_rs.next()) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(SQLUtil.debug(idx_rs));
+                }
                 boolean idx_unique = (idx_rs.getBoolean(4) == false);
                 String idx_name = idx_rs.getString(6);
                 int idx_type = idx_rs.getShort(7);
@@ -212,8 +224,9 @@ public final class Catalog {
                 SortDirectionType idx_direction;
                 if (sort != null) {
                     idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
-                } else
+                } else {
                     idx_direction = null;
+                }
 
                 Index catalog_idx = catalog_tbl.getIndex(idx_name);
                 if (catalog_idx == null) {
@@ -226,13 +239,15 @@ public final class Catalog {
             idx_rs.close();
 
             // FOREIGN KEYS
-            if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug("Retrieving FOREIGN KEY information for " + table_name);
+            }
             ResultSet fk_rs = md.getImportedKeys(null, null, internal_table_name);
             foreignKeys.put(table_name, new HashMap<String, Pair<String, String>>());
             while (fk_rs.next()) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(table_name + " => " + SQLUtil.debug(fk_rs));
+                }
 
 
                 String colName = fk_rs.getString(8);
@@ -248,8 +263,9 @@ public final class Catalog {
         table_rs.close();
 
         // FOREIGN KEYS
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Foreign Key Mappings:\n" + StringUtil.formatMaps(foreignKeys));
+        }
         for (Table catalog_tbl : tables.values()) {
             Map<String, Pair<String, String>> fk = foreignKeys.get(catalog_tbl.getName());
             for (Entry<String, Pair<String, String>> e : fk.entrySet()) {
@@ -269,8 +285,9 @@ public final class Catalog {
                     throw new RuntimeException("Unexpected foreign key parent column " + fkey);
                 }
 
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(catalog_col.fullName() + " -> " + fkey_col.fullName());
+                }
                 catalog_col.setForeignKey(fkey_col);
             } // FOR
         } // FOR
@@ -295,8 +312,9 @@ public final class Catalog {
             origTableNames.put(tableName.toUpperCase(), tableName);
 //            origTableNames.put(tableName, tableName);
         } // WHILE
-       if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Original Table Names:\n" + StringUtil.formatMaps(origTableNames));
+        }
 
         return (origTableNames);
     }

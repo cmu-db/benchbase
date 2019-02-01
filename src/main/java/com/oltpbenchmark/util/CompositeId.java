@@ -22,7 +22,6 @@ import com.oltpbenchmark.util.json.JSONObject;
 import com.oltpbenchmark.util.json.JSONStringer;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Pack multiple values into a single long using bit-shifting
@@ -49,7 +48,7 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
         for (int i = 0; i < values.length; i++) {
             long max_value = offset_pows[i];
 
-           assert (values[i] < max_value) :
+            assert (values[i] < max_value) :
                     String.format("%s value at position %d is %d. Max value is %d\n%s",
                             this.getClass().getSimpleName(), i, values[i], max_value, this);
 

@@ -57,11 +57,13 @@ public class TransactionType implements Comparable<TransactionType> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
 
-        if (!(obj instanceof TransactionType) || obj == null)
+        if (!(obj instanceof TransactionType) || obj == null) {
             return false;
+        }
 
         TransactionType other = (TransactionType) obj;
         return (this.id == other.id && this.procClass.equals(other.procClass));

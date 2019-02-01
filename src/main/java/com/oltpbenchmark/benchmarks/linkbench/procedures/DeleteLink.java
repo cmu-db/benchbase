@@ -86,8 +86,9 @@ public class DeleteLink extends Procedure {
         // a concurrent transaction could also see the link as visible and
         // we would double-decrement the link count.
 
-        if (stmt1 == null)
+        if (stmt1 == null) {
             stmt1 = this.getPreparedStatement(conn, selectLink);
+        }
 
         stmt1.setLong(1, id1);
         stmt1.setLong(2, id2);
@@ -105,7 +106,7 @@ public class DeleteLink extends Procedure {
             visibility = result.getInt("visibility");
             found = true;
         }
-         // check done
+        // check done
         result.close();
         if (LOG.isTraceEnabled()) {
             LOG.trace(String.format("(%d, %d, %d) visibility = %d",
@@ -121,10 +122,12 @@ public class DeleteLink extends Procedure {
             boolean updateCount = (visibility != LinkBenchConstants.VISIBILITY_HIDDEN);
 
             // either delete or mark the link as hidden
-            if (stmt2 == null)
+            if (stmt2 == null) {
                 stmt2 = this.getPreparedStatement(conn, hideLink);
-            if (stmt3 == null)
+            }
+            if (stmt3 == null) {
                 stmt3 = this.getPreparedStatement(conn, deleteLink);
+            }
 
             PreparedStatement p;
             if (!expunge) {
@@ -152,8 +155,9 @@ public class DeleteLink extends Procedure {
             // * otherwise, insert new link with count column = 0
             // The update happens atomically, with the latest count and version
             long currentTime = (new Date()).getTime();
-            if (stmt4 == null)
+            if (stmt4 == null) {
                 stmt4 = this.getPreparedStatement(conn, updateLink);
+            }
             stmt4.setLong(1, id1);
             stmt4.setLong(2, link_type);
             stmt4.setLong(3, currentTime);

@@ -166,7 +166,9 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
         double p = max_probability * rng.nextDouble();
 
         int idx = binarySearch(cs, p);
-        if (idx == 0) idx = 1;
+        if (idx == 0) {
+            idx = 1;
+        }
 
         /*
          * TODO: this algorithm does not appear to generate data
@@ -193,7 +195,9 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
         // that the ID space is continuous, which is not an accurate
         // approximation for small ID counts
 
-        if (cdf.size() == 0) return 0;
+        if (cdf.size() == 0) {
+            return 0;
+        }
         // Assume CDF is piecewise linear
         double sum = 0;
         sum = cdf.get(0).probability * cdf.get(0).value;

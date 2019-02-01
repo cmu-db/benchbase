@@ -70,17 +70,19 @@ public class TPCCUtil {
     private static final RandomGenerator ran = new RandomGenerator(0);
 
     public static String randomStr(int strLen) {
-        if (strLen > 1)
+        if (strLen > 1) {
             return ran.astring(strLen - 1, strLen - 1);
-        else
+        } else {
             return "";
+        }
     } // end randomStr
 
     public static String randomNStr(int stringLength) {
-        if (stringLength > 0)
+        if (stringLength > 0) {
             return ran.nstring(stringLength, stringLength);
-        else
+        } else {
             return "";
+        }
     }
 
     public static String getCurrentTime() {

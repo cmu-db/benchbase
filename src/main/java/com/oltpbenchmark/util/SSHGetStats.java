@@ -56,8 +56,9 @@ public class SSHGetStats {
             conn.connect();
             boolean isAuthenticated = conn.authenticateWithPassword(username,
                     password);
-            if (isAuthenticated == false)
+            if (isAuthenticated == false) {
                 throw new IOException("Authentication failed.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,8 +93,9 @@ public class SSHGetStats {
             boolean isAuthenticated = conn.authenticateWithPassword(username,
                     password);
 
-            if (isAuthenticated == false)
+            if (isAuthenticated == false) {
                 throw new IOException("Authentication failed.");
+            }
 
         } catch (Exception e) {
 
@@ -132,8 +134,9 @@ public class SSHGetStats {
             String line = br.readLine();
             sess.close();
 
-            if (line != null)
+            if (line != null) {
                 return Long.parseLong(line);
+            }
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -162,12 +165,15 @@ public class SSHGetStats {
             res[i] = (double) (newValue[i] - diskStatsOldValue[i])
                     / (double) (newTime - diskStatsOldTime);
 
-            if (i == 3 || i == 7 || i == 9 || i == 10)
+            if (i == 3 || i == 7 || i == 9 || i == 10) {
                 res[i] = 100 * res[i]; // unit in %
-            if (i == 0 || i == 1 || i == 2 || i == 4 || i == 5 || i == 6)
+            }
+            if (i == 0 || i == 1 || i == 2 || i == 4 || i == 5 || i == 6) {
                 res[i] = 1000 * res[i]; // unit in per-second
-            if (i == 8)
+            }
+            if (i == 8) {
                 res[i] = newValue[i]; // field 8 is just an istantaneous value
+            }
 
         }
 
@@ -206,8 +212,9 @@ public class SSHGetStats {
 
             sess.close();
 
-            if (line != null)
+            if (line != null) {
                 return Integer.parseInt(line);
+            }
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }

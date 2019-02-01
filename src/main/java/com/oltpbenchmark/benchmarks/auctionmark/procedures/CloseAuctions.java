@@ -93,9 +93,10 @@ public class CloseAuctions extends Procedure {
 //        int orig_isolation = conn.getTransactionIsolation();
 //        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 
-        if (debug)
+        if (debug) {
             LOG.debug(String.format("startTime=%s, endTime=%s, currentTime=%s",
                     startTime, endTime, currentTime));
+        }
 
         int closed_ctr = 0;
         int waiting_ctr = 0;
@@ -117,7 +118,9 @@ public class CloseAuctions extends Procedure {
             dueItemsStmt.setInt(param++, ItemStatus.OPEN.ordinal());
             dueItemsTable = dueItemsStmt.executeQuery();
             boolean adv = dueItemsTable.next();
-            if (adv == false) break;
+            if (adv == false) {
+                break;
+            }
 
             output_rows.clear();
             while (dueItemsTable.next()) {
@@ -132,8 +135,9 @@ public class CloseAuctions extends Procedure {
                 Long bidId = null;
                 Long buyerId = null;
 
-                if (debug)
+                if (debug) {
                     LOG.debug(String.format("Getting max bid for itemId=%d / sellerId=%d", itemId, sellerId));
+                }
 
 
                 // Has bid on this item - set status to WAITING_FOR_PURCHASE
@@ -166,8 +170,9 @@ public class CloseAuctions extends Procedure {
 
                 // Update Status!
                 updated = this.getPreparedStatement(conn, updateItemStatus, itemStatus.ordinal(), currentTime, itemId, sellerId).executeUpdate();
-                if (debug)
+                if (debug) {
                     LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
+                }
 
                 Object row[] = new Object[]{
                         itemId,               // i_id
@@ -183,11 +188,14 @@ public class CloseAuctions extends Procedure {
                 output_rows.add(row);
             } // WHILE
             dueItemsTable.close();
-            if (round > 0) conn.commit();
+            if (round > 0) {
+                conn.commit();
+            }
         } // WHILE
 
-        if (debug)
+        if (debug) {
             LOG.debug(String.format("Updated Auctions - Closed=%d / Waiting=%d", closed_ctr, waiting_ctr));
+        }
 //        conn.setTransactionIsolation(orig_isolation);
         return (output_rows);
     }

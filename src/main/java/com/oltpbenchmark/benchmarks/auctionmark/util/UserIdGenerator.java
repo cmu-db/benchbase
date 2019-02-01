@@ -51,17 +51,21 @@ public class UserIdGenerator implements Iterator<UserId> {
      */
     public UserIdGenerator(Histogram<Long> users_per_item_count, int numClients, Integer clientId) {
 
-        if (numClients <= 0)
+        if (numClients <= 0) {
             throw new IllegalArgumentException("numClients must be more than 0 : " + numClients);
-        if (clientId != null && clientId < 0)
+        }
+        if (clientId != null && clientId < 0) {
             throw new IllegalArgumentException("clientId must be more than or equal to 0 : " + clientId);
+        }
 
         this.numClients = numClients;
         this.clientId = clientId;
 
         Long temp = users_per_item_count.getMaxValue();
-        if (temp == null) temp = users_per_item_count.getMaxValue();
-       this.maxItemCount = temp.intValue();
+        if (temp == null) {
+            temp = users_per_item_count.getMaxValue();
+        }
+        this.maxItemCount = temp.intValue();
         this.usersPerItemCounts = new int[this.maxItemCount + 2];
         for (int i = 0; i < this.usersPerItemCounts.length; i++) {
             this.usersPerItemCounts[i] = users_per_item_count.get((long) i, 0);
@@ -130,12 +134,14 @@ public class UserIdGenerator implements Iterator<UserId> {
      * @return
      */
     public boolean checkClient(UserId user_id) {
-        if (this.clientId == null) return (true);
+        if (this.clientId == null) {
+            return (true);
+        }
 
         int tmp_count = 0;
         int tmp_position = 0;
         while (tmp_count <= this.maxItemCount) {
-           int num_users = this.usersPerItemCounts[tmp_count];
+            int num_users = this.usersPerItemCounts[tmp_count];
             if (tmp_count == user_id.getItemCount()) {
                 tmp_position += (num_users - user_id.getOffset()) + 1;
                 break;
@@ -166,11 +172,15 @@ public class UserIdGenerator implements Iterator<UserId> {
                     break;
                 }
             } // WHILE
-            if (found != null) break;
+            if (found != null) {
+                break;
+            }
             this.currentItemCount++;
             this.currentOffset = this.usersPerItemCounts[this.currentItemCount];
         } // WHILE
-        if (found == null) return (null);
+        if (found == null) {
+            return (null);
+        }
 
         return (new UserId((int) this.currentItemCount, found.intValue()));
     }

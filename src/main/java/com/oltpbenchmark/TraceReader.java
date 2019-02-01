@@ -78,12 +78,13 @@ public class TraceReader {
             int txnIdCol = -1, phaseIdCol = -1, startTimeCol = -1;
             int index = 0;
             for (String field : splitHeader) {
-                if (field.matches(".*transaction.*"))
+                if (field.matches(".*transaction.*")) {
                     txnIdCol = index;
-                else if (field.matches(".*phase.*"))
+                } else if (field.matches(".*phase.*")) {
                     phaseIdCol = index;
-                else if (field.matches(".*start time.*"))
+                } else if (field.matches(".*start time.*")) {
                     startTimeCol = index;
+                }
                 ++index;
             }
 

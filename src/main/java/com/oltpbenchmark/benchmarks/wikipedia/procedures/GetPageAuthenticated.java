@@ -162,8 +162,9 @@ public class GetPageAuthenticated extends Procedure {
             throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
         }
         Article a = null;
-        if (!forSelect)
+        if (!forSelect) {
             a = new Article(userText, pageId, rs.getString("old_text"), textId, revisionId);
+        }
 
         rs.close();
 

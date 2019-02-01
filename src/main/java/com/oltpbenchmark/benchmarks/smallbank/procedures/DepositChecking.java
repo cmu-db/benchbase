@@ -66,6 +66,6 @@ public class DepositChecking extends Procedure {
         // Then update their checking balance
         PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
         int status = stmt1.executeUpdate();
-       return;
+        return;
     }
 }

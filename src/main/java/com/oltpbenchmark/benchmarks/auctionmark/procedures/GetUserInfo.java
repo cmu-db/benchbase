@@ -120,13 +120,17 @@ public class GetUserInfo extends Procedure {
         int result_idx = 0;
 
         // The first VoltTable in the output will always be the user's information
-        if (debug) LOG.debug("Grabbing USER record: " + user_id);
+        if (debug) {
+            LOG.debug("Grabbing USER record: " + user_id);
+        }
         PreparedStatement stmt = this.getPreparedStatement(conn, getUser, user_id);
         results[result_idx++] = stmt.executeQuery();
 
         // They can also get their USER_FEEDBACK records if they want as well
         if (get_feedback) {
-            if (debug) LOG.debug("Grabbing USER_FEEDBACK records: " + user_id);
+            if (debug) {
+                LOG.debug("Grabbing USER_FEEDBACK records: " + user_id);
+            }
             stmt = this.getPreparedStatement(conn, getUserFeedback, user_id);
             results[result_idx] = stmt.executeQuery();
         }
@@ -134,7 +138,9 @@ public class GetUserInfo extends Procedure {
 
         // And any pending ITEM_COMMENTS that need a response
         if (get_comments) {
-            if (debug) LOG.debug("Grabbing ITEM_COMMENT records: " + user_id);
+            if (debug) {
+                LOG.debug("Grabbing ITEM_COMMENT records: " + user_id);
+            }
             stmt = this.getPreparedStatement(conn, getItemComments, user_id, ItemStatus.OPEN.ordinal());
             results[result_idx] = stmt.executeQuery();
         }
@@ -142,7 +148,9 @@ public class GetUserInfo extends Procedure {
 
         // The seller's items
         if (get_seller_items) {
-            if (debug) LOG.debug("Grabbing seller's ITEM records: " + user_id);
+            if (debug) {
+                LOG.debug("Grabbing seller's ITEM records: " + user_id);
+            }
             stmt = this.getPreparedStatement(conn, getSellerItems, user_id);
             results[result_idx] = stmt.executeQuery();
         }
@@ -154,7 +162,9 @@ public class GetUserInfo extends Procedure {
             // that basically sends the entire user table to all nodes. So for now we'll just execute
             // the query to grab the buyer's feedback information
             // this.getPreparedStatement(conn, select_seller_feedback, u_id);
-            if (debug) LOG.debug("Grabbing buyer's USER_ITEM records: " + user_id);
+            if (debug) {
+                LOG.debug("Grabbing buyer's USER_ITEM records: " + user_id);
+            }
             stmt = this.getPreparedStatement(conn, getBuyerItems, user_id);
             results[result_idx] = stmt.executeQuery();
         }
@@ -162,7 +172,9 @@ public class GetUserInfo extends Procedure {
 
         // The buyer's watched items
         if (get_watched_items) {
-            if (debug) LOG.debug("Grabbing buyer's USER_WATCH records: " + user_id);
+            if (debug) {
+                LOG.debug("Grabbing buyer's USER_WATCH records: " + user_id);
+            }
             stmt = this.getPreparedStatement(conn, getWatchedItems, user_id);
             results[result_idx] = stmt.executeQuery();
         }

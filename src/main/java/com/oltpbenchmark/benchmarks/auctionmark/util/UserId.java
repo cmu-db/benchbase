@@ -100,11 +100,13 @@ public class UserId extends CompositeId {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
 
-        if (!(obj instanceof UserId) || obj == null)
+        if (!(obj instanceof UserId) || obj == null) {
             return false;
+        }
 
         UserId o = (UserId) obj;
         return (this.itemCount == o.itemCount

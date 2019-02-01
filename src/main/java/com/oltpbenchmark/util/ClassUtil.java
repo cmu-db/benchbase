@@ -150,7 +150,9 @@ public abstract class ClassUtil {
 //                } // FOR
 //            } // WHILE
             ret = new HashSet<Class<?>>(ClassUtils.getAllInterfaces(element_class));
-            if (element_class.isInterface()) ret.add(element_class);
+            if (element_class.isInterface()) {
+                ret.add(element_class);
+            }
             ret = Collections.unmodifiableSet(ret);
             ClassUtil.CACHE_getInterfaceClasses.put(element_class, ret);
         }
@@ -206,7 +208,9 @@ public abstract class ClassUtil {
         List<Class<?>> paramSuper[] = (List<Class<?>>[]) new List[params.length];
         for (int i = 0; i < params.length; i++) {
             paramSuper[i] = ClassUtil.getSuperClasses(params[i]);
-            if (LOG.isDebugEnabled()) LOG.debug("  SUPER[" + params[i].getSimpleName() + "] => " + paramSuper[i]);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("  SUPER[" + params[i].getSimpleName() + "] => " + paramSuper[i]);
+            }
         } // FOR
 
         for (Constructor<?> c : target_class.getConstructors()) {
@@ -215,11 +219,15 @@ public abstract class ClassUtil {
                 LOG.debug("CANDIDATE: " + c);
                 LOG.debug("CANDIDATE PARAMS: " + Arrays.toString(cTypes));
             }
-            if (params.length != cTypes.length) continue;
+            if (params.length != cTypes.length) {
+                continue;
+            }
 
             for (int i = 0; i < params.length; i++) {
                 List<Class<?>> cSuper = ClassUtil.getSuperClasses(cTypes[i]);
-                if (LOG.isDebugEnabled()) LOG.debug("  SUPER[" + cTypes[i].getSimpleName() + "] => " + cSuper);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("  SUPER[" + cTypes[i].getSimpleName() + "] => " + cSuper);
+                }
                 if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
                     return ((Constructor<T>) c);
                 }

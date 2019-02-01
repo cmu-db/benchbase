@@ -67,8 +67,9 @@ public abstract class GenericQuery extends Procedure {
 
         //initializing all prepared statements
         stmt = this.getPreparedStatement(conn, get_query());
-        if (owner != null)
+        if (owner != null) {
             owner.setCurrStatement(stmt);
+        }
 
         ResultSet rs = null;
         try {
@@ -87,8 +88,9 @@ public abstract class GenericQuery extends Procedure {
             //do nothing
         }
 
-        if (owner != null)
+        if (owner != null) {
             owner.setCurrStatement(null);
+        }
 
         return null;
 

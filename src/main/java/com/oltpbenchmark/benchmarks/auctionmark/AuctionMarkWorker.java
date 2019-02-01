@@ -71,8 +71,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
             long sleepTime = AuctionMarkConstants.CLOSE_AUCTIONS_INTERVAL / AuctionMarkConstants.TIME_SCALE_FACTOR;
             while (true) {
-                if (LOG.isDebugEnabled())
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Sleeping for %d seconds", sleepTime));
+                }
 
                 // Always sleep until the next time that we need to check
                 try {
@@ -83,8 +84,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 //                assert(AuctionMarkWorker.this.closeAuctions_flag.get() == false);
 
                 if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD) {
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Executing %s in separate thread", txnType));
+                    }
                     try {
                         executeCloseAuctions((CloseAuctions) proc);
                     } catch (Exception ex) {
@@ -92,8 +94,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                     }
                 } else {
                     AuctionMarkWorker.this.closeAuctions_flag.set(true);
-                    if (LOG.isDebugEnabled())
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Marked ready flag for %s", txnType));
+                    }
                 }
             } // WHILE
         }
@@ -265,7 +268,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
          * @return
          */
         public boolean canExecute(AuctionMarkWorker client) {
-            if (LOG.isDebugEnabled()) LOG.debug("Checking whether we can execute " + this + " now");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Checking whether we can execute " + this + " now");
+            }
             return this.generator.canGenerateParam(client);
         }
     }
@@ -304,9 +309,12 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to initialize AuctionMarkWorker", ex);
         }
-        if (this.closeAuctions_checker != null) this.closeAuctions_checker.start();
-        if (LOG.isDebugEnabled())
+        if (this.closeAuctions_checker != null) {
+            this.closeAuctions_checker.start();
+        }
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("AuctionMarkProfile %03d\n%s", this.getId(), profile));
+        }
     }
 
     @Override
@@ -318,7 +326,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // set this on the first call to runOnce(). This will account for start a bunch of
         // clients on multiple nodes but then having to wait until they're all up and running
         // before starting the actual benchmark run.
-        if (profile.hasClientStartTime() == false) profile.setAndGetClientStartTime();
+        if (profile.hasClientStartTime() == false) {
+            profile.setAndGetClientStartTime();
+        }
 
         // Always update the current timestamp
         profile.updateAndGetCurrentTime();
@@ -335,7 +345,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
-           if (txn.canExecute(this) == false) {
+            if (txn.canExecute(this) == false) {
                 LOG.warn("Unable to execute " + txn + " because it is not ready");
                 return (TransactionStatus.RETRY_DIFFERENT);
             }
@@ -344,8 +354,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // Get the Procedure handle
         Procedure proc = this.getProcedure(txnType);
 
-        if (LOG.isTraceEnabled())
+        if (LOG.isTraceEnabled()) {
             LOG.trace(txnType + " -> " + txn + " -> " + txnType.getProcedureClass() + " -> " + proc);
+        }
 
         boolean ret = false;
         switch (txn) {
@@ -383,8 +394,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         } // SWITCH
 //        assert(ret);
-        if (ret && LOG.isDebugEnabled())
+        if (ret && LOG.isDebugEnabled()) {
             LOG.debug("Executed a new invocation of " + txn);
+        }
 
         return (TransactionStatus.SUCCESS);
     }
@@ -413,12 +425,14 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         double i_current_price = SQLUtil.getDouble(row[col++]); // i_current_price
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
-        if (i_end_date == null)
+        if (i_end_date == null) {
             throw new RuntimeException("DJELLEL IS THE MAN! --> " + row[col - 1] + " / " + row[col - 1].getClass());
+        }
 
         Integer temp = SQLUtil.getInteger(row[col++]);
-        if (temp == null)
+        if (temp == null) {
             throw new RuntimeException("DJELLEL IS STILL THE MAN! --> " + row[col - 1] + " / " + row[col - 1].getClass());
+        }
         ItemStatus i_status = ItemStatus.get(temp); // i_status
 
         ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, (int) i_num_bids);
@@ -442,8 +456,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // ----------------------------------------------------------------
 
     protected boolean executeCloseAuctions(CloseAuctions proc) throws SQLException {
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Executing " + proc);
+        }
         Timestamp benchmarkTimes[] = this.getTimestampParameterArray();
         Timestamp startTime = profile.getLastCloseAuctionsTime();
         Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
@@ -458,8 +473,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } // WHILE
         profile.updateItemQueues();
 
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug("Finished " + proc);
+        }
         return (true);
     }
 
@@ -526,7 +542,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // USER
         vt = results[idx++];
 
-       // USER_FEEDBACK
+        // USER_FEEDBACK
         if (get_feedback) {
             vt = results[idx];
 
@@ -563,7 +579,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // ITEM Result Tables
         for (; idx < results.length; idx++) {
             vt = results[idx];
-            if (vt == null) continue;
+            if (vt == null) {
+                continue;
+            }
             for (Object row[] : vt) {
                 ItemId itemId = this.processItemRecord(row);
 
@@ -750,7 +768,9 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         List<GlobalAttributeValueId> gavList = new ArrayList<GlobalAttributeValueId>(numAttributes);
         for (int i = 0; i < numAttributes; i++) {
             GlobalAttributeValueId gav_id = profile.getRandomGlobalAttributeValue();
-            if (!gavList.contains(gav_id)) gavList.add(gav_id);
+            if (!gavList.contains(gav_id)) {
+                gavList.add(gav_id);
+            }
         } // FOR
 
         long[] gag_ids = new long[gavList.size()];

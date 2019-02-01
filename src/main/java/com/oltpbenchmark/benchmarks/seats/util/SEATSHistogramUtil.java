@@ -41,7 +41,9 @@ public abstract class SEATSHistogramUtil {
 
     private static File getHistogramFile(File data_dir, String name) {
         File file = new File(data_dir.getAbsolutePath() + File.separator + "histogram." + name.toLowerCase());
-        if (file.exists() == false) file = new File(file.getAbsolutePath() + ".gz");
+        if (file.exists() == false) {
+            file = new File(file.getAbsolutePath() + ".gz");
+        }
         return (file);
     }
 
@@ -66,7 +68,9 @@ public abstract class SEATSHistogramUtil {
      * @throws Exception
      */
     public static synchronized Map<String, Histogram<String>> loadAirportFlights(File data_path) throws Exception {
-        if (cached_AirportFlights != null) return (cached_AirportFlights);
+        if (cached_AirportFlights != null) {
+            return (cached_AirportFlights);
+        }
 
         File file = getHistogramFile(data_path, SEATSConstants.HISTOGRAM_FLIGHTS_PER_AIRPORT);
         Histogram<String> h = new Histogram<String>();
@@ -106,8 +110,9 @@ public abstract class SEATSHistogramUtil {
             histogram.load(file.getAbsolutePath());
             cached_Histograms.put(file, histogram);
         }
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Histogram %s\n%s", name, histogram.toString()));
+        }
 
         return (histogram);
     }

@@ -66,13 +66,18 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
             }
 
             // If we only need one acctId, break out here.
-            if (i == 0 && needsTwoAccts == false) break;
+            if (i == 0 && needsTwoAccts == false) {
+                break;
+            }
             // If we need two acctIds, then we need to go generate the second one
-            if (i == 0) continue;
+            if (i == 0) {
+                continue;
+            }
 
         } // FOR
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Accounts: %s", Arrays.toString(this.custIdsBuffer)));
+        }
     }
 
 
