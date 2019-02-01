@@ -24,18 +24,19 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class InsertRecord extends Procedure {
-    public final SQLStmt insertStmt = new SQLStmt(
+    private final SQLStmt insertStmt = new SQLStmt(
             "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
     );
 
     // FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, String vals[]) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, this.insertStmt);
-        stmt.setInt(1, keyname);
-        for (int i = 0; i < vals.length; i++) {
-            stmt.setString(i + 2, vals[i]);
+    public void run(Connection conn, int keyname, String[] vals) throws SQLException {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, this.insertStmt)) {
+            stmt.setInt(1, keyname);
+            for (int i = 0; i < vals.length; i++) {
+                stmt.setString(i + 2, vals[i]);
+            }
+            stmt.executeUpdate();
         }
-        stmt.executeUpdate();
     }
 
 }

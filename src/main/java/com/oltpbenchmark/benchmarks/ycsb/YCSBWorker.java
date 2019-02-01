@@ -36,15 +36,15 @@ import java.util.Random;
  *
  * @author pavlo
  */
-public class YCSBWorker extends Worker<YCSBBenchmark> {
+class YCSBWorker extends Worker<YCSBBenchmark> {
 
-    private ZipfianGenerator readRecord;
+    private final ZipfianGenerator readRecord;
     private static CounterGenerator insertRecord;
-    private ZipfianGenerator randScan;
+    private final ZipfianGenerator randScan;
 
-    private final char data[] = new char[YCSBConstants.FIELD_SIZE];
-    private final String params[] = new String[YCSBConstants.NUM_FIELDS];
-    private final String results[] = new String[YCSBConstants.NUM_FIELDS];
+    private final char[] data = new char[YCSBConstants.FIELD_SIZE];
+    private final String[] params = new String[YCSBConstants.NUM_FIELDS];
+    private final String[] results = new String[YCSBConstants.NUM_FIELDS];
 
     private final UpdateRecord procUpdateRecord;
     private final ScanRecord procScanRecord;
@@ -108,7 +108,7 @@ public class YCSBWorker extends Worker<YCSBBenchmark> {
         assert (this.procScanRecord != null);
         int keyname = readRecord.nextInt();
         int count = randScan.nextInt();
-        this.procScanRecord.run(conn, keyname, count, new ArrayList<String[]>());
+        this.procScanRecord.run(conn, keyname, count, new ArrayList<>());
     }
 
     private void readRecord() throws SQLException {

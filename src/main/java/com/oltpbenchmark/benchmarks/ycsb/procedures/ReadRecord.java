@@ -26,20 +26,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ReadRecord extends Procedure {
-    public final SQLStmt readStmt = new SQLStmt(
+    private final SQLStmt readStmt = new SQLStmt(
             "SELECT * FROM USERTABLE WHERE YCSB_KEY=?"
     );
 
     //FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, String results[]) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, readStmt);
-        stmt.setInt(1, keyname);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++)
-                results[i] = r.getString(i + 1);
-        } // WHILE
-        r.close();
+    public void run(Connection conn, int keyname, String[] results) throws SQLException {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, readStmt)) {
+            stmt.setInt(1, keyname);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++)
+                        results[i] = r.getString(i + 1);
+                } // WHILE
+            }
+        }
     }
 
 }

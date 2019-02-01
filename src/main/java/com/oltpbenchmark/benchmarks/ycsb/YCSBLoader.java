@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YCSBLoader extends Loader<YCSBBenchmark> {
+class YCSBLoader extends Loader<YCSBBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(YCSBLoader.class);
     private final int num_record;
 
@@ -37,13 +37,13 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
         super(benchmark, c);
         this.num_record = (int) Math.round(YCSBConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of RECORDS:  " + this.num_record);
+            LOG.debug("# of RECORDS:  {}", this.num_record);
         }
     }
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+        List<LoaderThread> threads = new ArrayList<>();
         int count = 0;
         while (count < this.num_record) {
             final int start = count;
@@ -77,7 +77,7 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
                 stmt.addBatch();
                 total++;
                 if (++batch >= YCSBConstants.COMMIT_BATCH_SIZE) {
-                    int result[] = stmt.executeBatch();
+                    int[] result = stmt.executeBatch();
                     assert (result != null);
                     batch = 0;
                     if (LOG.isDebugEnabled())
@@ -90,7 +90,7 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
                     LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
             }
         }
-        if (LOG.isDebugEnabled()) LOG.debug("Finished loading " + catalog_tbl.getName());
+        if (LOG.isDebugEnabled()) LOG.debug("Finished loading {}", catalog_tbl.getName());
     }
 
 }

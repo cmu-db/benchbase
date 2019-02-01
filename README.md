@@ -17,7 +17,7 @@ Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench a
 
 * TPC-H references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
 * TPC-DS doesnt have a sample config.  will proably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
-* having difficult loading `seats`
+* having difficult loading `seats`, need to look at how data is loaded
 * no sample config for `hyadapt`
 * linkbench loader needs to be fixed, wrong tables referenced in loader
 * chbenchmark needs more love

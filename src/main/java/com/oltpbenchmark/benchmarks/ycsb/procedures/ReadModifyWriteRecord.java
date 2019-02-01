@@ -26,35 +26,39 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ReadModifyWriteRecord extends Procedure {
-    public final SQLStmt selectStmt = new SQLStmt(
+    private final SQLStmt selectStmt = new SQLStmt(
             "SELECT * FROM USERTABLE where YCSB_KEY=? FOR UPDATE"
     );
-    public final SQLStmt updateAllStmt = new SQLStmt(
+    private final SQLStmt updateAllStmt = new SQLStmt(
             "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
                     "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
     );
 
     //FIXME: The value in ysqb is a byteiterator
-    public void run(Connection conn, int keyname, String fields[], String results[]) throws SQLException {
+    public void run(Connection conn, int keyname, String[] fields, String[] results) throws SQLException {
 
         // Fetch it!
-        PreparedStatement stmt = this.getPreparedStatement(conn, selectStmt);
-        stmt.setInt(1, keyname);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++)
-                results[i] = r.getString(i + 1);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, selectStmt)) {
+            stmt.setInt(1, keyname);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++)
+                        results[i] = r.getString(i + 1);
+                }
+            }
+
         }
-        r.close();
 
         // Update that mofo
-        stmt = this.getPreparedStatement(conn, updateAllStmt);
-        stmt.setInt(11, keyname);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateAllStmt)) {
+            stmt.setInt(11, keyname);
 
-        for (int i = 0; i < fields.length; i++) {
-            stmt.setString(i + 1, fields[i]);
+            for (int i = 0; i < fields.length; i++) {
+                stmt.setString(i + 1, fields[i]);
+            }
+            stmt.executeUpdate();
         }
-        stmt.executeUpdate();
+
     }
 
 }

@@ -23,6 +23,8 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -34,13 +36,15 @@ import java.util.List;
 
 public class YCSBBenchmark extends BenchmarkModule {
 
+    private final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
+
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf, true);
     }
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         try {
 
 
@@ -51,10 +55,9 @@ public class YCSBBenchmark extends BenchmarkModule {
             assert (t != null) : "Invalid table name '" + t + "' " + this.catalog.getTables();
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "ycsb_key");
 
-            try (
-                    Connection metaConn = this.makeConnection();
-                    Statement stmt = metaConn.createStatement();
-                    ResultSet res = stmt.executeQuery(userCount)) {
+            try (Connection metaConn = this.makeConnection();
+                 Statement stmt = metaConn.createStatement();
+                 ResultSet res = stmt.executeQuery(userCount)) {
                 int init_record_count = 0;
                 while (res.next()) {
                     init_record_count = res.getInt(1);
@@ -66,8 +69,7 @@ public class YCSBBenchmark extends BenchmarkModule {
                 } // FOR
             }
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return workers;
     }
