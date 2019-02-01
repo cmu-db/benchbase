@@ -194,7 +194,7 @@ public abstract class BenchmarkModule {
         }
 
 
-        LOG.error("Failed to find DDL file for " + path);
+        LOG.warn("Failed to find DDL file for " + path);
 
         return null;
     }
@@ -227,13 +227,18 @@ public abstract class BenchmarkModule {
 
             URL url = this.getClass().getClassLoader().getResource(path);
 
-            try {
-                return new File(url.toURI().getPath());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", path));
+            if (url != null) {
+                try {
+                    return new File(url.toURI().getPath());
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", path));
+                }
             }
+
+            LOG.warn("Failed to find dialect file for " + path);
         }
+
 
         return (null);
     }
