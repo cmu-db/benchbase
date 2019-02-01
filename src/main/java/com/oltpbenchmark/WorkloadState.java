@@ -82,19 +82,22 @@ public class WorkloadState {
                 return;
             } else {
                 // Add the specified number of procedures to the end of the queue.
-                for (int i = 0; i < amount; ++i)
+                for (int i = 0; i < amount; ++i) {
                     workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
+                }
             }
 
             // Can't keep up with current rate? Remove the oldest transactions
             // (from the front of the queue).
-            while (workQueue.size() > RATE_QUEUE_LIMIT)
+            while (workQueue.size() > RATE_QUEUE_LIMIT) {
                 workQueue.remove();
+            }
 
             // Wake up sleeping workers to deal with the new work.
             int numToWake = (amount <= workersWaiting ? amount : workersWaiting);
-            for (int i = 0; i < numToWake; ++i)
+            for (int i = 0; i < numToWake; ++i) {
                 this.notify();
+            }
         }
     }
 

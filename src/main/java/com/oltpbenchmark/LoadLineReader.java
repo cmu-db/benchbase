@@ -39,8 +39,9 @@ public class LoadLineReader {
             ratePerSec = 1;
         }
 
-        for (int i = 0; i < transactionRatios.length; i++)
+        for (int i = 0; i < transactionRatios.length; i++) {
             transactionRatios[i] = Double.parseDouble(st.nextToken());
+        }
 
     }
 

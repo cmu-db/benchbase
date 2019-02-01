@@ -376,7 +376,9 @@ public class AuctionMarkProfile {
                     result_idx++;
                 } // FOR
 
-                for (ResultSet r : results) r.close();
+                for (ResultSet r : results) {
+                    r.close();
+                }
 
                 conn.commit();
 
@@ -669,7 +671,9 @@ public class AuctionMarkProfile {
         // This is very inefficient, but it's probably good enough for now
         tmp_userIdHistogram.clear();
         tmp_userIdHistogram.putHistogram(previousBidders);
-        for (UserId ex : exclude) tmp_userIdHistogram.removeAll(ex);
+        for (UserId ex : exclude) {
+            tmp_userIdHistogram.removeAll(ex);
+        }
         tmp_userIdHistogram.put(this.getRandomBuyerId(exclude));
         try {
             LOG.trace("New Histogram:\n" + tmp_userIdHistogram);

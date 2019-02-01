@@ -676,7 +676,9 @@ public class Histogram<X> implements JSONSerializable {
             int cnt = (value != null ? this.histogram.get(value).intValue() : 0);
             int chars = (int) ((cnt / (double) this.max_count) * max_chars);
             s.append(String.format(f, str, cnt));
-            for (int i = 0; i < chars; i++) s.append(MARKER);
+            for (int i = 0; i < chars; i++) {
+                s.append(MARKER);
+            }
             first = false;
         } // FOR
         if (this.histogram.isEmpty()) {

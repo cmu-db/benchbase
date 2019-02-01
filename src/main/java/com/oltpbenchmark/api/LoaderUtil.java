@@ -52,7 +52,9 @@ public class LoaderUtil {
 
     public static String blockBuilder(String piece, int repeat) {
         StringBuilder sb = new StringBuilder("<HTML>");
-        for (int i = 0; i < repeat; i++) sb.append(piece);
+        for (int i = 0; i < repeat; i++) {
+            sb.append(piece);
+        }
         sb.append("</HTML>");
         return sb.toString();
     }

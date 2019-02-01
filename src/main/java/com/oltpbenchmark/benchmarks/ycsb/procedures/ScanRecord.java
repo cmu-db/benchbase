@@ -39,8 +39,9 @@ public class ScanRecord extends Procedure {
             try (ResultSet r = stmt.executeQuery()) {
                 while (r.next()) {
                     String[] data = new String[YCSBConstants.NUM_FIELDS];
-                    for (int i = 0; i < data.length; i++)
+                    for (int i = 0; i < data.length; i++) {
                         data[i] = r.getString(i + 1);
+                    }
                     results.add(data);
                 }
             }

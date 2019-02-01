@@ -142,8 +142,9 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     private static final BitSet FULL_FLIGHT_BITSET = new BitSet(SEATSConstants.FLIGHTS_NUM_SEATS);
 
     static {
-        for (int i = 0; i < SEATSConstants.FLIGHTS_NUM_SEATS; i++)
+        for (int i = 0; i < SEATSConstants.FLIGHTS_NUM_SEATS; i++) {
             FULL_FLIGHT_BITSET.set(i);
+        }
     } // STATIC
 
     protected BitSet getSeatsBitSet(FlightId flight_id) {

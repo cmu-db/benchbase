@@ -42,8 +42,9 @@ public class LatchedExceptionHandler implements Thread.UncaughtExceptionHandler 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         this.last_error = e;
-        while (this.latch.getCount() > 0)
+        while (this.latch.getCount() > 0) {
             this.latch.countDown();
+        }
     }
 
     public boolean hasError() {

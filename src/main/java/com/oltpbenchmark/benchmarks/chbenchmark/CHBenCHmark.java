@@ -52,8 +52,9 @@ public class CHBenCHmark extends BenchmarkModule {
 
         int numTerminals = workConf.getTerminals();
         LOG.info(String.format("Creating %d workers for CHBenCHMark", numTerminals));
-        for (int i = 0; i < numTerminals; i++)
+        for (int i = 0; i < numTerminals; i++) {
             workers.add(new CHBenCHmarkWorker(this, i));
+        }
 
         return workers;
     }

@@ -275,10 +275,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         loaders[6] = loadRegions();
         loaders[7] = loadSuppliers();
 
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < 8; ++i) {
             if (loaders[i] != null) {
                 loaders[i].start();
             }
+        }
 
         for (int i = 0; i < 8; ++i) {
             try {

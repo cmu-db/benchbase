@@ -319,8 +319,9 @@ public class DBWorkload {
             // All benchmarks should also have an "all" grouping that gives
             // even weight to all transactions in the benchmark.
             List<String> weightAll = new ArrayList<String>();
-            for (int i = 0; i < numTxnTypes; ++i)
+            for (int i = 0; i < numTxnTypes; ++i) {
                 weightAll.add("1");
+            }
             groupings.put("all", weightAll);
             benchList.add(bench);
 

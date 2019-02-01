@@ -49,8 +49,9 @@ public class Phase {
 
     Phase(String benchmarkName, int id, int t, int wt, int r, List<String> o, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
         ArrayList<Double> w = new ArrayList<Double>();
-        for (String s : o)
+        for (String s : o) {
             w.add(Double.parseDouble(s));
+        }
 
         this.benchmarkName = benchmarkName;
         this.id = id;
@@ -115,8 +116,9 @@ public class Phase {
      */
     public double totalWeight() {
         double total = 0.0;
-        for (Double d : weights)
+        for (Double d : weights) {
             total += d;
+        }
         return total;
     }
 
@@ -142,8 +144,9 @@ public class Phase {
 
                 // Serial runs should not execute queries with non-positive
                 // weights.
-                while (ret <= this.num_weights && weights.get(ret - 1).doubleValue() <= 0.0)
+                while (ret <= this.num_weights && weights.get(ret - 1).doubleValue() <= 0.0) {
                     ret = ++this.nextSerial;
+                }
 
                 // If it's a cold execution, then we don't want to advance yet,
                 // since the hot run needs to execute the same query.

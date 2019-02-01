@@ -43,8 +43,9 @@ public class ReadRecord7 extends Procedure {
         stmt.setInt(1, keyname);
         ResultSet r = stmt.executeQuery();
         while (r.next()) {
-            for (int i = 1; i <= ((HYADAPTConstants.FIELD_COUNT / 10) * 7); i++)
+            for (int i = 1; i <= ((HYADAPTConstants.FIELD_COUNT / 10) * 7); i++) {
                 results.put(i, r.getInt(i));
+            }
         }
         r.close();
     }

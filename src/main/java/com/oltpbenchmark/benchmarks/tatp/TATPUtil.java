@@ -71,8 +71,9 @@ public abstract class TATPUtil {
     public static String padWithZero(long n) {
         String str = Long.toString(n);
         char[] zeros = new char[TATPConstants.SUB_NBR_PADDING_SIZE - str.length()];
-        for (int i = 0; i < zeros.length; i++)
+        for (int i = 0; i < zeros.length; i++) {
             zeros[i] = '0';
+        }
         return (new String(zeros) + str);
     }
 

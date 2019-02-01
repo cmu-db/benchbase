@@ -138,7 +138,9 @@ public abstract class CollectionUtil {
      */
     public static <T> List<String> toStringList(Collection<T> data) {
         List<String> ret = new ArrayList<String>();
-        for (T t : data) ret.add(t.toString());
+        for (T t : data) {
+            ret.add(t.toString());
+        }
         return (ret);
     }
 
@@ -151,7 +153,9 @@ public abstract class CollectionUtil {
      */
     public static <T> Set<String> toStringSet(Collection<T> data) {
         Set<String> ret = new HashSet<String>();
-        for (T t : data) ret.add(t.toString());
+        for (T t : data) {
+            ret.add(t.toString());
+        }
         return (ret);
     }
 
@@ -207,7 +211,9 @@ public abstract class CollectionUtil {
 
     public static <E extends Enum<?>> Set<E> getAllExcluding(E elements[], E... excluding) {
         Set<E> exclude_set = new HashSet<E>();
-        for (E e : excluding) exclude_set.add(e);
+        for (E e : excluding) {
+            exclude_set.add(e);
+        }
 
         Set<E> elements_set = new HashSet<E>();
         for (int i = 0; i < elements.length; i++) {

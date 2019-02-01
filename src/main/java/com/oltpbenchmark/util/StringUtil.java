@@ -359,7 +359,9 @@ public abstract class StringUtil {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < size; i++) sb.append(str);
+        for (int i = 0; i < size; i++) {
+            sb.append(str);
+        }
         CACHE_REPEAT_RESULT = sb.toString();
         CACHE_REPEAT_STR = str;
         CACHE_REPEAT_SIZE = size;

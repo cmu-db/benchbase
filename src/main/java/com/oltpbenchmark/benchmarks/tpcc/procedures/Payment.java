@@ -366,8 +366,9 @@ public class Payment extends TPCCProcedure {
                 if (c_data.length() > 50) {
                     terminalMessage.append("\n\n Cust-Data: " + c_data.substring(0, 50));
                     int data_chunks = c_data.length() > 200 ? 4 : c_data.length() / 50;
-                    for (int n = 1; n < data_chunks; n++)
+                    for (int n = 1; n < data_chunks; n++) {
                         terminalMessage.append("\n            " + c_data.substring(n * 50, (n + 1) * 50));
+                    }
                 } else {
                     terminalMessage.append("\n\n Cust-Data: " + c_data);
                 }

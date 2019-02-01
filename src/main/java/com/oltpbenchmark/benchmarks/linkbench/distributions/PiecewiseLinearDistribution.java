@@ -243,7 +243,9 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
         double[] pdf = new double[max_value + 1];
 
         // set all 0
-        for (int i = 0; i < pdf.length; ++i) pdf[i] = 0;
+        for (int i = 0; i < pdf.length; ++i) {
+            pdf[i] = 0;
+        }
 
         // convert cdf to pdf
         pdf[cdf.get(0).value] = cdf.get(0).probability;

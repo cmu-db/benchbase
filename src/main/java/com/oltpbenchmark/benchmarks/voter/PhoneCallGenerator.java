@@ -51,8 +51,9 @@ public class PhoneCallGenerator {
     private static final long[] AREA_CODES = new long[AREA_CODE_STRS.length];
 
     static {
-        for (int i = 0; i < AREA_CODES.length; i++)
+        for (int i = 0; i < AREA_CODES.length; i++) {
             AREA_CODES[i] = Long.parseLong(AREA_CODE_STRS[i]);
+        }
     }
 
     public static class PhoneCall {

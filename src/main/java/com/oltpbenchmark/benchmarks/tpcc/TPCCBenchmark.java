@@ -124,8 +124,9 @@ public class TPCCBenchmark extends BenchmarkModule {
 
 
         ArrayList<TPCCWorker> ret = new ArrayList<TPCCWorker>();
-        for (TPCCWorker w : terminals)
+        for (TPCCWorker w : terminals) {
             ret.add(w);
+        }
         return ret;
     }
 
