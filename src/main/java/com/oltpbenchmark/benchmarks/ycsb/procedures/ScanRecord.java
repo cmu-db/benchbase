@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ScanRecord extends Procedure {
-    private final SQLStmt scanStmt = new SQLStmt(
+    public final SQLStmt scanStmt = new SQLStmt(
             "SELECT * FROM USERTABLE WHERE YCSB_KEY>? AND YCSB_KEY<?"
     );
 

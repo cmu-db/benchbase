@@ -26,7 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ReadRecord extends Procedure {
-    private final SQLStmt readStmt = new SQLStmt(
+    public final SQLStmt readStmt = new SQLStmt(
             "SELECT * FROM USERTABLE WHERE YCSB_KEY=?"
     );
 

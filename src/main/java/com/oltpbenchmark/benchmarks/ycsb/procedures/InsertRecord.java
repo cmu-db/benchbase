@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class InsertRecord extends Procedure {
-    private final SQLStmt insertStmt = new SQLStmt(
+    public final SQLStmt insertStmt = new SQLStmt(
             "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
     );
 

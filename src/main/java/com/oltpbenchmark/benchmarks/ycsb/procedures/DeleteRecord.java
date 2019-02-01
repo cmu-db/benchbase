@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DeleteRecord extends Procedure {
-    private final SQLStmt deleteStmt = new SQLStmt(
+    public final SQLStmt deleteStmt = new SQLStmt(
             "DELETE FROM USERTABLE where YCSB_KEY=?"
     );
 

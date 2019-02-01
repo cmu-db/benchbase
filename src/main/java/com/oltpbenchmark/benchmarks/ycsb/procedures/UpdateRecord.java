@@ -26,7 +26,7 @@ import java.sql.SQLException;
 
 public class UpdateRecord extends Procedure {
 
-    private final SQLStmt updateAllStmt = new SQLStmt(
+    public final SQLStmt updateAllStmt = new SQLStmt(
             "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
                     "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
     );
