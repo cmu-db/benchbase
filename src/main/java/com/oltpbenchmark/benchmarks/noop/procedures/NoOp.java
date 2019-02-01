@@ -41,21 +41,22 @@ public class NoOp extends Procedure {
     public final SQLStmt noopStmt = new SQLStmt(";");
 
     public void run(Connection conn) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
+             ResultSet r = stmt.executeQuery()) {
 
-        // IMPORTANT:
-        // Some DBMSs will throw an exception here when you execute
-        // a query that does not return a result. So we are just 
-        // going to catch the exception and ignore it. If you are porting
-        // a new DBMS to this benchmark, then you should disable this
-        // exception here and check whether it is actually working
-        // correctly.
-        try {
-            ResultSet r = stmt.executeQuery();
+            // IMPORTANT:
+            // Some DBMSs will throw an exception here when you execute
+            // a query that does not return a result. So we are just
+            // going to catch the exception and ignore it. If you are porting
+            // a new DBMS to this benchmark, then you should disable this
+            // exception here and check whether it is actually working
+            // correctly.
+
+
             while (r.next()) {
                 // Do nothing
             } // WHILE
-            r.close();
+
         } catch (Exception ex) {
             // This error should be something like "No results were returned by the query."
             if (LOG.isDebugEnabled()) {

@@ -51,7 +51,6 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
                 LOG.debug("Successfully completed " + this.procNoOp + " execution!");
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.exit(1);
         }
 
         return (TransactionStatus.SUCCESS);

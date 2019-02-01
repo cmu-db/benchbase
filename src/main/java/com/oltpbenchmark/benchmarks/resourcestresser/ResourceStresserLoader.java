@@ -83,7 +83,6 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
             if (++batch >= ResourceStresserConstants.COMMIT_BATCH_SIZE) {
                 int result[] = stmt.executeBatch();
                 assert (result != null);
-                conn.commit();
                 batch = 0;
                 if (LOG.isDebugEnabled())
                     LOG.debug(String.format("Records Loaded %d / %d", i + 1, this.numEmployees));
@@ -91,7 +90,6 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
         } // FOR
         if (batch > 0) {
             stmt.executeBatch();
-            conn.commit();
             if (LOG.isDebugEnabled())
                 LOG.debug(String.format("Records Loaded %d / %d", i, this.numEmployees));
         }
