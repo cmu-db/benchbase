@@ -1,6 +1,6 @@
 # OLTPBench
 
-Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench and [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
+Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench and [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf) published in 2013.
 
 
 ## Modifcations from Original
@@ -16,7 +16,7 @@ Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench a
 ## Known Issues
 
 * TPC-H references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
-* TPC-DS doesnt have a sample config and would references files and diretory that don't exist.  not clear what they should be.  see TPCH references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+* TPC-DS doesnt have a sample config.  will proably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
 * having difficult loading `seats`
 * no sample config for `hyadapt`
 * linkbench loader needs to be fixed, wrong tables referenced in loader
