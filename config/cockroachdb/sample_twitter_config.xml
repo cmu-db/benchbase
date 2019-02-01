@@ -10,7 +10,7 @@
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
     <!-- Scalefactor in Twitter scales by *500 the number of users-->
-    <scalefactor>10</scalefactor>
+    <scalefactor>2</scalefactor>
 
 
     <!-- Trace files for Twitter -->
@@ -19,7 +19,7 @@
     <base_ip>10.1.</base_ip>
 
     <!-- The workload -->
-    <terminals>10</terminals>
+    <terminals>2</terminals>
     <works>
         <work>
             <time>300</time>

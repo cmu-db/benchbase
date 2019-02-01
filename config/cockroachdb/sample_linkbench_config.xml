@@ -17,7 +17,7 @@
     <configfile>config/extras/LinkBenchConfiguration.properties</configfile>
 
     <!-- The workload -->
-    <terminals>50</terminals>
+    <terminals>2</terminals>
     <works>
         <work>
             <time>100</time>
