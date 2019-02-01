@@ -20,6 +20,8 @@ Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench a
 * having difficult loading `seats`
 * no sample config for `hyadapt`
 * linkbench not started
+* chbenchmark needs more love
+* auctionmark not yet working; data loading issue
 
 ## Supported Benchmarks
 

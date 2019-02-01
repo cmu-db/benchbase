@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -84,9 +85,16 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         // BenchmarkProfile
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
 
-        File category_file = new File(benchmark.getDataDir().getAbsolutePath() + "/table.category.gz");
+        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "table.category.gz";
+
+        URL url = this.getClass().getClassLoader().getResource(path);
+
 
         try {
+
+
+            File category_file = new File(url.toURI().getPath());
+
             // ---------------------------
             // Fixed-Size Table Generators
             // ---------------------------
@@ -128,7 +136,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             // depends on ITEM_PURCHASE
             this.registerGenerator(new UserFeedbackGenerator());
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -238,11 +246,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             } // FOR
             try {
                 stmt.executeBatch();
-                conn.commit();
                 stmt.clearBatch();
             } catch (SQLException ex) {
                 if (ex.getNextException() != null) ex = ex.getNextException();
-                LOG.warn(tableName + " - " + ex.getMessage());
+                LOG.warn(tableName + " - " + ex.getMessage(), ex);
                 throw ex;
                 // SKIP
             }
