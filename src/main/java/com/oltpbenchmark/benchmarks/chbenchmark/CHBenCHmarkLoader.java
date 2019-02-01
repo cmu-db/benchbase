@@ -88,16 +88,13 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            conn.rollback();
 
         } catch (Exception e) {
             e.printStackTrace();
-            conn.rollback();
 
         } // end try
 
         loadHelper();
-        conn.commit();
     }
 
     static void truncateTable(String strTable) throws SQLException {
@@ -105,10 +102,8 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         LOG.debug("Truncating '" + strTable + "' ...");
         try {
             conn.createStatement().execute("DELETE FROM " + strTable);
-            conn.commit();
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            conn.rollback();
         }
     }
 
@@ -167,7 +162,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 lastTimeMS = tmpTime;
                 regionPrepStmt.executeBatch();
                 regionPrepStmt.clearBatch();
-                conn.commit();
                 line = br.readLine();
             }
 
@@ -181,7 +175,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
             regionPrepStmt.executeBatch();
 
-            conn.commit();
             now = new java.util.Date();
             LOG.debug("End Region Load @  " + now);
 
@@ -193,7 +186,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-            conn.rollback();
         } finally {
             if (br != null) {
                 try {
@@ -264,7 +256,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 lastTimeMS = tmpTime;
                 nationPrepStmt.executeBatch();
                 nationPrepStmt.clearBatch();
-                conn.commit();
                 line = br.readLine();
             }
 
@@ -276,18 +267,15 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                     + " of " + t);
             lastTimeMS = tmpTime;
 
-            conn.commit();
             now = new java.util.Date();
             LOG.debug("End Region Load @  " + now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            conn.rollback();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-            conn.rollback();
         } finally {
             if (br != null) {
                 try {
@@ -345,7 +333,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                     lastTimeMS = tmpTime;
                     supplierPrepStmt.executeBatch();
                     supplierPrepStmt.clearBatch();
-                    conn.commit();
                 }
             }
 
@@ -359,16 +346,13 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
             supplierPrepStmt.executeBatch();
 
-            conn.commit();
             now = new java.util.Date();
             LOG.debug("End Region Load @  " + now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            conn.rollback();
         } catch (Exception e) {
             e.printStackTrace();
-            conn.rollback();
         }
 
         return (k);
