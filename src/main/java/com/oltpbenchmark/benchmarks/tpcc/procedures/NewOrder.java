@@ -129,7 +129,7 @@ public class NewOrder extends TPCCProcedure {
         int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
         int customerID = TPCCUtil.getCustomerID(gen);
 
-        int numItems = (int) TPCCUtil.randomNumber(5, 15, gen);
+        int numItems = TPCCUtil.randomNumber(5, 15, gen);
         int[] itemIDs = new int[numItems];
         int[] supplierWarehouseIDs = new int[numItems];
         int[] orderQuantities = new int[numItems];
@@ -344,7 +344,7 @@ public class NewOrder extends TPCCProcedure {
                     brandGeneric[ol_number - 1] = 'G';
                 }
 
-                switch ((int) d_id) {
+                switch (d_id) {
                     case 1:
                         ol_dist_info = s_dist_01;
                         break;

@@ -287,9 +287,9 @@ public class RandomDistribution {
          *
          */
         public FlatHistogram(Random random, Histogram<T> histogram) {
-            super(random, 0, (int) histogram.getSampleCount());
+            super(random, 0, histogram.getSampleCount());
             this.histogram = histogram;
-            this.inner = new Flat(random, 0, (int) histogram.getSampleCount());
+            this.inner = new Flat(random, 0, histogram.getSampleCount());
 
             long total = 0;
             for (T k : this.histogram.values()) {

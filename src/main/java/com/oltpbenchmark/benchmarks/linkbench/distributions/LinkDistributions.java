@@ -46,7 +46,7 @@ public class LinkDistributions {
 
         @Override
         public long getNlinks(long id1) {
-            return (long) Math.round(dist.expectedCount(id1));
+            return Math.round(dist.expectedCount(id1));
         }
 
         /**

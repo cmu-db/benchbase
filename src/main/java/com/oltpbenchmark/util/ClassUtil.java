@@ -273,7 +273,7 @@ public abstract class ClassUtil {
         Class<?> target_class = null;
         try {
             ClassLoader loader = ClassLoader.getSystemClassLoader();
-            target_class = (Class<?>) loader.loadClass(class_name);
+            target_class = loader.loadClass(class_name);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to retrieve class for " + class_name, ex);
         }

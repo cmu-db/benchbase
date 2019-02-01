@@ -182,7 +182,7 @@ public class UserIdGenerator implements Iterator<UserId> {
             return (null);
         }
 
-        return (new UserId((int) this.currentItemCount, found.intValue()));
+        return (new UserId(this.currentItemCount, found.intValue()));
     }
 
     @Override

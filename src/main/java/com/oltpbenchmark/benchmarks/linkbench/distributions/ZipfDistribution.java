@@ -165,7 +165,7 @@ public class ZipfDistribution implements ProbabilityDistribution {
         if (id < min || id >= max) {
             return 0.0;
         }
-        return (scale / (double) FastMath.pow(id + 1 - min, shape)) / zetan;
+        return (scale / FastMath.pow(id + 1 - min, shape)) / zetan;
     }
 
     @Override

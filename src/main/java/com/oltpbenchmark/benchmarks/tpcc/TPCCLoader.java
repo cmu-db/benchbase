@@ -148,7 +148,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 item.i_id = i;
                 item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14, 24,
                         benchmark.rng()));
-                item.i_price = (double) (TPCCUtil.randomNumber(100, 10000, benchmark.rng()) / 100.0);
+                item.i_price = TPCCUtil.randomNumber(100, 10000, benchmark.rng()) / 100.0;
 
                 // i_data
                 randPct = TPCCUtil.randomNumber(1, 100, benchmark.rng());
@@ -229,7 +229,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             warehouse.w_ytd = 300000;
 
             // random within [0.0000 .. 0.2000]
-            warehouse.w_tax = (double) ((TPCCUtil.randomNumber(0, 2000, benchmark.rng())) / 10000.0);
+            warehouse.w_tax = (TPCCUtil.randomNumber(0, 2000, benchmark.rng())) / 10000.0;
             warehouse.w_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(6, 10, benchmark.rng()));
             warehouse.w_street_1 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));
             warehouse.w_street_2 = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 20, benchmark.rng()));

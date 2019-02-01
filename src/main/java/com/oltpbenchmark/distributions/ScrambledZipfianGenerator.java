@@ -128,6 +128,6 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
      */
     @Override
     public double mean() {
-        return ((double) (((long) _min) + (long) _max)) / 2.0;
+        return ((double) (_min + _max)) / 2.0;
     }
 }

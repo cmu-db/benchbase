@@ -422,7 +422,7 @@ public abstract class BenchmarkModule {
             } // FOR
 
             for (TransactionType txn : txns) {
-                Procedure proc = (Procedure) ClassUtil.newInstance(txn.getProcedureClass(),
+                Procedure proc = ClassUtil.newInstance(txn.getProcedureClass(),
                         new Object[0],
                         new Class<?>[0]);
                 proc.initialize(this.workConf.getDBType());

@@ -48,7 +48,6 @@ public class CreateDialects {
 
 
     public String createDDL(Table catalog_tbl) {
-        StringBuilder sb = new StringBuilder();
         switch (this.dbType) {
             case MYSQL:
 
@@ -57,7 +56,7 @@ public class CreateDialects {
                 // Create default schema here
         } // SWITCH
 
-        return (sb.toString());
+        return ("");
     }
 
     protected void createMySQL(Table catalog_tbl, StringBuilder sb) {

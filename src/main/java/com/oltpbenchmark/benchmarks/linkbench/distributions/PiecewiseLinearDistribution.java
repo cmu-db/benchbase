@@ -63,7 +63,7 @@ public abstract class PiecewiseLinearDistribution implements ProbabilityDistribu
         }
 
         public int compareTo(Point obj) {
-            Point p = (Point) obj;
+            Point p = obj;
             return this.value - p.value;
         }
 

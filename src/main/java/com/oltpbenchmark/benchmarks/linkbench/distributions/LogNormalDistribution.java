@@ -76,7 +76,7 @@ public class LogNormalDistribution implements ProbabilityDistribution {
 
     @Override
     public long choose(Random rng) {
-        long choice = (long) Math.round(FastMath.exp((rng.nextGaussian() * sigma) + mu));
+        long choice = Math.round(FastMath.exp((rng.nextGaussian() * sigma) + mu));
         if (choice < min) {
             return min;
         } else if (choice >= max) {

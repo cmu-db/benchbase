@@ -56,13 +56,13 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     static {
         for (char i = 0; i < 10; i++) {
-            nationkeys[i] = (char) ('0') + i;
+            nationkeys[i] = '0' + i;
         }
         for (char i = 0; i < 26; i++) {
-            nationkeys[i + 10] = (char) ('A') + i;
+            nationkeys[i + 10] = 'A' + i;
         }
         for (char i = 0; i < 26; i++) {
-            nationkeys[i + 36] = (char) ('a') + i;
+            nationkeys[i + 36] = 'a' + i;
         }
     }
 

@@ -136,7 +136,7 @@ public abstract class TextGenerator {
     public static char[] resizeText(Random rng, char[] orig, int delta) {
         char[] chars = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
-            chars[i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+            chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
         } // FOR
         return (chars);
     }
@@ -166,7 +166,7 @@ public abstract class TextGenerator {
         for (int bit = 0; bit < 32; bit++) {
             if ((rand >> bit & 1) == 1) {
                 for (int i = 0; i < blockSize; i++) {
-                    chars[idx + i] = (char) CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
+                    chars[idx + i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
                 } // FOR
             }
             idx += blockSize;

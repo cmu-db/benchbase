@@ -173,10 +173,7 @@ public class FindFlights extends Procedure {
                     ai_results.close();
 
                     finalResults.add(row);
-                    if (debug) {
-                        LOG.debug(String.format("Flight %d / %s /  %s -> %s / %s",
-                                row[0], row[2], row[4], row[9], row[03]));
-                    }
+
                 } // WHILE
                 //ai_stmt.close();
                 flightResults.close();

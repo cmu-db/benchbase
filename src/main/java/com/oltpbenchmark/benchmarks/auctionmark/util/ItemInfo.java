@@ -93,7 +93,7 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
             return false;
         }
 
-        return (this.itemId == obj || this.equals(((ItemInfo) obj).itemId));
+        return (this.itemId == obj || this.itemId.equals(((ItemInfo) obj).itemId));
     }
 
     // -----------------------------------------------------------------

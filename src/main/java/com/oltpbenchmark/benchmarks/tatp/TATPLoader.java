@@ -113,7 +113,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             int col = 0;
 
             pstmt.setLong(++col, s_id);
-            pstmt.setString(++col, TATPUtil.padWithZero((Long) s_id));
+            pstmt.setString(++col, TATPUtil.padWithZero(s_id));
 
             // BIT_##
             for (int j = 0; j < 10; j++) {
