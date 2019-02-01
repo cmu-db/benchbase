@@ -152,7 +152,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
             if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                 userInsert.executeBatch();
-                conn.commit();
                 batch = 0;
                 userInsert.clearBatch();
                 if (LOG.isDebugEnabled())
@@ -161,7 +160,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         }
         if (batch > 0) {
             userInsert.executeBatch();
-            conn.commit();
             userInsert.clearBatch();
         }
         userInsert.close();
@@ -190,7 +188,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
             if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                 itemInsert.executeBatch();
-                conn.commit();
                 batch = 0;
                 itemInsert.clearBatch();
                 if (LOG.isDebugEnabled())
@@ -199,7 +196,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         }
         if (batch > 0) {
             itemInsert.executeBatch();
-            conn.commit();
             itemInsert.clearBatch();
         }
         itemInsert.close();
@@ -246,7 +242,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
                     if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                         reviewInsert.executeBatch();
-                        conn.commit();
                         batch = 0;
                         reviewInsert.clearBatch();
                         if (LOG.isDebugEnabled())
@@ -258,7 +253,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         } // FOR
         if (batch > 0) {
             reviewInsert.executeBatch();
-            conn.commit();
             reviewInsert.clearBatch();
         }
         reviewInsert.close();
@@ -304,7 +298,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
                     if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
                         trustInsert.executeBatch();
-                        conn.commit();
                         batch = 0;
                         trustInsert.clearBatch();
                         if (LOG.isDebugEnabled())
@@ -316,7 +309,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         } // FOR
         if (batch > 0) {
             trustInsert.executeBatch();
-            conn.commit();
             trustInsert.clearBatch();
         }
         trustInsert.close();
