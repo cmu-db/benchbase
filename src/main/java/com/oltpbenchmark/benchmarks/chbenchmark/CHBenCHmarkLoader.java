@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -107,7 +108,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         }
     }
 
-    static int loadRegions() throws SQLException {
+     int loadRegions() throws SQLException {
 
         int k = 0;
         int t = 0;
@@ -125,7 +126,11 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
             Region region = new Region();
 
-            File file = new File("src", "com/oltpbenchmark/benchmarks/chbenchmark/region_gen.tbl");
+            final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "region_gen.tbl";
+
+            URL url = this.getClass().getClassLoader().getResource(path);
+
+            File file = new File(url.toURI().getPath());
             br = new BufferedReader(new FileReader(file));
             String line = br.readLine();
             while (line != null) {
@@ -200,7 +205,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     } // end loadRegions()
 
-    static int loadNations() throws SQLException {
+     int loadNations() throws SQLException {
 
         int k = 0;
         int t = 0;
@@ -214,7 +219,11 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
             Nation nation = new Nation();
 
-            File file = new File("src", "com/oltpbenchmark/benchmarks/chbenchmark/nation_gen.tbl");
+            final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "nation_gen.tbl";
+
+            URL url = this.getClass().getClassLoader().getResource(path);
+
+            File file = new File(url.toURI().getPath());
             br = new BufferedReader(new FileReader(file));
             String line = br.readLine();
             while (line != null) {
@@ -290,7 +299,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     } // end loadNations()
 
-    static int loadSuppliers() throws SQLException {
+     int loadSuppliers() throws SQLException {
 
         int k = 0;
         int t = 0;
