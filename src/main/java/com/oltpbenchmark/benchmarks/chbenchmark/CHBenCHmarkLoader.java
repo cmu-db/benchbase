@@ -22,14 +22,19 @@ import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
 import com.oltpbenchmark.util.RandomGenerator;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -101,54 +106,52 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     static void truncateTable(String strTable) throws SQLException {
 
         LOG.debug("Truncating '" + strTable + "' ...");
-        try {
-            conn.createStatement().execute("DELETE FROM " + strTable);
+        try (Statement statement = conn.createStatement()) {
+            statement.execute("DELETE FROM " + strTable);
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
         }
     }
 
-     int loadRegions() throws SQLException {
+    int loadRegions() throws SQLException {
 
         int k = 0;
         int t = 0;
         BufferedReader br = null;
 
-        try {
 
-            truncateTable("region");
-            truncateTable("nation");
-            truncateTable("supplier");
+        truncateTable("region");
+        truncateTable("nation");
+        truncateTable("supplier");
 
-            now = new java.util.Date();
-            LOG.debug("\nStart Region Load @ " + now
-                    + " ...");
+        now = new java.util.Date();
+        LOG.debug("\nStart Region Load @ " + now
+                + " ...");
 
-            Region region = new Region();
+        Region region = new Region();
 
-            final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "region_gen.tbl";
+        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "region_gen.tbl";
 
-            URL url = this.getClass().getClassLoader().getResource(path);
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
 
-            File file = new File(url.toURI().getPath());
-            br = new BufferedReader(new FileReader(file));
-            String line = br.readLine();
-            while (line != null) {
+            List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
+
+            for (String line : lines) {
                 StringTokenizer st = new StringTokenizer(line, "|");
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 region.r_regionkey = Integer.parseInt(st.nextToken());
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 region.r_name = st.nextToken();
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 region.r_comment = st.nextToken();
                 if (st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
 
                 k++;
@@ -167,7 +170,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 lastTimeMS = tmpTime;
                 regionPrepStmt.executeBatch();
                 regionPrepStmt.clearBatch();
-                line = br.readLine();
             }
 
             long tmpTime = new java.util.Date().getTime();
@@ -191,61 +193,50 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         return (k);
 
     } // end loadRegions()
 
-     int loadNations() throws SQLException {
+    int loadNations() throws SQLException {
 
         int k = 0;
         int t = 0;
-        BufferedReader br = null;
 
-        try {
 
-            now = new java.util.Date();
-            LOG.debug("\nStart Nation Load @ " + now
-                    + " ...");
+        now = new java.util.Date();
+        LOG.debug("\nStart Nation Load @ " + now
+                + " ...");
 
-            Nation nation = new Nation();
+        Nation nation = new Nation();
 
-            final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "nation_gen.tbl";
+        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "nation_gen.tbl";
 
-            URL url = this.getClass().getClassLoader().getResource(path);
+        try (final InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
 
-            File file = new File(url.toURI().getPath());
-            br = new BufferedReader(new FileReader(file));
-            String line = br.readLine();
-            while (line != null) {
+            List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
+
+            for (String line : lines) {
                 StringTokenizer st = new StringTokenizer(line, "|");
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 nation.n_nationkey = Integer.parseInt(st.nextToken());
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 nation.n_name = st.nextToken();
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 nation.n_regionkey = Integer.parseInt(st.nextToken());
                 if (!st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
                 nation.n_comment = st.nextToken();
                 if (st.hasMoreTokens()) {
-                    LOG.error("invalid input file: " + file.getAbsolutePath());
+                    LOG.error("invalid input file: " + path);
                 }
 
                 k++;
@@ -265,7 +256,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 lastTimeMS = tmpTime;
                 nationPrepStmt.executeBatch();
                 nationPrepStmt.clearBatch();
-                line = br.readLine();
             }
 
             long tmpTime = new java.util.Date().getTime();
@@ -285,21 +275,13 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         return (k);
 
     } // end loadNations()
 
-     int loadSuppliers() throws SQLException {
+    int loadSuppliers() throws SQLException {
 
         int k = 0;
         int t = 0;

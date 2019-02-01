@@ -16,6 +16,7 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.dialects.*;
 import com.oltpbenchmark.types.DatabaseType;
 import org.slf4j.Logger;
@@ -23,9 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.*;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.*;
@@ -39,11 +43,8 @@ public class StatementDialects {
 
     private static final DatabaseType DEFAULT_DB_TYPE = DatabaseType.MYSQL;
 
-    private final String xmlContext;
-    private final URL xmlSchemaURL;
+    private final WorkloadConfiguration workloadConfiguration;
 
-    private final DatabaseType dbType;
-    private final File xmlFile;
 
     /**
      * ProcName -> StmtName -> SQL
@@ -56,17 +57,46 @@ public class StatementDialects {
      * @param dbType
      * @param xmlFile
      */
-    public StatementDialects(DatabaseType dbType, File xmlFile) {
-        this.dbType = dbType;
-        this.xmlFile = xmlFile;
+    public StatementDialects(WorkloadConfiguration workloadConfiguration) {
+        this.workloadConfiguration = workloadConfiguration;
 
-        this.xmlContext = this.getClass().getPackage().getName() + ".dialects";
-        this.xmlSchemaURL = this.getClass().getClassLoader().getResource("dialect.xsd");
-        assert (this.xmlSchemaURL != null) :
-                "Failed to find 'dialect.xsd' for " + this.getClass().getName();
         this.load();
+    }
 
 
+    /**
+     * Return the File handle to the SQL Dialect XML file
+     * used for this benchmark
+     *
+     * @return
+     */
+    private String getSQLDialectPath(DatabaseType databaseType) {
+        String fileName = null;
+
+        if (databaseType != null) {
+            fileName = "dialect-" + databaseType.name().toLowerCase() + ".xml";
+        }
+
+
+        if (fileName != null) {
+
+            final String path = "benchmarks" + File.separator + workloadConfiguration.getBenchmarkName() + File.separator + fileName;
+
+            try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+
+                if (stream != null) {
+                    return path;
+                }
+
+            } catch (IOException e) {
+
+            }
+
+            LOG.warn("Failed to find dialect file for " + path);
+        }
+
+
+        return (null);
     }
 
     /**
@@ -75,46 +105,46 @@ public class StatementDialects {
      * @return
      */
     protected boolean load() {
-        if (this.xmlFile == null) {
-            LOG.warn(String.format("SKIP - No SQL dialect file was given.", this.xmlFile));
-            return (false);
-        } else if (this.xmlFile.exists() == false) {
-            LOG.warn(String.format("SKIP - The SQL dialect file '%s' does not exist", this.xmlFile));
+        final DatabaseType dbType = workloadConfiguration.getDBType();
+
+        final String sqlDialectPath = getSQLDialectPath(dbType);
+
+        if (sqlDialectPath == null) {
+            LOG.warn("SKIP - No SQL dialect file was given.");
             return (false);
         }
+
+        final String xmlContext = this.getClass().getPackage().getName() + ".dialects";
+
 
         // COPIED FROM VoltDB's VoltCompiler.java
         DialectsType dialects = null;
-        try {
-            JAXBContext jc = JAXBContext.newInstance(this.xmlContext);
+
+        try (InputStream dialectStream = this.getClass().getClassLoader().getResourceAsStream(sqlDialectPath)) {
+
+            JAXBContext jc = JAXBContext.newInstance(xmlContext);
             // This schema shot the sheriff.
             SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = sf.newSchema(this.xmlSchemaURL);
+            Schema schema = sf.newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("dialect.xsd")));
             Unmarshaller unmarshaller = jc.createUnmarshaller();
             // But did not shoot unmarshaller!
             unmarshaller.setSchema(schema);
-            @SuppressWarnings("unchecked")
-            JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(this.xmlFile);
+            JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(dialectStream);
             dialects = result.getValue();
-        } catch (JAXBException ex) {
-            // Convert some linked exceptions to more friendly errors.
-            if (ex.getLinkedException() instanceof org.xml.sax.SAXParseException) {
-                throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getLinkedException().getMessage()), ex);
-            }
-            throw new RuntimeException(ex);
-        } catch (SAXException ex) {
-            throw new RuntimeException(String.format("Error schema validating %s - %s", xmlFile, ex.getMessage()), ex);
+
+        } catch (Exception ex) {
+            throw new RuntimeException(String.format("Error loading dialectg %s - %s", sqlDialectPath, ex.getMessage()), ex);
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Loading the SQL dialect file '%s' for %s",
-                    this.xmlFile.getName(), this.dbType));
+            LOG.debug("Loading the SQL dialect file for path {}", sqlDialectPath);
         }
 
+
         for (DialectType dialect : dialects.getDialect()) {
-            assert (this.dbType != null);
+
             assert (dialect != null);
-            if (dialect.getType().equalsIgnoreCase(this.dbType.name()) == false) {
+            if (dialect.getType().equalsIgnoreCase(dbType.name()) == false) {
                 continue;
             }
 
@@ -128,23 +158,23 @@ public class StatementDialects {
                 for (StatementType statement : procedure.getStatement()) {
                     String stmtName = statement.getName();
                     assert (stmtName.isEmpty() == false) :
-                            String.format("Invalid Statement for %s.%s", this.dbType, procName);
+                            String.format("Invalid Statement for %s.%s", dbType, procName);
                     String stmtSQL = statement.getValue().trim();
                     assert (stmtSQL.isEmpty() == false) :
-                            String.format("Invalid SQL for %s.%s.%s", this.dbType, procName, stmtName);
+                            String.format("Invalid SQL for %s.%s.%s", dbType, procName, stmtName);
 
                     if (procDialects == null) {
                         procDialects = new HashMap<String, String>();
                         this.dialectsMap.put(procName, procDialects);
                     }
                     procDialects.put(stmtName, stmtSQL);
-                    LOG.debug(String.format("%s.%s.%s\n%s\n", this.dbType, procName, stmtName, stmtSQL));
+                    LOG.debug(String.format("%s.%s.%s\n%s\n", dbType, procName, stmtName, stmtSQL));
                 } // FOR (stmt)
             } // FOR (proc)
         } // FOR (dbtype)
         if (this.dialectsMap.isEmpty()) {
             LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
-                    this.dbType, DEFAULT_DB_TYPE));
+                    dbType, DEFAULT_DB_TYPE));
             return (false);
         }
 
@@ -163,12 +193,14 @@ public class StatementDialects {
         Marshaller marshaller = null;
         JAXBContext jc = null;
 
+        final String xmlContext = this.getClass().getPackage().getName() + ".dialects";
+
         try {
-            jc = JAXBContext.newInstance(this.xmlContext);
+            jc = JAXBContext.newInstance(xmlContext);
             marshaller = jc.createMarshaller();
 
             SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = sf.newSchema(this.xmlSchemaURL);
+            Schema schema = sf.newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("dialect.xsd")));
             marshaller.setSchema(schema);
         } catch (Exception ex) {
             throw new RuntimeException("Unable to initialize serializer", ex);
@@ -220,7 +252,7 @@ public class StatementDialects {
      * @return
      */
     public DatabaseType getDatabaseType() {
-        return (this.dbType);
+        return workloadConfiguration.getDBType();
     }
 
     /**

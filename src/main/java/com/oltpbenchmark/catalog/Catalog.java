@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -282,10 +283,10 @@ public final class Catalog {
     protected Map<String, String> getOriginalTableNames() {
         Map<String, String> origTableNames = new HashMap<String, String>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
-        URL ddl = this.benchmark.getDatabaseDDL(DatabaseType.HSQLDB);
+        String ddlPath = this.benchmark.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;
         try {
-            ddlContents = IOUtils.toString(ddl);
+            ddlContents = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(ddlPath), Charset.defaultCharset());
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }

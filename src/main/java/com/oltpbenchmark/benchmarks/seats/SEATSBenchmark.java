@@ -38,12 +38,12 @@ public class SEATSBenchmark extends BenchmarkModule {
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
     public SEATSBenchmark(WorkloadConfiguration workConf) {
-        super("seats", workConf, true);
+        super(workConf, true);
         this.registerSupplementalProcedure(LoadConfig.class);
     }
 
     public File getDataDir() {
-        URL url = SEATSBenchmark.class.getClassLoader().getResource("benchmarks" + File.separator + this.benchmarkName);
+        URL url = SEATSBenchmark.class.getClassLoader().getResource("benchmarks" + File.separator + getBenchmarkName());
         try {
             if (url != null) {
                 return new File(url.toURI().getPath());

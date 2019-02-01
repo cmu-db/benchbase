@@ -35,7 +35,7 @@ import java.util.List;
 public class SIBenchmark extends BenchmarkModule {
 
     public SIBenchmark(WorkloadConfiguration workConf) {
-        super("si", workConf, true);
+        super(workConf, true);
     }
 
     @Override

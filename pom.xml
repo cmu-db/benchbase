@@ -6,7 +6,7 @@
 
     <groupId>com.oltpbenchmark</groupId>
     <artifactId>oltpbench</artifactId>
-    <version>2019.0-BETA</version>
+    <version>2019.1-BETA</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

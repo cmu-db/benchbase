@@ -28,10 +28,6 @@ import java.util.Collection;
 
 public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
 
-    static {
-        org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
-    }
-
     private File xmlFile;
 
     private static final DatabaseType TARGET_DATABASE = DatabaseType.SQLITE;
@@ -68,7 +64,8 @@ public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
      */
     public void testDumpXMLFile() throws Exception {
         DatabaseType dbType = DatabaseType.POSTGRES;
-        StatementDialects dialects = new StatementDialects(dbType, xmlFile);
+        this.workConf.setDBType(dbType);
+        StatementDialects dialects = new StatementDialects(this.workConf);
 
         String dump = dialects.export(dbType, this.benchmark.getProcedures().values());
         assertNotNull(dump);
@@ -92,10 +89,9 @@ public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
     public void testLoadXMLFile() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDBType(dbType);
-            File xmlFile = this.benchmark.getSQLDialect();
-            if (xmlFile == null) continue;
 
-            StatementDialects dialects = new StatementDialects(dbType, xmlFile);
+
+            StatementDialects dialects = new StatementDialects(workConf);
             boolean ret = dialects.load();
             if (ret == false) continue;
 
@@ -124,7 +120,7 @@ public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
      */
     public void testSetDialect() throws Exception {
         // Load in our fabricated dialects
-        StatementDialects dialects = new StatementDialects(TARGET_DATABASE, this.xmlFile);
+        StatementDialects dialects = new StatementDialects(workConf);
         boolean ret = dialects.load();
         assertTrue(ret);
         Procedure proc = ClassUtil.newInstance(TARGET_PROCEDURE, new Object[0], new Class<?>[0]);

@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URL;
 import java.sql.*;
 
 /**
@@ -40,9 +39,6 @@ public class ScriptRunner {
 
     private boolean stopOnError;
     private boolean autoCommit;
-
-    private PrintWriter logWriter = new PrintWriter(System.out);
-    private PrintWriter errorLogWriter = new PrintWriter(System.err);
 
     private String delimiter = DEFAULT_DELIMITER;
     private boolean fullLineDelimiter = false;
@@ -62,33 +58,16 @@ public class ScriptRunner {
         this.fullLineDelimiter = fullLineDelimiter;
     }
 
-    /**
-     * Setter for logWriter property
-     *
-     * @param logWriter - the new value of the logWriter property
-     */
-    public void setLogWriter(PrintWriter logWriter) {
-        this.logWriter = logWriter;
-    }
 
-    /**
-     * Setter for errorLogWriter property
-     *
-     * @param errorLogWriter - the new value of the errorLogWriter property
-     */
-    public void setErrorLogWriter(PrintWriter errorLogWriter) {
-        this.errorLogWriter = errorLogWriter;
-    }
+    public void runScript(String path) throws IOException, SQLException {
 
-    /**
-     * Runs an SQL script (read in using the Reader parameter)
-     *
-     * @param reader - the source of the script
-     */
-    public void runScript(URL resource) throws IOException, SQLException {
-        Reader reader = new InputStreamReader(resource.openStream());
-        try {
+        LOG.debug("trying to find file by path {}", path);
+
+        try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(path);
+             Reader reader = new InputStreamReader(in)) {
+
             boolean originalAutoCommit = connection.getAutoCommit();
+
             try {
                 if (originalAutoCommit != this.autoCommit) {
                     connection.setAutoCommit(this.autoCommit);
@@ -97,14 +76,9 @@ public class ScriptRunner {
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
-        } catch (IOException e) {
-            throw e;
-        } catch (SQLException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error running script.  Cause: " + e, e);
         }
     }
+
 
     /**
      * Runs an SQL script (read in using the Reader parameter) using the
@@ -115,14 +89,14 @@ public class ScriptRunner {
      * @throws SQLException if any SQL errors occur
      * @throws IOException  if there is an error reading from the Reader
      */
-    private void runScript(Connection conn, Reader reader) throws IOException,
-            SQLException {
+    private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
         StringBuffer command = null;
-        try {
-            LineNumberReader lineReader = new LineNumberReader(reader);
+        try (LineNumberReader lineReader = new LineNumberReader(reader)) {
             String line = null;
             while ((line = lineReader.readLine()) != null) {
-                if (LOG.isDebugEnabled()) LOG.debug(line);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(line);
+                }
                 if (command == null) {
                     command = new StringBuffer();
                 }
@@ -139,73 +113,70 @@ public class ScriptRunner {
                         && trimmedLine.endsWith(getDelimiter())
                         || fullLineDelimiter
                         && trimmedLine.equals(getDelimiter())) {
-                    command.append(line.substring(0, line
-                            .lastIndexOf(getDelimiter())));
+                    command.append(line.substring(0, line.lastIndexOf(getDelimiter())));
                     command.append(" ");
-                    Statement statement = conn.createStatement();
 
-                    // println(command);
+                    try (Statement statement = conn.createStatement()) {
 
-                    boolean hasResults = false;
-                    final String sql = command.toString().trim();
-                    if (stopOnError) {
-                        try {
-                            hasResults = statement.execute(sql);
-                        } catch (SQLException e) {
-                            // Some errors aren't actually errors.
-                            if (e.getErrorCode() == 0 && e.getSQLState() != null
-                                    && e.getSQLState().equals("42S02")) {
-                                // MonetDB has no "drop table if exists" statement,
-                                // so we have to just try to drop a table whether
-                                // it exists or not. This error means that the
-                                // table didn't exist. But no matter: we can carry
-                                // on.
-                            } else {
-                                throw e;
-                            }
-                        }
-                    } else {
-                        try {
-                            statement.execute(sql);
-                        } catch (SQLException e) {
-                            printlnError("Error executing: " + sql);
-                            printlnError(e);
-                        }
-                    }
+                        // println(command);
 
-                    if (autoCommit && !conn.getAutoCommit()) {
-                        conn.commit();
-                    }
-
-                    // HACK
-                    if (hasResults && sql.toUpperCase().startsWith("CREATE") == false) {
-                        ResultSet rs = statement.getResultSet();
-                        if (hasResults && rs != null) {
-                            ResultSetMetaData md = rs.getMetaData();
-                            int cols = md.getColumnCount();
-                            for (int i = 0; i < cols; i++) {
-                                String name = md.getColumnLabel(i);
-                                print(name + "\t");
-                            }
-                            println("");
-                            while (rs.next()) {
-                                for (int i = 0; i < cols; i++) {
-                                    String value = rs.getString(i);
-                                    print(value + "\t");
+                        boolean hasResults = false;
+                        final String sql = command.toString().trim();
+                        if (stopOnError) {
+                            try {
+                                hasResults = statement.execute(sql);
+                            } catch (SQLException e) {
+                                // Some errors aren't actually errors.
+                                if (e.getErrorCode() == 0 && e.getSQLState() != null
+                                        && e.getSQLState().equals("42S02")) {
+                                    // MonetDB has no "drop table if exists" statement,
+                                    // so we have to just try to drop a table whether
+                                    // it exists or not. This error means that the
+                                    // table didn't exist. But no matter: we can carry
+                                    // on.
+                                } else {
+                                    throw e;
                                 }
-                                println("");
                             }
-                            rs.close();
+                        } else {
+                            try {
+                                statement.execute(sql);
+                            } catch (SQLException e) {
+                               LOG.error(e.getMessage(), e);
+                            }
                         }
-                    }
 
-                    command = null;
-                    try {
-                        statement.close();
-                    } catch (Exception e) {
-                        // Ignore to workaround a bug in Jakarta DBCP
+                        if (autoCommit && !conn.getAutoCommit()) {
+                            conn.commit();
+                        }
+
+                        // HACK
+                        if (hasResults && sql.toUpperCase().startsWith("CREATE") == false) {
+                            try (ResultSet rs = statement.getResultSet()) {
+                                if (hasResults && rs != null) {
+                                    ResultSetMetaData md = rs.getMetaData();
+                                    int cols = md.getColumnCount();
+                                    for (int i = 0; i < cols; i++) {
+                                        String name = md.getColumnLabel(i);
+                                        LOG.debug(name);
+                                    }
+
+                                    while (rs.next()) {
+                                        for (int i = 0; i < cols; i++) {
+                                            String value = rs.getString(i);
+                                            LOG.debug(value);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+
+                        command = null;
+                    } finally {
+
+                        Thread.yield();
                     }
-                    Thread.yield();
                 } else {
                     command.append(line);
                     command.append(" ");
@@ -215,16 +186,13 @@ public class ScriptRunner {
                 conn.commit();
             }
         } catch (SQLException e) {
-//			e.fillInStackTrace();
-            printlnError("Error executing: " + command);
-            throw e;
+            LOG.error(e.getMessage(), e);
         } catch (IOException e) {
-//			e.fillInStackTrace();
-            printlnError("Error executing: " + command);
-            throw e;
+            LOG.error(e.getMessage(), e);
         } finally {
-            if (!autoCommit) conn.rollback();
-            flush();
+            if (!autoCommit) {
+                conn.rollback();
+            }
         }
     }
 
@@ -232,30 +200,4 @@ public class ScriptRunner {
         return delimiter;
     }
 
-    private void print(Object o) {
-        if (logWriter != null) {
-            System.out.print(o);
-        }
-    }
-
-    private void println(Object o) {
-        if (logWriter != null) {
-            logWriter.println(o);
-        }
-    }
-
-    private void printlnError(Object o) {
-        if (errorLogWriter != null) {
-            errorLogWriter.println(o);
-        }
-    }
-
-    private void flush() {
-        if (logWriter != null) {
-            logWriter.flush();
-        }
-        if (errorLogWriter != null) {
-            errorLogWriter.flush();
-        }
-    }
 }

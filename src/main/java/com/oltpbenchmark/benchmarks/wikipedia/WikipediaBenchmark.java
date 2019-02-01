@@ -42,7 +42,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 
     @SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
-        super("wikipedia", workConf, true);
+        super(workConf, true);
 
         this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
         this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);

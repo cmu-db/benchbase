@@ -32,7 +32,7 @@ import java.util.List;
 public class TATPBenchmark extends BenchmarkModule {
 
     public TATPBenchmark(WorkloadConfiguration workConf) {
-        super("tatp", workConf, true);
+        super(workConf, true);
     }
 
     @Override

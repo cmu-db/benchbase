@@ -746,7 +746,6 @@ public class DBWorkload {
     private static List<String> getWeights(String plugin, SubnodeConfiguration work) {
 
         List<String> weight_strings = new LinkedList<String>();
-        @SuppressWarnings("unchecked")
         List<SubnodeConfiguration> weights = work.configurationsAt("weights");
         boolean weights_started = false;
 

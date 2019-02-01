@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -56,10 +55,6 @@ public abstract class BenchmarkModule {
      */
     public static final String DIALECTS_DIR = "dialects";
 
-    /**
-     * The identifier for this benchmark
-     */
-    protected final String benchmarkName;
 
     /**
      * The workload configuration for this benchmark invocation
@@ -93,14 +88,12 @@ public abstract class BenchmarkModule {
      */
     protected boolean verbose;
 
-    public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf, boolean withCatalog) {
+    public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
         assert (workConf != null) : "The WorkloadConfiguration instance is null.";
 
-        this.benchmarkName = benchmarkName;
         this.workConf = workConf;
         this.catalog = (withCatalog ? new Catalog(this) : null);
-        File xmlFile = this.getSQLDialect();
-        this.dialects = new StatementDialects(this.workConf.getDBType(), xmlFile);
+        this.dialects = new StatementDialects(workConf);
     }
 
     // --------------------------------------------------------------------------
@@ -163,8 +156,8 @@ public abstract class BenchmarkModule {
     /**
      * @return
      */
-    public URL getDatabaseDDL() {
-        return (this.getDatabaseDDL(this.workConf.getDBType()));
+    public String getDatabaseDDLPath() {
+        return (this.getDatabaseDDLPath(this.workConf.getDBType()));
     }
 
     /**
@@ -174,7 +167,7 @@ public abstract class BenchmarkModule {
      * @param conn
      * @throws SQLException
      */
-    public URL getDatabaseDDL(DatabaseType db_type) {
+    public String getDatabaseDDLPath(DatabaseType db_type) {
 
         List<String> names = new ArrayList<>();
         if (db_type != null) {
@@ -185,67 +178,23 @@ public abstract class BenchmarkModule {
 
         for (String fileName : names) {
 
-            final String path = "benchmarks" + File.separator + this.benchmarkName + File.separator + fileName;
+            final String path = "benchmarks" + File.separator + getBenchmarkName() + File.separator + fileName;
 
-            URL url = this.getClass().getClassLoader().getResource(path);
-            if (url != null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found DDL file for " + db_type + ": " + url);
+            try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+
+                if (stream != null) {
+                    return path;
                 }
-                return url;
+
+            } catch (IOException e) {
+
             }
-
-            LOG.warn("Failed to find DDL file for " + path);
         }
-
 
 
         return null;
     }
 
-    /**
-     * @return
-     */
-
-    public File getSQLDialect() {
-        return (this.getSQLDialect(this.workConf.getDBType()));
-    }
-
-    /**
-     * Return the File handle to the SQL Dialect XML file
-     * used for this benchmark
-     *
-     * @return
-     */
-    public File getSQLDialect(DatabaseType db_type) {
-        String fileName = null;
-
-        if (db_type != null) {
-            fileName = "dialect-" + db_type.name().toLowerCase() + ".xml";
-        }
-
-
-        if (fileName != null) {
-
-            final String path = "benchmarks" + File.separator + this.benchmarkName + File.separator + fileName;
-
-            URL url = this.getClass().getClassLoader().getResource(path);
-
-            if (url != null) {
-                try {
-                    return new File(url.toURI().getPath());
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    LOG.warn(String.format("Failed to find SQL Dialect XML file '%s'", path));
-                }
-            }
-
-            LOG.warn("Failed to find dialect file for " + path);
-        }
-
-
-        return (null);
-    }
 
     public final List<Worker<? extends BenchmarkModule>> makeWorkers(boolean verbose) throws IOException {
         return (this.makeWorkersImpl(verbose));
@@ -262,7 +211,7 @@ public abstract class BenchmarkModule {
             this.createDatabase(this.workConf.getDBType(), conn);
             conn.close();
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
         }
     }
 
@@ -273,32 +222,31 @@ public abstract class BenchmarkModule {
      */
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
-            URL ddl = this.getDatabaseDDL(dbType);
-            assert (ddl != null) : "Failed to get DDL for " + this;
+            String ddlPath = this.getDatabaseDDLPath(dbType);
+            assert (ddlPath != null) : "Failed to get DDL path for  " + this;
             ScriptRunner runner = new ScriptRunner(conn, true, true);
+
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing script '" + ddl + "'");
+                LOG.debug("Executing script '" + ddlPath + "'");
             }
-            runner.runScript(ddl);
+
+            runner.runScript(ddlPath);
         } catch (Exception ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", this.benchmarkName), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
         }
     }
 
     /**
-     * Run a script on a Database
+     * Run a scriptPath on a Database
      */
-    public final void runScript(String script) {
-        try {
-            Connection conn = this.makeConnection();
+    public final void runScript(String scriptPath) {
+        try (Connection conn = this.makeConnection()) {
             ScriptRunner runner = new ScriptRunner(conn, true, true);
-            File scriptFile = new File(script);
-            runner.runScript(scriptFile.toURI().toURL());
-            conn.close();
+            runner.runScript(scriptPath);
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to run: %s", script), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to run: %s", scriptPath), ex);
         } catch (IOException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to open: %s", script), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to open: %s", scriptPath), ex);
         }
     }
 
@@ -306,12 +254,10 @@ public abstract class BenchmarkModule {
      * Invoke this benchmark's database loader
      */
     public final void loadDatabase() {
-        try {
-            Connection conn = this.makeConnection();
+        try (Connection conn = this.makeConnection()) {
             this.loadDatabase(conn);
-            conn.close();
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", this.benchmarkName), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", getBenchmarkName()), ex);
         }
     }
 
@@ -357,7 +303,7 @@ public abstract class BenchmarkModule {
             }
         } catch (SQLException ex) {
             String msg = String.format("Unexpected error when trying to load the %s database",
-                    this.benchmarkName.toUpperCase());
+                    getBenchmarkName());
             throw new RuntimeException(msg, ex);
         }
         if (LOG.isDebugEnabled()) {
@@ -371,8 +317,7 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public final void clearDatabase() {
-        try {
-            Connection conn = this.makeConnection();
+        try (Connection conn = this.makeConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
             if (loader != null) {
                 conn.setAutoCommit(false);
@@ -380,7 +325,7 @@ public abstract class BenchmarkModule {
                 conn.commit();
             }
         } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", this.benchmarkName), ex);
+            throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", getBenchmarkName()), ex);
         }
     }
 
@@ -392,7 +337,7 @@ public abstract class BenchmarkModule {
      * Return the unique identifier for this benchmark
      */
     public final String getBenchmarkName() {
-        return (this.benchmarkName);
+        return this.workConf.getBenchmarkName();
     }
 
     /**
@@ -423,7 +368,7 @@ public abstract class BenchmarkModule {
 
     @Override
     public final String toString() {
-        return benchmarkName.toUpperCase();
+        return getBenchmarkName();
     }
 
 
@@ -439,16 +384,16 @@ public abstract class BenchmarkModule {
     public final TransactionType initTransactionType(String procName, int id) {
         if (id == TransactionType.INVALID_ID) {
             LOG.error(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s",
-                    this.benchmarkName, procName, id,
+                    getBenchmarkName(), procName, id,
                     TransactionType.INVALID.getClass().getSimpleName()));
             return null;
         }
 
         Package pkg = this.getProcedurePackageImpl();
-        assert (pkg != null) : "Null Procedure package for " + this.benchmarkName;
+        assert (pkg != null) : "Null Procedure package for " + getBenchmarkName();
         String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
-        assert (procClass != null) : "Unexpected Procedure name " + this.benchmarkName + "." + procName;
+        assert (procClass != null) : "Unexpected Procedure name " + getBenchmarkName() + "." + procName;
         return new TransactionType(procClass, id);
     }
 

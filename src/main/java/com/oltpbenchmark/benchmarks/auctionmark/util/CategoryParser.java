@@ -18,11 +18,17 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.FileUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -34,19 +40,21 @@ public class CategoryParser {
     private int _nextCategoryID;
     String _fileName;
 
-    public CategoryParser(File file) {
+    public CategoryParser() {
 
         _categoryMap = new TreeMap<String, Category>();
         _nextCategoryID = 0;
 
 
-        try {
-            BufferedReader br = FileUtil.getReader(file);
-            String strLine;
-            while ((strLine = br.readLine()) != null) {
-                extractCategory(strLine);
-                //System.out.println(strLine);
+        final String path = "benchmarks" + File.separator + "auctionmark" + File.separator + "table.category.gz";
+
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+
+            List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
+            for (String line : lines) {
+                extractCategory(line);
             }
+
         } catch (Exception ex) {
             throw new RuntimeException("Failed to load in category file", ex);
         }
@@ -115,12 +123,4 @@ public class CategoryParser {
         return _categoryMap;
     }
 
-    public static void main(String args[]) throws Exception {
-        CategoryParser ebp = new CategoryParser(new File("bin/edu/brown/benchmark/auctionmark/data/categories.txt"));
-
-        for (String key : ebp.getCategoryMap().keySet()) {
-            LOG.info(key + " : " + ebp.getCategoryMap().get(key).getCategoryID() + " : " + ebp.getCategoryMap().get(key).getParentCategoryID() + " : " + ebp.getCategoryMap().get(key).getItemCount());
-        }
-        //addNewCategory("001/123456/789", 0, true);
-    }
 }

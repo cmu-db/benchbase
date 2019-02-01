@@ -25,10 +25,12 @@ import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.sql.Connection;
@@ -85,22 +87,16 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         // BenchmarkProfile
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
 
-        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "table.category.gz";
-
-        URL url = this.getClass().getClassLoader().getResource(path);
 
 
         try {
-
-
-            File category_file = new File(url.toURI().getPath());
 
             // ---------------------------
             // Fixed-Size Table Generators
             // ---------------------------
 
             this.registerGenerator(new RegionGenerator());
-            this.registerGenerator(new CategoryGenerator(category_file));
+            this.registerGenerator(new CategoryGenerator());
             this.registerGenerator(new GlobalAttributeGroupGenerator());
             this.registerGenerator(new GlobalAttributeValueGenerator());
 
@@ -735,17 +731,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      * CATEGORY Generator
      **********************************************************************************************/
     protected class CategoryGenerator extends AbstractTableGenerator {
-        private final File data_file;
         private final Map<String, Category> categoryMap;
         private final LinkedList<Category> categories = new LinkedList<Category>();
 
-        public CategoryGenerator(File data_file) throws SQLException {
+        public CategoryGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_CATEGORY);
-            this.data_file = data_file;
-            assert (this.data_file.exists()) :
-                    "The data file for the category generator does not exist: " + this.data_file;
 
-            this.categoryMap = (new CategoryParser(data_file)).getCategoryMap();
+            this.categoryMap = (new CategoryParser()).getCategoryMap();
             this.tableSize = (long) this.categoryMap.size();
         }
 

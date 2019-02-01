@@ -66,7 +66,7 @@ public class TestCatalog extends TestCase {
      */
     public void testInit() throws Exception {
         // Count the number of CREATE TABLEs in our test file
-        String contents = IOUtils.toString(this.benchmark.getDatabaseDDL());
+        String contents = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(this.benchmark.getDatabaseDDLPath()));
         assertFalse(contents.isEmpty());
         int offset = 0;
         int num_tables = 0;

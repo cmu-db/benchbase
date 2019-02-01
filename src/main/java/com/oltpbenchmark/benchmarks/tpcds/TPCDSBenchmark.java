@@ -18,7 +18,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TPCDSBenchmark.class);
 
     public TPCDSBenchmark(WorkloadConfiguration workConf) {
-        super("tpcds", workConf, true);
+        super(workConf, true);
     }
 
     @Override

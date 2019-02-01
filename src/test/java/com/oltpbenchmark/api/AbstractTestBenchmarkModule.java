@@ -23,7 +23,6 @@ import com.oltpbenchmark.types.DatabaseType;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.net.URL;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -33,9 +32,9 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      * testGetDatabaseDDL
      */
     public void testGetDatabaseDDL() throws Exception {
-        URL ddl = this.benchmark.getDatabaseDDL();
-        assertNotNull(ddl);
-        assertNotNull(IOUtils.toString(ddl));
+        String ddlPath = this.benchmark.getDatabaseDDLPath();
+        assertNotNull(ddlPath);
+        assertNotNull(IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(ddlPath)));
     }
 
     /**
@@ -87,28 +86,17 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         assertNull(txnType);
     }
 
-    /**
-     * testGetSQLDialect
-     */
-    public void testGetSQLDialect() throws Exception {
-        File xmlFile = this.benchmark.getSQLDialect();
-        if (xmlFile != null) {
-            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
-        }
-    }
 
     /**
      * testLoadSQLDialect
      */
     public void testLoadSQLDialect() throws Exception {
-        File xmlFile = this.benchmark.getSQLDialect();
-        if (xmlFile == null) return;
 
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDBType(dbType);
 
             // Just make sure that we can load it
-            StatementDialects dialects = new StatementDialects(dbType, xmlFile);
+            StatementDialects dialects = new StatementDialects(workConf);
             dialects.load();
 
             for (String procName : dialects.getProcedureNames()) {

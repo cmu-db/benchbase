@@ -35,7 +35,7 @@ import java.util.List;
 public class YCSBBenchmark extends BenchmarkModule {
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
-        super("ycsb", workConf, true);
+        super(workConf, true);
     }
 
     @Override

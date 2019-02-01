@@ -19,16 +19,14 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.types.DatabaseType;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 public class MockBenchmark extends BenchmarkModule {
     public MockBenchmark() {
-        super("mock", new WorkloadConfiguration(), true);
+        super(new WorkloadConfiguration(), true);
     }
 
     @Override
@@ -50,12 +48,7 @@ public class MockBenchmark extends BenchmarkModule {
     }
 
     @Override
-    public URL getDatabaseDDL(DatabaseType db_type) {
-        // Get our sample DDL file
-        URL testDDLURL = MockBenchmark.class.getClassLoader().getResource("test-ddl.sql");
-        assert (testDDLURL != null);
-        File testDDL = new File(testDDLURL.getPath());
-        assert (testDDL.exists()) : testDDL.getAbsolutePath();
-        return (testDDLURL);
+    public String getDatabaseDDLPath(DatabaseType db_type) {
+        return "test-ddl.sql";
     }
 } // END CLASS
