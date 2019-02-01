@@ -78,7 +78,6 @@ public abstract class GenericQuery extends Procedure {
             // should regenerate them.
             if (ex.getErrorCode() == 0 && ex.getSQLState() != null
                     && ex.getSQLState().equals("07003")) {
-                this.resetPreparedStatements();
                 rs = stmt.executeQuery();
             } else {
                 throw ex;

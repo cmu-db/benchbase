@@ -39,7 +39,6 @@ public abstract class Procedure {
     private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
     private final Map<SQLStmt, String> stmt_name_xref = new HashMap<SQLStmt, String>();
-    private final Map<SQLStmt, PreparedStatement> prepardStatements = new HashMap<SQLStmt, PreparedStatement>();
 
     /**
      * Constructor
@@ -62,9 +61,10 @@ public abstract class Procedure {
         for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
             this.stmt_name_xref.put(e.getValue(), e.getKey());
         } // FOR
-        if (LOG.isDebugEnabled())
+        if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Initialized %s with %d SQLStmts: %s",
                     this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));
+        }
         return ((T) this);
     }
 
@@ -81,14 +81,6 @@ public abstract class Procedure {
      */
     protected final DatabaseType getDatabaseType() {
         return (this.dbType);
-    }
-
-    /**
-     * Flush all PreparedStatements, requiring us to rebuild them the next time
-     * we try to run one.
-     */
-    public void resetPreparedStatements() {
-        prepardStatements.clear();
     }
 
     /**
@@ -124,23 +116,22 @@ public abstract class Procedure {
      */
     public final PreparedStatement getPreparedStatementReturnKeys(Connection conn, SQLStmt stmt, int[] is) throws SQLException {
 
-        PreparedStatement pStmt = this.prepardStatements.get(stmt);
-        if (pStmt == null) {
-           // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
-            //       one that fakes the getGeneratedKeys().
-            if (is != null && (this.dbType == DatabaseType.POSTGRES || this.dbType == DatabaseType.COCKROACHDB)) {
-                pStmt = new AutoIncrementPreparedStatement(this.dbType, conn.prepareStatement(stmt.getSQL()));
-            }
-            // Everyone else can use the regular getGeneratedKeys() method
-            else if (is != null) {
-                pStmt = conn.prepareStatement(stmt.getSQL(), is);
-            }
-            // They don't care about keys
-            else {
-                pStmt = conn.prepareStatement(stmt.getSQL());
-            }
-            this.prepardStatements.put(stmt, pStmt);
+        PreparedStatement pStmt = null;
+
+        // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
+        //       one that fakes the getGeneratedKeys().
+        if (is != null && (this.dbType == DatabaseType.POSTGRES || this.dbType == DatabaseType.COCKROACHDB)) {
+            pStmt = new AutoIncrementPreparedStatement(this.dbType, conn.prepareStatement(stmt.getSQL()));
         }
+        // Everyone else can use the regular getGeneratedKeys() method
+        else if (is != null) {
+            pStmt = conn.prepareStatement(stmt.getSQL(), is);
+        }
+        // They don't care about keys
+        else {
+            pStmt = conn.prepareStatement(stmt.getSQL());
+        }
+
 
         return (pStmt);
     }
@@ -168,16 +159,19 @@ public abstract class Procedure {
      * @param dialectMap
      */
     protected final void loadSQLDialect(StatementDialects dialects) {
-       Collection<String> stmtNames = dialects.getStatementNames(this.procName);
-        if (stmtNames == null) return;
-       for (String stmtName : stmtNames) {
-           String sql = dialects.getSQL(this.procName, stmtName);
+        Collection<String> stmtNames = dialects.getStatementNames(this.procName);
+        if (stmtNames == null) {
+            return;
+        }
+        for (String stmtName : stmtNames) {
+            String sql = dialects.getSQL(this.procName, stmtName);
 
 
             SQLStmt stmt = this.name_stmt_xref.get(stmtName);
-           if (LOG.isDebugEnabled())
+            if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Setting %s SQL dialect for %s.%s",
                         dialects.getDatabaseType(), this.procName, stmtName));
+            }
             stmt.setSQL(sql);
         } // FOR (stmt)
     }
@@ -188,7 +182,7 @@ public abstract class Procedure {
      * @return
      */
     protected final Map<String, SQLStmt> getStatments() {
-       return (Collections.unmodifiableMap(this.name_stmt_xref));
+        return (Collections.unmodifiableMap(this.name_stmt_xref));
     }
 
     /**
@@ -198,7 +192,7 @@ public abstract class Procedure {
      * @return
      */
     protected final SQLStmt getStatment(String stmtName) {
-       return (this.name_stmt_xref.get(stmtName));
+        return (this.name_stmt_xref.get(stmtName));
     }
 
     protected static Map<String, SQLStmt> getStatments(Procedure proc) {
