@@ -123,18 +123,6 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
         return ret;
     }
 
-    public static void main(String[] args) {
-        double newzetan = ZipfianGenerator.zetastatic(ITEM_COUNT, ZipfianGenerator.ZIPFIAN_CONSTANT);
-        System.out.println("zetan: " + newzetan);
-        System.exit(0);
-
-        ScrambledZipfianGenerator gen = new ScrambledZipfianGenerator(10000);
-
-        for (int i = 0; i < 1000000; i++) {
-            System.out.println("" + gen.nextInt());
-        }
-    }
-
     /**
      * since the values are scrambled (hopefully uniformly), the mean is simply the middle of the range.
      */

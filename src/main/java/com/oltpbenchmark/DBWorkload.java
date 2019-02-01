@@ -483,7 +483,7 @@ public class DBWorkload {
                 LOG.info("Exporting StatementDialects for " + bench);
                 String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDBType(),
                         bench.getProcedures().values());
-                System.out.println(xml);
+                LOG.debug(xml);
                 System.exit(0);
             }
             throw new RuntimeException("No StatementDialects is available for " + bench);

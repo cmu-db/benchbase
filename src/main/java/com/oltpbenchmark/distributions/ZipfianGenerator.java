@@ -32,6 +32,9 @@ package com.oltpbenchmark.distributions;
  * LICENSE file.
  */
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such that some items are more popular than others, according
  * to a zipfian distribution. When you construct an instance of this class, you specify the number of items in the set to draw from, either
@@ -52,6 +55,9 @@ package com.oltpbenchmark.distributions;
  */
 public class ZipfianGenerator extends IntegerGenerator {
     public static final double ZIPFIAN_CONSTANT = 0.99;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ZipfianGenerator.class);
+
 
     /**
      * Number of items.
@@ -262,7 +268,7 @@ public class ZipfianGenerator extends IntegerGenerator {
                     //the zeta sequence terms for the items that went away. This would be faster than recomputing from scratch when the number of items
                     //decreases
 
-                    System.err.println("WARNING: Recomputing Zipfian distribtion. This is slow and should be avoided. (itemcount=" + itemcount + " countforzeta=" + countforzeta + ")");
+                    LOG.warn("WARNING: Recomputing Zipfian distribtion. This is slow and should be avoided. (itemcount=" + itemcount + " countforzeta=" + countforzeta + ")");
 
                     zetan = zeta(itemcount, theta);
                     eta = (1 - Math.pow(2.0 / items, 1 - theta)) / (1 - zeta2theta / zetan);
@@ -303,10 +309,6 @@ public class ZipfianGenerator extends IntegerGenerator {
      */
     public long nextLong() {
         return nextLong(items);
-    }
-
-    public static void main(String[] args) {
-        new ZipfianGenerator(ScrambledZipfianGenerator.ITEM_COUNT);
     }
 
     /**

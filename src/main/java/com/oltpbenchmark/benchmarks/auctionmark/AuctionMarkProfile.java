@@ -675,14 +675,9 @@ public class AuctionMarkProfile {
             tmp_userIdHistogram.removeAll(ex);
         }
         tmp_userIdHistogram.put(this.getRandomBuyerId(exclude));
-        try {
-            LOG.trace("New Histogram:\n" + tmp_userIdHistogram);
-        } catch (NullPointerException ex) {
-            for (UserId user_id : tmp_userIdHistogram.values()) {
-                System.err.println(String.format("%s => NEW:%s / ORIG:%s", user_id, tmp_userIdHistogram.get(user_id), previousBidders.get(user_id)));
-            }
-            throw ex;
-        }
+
+
+        LOG.trace("New Histogram:\n" + tmp_userIdHistogram);
 
         FlatHistogram<UserId> rand_h = new FlatHistogram<UserId>(rng, tmp_userIdHistogram);
         return (rand_h.nextValue());

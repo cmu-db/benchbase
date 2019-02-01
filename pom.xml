@@ -66,12 +66,6 @@
         </dependency>
 
         <dependency>
-            <groupId>ch.ethz.ganymed</groupId>
-            <artifactId>ganymed-ssh2</artifactId>
-            <version>262</version>
-        </dependency>
-
-        <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>2.3</version>

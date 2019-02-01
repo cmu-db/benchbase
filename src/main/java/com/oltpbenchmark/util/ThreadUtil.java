@@ -30,7 +30,6 @@ package com.oltpbenchmark.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
@@ -183,25 +182,7 @@ public abstract class ThreadUtil {
             });
         }
 
-        if (print_output) {
-            BufferedInputStream in = new BufferedInputStream(p.getInputStream());
-            StringBuilder buffer = new StringBuilder();
-            int c;
-            try {
-                while ((c = in.read()) != -1) {
-                    buffer.append((char) c);
-                    if (((char) c) == '\n') {
-                        System.out.print(prefix + buffer.toString());
-                        buffer = new StringBuilder();
-                    }
-                }
-            } catch (Exception e) {
-                p.destroy();
-            }
-            if (buffer.length() > 0) {
-                System.out.println(prefix + buffer);
-            }
-        }
+
 
         try {
             p.waitFor();

@@ -36,8 +36,7 @@ public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
             proc.setOwner(this);
             proc.run(conn);
         } catch (ClassCastException e) {
-            System.err.println("We have been invoked with an INVALID transactionType?!");
-            throw new RuntimeException("Bad transaction type = " + nextTransaction);
+            throw new RuntimeException(e);
         }
 
         conn.commit();

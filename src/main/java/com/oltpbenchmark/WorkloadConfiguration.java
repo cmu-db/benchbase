@@ -294,8 +294,6 @@ public class WorkloadConfiguration {
             this.isolationMode = Connection.TRANSACTION_REPEATABLE_READ;
         } else if (mode.equals("TRANSACTION_READ_UNCOMMITTED")) {
             this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
-        } else if (!mode.isEmpty()) {
-            System.out.println("Indefined isolation mode, set to default [TRANSACTION_SERIALIZABLE]");
         }
     }
 

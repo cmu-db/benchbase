@@ -96,13 +96,7 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
         InsertTweet proc = this.getProcedure(InsertTweet.class);
 
         Time time = new Time(System.currentTimeMillis());
-        try {
-            proc.run(conn, uid, text, time);
-        } catch (SQLException ex) {
-            System.err.println("uid=" + uid);
-            System.err.println("text=" + text);
-            System.err.println("time=" + time);
-            throw ex;
-        }
+        proc.run(conn, uid, text, time);
+
     }
 }

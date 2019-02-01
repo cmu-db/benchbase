@@ -361,13 +361,9 @@ public abstract class JSONUtil {
                 readMapField(json_object.getJSONObject(json_key), (Map) object, next_inner_classes);
             } else {
                 String json_string = json_object.getString(json_key);
-                try {
-                    object = JSONUtil.getPrimitiveValue(json_string, val_class);
-                } catch (Exception ex) {
-                    System.err.println("val_interfaces: " + val_interfaces);
-                    LOG.error("Failed to deserialize value '" + json_string + "' from inner map key '" + json_key + "'");
-                    throw ex;
-                }
+
+                object = JSONUtil.getPrimitiveValue(json_string, val_class);
+
             }
             map.put(key, object);
         }
