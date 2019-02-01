@@ -96,7 +96,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             LOG.debug(se.getMessage());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
 
         } // end try
 
@@ -190,9 +190,9 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
             conn.rollback();
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         return (k);
@@ -272,9 +272,9 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         return (k);
@@ -343,7 +343,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         return (k);

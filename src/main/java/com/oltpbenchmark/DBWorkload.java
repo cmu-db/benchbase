@@ -61,8 +61,7 @@ public class DBWorkload {
         try {
             pluginConfig = new XMLConfiguration("config/plugin.xml");
         } catch (ConfigurationException e1) {
-            LOG.info("Plugin configuration file config/plugin.xml is missing");
-            e1.printStackTrace();
+           LOG.error(e1.getMessage(), e1);
         }
         pluginConfig.setExpressionEngine(new XPathExpressionEngine());
         Options options = new Options();

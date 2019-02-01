@@ -37,7 +37,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
                 workers.add(worker);
             } // FOR
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return workers;
     }

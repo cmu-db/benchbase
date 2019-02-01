@@ -142,7 +142,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     dateLatch.await();
                     callCenterLatch.countDown();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
 
@@ -586,15 +585,15 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                 LOG.error(se.getClass().getSimpleName() + " Cause => " + se.getMessage());
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } finally {
             if (br != null) {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOG.error(e.getMessage(), e);
                 }
             }
         }

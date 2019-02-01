@@ -93,7 +93,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     try {
                         itemLatch.await();
                     } catch (InterruptedException ex) {
-                        ex.printStackTrace();
                         throw new RuntimeException(ex);
                     }
 
@@ -260,7 +259,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } finally {
             closeStatement(whsePrepStmt);
         }
@@ -338,7 +337,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             LOG.debug(se.getMessage());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } finally {
             closeStatement(stckPrepStmt);
         }
@@ -393,7 +392,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } finally {
             closeStatement(distPrepStmt);
         }
@@ -520,7 +519,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } finally {
             closeStatement(custPrepStmt);
             closeStatement(histPrepStmt);
@@ -682,10 +681,9 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             orlnPrepStmt.executeBatch();
 
         } catch (SQLException se) {
-            LOG.debug(se.getMessage());
-            se.printStackTrace();
+            LOG.error(se.getMessage(), se);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         } finally {
             closeStatement(ordrPrepStmt);
             closeStatement(nworPrepStmt);

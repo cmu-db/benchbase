@@ -64,8 +64,7 @@ public class SIBenchmark extends BenchmarkModule {
             } // FOR
             metaConn.close();
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return workers;
     }

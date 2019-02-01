@@ -214,7 +214,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             conn.rollback();
 
         } catch (Exception e) {
-            e.printStackTrace();
             conn.rollback();
         } // end try
 
@@ -486,20 +485,18 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     now = new java.util.Date();
                     LOG.debug("End " + tableName + " Load @ " + now);
 
-                } catch (SQLException se) {
-                    LOG.debug(se.getMessage());
-                    se = se.getNextException();
-                    LOG.debug(se.getMessage());
+                } catch (SQLException e) {
+                    LOG.error(e.getMessage(), e);
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    LOG.error(e.getMessage(), e);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.error(e.getMessage(), e);
                 } finally {
                     if (br != null) {
                         try {
                             br.close();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOG.error(e.getMessage(), e);
                         }
                     }
                 }

@@ -92,7 +92,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return workers;
     }

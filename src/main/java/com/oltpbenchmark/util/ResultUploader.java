@@ -191,9 +191,9 @@ public class ResultUploader {
                 response.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOG.error(e.getMessage(), e);
         } catch (ConfigurationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            LOG.error(e.getMessage(), e);
         }
     }
 }

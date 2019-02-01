@@ -56,7 +56,7 @@ public abstract class GenericQuery extends Procedure {
             }
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return new SQLStmt(query.toString());
     }

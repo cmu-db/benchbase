@@ -108,7 +108,7 @@ public abstract class ThreadUtil {
         try {
             p = pb.start();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
 
         Class<? extends Process> p_class = p.getClass();
@@ -187,7 +187,7 @@ public abstract class ThreadUtil {
         try {
             p.waitFor();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         p.destroy();
     }

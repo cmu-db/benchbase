@@ -49,7 +49,7 @@ public class SEATSBenchmark extends BenchmarkModule {
                 return new File(url.toURI().getPath());
             }
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
         return (null);
     }

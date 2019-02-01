@@ -128,7 +128,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // depends on ITEM_PURCHASE
             this.registerGenerator(new UserFeedbackGenerator());
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -172,7 +171,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 try {
                     loadLatch.await();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
                 AuctionMarkLoader.this.profile.saveProfile(conn);
@@ -416,7 +414,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             try {
                 AuctionMarkLoader.this.generateTableData(conn, this.tableName);
             } catch (Throwable ex) {
-                ex.printStackTrace();
                 throw new RuntimeException("Unexpected error while generating table data for '" + this.tableName + "'", ex);
             }
         }
