@@ -1,27 +1,45 @@
 # OLTP-Bench: Part Deux
 
-Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup, modernization and portability.  Additional context can be found in the original acedemic publicaton from 2013: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf).
+Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup, modernization and portability.  Additional context can be found in the original academic publication from 2013: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf).
 
 
-## Modifcations from Original
-* Build with Maven
-* All non `.java` files moved to `resources` directory
-* lots of file renaming for clarity
-* moved all logging from Log4J directly to SLF4J
-* resolved numerous resource leaks
-* removed considerable amount of dead code, configuration, detritus and other nasty accumulations
-* no commits on insert
+## Modifications from Original
+I have made a number of significant structural modifications to the original project in this fork but did my best to leave the actual benchmark code functionally unchanged.  These modifications are summarized here:
+
+* Moved from Ant to Maven
+    * Reorganized project to fit Maven structure
+    * Removed static `lib` directory and dependencies
+    * Updated required dependencies and removed unused or out of date dependencies
+    * Moved all non `.java` files to standard Maven `resources` directory
+* Improved packaging and versioning
+    * Moved to Calendar Versioning (https://calver.org/)
+    * Project is now distributed as a `.tgz` with executable `.jar`
+    * All code updated to read `resources` from inside `.jar` instead of directory
+* Built with and for Java 1.8
+* Moved from direct dependence on Log4J to SLF4J
+* Reorganized and renamed many files (mostly `resources`) for clarity and consistency
+* Applied countless fixes based on "Static Analysis"
+    * JDK migrations (boxing, un-boxing, etc.)
+    * Implemented `try-with-resources` for all `java.lang.AutoCloseable` instances
+* Reformatted code and cleaned up imports based on my preferences and using IntelliJ
+* Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
+* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations
+    * Removed IDE specific settings
+    * Removed references to personal setups or cloud instances
+    * Removed directories such as `run`, `tools`, `nbproject`, `matlab`, `traces`
+    * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
+* Removed calls to `commit()` during `Loader` operations
 
 
 ## Known Issues
 
-* TPC-H references files and diretory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
-* TPC-DS doesnt have a sample config.  will proably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
-* having difficult loading `seats`, need to look at how data is loaded
-* no sample config for `hyadapt`
-* linkbench loader needs to be fixed, wrong tables referenced in loader
-* chbenchmark needs more love
-* auctionmark not yet working; data loading issue; lots of resource leaks
+* `tpch` - references files and directory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+* `tpcds` - doesnt have a sample config.  will probably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
+* `seats` - having difficult loading `seats`
+* `hyadapt` - no sample config 
+* `linkbench` - loader needs to be fixed, wrong tables referenced in loader
+* `chbenchmark` - needs more love
+* `auctionmark` - not yet working; data loading issue; lots of resource leaks
 
 ## Supported Benchmarks
 
