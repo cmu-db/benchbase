@@ -4,7 +4,7 @@ Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup, 
 
 
 ## Modifications from Original
-I have made a number of significant structural modifications to the original project in this fork but did my best to leave the actual benchmark code functionally unchanged.  These modifications are summarized here:
+I have made a number of significant structural modifications to the original project in this fork but did my best to leave the actual benchmark functionally unchanged.  These modifications are summarized here:
 
 * Moved from Ant to Maven
     * Reorganized project to fit Maven structure
