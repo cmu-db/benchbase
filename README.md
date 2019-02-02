@@ -58,8 +58,8 @@ This fork contains a number of significant **structural** modifications to the o
 * [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
 * [TATP](http://tatpbenchmark.sourceforge.net/)
 * [TPC-C](http://www.tpc.org/tpcc/)
-* TPC-DS
-* TPC-H
+* [TPC-DS](http://www.tpc.org/tpcds)
+* [TPC-H](http://www.tpc.org/tpch)
 * Twitter
 * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
 * Wikipedia
