@@ -6,7 +6,7 @@ Given the volume and scope of these changes, I have elected not to submit pull r
 
 
 ## Modifications from Original
-This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below
+This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
 
 * Moved from Ant to Maven
     * Reorganized project to fit Maven structure
