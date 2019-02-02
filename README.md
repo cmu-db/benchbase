@@ -9,7 +9,7 @@ I have made a number of significant structural modifications to the original pro
 * Moved from Ant to Maven
     * Reorganized project to fit Maven structure
     * Removed static `lib` directory and dependencies
-    * Updated required dependencies and removed unused or out of date dependencies
+    * Updated required dependencies and removed unused or unwanted dependencies
     * Moved all non `.java` files to standard Maven `resources` directory
 * Improved packaging and versioning
     * Moved to Calendar Versioning (https://calver.org/)
