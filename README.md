@@ -71,7 +71,17 @@ comming soon
 ## Known Issues
 
 * `tpch` - references files and directory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
-* `tpcds` - doesnt have a sample config.  will probably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
+    ```
+    14:55:46,892 (TPCHLoader.java:484) ERROR - data/tpch1/customer.tbl (No such file or directory)
+    java.io.FileNotFoundException: data/tpch1/customer.tbl (No such file or directory)
+        at java.io.FileInputStream.open0(Native Method)
+        at java.io.FileInputStream.open(FileInputStream.java:195)
+        at java.io.FileInputStream.<init>(FileInputStream.java:138)
+        at java.io.FileReader.<init>(FileReader.java:72)
+        at com.oltpbenchmark.benchmarks.tpch.TPCHLoader$TableLoader.run(TPCHLoader.java:372)
+        at java.lang.Thread.run(Thread.java:748)
+    ```
+* `tpcds` - doesnt have a sample config.  will probably need data like `tpch`.  see https://relational.fit.cvut.cz/dataset/TPCDS
 * `seats` - having difficult loading `seats`
 * `linkbench` - loader needs to be fixed, wrong tables referenced in loader
 * `chbenchmark` - needs more love
