@@ -2,6 +2,8 @@
 
 Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Additional context can be found in the original academic publication from 2013: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf).
 
+Given the volume and scope of these changes, I have elected not to submit pull requests to the original project as it is unlikely they would or could be accepted.
+
 
 ## Modifications from Original
 This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below
