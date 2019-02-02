@@ -192,10 +192,10 @@ public abstract class FileUtil {
     }
 
     public static File writeStringToFile(File file, String content) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        writer.write(content);
-        writer.flush();
-        writer.close();
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(content);
+            writer.flush();
+        }
         return (file);
     }
 
@@ -248,12 +248,10 @@ public abstract class FileUtil {
 
     public static String readFile(String path) {
         StringBuilder buffer = new StringBuilder();
-        try {
-            BufferedReader in = FileUtil.getReader(path);
+        try (BufferedReader in = FileUtil.getReader(path)) {
             while (in.ready()) {
                 buffer.append(in.readLine()).append("\n");
             } // WHILE
-            in.close();
         } catch (IOException ex) {
             throw new RuntimeException("Failed to read file contents from '" + path + "'", ex);
         }
@@ -300,24 +298,27 @@ public abstract class FileUtil {
 
     public static byte[] readBytesFromFile(String path) throws IOException {
         File file = new File(path);
-        FileInputStream in = new FileInputStream(file);
 
-        // Create the byte array to hold the data
         long length = file.length();
         byte[] bytes = new byte[(int) length];
 
-        LOG.debug("Reading in the contents of '{}'", file.getAbsolutePath());
+        try (FileInputStream in = new FileInputStream(file)) {
 
-        // Read in the bytes
-        int offset = 0;
-        int numRead = 0;
-        while ((offset < bytes.length) && ((numRead = in.read(bytes, offset, bytes.length - offset)) >= 0)) {
-            offset += numRead;
-        } // WHILE
-        if (offset < bytes.length) {
-            throw new IOException("Failed to read the entire contents of '" + file.getName() + "'");
+            // Create the byte array to hold the data
+
+
+            LOG.debug("Reading in the contents of '{}'", file.getAbsolutePath());
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while ((offset < bytes.length) && ((numRead = in.read(bytes, offset, bytes.length - offset)) >= 0)) {
+                offset += numRead;
+            } // WHILE
+            if (offset < bytes.length) {
+                throw new IOException("Failed to read the entire contents of '" + file.getName() + "'");
+            }
         }
-        in.close();
         return (bytes);
     }
 

@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -467,16 +466,15 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
 
     private void loadData(Connection conn, String table, PreparedStatement ps, TPCDSConstants.CastTypes[] types) {
-        BufferedReader br = null;
+
         int batchSize = 0;
         String line = "";
         String field = "";
-        try {
-            String format = getFileFormat();
-            File file = new File(workConf.getDataDir()
-                    , table + "."
-                    + format);
-            br = new BufferedReader(new FileReader(file));
+        String format = getFileFormat();
+        File file = new File(workConf.getDataDir()
+                , table + "."
+                + format);
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             Pattern pattern = getFormatPattern(format);
             int group = getFormatGroup(format);
             Matcher matcher;
@@ -589,14 +587,6 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }
         }
     }
 

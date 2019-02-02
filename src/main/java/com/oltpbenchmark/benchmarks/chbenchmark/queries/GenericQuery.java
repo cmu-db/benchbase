@@ -45,7 +45,7 @@ public abstract class GenericQuery extends Procedure {
         StringBuilder query = new StringBuilder();
 
         try {
-
+            // todo: this won't work
             FileReader input = new FileReader("src/com/oltpbenchmark/benchmarks/chbenchmark/queries/" + queryFile);
             BufferedReader reader = new BufferedReader(input);
             String line = reader.readLine();

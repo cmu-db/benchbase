@@ -62,8 +62,7 @@ public class TraceReader {
      * the transaction id, phase id, and transaction start time for each one.
      */
     public TraceReader(String filename) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(filename));
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line = br.readLine();
 
             if (line == null) {

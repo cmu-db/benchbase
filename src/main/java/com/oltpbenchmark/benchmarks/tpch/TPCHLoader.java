@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -349,7 +348,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
         @Override
         public void run() {
-            BufferedReader br = null;
             int recordsRead = 0;
             long lastTimeMS = new java.util.Date().getTime();
 
@@ -364,14 +362,14 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                         workConf.getDBUsername(),
                         workConf.getDBPassword());
 
-                try {
-                    now = new java.util.Date();
-                    LOG.debug("\nStart {} load @ {}...", tableName, now);
-                    String format = getFileFormat();
-                    File file = new File(workConf.getDataDir()
-                            , tableName.toLowerCase() + "."
-                            + format);
-                    br = new BufferedReader(new FileReader(file));
+
+                now = new java.util.Date();
+                LOG.debug("\nStart {} load @ {}...", tableName, now);
+                String format = getFileFormat();
+                File file = new File(workConf.getDataDir()
+                        , tableName.toLowerCase() + "."
+                        + format);
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                     String line;
                     // The following pattern parses the lines by commas, except for
                     // ones surrounded by double-quotes. Further, strings that are
@@ -484,14 +482,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                 } catch (Exception e) {
                     LOG.error(e.getMessage(), e);
-                } finally {
-                    if (br != null) {
-                        try {
-                            br.close();
-                        } catch (IOException e) {
-                            LOG.error(e.getMessage(), e);
-                        }
-                    }
                 }
 
                 synchronized (parent) {
