@@ -23,6 +23,7 @@ This fork contains a number of significant **structural** modifications to the o
 * Applied countless fixes based on "Static Analysis"
     * JDK migrations (boxing, un-boxing, etc.)
     * Implemented `try-with-resources` for all `java.lang.AutoCloseable` instances
+    * Removed calls to `printStackTrace()` or `System.out.println` in favor of proper logging
 * Reformatted code and cleaned up imports based on my preferences and using IntelliJ
 * Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
 * Removed considerable amount of dead code, configurations, detritus and other nasty accumulations
