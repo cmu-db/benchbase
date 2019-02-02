@@ -47,14 +47,14 @@ This fork contains a number of significant **structural** modifications to the o
 ## Supported Benchmarks
 
 * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
-* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `chbenchmark` and `tpcc`
+* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `tpc-h` and `tpc-c`
 * Epinions.com
 * hyadapt
 * [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
 * NoOp
 * Synthetic Resource Stresser 
 * SEATS
-* [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf) (Snapshot Isolation)
+* [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf)
 * [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
 * [TATP](http://tatpbenchmark.sourceforge.net/)
 * [TPC-C](http://www.tpc.org/tpcc/)
