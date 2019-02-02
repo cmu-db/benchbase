@@ -39,7 +39,6 @@ This fork contains a number of significant **structural** modifications to the o
 * `tpch` - references files and directory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
 * `tpcds` - doesnt have a sample config.  will probably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
 * `seats` - having difficult loading `seats`
-* `hyadapt` - no sample config 
 * `linkbench` - loader needs to be fixed, wrong tables referenced in loader
 * `chbenchmark` - needs more love
 * `auctionmark` - not yet working; data loading issue; lots of resource leaks
@@ -49,21 +48,24 @@ This fork contains a number of significant **structural** modifications to the o
 * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
 * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `tpc-h` and `tpc-c`
 * Epinions.com
-* hyadapt
 * [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
-* NoOp
 * Synthetic Resource Stresser 
-* SEATS
+* [SEATS](http://hstore.cs.brown.edu/projects/seats)
 * [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf)
 * [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
 * [TATP](http://tatpbenchmark.sourceforge.net/)
 * [TPC-C](http://www.tpc.org/tpcc/)
-* [TPC-DS](http://www.tpc.org/tpcds)
-* [TPC-H](http://www.tpc.org/tpch)
+* [TPC-DS](http://www.tpc.org/tpcds) (not part of original thesis)
+* [TPC-H](http://www.tpc.org/tpch) (not part of original thesis)
 * Twitter
 * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
 * Wikipedia
 * [YCSB](https://github.com/brianfrankcooper/YCSB)
+
+## Omitted Benchmarks
+* JPAB
+* hyadapt
+* NoOp
 
 ## How to Build..
 
