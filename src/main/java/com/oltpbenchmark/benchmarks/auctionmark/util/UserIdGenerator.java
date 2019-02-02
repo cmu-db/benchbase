@@ -20,7 +20,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;
 import java.util.Iterator;

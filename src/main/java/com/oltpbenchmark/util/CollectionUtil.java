@@ -18,7 +18,7 @@
 package com.oltpbenchmark.util;
 
 import org.apache.commons.collections4.set.ListOrderedSet;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -470,7 +470,7 @@ public abstract class CollectionUtil {
 
                     @Override
                     public void remove() {
-                        throw new NotImplementedException();
+                        throw new NotImplementedException("remove not implemented");
                     }
                 };
             }
