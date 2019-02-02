@@ -92,8 +92,8 @@
 
         <dependency>
             <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb-j5</artifactId>
-            <version>2.2.4</version>
+            <artifactId>hsqldb</artifactId>
+            <version>2.4.1</version>
         </dependency>
 
         <dependency>
