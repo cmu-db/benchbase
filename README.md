@@ -65,6 +65,9 @@ comming soon
 ## How to Run
 comming soon
 
+## How to add support for a Database
+comming soon
+
 ## Known Issues
 
 * `tpch` - references files and directory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
