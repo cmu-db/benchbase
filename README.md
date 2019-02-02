@@ -36,7 +36,7 @@ This fork contains a number of significant **structural** modifications to the o
 
 ### From Original Paper
 * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
-* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `tpc-h` and `tpc-c`
+* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `TPC-C` and `TPC-H`
 * Epinions.com
 * [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
 * Synthetic Resource Stresser 
