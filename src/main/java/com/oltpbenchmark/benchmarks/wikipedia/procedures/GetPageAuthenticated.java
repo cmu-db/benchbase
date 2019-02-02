@@ -79,94 +79,104 @@ public class GetPageAuthenticated extends Procedure {
 
         // FIXME TOO FREQUENTLY SELECTING BY USER_ID
         String userText = userIp;
-        PreparedStatement st = this.getPreparedStatement(conn, selectUser);
-        if (userId > 0) {
-            st.setInt(1, userId);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                userText = rs.getString("user_name");
-            } else {
-                rs.close();
-                throw new UserAbortException("Invalid UserId: " + userId);
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectUser)) {
+            if (userId > 0) {
+                st.setInt(1, userId);
+                try (ResultSet rs = st.executeQuery()) {
+                    if (rs.next()) {
+                        userText = rs.getString("user_name");
+                    } else {
+                        throw new UserAbortException("Invalid UserId: " + userId);
+                    }
+                }
+                // Fetch all groups the user might belong to (access control
+                // information)
+                try (PreparedStatement selectGroupsStatement = this.getPreparedStatement(conn, selectGroup)) {
+                    selectGroupsStatement.setInt(1, userId);
+                    try (ResultSet rs = st.executeQuery()) {
+                        while (rs.next()) {
+                            String userGroupName = rs.getString(1);
+                        }
+                    }
+                }
             }
-            rs.close();
-            // Fetch all groups the user might belong to (access control
-            // information)
-            st = this.getPreparedStatement(conn, selectGroup);
-            st.setInt(1, userId);
-            rs = st.executeQuery();
-            while (rs.next()) {
-                @SuppressWarnings("unused")
-                String userGroupName = rs.getString(1);
+        }
+
+        int pageId;
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectPage)) {
+            st.setInt(1, nameSpace);
+            st.setString(2, pageTitle);
+            try (ResultSet rs = st.executeQuery()) {
+
+                if (!rs.next()) {
+                    rs.close();
+                    throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
+                }
+                pageId = rs.getInt("page_id");
+
             }
-            rs.close();
         }
 
-        st = this.getPreparedStatement(conn, selectPage);
-        st.setInt(1, nameSpace);
-        st.setString(2, pageTitle);
-        ResultSet rs = st.executeQuery();
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRestriction)) {
+            st.setInt(1, pageId);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    byte[] pr_type = rs.getBytes(1);
 
-        if (!rs.next()) {
-            rs.close();
-            throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
+                }
+            }
         }
-        int pageId = rs.getInt("page_id");
-
-        rs.close();
-
-        st = this.getPreparedStatement(conn, selectPageRestriction);
-        st.setInt(1, pageId);
-        rs = st.executeQuery();
-        while (rs.next()) {
-            byte[] pr_type = rs.getBytes(1);
-
-        }
-        rs.close();
 
         // check using blocking of a user by either the IP address or the
         // user_name
-        st = this.getPreparedStatement(conn, selectIpBlocks);
-        st.setInt(1, userId);
-        rs = st.executeQuery();
-        while (rs.next()) {
-            byte[] ipb_expiry = rs.getBytes(11);
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectIpBlocks)) {
+            st.setInt(1, userId);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    byte[] ipb_expiry = rs.getBytes(11);
 
-        }
-        rs.close();
-
-        st = this.getPreparedStatement(conn, selectPageRevision);
-        st.setInt(1, pageId);
-        st.setInt(2, pageId);
-        rs = st.executeQuery();
-        if (!rs.next()) {
-            rs.close();
-            throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
+                }
+            }
         }
 
-        long revisionId = rs.getLong("rev_id");
-        long textId = rs.getLong("rev_text_id");
+        long revisionId;
+        long textId ;
 
-        rs.close();
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRevision)) {
+            st.setInt(1, pageId);
+            st.setInt(2, pageId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (!rs.next()) {
+                    rs.close();
+                    throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
+                }
+
+                revisionId = rs.getLong("rev_id");
+                textId = rs.getLong("rev_text_id");
+
+            }
+        }
 
         // NOTE: the following is our variation of wikipedia... the original did
         // not contain old_page column!
         // sql =
         // "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
         // For now we run the original one, which works on the data we have
-        st = this.getPreparedStatement(conn, selectText);
-        st.setLong(1, textId);
-        rs = st.executeQuery();
-        if (!rs.next()) {
-            rs.close();
-            throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
-        }
-        Article a = null;
-        if (!forSelect) {
-            a = new Article(userText, pageId, rs.getString("old_text"), textId, revisionId);
-        }
 
-        rs.close();
+        Article a = null;
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectText)) {
+            st.setLong(1, textId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (!rs.next()) {
+                    throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
+                }
+
+                if (!forSelect) {
+                    a = new Article(userText, pageId, rs.getString("old_text"), textId, revisionId);
+                }
+
+            }
+        }
 
         return a;
     }
