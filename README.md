@@ -1,8 +1,8 @@
 # OLTP-Bench: Part Deux
 
-Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Additional context can be found in the original academic publication from 2013: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf).
+Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Given the volume and scope of these changes, I have elected not to submit pull requests to the original project as it is unlikely they would or could be accepted.
 
-Given the volume and scope of these changes, I have elected not to submit pull requests to the original project as it is unlikely they would or could be accepted.
+See also: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
 
 
 ## Modifications to Original
