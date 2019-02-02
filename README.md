@@ -1,6 +1,6 @@
 # OLTP-Bench: Part Deux
 
-Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench and [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf) published in 2013.
+Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanupm, modernization and portability.  [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf) published in 2013 is also a great source of historical rationale.
 
 
 ## Modifcations from Original
