@@ -136,32 +136,34 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("useracct");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement userInsert = conn.prepareStatement(sql);
 
-        //
         int total = 0;
         int batch = 0;
-        for (int i = lo; i < hi; i++) {
-            String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
-            userInsert.setInt(1, i);
-            userInsert.setString(2, name);
-            userInsert.addBatch();
-            total++;
+        try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
 
-            if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
-                userInsert.executeBatch();
-                batch = 0;
-                userInsert.clearBatch();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Users %d / %d", total, num_users));
+            //
+
+            for (int i = lo; i < hi; i++) {
+                String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
+                userInsert.setInt(1, i);
+                userInsert.setString(2, name);
+                userInsert.addBatch();
+                total++;
+
+                if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                    userInsert.executeBatch();
+                    batch = 0;
+                    userInsert.clearBatch();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("Users %d / %d", total, num_users));
+                    }
                 }
             }
+            if (batch > 0) {
+                userInsert.executeBatch();
+                userInsert.clearBatch();
+            }
         }
-        if (batch > 0) {
-            userInsert.executeBatch();
-            userInsert.clearBatch();
-        }
-        userInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Users Loaded [%d]", total));
         }
@@ -175,31 +177,33 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("item");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement itemInsert = conn.prepareStatement(sql);
 
         int total = 0;
         int batch = 0;
-        for (int i = lo; i < hi; i++) {
-            String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH);
-            itemInsert.setInt(1, i);
-            itemInsert.setString(2, title);
-            itemInsert.addBatch();
-            total++;
+        try (PreparedStatement itemInsert = conn.prepareStatement(sql)) {
 
-            if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
-                itemInsert.executeBatch();
-                batch = 0;
-                itemInsert.clearBatch();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Items %d / %d", total, num_items));
+
+            for (int i = lo; i < hi; i++) {
+                String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH);
+                itemInsert.setInt(1, i);
+                itemInsert.setString(2, title);
+                itemInsert.addBatch();
+                total++;
+
+                if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                    itemInsert.executeBatch();
+                    batch = 0;
+                    itemInsert.clearBatch();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("Items %d / %d", total, num_items));
+                    }
                 }
             }
+            if (batch > 0) {
+                itemInsert.executeBatch();
+                itemInsert.clearBatch();
+            }
         }
-        if (batch > 0) {
-            itemInsert.executeBatch();
-            itemInsert.clearBatch();
-        }
-        itemInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Items Loaded [%d]", total));
         }
@@ -217,50 +221,53 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("review");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement reviewInsert = conn.prepareStatement(sql);
 
-        //
-        ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
-        ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
         int total = 0;
         int batch = 0;
-        for (int i = 0; i < num_items; i++) {
-            List<Integer> reviewers = new ArrayList<>();
-            int review_count = numReviews.nextInt();
-            if (review_count == 0) {
-                review_count = 1; // make sure at least each item has a review
-            }
-            for (int rc = 0; rc < review_count; ) {
-                int u_id = reviewer.nextInt();
-                if (!reviewers.contains(u_id)) {
-                    rc++;
-                    reviewInsert.setInt(1, total);
-                    reviewInsert.setInt(2, u_id);
-                    reviewInsert.setInt(3, i);
-                    reviewInsert.setInt(4, new Random().nextInt(5));// rating
-                    reviewInsert.setNull(5, java.sql.Types.INTEGER);
-                    reviewInsert.addBatch();
-                    reviewers.add(u_id);
-                    total++;
 
-                    if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
-                        reviewInsert.executeBatch();
-                        batch = 0;
-                        reviewInsert.clearBatch();
-                        if (LOG.isDebugEnabled()) {
+        try (PreparedStatement reviewInsert = conn.prepareStatement(sql)) {
+
+            //
+            ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
+            ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
+
+            for (int i = 0; i < num_items; i++) {
+                List<Integer> reviewers = new ArrayList<>();
+                int review_count = numReviews.nextInt();
+                if (review_count == 0) {
+                    review_count = 1; // make sure at least each item has a review
+                }
+                for (int rc = 0; rc < review_count; ) {
+                    int u_id = reviewer.nextInt();
+                    if (!reviewers.contains(u_id)) {
+                        rc++;
+                        reviewInsert.setInt(1, total);
+                        reviewInsert.setInt(2, u_id);
+                        reviewInsert.setInt(3, i);
+                        reviewInsert.setInt(4, new Random().nextInt(5));// rating
+                        reviewInsert.setNull(5, java.sql.Types.INTEGER);
+                        reviewInsert.addBatch();
+                        reviewers.add(u_id);
+                        total++;
+
+                        if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                            reviewInsert.executeBatch();
+                            batch = 0;
+                            reviewInsert.clearBatch();
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Reviewed items  % {}", (int) (((double) i / (double) this.num_items) * 100));
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Reviewed items  % {}", (int) (((double) i / (double) this.num_items) * 100));
+                                }
                             }
                         }
                     }
                 }
+            } // FOR
+            if (batch > 0) {
+                reviewInsert.executeBatch();
+                reviewInsert.clearBatch();
             }
-        } // FOR
-        if (batch > 0) {
-            reviewInsert.executeBatch();
-            reviewInsert.clearBatch();
         }
-        reviewInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Reviews Loaded [%d]", total));
         }
@@ -279,46 +286,49 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog("trust");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement trustInsert = conn.prepareStatement(sql);
 
-        //
         int total = 0;
         int batch = 0;
-        ZipfianGenerator numTrust = new ZipfianGenerator(num_trust, 1.95);
-        ScrambledZipfianGenerator reviewed = new ScrambledZipfianGenerator(num_users);
-        Random isTrusted = new Random(System.currentTimeMillis());
-        for (int i = 0; i < num_users; i++) {
-            List<Integer> trusted = new ArrayList<>();
-            int trust_count = numTrust.nextInt();
-            for (int tc = 0; tc < trust_count; ) {
-                int u_id = reviewed.nextInt();
-                if (!trusted.contains(u_id)) {
-                    tc++;
-                    trustInsert.setInt(1, i);
-                    trustInsert.setInt(2, u_id);
-                    trustInsert.setInt(3, isTrusted.nextInt(2));
-                    trustInsert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
-                    trustInsert.addBatch();
-                    trusted.add(u_id);
-                    total++;
 
-                    if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
-                        trustInsert.executeBatch();
-                        batch = 0;
-                        trustInsert.clearBatch();
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Rated users  % {}", (int) (((double) i / (double) this.num_users) * 100));
+        try (PreparedStatement trustInsert = conn.prepareStatement(sql)) {
+
+            //
+
+            ZipfianGenerator numTrust = new ZipfianGenerator(num_trust, 1.95);
+            ScrambledZipfianGenerator reviewed = new ScrambledZipfianGenerator(num_users);
+            Random isTrusted = new Random(System.currentTimeMillis());
+            for (int i = 0; i < num_users; i++) {
+                List<Integer> trusted = new ArrayList<>();
+                int trust_count = numTrust.nextInt();
+                for (int tc = 0; tc < trust_count; ) {
+                    int u_id = reviewed.nextInt();
+                    if (!trusted.contains(u_id)) {
+                        tc++;
+                        trustInsert.setInt(1, i);
+                        trustInsert.setInt(2, u_id);
+                        trustInsert.setInt(3, isTrusted.nextInt(2));
+                        trustInsert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+                        trustInsert.addBatch();
+                        trusted.add(u_id);
+                        total++;
+
+                        if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                            trustInsert.executeBatch();
+                            batch = 0;
+                            trustInsert.clearBatch();
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Rated users  % {}", (int) (((double) i / (double) this.num_users) * 100));
+                            }
+
                         }
-
                     }
                 }
+            } // FOR
+            if (batch > 0) {
+                trustInsert.executeBatch();
+                trustInsert.clearBatch();
             }
-        } // FOR
-        if (batch > 0) {
-            trustInsert.executeBatch();
-            trustInsert.clearBatch();
         }
-        trustInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Trust Loaded [%d]", total));
         }

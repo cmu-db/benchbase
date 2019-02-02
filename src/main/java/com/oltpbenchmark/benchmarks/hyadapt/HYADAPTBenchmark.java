@@ -44,30 +44,31 @@ public class HYADAPTBenchmark extends BenchmarkModule {
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        try {
-            Connection metaConn = this.makeConnection();
 
-            // LOADING FROM THE DATABASE IMPORTANT INFORMATION
-            // LIST OF USERS
 
-            Table t = this.catalog.getTable("HTABLE");
+        // LOADING FROM THE DATABASE IMPORTANT INFORMATION
+        // LIST OF USERS
 
-            String userCount = SQLUtil.getCountSQL(this.workConf.getDBType(), t);
-            Statement stmt = metaConn.createStatement();
-            ResultSet res = stmt.executeQuery(userCount);
-            int init_record_count = 0;
-            while (res.next()) {
-                init_record_count = res.getInt(1);
+        Table t = this.catalog.getTable("HTABLE");
+
+        String userCount = SQLUtil.getCountSQL(this.workConf.getDBType(), t);
+        int init_record_count = 0;
+        try (Connection metaConn = this.makeConnection()) {
+
+            try (Statement stmt = metaConn.createStatement()) {
+                try (ResultSet res = stmt.executeQuery(userCount)) {
+                    while (res.next()) {
+                        init_record_count = res.getInt(1);
+                    }
+
+                }
             }
-
-            res.close();
             //
             for (int i = 0; i < workConf.getTerminals(); ++i) {
 //                Connection conn = this.makeConnection();
 //                conn.setAutoCommit(false);
                 workers.add(new HYADAPTWorker(this, i, init_record_count + 1));
             } // FOR
-            metaConn.close();
 
             LOG.info("Init Record Count :: {}", init_record_count);
         } catch (SQLException e) {

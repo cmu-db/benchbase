@@ -51,57 +51,66 @@ public class MyRocksCollector extends DBCollector {
 
         myroMetrics = new HashMap<>();
 
-        try {
-            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
+        try (Connection conn = DriverManager.getConnection(oriDBUrl, username, password)) {
             Catalog.setSeparator(conn);
-            Statement s = conn.createStatement();
+            try (Statement s = conn.createStatement()) {
 
-            // Collect DBMS version
-            ResultSet out = s.executeQuery(VERSION_SQL);
-            if (out.next()) {
-                this.version.append(out.getString(1));
+                // Collect DBMS version
+                try (ResultSet out = s.executeQuery(VERSION_SQL)) {
+                    if (out.next()) {
+                        this.version.append(out.getString(1));
+                    }
+                }
+
+                // Get currenct oltpbench database
+                String dbname = "";
+                try (ResultSet out = s.executeQuery("select database()")) {
+                    if (out.next()) {
+                        dbname = out.getString(1);
+                    }
+                }
+
+                // Collect DBMS parameters
+                try (ResultSet out = s.executeQuery(PARAMETERS_SQL)) {
+                    while (out.next()) {
+                        dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
+                    }
+                }
+
+                // Collect MyRocks Column Family parameters
+                try (ResultSet out = s.executeQuery(CF_OPTIONS)) {
+                    while (out.next()) {
+                        dbParameters.put("cf_option: " + "cf_name=" + out.getString(1).toLowerCase() + " , " + "type=" + out.getString(2).toLowerCase(), out.getString(3));
+                    }
+                }
+
+                // Collect DBMS internal metrics
+                try (ResultSet out = s.executeQuery(METRICS_SQL)) {
+                    myroMetrics.put("internal_metrics", getMetrics(out));
+                }
+
+                // Collect metrics from information_schema
+                for (String viewName : MYRO_STAT_VIEWS) {
+                    try (ResultSet out = s.executeQuery("select * from information_schema." + viewName + ";")) {
+                        myroMetrics.put(viewName, getMetrics(out));
+                    }
+                }
+
+                // Collect db statistics
+                try (ResultSet out = s.executeQuery(DB_STATS + "\"" + dbname + "\"" + ";")) {
+                    myroMetrics.put("db_statistics", getMetrics(out));
+                }
+
+                // Collect table statistics
+                try (ResultSet out = s.executeQuery(TABLE_STATS + "\"" + dbname + "\"" + ";")) {
+                    myroMetrics.put("table_statistics", getMetrics(out));
+                }
+
+                // Collect index statistics
+                try (ResultSet out = s.executeQuery(INDEX_STATS + "\"" + dbname + "\"" + ";")) {
+                    myroMetrics.put("index_statistics", getMetrics(out));
+                }
             }
-
-            // Get currenct oltpbench database
-            String dbname = "";
-            out = s.executeQuery("select database()");
-            if (out.next()) {
-                dbname = out.getString(1);
-            }
-
-            // Collect DBMS parameters
-            out = s.executeQuery(PARAMETERS_SQL);
-            while (out.next()) {
-                dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
-            }
-
-            // Collect MyRocks Column Family parameters
-            out = s.executeQuery(CF_OPTIONS);
-            while (out.next()) {
-                dbParameters.put("cf_option: " + "cf_name=" + out.getString(1).toLowerCase() + " , " + "type=" + out.getString(2).toLowerCase(), out.getString(3));
-            }
-
-            // Collect DBMS internal metrics
-            out = s.executeQuery(METRICS_SQL);
-            myroMetrics.put("internal_metrics", getMetrics(out));
-
-            // Collect metrics from information_schema 
-            for (String viewName : MYRO_STAT_VIEWS) {
-                out = s.executeQuery("select * from information_schema." + viewName + ";");
-                myroMetrics.put(viewName, getMetrics(out));
-            }
-
-            // Collect db statistics
-            out = s.executeQuery(DB_STATS + "\"" + dbname + "\"" + ";");
-            myroMetrics.put("db_statistics", getMetrics(out));
-
-            // Collect table statistics  
-            out = s.executeQuery(TABLE_STATS + "\"" + dbname + "\"" + ";");
-            myroMetrics.put("table_statistics", getMetrics(out));
-
-            // Collect index statistics  
-            out = s.executeQuery(INDEX_STATS + "\"" + dbname + "\"" + ";");
-            myroMetrics.put("index_statistics", getMetrics(out));
 
         } catch (SQLException e) {
             LOG.error("Error while collecting DB parameters: {}", e.getMessage());

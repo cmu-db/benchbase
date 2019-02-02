@@ -54,28 +54,32 @@ public class GetItem extends Procedure {
 
     public Object[][] run(Connection conn, Timestamp[] benchmarkTimes,
                           long item_id, long seller_id) throws SQLException {
-        PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id);
-        ResultSet item_results = item_stmt.executeQuery();
-        if (item_results.next() == false) {
-            item_results.close();
-            throw new UserAbortException("Invalid item " + item_id);
-        }
-        Object[] item_row = new Object[item_results.getMetaData().getColumnCount()];
-        for (int i = 0; i < item_row.length; i++) {
-            item_row[i] = item_results.getObject(i + 1);
-        } // FOR
-        item_results.close();
 
-        PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id);
-        Object[] user_row = null;
-        try (ResultSet user_results = user_stmt.executeQuery()) {
-            if (user_results.next() == false) {
-                throw new UserAbortException("Invalid user id " + seller_id);
+        Object[] item_row = null;
+        try (PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id)) {
+            try (ResultSet item_results = item_stmt.executeQuery()) {
+                if (item_results.next() == false) {
+                    item_results.close();
+                    throw new UserAbortException("Invalid item " + item_id);
+                }
+                item_row = new Object[item_results.getMetaData().getColumnCount()];
+                for (int i = 0; i < item_row.length; i++) {
+                    item_row[i] = item_results.getObject(i + 1);
+                } // FOR
             }
-            user_row = new Object[user_results.getMetaData().getColumnCount()];
-            for (int i = 0; i < user_row.length; i++) {
-                user_row[i] = user_results.getObject(i + 1);
-            } // FOR
+        }
+
+        Object[] user_row = null;
+        try (PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id)) {
+            try (ResultSet user_results = user_stmt.executeQuery()) {
+                if (user_results.next() == false) {
+                    throw new UserAbortException("Invalid user id " + seller_id);
+                }
+                user_row = new Object[user_results.getMetaData().getColumnCount()];
+                for (int i = 0; i < user_row.length; i++) {
+                    user_row[i] = user_results.getObject(i + 1);
+                } // FOR
+            }
         }
 
         return (new Object[][]{item_row, user_row});

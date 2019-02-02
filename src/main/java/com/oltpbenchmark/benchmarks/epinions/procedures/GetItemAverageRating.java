@@ -33,10 +33,10 @@ public class GetItemAverageRating extends Procedure {
     public void run(Connection conn, long iid) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getAverageRating);
         stmt.setLong(1, iid);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            continue;
+        try (ResultSet r = stmt.executeQuery()) {
+            while (r.next()) {
+                continue;
+            }
         }
-        r.close();
     }
 }

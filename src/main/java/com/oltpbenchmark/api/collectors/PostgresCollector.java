@@ -43,30 +43,31 @@ public class PostgresCollector extends DBCollector {
 
     public PostgresCollector(String oriDBUrl, String username, String password) {
         pgMetrics = new HashMap<>();
-        try {
-            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
+        try (Connection conn = DriverManager.getConnection(oriDBUrl, username, password)) {
             Catalog.setSeparator(conn);
-            Statement s = conn.createStatement();
+            try (Statement s = conn.createStatement()) {
 
-            // Collect DBMS version
-            ResultSet out = s.executeQuery(VERSION_SQL);
-            if (out.next()) {
-                this.version.append(out.getString(1));
-            }
+                // Collect DBMS version
+                try (ResultSet out = s.executeQuery(VERSION_SQL)) {
+                    if (out.next()) {
+                        this.version.append(out.getString(1));
+                    }
+                }
 
-            // Collect DBMS parameters
-            out = s.executeQuery(PARAMETERS_SQL);
-            while (out.next()) {
-                dbParameters.put(out.getString("name"), out.getString("setting"));
-            }
+                // Collect DBMS parameters
+                try (ResultSet out = s.executeQuery(PARAMETERS_SQL)) {
+                    while (out.next()) {
+                        dbParameters.put(out.getString("name"), out.getString("setting"));
+                    }
+                }
 
-            // Collect DBMS internal metrics
-            for (String viewName : PG_STAT_VIEWS) {
-                try {
-                    out = s.executeQuery("SELECT * FROM " + viewName);
-                    pgMetrics.put(viewName, getMetrics(out));
-                } catch (SQLException ex) {
-                    LOG.error("Error while collecting DB metric view: {}", ex.getMessage());
+                // Collect DBMS internal metrics
+                for (String viewName : PG_STAT_VIEWS) {
+                    try (ResultSet out = s.executeQuery("SELECT * FROM " + viewName)) {
+                        pgMetrics.put(viewName, getMetrics(out));
+                    } catch (SQLException ex) {
+                        LOG.error("Error while collecting DB metric view: {}", ex.getMessage());
+                    }
                 }
             }
         } catch (SQLException e) {

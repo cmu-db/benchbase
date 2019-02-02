@@ -32,13 +32,14 @@ public class GetReviewItemById extends Procedure {
     );
 
     public void run(Connection conn, long iid) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getReviewItem);
-        stmt.setLong(1, iid);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            continue;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getReviewItem)) {
+            stmt.setLong(1, iid);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    continue;
+                }
+            }
         }
-        r.close();
     }
 
 }

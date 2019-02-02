@@ -134,108 +134,112 @@ public class UpdatePage extends Procedure {
                     int userId, String userIp, String userText,
                     long revisionId, String revComment, int revMinorEdit) throws SQLException {
 
-        boolean adv;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        int param;
         final String timestamp = TimeUtil.getCurrentTimeString14();
 
         // INSERT NEW TEXT
-        ps = this.getPreparedStatementReturnKeys(conn, insertText, new int[]{1});
-        param = 1;
-        ps.setInt(param++, pageId);
-        ps.setString(param++, pageText);
-        ps.setString(param++, "utf-8");  //This is an error
+        long nextTextId;
+        long nextRevId;
+
+        try (PreparedStatement ps = this.getPreparedStatementReturnKeys(conn, insertText, new int[]{1})) {
+            int param = 1;
+            ps.setInt(param++, pageId);
+            ps.setString(param++, pageText);
+            ps.setString(param++, "utf-8");  //This is an error
 //		ps.execute();
-        execute(conn, ps);
+            execute(conn, ps);
 
-        rs = ps.getGeneratedKeys();
-        adv = rs.next();
-
-        long nextTextId = rs.getLong(1);
-        rs.close();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                rs.next();
+                nextTextId = rs.getLong(1);
+            }
+        }
 
 
         // INSERT NEW REVISION
-        ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1});
-        param = 1;
-        ps.setInt(param++, pageId);       // rev_page
-        ps.setLong(param++, nextTextId);   // rev_text_id
-        ps.setString(param++, revComment);// rev_comment
-        ps.setInt(param++, revMinorEdit); // rev_minor_edit // this is an error
-        ps.setInt(param++, userId);       // rev_user
-        ps.setString(param++, userText);  // rev_user_text
-        ps.setString(param++, timestamp); // rev_timestamp
-        ps.setInt(param++, 0);            // rev_deleted //this is an error
-        ps.setInt(param++, pageText.length()); // rev_len
-        ps.setLong(param++, revisionId);   // rev_parent_id // this is an error
-//	    ps.execute();
-        execute(conn, ps);
 
-        rs = ps.getGeneratedKeys();
-        adv = rs.next();
-        long nextRevId = rs.getLong(1);
-        rs.close();
+        try (PreparedStatement ps = this.getPreparedStatementReturnKeys(conn, insertRevision, new int[]{1})) {
+            int param = 1;
+            ps.setInt(param++, pageId);       // rev_page
+            ps.setLong(param++, nextTextId);   // rev_text_id
+            ps.setString(param++, revComment);// rev_comment
+            ps.setInt(param++, revMinorEdit); // rev_minor_edit // this is an error
+            ps.setInt(param++, userId);       // rev_user
+            ps.setString(param++, userText);  // rev_user_text
+            ps.setString(param++, timestamp); // rev_timestamp
+            ps.setInt(param++, 0);            // rev_deleted //this is an error
+            ps.setInt(param++, pageText.length()); // rev_len
+            ps.setLong(param++, revisionId);   // rev_parent_id // this is an error
+//	    ps.execute();
+            execute(conn, ps);
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                rs.next();
+                nextRevId = rs.getLong(1);
+            }
+        }
 
 
         // I'm removing AND page_latest = "+a.revisionId+" from the query, since
         // it creates sometimes problem with the data, and page_id is a PK
         // anyway
-        ps = this.getPreparedStatement(conn, updatePage);
-        param = 1;
-        ps.setLong(param++, nextRevId);
-        ps.setString(param++, timestamp);
-        ps.setInt(param++, pageText.length());
-        ps.setInt(param++, pageId);
+        try (PreparedStatement ps = this.getPreparedStatement(conn, updatePage)) {
+            int param = 1;
+            ps.setLong(param++, nextRevId);
+            ps.setString(param++, timestamp);
+            ps.setInt(param++, pageText.length());
+            ps.setInt(param++, pageId);
 //		int numUpdatePages = ps.executeUpdate();
 //		assert(numUpdatePages == 1) : "WE ARE NOT UPDATING the page table!";
-        execute(conn, ps);
+            execute(conn, ps);
+        }
 
         // REMOVED
         // sql="DELETE FROM `redirect` WHERE rd_from = '"+a.pageId+"';";
         // st.addBatch(sql);
 
-        ps = this.getPreparedStatement(conn, insertRecentChanges);
-        param = 1;
-        ps.setString(param++, timestamp);     // rc_timestamp
-        ps.setString(param++, timestamp);     // rc_cur_time
-        ps.setInt(param++, pageNamespace);    // rc_namespace
-        ps.setString(param++, pageTitle);     // rc_title
-        ps.setInt(param++, 0);                // rc_type
-        ps.setInt(param++, 0);                // rc_minor
-        ps.setInt(param++, pageId);           // rc_cur_id
-        ps.setInt(param++, userId);           // rc_user
-        ps.setString(param++, userText);      // rc_user_text
-        ps.setString(param++, revComment);    // rc_comment
-        ps.setLong(param++, nextTextId);       // rc_this_oldid
-        ps.setLong(param++, textId);           // rc_last_oldid
-        ps.setInt(param++, 0);                // rc_bot
-        ps.setInt(param++, 0);                // rc_moved_to_ns
-        ps.setString(param++, "");            // rc_moved_to_title
-        ps.setString(param++, userIp);        // rc_ip
-        ps.setInt(param++, pageText.length());// rc_old_len
-        ps.setInt(param++, pageText.length());// rc_new_len
+        try (PreparedStatement ps = this.getPreparedStatement(conn, insertRecentChanges)) {
+            int param = 1;
+            ps.setString(param++, timestamp);     // rc_timestamp
+            ps.setString(param++, timestamp);     // rc_cur_time
+            ps.setInt(param++, pageNamespace);    // rc_namespace
+            ps.setString(param++, pageTitle);     // rc_title
+            ps.setInt(param++, 0);                // rc_type
+            ps.setInt(param++, 0);                // rc_minor
+            ps.setInt(param++, pageId);           // rc_cur_id
+            ps.setInt(param++, userId);           // rc_user
+            ps.setString(param++, userText);      // rc_user_text
+            ps.setString(param++, revComment);    // rc_comment
+            ps.setLong(param++, nextTextId);       // rc_this_oldid
+            ps.setLong(param++, textId);           // rc_last_oldid
+            ps.setInt(param++, 0);                // rc_bot
+            ps.setInt(param++, 0);                // rc_moved_to_ns
+            ps.setString(param++, "");            // rc_moved_to_title
+            ps.setString(param++, userIp);        // rc_ip
+            ps.setInt(param++, pageText.length());// rc_old_len
+            ps.setInt(param++, pageText.length());// rc_new_len
 //		int count = ps.executeUpdate();
 //		assert(count == 1);
-        execute(conn, ps);
+            execute(conn, ps);
+        }
 
         // REMOVED
         // sql="INSERT INTO `cu_changes` () VALUES ();";
         // st.addBatch(sql);
 
         // SELECT WATCHING USERS
-        ps = this.getPreparedStatement(conn, selectWatchList);
-        param = 1;
-        ps.setString(param++, pageTitle);
-        ps.setInt(param++, pageNamespace);
-        ps.setInt(param++, userId);
-        rs = ps.executeQuery();
-
         ArrayList<Integer> wlUser = new ArrayList<>();
-        while (rs.next()) {
-            wlUser.add(rs.getInt(1));
+        try (PreparedStatement ps = this.getPreparedStatement(conn, selectWatchList)) {
+            int param = 1;
+            ps.setString(param++, pageTitle);
+            ps.setInt(param++, pageNamespace);
+            ps.setInt(param++, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    wlUser.add(rs.getInt(1));
+                }
+            }
         }
-        rs.close();
 
         // =====================================================================
         // UPDATING WATCHLIST: txn3 (not always, only if someone is watching the
@@ -247,18 +251,19 @@ public class UpdatePage extends Procedure {
             // the transaction merge with the following one
             conn.commit();
 
-            ps = this.getPreparedStatement(conn, updateWatchList);
-            param = 1;
-            ps.setString(param++, timestamp);
-            ps.setString(param++, pageTitle);
-            ps.setInt(param++, pageNamespace);
-            for (Integer otherUserId : wlUser) {
-                ps.setInt(param, otherUserId);
-                ps.addBatch();
-            } // FOR
+            try (PreparedStatement ps = this.getPreparedStatement(conn, updateWatchList)) {
+                int param = 1;
+                ps.setString(param++, timestamp);
+                ps.setString(param++, pageTitle);
+                ps.setInt(param++, pageNamespace);
+                for (Integer otherUserId : wlUser) {
+                    ps.setInt(param, otherUserId);
+                    ps.addBatch();
+                } // FOR
 //			ps.executeUpdate(); // This is an error
 //			ps.executeBatch();
-            executeBatch(conn, ps);
+                executeBatch(conn, ps);
+            }
 
             // NOTE: this commit is skipped if none is watching the page, and
             // the transaction merge with the following one
@@ -271,43 +276,47 @@ public class UpdatePage extends Procedure {
 
             // This seems to be executed only if the page is watched, and once
             // for each "watcher"
-            ps = this.getPreparedStatement(conn, selectUser);
-            param = 1;
-            for (Integer otherUserId : wlUser) {
-                ps.setInt(param, otherUserId);
-                rs = ps.executeQuery();
-                rs.next();
-                rs.close();
-            } // FOR
+            try (PreparedStatement ps = this.getPreparedStatement(conn, selectUser)) {
+                int param = 1;
+                for (Integer otherUserId : wlUser) {
+                    ps.setInt(param, otherUserId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        rs.next();
+                    }
+                } // FOR
+            }
         }
 
         // This is always executed, sometimes as a separate transaction,
         // sometimes together with the previous one
 
-        ps = this.getPreparedStatement(conn, insertLogging);
-        param = 1;
-        ps.setString(param++, timestamp);
-        ps.setInt(param++, userId);
-        ps.setString(param++, pageTitle);
-        ps.setInt(param++, pageNamespace);
-        ps.setString(param++, userText);
-        ps.setInt(param++, pageId);
-        ps.setString(param++, String.format("%d\n%d\n%d", nextRevId, revisionId, 1));
+        try (PreparedStatement ps = this.getPreparedStatement(conn, insertLogging)) {
+            int param = 1;
+            ps.setString(param++, timestamp);
+            ps.setInt(param++, userId);
+            ps.setString(param++, pageTitle);
+            ps.setInt(param++, pageNamespace);
+            ps.setString(param++, userText);
+            ps.setInt(param++, pageId);
+            ps.setString(param++, String.format("%d\n%d\n%d", nextRevId, revisionId, 1));
 //		ps.executeUpdate();
-        execute(conn, ps);
+            execute(conn, ps);
+        }
 
-        ps = this.getPreparedStatement(conn, updateUserEdit);
-        param = 1;
-        ps.setInt(param++, userId);
+        try (PreparedStatement ps = this.getPreparedStatement(conn, updateUserEdit)) {
+            int param = 1;
+            ps.setInt(param++, userId);
 //		ps.executeUpdate();
-        execute(conn, ps);
+            execute(conn, ps);
+        }
 
-        ps = this.getPreparedStatement(conn, updateUserTouched);
-        param = 1;
-        ps.setString(param++, timestamp);
-        ps.setInt(param++, userId);
-//		ps.executeUpdate();	    		
-        execute(conn, ps);
+        try (PreparedStatement ps = this.getPreparedStatement(conn, updateUserTouched)) {
+            int param = 1;
+            ps.setString(param++, timestamp);
+            ps.setInt(param++, userId);
+//		ps.executeUpdate();
+            execute(conn, ps);
+        }
     }
 
     public void execute(Connection conn, PreparedStatement p) throws SQLException {

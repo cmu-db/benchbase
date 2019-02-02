@@ -208,51 +208,51 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         final List<Object[]> volt_table = generator.getVoltTable();
         final String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        final PreparedStatement stmt = conn.prepareStatement(sql);
-        final int[] types = catalog_tbl.getColumnTypes();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            final int[] types = catalog_tbl.getColumnTypes();
 
-        while (generator.hasMore()) {
-            generator.generateBatch();
+            while (generator.hasMore()) {
+                generator.generateBatch();
 
-//            StringBuilder sb = new StringBuilder();
-//            if (tableName.equalsIgnoreCase("USER_FEEDBACK")) { //  || tableName.equalsIgnoreCase("USER_ATTRIBUTES")) {
-//                sb.append(tableName + "\n");
-//                for (int i = 0; i < volt_table.size(); i++) {
-//                    sb.append(String.format("[%03d] %s\n", i, StringUtil.abbrv(Arrays.toString(volt_table.get(i)), 100)));
-//                }
-//                LOG.info(sb.toString() + "\n");
-//            }
+                //            StringBuilder sb = new StringBuilder();
+                //            if (tableName.equalsIgnoreCase("USER_FEEDBACK")) { //  || tableName.equalsIgnoreCase("USER_ATTRIBUTES")) {
+                //                sb.append(tableName + "\n");
+                //                for (int i = 0; i < volt_table.size(); i++) {
+                //                    sb.append(String.format("[%03d] %s\n", i, StringUtil.abbrv(Arrays.toString(volt_table.get(i)), 100)));
+                //                }
+                //                LOG.info(sb.toString() + "\n");
+                //            }
 
-            for (Object[] row : volt_table) {
-                for (int i = 0; i < row.length; i++) {
-                    if (row[i] != null) {
-                        stmt.setObject(i + 1, row[i]);
-                    } else {
-                        stmt.setNull(i + 1, types[i]);
-                    }
+                for (Object[] row : volt_table) {
+                    for (int i = 0; i < row.length; i++) {
+                        if (row[i] != null) {
+                            stmt.setObject(i + 1, row[i]);
+                        } else {
+                            stmt.setNull(i + 1, types[i]);
+                        }
+                    } // FOR
+                    stmt.addBatch();
                 } // FOR
-                stmt.addBatch();
-            } // FOR
-            try {
-                stmt.executeBatch();
-                stmt.clearBatch();
-            } catch (SQLException ex) {
-                if (ex.getNextException() != null) {
-                    ex = ex.getNextException();
+                try {
+                    stmt.executeBatch();
+                    stmt.clearBatch();
+                } catch (SQLException ex) {
+                    if (ex.getNextException() != null) {
+                        ex = ex.getNextException();
+                    }
+                    LOG.warn("{} - {}", tableName, ex.getMessage(), ex);
+                    throw ex;
+                    // SKIP
                 }
-                LOG.warn("{} - {}", tableName, ex.getMessage(), ex);
-                throw ex;
-                // SKIP
-            }
 
-            this.tableSizes.put(tableName, volt_table.size());
+                this.tableSizes.put(tableName, volt_table.size());
 
-            // Release anything to the sub-generators if we have it
-            // We have to do this to ensure that all of the parent tuples get
-            // insert first for foreign-key relationships
-            generator.releaseHoldsToSubTableGenerators();
-        } // WHILE
-        stmt.close();
+                // Release anything to the sub-generators if we have it
+                // We have to do this to ensure that all of the parent tuples get
+                // insert first for foreign-key relationships
+                generator.releaseHoldsToSubTableGenerators();
+            } // WHILE
+        }
 
         // Mark as finished
         if (this.fail == false) {

@@ -53,7 +53,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         try {
-            Connection metaConn = this.makeConnection();
+
 
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
@@ -61,31 +61,36 @@ public class EpinionsBenchmark extends BenchmarkModule {
             Table t = this.catalog.getTable("USERACCT");
 
 
-            String userCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "u_id");
-            Statement stmt = metaConn.createStatement();
-            ResultSet res = stmt.executeQuery(userCount);
             ArrayList<String> user_ids = new ArrayList<>();
-            while (res.next()) {
-                user_ids.add(res.getString(1));
-            }
-            res.close();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded: {} User ids", user_ids.size());
-            }
-            // LIST OF ITEMS AND
-            t = this.catalog.getTable("ITEM");
-
-            String itemCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "i_id");
-            res = stmt.executeQuery(itemCount);
             ArrayList<String> item_ids = new ArrayList<>();
-            while (res.next()) {
-                item_ids.add(res.getString(1));
+            String userCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "u_id");
+
+            try (Connection metaConn = this.makeConnection()) {
+                try (Statement stmt = metaConn.createStatement()) {
+                    try (ResultSet res = stmt.executeQuery(userCount)) {
+                        while (res.next()) {
+                            user_ids.add(res.getString(1));
+                        }
+                    }
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Loaded: {} User ids", user_ids.size());
+                    }
+                    // LIST OF ITEMS AND
+                    t = this.catalog.getTable("ITEM");
+
+
+                    String itemCount = SQLUtil.selectColValues(this.workConf.getDBType(), t, "i_id");
+                    try (ResultSet res = stmt.executeQuery(itemCount)) {
+                        while (res.next()) {
+                            item_ids.add(res.getString(1));
+                        }
+                    }
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Loaded: {} Item ids", item_ids.size());
+                }
             }
-            res.close();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded: {} Item ids", item_ids.size());
-            }
-            metaConn.close();
+
             // Now create the workers.
             for (int i = 0; i < workConf.getTerminals(); ++i) {
                 workers.add(new EpinionsWorker(this, i, user_ids, item_ids));

@@ -166,26 +166,27 @@ public class ResultUploader {
             results.writeAllCSVAbsoluteTiming(activeTXTypes, confOut);
             confOut.close();
 
-            CloseableHttpClient httpclient = HttpClients.createDefault();
-            HttpPost httppost = new HttpPost(uploadUrl);
+            try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+                HttpPost httppost = new HttpPost(uploadUrl);
 
-            HttpEntity reqEntity = MultipartEntityBuilder.create()
-                    .addTextBody("upload_code", uploadCode)
-                    .addPart("sample_data", new FileBody(samplesFile))
-                    .addPart("raw_data", new FileBody(csvDataFile))
-                    .addPart("db_parameters_data", new FileBody(paramsFile))
-                    .addPart("db_metrics_data", new FileBody(metricsFile))
-                    .addPart("benchmark_conf_data", new FileBody(expConfigFile))
-                    .addPart("summary_data", new FileBody(summaryFile))
-                    .build();
+                HttpEntity reqEntity = MultipartEntityBuilder.create()
+                        .addTextBody("upload_code", uploadCode)
+                        .addPart("sample_data", new FileBody(samplesFile))
+                        .addPart("raw_data", new FileBody(csvDataFile))
+                        .addPart("db_parameters_data", new FileBody(paramsFile))
+                        .addPart("db_metrics_data", new FileBody(metricsFile))
+                        .addPart("benchmark_conf_data", new FileBody(expConfigFile))
+                        .addPart("summary_data", new FileBody(summaryFile))
+                        .build();
 
-            httppost.setEntity(reqEntity);
+                httppost.setEntity(reqEntity);
 
-            LOG.info("executing request {}", httppost.getRequestLine());
-            try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-                HttpEntity resEntity = response.getEntity();
-                LOG.info(IOUtils.toString(resEntity.getContent()));
-                EntityUtils.consume(resEntity);
+                LOG.info("executing request {}", httppost.getRequestLine());
+                try (CloseableHttpResponse response = httpclient.execute(httppost)) {
+                    HttpEntity resEntity = response.getEntity();
+                    LOG.info(IOUtils.toString(resEntity.getContent()));
+                    EntityUtils.consume(resEntity);
+                }
             }
         } catch (IOException | ConfigurationException e) {
             LOG.error(e.getMessage(), e);

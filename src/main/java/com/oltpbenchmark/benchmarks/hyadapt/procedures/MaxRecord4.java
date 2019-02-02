@@ -33,15 +33,15 @@ public class MaxRecord4 extends Procedure {
                     + "FROM HTABLE WHERE FIELD1>?");
 
     public void run(Connection conn, int keyname) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, maxStmt);
-        stmt.setInt(1, keyname);
         int max = -1;
-        ResultSet r = stmt.executeQuery();
-        if (r.next()) {
-            max = r.getInt(1);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, maxStmt)) {
+            stmt.setInt(1, keyname);
+            try (ResultSet r = stmt.executeQuery()) {
+                if (r.next()) {
+                    max = r.getInt(1);
+                }
+            }
         }
-
-        r.close();
     }
 
 }

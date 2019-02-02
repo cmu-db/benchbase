@@ -105,98 +105,101 @@ public class CloseAuctions extends Procedure {
         int col = -1;
         int param = -1;
 
-        PreparedStatement dueItemsStmt = this.getPreparedStatement(conn, getDueItems);
-        ResultSet dueItemsTable = null;
-        PreparedStatement maxBidStmt = this.getPreparedStatement(conn, getMaxBid);
-        ResultSet maxBidResults = null;
-
         final List<Object[]> output_rows = new ArrayList<>();
-        while (round-- > 0) {
-            param = 1;
-            dueItemsStmt.setTimestamp(param++, startTime);
-            dueItemsStmt.setTimestamp(param++, endTime);
-            dueItemsStmt.setInt(param++, ItemStatus.OPEN.ordinal());
-            dueItemsTable = dueItemsStmt.executeQuery();
-            boolean adv = dueItemsTable.next();
-            if (adv == false) {
-                break;
-            }
 
-            output_rows.clear();
-            while (dueItemsTable.next()) {
-                col = 1;
-                long itemId = dueItemsTable.getLong(col++);
-                long sellerId = dueItemsTable.getLong(col++);
-                String i_name = dueItemsTable.getString(col++);
-                double currentPrice = dueItemsTable.getDouble(col++);
-                long numBids = dueItemsTable.getLong(col++);
-                Timestamp endDate = dueItemsTable.getTimestamp(col++);
-                ItemStatus itemStatus = ItemStatus.get(dueItemsTable.getLong(col++));
-                Long bidId = null;
-                Long buyerId = null;
+        try (PreparedStatement dueItemsStmt = this.getPreparedStatement(conn, getDueItems);
+             PreparedStatement maxBidStmt = this.getPreparedStatement(conn, getMaxBid)) {
 
-                if (debug) {
-                    LOG.debug(String.format("Getting max bid for itemId=%d / sellerId=%d", itemId, sellerId));
+
+            while (round-- > 0) {
+                param = 1;
+                dueItemsStmt.setTimestamp(param++, startTime);
+                dueItemsStmt.setTimestamp(param++, endTime);
+                dueItemsStmt.setInt(param++, ItemStatus.OPEN.ordinal());
+                try (ResultSet dueItemsTable = dueItemsStmt.executeQuery()) {
+                    boolean adv = dueItemsTable.next();
+                    if (adv == false) {
+                        break;
+                    }
+
+                    output_rows.clear();
+                    while (dueItemsTable.next()) {
+                        col = 1;
+                        long itemId = dueItemsTable.getLong(col++);
+                        long sellerId = dueItemsTable.getLong(col++);
+                        String i_name = dueItemsTable.getString(col++);
+                        double currentPrice = dueItemsTable.getDouble(col++);
+                        long numBids = dueItemsTable.getLong(col++);
+                        Timestamp endDate = dueItemsTable.getTimestamp(col++);
+                        ItemStatus itemStatus = ItemStatus.get(dueItemsTable.getLong(col++));
+                        Long bidId = null;
+                        Long buyerId = null;
+
+                        if (debug) {
+                            LOG.debug(String.format("Getting max bid for itemId=%d / sellerId=%d", itemId, sellerId));
+                        }
+
+
+                        // Has bid on this item - set status to WAITING_FOR_PURCHASE
+                        // We'll also insert a new USER_ITEM record as needed
+                        // We have to do this extra step because H-Store doesn't have good support in the
+                        // query optimizer for LEFT OUTER JOINs
+                        if (numBids > 0) {
+                            waiting_ctr++;
+
+                            param = 1;
+                            maxBidStmt.setLong(param++, itemId);
+                            maxBidStmt.setLong(param++, sellerId);
+                            try (ResultSet maxBidResults = maxBidStmt.executeQuery()) {
+                                adv = maxBidResults.next();
+
+
+                                col = 1;
+                                bidId = maxBidResults.getLong(col++);
+                                buyerId = maxBidResults.getLong(col++);
+                                updated = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime).executeUpdate();
+
+                                itemStatus = ItemStatus.WAITING_FOR_PURCHASE;
+                            }
+                        }
+                        // No bid on this item - set status to CLOSED
+                        else {
+                            closed_ctr++;
+                            itemStatus = ItemStatus.CLOSED;
+                        }
+
+                        // Update Status!
+                        updated = this.getPreparedStatement(conn, updateItemStatus, itemStatus.ordinal(), currentTime, itemId, sellerId).executeUpdate();
+                        if (debug) {
+                            LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
+                        }
+
+                        Object[] row = new Object[]{
+                                itemId,               // i_id
+                                sellerId,             // i_u_id
+                                i_name,               // i_name
+                                currentPrice,         // i_current_price
+                                numBids,              // i_num_bids
+                                endDate,              // i_end_date
+                                itemStatus.ordinal(), // i_status
+                                bidId,                // imb_ib_id
+                                buyerId               // ib_buyer_id
+                        };
+                        output_rows.add(row);
+                    } // WHILE
                 }
-
-
-                // Has bid on this item - set status to WAITING_FOR_PURCHASE
-                // We'll also insert a new USER_ITEM record as needed
-                // We have to do this extra step because H-Store doesn't have good support in the
-                // query optimizer for LEFT OUTER JOINs
-                if (numBids > 0) {
-                    waiting_ctr++;
-
-                    param = 1;
-                    maxBidStmt.setLong(param++, itemId);
-                    maxBidStmt.setLong(param++, sellerId);
-                    maxBidResults = maxBidStmt.executeQuery();
-                    adv = maxBidResults.next();
-
-
-                    col = 1;
-                    bidId = maxBidResults.getLong(col++);
-                    buyerId = maxBidResults.getLong(col++);
-                    updated = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime).executeUpdate();
-
-                    itemStatus = ItemStatus.WAITING_FOR_PURCHASE;
-                    maxBidResults.close();
+                if (round > 0) {
+                    conn.commit();
                 }
-                // No bid on this item - set status to CLOSED
-                else {
-                    closed_ctr++;
-                    itemStatus = ItemStatus.CLOSED;
-                }
-
-                // Update Status!
-                updated = this.getPreparedStatement(conn, updateItemStatus, itemStatus.ordinal(), currentTime, itemId, sellerId).executeUpdate();
-                if (debug) {
-                    LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
-                }
-
-                Object[] row = new Object[]{
-                        itemId,               // i_id
-                        sellerId,             // i_u_id
-                        i_name,               // i_name
-                        currentPrice,         // i_current_price
-                        numBids,              // i_num_bids
-                        endDate,              // i_end_date
-                        itemStatus.ordinal(), // i_status
-                        bidId,                // imb_ib_id
-                        buyerId               // ib_buyer_id
-                };
-                output_rows.add(row);
             } // WHILE
-            dueItemsTable.close();
-            if (round > 0) {
-                conn.commit();
-            }
-        } // WHILE
+
+
+        }
 
         if (debug) {
             LOG.debug(String.format("Updated Auctions - Closed=%d / Waiting=%d", closed_ctr, waiting_ctr));
         }
-//        conn.setTransactionIsolation(orig_isolation);
+
         return (output_rows);
     }
 }

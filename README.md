@@ -21,7 +21,7 @@ Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench a
 * no sample config for `hyadapt`
 * linkbench loader needs to be fixed, wrong tables referenced in loader
 * chbenchmark needs more love
-* auctionmark not yet working; data loading issue
+* auctionmark not yet working; data loading issue; lots of resource leaks
 
 ## Supported Benchmarks
 

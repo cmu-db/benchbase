@@ -71,28 +71,30 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement stmt = this.conn.prepareStatement(sql);
-        long total = 0;
-        int batch = 0;
-        for (int i = 0; i < this.num_record; i++) {
-            stmt.setInt(1, i);
-            for (int j = 2; j <= HYADAPTConstants.FIELD_COUNT + 1; j++) {
-                stmt.setInt(j, getRandInt());
-            }
-            stmt.addBatch();
-            total++;
-            if (++batch >= HYADAPTConstants.configCommitCount) {
-                int[] result = stmt.executeBatch();
 
-                batch = 0;
+
+        try (PreparedStatement stmt = this.conn.prepareStatement(sql)) {
+            long total = 0;
+            int batch = 0;
+            for (int i = 0; i < this.num_record; i++) {
+                stmt.setInt(1, i);
+                for (int j = 2; j <= HYADAPTConstants.FIELD_COUNT + 1; j++) {
+                    stmt.setInt(j, getRandInt());
+                }
+                stmt.addBatch();
+                total++;
+                if (++batch >= HYADAPTConstants.configCommitCount) {
+                    int[] result = stmt.executeBatch();
+
+                    batch = 0;
+                    LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
+                }
+            } // FOR
+            if (batch > 0) {
+                stmt.executeBatch();
                 LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
             }
-        } // FOR
-        if (batch > 0) {
-            stmt.executeBatch();
-            LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
         }
-        stmt.close();
         LOG.info("Finished loading {}", catalog_tbl.getName());
     }
 }

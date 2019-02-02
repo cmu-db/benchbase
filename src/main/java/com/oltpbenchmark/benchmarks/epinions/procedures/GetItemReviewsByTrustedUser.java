@@ -36,20 +36,22 @@ public class GetItemReviewsByTrustedUser extends Procedure {
     );
 
     public void run(Connection conn, long iid, long uid) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getReview);
-        stmt.setLong(1, iid);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            continue;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getReview)) {
+            stmt.setLong(1, iid);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    continue;
+                }
+            }
         }
-        r.close();
-        stmt = this.getPreparedStatement(conn, getTrust);
-        stmt.setLong(1, uid);
-        r = stmt.executeQuery();
-        while (r.next()) {
-            continue;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getTrust)) {
+            stmt.setLong(1, uid);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    continue;
+                }
+            }
         }
-        r.close();
     }
 
 }

@@ -47,14 +47,14 @@ public abstract class GenericQuery extends Procedure {
         try {
             // todo: this won't work
             FileReader input = new FileReader("src/com/oltpbenchmark/benchmarks/chbenchmark/queries/" + queryFile);
-            BufferedReader reader = new BufferedReader(input);
-            String line = reader.readLine();
-            while (line != null) {
-                query.append(line);
-                query.append(" ");
-                line = reader.readLine();
+            try (BufferedReader reader = new BufferedReader(input)) {
+                String line = reader.readLine();
+                while (line != null) {
+                    query.append(line);
+                    query.append(" ");
+                    line = reader.readLine();
+                }
             }
-            reader.close();
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
         }

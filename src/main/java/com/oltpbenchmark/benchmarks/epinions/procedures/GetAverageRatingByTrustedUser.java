@@ -34,11 +34,11 @@ public class GetAverageRatingByTrustedUser extends Procedure {
         PreparedStatement stmt = this.getPreparedStatement(conn, getAverageRating);
         stmt.setLong(1, iid);
         stmt.setLong(2, uid);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            continue;
+        try (ResultSet r = stmt.executeQuery()) {
+            while (r.next()) {
+                continue;
+            }
         }
-        r.close();
     }
 
 }
