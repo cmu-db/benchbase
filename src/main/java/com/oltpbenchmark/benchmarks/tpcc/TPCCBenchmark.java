@@ -129,23 +129,5 @@ public class TPCCBenchmark extends BenchmarkModule {
         return ret;
     }
 
-    /**
-     * Hack to support postgres-specific timestamps
-     *
-     * @param time
-     * @return
-     */
-    public Timestamp getTimestamp(long time) {
-        Timestamp timestamp;
-
-        // HACK: Peloton doesn't support JDBC timestamps.
-        // We have to use the postgres-specific type
-        if (this.workConf.getDBType() == DatabaseType.PELOTON) {
-            timestamp = new org.postgresql.util.PGTimestamp(time);
-        } else {
-            timestamp = new java.sql.Timestamp(time);
-        }
-        return (timestamp);
-    }
 
 }

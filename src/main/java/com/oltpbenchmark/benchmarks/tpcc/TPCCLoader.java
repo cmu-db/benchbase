@@ -410,7 +410,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
             for (int d = 1; d <= districtsPerWarehouse; d++) {
                 for (int c = 1; c <= customersPerDistrict; c++) {
-                    Timestamp sysdate = this.benchmark.getTimestamp(System.currentTimeMillis());
+                    Timestamp sysdate = new Timestamp(System.currentTimeMillis());
 
                     customer.c_id = c;
                     customer.c_d_id = d;
@@ -574,7 +574,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     }
                     oorder.o_ol_cnt = TPCCUtil.randomNumber(5, 15, benchmark.rng());
                     oorder.o_all_local = 1;
-                    oorder.o_entry_d = this.benchmark.getTimestamp(System.currentTimeMillis());
+                    oorder.o_entry_d = new Timestamp(System.currentTimeMillis());
 
                     k++;
                     int idx = 1;

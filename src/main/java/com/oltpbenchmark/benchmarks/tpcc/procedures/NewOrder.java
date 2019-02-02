@@ -24,10 +24,7 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Random;
 
 public class NewOrder extends TPCCProcedure {
@@ -236,7 +233,7 @@ public class NewOrder extends TPCCProcedure {
             stmtInsertOOrder.setInt(2, d_id);
             stmtInsertOOrder.setInt(3, w_id);
             stmtInsertOOrder.setInt(4, c_id);
-            stmtInsertOOrder.setTimestamp(5, w.getBenchmarkModule().getTimestamp(System.currentTimeMillis()));
+            stmtInsertOOrder.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
             stmtInsertOOrder.setInt(6, o_ol_cnt);
             stmtInsertOOrder.setInt(7, o_all_local);
             stmtInsertOOrder.executeUpdate();

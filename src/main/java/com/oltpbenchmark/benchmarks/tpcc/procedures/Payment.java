@@ -25,10 +25,7 @@ import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -291,7 +288,7 @@ public class Payment extends TPCCProcedure {
         payInsertHist.setInt(3, c.c_id);
         payInsertHist.setInt(4, districtID);
         payInsertHist.setInt(5, w_id);
-        payInsertHist.setTimestamp(6, w.getBenchmarkModule().getTimestamp(System.currentTimeMillis()));
+        payInsertHist.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
         payInsertHist.setDouble(7, paymentAmount);
         payInsertHist.setString(8, h_data);
         payInsertHist.executeUpdate();

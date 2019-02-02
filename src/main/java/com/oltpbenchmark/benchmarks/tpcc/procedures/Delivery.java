@@ -97,7 +97,7 @@ public class Delivery extends TPCCProcedure {
 
         boolean trace = LOG.isDebugEnabled();
         int o_carrier_id = TPCCUtil.randomNumber(1, 10, gen);
-        Timestamp timestamp = w.getBenchmarkModule().getTimestamp(System.currentTimeMillis());
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
         delivDeleteNewOrder = this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
