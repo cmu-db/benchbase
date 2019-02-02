@@ -42,27 +42,29 @@ public class GetTweetsFromFollowing extends Procedure {
     );
 
     public void run(Connection conn, int uid) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getFollowing);
-        stmt.setLong(1, uid);
-        ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement getFollowingStatement = this.getPreparedStatement(conn, getFollowing)) {
+            getFollowingStatement.setLong(1, uid);
+            try (ResultSet folloingResult = getFollowingStatement.executeQuery()) {
 
-        stmt = this.getPreparedStatement(conn, getTweets);
-        int ctr = 0;
-        long last = -1;
-        while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
-            last = rs.getLong(1);
-            stmt.setLong(ctr, last);
+                try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets)) {
+                    int ctr = 0;
+                    long last = -1;
+                    while (folloingResult.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
+                        last = folloingResult.getLong(1);
+                        stmt.setLong(ctr, last);
 
-        } // WHILE
-        rs.close();
-        if (ctr > 0) {
-            while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
-                stmt.setLong(ctr, last);
-            } // WHILE     
-            rs = stmt.executeQuery();
-            rs.close();
-        } else {
-            // LOG.debug("No followers for user: "+uid); // so what .. ?
+                    } // WHILE
+                    if (ctr > 0) {
+                        while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
+                            stmt.setLong(ctr, last);
+                        } // WHILE
+                        try (ResultSet getTweetsResult = stmt.executeQuery()) {
+                        }
+                    } else {
+                        // LOG.debug("No followers for user: "+uid); // so what .. ?
+                    }
+                }
+            }
         }
     }
 

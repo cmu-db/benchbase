@@ -41,24 +41,26 @@ public class GetFollowers extends Procedure {
     );
 
     public void run(Connection conn, long uid) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getFollowers);
-        stmt.setLong(1, uid);
-        ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getFollowers)) {
+            stmt.setLong(1, uid);
+            try (ResultSet rs = stmt.executeQuery()) {
 
-        stmt = this.getPreparedStatement(conn, getFollowerNames);
-        int ctr = 0;
-        long last = -1;
-        while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
-            last = rs.getLong(1);
-            stmt.setLong(ctr, last);
-        } // WHILE
-        rs.close();
-        if (ctr > 0) {
-            while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
-                stmt.setLong(ctr, last);
-            } // WHILE
-            rs = stmt.executeQuery();
-            rs.close();
+                try (PreparedStatement getFollowerNamesstmt = this.getPreparedStatement(conn, getFollowerNames)) {
+                    int ctr = 0;
+                    long last = -1;
+                    while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
+                        last = rs.getLong(1);
+                        stmt.setLong(ctr, last);
+                    } // WHILE
+                    if (ctr > 0) {
+                        while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
+                            stmt.setLong(ctr, last);
+                        } // WHILE
+                        try (ResultSet getFollowerNamesrs = getFollowerNamesstmt.executeQuery()) {
+                        }
+                    }
+                }
+            }
         }
         // LOG.warn("No followers for user : "+uid); //... so what ? 
     }

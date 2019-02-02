@@ -83,46 +83,48 @@ public class Vote extends Procedure {
 
     public long run(Connection conn, long voteId, long phoneNumber, int contestantNumber, long maxVotesPerPhoneNumber) throws SQLException {
 
-        PreparedStatement ps = getPreparedStatement(conn, checkContestantStmt);
-        ps.setInt(1, contestantNumber);
-        ResultSet rs = ps.executeQuery();
-        try {
-            if (!rs.next()) {
-                return ERR_INVALID_CONTESTANT;
+        try (PreparedStatement ps = getPreparedStatement(conn, checkContestantStmt)) {
+            ps.setInt(1, contestantNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return ERR_INVALID_CONTESTANT;
+                }
             }
-        } finally {
-            rs.close();
         }
 
-        ps = getPreparedStatement(conn, checkVoterStmt);
-        ps.setLong(1, phoneNumber);
-        rs = ps.executeQuery();
-        boolean hasVoterEnt = rs.next();
-        try {
-            if (hasVoterEnt && rs.getLong(1) >= maxVotesPerPhoneNumber) {
-                return ERR_VOTER_OVER_VOTE_LIMIT;
+
+        try (PreparedStatement ps = getPreparedStatement(conn, checkVoterStmt)) {
+            ps.setLong(1, phoneNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean hasVoterEnt = rs.next();
+                if (hasVoterEnt && rs.getLong(1) >= maxVotesPerPhoneNumber) {
+                    return ERR_VOTER_OVER_VOTE_LIMIT;
+                }
             }
-        } finally {
-            rs.close();
         }
 
-        ps = getPreparedStatement(conn, checkStateStmt);
-        ps.setShort(1, (short) (phoneNumber / 10000000L));
-        rs = ps.executeQuery();
-        // Some sample client libraries use the legacy random phone generation that mostly
-        // created invalid phone numbers. Until refactoring, re-assign all such votes to
-        // the "XX" fake state (those votes will not appear on the Live Statistics dashboard,
-        // but are tracked as legitimate instead of invalid, as old clients would mostly get
-        // it wrong and see all their transactions rejected).
-        final String state = rs.next() ? rs.getString(1) : "XX";
-        rs.close();
 
-        ps = getPreparedStatement(conn, insertVoteStmt);
-        ps.setLong(1, voteId);
-        ps.setLong(2, phoneNumber);
-        ps.setString(3, state);
-        ps.setInt(4, contestantNumber);
-        ps.execute();
+        String state = null;
+
+        try (PreparedStatement ps = getPreparedStatement(conn, checkStateStmt)) {
+            ps.setShort(1, (short) (phoneNumber / 10000000L));
+            try (ResultSet rs = ps.executeQuery()) {
+                // Some sample client libraries use the legacy random phone generation that mostly
+                // created invalid phone numbers. Until refactoring, re-assign all such votes to
+                // the "XX" fake state (those votes will not appear on the Live Statistics dashboard,
+                // but are tracked as legitimate instead of invalid, as old clients would mostly get
+                // it wrong and see all their transactions rejected).
+                state = rs.next() ? rs.getString(1) : "XX";
+            }
+        }
+
+        try (PreparedStatement ps = getPreparedStatement(conn, insertVoteStmt)) {
+            ps.setLong(1, voteId);
+            ps.setLong(2, phoneNumber);
+            ps.setString(3, state);
+            ps.setInt(4, contestantNumber);
+            ps.execute();
+        }
 
         // Set the return value to 0: successful vote
         return VOTE_SUCCESSFUL;

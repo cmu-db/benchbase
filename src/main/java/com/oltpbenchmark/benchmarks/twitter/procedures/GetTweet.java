@@ -34,7 +34,7 @@ public class GetTweet extends Procedure {
     public void run(Connection conn, long tweet_id) throws SQLException {
         PreparedStatement stmt = this.getPreparedStatement(conn, getTweet);
         stmt.setLong(1, tweet_id);
-        ResultSet rs = stmt.executeQuery();
-        rs.close();
+        try (ResultSet rs = stmt.executeQuery()) {
+        }
     }
 }

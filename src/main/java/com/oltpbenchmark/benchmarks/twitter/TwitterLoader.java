@@ -134,44 +134,46 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_USER);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement userInsert = conn.prepareStatement(sql);
-
-        NameHistogram name_h = new NameHistogram();
-        FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
 
         int total = 0;
-        int batchSize = 0;
 
-        for (int i = lo; i <= hi; i++) {
-            // Generate a random username for this user
-            int name_length = name_len_rng.nextValue();
-            String name = TextGenerator.randomStr(this.rng(), name_length);
+        try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
+            int batchSize = 0;
 
-            userInsert.setInt(1, i); // ID
-            userInsert.setString(2, name); // NAME
-            userInsert.setString(3, name + "@tweeter.com"); // EMAIL
-            userInsert.setNull(4, java.sql.Types.INTEGER);
-            userInsert.setNull(5, java.sql.Types.INTEGER);
-            userInsert.setNull(6, java.sql.Types.INTEGER);
-            userInsert.addBatch();
+            NameHistogram name_h = new NameHistogram();
+            FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
 
-            batchSize++;
-            total++;
-            if ((batchSize % configCommitCount) == 0) {
-                int[] result = userInsert.executeBatch();
 
-                userInsert.clearBatch();
-                batchSize = 0;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Users %d / %d", total, this.num_users));
+            for (int i = lo; i <= hi; i++) {
+                // Generate a random username for this user
+                int name_length = name_len_rng.nextValue();
+                String name = TextGenerator.randomStr(this.rng(), name_length);
+
+                userInsert.setInt(1, i); // ID
+                userInsert.setString(2, name); // NAME
+                userInsert.setString(3, name + "@tweeter.com"); // EMAIL
+                userInsert.setNull(4, java.sql.Types.INTEGER);
+                userInsert.setNull(5, java.sql.Types.INTEGER);
+                userInsert.setNull(6, java.sql.Types.INTEGER);
+                userInsert.addBatch();
+
+                batchSize++;
+                total++;
+                if ((batchSize % configCommitCount) == 0) {
+                    int[] result = userInsert.executeBatch();
+
+                    userInsert.clearBatch();
+                    batchSize = 0;
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("Users %d / %d", total, this.num_users));
+                    }
                 }
+            } // FOR
+            if (batchSize > 0) {
+                userInsert.executeBatch();
+                userInsert.clearBatch();
             }
-        } // FOR
-        if (batchSize > 0) {
-            userInsert.executeBatch();
-            userInsert.clearBatch();
         }
-        userInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Users Loaded [%d]", total));
         }
@@ -187,38 +189,41 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement tweetInsert = conn.prepareStatement(sql);
 
         int total = 0;
-        int batchSize = 0;
-        ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.num_users);
 
-        TweetHistogram tweet_h = new TweetHistogram();
-        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
+        try (PreparedStatement tweetInsert = conn.prepareStatement(sql)) {
 
-        for (long i = lo; i <= hi; i++) {
-            int uid = zy.nextInt();
-            tweetInsert.setLong(1, i);
-            tweetInsert.setInt(2, uid);
-            tweetInsert.setString(3, TextGenerator.randomStr(this.rng(), tweet_len_rng.nextValue()));
-            tweetInsert.setNull(4, java.sql.Types.DATE);
-            tweetInsert.addBatch();
-            batchSize++;
-            total++;
 
-            if ((batchSize % configCommitCount) == 0) {
-                tweetInsert.executeBatch();
-                tweetInsert.clearBatch();
-                batchSize = 0;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("tweet % {}/{}", total, this.num_tweets);
+            int batchSize = 0;
+            ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.num_users);
+
+            TweetHistogram tweet_h = new TweetHistogram();
+            FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
+
+            for (long i = lo; i <= hi; i++) {
+                int uid = zy.nextInt();
+                tweetInsert.setLong(1, i);
+                tweetInsert.setInt(2, uid);
+                tweetInsert.setString(3, TextGenerator.randomStr(this.rng(), tweet_len_rng.nextValue()));
+                tweetInsert.setNull(4, java.sql.Types.DATE);
+                tweetInsert.addBatch();
+                batchSize++;
+                total++;
+
+                if ((batchSize % configCommitCount) == 0) {
+                    tweetInsert.executeBatch();
+                    tweetInsert.clearBatch();
+                    batchSize = 0;
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("tweet % {}/{}", total, this.num_tweets);
+                    }
                 }
             }
+            if (batchSize > 0) {
+                tweetInsert.executeBatch();
+            }
         }
-        if (batchSize > 0) {
-            tweetInsert.executeBatch();
-        }
-        tweetInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug("[Tweets Loaded] {}", this.num_tweets);
         }
@@ -234,65 +239,65 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      * ScrambledZipfianGenerator (describes the heavy tweeters)
      */
     protected void loadFollowData(Connection conn, int lo, int hi) throws SQLException {
-        String sql;
-        Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
-
-        sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        final PreparedStatement followsInsert = conn.prepareStatement(sql);
-
-        catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
-
-        sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        final PreparedStatement followersInsert = conn.prepareStatement(sql);
 
         int total = 1;
-        int batchSize = 0;
 
-        ZipfianGenerator zipfFollowee = new ZipfianGenerator(1, this.num_users, 1.75);
-        ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows, 1.75);
-        List<Integer> followees = new ArrayList<>();
-        for (int follower = lo; follower <= hi; follower++) {
-            followees.clear();
-            int time = zipfFollows.nextInt();
-            if (time == 0) {
-                time = 1; // At least this follower will follow 1 user
-            }
-            for (int f = 0; f < time; ) {
-                int followee = zipfFollowee.nextInt();
-                if (follower != followee && !followees.contains(followee)) {
-                    followsInsert.setInt(1, follower);
-                    followsInsert.setInt(2, followee);
-                    followsInsert.addBatch();
+        Table followsTable = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
+        Table followersTable = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
 
-                    followersInsert.setInt(1, followee);
-                    followersInsert.setInt(2, follower);
-                    followersInsert.addBatch();
+        String followsTableSql = SQLUtil.getInsertSQL(followsTable, this.getDatabaseType());
+        String followersTableSql = SQLUtil.getInsertSQL(followersTable, this.getDatabaseType());
 
-                    followees.add(followee);
+        try (PreparedStatement followsInsert = conn.prepareStatement(followsTableSql);
+             PreparedStatement followersInsert = conn.prepareStatement(followersTableSql)) {
 
-                    total++;
-                    batchSize++;
-                    f++;
 
-                    if ((batchSize % configCommitCount) == 0) {
-                        followsInsert.executeBatch();
-                        followersInsert.executeBatch();
-                        followsInsert.clearBatch();
-                        followersInsert.clearBatch();
-                        batchSize = 0;
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Follows  % {}", (int) (((double) follower / (double) this.num_users) * 100));
+            int batchSize = 0;
+
+            ZipfianGenerator zipfFollowee = new ZipfianGenerator(1, this.num_users, 1.75);
+            ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows, 1.75);
+            List<Integer> followees = new ArrayList<>();
+            for (int follower = lo; follower <= hi; follower++) {
+                followees.clear();
+                int time = zipfFollows.nextInt();
+                if (time == 0) {
+                    time = 1; // At least this follower will follow 1 user
+                }
+                for (int f = 0; f < time; ) {
+                    int followee = zipfFollowee.nextInt();
+                    if (follower != followee && !followees.contains(followee)) {
+                        followsInsert.setInt(1, follower);
+                        followsInsert.setInt(2, followee);
+                        followsInsert.addBatch();
+
+                        followersInsert.setInt(1, followee);
+                        followersInsert.setInt(2, follower);
+                        followersInsert.addBatch();
+
+                        followees.add(followee);
+
+                        total++;
+                        batchSize++;
+                        f++;
+
+                        if ((batchSize % configCommitCount) == 0) {
+                            followsInsert.executeBatch();
+                            followersInsert.executeBatch();
+                            followsInsert.clearBatch();
+                            followersInsert.clearBatch();
+                            batchSize = 0;
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Follows  % {}", (int) (((double) follower / (double) this.num_users) * 100));
+                            }
                         }
                     }
-                }
+                } // FOR
             } // FOR
-        } // FOR
-        if (batchSize > 0) {
-            followsInsert.executeBatch();
-            followersInsert.executeBatch();
+            if (batchSize > 0) {
+                followsInsert.executeBatch();
+                followersInsert.executeBatch();
+            }
         }
-        followsInsert.close();
-        followersInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug("[Follows Loaded] {}", total);
         }

@@ -100,28 +100,28 @@ public class VoterLoader extends Loader<VoterBenchmark> {
 
     private void loadContestants(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
-        PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()));
         String[] contestants = VoterConstants.CONTESTANT_NAMES_CSV.split(",");
+        try (PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
 
-        for (int i = 0; i < this.benchmark.numContestants; i++) {
-            ps.setInt(1, i + 1);
-            ps.setString(2, contestants[i]);
-            ps.addBatch();
+            for (int i = 0; i < this.benchmark.numContestants; i++) {
+                ps.setInt(1, i + 1);
+                ps.setString(2, contestants[i]);
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
-        ps.executeBatch();
-        ps.close();
     }
 
     private void loadLocations(Connection conn) throws SQLException {
         Table catalog_tbl = this.benchmark.getTableCatalog(VoterConstants.TABLENAME_LOCATIONS);
-        PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()));
+        try (PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
 
-        for (int i = 0; i < areaCodes.length; i++) {
-            ps.setShort(1, areaCodes[i]);
-            ps.setString(2, states[i]);
-            ps.addBatch();
+            for (int i = 0; i < areaCodes.length; i++) {
+                ps.setShort(1, areaCodes[i]);
+                ps.setString(2, states[i]);
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
-        ps.executeBatch();
-        ps.close();
     }
 }
