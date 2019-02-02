@@ -4,7 +4,6 @@ Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup a
 
 See also: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
 
-
 ## Modifications to Original
 This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
 
@@ -33,18 +32,9 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
 * Removed calls to `commit()` during `Loader` operations
 
+## Benchmarks
 
-## Known Issues
-
-* `tpch` - references files and directory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
-* `tpcds` - doesnt have a sample config.  will probably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
-* `seats` - having difficult loading `seats`
-* `linkbench` - loader needs to be fixed, wrong tables referenced in loader
-* `chbenchmark` - needs more love
-* `auctionmark` - not yet working; data loading issue; lots of resource leaks
-
-## Supported Benchmarks
-
+### From Original Paper
 * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
 * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `tpc-h` and `tpc-c`
 * Epinions.com
@@ -55,19 +45,33 @@ This fork contains a number of significant **structural** modifications to the o
 * [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
 * [TATP](http://tatpbenchmark.sourceforge.net/)
 * [TPC-C](http://www.tpc.org/tpcc/)
-* [TPC-DS](http://www.tpc.org/tpcds) (not part of original thesis)
-* [TPC-H](http://www.tpc.org/tpch) (not part of original thesis)
 * Twitter
 * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
 * Wikipedia
 * [YCSB](https://github.com/brianfrankcooper/YCSB)
 
-## Omitted Benchmarks
-* JPAB
+### Added Later
+* [TPC-H](http://www.tpc.org/tpch)
+* [TPC-DS](http://www.tpc.org/tpcds)
 * hyadapt
 * NoOp
 
-## How to Build..
+### Removed
+* JPAB
 
-## How to Run...
+## How to Build
+comming soon
+
+## How to Run
+comming soon
+
+## Known Issues
+
+* `tpch` - references files and directory that don't exist.  not clear what they should be.  see https://relational.fit.cvut.cz/dataset/TPCH
+* `tpcds` - doesnt have a sample config.  will probably need data like tpc-h  see https://relational.fit.cvut.cz/dataset/TPCDS
+* `seats` - having difficult loading `seats`
+* `linkbench` - loader needs to be fixed, wrong tables referenced in loader
+* `chbenchmark` - needs more love
+* `auctionmark` - not yet working; data loading issue; lots of resource leaks
+
 
