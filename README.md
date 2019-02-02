@@ -1,4 +1,4 @@
-# OLTPBench
+# OLTP-Bench Part Deux
 
 Forked from and inspired heavily by https://github.com/oltpbenchmark/oltpbench and [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf) published in 2013.
 
