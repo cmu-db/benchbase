@@ -65,7 +65,7 @@ comming soon
 ## How to Run
 comming soon
 
-## How to add support for a Database
+## How to Add Support for a New Database
 comming soon
 
 ## Known Issues
