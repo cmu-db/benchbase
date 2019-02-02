@@ -1,10 +1,10 @@
 # OLTP-Bench: Part Deux
 
-Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup, modernization and portability.  Additional context can be found in the original academic publication from 2013: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf).
+Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Additional context can be found in the original academic publication from 2013: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.cs.cmu.edu/~pavlo/static/papers/oltpbench.pdf).
 
 
 ## Modifications from Original
-I have made a number of significant structural modifications to the original project in this fork but did my best to leave the actual benchmark functionally unchanged.  These modifications are summarized here:
+This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below
 
 * Moved from Ant to Maven
     * Reorganized project to fit Maven structure
