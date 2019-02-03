@@ -232,18 +232,11 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         }
                     } // FOR
                     stmt.addBatch();
-                } // FOR
-                try {
-                    stmt.executeBatch();
-                    stmt.clearBatch();
-                } catch (SQLException ex) {
-                    if (ex.getNextException() != null) {
-                        ex = ex.getNextException();
-                    }
-                    LOG.warn("{} - {}", tableName, ex.getMessage(), ex);
-                    throw ex;
-                    // SKIP
-                }
+                } // FO
+
+                stmt.executeBatch();
+                stmt.clearBatch();
+
 
                 this.tableSizes.put(tableName, volt_table.size());
 

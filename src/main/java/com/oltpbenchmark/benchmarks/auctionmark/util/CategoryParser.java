@@ -21,12 +21,12 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.zip.GZIPInputStream;
 
 
 public class CategoryParser {
@@ -42,15 +42,11 @@ public class CategoryParser {
         _nextCategoryID = 0;
 
 
-        final String path = "benchmarks" + File.separator + "auctionmark" + File.separator + "table.category.gz";
+        final String path = "benchmarks" + File.separator + "auctionmark" + File.separator + "table.category";
 
-        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path);
-             InputStream gzipStream = new GZIPInputStream(resourceAsStream);
-             Reader decoder = new InputStreamReader(gzipStream, Charset.defaultCharset());
-             BufferedReader buffered = new BufferedReader(decoder);
-        ) {
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
 
-            List<String> lines = IOUtils.readLines(buffered);
+            List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
             for (String line : lines) {
                 extractCategory(line);
             }
