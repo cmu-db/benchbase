@@ -206,10 +206,8 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        try {
-            Connection conn = this.makeConnection();
+        try (Connection conn = this.makeConnection()) {
             this.createDatabase(this.workConf.getDBType(), conn);
-            conn.close();
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
         }
@@ -227,7 +225,7 @@ public abstract class BenchmarkModule {
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing script '{}'", ddlPath);
+                LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
             }
 
             runner.runScript(ddlPath);
