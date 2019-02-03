@@ -25,7 +25,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
-import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,20 +88,5 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
         return new AuctionMarkLoader(this, conn);
     }
 
-    /**
-     * Return the path of the CSV file that has data for the given Table catalog handle
-     *
-     * @param data_dir
-     * @param catalog_tbl
-     * @return
-     */
-    public static final File getTableDataFile(File data_dir, Table catalog_tbl) {
-        File f = new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(),
-                File.separator,
-                catalog_tbl.getName().toLowerCase()));
-        if (f.exists() == false) {
-            f = new File(f.getAbsolutePath() + ".gz");
-        }
-        return (f);
-    }
+
 }
