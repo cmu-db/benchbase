@@ -137,7 +137,24 @@ comming soon
         at com.oltpbenchmark.DBWorkload.main(DBWorkload.java:525)
     ```
 * `hyadapt` - has no config
-* `chbenchmark` - needs more love
 * `auctionmark` - not yet working; data loading issue; lots of resource leaks
+    ```
+    Exception in thread "main" java.lang.RuntimeException: java.lang.RuntimeException: Failed to load in category file
+        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader.<init>(AuctionMarkLoader.java:131)
+        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark.makeLoaderImpl(AuctionMarkBenchmark.java:89)
+        at com.oltpbenchmark.api.BenchmarkModule.loadDatabase(BenchmarkModule.java:271)
+        at com.oltpbenchmark.api.BenchmarkModule.loadDatabase(BenchmarkModule.java:258)
+        at com.oltpbenchmark.DBWorkload.runLoader(DBWorkload.java:794)
+        at com.oltpbenchmark.DBWorkload.main(DBWorkload.java:525)
+    Caused by: java.lang.RuntimeException: Failed to load in category file
+        at com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser.<init>(CategoryParser.java:55)
+        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader$CategoryGenerator.<init>(AuctionMarkLoader.java:749)
+        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader.<init>(AuctionMarkLoader.java:94)
+        ... 5 more
+    Caused by: java.lang.ArrayIndexOutOfBoundsException: 5
+        at com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser.extractCategory(CategoryParser.java:62)
+        at com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser.<init>(CategoryParser.java:51)
+        ... 7 more
+    ```
 
 
