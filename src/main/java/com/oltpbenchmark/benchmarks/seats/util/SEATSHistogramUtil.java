@@ -41,9 +41,7 @@ public abstract class SEATSHistogramUtil {
 
     private static File getHistogramFile(File data_dir, String name) {
         File file = new File(data_dir.getAbsolutePath() + File.separator + "histogram." + name.toLowerCase());
-        if (file.exists() == false) {
-            file = new File(file.getAbsolutePath() + ".gz");
-        }
+
         return (file);
     }
 

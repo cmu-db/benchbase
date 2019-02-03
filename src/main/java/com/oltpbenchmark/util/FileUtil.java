@@ -24,7 +24,6 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 /**
  * @author pavlo
@@ -283,16 +282,9 @@ public abstract class FileUtil {
             throw new IOException("The file '" + file + "' does not exist");
         }
 
-        BufferedReader in = null;
-        if (file.getPath().endsWith(".gz")) {
-            FileInputStream fin = new FileInputStream(file);
-            GZIPInputStream gzis = new GZIPInputStream(fin);
-            in = new BufferedReader(new InputStreamReader(gzis));
-            LOG.debug("Reading in the zipped contents of '{}'", file.getName());
-        } else {
-            in = new BufferedReader(new FileReader(file));
-            LOG.debug("Reading in the contents of '{}'", file.getName());
-        }
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        LOG.debug("Reading in the contents of '{}'", file.getName());
+
         return (in);
     }
 
