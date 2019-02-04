@@ -85,6 +85,8 @@ comming soon
 * `seats` - having difficulty loading
     
     has difficulty executing statement in JDBC/Application code.  Executes fine using cockroachdb cli.
+    
+    could it be https://github.com/cockroachdb/cockroach/issues/31645
 
     ```
     Exception in thread "main" java.lang.RuntimeException: Failed to execute threads: Failed to load data files for scaling-sized table 'RESERVATION'
@@ -121,8 +123,6 @@ comming soon
         at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:1952)
         at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:481)
         ... 10 more
-
-    
     ```
 * `linkbench` - loader needs to be fixed, wrong tables referenced in loader
     ```
