@@ -25,7 +25,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed calls to `printStackTrace()` or `System.out.println` in favor of proper logging
 * Reformatted code and cleaned up imports based on my preferences and using IntelliJ
 * Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
-* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations
+* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations that didn't appear directly related to excuting benchmarks
     * Removed IDE specific settings
     * Removed references to personal setups or cloud instances
     * Removed directories such as `run`, `tools`, `nbproject`, `matlab`, `traces`
@@ -57,7 +57,7 @@ This fork contains a number of significant **structural** modifications to the o
 * NoOp
 
 ### Removed
-* JPAB
+* JPAB - this project appears abandoned and hasn't seen a an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
 
 ## How to Build
 comming soon
