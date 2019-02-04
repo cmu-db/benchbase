@@ -45,28 +45,24 @@ public class SIBenchmark extends BenchmarkModule {
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        try {
-            Connection metaConn = this.makeConnection();
 
-            // LOADING FROM THE DATABASE IMPORTANT INFORMATION
-            // LIST OF USERS
+        Table t = this.catalog.getTable("SITEST");
 
-            Table t = this.catalog.getTable("SITEST");
+        String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "id");
 
-            String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "id");
-            Statement stmt = metaConn.createStatement();
-            ResultSet res = stmt.executeQuery(recordCount);
+        try (Connection metaConn = this.makeConnection();
+             Statement stmt = metaConn.createStatement();
+             ResultSet res = stmt.executeQuery(recordCount)) {
+
             int init_record_count = 0;
             while (res.next()) {
                 init_record_count = res.getInt(1);
             }
 
-            res.close();
-            //
             for (int i = 0; i < workConf.getTerminals(); ++i) {
                 workers.add(new SIWorker(this, i, init_record_count));
-            } // FOR
-            metaConn.close();
+            }
+
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
         }
