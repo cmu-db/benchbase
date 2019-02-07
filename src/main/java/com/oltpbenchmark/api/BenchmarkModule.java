@@ -265,10 +265,18 @@ public abstract class BenchmarkModule {
      * @param conn
      */
     protected final void loadDatabase(final Connection conn) {
+
+
         try {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
             if (loader != null) {
-                conn.setAutoCommit(false);
+
+                final boolean autoCommit = conn.getAutoCommit();
+
+                if (!autoCommit) {
+                    conn.setAutoCommit(true);
+                }
+
 
                 // PAVLO: 2016-12-23
                 // We are going to eventually migrate everything over to use the
@@ -293,11 +301,12 @@ public abstract class BenchmarkModule {
                     }
                     loader.load();
                 }
-                conn.commit();
 
                 if (loader.getTableCounts().isEmpty() == false) {
                     LOG.info("Table Counts:\n{}", loader.getTableCounts());
                 }
+
+                conn.setAutoCommit(autoCommit);
             }
         } catch (SQLException ex) {
             String msg = String.format("Unexpected error when trying to load the %s database",
