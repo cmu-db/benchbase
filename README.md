@@ -73,23 +73,23 @@ comming soon
 
 ### Cockroach DB
 
-| Benchmark  | Create & Load | Run | Notes |
-| ------------- | ------------- | ------------- | ------------- |
-| `auctionmark` | :x: | :heavy_minus_sign: | [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
-| `chbenchmark` | :heavy_check_mark: | :x: | [issue #5](https://github.com/timveil-cockroach/oltpbench/issues/5), [issue #6](https://github.com/timveil-cockroach/oltpbench/issues/6)|
-| `epinions` | :heavy_check_mark: | :x: | [issue #7](https://github.com/timveil-cockroach/oltpbench/issues/7) |
-| `hyadapt` | :x: | :heavy_minus_sign: | [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
-| `linkbench` | :x: | :heavy_minus_sign: | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
-| `noop` | :heavy_check_mark: | :heavy_check_mark: | |
-| `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | |
-| `seats` | :x: | :heavy_minus_sign: | [issue #10](https://github.com/timveil-cockroach/oltpbench/issues/10) |
-| `sibench` | :heavy_check_mark: | :heavy_check_mark: | |
-| `smallbank` | :heavy_check_mark: | :heavy_check_mark: | |
-| `tatp` | :heavy_check_mark: | :heavy_check_mark: | |
-| `tpcc` | :heavy_check_mark: | :heavy_check_mark: | |
-| `tpcds` | :x: | :heavy_minus_sign: | [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
-| `tpch` | :heavy_check_mark: | :x: | [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12) |
-| `twitter` | :heavy_check_mark: | :x: | [issue #13](https://github.com/timveil-cockroach/oltpbench/issues/13) |
-| `voter` | :heavy_check_mark: | :heavy_check_mark: | |
-| `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | |
-| `ycsb` | :heavy_check_mark: | :heavy_check_mark: | |
+| Benchmark | Config | Create & Load | Run | Notes |
+| -------------| ------------- | ------------- | ------------- | ------------- |
+| `auctionmark` | :heavy_check_mark: | :x: | :heavy_minus_sign: | [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
+| `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #5](https://github.com/timveil-cockroach/oltpbench/issues/5), [issue #6](https://github.com/timveil-cockroach/oltpbench/issues/6)|
+| `epinions` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #7](https://github.com/timveil-cockroach/oltpbench/issues/7) |
+| `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
+| `linkbench` | :heavy_check_mark: | :x: | :heavy_minus_sign: | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
+| `noop` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `seats` | :heavy_check_mark: | :x: | :heavy_minus_sign: | [issue #10](https://github.com/timveil-cockroach/oltpbench/issues/10) |
+| `sibench` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `smallbank` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `tatp` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpcc` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpcds` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
+| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12) |
+| `twitter` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #13](https://github.com/timveil-cockroach/oltpbench/issues/13) |
+| `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `ycsb` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
