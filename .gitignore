@@ -11,7 +11,11 @@ results
 
 .project
 
-docker
+docker/**/*.zip
+docker/**/output
+
+
+
 
 ## -------------------------------
 ## Kate Swap Files

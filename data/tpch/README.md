@@ -1,1 +1,0 @@
-discuss how to generate tpch data with `dbgen` 
