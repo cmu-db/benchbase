@@ -75,11 +75,11 @@ comming soon
 
 | Benchmark  | Create & Load | Run | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| `auctionmark` | :x: |  | [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
+| `auctionmark` | :x: | :heavy_minus_sign: | [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
 | `chbenchmark` | :heavy_check_mark: | :x: | [issue #5](https://github.com/timveil-cockroach/oltpbench/issues/5), [issue #6](https://github.com/timveil-cockroach/oltpbench/issues/6)|
 | `epinions` | :heavy_check_mark: | :x: | [issue #7](https://github.com/timveil-cockroach/oltpbench/issues/7) |
-| `hyadapt` | :x: |  | [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
-| `linkbench` | :x: |  | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
+| `hyadapt` | :x: | :heavy_minus_sign: | [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
+| `linkbench` | :x: | :heavy_minus_sign: | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
 | `noop` | :heavy_check_mark: | :heavy_check_mark: | |
 | `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | |
 | `seats` | :x: |  | [issue #10](https://github.com/timveil-cockroach/oltpbench/issues/10) |
