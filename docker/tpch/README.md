@@ -6,7 +6,7 @@ Place the zip file in this directory and rename it to `tpc-h-tool.zip` then exec
 
 This will build a docker file that uses `tpc-h-tool.zip` to `make` `dbgen` where `VERSION` is the current version of the `tpc-h` benchmark.
 ```
-docker build --no-cache --build-arg VERSION=2.17.3 -t tpch:latest .
+docker build --no-cache --build-arg VERSION=2.18.0_rc2 -t tpch:latest .
 ```
 
 Execute this command to run `dbgen` with the provided `SCALE`. This will place the resulting `.tbl` files in a subdirectory called `output`

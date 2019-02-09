@@ -2,9 +2,7 @@ FROM debian:latest
 
 LABEL maintainer="tjveil@gmail.com"
 
-ARG VERSION=2.17.3
-ENV VERSION=${VERSION}
-ENV SCALE=.1
+ARG VERSION
 
 RUN apt-get update \
     && apt-get install -y zip make gcc \
