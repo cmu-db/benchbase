@@ -68,7 +68,31 @@ comming soon
 ## How to Add Support for a New Database
 comming soon
 
+
 ## Known Issues
+
+### Cockroach DB
+
+| Benchmark  | Create & Load | Run | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| `auctionmark` | :x: | :x: | see [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
+| `chbenchmark` | :heavy_check_mark: | :x: | see [issue #5](https://github.com/timveil-cockroach/oltpbench/issues/5), [issue #6](https://github.com/timveil-cockroach/oltpbench/issues/6)|
+| `epinions` | :heavy_check_mark: | :x: | [issue #7](https://github.com/timveil-cockroach/oltpbench/issues/7) |
+| `hyadapt` | :x: | :x: | [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
+| `linkbench` | :x: | :x: | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
+| `noop` | :heavy_check_mark: | :heavy_check_mark: | |
+| `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | |
+| `seats` | :heavy_check_mark: | :heavy_check_mark: | |
+| `sibench` | :heavy_check_mark: | :heavy_check_mark: | |
+| `smallbank` | :heavy_check_mark: | :heavy_check_mark: | |
+| `tatp` | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpcc` | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpcds` | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpch` | :heavy_check_mark: | :x: | `Caused by: org.postgresql.util.PSQLException: This connection has been closed.` |
+| `twitter` | :heavy_check_mark: | :heavy_check_mark: | |
+| `voter` | :heavy_check_mark: | :heavy_check_mark: | |
+| `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | |
+| `ycsb` | :heavy_check_mark: | :heavy_check_mark: | |
 
 * `tpch` - added missing data but run is failing
 * `tpcds` - doesnt have a sample config.  will probably need data like `tpch`.  see https://relational.fit.cvut.cz/dataset/TPCDS
@@ -113,52 +137,6 @@ comming soon
         at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:1952)
         at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:481)
         ... 10 more
-    ```
-* `linkbench` - loader needs to be fixed, wrong tables referenced in loader
-    ```
-    19:38:01,771 (BenchmarkModule.java:293) DEBUG - Using legacy LinkBenchLoader.load() method
-    Exception in thread "main" java.lang.NullPointerException
-        at com.oltpbenchmark.util.SQLUtil.getInsertSQL(SQLUtil.java:374)
-        at com.oltpbenchmark.util.SQLUtil.getInsertSQL(SQLUtil.java:355)
-        at com.oltpbenchmark.benchmarks.linkbench.LinkBenchLoader.load(LinkBenchLoader.java:54)
-        at com.oltpbenchmark.api.BenchmarkModule.loadDatabase(BenchmarkModule.java:296)
-        at com.oltpbenchmark.api.BenchmarkModule.loadDatabase(BenchmarkModule.java:258)
-        at com.oltpbenchmark.DBWorkload.runLoader(DBWorkload.java:794)
-        at com.oltpbenchmark.DBWorkload.main(DBWorkload.java:525)
-    ```
-* `hyadapt` - has no config
-* `auctionmark` - not yet working; data loading issue; lots of resource leaks
-    ```
-    Exception in thread "main" 20:08:52,021 (AuctionMarkLoader.java:202) INFO  - *** START USERACCT_ITEM
-    java.lang.RuntimeException: Failed to execute threads: Unexpected error while generating table data for 'CATEGORY'
-        at com.oltpbenchmark.util.ThreadUtil.run(ThreadUtil.java:298)
-        at com.oltpbenchmark.util.ThreadUtil.runNewPool(ThreadUtil.java:262)
-        at com.oltpbenchmark.api.BenchmarkModule.loadDatabase(BenchmarkModule.java:290)
-        at com.oltpbenchmark.api.BenchmarkModule.loadDatabase(BenchmarkModule.java:258)
-        at com.oltpbenchmark.DBWorkload.runLoader(DBWorkload.java:794)
-        at com.oltpbenchmark.DBWorkload.main(DBWorkload.java:525)
-    Caused by: java.lang.RuntimeException: Unexpected error while generating table data for 'CATEGORY'
-        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader$AbstractTableGenerator.load(AuctionMarkLoader.java:410)
-        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader$CountdownLoaderThread.load(AuctionMarkLoader.java:151)
-        at com.oltpbenchmark.api.Loader$LoaderThread.run(Loader.java:64)
-        at com.oltpbenchmark.util.ThreadUtil$LatchRunnable.run(ThreadUtil.java:332)
-        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-        at java.lang.Thread.run(Thread.java:748)
-    Caused by: java.sql.BatchUpdateException: Batch entry 0 INSERT INTO CATEGORY VALUES (0, 'Antiques', NULL),(1, 'Antiquities', 0),(3, 'Byzantine', 1),(4, 'Celtic', 1),(5, 'Egyptian', 1),(6, 'Far Eastern', 1),(7, 'Greek', 1),(8, 'Holy Land', 1),(9, 'Islamic', 1),(10, 'Near Eastern', 1),(11, 'Neolithic &amp; Paleolithic', 1),(17, 'Other', 1),(16, 'Price Guides &amp; Publications', 1),(15, 'Reproductions', 1),(12, 'Roman', 1),(13, 'South Italian', 1),(2, 'The Americas', 1),(14, 'Viking', 1),(18, 'Architectural &amp; Garden', 0),(19, 'Balusters', 18),(20, 'Barn Doors', 18),(21, 'Beams', 18),(22, 'Ceiling Tins', 18),(23, 'Chandeliers, Fixtures, Sconces', 18),(24, 'Columns &amp; Posts', 18),(25, 'Corbels', 18),(26, 'Doors', 18),(27, 'Finials', 18),(28, 'Fireplaces &amp; Mantels', 18),(29, 'Garden', 18),(30, 'Hardware', 18),(31, 'Door Bells &amp; Knockers', 30),(32, 'Door Knobs &amp; Handles', 30),(33, 'Door Plates &amp; Backplates', 30),(34, 'Drawer Pulls', 30),(35, 'Escutcheons &amp; Key Hole Covers', 30),(36, 'Heating Grates &amp; Vents', 30),(37, 'Hooks &amp; Brackets', 30),(38, 'Locks &amp; Keys', 30),(39, 'Nails', 30),(41, 'Other', 30),(40, 'Switch Plates &amp; Outlet Covers', 30),(56, 'Other', 18),(42, 'Pediments', 18),(43, 'Plumbing', 18),(55, 'Price Guides &amp; Publications', 18),(54, 'Reproductions', 18),(44, 'Signs', 18),(45, 'Stained Glass Windows', 18),(47, '1900-1940', 45),(48, '1940-Now', 45),(46, 'Pre-1900', 45),(49, 'Unknown', 45),(50, 'Stair &amp; Carpet Rods', 18),(51, 'Tiles', 18),(52, 'Weathervanes &amp; Lightning Rods', 18),(53, 'Windows, Sashes &amp; Locks', 18),(57, 'Asian Antiques', 0),(58, 'Burma', 57),(59, 'China', 57),(60, 'Amulets', 59),(61, 'Armor', 59),(62, 'Baskets', 59),(63, 'Bells', 59),(64, 'Bowls', 59),(65, 'Boxes', 59),(66, 'Bracelets', 59),(67, 'Brush Pots', 59),(68, 'Brush Washers', 59),(69, 'Cabinets', 59),(70, 'Chairs', 59),(71, 'Chests', 59),(72, 'Fans', 59),(73, 'Glasses &amp; Cups', 59),(74, 'Incense Burners', 59),(75, 'Ink Stones', 59),(76, 'Masks', 59),(77, 'Necklaces &amp; Pendants', 59),(113, 'Other', 59),(78, 'Paintings &amp; Scrolls', 59),(79, 'Plates', 59),(80, 'Pots', 59),(81, 'Rings', 59),(82, 'Robes &amp; Textiles', 59),(83, 'Seals', 59),(84, 'Snuff Bottles', 59),(85, 'Statues', 59),(86, 'Birds', 85),(87, 'Buddha', 85),(88, 'Dogs', 85),(89, 'Dragons', 85),(90, 'Elephants', 85),(91, 'Foo Dogs', 85),(92, 'Horses', 85),(93, 'Kwan-yin', 85),(94, 'Men, Women &amp; Children', 85),(95, 'Mice', 85),(96, 'Monkeys', 85),(107, 'Other', 85),(97, 'Oxen', 85),(98, 'Phoenix', 85),(99, 'Pigs', 85),(100, 'Rabbits', 85),(101, 'Rats', 85),(102, 'Roosters', 85),(103, 'Sheep', 85),(104, 'Snakes', 85),(105, 'Tigers', 85),(106, 'Turtles', 85),(108, 'Swords', 59),(109, 'Tables', 59),(110, 'Tea Caddies', 59),(111, 'Teapots', 59),(112, 'Vases', 59),(114, 'India', 57),(115, 'Japan', 57),(116, 'Armor', 115),(117, 'Bells', 115),(118, 'Bowls', 115),(119, 'Boxes', 115),(120, 'Dolls', 115),(121, 'Fans', 115),(122, 'Glasses &amp; Cups', 115),(123, 'Katana', 115),(124, 'Kimonos &amp; Textiles', 115),(125, 'Masks', 115),(126, 'Netsuke', 115),(136, 'Other', 115) was aborted: ERROR: foreign key violation: value [0] not found in category@primary [c_id] (txn=a30ca1f6-1737-4540-892e-5db8e164b748)  Call getNextException to see other errors in the batch.
-        at org.postgresql.jdbc.BatchResultHandler.handleCompletion(BatchResultHandler.java:166)
-        at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:492)
-        at org.postgresql.jdbc.PgStatement.executeBatch(PgStatement.java:840)
-        at org.postgresql.jdbc.PgPreparedStatement.executeBatch(PgPreparedStatement.java:1538)
-        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader.generateTableData(AuctionMarkLoader.java:237)
-        at com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkLoader$AbstractTableGenerator.load(AuctionMarkLoader.java:408)
-        ... 6 more
-    Caused by: org.postgresql.util.PSQLException: ERROR: foreign key violation: value [0] not found in category@primary [c_id] (txn=a30ca1f6-1737-4540-892e-5db8e164b748)
-        at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2440)
-        at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2183)
-        at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:481)
-        ... 10 more
-
     ```
 
 
