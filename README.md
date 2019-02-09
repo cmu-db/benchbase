@@ -87,7 +87,7 @@ comming soon
 | `smallbank` | :heavy_check_mark: | :heavy_check_mark: | |
 | `tatp` | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcc` | :heavy_check_mark: | :heavy_check_mark: | |
-| `tpcds` | :x: |  | [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
+| `tpcds` | :x: | :heavy_minus_sign: | [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
 | `tpch` | :heavy_check_mark: | :x: | |
 | `twitter` | :heavy_check_mark: | :heavy_check_mark: | |
 | `voter` | :heavy_check_mark: | :heavy_check_mark: | |
