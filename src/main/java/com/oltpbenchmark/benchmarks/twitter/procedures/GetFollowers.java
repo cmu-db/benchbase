@@ -50,11 +50,11 @@ public class GetFollowers extends Procedure {
                     long last = -1;
                     while (rs.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
                         last = rs.getLong(1);
-                        stmt.setLong(ctr, last);
+                        getFollowerNamesstmt.setLong(ctr, last);
                     } // WHILE
                     if (ctr > 0) {
                         while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
-                            stmt.setLong(ctr, last);
+                            getFollowerNamesstmt.setLong(ctr, last);
                         } // WHILE
                         try (ResultSet getFollowerNamesrs = getFollowerNamesstmt.executeQuery()) {
                         }

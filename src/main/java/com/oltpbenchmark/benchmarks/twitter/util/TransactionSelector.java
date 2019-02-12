@@ -21,22 +21,16 @@ import com.oltpbenchmark.api.TransactionTypes;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class TransactionSelector {
 
-    String filename, filename2;
-    DataInputStream dis, dis2 = null;
-    Random r = null;
-    TransactionTypes transTypes;
+
+    DataInputStream dis = null;
+    DataInputStream dis2 = null;
     static final double READ_WRITE_RATIO = 11.8; // from
     // http://www.globule.org/publi/WWADH_comnet2009.html
 
     public TransactionSelector(String filename, String filename2, TransactionTypes transTypes) throws FileNotFoundException {
-        this.transTypes = transTypes;
-        r = new Random();
-        this.filename = filename;
-        this.filename2 = filename2;
 
         if (filename == null || filename.isEmpty()) {
             throw new FileNotFoundException("You must specify a filename to instantiate the TransactionSelector... (probably missing in your workload configuration?)");
@@ -48,22 +42,14 @@ public class TransactionSelector {
 
 
         File file = new File(filename);
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        fis = new FileInputStream(file);
-
-        // Here BufferedInputStream is added for fast reading.
-        bis = new BufferedInputStream(fis);
+        FileInputStream fis = new FileInputStream(file);
+        BufferedInputStream  bis = new BufferedInputStream(fis);
         dis = new DataInputStream(bis);
         dis.mark(1024 * 1024 * 1024);
 
         File file2 = new File(filename2);
-        FileInputStream fis2 = null;
-        BufferedInputStream bis2 = null;
-        fis2 = new FileInputStream(file2);
-
-        // Here BufferedInputStream is added for fast reading.
-        bis2 = new BufferedInputStream(fis2);
+        FileInputStream  fis2 = new FileInputStream(file2);
+        BufferedInputStream bis2 = new BufferedInputStream(fis2);
         dis2 = new DataInputStream(bis2);
         dis2.mark(1024 * 1024 * 1024);
 

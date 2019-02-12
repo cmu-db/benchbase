@@ -14,8 +14,8 @@
 
 
     <!-- Trace files for Twitter -->
-    <tracefile>config/traces/twitter_tweetids.txt</tracefile>
-    <tracefile2>config/traces/twitter_user_ids.txt</tracefile2>
+    <tracefile>data/twitter/twitter_tweetids.txt</tracefile>
+    <tracefile2>data/twitter/twitter_user_ids.txt</tracefile2>
     <base_ip>10.1.</base_ip>
 
     <!-- The workload -->

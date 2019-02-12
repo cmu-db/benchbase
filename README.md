@@ -89,7 +89,7 @@ comming soon
 | `tpcc` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcds` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
 | `tpch` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12) |
-| `twitter` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #13](https://github.com/timveil-cockroach/oltpbench/issues/13) |
+| `twitter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #13~~](https://github.com/timveil-cockroach/oltpbench/issues/13) |
 | `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `ycsb` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
