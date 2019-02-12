@@ -45,11 +45,11 @@ public abstract class LoaderThread implements Runnable {
     public abstract void load(Connection conn) throws SQLException;
 
     public void beforeLoad() {
-
+        // useful for implementing waits for coundown latches, this ensures we open the connection right before its used to avoid stale connections
     }
 
     public void afterLoad() {
-
+        // useful for counting down latches
     }
 
 
