@@ -17,7 +17,6 @@
 package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.Procedure;
-import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,43 +30,14 @@ public abstract class GenericQuery extends Procedure {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
-    private PreparedStatement stmt;
-    private Connection conn;
-    private Worker owner;
-
-    public void setOwner(Worker w) {
-        this.owner = w;
-    }
-
     protected abstract PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException;
 
     public ResultSet run(Connection conn, RandomGenerator rand) throws SQLException {
-        //initializing all prepared statements
-        stmt = getStatement(conn, rand);
 
-        if (owner != null) {
-            owner.setCurrStatement(stmt);
-        }
-
-        ResultSet rs = null;
-        try {
-            rs = stmt.executeQuery();
-        } catch (SQLException ex) {
-            // If the system thinks we're missing a prepared statement, then we
-            // should regenerate them.
-            if (ex.getErrorCode() == 0 && ex.getSQLState() != null
-                    && ex.getSQLState().equals("07003")) {
-                rs = stmt.executeQuery();
-            } else {
-                throw ex;
+        try (PreparedStatement stmt = getStatement(conn, rand); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                //do nothing
             }
-        }
-        while (rs.next()) {
-            //do nothing
-        }
-
-        if (owner != null) {
-            owner.setCurrStatement(null);
         }
 
         return null;

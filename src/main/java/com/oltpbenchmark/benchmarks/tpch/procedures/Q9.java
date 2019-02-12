@@ -67,6 +67,8 @@ public class Q9 extends GenericQuery {
         // COLOR is randomly selected within the list of values defined for the generation of P_NAME in Clause 4.2.3
         String color = "%" + TPCHUtil.choice(TPCHConstants.P_NAME_GENERATOR, rand) + "%";
 
+        LOG.debug("attempting to execute sql [{}] for color [{}]", query_stmt.getSQL(), color);
+
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, color);
         return stmt;
