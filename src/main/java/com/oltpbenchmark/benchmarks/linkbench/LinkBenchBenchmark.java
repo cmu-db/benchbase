@@ -25,7 +25,7 @@ import com.oltpbenchmark.benchmarks.linkbench.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +47,8 @@ public class LinkBenchBenchmark extends BenchmarkModule {
         super(workConf, true);
         this.linkBenchConf = new LinkBenchConfiguration(workConf);
         props = new Properties();
-        props.load(new FileInputStream(this.linkBenchConf.getConfigFile()));
+        final String path = "benchmarks" + File.separator + getBenchmarkName() + File.separator + this.linkBenchConf.getConfigFile();
+        props.load(this.getClass().getClassLoader().getResourceAsStream(path));
     }
 
     @Override
@@ -93,8 +94,7 @@ public class LinkBenchBenchmark extends BenchmarkModule {
         try {
             masterRandom = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException e) {
-            LOG.warn("SHA1PRNG not available, defaulting to default SecureRandom" +
-                    " implementation");
+            LOG.warn("SHA1PRNG not available, defaulting to default SecureRandom" + " implementation");
             masterRandom = new SecureRandom();
         }
         masterRandom.setSeed(ByteBuffer.allocate(8).putLong(seed).array());

@@ -43,6 +43,7 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<>();
 
+        LOG.error("!!!!!!!!!!!!!!!!!!!! THERE ARE NO LOADER THREADS !!!!!!!!!!!!!!!!!!!!");
 
         return threads;
     }

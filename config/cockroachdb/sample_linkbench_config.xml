@@ -14,7 +14,7 @@
     <scalefactor>1</scalefactor>
 
     <!-- Configuration file of LinkBench -->
-    <configfile>config/extras/LinkBenchConfiguration.properties</configfile>
+    <configfile>configuration.properties</configfile>
 
     <!-- The workload -->
     <terminals>2</terminals>
