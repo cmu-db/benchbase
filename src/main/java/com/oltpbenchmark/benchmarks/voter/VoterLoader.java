@@ -84,7 +84,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                VoterLoader.this.loadContestants(conn);
+                loadContestants(conn);
             }
         });
 
@@ -92,7 +92,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                VoterLoader.this.loadLocations(conn);
+                loadLocations(conn);
             }
         });
 

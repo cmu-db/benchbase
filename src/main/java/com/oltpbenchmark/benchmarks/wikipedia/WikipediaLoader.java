@@ -68,8 +68,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
     /**
      * Constructor
-     *  @param benchmark
      *
+     * @param benchmark
      */
     public WikipediaLoader(WikipediaBenchmark benchmark) {
         super(benchmark);
@@ -110,7 +110,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    WikipediaLoader.this.loadUsers(conn, lo, hi);
+                    loadUsers(conn, lo, hi);
+
+                }
+
+                @Override
+                public void afterLoad() {
                     userPageLatch.countDown();
                 }
             });
@@ -125,7 +130,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    WikipediaLoader.this.loadPages(conn, lo, hi);
+                    loadPages(conn, lo, hi);
+
+                }
+
+                @Override
+                public void afterLoad() {
                     userPageLatch.countDown();
                 }
             });
@@ -137,13 +147,18 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+                loadWatchlist(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     userPageLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                WikipediaLoader.this.loadWatchlist(conn);
             }
         });
 
@@ -551,8 +566,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
-        String updatePageSql = "UPDATE " + revTableName + "   SET page_latest = ?, " + "       page_touched = ?, " + "       page_is_new = 0, " + "       page_is_redirect = 0, "
-                + "       page_len = ? " + " WHERE page_id = ?";
+        String updatePageSql = "UPDATE " + revTableName + "   SET page_latest = ?, " + "       page_touched = ?, " + "       page_is_new = 0, " + "       page_is_redirect = 0, " + "       page_len = ? " + " WHERE page_id = ?";
         PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql);
         batchSize = 0;
         for (int i = 0; i < this.num_pages; i++) {

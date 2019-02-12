@@ -76,6 +76,11 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadItems(conn, TPCCConfig.configItemCount);
+
+            }
+
+            @Override
+            public void afterLoad() {
                 itemLatch.countDown();
             }
         });
@@ -89,6 +94,44 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             LoaderThread t = new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Starting to load WAREHOUSE {}", w_id);
+                    }
+                    // WAREHOUSE
+                    loadWarehouse(conn, w_id);
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Starting to load STOCK {}", w_id);
+                    }
+                    // STOCK
+                    loadStock(conn, w_id, TPCCConfig.configItemCount);
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Starting to load DISTRCT {}", w_id);
+                    }
+                    // DISTRICT
+                    loadDistricts(conn, w_id, TPCCConfig.configDistPerWhse);
+
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Starting to load CUSTOMER {}", w_id);
+                    }
+                    // CUSTOMER
+                    loadCustomers(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Starting to load ORDERS {}", w_id);
+                    }
+                    // ORDERS
+                    loadOrders(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
+
+                }
+
+                @Override
+                public void beforeLoad() {
+
                     // Make sure that we load the ITEM table first
 
                     try {
@@ -96,26 +139,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Starting to load WAREHOUSE {}", w_id);
-                    }
-
-                    // WAREHOUSE
-                    loadWarehouse(conn, w_id);
-
-                    // STOCK
-                    loadStock(conn, w_id, TPCCConfig.configItemCount);
-
-                    // DISTRICT
-                    loadDistricts(conn, w_id, TPCCConfig.configDistPerWhse);
-
-                    // CUSTOMER
-                    loadCustomers(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
-
-                    // ORDERS
-                    loadOrders(conn, w_id, TPCCConfig.configDistPerWhse, TPCCConfig.configCustPerDist);
-
                 }
             };
             threads.add(t);
@@ -147,8 +170,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             for (int i = 1; i <= itemKount; i++) {
 
                 item.i_id = i;
-                item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14, 24,
-                        benchmark.rng()));
+                item.i_name = TPCCUtil.randomStr(TPCCUtil.randomNumber(14, 24, benchmark.rng()));
                 item.i_price = TPCCUtil.randomNumber(100, 10000, benchmark.rng()) / 100.0;
 
                 // i_data
@@ -161,9 +183,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     // 10% of time i_data has "ORIGINAL" crammed somewhere in
                     // middle
                     startORIGINAL = TPCCUtil.randomNumber(2, (len - 8), benchmark.rng());
-                    item.i_data = TPCCUtil.randomStr(startORIGINAL - 1)
-                            + "ORIGINAL"
-                            + TPCCUtil.randomStr(len - startORIGINAL - 9);
+                    item.i_data = TPCCUtil.randomStr(startORIGINAL - 1) + "ORIGINAL" + TPCCUtil.randomStr(len - startORIGINAL - 9);
                 }
 
                 item.i_im_id = TPCCUtil.randomNumber(1, 10000, benchmark.rng());
@@ -292,11 +312,8 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 } else {
                     // 10% of time i_data has "ORIGINAL" crammed somewhere
                     // in middle
-                    startORIGINAL = TPCCUtil
-                            .randomNumber(2, (len - 8), benchmark.rng());
-                    stock.s_data = TPCCUtil.randomStr(startORIGINAL - 1)
-                            + "ORIGINAL"
-                            + TPCCUtil.randomStr(len - startORIGINAL - 9);
+                    startORIGINAL = TPCCUtil.randomNumber(2, (len - 8), benchmark.rng());
+                    stock.s_data = TPCCUtil.randomStr(startORIGINAL - 1) + "ORIGINAL" + TPCCUtil.randomStr(len - startORIGINAL - 9);
                 }
 
                 k++;
@@ -447,8 +464,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     customer.c_phone = TPCCUtil.randomNStr(16);
                     customer.c_since = sysdate;
                     customer.c_middle = "OE";
-                    customer.c_data = TPCCUtil.randomStr(TPCCUtil
-                            .randomNumber(300, 500, benchmark.rng()));
+                    customer.c_data = TPCCUtil.randomStr(TPCCUtil.randomNumber(300, 500, benchmark.rng()));
 
                     history.h_c_id = c;
                     history.h_c_d_id = d;
@@ -457,8 +473,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     history.h_w_id = w_id;
                     history.h_date = sysdate;
                     history.h_amount = 10;
-                    history.h_data = TPCCUtil.randomStr(TPCCUtil
-                            .randomNumber(10, 24, benchmark.rng()));
+                    history.h_data = TPCCUtil.randomStr(TPCCUtil.randomNumber(10, 24, benchmark.rng()));
 
                     k = k + 2;
                     int idx = 1;
@@ -615,8 +630,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         order_line.ol_d_id = d;
                         order_line.ol_o_id = c;
                         order_line.ol_number = l; // ol_number
-                        order_line.ol_i_id = TPCCUtil.randomNumber(1,
-                                TPCCConfig.configItemCount, benchmark.rng());
+                        order_line.ol_i_id = TPCCUtil.randomNumber(1, TPCCConfig.configItemCount, benchmark.rng());
                         if (order_line.ol_o_id < FIRST_UNPROCESSED_O_ID) {
                             order_line.ol_delivery_d = oorder.o_entry_d;
                             order_line.ol_amount = 0;

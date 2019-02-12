@@ -77,7 +77,12 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    EpinionsLoader.this.loadUsers(conn, lo, hi);
+                    loadUsers(conn, lo, hi);
+
+                }
+
+                @Override
+                public void afterLoad() {
                     userLatch.countDown();
                 }
             });
@@ -91,7 +96,12 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    EpinionsLoader.this.loadItems(conn, lo, hi);
+                    loadItems(conn, lo, hi);
+
+                }
+
+                @Override
+                public void afterLoad() {
                     itemLatch.countDown();
                 }
             });
@@ -101,13 +111,16 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadTrust(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     userLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-                EpinionsLoader.this.loadTrust(conn);
             }
         });
 
@@ -115,14 +128,17 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadReviews(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     userLatch.await();
                     itemLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-                EpinionsLoader.this.loadReviews(conn);
             }
         });
 

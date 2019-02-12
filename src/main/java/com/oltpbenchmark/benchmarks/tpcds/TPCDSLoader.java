@@ -65,96 +65,37 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         final CountDownLatch storeSalesLatch = new CountDownLatch(1);
         final CountDownLatch catalogSalesLatch = new CountDownLatch(1);
         final CountDownLatch webSalesLatch = new CountDownLatch(1);
-/*
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMERADDRESS, TPCDSConstants.customeraddressTypes);
-                custAddrLatch.countDown();
-            }
-        }); */
-/*
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMERDEM, TPCDSConstants.customerdemTypes);
-                custDemLatch.countDown();
-            }
-        });
 
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_DATEDIM, TPCDSConstants.datedimTypes);
-                dateLatch.countDown();
-            }
-        });
 
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_INCOMEBAND, TPCDSConstants.incomebandTypes);
-                incomeLatch.countDown();
-            }
-        });
-
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_ITEM, TPCDSConstants.itemTypes);
-                itemLatch.countDown();
-            }
-        });
-
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_REASON, TPCDSConstants.reasonTypes);
-                reasonLatch.countDown();
-            }
-        });
-
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_SHIPMODE, TPCDSConstants.shipmodeTypes);
-                shipModeLatch.countDown();
-            }
-        });
-
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_TIMEDIM, TPCDSConstants.timedimTypes);
-                timeLatch.countDown();
-            }
-        });
-
-        threads.add(new LoaderThread() {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTable(conn, TPCDSConstants.TABLENAME_WAREHOUSE, TPCDSConstants.warehouseTypes);
-                warehouseLatch.countDown();
-            }
-        });
-*/
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CALLCENTER, TPCDSConstants.callcenterTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     callCenterLatch.countDown();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_CALLCENTER, TPCDSConstants.callcenterTypes);
             }
         });
-/*
-        threads.add(new LoaderThread() {
+
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGPAGE, TPCDSConstants.catalogpageTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     catalogPageLatch.countDown();
@@ -162,14 +103,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGPAGE, TPCDSConstants.catalogpageTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_STORE, TPCDSConstants.storeTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     storeLatch.countDown();
@@ -177,14 +123,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_STORE, TPCDSConstants.storeTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBSITE, TPCDSConstants.websiteTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     webSiteLatch.countDown();
@@ -192,14 +143,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_WEBSITE, TPCDSConstants.websiteTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_HOUSEHOLDDEM, TPCDSConstants.householddemTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     incomeLatch.await();
                     householdLatch.countDown();
@@ -207,14 +163,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_HOUSEHOLDDEM, TPCDSConstants.householddemTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_PROMOTION, TPCDSConstants.promotionTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     itemLatch.await();
@@ -223,14 +184,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_PROMOTION, TPCDSConstants.promotionTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_INVENTORY, TPCDSConstants.inventoryTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     itemLatch.await();
@@ -239,14 +205,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_INVENTORY, TPCDSConstants.inventoryTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMER, TPCDSConstants.customerTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -257,14 +228,18 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_CUSTOMER, TPCDSConstants.customerTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBPAGE, TPCDSConstants.webpageTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     customerLatch.await();
@@ -273,14 +248,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_WEBPAGE, TPCDSConstants.webpageTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_STORESALES, TPCDSConstants.storesalesTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -296,14 +276,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_STORESALES, TPCDSConstants.storesalesTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_STORERETURNS, TPCDSConstants.storereturnsTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -319,14 +304,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_STORERETURNS, TPCDSConstants.storereturnsTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBSALES, TPCDSConstants.websalesTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -345,14 +335,19 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_WEBSALES, TPCDSConstants.websalesTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadTable(conn, TPCDSConstants.TABLENAME_WEBRETURNS, TPCDSConstants.webreturnsTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -368,14 +363,17 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_WEBRETURNS, TPCDSConstants.webreturnsTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGSALES, TPCDSConstants.catalogsalesTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -395,13 +393,17 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     throw new RuntimeException(e);
                 }
 
-                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGSALES, TPCDSConstants.catalogsalesTypes);
             }
         });
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGRETURNS, TPCDSConstants.catalogreturnsTypes);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     dateLatch.await();
                     custAddrLatch.await();
@@ -420,10 +422,8 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
-
-                loadTable(conn, TPCDSConstants.TABLENAME_CATALOGRETURNS, TPCDSConstants.catalogreturnsTypes);
             }
-        }); */
+        });
 
         return threads;
     }

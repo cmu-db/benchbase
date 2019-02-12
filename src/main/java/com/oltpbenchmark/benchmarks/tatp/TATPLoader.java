@@ -61,6 +61,11 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     genSubscriber(conn, lo, hi);
+
+                }
+
+                @Override
+                public void afterLoad() {
                     subLatch.countDown();
                 }
             });
@@ -70,13 +75,16 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                genAccessInfo(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     subLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-                genAccessInfo(conn);
             }
         });
 
@@ -85,13 +93,16 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                genSpeAndCal(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     subLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-                genSpeAndCal(conn);
             }
         });
 
@@ -258,17 +269,13 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
             if (spe_batch > TATPConstants.BATCH_SIZE) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("%s: %d (%s %d / %d)",
-                            TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total,
-                            TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 }
                 int[] results = spe_pstmt.executeBatch();
 
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("%s: %d (%s %d / %d)",
-                            TATPConstants.TABLENAME_CALL_FORWARDING, cal_total,
-                            TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                 }
                 results = cal_pstmt.executeBatch();
 

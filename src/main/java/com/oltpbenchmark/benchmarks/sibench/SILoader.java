@@ -57,7 +57,7 @@ public class SILoader extends Loader<SIBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    SILoader.this.loadSITest(conn, lo, hi);
+                   loadSITest(conn, lo, hi);
                 }
             });
         }
@@ -71,22 +71,22 @@ public class SILoader extends Loader<SIBenchmark> {
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        int batch = 0;
-        for (int i = lo; i <= hi; i++) {
-            stmt.setInt(1, i);
-            stmt.setInt(2, rand.nextInt(Integer.MAX_VALUE));
-            stmt.addBatch();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            int batch = 0;
+            for (int i = lo; i <= hi; i++) {
+                stmt.setInt(1, i);
+                stmt.setInt(2, rand.nextInt(Integer.MAX_VALUE));
+                stmt.addBatch();
 
-            if (++batch >= SIConstants.configCommitCount) {
-                int[] result = stmt.executeBatch();
+                if (++batch >= SIConstants.configCommitCount) {
+                    int[] result = stmt.executeBatch();
 
-                batch = 0;
+                    batch = 0;
+                }
+            } // FOR
+            if (batch > 0) {
+                stmt.executeBatch();
             }
-        } // FOR
-        if (batch > 0) {
-            stmt.executeBatch();
         }
-        stmt.close();
     }
 }

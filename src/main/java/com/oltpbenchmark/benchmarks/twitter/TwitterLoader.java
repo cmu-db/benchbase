@@ -80,7 +80,12 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                    TwitterLoader.this.loadUsers(conn, lo, hi);
+                    loadUsers(conn, lo, hi);
+
+                }
+
+                @Override
+                public void afterLoad() {
                     userLatch.countDown();
                 }
             });
@@ -94,13 +99,18 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
+
+                    loadFollowData(conn, lo, hi);
+                }
+
+                @Override
+                public void beforeLoad() {
                     try {
                         userLatch.await();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
 
-                    TwitterLoader.this.loadFollowData(conn, lo, hi);
                 }
             });
         }
@@ -113,13 +123,18 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
+
+
+                    loadTweets(conn, lo, hi);
+                }
+
+                @Override
+                public void beforeLoad() {
                     try {
                         userLatch.await();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
-                    TwitterLoader.this.loadTweets(conn, lo, hi);
                 }
             });
         }
