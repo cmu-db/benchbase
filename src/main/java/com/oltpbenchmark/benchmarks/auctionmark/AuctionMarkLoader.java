@@ -152,13 +152,17 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public void load(Connection conn) throws SQLException {
             LOG.debug(String.format("Started loading %s which depends on %s", this.generator.getTableName(), this.generator.getDependencies()));
             this.generator.load(conn);
-            this.latch.countDown();
             LOG.debug(String.format("Finished loading %s", this.generator.getTableName()));
         }
 
         @Override
         public void beforeLoad() {
-           this.generator.beforeLoad();
+            this.generator.beforeLoad();
+        }
+
+        @Override
+        public void afterLoad() {
+            this.latch.countDown();
         }
     }
 
@@ -170,18 +174,22 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         for (AbstractTableGenerator generator : this.generators.values()) {
             generator.init();
-            threads.add(new CountdownLoaderThread(this.benchmark,generator, loadLatch));
+            threads.add(new CountdownLoaderThread(this.benchmark, generator, loadLatch));
         }
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                profile.saveProfile(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     loadLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                AuctionMarkLoader.this.profile.saveProfile(conn);
             }
         });
 
@@ -260,9 +268,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             generator.markAsFinished();
             synchronized (this) {
                 this.finished.add(tableName);
-                LOG.info(String.format("*** FINISH %s - %d tuples - [%d / %d]",
-                        tableName, this.tableSizes.get(tableName),
-                        this.finished.size(), this.generators.size()));
+                LOG.info(String.format("*** FINISH %s - %d tuples - [%d / %d]", tableName, this.tableSizes.get(tableName), this.finished.size(), this.generators.size()));
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Remaining Tables: {}", CollectionUtils.subtract(this.generators.keySet(), this.finished));
                 }
@@ -405,8 +411,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public void beforeLoad() {
             // First block on the CountDownLatches of all the tables that we depend on
             if (this.dependencyTables.size() > 0 && LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: Table generator is blocked waiting for %d other tables: %s",
-                        this.tableName, this.dependencyTables.size(), this.dependencyTables));
+                LOG.debug(String.format("%s: Table generator is blocked waiting for %d other tables: %s", this.tableName, this.dependencyTables.size(), this.dependencyTables));
             }
             for (String dependency : this.dependencyTables) {
                 AbstractTableGenerator gen = AuctionMarkLoader.this.generators.get(dependency);
@@ -430,8 +435,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         public void releaseHoldsToSubTableGenerators() {
             if (this.subGenerator_hold.isEmpty() == false) {
-                LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators",
-                        this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
+                LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
                 for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
                     sub_generator.queue.addAll(this.subGenerator_hold);
                 } // FOR
@@ -442,8 +446,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public void updateSubTableGenerators(Object obj) {
             // Queue up this item for our multi-threaded sub-generators
             if (LOG.isTraceEnabled()) {
-                LOG.trace(String.format("%s: Updating %d sub-generators with %s: %s",
-                        this.tableName, this.sub_generators.size(), obj, this.sub_generators));
+                LOG.trace(String.format("%s: Updating %d sub-generators with %s: %s", this.tableName, this.sub_generators.size(), obj, this.sub_generators));
             }
             this.subGenerator_hold.add(obj);
         }
@@ -795,8 +798,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private final LinkedList<GlobalAttributeGroupId> group_ids = new LinkedList<>();
 
         public GlobalAttributeGroupGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP,
-                    AuctionMarkConstants.TABLENAME_CATEGORY);
+            super(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP, AuctionMarkConstants.TABLENAME_CATEGORY);
         }
 
         @Override
@@ -850,8 +852,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private int gav_counter = -1;
 
         public GlobalAttributeValueGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE,
-                    AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
+            super(AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE, AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP);
         }
 
         @Override
@@ -879,8 +880,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 this.gav_counter = 0;
             }
 
-            GlobalAttributeValueId gav_id = new GlobalAttributeValueId(this.gag_current.encode(),
-                    this.gav_counter);
+            GlobalAttributeValueId gav_id = new GlobalAttributeValueId(this.gag_current.encode(), this.gav_counter);
 
             // GAV_ID
             row[col++] = gav_id.encode();
@@ -903,13 +903,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private UserIdGenerator idGenerator;
 
         public UserGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_USERACCT,
-                    AuctionMarkConstants.TABLENAME_REGION);
+            super(AuctionMarkConstants.TABLENAME_USERACCT, AuctionMarkConstants.TABLENAME_REGION);
             this.randomRegion = new Flat(profile.rng, 0, (int) AuctionMarkConstants.TABLESIZE_REGION);
-            this.randomRating = new Zipf(profile.rng, AuctionMarkConstants.USER_MIN_RATING,
-                    AuctionMarkConstants.USER_MAX_RATING, 1.0001);
-            this.randomBalance = new Zipf(profile.rng, AuctionMarkConstants.USER_MIN_BALANCE,
-                    AuctionMarkConstants.USER_MAX_BALANCE, 1.001);
+            this.randomRating = new Zipf(profile.rng, AuctionMarkConstants.USER_MIN_RATING, AuctionMarkConstants.USER_MAX_RATING, 1.0001);
+            this.randomBalance = new Zipf(profile.rng, AuctionMarkConstants.USER_MIN_BALANCE, AuctionMarkConstants.USER_MAX_BALANCE, 1.001);
         }
 
         @Override
@@ -920,10 +917,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int max_items = Math.max(1, (int) Math.ceil(AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MAX * profile.getScaleFactor()));
 
             LOG.debug("Max Items Per Seller: {}", max_items);
-            Zipf randomNumItems = new Zipf(profile.rng,
-                    AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN,
-                    max_items,
-                    AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_SIGMA);
+            Zipf randomNumItems = new Zipf(profile.rng, AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_MIN, max_items, AuctionMarkConstants.ITEM_ITEMS_PER_SELLER_SIGMA);
             for (long i = 0; i < this.tableSize; i++) {
                 long num_items = randomNumItems.nextInt();
                 profile.users_per_itemCount.put(num_items);
@@ -978,12 +972,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private final Zipf randomNumUserAttributes;
 
         public UserAttributesGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_USERACCT_ATTRIBUTES,
-                    AuctionMarkConstants.TABLENAME_USERACCT);
+            super(AuctionMarkConstants.TABLENAME_USERACCT_ATTRIBUTES, AuctionMarkConstants.TABLENAME_USERACCT);
 
-            this.randomNumUserAttributes = new Zipf(profile.rng,
-                    AuctionMarkConstants.USER_MIN_ATTRIBUTES,
-                    AuctionMarkConstants.USER_MAX_ATTRIBUTES, 1.001);
+            this.randomNumUserAttributes = new Zipf(profile.rng, AuctionMarkConstants.USER_MIN_ATTRIBUTES, AuctionMarkConstants.USER_MAX_ATTRIBUTES, 1.001);
         }
 
         @Override
@@ -1000,11 +991,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // UA_U_ID
             row[col++] = user_id;
             // UA_NAME
-            row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_NAME_LENGTH_MIN,
-                    AuctionMarkConstants.USER_ATTRIBUTE_NAME_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_NAME_LENGTH_MIN, AuctionMarkConstants.USER_ATTRIBUTE_NAME_LENGTH_MAX);
             // UA_VALUE
-            row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MIN,
-                    AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MIN, AuctionMarkConstants.USER_ATTRIBUTE_VALUE_LENGTH_MAX);
             // U_CREATED
             row[col++] = new Timestamp(System.currentTimeMillis());
 
@@ -1023,9 +1012,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private final Map<Long, Pair<Zipf, Zipf>> item_bid_watch_zipfs = new HashMap<>();
 
         public ItemGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM,
-                    AuctionMarkConstants.TABLENAME_USERACCT,
-                    AuctionMarkConstants.TABLENAME_USERACCT, AuctionMarkConstants.TABLENAME_CATEGORY);
+            super(AuctionMarkConstants.TABLENAME_ITEM, AuctionMarkConstants.TABLENAME_USERACCT, AuctionMarkConstants.TABLENAME_USERACCT, AuctionMarkConstants.TABLENAME_CATEGORY);
         }
 
         @Override
@@ -1056,14 +1043,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             long bidDurationDay = ((endDate.getTime() - startDate.getTime()) / AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
             Pair<Zipf, Zipf> p = this.item_bid_watch_zipfs.get(bidDurationDay);
             if (p == null) {
-                Zipf randomNumBids = new Zipf(profile.rng,
-                        AuctionMarkConstants.ITEM_BIDS_PER_DAY_MIN * (int) bidDurationDay,
-                        AuctionMarkConstants.ITEM_BIDS_PER_DAY_MAX * (int) bidDurationDay,
-                        AuctionMarkConstants.ITEM_BIDS_PER_DAY_SIGMA);
-                Zipf randomNumWatches = new Zipf(profile.rng,
-                        AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MIN * (int) bidDurationDay,
-                        AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MAX * (int) bidDurationDay,
-                        AuctionMarkConstants.ITEM_WATCHES_PER_DAY_SIGMA);
+                Zipf randomNumBids = new Zipf(profile.rng, AuctionMarkConstants.ITEM_BIDS_PER_DAY_MIN * (int) bidDurationDay, AuctionMarkConstants.ITEM_BIDS_PER_DAY_MAX * (int) bidDurationDay, AuctionMarkConstants.ITEM_BIDS_PER_DAY_SIGMA);
+                Zipf randomNumWatches = new Zipf(profile.rng, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MIN * (int) bidDurationDay, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MAX * (int) bidDurationDay, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_SIGMA);
                 p = Pair.of(randomNumBids, randomNumWatches);
                 this.item_bid_watch_zipfs.put(bidDurationDay, p);
             }
@@ -1109,14 +1090,11 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // I_C_ID
             row[col++] = profile.getRandomCategoryId();
             // I_NAME
-            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_NAME_LENGTH_MIN,
-                    AuctionMarkConstants.ITEM_NAME_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_NAME_LENGTH_MIN, AuctionMarkConstants.ITEM_NAME_LENGTH_MAX);
             // I_DESCRIPTION
-            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_DESCRIPTION_LENGTH_MIN,
-                    AuctionMarkConstants.ITEM_DESCRIPTION_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_DESCRIPTION_LENGTH_MIN, AuctionMarkConstants.ITEM_DESCRIPTION_LENGTH_MAX);
             // I_USER_ATTRIBUTES
-            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_USER_ATTRIBUTES_LENGTH_MIN,
-                    AuctionMarkConstants.ITEM_USER_ATTRIBUTES_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_USER_ATTRIBUTES_LENGTH_MIN, AuctionMarkConstants.ITEM_USER_ATTRIBUTES_LENGTH_MAX);
             // I_INITIAL_PRICE
             row[col++] = itemInfo.initialPrice;
 
@@ -1177,8 +1155,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class ItemImageGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public ItemImageGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM_IMAGE,
-                    AuctionMarkConstants.TABLENAME_ITEM);
+            super(AuctionMarkConstants.TABLENAME_ITEM_IMAGE, AuctionMarkConstants.TABLENAME_ITEM);
         }
 
         @Override
@@ -1207,9 +1184,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class ItemAttributeGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public ItemAttributeGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE,
-                    AuctionMarkConstants.TABLENAME_ITEM,
-                    AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP, AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE);
+            super(AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE, AuctionMarkConstants.TABLENAME_ITEM, AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP, AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE);
         }
 
         @Override
@@ -1244,8 +1219,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class ItemCommentGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public ItemCommentGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM_COMMENT,
-                    AuctionMarkConstants.TABLENAME_ITEM);
+            super(AuctionMarkConstants.TABLENAME_ITEM_COMMENT, AuctionMarkConstants.TABLENAME_ITEM);
         }
 
         @Override
@@ -1266,11 +1240,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // IC_BUYER_ID
             row[col++] = itemInfo.lastBidderId;
             // IC_QUESTION
-            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN,
-                    AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN, AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
             // IC_RESPONSE
-            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN,
-                    AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
+            row[col++] = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN, AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
             // IC_CREATED
             row[col++] = this.getRandomCommentDate(itemInfo.startDate, itemInfo.endDate);
             // IC_UPDATED
@@ -1298,8 +1270,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private boolean new_item;
 
         public ItemBidGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM_BID,
-                    AuctionMarkConstants.TABLENAME_ITEM);
+            super(AuctionMarkConstants.TABLENAME_ITEM_BID, AuctionMarkConstants.TABLENAME_ITEM);
         }
 
         @Override
@@ -1319,8 +1290,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 // If this is a new item and there is more than one bid, then
                 // we'll choose the bidder's UserId at random.
                 // If there is only one bid, then it will have to be the last bidder
-                bidderId = (itemInfo.numBids == 1 ? itemInfo.lastBidderId :
-                        profile.getRandomBuyerId(itemInfo.sellerId));
+                bidderId = (itemInfo.numBids == 1 ? itemInfo.lastBidderId : profile.getRandomBuyerId(itemInfo.sellerId));
                 Timestamp endDate;
                 if (itemInfo.status == ItemStatus.OPEN) {
                     endDate = profile.getLoaderStartTime();
@@ -1403,8 +1373,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class ItemMaxBidGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public ItemMaxBidGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM_MAX_BID,
-                    AuctionMarkConstants.TABLENAME_ITEM_BID);
+            super(AuctionMarkConstants.TABLENAME_ITEM_MAX_BID, AuctionMarkConstants.TABLENAME_ITEM_BID);
         }
 
         @Override
@@ -1443,8 +1412,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class ItemPurchaseGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public ItemPurchaseGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_ITEM_PURCHASE,
-                    AuctionMarkConstants.TABLENAME_ITEM_BID);
+            super(AuctionMarkConstants.TABLENAME_ITEM_PURCHASE, AuctionMarkConstants.TABLENAME_ITEM_BID);
         }
 
         @Override
@@ -1489,8 +1457,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class UserFeedbackGenerator extends SubTableGenerator<LoaderItemInfo.Bid> {
 
         public UserFeedbackGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_USERACCT_FEEDBACK,
-                    AuctionMarkConstants.TABLENAME_ITEM_PURCHASE);
+            super(AuctionMarkConstants.TABLENAME_USERACCT_FEEDBACK, AuctionMarkConstants.TABLENAME_ITEM_PURCHASE);
         }
 
         @Override
@@ -1534,8 +1501,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     protected class UserItemGenerator extends SubTableGenerator<LoaderItemInfo> {
 
         public UserItemGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_USERACCT_ITEM,
-                    AuctionMarkConstants.TABLENAME_ITEM_BID);
+            super(AuctionMarkConstants.TABLENAME_USERACCT_ITEM, AuctionMarkConstants.TABLENAME_ITEM_BID);
         }
 
         @Override
@@ -1578,8 +1544,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         final Set<UserId> watchers = new HashSet<>();
 
         public UserWatchGenerator() throws SQLException {
-            super(AuctionMarkConstants.TABLENAME_USERACCT_WATCH,
-                    AuctionMarkConstants.TABLENAME_ITEM_BID);
+            super(AuctionMarkConstants.TABLENAME_USERACCT_WATCH, AuctionMarkConstants.TABLENAME_ITEM_BID);
         }
 
         @Override
@@ -1599,8 +1564,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             long num_users = tableSizes.get(AuctionMarkConstants.TABLENAME_USERACCT);
 
             if (LOG.isTraceEnabled()) {
-                LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, watchers=%d]",
-                        use_random, this.watchers.size()));
+                LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, watchers=%d]", use_random, this.watchers.size()));
             }
             int tries = 1000;
             while (buyerId == null && num_watchers < num_users && tries-- > 0) {
