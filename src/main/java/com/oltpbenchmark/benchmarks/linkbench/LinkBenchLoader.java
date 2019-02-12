@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.linkbench;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
@@ -26,14 +27,15 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkBenchLoader.class);
     private final int num_record;
 
-    public LinkBenchLoader(LinkBenchBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public LinkBenchLoader(LinkBenchBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(this.scaleFactor - LinkBenchConstants.START_ID + 1);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  {}", this.num_record);
@@ -42,45 +44,51 @@ public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        List<LoaderThread> threads = new ArrayList<>();
 
-    @Override
-    public void load() throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                Table catalog_tbl = benchmark.getTableCatalog("USERTABLE");
 
 
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement stmt = this.conn.prepareStatement(sql);
-        long total = 0;
-        int batch = 0;
-        for (int i = 0; i < this.num_record; i++) {
-            stmt.setInt(1, i);
-            for (int j = 2; j <= 11; j++) {
-                stmt.setString(j, TextGenerator.randomStr(rng(), 100));
-            }
-            stmt.addBatch();
-            total++;
-            if (++batch >= LinkBenchConstants.configCommitCount) {
-                int[] result = stmt.executeBatch();
+                String sql = SQLUtil.getInsertSQL(catalog_tbl, getDatabaseType());
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    long total = 0;
+                    int batch = 0;
+                    for (int i = 0; i < num_record; i++) {
+                        stmt.setInt(1, i);
+                        for (int j = 2; j <= 11; j++) {
+                            stmt.setString(j, TextGenerator.randomStr(rng(), 100));
+                        }
+                        stmt.addBatch();
+                        total++;
+                        if (++batch >= LinkBenchConstants.configCommitCount) {
+                            int[] result = stmt.executeBatch();
 
-                conn.commit();
-                batch = 0;
+                            conn.commit();
+                            batch = 0;
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug(String.format("Records Loaded %d / %d", total, num_record));
+                            }
+                        }
+                    } // FOR
+                    if (batch > 0) {
+                        stmt.executeBatch();
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(String.format("Records Loaded %d / %d", total, num_record));
+                        }
+                    }
+                }
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
+                    LOG.debug("Finished loading {}", catalog_tbl.getName());
                 }
             }
-        } // FOR
-        if (batch > 0) {
-            stmt.executeBatch();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Records Loaded %d / %d", total, this.num_record));
-            }
-        }
-        stmt.close();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Finished loading {}", catalog_tbl.getName());
-        }
+        });
+
+
+        return threads;
     }
+
+
 }

@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.ycsb;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
@@ -33,8 +34,8 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(YCSBLoader.class);
     private final int num_record;
 
-    public YCSBLoader(YCSBBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public YCSBLoader(YCSBBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(YCSBConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  {}", this.num_record);
@@ -48,7 +49,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
         while (count < this.num_record) {
             final int start = count;
             final int stop = Math.min(start + YCSBConstants.THREAD_BATCH_SIZE, this.num_record);
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     if (LOG.isDebugEnabled()) {

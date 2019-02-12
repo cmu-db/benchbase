@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TPCDSBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new TPCDSLoader(this, conn);
+    protected Loader<TPCDSBenchmark> makeLoaderImpl() throws SQLException {
+        return new TPCDSLoader(this);
     }
 }

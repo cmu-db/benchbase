@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.voter;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -71,8 +72,8 @@ public class VoterLoader extends Loader<VoterBenchmark> {
             "VA", "VA", "VA", "VA", "VA", "VA", "VT", "WA", "WA", "WA", "WA", "WA", "WA", "WI", "WI",
             "WI", "WI", "WI", "WV", "WY"};
 
-    public VoterLoader(VoterBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public VoterLoader(VoterBenchmark benchmark) {
+        super(benchmark);
     }
 
     @Override
@@ -80,7 +81,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         List<LoaderThread> threads = new ArrayList<>();
 
         // CONTESTANTS
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 VoterLoader.this.loadContestants(conn);
@@ -88,7 +89,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         });
 
         // LOCATIONS
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 VoterLoader.this.loadLocations(conn);

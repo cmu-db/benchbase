@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +57,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<ResourceStresserBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new ResourceStresserLoader(this, conn);
+    protected Loader<ResourceStresserBenchmark> makeLoaderImpl() throws SQLException {
+        return new ResourceStresserLoader(this);
     }
 }

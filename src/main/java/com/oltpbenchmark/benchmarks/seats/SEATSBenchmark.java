@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +77,8 @@ public class SEATSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<SEATSBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new SEATSLoader(this, conn);
+    protected Loader<SEATSBenchmark> makeLoaderImpl() throws SQLException {
+        return new SEATSLoader(this);
     }
 
     /**

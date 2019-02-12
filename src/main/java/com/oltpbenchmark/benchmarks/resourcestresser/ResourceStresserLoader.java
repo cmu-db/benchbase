@@ -1,6 +1,7 @@
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
@@ -18,8 +19,8 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserLoader.class);
     private final int numEmployees;
 
-    public ResourceStresserLoader(ResourceStresserBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public ResourceStresserLoader(ResourceStresserBenchmark benchmark) {
+        super(benchmark);
         this.numEmployees = (int) (this.scaleFactor * ResourceStresserConstants.RECORD_COUNT);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of EMPLOYEES:  {}", this.numEmployees);
@@ -29,25 +30,25 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<>();
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadTable(conn, ResourceStresserConstants.TABLENAME_CPUTABLE);
             }
         });
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadTable(conn, ResourceStresserConstants.TABLENAME_IOTABLE);
             }
         });
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadTable(conn, ResourceStresserConstants.TABLENAME_IOTABLESMALLROW);
             }
         });
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadTable(conn, ResourceStresserConstants.TABLENAME_LOCKTABLE);

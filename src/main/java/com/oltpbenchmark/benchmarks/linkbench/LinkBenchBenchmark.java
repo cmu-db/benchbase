@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,8 +61,8 @@ public class LinkBenchBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<LinkBenchBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new LinkBenchLoader(this, conn);
+    protected Loader<LinkBenchBenchmark> makeLoaderImpl() throws SQLException {
+        return new LinkBenchLoader(this);
     }
 
     @Override

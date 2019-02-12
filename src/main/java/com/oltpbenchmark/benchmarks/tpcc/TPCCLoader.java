@@ -35,6 +35,7 @@ package com.oltpbenchmark.benchmarks.tpcc;
  */
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.*;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
@@ -52,8 +53,8 @@ import java.util.concurrent.CountDownLatch;
 public class TPCCLoader extends Loader<TPCCBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(TPCCLoader.class);
 
-    public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public TPCCLoader(TPCCBenchmark benchmark) {
+        super(benchmark);
         numWarehouses = (int) Math.round(TPCCConfig.configWhseCount * this.scaleFactor);
         if (numWarehouses <= 0) {
             //where would be fun in that?
@@ -71,7 +72,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         // ITEM
         // This will be invoked first and executed in a single thread.
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadItems(conn, TPCCConfig.configItemCount);
@@ -85,7 +86,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         // to wait until the ITEM table is loaded first though.
         for (int w = 1; w <= numWarehouses; w++) {
             final int w_id = w;
-            LoaderThread t = new LoaderThread() {
+            LoaderThread t = new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     // Make sure that we load the ITEM table first

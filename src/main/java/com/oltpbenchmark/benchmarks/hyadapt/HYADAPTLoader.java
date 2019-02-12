@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.hyadapt;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -33,8 +35,8 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     private final int num_record;
     private static final Random rand = new Random();
 
-    public HYADAPTLoader(HYADAPTBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public HYADAPTLoader(HYADAPTBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(HYADAPTConstants.RECORD_COUNT * this.scaleFactor);
         LOG.info("# of RECORDS:  {}", this.num_record);
     }
@@ -61,40 +63,45 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
-    @Override
-    public void load() throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("HTABLE");
+        List<LoaderThread> threads = new ArrayList<>();
 
-
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                Table catalog_tbl = benchmark.getTableCatalog("HTABLE");
 
 
-        try (PreparedStatement stmt = this.conn.prepareStatement(sql)) {
-            long total = 0;
-            int batch = 0;
-            for (int i = 0; i < this.num_record; i++) {
-                stmt.setInt(1, i);
-                for (int j = 2; j <= HYADAPTConstants.FIELD_COUNT + 1; j++) {
-                    stmt.setInt(j, getRandInt());
+                String sql = SQLUtil.getInsertSQL(catalog_tbl, getDatabaseType());
+
+
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    long total = 0;
+                    int batch = 0;
+                    for (int i = 0; i < num_record; i++) {
+                        stmt.setInt(1, i);
+                        for (int j = 2; j <= HYADAPTConstants.FIELD_COUNT + 1; j++) {
+                            stmt.setInt(j, getRandInt());
+                        }
+                        stmt.addBatch();
+                        total++;
+                        if (++batch >= HYADAPTConstants.configCommitCount) {
+                            int[] result = stmt.executeBatch();
+
+                            batch = 0;
+                            LOG.info(String.format("Records Loaded %d / %d", total, num_record));
+                        }
+                    } // FOR
+                    if (batch > 0) {
+                        stmt.executeBatch();
+                        LOG.info(String.format("Records Loaded %d / %d", total, num_record));
+                    }
                 }
-                stmt.addBatch();
-                total++;
-                if (++batch >= HYADAPTConstants.configCommitCount) {
-                    int[] result = stmt.executeBatch();
-
-                    batch = 0;
-                    LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
-                }
-            } // FOR
-            if (batch > 0) {
-                stmt.executeBatch();
-                LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
+                LOG.info("Finished loading {}", catalog_tbl.getName());
             }
-        }
-        LOG.info("Finished loading {}", catalog_tbl.getName());
+        });
+
+        return threads;
     }
+
 }

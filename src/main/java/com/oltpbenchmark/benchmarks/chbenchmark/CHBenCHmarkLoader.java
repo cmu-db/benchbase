@@ -18,6 +18,7 @@ package com.oltpbenchmark.benchmarks.chbenchmark;
 
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
@@ -34,7 +35,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -43,13 +44,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     private final static int configCommitCount = 1000; // commit every n records
     private static final RandomGenerator ran = new RandomGenerator(0);
-    private static PreparedStatement regionPrepStmt;
-    private static PreparedStatement nationPrepStmt;
-    private static PreparedStatement supplierPrepStmt;
 
-    private static Date now;
-    private static long lastTimeMS;
-    private static Connection conn;
 
     //create possible keys for n_nationkey ([a-zA-Z0-9])
     private static final int[] nationkeys = new int[62];
@@ -66,43 +61,53 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         }
     }
 
-    public CHBenCHmarkLoader(CHBenCHmark benchmark, Connection c) {
-        super(benchmark, c);
-        conn = c;
+    public CHBenCHmarkLoader(CHBenCHmark benchmark) {
+        super(benchmark);
     }
 
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
+        List<LoaderThread> threads = new ArrayList<>();
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
+
+                    loadRegions(conn, statement);
+                }
+            }
+        });
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + " (n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
+
+                    loadNations(conn, statement);
+                }
+            }
+        });
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+
+                    loadSuppliers(conn, statement);
+                }
+            }
+        });
+
+        return threads;
     }
 
     public void load() throws SQLException {
-        try {
-            regionPrepStmt = conn.prepareStatement("INSERT INTO region "
-                    + " (r_regionkey, r_name, r_comment) "
-                    + "VALUES (?, ?, ?)");
 
-            nationPrepStmt = conn.prepareStatement("INSERT INTO nation "
-                    + " (n_nationkey, n_name, n_regionkey, n_comment) "
-                    + "VALUES (?, ?, ?, ?)");
-
-            supplierPrepStmt = conn.prepareStatement("INSERT INTO supplier "
-                    + " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)");
-
-        } catch (SQLException se) {
-            LOG.debug(se.getMessage());
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-
-        } // end try
-
-        loadHelper();
     }
 
-    static void truncateTable(String strTable) throws SQLException {
+    private void truncateTable(Connection conn, String strTable) throws SQLException {
 
         LOG.debug("Truncating '{}' ...", strTable);
         try (Statement statement = conn.createStatement()) {
@@ -112,19 +117,16 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         }
     }
 
-    int loadRegions() throws SQLException {
+    private int loadRegions(Connection conn, PreparedStatement statement) throws SQLException {
 
         int k = 0;
         int t = 0;
         BufferedReader br = null;
 
 
-        truncateTable("region");
-        truncateTable("nation");
-        truncateTable("supplier");
-
-        now = new java.util.Date();
-        LOG.debug("\nStart Region Load @ {} ...", now);
+        truncateTable(conn, "region");
+        truncateTable(conn, "nation");
+        truncateTable(conn, "supplier");
 
         Region region = new Region();
 
@@ -154,37 +156,24 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
                 k++;
 
-                regionPrepStmt.setLong(1, region.r_regionkey);
-                regionPrepStmt.setString(2, region.r_name);
-                regionPrepStmt.setString(3, region.r_comment);
-                regionPrepStmt.addBatch();
+                statement.setLong(1, region.r_regionkey);
+                statement.setString(2, region.r_name);
+                statement.setString(3, region.r_comment);
+                statement.addBatch();
 
-                long tmpTime = new java.util.Date().getTime();
-                String etStr = "  Elasped Time(ms): "
-                        + ((tmpTime - lastTimeMS) / 1000.000)
-                        + "                    ";
-                LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
-                lastTimeMS = tmpTime;
-                regionPrepStmt.executeBatch();
-                regionPrepStmt.clearBatch();
+                if ((k % configCommitCount) == 0) {
+
+                    statement.executeBatch();
+                    statement.clearBatch();
+                }
+
             }
 
-            long tmpTime = new java.util.Date().getTime();
-            String etStr = "  Elasped Time(ms): "
-                    + ((tmpTime - lastTimeMS) / 1000.000)
-                    + "                    ";
-            LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
-            lastTimeMS = tmpTime;
-
-            regionPrepStmt.executeBatch();
-
-            now = new java.util.Date();
-            LOG.debug("End Region Load @  {}", now);
+            statement.executeBatch();
+            statement.clearBatch();
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
-            conn.rollback();
-
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -193,14 +182,10 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     } // end loadRegions()
 
-    int loadNations() throws SQLException {
+    private int loadNations(Connection conn, PreparedStatement statement) throws SQLException {
 
         int k = 0;
         int t = 0;
-
-
-        now = new java.util.Date();
-        LOG.debug("\nStart Nation Load @ {} ...", now);
 
         Nation nation = new Nation();
 
@@ -234,31 +219,24 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
                 k++;
 
-                nationPrepStmt.setLong(1, nation.n_nationkey);
-                nationPrepStmt.setString(2, nation.n_name);
-                nationPrepStmt.setLong(3, nation.n_regionkey);
-                nationPrepStmt.setString(4, nation.n_comment);
-                nationPrepStmt.addBatch();
+                statement.setLong(1, nation.n_nationkey);
+                statement.setString(2, nation.n_name);
+                statement.setLong(3, nation.n_regionkey);
+                statement.setString(4, nation.n_comment);
+                statement.addBatch();
 
-                long tmpTime = new java.util.Date().getTime();
-                String etStr = "  Elasped Time(ms): "
-                        + ((tmpTime - lastTimeMS) / 1000.000)
-                        + "                    ";
-                LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
-                lastTimeMS = tmpTime;
-                nationPrepStmt.executeBatch();
-                nationPrepStmt.clearBatch();
+                if ((k % configCommitCount) == 0) {
+
+                    statement.executeBatch();
+                    statement.clearBatch();
+                }
+
             }
 
-            long tmpTime = new java.util.Date().getTime();
-            String etStr = "  Elasped Time(ms): "
-                    + ((tmpTime - lastTimeMS) / 1000.000)
-                    + "                    ";
-            LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
-            lastTimeMS = tmpTime;
 
-            now = new java.util.Date();
-            LOG.debug("End Region Load @  {}", now);
+            statement.executeBatch();
+            statement.clearBatch();
+
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
@@ -270,15 +248,12 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     } // end loadNations()
 
-    int loadSuppliers() throws SQLException {
+    private int loadSuppliers(Connection conn, PreparedStatement statement) throws SQLException {
 
         int k = 0;
         int t = 0;
 
         try {
-
-            now = new java.util.Date();
-            LOG.debug("\nStart Supplier Load @ {} ...", now);
 
             Supplier supplier = new Supplier();
 
@@ -293,38 +268,26 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
                 k++;
 
-                supplierPrepStmt.setLong(1, supplier.su_suppkey);
-                supplierPrepStmt.setString(2, supplier.su_name);
-                supplierPrepStmt.setString(3, supplier.su_address);
-                supplierPrepStmt.setLong(4, supplier.su_nationkey);
-                supplierPrepStmt.setString(5, supplier.su_phone);
-                supplierPrepStmt.setDouble(6, supplier.su_acctbal);
-                supplierPrepStmt.setString(7, supplier.su_comment);
-                supplierPrepStmt.addBatch();
+                statement.setLong(1, supplier.su_suppkey);
+                statement.setString(2, supplier.su_name);
+                statement.setString(3, supplier.su_address);
+                statement.setLong(4, supplier.su_nationkey);
+                statement.setString(5, supplier.su_phone);
+                statement.setDouble(6, supplier.su_acctbal);
+                statement.setString(7, supplier.su_comment);
+                statement.addBatch();
 
                 if ((k % configCommitCount) == 0) {
-                    long tmpTime = new java.util.Date().getTime();
-                    String etStr = "  Elasped Time(ms): "
-                            + ((tmpTime - lastTimeMS) / 1000.000)
-                            + "                    ";
-                    LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
-                    lastTimeMS = tmpTime;
-                    supplierPrepStmt.executeBatch();
-                    supplierPrepStmt.clearBatch();
+
+                    statement.executeBatch();
+                    statement.clearBatch();
                 }
             }
 
-            long tmpTime = new java.util.Date().getTime();
-            String etStr = "  Elasped Time(ms): "
-                    + ((tmpTime - lastTimeMS) / 1000.000)
-                    + "                    ";
-            LOG.debug("{}  Writing record {} of {}", etStr.substring(0, 30), k, t);
-            lastTimeMS = tmpTime;
 
-            supplierPrepStmt.executeBatch();
+            statement.executeBatch();
+            statement.clearBatch();
 
-            now = new java.util.Date();
-            LOG.debug("End Region Load @  {}", now);
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
@@ -336,16 +299,5 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     } // end loadSuppliers()
 
-    protected long loadHelper() {
-        long totalRows = 0;
-        try {
-            totalRows += loadRegions();
-            totalRows += loadNations();
-            totalRows += loadSuppliers();
-        } catch (SQLException e) {
-            LOG.debug(e.getMessage());
-        }
-        return totalRows;
-    }
 
 }

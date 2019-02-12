@@ -16,7 +16,9 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.auctionmark.util.*;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
@@ -77,8 +79,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      *
      * @param args
      */
-    public AuctionMarkLoader(AuctionMarkBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public AuctionMarkLoader(AuctionMarkBenchmark benchmark) {
+        super(benchmark);
 
         // BenchmarkProfile
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
@@ -140,7 +142,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private final AbstractTableGenerator generator;
         private final CountDownLatch latch;
 
-        public CountdownLoaderThread(AbstractTableGenerator generator, CountDownLatch latch) throws SQLException {
+        public CountdownLoaderThread(BenchmarkModule benchmarkModule, AbstractTableGenerator generator, CountDownLatch latch) {
+            super(benchmarkModule);
             this.generator = generator;
             this.latch = latch;
         }
@@ -162,10 +165,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         for (AbstractTableGenerator generator : this.generators.values()) {
             generator.init();
-            threads.add(new CountdownLoaderThread(generator, loadLatch));
+            threads.add(new CountdownLoaderThread(this.benchmark,generator, loadLatch));
         }
 
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {
@@ -302,7 +305,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
          * @param catalog_tbl
          */
         public AbstractTableGenerator(String tableName, String... dependencies) throws SQLException {
-            super();
+            super(benchmark);
             this.tableName = tableName;
             this.catalog_tbl = benchmark.getCatalog().getTable(tableName);
 

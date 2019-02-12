@@ -40,50 +40,13 @@ public abstract class Loader<T extends BenchmarkModule> {
     private static final Logger LOG = LoggerFactory.getLogger(Loader.class);
 
     protected final T benchmark;
-    @Deprecated
-    protected Connection conn;
+
     protected final WorkloadConfiguration workConf;
     protected final double scaleFactor;
     private final Histogram<String> tableSizes = new Histogram<>(true);
 
-    /**
-     * A LoaderThread is responsible for loading some portion of a
-     * benchmark's databsae.
-     * Note that each LoaderThread has its own databsae Connection handle.
-     */
-    public abstract class LoaderThread implements Runnable {
-        private final Connection conn;
-
-        public LoaderThread() throws SQLException {
-            this.conn = Loader.this.benchmark.makeConnection();
-        }
-
-        @Override
-        public final void run() {
-            try {
-                this.load(this.conn);
-            } catch (SQLException ex) {
-                SQLException next_ex = ex.getNextException();
-                String msg = String.format("Unexpected error when loading %s database",
-                        Loader.this.benchmark.getBenchmarkName().toUpperCase());
-                LOG.error(msg, next_ex);
-                throw new RuntimeException(ex);
-            }
-        }
-
-        /**
-         * This is the method that each LoaderThread has to implement
-         *
-         * @param conn
-         * @throws SQLException
-         */
-        public abstract void load(Connection conn) throws SQLException;
-
-    }
-
-    public Loader(T benchmark, Connection conn) {
+    public Loader(T benchmark) {
         this.benchmark = benchmark;
-        this.conn = conn;
         this.workConf = benchmark.getWorkloadConfiguration();
         this.scaleFactor = workConf.getScaleFactor();
     }
@@ -106,22 +69,6 @@ public abstract class Loader<T extends BenchmarkModule> {
      * @return The list of LoaderThreads the framework will launch.
      */
     public abstract List<LoaderThread> createLoaderThreads() throws SQLException;
-
-    /**
-     * This is the old and deprecated way of invoking a loader.
-     * If a benchmark is using createLoaderThreads, then this method will not
-     * be invoked.
-     *
-     * @throws SQLException
-     */
-    @Deprecated
-    public void load() throws SQLException {
-        List<LoaderThread> threads = this.createLoaderThreads();
-        for (LoaderThread t : threads) {
-            t.run();
-        }
-    }
-
 
     public void setTableCount(String tableName, int size) {
         this.tableSizes.set(tableName, size);
@@ -178,12 +125,7 @@ public abstract class Loader<T extends BenchmarkModule> {
      * @param catalog The catalog containing all loaded tables
      * @throws SQLException
      */
-    public void unload(Catalog catalog) throws SQLException {
-        boolean autoCommit = conn.getAutoCommit();
-
-        if (autoCommit) {
-            conn.setAutoCommit(false);
-        }
+    public void unload(Connection conn, Catalog catalog) throws SQLException {
 
         conn.setTransactionIsolation(workConf.getIsolationMode());
         try (Statement st = conn.createStatement()) {
@@ -193,12 +135,10 @@ public abstract class Loader<T extends BenchmarkModule> {
                 st.execute(sql);
             } // FOR
             conn.commit();
-        } finally {
-            conn.setAutoCommit(autoCommit);
         }
     }
 
-    protected void updateAutoIncrement(Column catalog_col, int value) throws SQLException {
+    protected void updateAutoIncrement(Connection conn, Column catalog_col, int value) throws SQLException {
         String sql = null;
         switch (getDatabaseType()) {
             case POSTGRES:
@@ -213,7 +153,7 @@ public abstract class Loader<T extends BenchmarkModule> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Updating %s auto-increment counter with value '%d'", catalog_col.fullName(), value));
             }
-            try (Statement stmt = this.conn.createStatement()) {
+            try (Statement stmt = conn.createStatement()) {
                 boolean result = stmt.execute(sql);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("%s => [%s]", sql, result));

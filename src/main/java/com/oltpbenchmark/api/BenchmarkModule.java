@@ -18,7 +18,6 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
@@ -105,10 +104,7 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public final Connection makeConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(
-                workConf.getDBConnection(),
-                workConf.getDBUsername(),
-                workConf.getDBPassword());
+        Connection conn = DriverManager.getConnection(workConf.getDBConnection(), workConf.getDBUsername(), workConf.getDBPassword());
         Catalog.setSeparator(conn);
         return (conn);
     }
@@ -130,11 +126,10 @@ public abstract class BenchmarkModule {
      * configured for you, and the base class will commit+close it once this
      * method returns
      *
-     * @param conn TODO
      * @return TODO
      * @throws SQLException TODO
      */
-    protected abstract Loader<? extends BenchmarkModule> makeLoaderImpl(Connection conn) throws SQLException;
+    protected abstract Loader<? extends BenchmarkModule> makeLoaderImpl() throws SQLException;
 
     /**
      * @param txns
@@ -252,30 +247,10 @@ public abstract class BenchmarkModule {
      * Invoke this benchmark's database loader
      */
     public final void loadDatabase() {
-        try (Connection conn = this.makeConnection()) {
-            this.loadDatabase(conn);
-        } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to load the %s database", getBenchmarkName()), ex);
-        }
-    }
-
-    /**
-     * Invoke this benchmark's database loader using the given Connection handle
-     *
-     * @param conn
-     */
-    protected final void loadDatabase(final Connection conn) {
-
 
         try {
-            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
+            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
-
-                final boolean autoCommit = conn.getAutoCommit();
-
-                if (!autoCommit) {
-                    conn.setAutoCommit(true);
-                }
 
 
                 // PAVLO: 2016-12-23
@@ -284,38 +259,26 @@ public abstract class BenchmarkModule {
                 // both. So if createLoaderTheads() returns null, we will use the old load()
                 // method.
                 List<? extends LoaderThread> loaderThreads = loader.createLoaderThreads();
-                if (loaderThreads != null) {
-                    int maxConcurrent = workConf.getLoaderThreads();
+                int maxConcurrent = workConf.getLoaderThreads();
 
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]",
-                                loaderThreads.size(),
-                                loader.getClass().getSimpleName(),
-                                maxConcurrent));
-                    }
-                    ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Using legacy %s.load() method",
-                                loader.getClass().getSimpleName()));
-                    }
-                    loader.load();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]", loaderThreads.size(), loader.getClass().getSimpleName(), maxConcurrent));
                 }
+
+                ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
+
 
                 if (loader.getTableCounts().isEmpty() == false) {
                     LOG.info("Table Counts:\n{}", loader.getTableCounts());
                 }
 
-                conn.setAutoCommit(autoCommit);
             }
         } catch (SQLException ex) {
-            String msg = String.format("Unexpected error when trying to load the %s database",
-                    getBenchmarkName());
+            String msg = String.format("Unexpected error when trying to load the %s database", getBenchmarkName());
             throw new RuntimeException(msg, ex);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Finished loading the %s database",
-                    this.getBenchmarkName().toUpperCase()));
+            LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
         }
     }
 
@@ -325,10 +288,10 @@ public abstract class BenchmarkModule {
      */
     public final void clearDatabase() {
         try (Connection conn = this.makeConnection()) {
-            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl(conn);
+            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);
-                loader.unload(this.catalog);
+                loader.unload(conn, this.catalog);
                 conn.commit();
             }
         } catch (SQLException ex) {
@@ -390,9 +353,7 @@ public abstract class BenchmarkModule {
 
     public final TransactionType initTransactionType(String procName, int id) {
         if (id == TransactionType.INVALID_ID) {
-            LOG.error(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s",
-                    getBenchmarkName(), procName, id,
-                    TransactionType.INVALID.getClass().getSimpleName()));
+            LOG.error(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
             return null;
         }
 
@@ -429,9 +390,7 @@ public abstract class BenchmarkModule {
             } // FOR
 
             for (TransactionType txn : txns) {
-                Procedure proc = ClassUtil.newInstance(txn.getProcedureClass(),
-                        new Object[0],
-                        new Class<?>[0]);
+                Procedure proc = ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
                 proc.initialize(this.workConf.getDBType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);

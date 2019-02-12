@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +67,8 @@ public class TPCHBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TPCHBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new TPCHLoader(this, conn);
+    protected Loader<TPCHBenchmark> makeLoaderImpl() throws SQLException {
+        return new TPCHLoader(this);
     }
 
 } 

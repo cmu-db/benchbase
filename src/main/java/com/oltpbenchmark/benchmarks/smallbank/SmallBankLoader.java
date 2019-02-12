@@ -1,6 +1,7 @@
 package com.oltpbenchmark.benchmarks.smallbank;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomDistribution.DiscreteRNG;
 import com.oltpbenchmark.util.RandomDistribution.Gaussian;
@@ -33,8 +34,8 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
     private final long numAccounts;
     private final int custNameLength;
 
-    public SmallBankLoader(SmallBankBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public SmallBankLoader(SmallBankBenchmark benchmark) {
+        super(benchmark);
 
         this.catalogAccts = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
 
@@ -77,10 +78,10 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
         PreparedStatement stmtChecking;
 
         public Generator(long start, long stop) throws SQLException {
-            super();
+            super(benchmark);
             this.start = start;
             this.stop = stop;
-            this.randBalance = new Gaussian(SmallBankLoader.this.benchmark.rng(),
+            this.randBalance = new Gaussian(benchmark.rng(),
                     SmallBankConstants.MIN_BALANCE,
                     SmallBankConstants.MAX_BALANCE);
         }

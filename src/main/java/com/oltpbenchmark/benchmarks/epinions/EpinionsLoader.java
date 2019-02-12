@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ScrambledZipfianGenerator;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
@@ -42,8 +43,8 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     private final long num_reviews;
     private final int num_trust;
 
-    public EpinionsLoader(EpinionsBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public EpinionsLoader(EpinionsBenchmark benchmark) {
+        super(benchmark);
         this.num_users = (int) Math.round(EpinionsConstants.NUM_USERS * this.scaleFactor);
         this.num_items = (int) Math.round(EpinionsConstants.NUM_ITEMS * this.scaleFactor);
         this.num_reviews = (int) Math.round(EpinionsConstants.REVIEW * this.scaleFactor);
@@ -73,7 +74,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             final int lo = i * loadPerThread;
             final int hi = Math.min(this.num_users, (i + 1) * loadPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     EpinionsLoader.this.loadUsers(conn, lo, hi);
@@ -87,7 +88,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             final int lo = i * loadPerThread;
             final int hi = Math.min(this.num_items, (i + 1) * loadPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     EpinionsLoader.this.loadItems(conn, lo, hi);
@@ -97,7 +98,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         }
 
         // TRUST depends on USERACCT
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {
@@ -111,7 +112,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         });
 
         // REVIEWS depends on USERACCT, ITEM
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {

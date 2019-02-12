@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
@@ -67,12 +68,11 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
     /**
      * Constructor
+     *  @param benchmark
      *
-     * @param benchmark
-     * @param c
      */
-    public WikipediaLoader(WikipediaBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public WikipediaLoader(WikipediaBenchmark benchmark) {
+        super(benchmark);
         this.num_users = (int) Math.round(WikipediaConstants.USERS * this.scaleFactor);
         this.num_pages = (int) Math.round(WikipediaConstants.PAGES * this.scaleFactor);
 
@@ -107,7 +107,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             final int lo = i * itemsPerThread + 1;
             final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     WikipediaLoader.this.loadUsers(conn, lo, hi);
@@ -122,7 +122,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             final int lo = i * itemsPerThread + 1;
             final int hi = Math.min(this.num_pages, (i + 1) * itemsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     WikipediaLoader.this.loadPages(conn, lo, hi);
@@ -134,7 +134,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         // WATCHLIST and REVISIONS depends on USERS and PAGES
 
         // WATCHLIST
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {
@@ -148,7 +148,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         });
 
         // REVISIONS
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {
@@ -240,7 +240,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
         userInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
-            this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_users);
+            this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.num_users);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("Users  % {}", this.num_users);
@@ -307,7 +307,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
         pageInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
-            this.updateAutoIncrement(catalog_tbl.getColumn(0), this.num_pages);
+            this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.num_pages);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("Users  % {}", this.num_pages);
@@ -516,8 +516,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         revisionInsert.close();
         textInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
-            this.updateAutoIncrement(textTable.getColumn(0), rev_id);
-            this.updateAutoIncrement(revTable.getColumn(0), rev_id);
+            this.updateAutoIncrement(conn, textTable.getColumn(0), rev_id);
+            this.updateAutoIncrement(conn, revTable.getColumn(0), rev_id);
         }
 
         // UPDATE USER

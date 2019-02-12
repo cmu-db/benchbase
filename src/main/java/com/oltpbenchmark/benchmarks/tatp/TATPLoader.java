@@ -18,6 +18,7 @@
 package com.oltpbenchmark.benchmarks.tatp;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
@@ -35,8 +36,8 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
     private final long subscriberSize;
 
-    public TATPLoader(TATPBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public TATPLoader(TATPBenchmark benchmark) {
+        super(benchmark);
         this.subscriberSize = Math.round(TATPConstants.DEFAULT_NUM_SUBSCRIBERS * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("CONSTRUCTOR: {}", TATPLoader.class.getName());
@@ -56,7 +57,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             final long lo = i * itemsPerThread + 1;
             final long hi = Math.min(this.subscriberSize, (i + 1) * itemsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     genSubscriber(conn, lo, hi);
@@ -66,7 +67,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         }
 
         // ACCESS_INFO depends on SUBSCRIBER
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {
@@ -81,7 +82,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
         // SPECIAL_FACILITY SPE and CALL_FORWARDING CAL
         // SPE depends on SUBSCRIBER, CAL depends on SPE
-        threads.add(new LoaderThread() {
+        threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 try {

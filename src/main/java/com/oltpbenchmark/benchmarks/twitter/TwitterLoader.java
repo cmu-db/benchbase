@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.twitter.util.NameHistogram;
 import com.oltpbenchmark.benchmarks.twitter.util.TweetHistogram;
 import com.oltpbenchmark.catalog.Table;
@@ -44,8 +45,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     private final long num_tweets;
     private final int num_follows;
 
-    public TwitterLoader(TwitterBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public TwitterLoader(TwitterBenchmark benchmark) {
+        super(benchmark);
         this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
         this.num_tweets = (int) Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
         this.num_follows = (int) Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
@@ -76,7 +77,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             final int lo = i * itemsPerThread + 1;
             final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     TwitterLoader.this.loadUsers(conn, lo, hi);
@@ -90,7 +91,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             final int lo = i * itemsPerThread + 1;
             final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     try {
@@ -109,7 +110,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             final long lo = i * tweetsPerThread + 1;
             final long hi = Math.min(this.num_tweets, (i + 1) * tweetsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     try {

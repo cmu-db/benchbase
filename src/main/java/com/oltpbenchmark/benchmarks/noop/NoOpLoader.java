@@ -17,10 +17,10 @@
 package com.oltpbenchmark.benchmarks.noop;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -33,8 +33,8 @@ import java.util.List;
 public class NoOpLoader extends Loader<NoOpBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(NoOpLoader.class);
 
-    public NoOpLoader(NoOpBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public NoOpLoader(NoOpBenchmark benchmark) {
+        super(benchmark);
     }
 
     @Override
@@ -43,12 +43,4 @@ public class NoOpLoader extends Loader<NoOpBenchmark> {
         return null;
     }
 
-    @Override
-    public void load() throws SQLException {
-        // Nothing to do
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("No data is no loaded because there is no table!");
-        }
-
-    }
 }

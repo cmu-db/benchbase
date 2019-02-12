@@ -10,7 +10,6 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +33,8 @@ public class SmallBankBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<SmallBankBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new SmallBankLoader(this, conn);
+    protected Loader<SmallBankBenchmark> makeLoaderImpl() throws SQLException {
+        return new SmallBankLoader(this);
     }
 
     @Override

@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +83,8 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<AuctionMarkBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new AuctionMarkLoader(this, conn);
+    protected Loader<AuctionMarkBenchmark> makeLoaderImpl() throws SQLException {
+        return new AuctionMarkLoader(this);
     }
 
 

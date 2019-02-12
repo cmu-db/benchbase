@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.sibench;
 
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
@@ -33,8 +34,8 @@ public class SILoader extends Loader<SIBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(SILoader.class);
     private final int num_record;
 
-    public SILoader(SIBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public SILoader(SIBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(SIConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  {}", this.num_record);
@@ -53,7 +54,7 @@ public class SILoader extends Loader<SIBenchmark> {
             final int lo = i * itemsPerThread + 1;
             final int hi = Math.min(this.num_record, (i + 1) * itemsPerThread);
 
-            threads.add(new LoaderThread() {
+            threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     SILoader.this.loadSITest(conn, lo, hi);
