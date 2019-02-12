@@ -33,7 +33,6 @@ public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
         try {
             GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
-            proc.setOwner(this);
             proc.run(conn);
         } catch (ClassCastException e) {
             throw new RuntimeException(e);

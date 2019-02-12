@@ -18,13 +18,9 @@ package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.api.Worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,65 +30,19 @@ public abstract class GenericQuery extends Procedure {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
-    private PreparedStatement stmt;
-    private Worker owner;
-
-    public void setOwner(Worker w) {
-        this.owner = w;
-    }
-
-    protected static SQLStmt initSQLStmt(String queryFile) {
-        StringBuilder query = new StringBuilder();
-
-        try {
-            // todo: this won't work
-            FileReader input = new FileReader("src/com/oltpbenchmark/benchmarks/chbenchmark/queries/" + queryFile);
-            try (BufferedReader reader = new BufferedReader(input)) {
-                String line = reader.readLine();
-                while (line != null) {
-                    query.append(line);
-                    query.append(" ");
-                    line = reader.readLine();
-                }
-            }
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return new SQLStmt(query.toString());
-    }
-
     protected abstract SQLStmt get_query();
 
     public ResultSet run(Connection conn) throws SQLException {
 
-        //initializing all prepared statements
-        stmt = this.getPreparedStatement(conn, get_query());
-        if (owner != null) {
-            owner.setCurrStatement(stmt);
-        }
 
-        ResultSet rs = null;
-        try {
-            rs = stmt.executeQuery();
-        } catch (SQLException ex) {
-            // If the system thinks we're missing a prepared statement, then we
-            // should regenerate them.
-            if (ex.getErrorCode() == 0 && ex.getSQLState() != null
-                    && ex.getSQLState().equals("07003")) {
-                rs = stmt.executeQuery();
-            } else {
-                throw ex;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, get_query()); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                //do nothing
             }
-        }
-        while (rs.next()) {
-            //do nothing
-        }
-
-        if (owner != null) {
-            owner.setCurrStatement(null);
         }
 
         return null;
+
 
     }
 }
