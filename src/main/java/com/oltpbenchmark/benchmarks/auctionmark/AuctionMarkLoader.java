@@ -155,6 +155,11 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.latch.countDown();
             LOG.debug(String.format("Finished loading %s", this.generator.getTableName()));
         }
+
+        @Override
+        public void beforeLoad() {
+           this.generator.beforeLoad();
+        }
     }
 
     @Override
@@ -388,6 +393,16 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         @Override
         public void load(Connection conn) throws SQLException {
+            // Then invoke the loader generation method
+            try {
+                AuctionMarkLoader.this.generateTableData(conn, this.tableName);
+            } catch (Throwable ex) {
+                throw new RuntimeException("Unexpected error while generating table data for '" + this.tableName + "'", ex);
+            }
+        }
+
+        @Override
+        public void beforeLoad() {
             // First block on the CountDownLatches of all the tables that we depend on
             if (this.dependencyTables.size() > 0 && LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: Table generator is blocked waiting for %d other tables: %s",
@@ -405,15 +420,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             // Make sure we call prepare before we start generating table data
             this.prepare();
-
-            // Then invoke the loader generation method
-            try {
-                AuctionMarkLoader.this.generateTableData(conn, this.tableName);
-            } catch (Throwable ex) {
-                throw new RuntimeException("Unexpected error while generating table data for '" + this.tableName + "'", ex);
-            }
         }
-
 
         public <T extends AbstractTableGenerator> T addSubTableGenerator(SubTableGenerator<?> sub_item) {
             this.sub_generators.add(sub_item);
