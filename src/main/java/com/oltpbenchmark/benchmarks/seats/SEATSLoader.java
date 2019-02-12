@@ -384,7 +384,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-
                 profile.saveProfile(conn);
             }
 

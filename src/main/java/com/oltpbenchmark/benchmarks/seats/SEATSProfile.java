@@ -202,61 +202,58 @@ public class SEATSProfile {
      * Save the profile information into the database
      */
     protected final void saveProfile(Connection conn) throws SQLException {
-        PreparedStatement stmt = null;
-        String sql;
 
         // CONFIG_PROFILE
-        Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        Table profileTable = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        String profileSql = SQLUtil.getInsertSQL(profileTable, this.benchmark.getWorkloadConfiguration().getDBType());
 
-        sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
-        stmt = conn.prepareStatement(sql);
-        int param_idx = 1;
-        stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
-        stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
-        stmt.setObject(param_idx++, this.flight_start_date); // CFP_FLIGHT_START
-        stmt.setObject(param_idx++, this.flight_upcoming_date); // CFP_FLIGHT_UPCOMING
-        stmt.setObject(param_idx++, this.flight_past_days); // CFP_FLIGHT_PAST_DAYS
-        stmt.setObject(param_idx++, this.flight_future_days); // CFP_FLIGHT_FUTURE_DAYS
-        stmt.setObject(param_idx++, this.flight_upcoming_offset); // CFP_FLIGHT_OFFSET
-        stmt.setObject(param_idx++, this.reservation_upcoming_offset); // CFP_RESERVATION_OFFSET
-        stmt.setObject(param_idx++, this.num_reservations); // CFP_NUM_RESERVATIONS
-        stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
-        int result = stmt.executeUpdate();
-        conn.commit();
-        stmt.close();
+        try (PreparedStatement stmt = conn.prepareStatement(profileSql)) {
+            int param_idx = 1;
+            stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
+            stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
+            stmt.setObject(param_idx++, this.flight_start_date); // CFP_FLIGHT_START
+            stmt.setObject(param_idx++, this.flight_upcoming_date); // CFP_FLIGHT_UPCOMING
+            stmt.setObject(param_idx++, this.flight_past_days); // CFP_FLIGHT_PAST_DAYS
+            stmt.setObject(param_idx++, this.flight_future_days); // CFP_FLIGHT_FUTURE_DAYS
+            stmt.setObject(param_idx++, this.flight_upcoming_offset); // CFP_FLIGHT_OFFSET
+            stmt.setObject(param_idx++, this.reservation_upcoming_offset); // CFP_RESERVATION_OFFSET
+            stmt.setObject(param_idx++, this.num_reservations); // CFP_NUM_RESERVATIONS
+            stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
+            int result = stmt.executeUpdate();
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved profile information into {}", catalog_tbl.getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saved profile information into {}", profileTable.getName());
+            }
         }
 
         // CONFIG_HISTOGRAMS
-        catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-        sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
-        stmt = conn.prepareStatement(sql);
-        for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
-            param_idx = 1;
-            stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
-            stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
-            stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
-            result = stmt.executeUpdate();
+        Table histogramsTable = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
+        String histogramSql = SQLUtil.getInsertSQL(histogramsTable, this.benchmark.getWorkloadConfiguration().getDBType());
+        try (PreparedStatement stmt = conn.prepareStatement(histogramSql)) {
+            for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
+                int param_idx = 1;
+                stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
+                stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
+                stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
+                int result = stmt.executeUpdate();
 
-        } // FOR
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved airport histogram information into {}", catalog_tbl.getName());
-        }
+            } // FOR
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saved airport histogram information into {}", histogramsTable.getName());
+            }
 
-        for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
-            param_idx = 1;
-            stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
-            stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
-            stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
-            result = stmt.executeUpdate();
+            for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
+                int param_idx = 1;
+                stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
+                stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
+                stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
+                int result = stmt.executeUpdate();
 
-        } // FOR
-        conn.commit();
-        stmt.close();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved benchmark histogram information into {}", catalog_tbl.getName());
+            } // FOR
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saved benchmark histogram information into {}", histogramsTable.getName());
+            }
         }
 
         return;

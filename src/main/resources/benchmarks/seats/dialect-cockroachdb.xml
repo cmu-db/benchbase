@@ -10,7 +10,7 @@
                 C_IATTR04, C_IATTR06, F_SEATS_LEFT, R_ID, R_SEAT, R_PRICE, R_IATTR00 FROM customer, flight, reservation
                 WHERE C_ID = ? AND C_ID = R_C_ID AND F_ID = ? AND F_ID = R_F_ID
             </statement>
-            <statement name="UpdxateFrequentFlyer">UPDATE frequent_flyer SET FF_IATTR10 = FF_IATTR10 - 1 WHERE FF_C_ID =
+            <statement name="UpdateFrequentFlyer">UPDATE frequent_flyer SET FF_IATTR10 = FF_IATTR10 - 1 WHERE FF_C_ID =
                 ? AND FF_AL_ID = ?
             </statement>
             <statement name="DeleteReservation">DELETE FROM reservation WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?
