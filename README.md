@@ -82,7 +82,7 @@ comming soon
 | `linkbench` | :heavy_check_mark: | :x: | :heavy_minus_sign: | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
 | `noop` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
-| `seats` | :heavy_check_mark: | :heavy_check_mark: | :x: | [~~issue #10~~](https://github.com/timveil-cockroach/oltpbench/issues/10) |
+| `seats` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #10~~](https://github.com/timveil-cockroach/oltpbench/issues/10) |
 | `sibench` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `smallbank` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tatp` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
