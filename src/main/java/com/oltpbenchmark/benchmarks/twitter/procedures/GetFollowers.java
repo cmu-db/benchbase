@@ -27,18 +27,12 @@ import java.sql.SQLException;
 
 public class GetFollowers extends Procedure {
 
-    public final SQLStmt getFollowers = new SQLStmt(
-            "SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWERS +
-                    " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS
-    );
+    public final SQLStmt getFollowers = new SQLStmt("SELECT f2 FROM " + TwitterConstants.TABLENAME_FOLLOWERS + " WHERE f1 = ? LIMIT " + TwitterConstants.LIMIT_FOLLOWERS);
 
     /**
      * NOTE: The ?? is substituted into a string of repeated ?'s
      */
-    public final SQLStmt getFollowerNames = new SQLStmt(
-            "SELECT uid, name FROM " + TwitterConstants.TABLENAME_USER +
-                    " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS
-    );
+    public final SQLStmt getFollowerNames = new SQLStmt("SELECT uid, name FROM " + TwitterConstants.TABLENAME_USER + " WHERE uid IN (??)", TwitterConstants.LIMIT_FOLLOWERS);
 
     public void run(Connection conn, long uid) throws SQLException {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, getFollowers)) {
