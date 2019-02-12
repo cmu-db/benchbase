@@ -2,7 +2,7 @@
 <dialects>
     <dialect type="COCKROACHDB">
         <procedure name="DeleteReservation">
-            <statement name="UpdateCustomer">UPDATE customer SET C_BALANCE = C_BALANCE + ?, C_IATTR00 = ?, C_IATTR10 =
+            <statement name="UpdateCustomer">UPDATE customer SET C_BALANCE = C_BALANCE + CAST(? AS DECIMAL), C_IATTR00 = ?, C_IATTR10 =
                 C_IATTR10 - 1, C_IATTR11 = C_IATTR10 - 1 WHERE C_ID = ?
             </statement>
             <statement name="GetCustomerByIdStr">SELECT C_ID FROM customer WHERE C_ID_STR = ?</statement>
