@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public abstract class SEATSConstants {
 
-    public static final int BATCH_SIZE = 5;
+    public static final int BATCH_SIZE = 100;
 
     // ----------------------------------------------------------------
     // STORED PROCEDURE EXECUTION FREQUENCIES (0% - 100%)

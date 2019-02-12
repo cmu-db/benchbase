@@ -142,7 +142,11 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                SEATSLoader.this.loadHistograms();
+                loadHistograms();
+            }
+
+            @Override
+            public void afterLoad() {
                 histLatch.countDown();
             }
         });
@@ -154,13 +158,20 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadFixedTable(conn, SEATSConstants.TABLENAME_COUNTRY);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     histLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
 
-                SEATSLoader.this.loadFixedTable(conn, SEATSConstants.TABLENAME_COUNTRY);
+            @Override
+            public void afterLoad() {
                 fixedLatch.countDown();
                 countryLatch.countDown();
             }
@@ -170,13 +181,20 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadFixedTable(conn, SEATSConstants.TABLENAME_AIRPORT);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     countryLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
 
-                SEATSLoader.this.loadFixedTable(conn, SEATSConstants.TABLENAME_AIRPORT);
+            @Override
+            public void afterLoad() {
                 fixedLatch.countDown();
             }
         });
@@ -185,13 +203,21 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                loadFixedTable(conn, SEATSConstants.TABLENAME_AIRLINE);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     countryLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                SEATSLoader.this.loadFixedTable(conn, SEATSConstants.TABLENAME_AIRLINE);
+            }
+
+            @Override
+            public void afterLoad() {
                 fixedLatch.countDown();
             }
         });
@@ -203,14 +229,21 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                // Setup the # of flights per airline
+                flights_per_airline.putAll(SEATSLoader.this.profile.getAirlineCodes(), 0);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     fixedLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
 
-                // Setup the # of flights per airline
-                SEATSLoader.this.flights_per_airline.putAll(SEATSLoader.this.profile.getAirlineCodes(), 0);
+            @Override
+            public void afterLoad() {
                 scalingPrepLatch.countDown();
             }
         });
@@ -223,13 +256,23 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+                loadScalingTable(conn, SEATSConstants.TABLENAME_CUSTOMER);
+
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     scalingPrepLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                SEATSLoader.this.loadScalingTable(conn, SEATSConstants.TABLENAME_CUSTOMER);
+            }
+
+            @Override
+            public void afterLoad() {
                 custLatch.countDown();
             }
         });
@@ -238,13 +281,23 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadScalingTable(conn, SEATSConstants.TABLENAME_AIRPORT_DISTANCE);
+
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     scalingPrepLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
 
-                SEATSLoader.this.loadScalingTable(conn, SEATSConstants.TABLENAME_AIRPORT_DISTANCE);
+            @Override
+            public void afterLoad() {
                 distanceLatch.countDown();
             }
         });
@@ -253,13 +306,23 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadScalingTable(conn, SEATSConstants.TABLENAME_FLIGHT);
+
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     distanceLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
 
-                SEATSLoader.this.loadScalingTable(conn, SEATSConstants.TABLENAME_FLIGHT);
+            @Override
+            public void afterLoad() {
                 flightLatch.countDown();
             }
         });
@@ -270,14 +333,24 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+
+                loadScalingTable(conn, SEATSConstants.TABLENAME_RESERVATION);
+
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     flightLatch.await();
                     custLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
 
-                SEATSLoader.this.loadScalingTable(conn, SEATSConstants.TABLENAME_RESERVATION);
+            @Override
+            public void afterLoad() {
                 loadLatch.countDown();
             }
         });
@@ -286,6 +359,13 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+                loadScalingTable(conn, SEATSConstants.TABLENAME_FREQUENT_FLYER);
+
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     flightLatch.await();
                     custLatch.await();
@@ -293,7 +373,10 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     throw new RuntimeException(e);
                 }
 
-                SEATSLoader.this.loadScalingTable(conn, SEATSConstants.TABLENAME_FREQUENT_FLYER);
+            }
+
+            @Override
+            public void afterLoad() {
                 loadLatch.countDown();
             }
         });
@@ -301,14 +384,20 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+                profile.saveProfile(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     loadLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                SEATSLoader.this.profile.saveProfile(conn);
             }
+
         });
 
         return threads;
@@ -922,8 +1011,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             // Loop through for the total customers and figure out how many
             // entries we
             // should have for each one. This will be our new total;
-            long max_per_customer = Math.min(Math.round(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX * Math.max(1, SEATSLoader.this.scaleFactor)),
-                    SEATSLoader.this.flights_per_airline.getValueCount());
+            long max_per_customer = Math.min(Math.round(SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MAX * Math.max(1, SEATSLoader.this.scaleFactor)), SEATSLoader.this.flights_per_airline.getValueCount());
             Zipf ff_zipf = new Zipf(SEATSLoader.this.rng, SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_MIN, max_per_customer, SEATSConstants.CUSTOMER_NUM_FREQUENTFLYERS_SIGMA);
             long new_total = 0;
             long total = SEATSLoader.this.profile.getCustomerIdCount();
@@ -968,7 +1056,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                     do {
                         value = this.airline_rand.nextValue();
-                    } while (this.customer_airlines.contains(value));
+                    }
+                    while (this.customer_airlines.contains(value));
                     this.customer_airlines.add((String) value);
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("{} => {}", this.last_customer_id, value);
@@ -1270,7 +1359,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         }
                         date = this.flights_per_day.get(this.day_idx);
                         remaining = this.flights_per_day.getValue(this.day_idx);
-                    } while (remaining <= 0 && this.day_idx + 1 < this.flights_per_day.size());
+                    }
+                    while (remaining <= 0 && this.day_idx + 1 < this.flights_per_day.size());
 
 
                     // Keep looping until we get a FlightId that we haven't seen
@@ -1279,8 +1369,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         this.populate(date);
 
                         // Generate a composite FlightId
-                        this.flight_id = new FlightId(this.airline_id, SEATSLoader.this.profile.getAirportId(this.depart_airport), SEATSLoader.this.profile.getAirportId(this.arrive_airport),
-                                this.start_date, this.depart_time);
+                        this.flight_id = new FlightId(this.airline_id, SEATSLoader.this.profile.getAirportId(this.depart_airport), SEATSLoader.this.profile.getAirportId(this.arrive_airport), this.start_date, this.depart_time);
                         if (this.todays_flights.contains(this.flight_id) == false) {
                             break;
                         }
@@ -1598,8 +1687,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 case (2): {
                     FlightId flight_id = (FlightId) this.current[1];
                     value = flight_id.encode();
-                    if (SEATSLoader.this.profile.getReservationUpcomingOffset() == null
-                            && flight_id.isUpcoming(SEATSLoader.this.profile.getFlightStartDate(), SEATSLoader.this.profile.getFlightPastDays())) {
+                    if (SEATSLoader.this.profile.getReservationUpcomingOffset() == null && flight_id.isUpcoming(SEATSLoader.this.profile.getFlightStartDate(), SEATSLoader.this.profile.getFlightPastDays())) {
                         SEATSLoader.this.profile.setReservationUpcomingOffset(id);
                     }
                     break;
