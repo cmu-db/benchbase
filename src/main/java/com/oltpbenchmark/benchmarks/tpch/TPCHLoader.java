@@ -27,6 +27,7 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,6 @@ import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -45,14 +45,20 @@ import java.util.regex.Pattern;
 public class TPCHLoader extends Loader<TPCHBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(TPCHLoader.class);
 
-    private final static int configCommitCount = 100; // commit every n records
-
+    private final static int configCommitCount = 500; // commit every n records
 
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
     }
 
     private static enum CastTypes {LONG, DOUBLE, STRING, DATE}
+
+    private static final Pattern isoFmt = Pattern.compile("^\\s*(\\d{4})-(\\d{2})-(\\d{2})\\s*$");
+    private static final Pattern nondelimFmt = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");
+    private static final Pattern usaFmt = Pattern.compile("^\\s*(\\d{2})/(\\d{2})/(\\d{4})\\s*$");
+    private static final Pattern eurFmt = Pattern.compile("^\\s*(\\d{2})\\.(\\d{2})\\.(\\d{4})\\s*$");
+    private static final Pattern CSV_PATTERN = Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
+    private static final Pattern TBL_PATTERN = Pattern.compile("[^\\|]*\\|");
 
 
     private static final CastTypes[] customerTypes = {CastTypes.LONG,   // c_custkey
@@ -133,7 +139,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     };
 
 
-
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<>();
@@ -147,6 +152,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 }
             }
         });
+
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
@@ -210,7 +216,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void load(Connection conn) throws SQLException {
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
 
-                    loadTable(conn, statement, "region", customerTypes);
+                    loadTable(conn, statement, "Region", regionTypes);
                 }
             }
         });
@@ -221,10 +227,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void load(Connection conn) throws SQLException {
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
 
-                    loadTable(conn, statement, "supplier", customerTypes);
+                    loadTable(conn, statement, "Supplier", supplierTypes);
                 }
             }
         });
+
 
         return threads;
     }
@@ -241,7 +248,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         }
 
         if ((!"csv".equals(format) && !"tbl".equals(format))) {
-            throw new IllegalArgumentException("Configuration doesent" + " have a valid fileFormat");
+            throw new IllegalArgumentException("Configuration doesent have a valid fileFormat");
         }
         return format;
     }
@@ -252,9 +259,10 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             // The following pattern parses the lines by commas, except for
             // ones surrounded by double-quotes. Further, strings that are
             // double-quoted have the quotes dropped (we don't need them).
-            return Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
+            return CSV_PATTERN;
         } else {
-            return Pattern.compile("[^\\|]*\\|");
+
+            return TBL_PATTERN;
         }
     }
 
@@ -266,102 +274,92 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         }
     }
 
-    private void truncateTable(Connection conn, String strTable) throws SQLException {
-        LOG.debug("Truncating '{}' ...", strTable);
-        try (Statement statement = conn.createStatement()) {
-            statement.execute("DELETE FROM " + strTable);
-        }
-
-    }
 
     private void loadTable(Connection conn, PreparedStatement prepStmt, String tableName, CastTypes[] types) {
         int recordsRead = 0;
 
-        try {
-            truncateTable(conn, tableName.toLowerCase());
-        } catch (SQLException e) {
-            LOG.error("Failed to truncate table \"{}\".", tableName.toLowerCase());
-        }
-
-
         String format = getFileFormat();
+
         File file = new File(workConf.getDataDir(), tableName.toLowerCase() + "." + format);
+
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
             // The following pattern parses the lines by commas, except for
             // ones surrounded by double-quotes. Further, strings that are
             // double-quoted have the quotes dropped (we don't need them).
             Pattern pattern = getFormatPattern(format);
             int group = getFormatGroup(format);
-            Matcher matcher;
-            while ((line = br.readLine()) != null) {
-                matcher = pattern.matcher(line);
-                try {
-                    for (int i = 0; i < types.length; ++i) {
-                        matcher.find();
-                        String field = matcher.group(group);
 
-                        // Remove quotes that may surround a field.
-                        if (field.charAt(0) == '\"') {
-                            field = field.substring(1, field.length() - 1);
-                        }
+            final List<String> lines = IOUtils.readLines(br);
 
-                        if (group == 0) {
-                            field = field.substring(0, field.length() - 1);
-                        }
+            for (String line : lines) {
+                Matcher matcher = pattern.matcher(line);
 
-                        switch (types[i]) {
-                            case DOUBLE:
-                                prepStmt.setDouble(i + 1, Double.parseDouble(field));
-                                break;
-                            case LONG:
-                                prepStmt.setLong(i + 1, Long.parseLong(field));
-                                break;
-                            case STRING:
-                                prepStmt.setString(i + 1, field);
-                                break;
-                            case DATE:
-                                // Four possible formats for date
-                                // yyyy-mm-dd
-                                Pattern isoFmt = Pattern.compile("^\\s*(\\d{4})-(\\d{2})-(\\d{2})\\s*$");
-                                Matcher isoMatcher = isoFmt.matcher(field);
-                                // yyyymmdd
-                                Pattern nondelimFmt = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");
-                                Matcher nondelimMatcher = nondelimFmt.matcher(field);
-                                // mm/dd/yyyy
-                                Pattern usaFmt = Pattern.compile("^\\s*(\\d{2})/(\\d{2})/(\\d{4})\\s*$");
-                                Matcher usaMatcher = usaFmt.matcher(field);
-                                // dd.mm.yyyy
-                                Pattern eurFmt = Pattern.compile("^\\s*(\\d{2})\\.(\\d{2})\\.(\\d{4})\\s*$");
-                                Matcher eurMatcher = eurFmt.matcher(field);
 
-                                java.sql.Date fieldAsDate = null;
-                                if (isoMatcher.find()) {
-                                    fieldAsDate = new java.sql.Date(Integer.parseInt(isoMatcher.group(1)) - 1900, Integer.parseInt(isoMatcher.group(2)), Integer.parseInt(isoMatcher.group(3)));
-                                } else if (nondelimMatcher.find()) {
-                                    fieldAsDate = new java.sql.Date(Integer.parseInt(nondelimMatcher.group(1)) - 1900, Integer.parseInt(nondelimMatcher.group(2)), Integer.parseInt(nondelimMatcher.group(3)));
-                                } else if (usaMatcher.find()) {
-                                    fieldAsDate = new java.sql.Date(Integer.parseInt(usaMatcher.group(3)) - 1900, Integer.parseInt(usaMatcher.group(1)), Integer.parseInt(usaMatcher.group(2)));
-                                } else if (eurMatcher.find()) {
-                                    fieldAsDate = new java.sql.Date(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1)));
-                                } else {
-                                    throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getAbsolutePath());
-                                }
-                                prepStmt.setDate(i + 1, fieldAsDate, null);
-                                break;
-                            default:
-                                throw new RuntimeException("Unrecognized type for prepared statement");
-                        }
+                for (int i = 0; i < types.length; ++i) {
+                    final CastTypes type = types[i];
+
+                    matcher.find();
+                    String field = matcher.group(group);
+
+                    // Remove quotes that may surround a field.
+                    if (field.charAt(0) == '\"') {
+                        field = field.substring(1, field.length() - 1);
                     }
-                } catch (IllegalStateException e) {
-                    // This happens if there wasn't a match against the regex.
-                    LOG.error("Invalid CSV file: {}", file.getAbsolutePath());
+
+                    if (group == 0) {
+                        field = field.substring(0, field.length() - 1);
+                    }
+
+                    switch (type) {
+                        case DOUBLE:
+                            prepStmt.setDouble(i + 1, Double.parseDouble(field));
+                            break;
+                        case LONG:
+                            prepStmt.setLong(i + 1, Long.parseLong(field));
+                            break;
+                        case STRING:
+                            prepStmt.setString(i + 1, field);
+                            break;
+                        case DATE:
+                            // Four possible formats for date
+                            // yyyy-mm-dd
+                            Matcher isoMatcher = isoFmt.matcher(field);
+                            // yyyymmdd
+
+                            Matcher nondelimMatcher = nondelimFmt.matcher(field);
+                            // mm/dd/yyyy
+
+                            Matcher usaMatcher = usaFmt.matcher(field);
+                            // dd.mm.yyyy
+
+                            Matcher eurMatcher = eurFmt.matcher(field);
+
+                            java.sql.Date fieldAsDate = null;
+                            if (isoMatcher.find()) {
+                                fieldAsDate = new java.sql.Date(Integer.parseInt(isoMatcher.group(1)) - 1900, Integer.parseInt(isoMatcher.group(2)), Integer.parseInt(isoMatcher.group(3)));
+                            } else if (nondelimMatcher.find()) {
+                                fieldAsDate = new java.sql.Date(Integer.parseInt(nondelimMatcher.group(1)) - 1900, Integer.parseInt(nondelimMatcher.group(2)), Integer.parseInt(nondelimMatcher.group(3)));
+                            } else if (usaMatcher.find()) {
+                                fieldAsDate = new java.sql.Date(Integer.parseInt(usaMatcher.group(3)) - 1900, Integer.parseInt(usaMatcher.group(1)), Integer.parseInt(usaMatcher.group(2)));
+                            } else if (eurMatcher.find()) {
+                                fieldAsDate = new java.sql.Date(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1)));
+                            } else {
+                                throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getAbsolutePath());
+                            }
+                            prepStmt.setDate(i + 1, fieldAsDate, null);
+                            break;
+                        default:
+                            throw new RuntimeException("Unrecognized type for prepared statement");
+                    }
                 }
+
 
                 prepStmt.addBatch();
                 ++recordsRead;
 
                 if ((recordsRead % configCommitCount) == 0) {
+
+                    LOG.debug("writing batch {} for table {}", recordsRead, tableName);
 
                     prepStmt.executeBatch();
                     prepStmt.clearBatch();
@@ -376,7 +374,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         }
 
     }
-
 
 
 }
