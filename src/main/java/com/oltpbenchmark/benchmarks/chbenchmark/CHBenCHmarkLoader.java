@@ -38,6 +38,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.CountDownLatch;
 
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     private static final Logger LOG = LoggerFactory.getLogger(CHBenCHmarkLoader.class);
@@ -69,6 +70,8 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<>();
 
+        final CountDownLatch regionLatch = new CountDownLatch(1);
+
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -77,7 +80,14 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                     loadRegions(conn, statement);
                 }
             }
+
+            @Override
+            public void afterLoad() {
+                regionLatch.countDown();
+            }
         });
+
+        final CountDownLatch nationLatch = new CountDownLatch(1);
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
@@ -88,6 +98,20 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                     loadNations(conn, statement);
                 }
             }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    regionLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                nationLatch.countDown();
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
@@ -96,6 +120,15 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
 
                     loadSuppliers(conn, statement);
+                }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    nationLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
