@@ -27,11 +27,9 @@
         <transactiontype>
             <name>Q1</name>
         </transactiontype>
-        <!-- Doesn't work with MysQL
         <transactiontype>
             <name>Q2</name>
         </transactiontype>
-        -->
         <transactiontype>
             <name>Q3</name>
         </transactiontype>
@@ -69,28 +67,23 @@
             <name>Q14</name>
         </transactiontype>
         <transactiontype>
-            <!-- Needs optimization -->
             <name>Q15</name>
         </transactiontype>
         <transactiontype>
             <name>Q16</name>
         </transactiontype>
-        <!-- Doesn't work with MySQL
         <transactiontype>
             <name>Q17</name>
         </transactiontype>
-        -->
         <transactiontype>
             <name>Q18</name>
         </transactiontype>
         <transactiontype>
             <name>Q19</name>
         </transactiontype>
-        <!-- Doesn't work with MySQL
         <transactiontype>
             <name>Q20</name>
         </transactiontype>
-        -->
         <transactiontype>
             <name>Q21</name>
         </transactiontype>

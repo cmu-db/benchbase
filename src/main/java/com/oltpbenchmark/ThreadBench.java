@@ -207,6 +207,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
              */
 
             requests += workers.get(i).getRequests();
+
+            LOG.debug("threadbench calling teardown");
+
             workers.get(i).tearDown(false);
         }
         testState = null;

@@ -113,8 +113,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     @Override
     public String toString() {
-        return String.format("%s<%03d>",
-                this.getClass().getSimpleName(), this.getId());
+        return String.format("%s<%03d>", this.getClass().getSimpleName(), this.getId());
     }
 
     /**
@@ -349,6 +348,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             wrkldState.finishedWork();
         }
 
+        LOG.debug("worker calling teardown");
+
         tearDown(false);
     }
 
@@ -374,15 +375,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
 
                 try {
-                    // For Postgres, we have to create a savepoint in order
-                    // to rollback a user aborted transaction
-                    // if (dbType == DatabaseType.POSTGRES) {
-                    // savepoint = this.conn.setSavepoint();
-                    // // if (LOG.isDebugEnabled())
-                    // LOG.info("Created SavePoint: " + savepoint);
-                    // }
+                    // For Postgres, we have to create a savepoint in order to rollback a user aborted transaction
+                    if (dbType == DatabaseType.POSTGRES) {
+                        savepoint = this.conn.setSavepoint();
+                    } else if (dbType == DatabaseType.COCKROACHDB) {
+                        // For cockroach, a savepoint must be created with a specific name in order to rollback
+                        savepoint = this.conn.setSavepoint("COCKROACH_RESTART");
+                    }
 
                     status = TransactionStatus.UNKNOWN;
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s %s attempting...", this, next));
+                    }
+
                     status = this.executeWork(next);
 
                     // User Abort Handling
@@ -414,10 +420,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // Database System Specific Exception Handling
                 } catch (SQLException ex) {
                     // TODO: Handle acceptable error codes for every DBMS
-                    LOG.warn(String.format("%s thrown when executing '%s' on '%s' " +
-                                    "[Message='%s', ErrorCode='%d', SQLState='%s']",
-                            ex.getClass().getSimpleName(), next, this.toString(),
-                            ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
+                    LOG.warn(String.format("%s thrown when executing '%s' on '%s' " + "[Message='%s', ErrorCode='%d', SQLState='%s']", ex.getClass().getSimpleName(), next, this.toString(), ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
 
                     this.txnErrors.put(next);
 
@@ -474,8 +477,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     } else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
                         // DB2Exception Deadlock
                         continue;
-                    } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) ||
-                            (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
+                    } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) || (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
                         // Query cancelled by benchmark because we changed
                         // state. That's fine! We expected/caused this.
                         status = TransactionStatus.RETRY_DIFFERENT;
@@ -530,8 +532,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             } // WHILE
         } catch (SQLException ex) {
-            String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
-                    this, next, dbType);
+            String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]", this, next, dbType);
             // FIXME: PAVLO 2016-12-29
             // Right now our DBMS throws an exception when the txn gets aborted
             // due to a conflict, so for now we have to not kill ourselves.
@@ -574,6 +575,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      */
     public void tearDown(boolean error) {
         try {
+            LOG.debug("calling teardown error = {}", error);
             conn.close();
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);

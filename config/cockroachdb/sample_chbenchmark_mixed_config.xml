@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <dbtype>COCKROACHDB</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=chbenchmark&amp;reWriteBatchedInserts=true</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=chbenchmark-mixed&amp;reWriteBatchedInserts=true</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
@@ -14,7 +14,7 @@
 
     <!-- The workload -->
     <!-- Number of terminal per workload -->
-    <terminals>4</terminals>
+    <terminals>2</terminals>
 
     <!-- Extra Features (Commented Out) -->
     <!-- Can be workload-specific -->
@@ -47,7 +47,7 @@
             <rate bench="chbenchmark">disabled</rate>
             <!-- NOTE: TPCC workers won't be distributed evenly between warehouses
                 if not all workers are active -->
-            <active_terminals>3</active_terminals>
+            <active_terminals>2</active_terminals>
             <active_terminals bench="chbenchmark">1</active_terminals>
 
             <!-- Specifies transaction weight for each workload. -->
@@ -70,7 +70,6 @@
     </works>
 
 
-    <!-- For now we have to list all the transactions .. TODO: Fix that !!! -->
     <!-- CH specific -->
     <transactiontypes bench="chbenchmark">
         <transactiontype>
@@ -116,7 +115,6 @@
             <name>Q14</name>
         </transactiontype>
         <transactiontype>
-            <!-- Needs optimization -->
             <name>Q15</name>
         </transactiontype>
         <transactiontype>
