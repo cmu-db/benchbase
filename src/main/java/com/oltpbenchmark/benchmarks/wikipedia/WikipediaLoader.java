@@ -166,13 +166,18 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+
+                loadRevision(conn);
+            }
+
+            @Override
+            public void beforeLoad() {
                 try {
                     userPageLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                WikipediaLoader.this.loadRevision(conn);
             }
         });
 
@@ -187,73 +192,73 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement userInsert = conn.prepareStatement(sql);
+        try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
 
-        Random rand = new Random();
+            Random rand = new Random();
 
-        FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rand, UserHistograms.NAME_LENGTH);
-        FlatHistogram<Integer> h_realNameLength = new FlatHistogram<>(rand, UserHistograms.REAL_NAME_LENGTH);
-        FlatHistogram<Integer> h_revCount = new FlatHistogram<>(rand, UserHistograms.REVISION_COUNT);
+            FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rand, UserHistograms.NAME_LENGTH);
+            FlatHistogram<Integer> h_realNameLength = new FlatHistogram<>(rand, UserHistograms.REAL_NAME_LENGTH);
+            FlatHistogram<Integer> h_revCount = new FlatHistogram<>(rand, UserHistograms.REVISION_COUNT);
 
-        int[] types = catalog_tbl.getColumnTypes();
-        int batchSize = 0;
-        int lastPercent = -1;
-        for (int i = lo; i <= hi; i++) {
-            // The name will be prefixed with their UserId. This increases
-            // the likelihood that all of our usernames are going to be unique
-            // It's not a guarantee, but it's good enough...
-            String name = i + TextGenerator.randomStr(rand, h_nameLength.nextValue());
-            String realName = TextGenerator.randomStr(rand, h_realNameLength.nextValue());
-            int revCount = h_revCount.nextValue();
-            String password = StringUtil.repeat("*", rand.nextInt(32) + 1);
+            int[] types = catalog_tbl.getColumnTypes();
+            int batchSize = 0;
+            int lastPercent = -1;
+            for (int i = lo; i <= hi; i++) {
+                // The name will be prefixed with their UserId. This increases
+                // the likelihood that all of our usernames are going to be unique
+                // It's not a guarantee, but it's good enough...
+                String name = i + TextGenerator.randomStr(rand, h_nameLength.nextValue());
+                String realName = TextGenerator.randomStr(rand, h_realNameLength.nextValue());
+                int revCount = h_revCount.nextValue();
+                String password = StringUtil.repeat("*", rand.nextInt(32) + 1);
 
-            char[] eChars = TextGenerator.randomChars(rand, rand.nextInt(32) + 5);
-            eChars[4 + rand.nextInt(eChars.length - 4)] = '@';
-            String email = new String(eChars);
+                char[] eChars = TextGenerator.randomChars(rand, rand.nextInt(32) + 5);
+                eChars[4 + rand.nextInt(eChars.length - 4)] = '@';
+                String email = new String(eChars);
 
-            String token = TextGenerator.randomStr(rand, WikipediaConstants.TOKEN_LENGTH);
-            String userOptions = "fake_longoptionslist";
-            String newPassTime = TimeUtil.getCurrentTimeString14();
-            String touched = TimeUtil.getCurrentTimeString14();
+                String token = TextGenerator.randomStr(rand, WikipediaConstants.TOKEN_LENGTH);
+                String userOptions = "fake_longoptionslist";
+                String newPassTime = TimeUtil.getCurrentTimeString14();
+                String touched = TimeUtil.getCurrentTimeString14();
 
-            int param = 1;
-            userInsert.setInt(param++, i); // user_id
-            userInsert.setString(param++, name); // user_name
-            userInsert.setString(param++, realName); // user_real_name
-            userInsert.setString(param++, password); // user_password
-            userInsert.setString(param++, password); // user_newpassword
-            userInsert.setString(param++, newPassTime); // user_newpass_time
-            userInsert.setString(param++, email); // user_email
-            userInsert.setString(param++, userOptions); // user_options
-            userInsert.setString(param++, touched); // user_touched
-            userInsert.setString(param++, token); // user_token
-            userInsert.setNull(param++, types[param - 2]); // user_email_authenticated
-            userInsert.setNull(param++, types[param - 2]); // user_email_token
-            userInsert.setNull(param++, types[param - 2]); // user_email_token_expires
-            userInsert.setNull(param++, types[param - 2]); // user_registration
-            userInsert.setInt(param++, revCount); // user_editcount
-            userInsert.addBatch();
+                int param = 1;
+                userInsert.setInt(param++, i); // user_id
+                userInsert.setString(param++, name); // user_name
+                userInsert.setString(param++, realName); // user_real_name
+                userInsert.setString(param++, password); // user_password
+                userInsert.setString(param++, password); // user_newpassword
+                userInsert.setString(param++, newPassTime); // user_newpass_time
+                userInsert.setString(param++, email); // user_email
+                userInsert.setString(param++, userOptions); // user_options
+                userInsert.setString(param++, touched); // user_touched
+                userInsert.setString(param++, token); // user_token
+                userInsert.setNull(param++, types[param - 2]); // user_email_authenticated
+                userInsert.setNull(param++, types[param - 2]); // user_email_token
+                userInsert.setNull(param++, types[param - 2]); // user_email_token_expires
+                userInsert.setNull(param++, types[param - 2]); // user_registration
+                userInsert.setInt(param++, revCount); // user_editcount
+                userInsert.addBatch();
 
-            if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+                if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+                    userInsert.executeBatch();
+                    userInsert.clearBatch();
+                    this.addToTableCount(catalog_tbl.getName(), batchSize);
+                    batchSize = 0;
+                    if (LOG.isDebugEnabled()) {
+                        int percent = (int) (((double) i / (double) this.num_users) * 100);
+                        if (percent != lastPercent) {
+                            LOG.debug("USERACCT ({}%)", percent);
+                        }
+                        lastPercent = percent;
+                    }
+                }
+            } // FOR
+            if (batchSize > 0) {
+                this.addToTableCount(catalog_tbl.getName(), batchSize);
                 userInsert.executeBatch();
                 userInsert.clearBatch();
-                this.addToTableCount(catalog_tbl.getName(), batchSize);
-                batchSize = 0;
-                if (LOG.isDebugEnabled()) {
-                    int percent = (int) (((double) i / (double) this.num_users) * 100);
-                    if (percent != lastPercent) {
-                        LOG.debug("USERACCT ({}%)", percent);
-                    }
-                    lastPercent = percent;
-                }
             }
-        } // FOR
-        if (batchSize > 0) {
-            this.addToTableCount(catalog_tbl.getName(), batchSize);
-            userInsert.executeBatch();
-            userInsert.clearBatch();
         }
-        userInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.num_users);
         }
@@ -270,57 +275,57 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement pageInsert = conn.prepareStatement(sql);
+        try (PreparedStatement pageInsert = conn.prepareStatement(sql)) {
 
-        Random rand = new Random();
+            Random rand = new Random();
 
-        FlatHistogram<String> h_restrictions = new FlatHistogram<>(rand, PageHistograms.RESTRICTIONS);
+            FlatHistogram<String> h_restrictions = new FlatHistogram<>(rand, PageHistograms.RESTRICTIONS);
 
-        int batchSize = 0;
-        int lastPercent = -1;
+            int batchSize = 0;
+            int lastPercent = -1;
 
-        for (int i = lo; i <= hi; i++) {
-            String title = WikipediaUtil.generatePageTitle(rand, i);
-            int namespace = WikipediaUtil.generatePageNamespace(rand, i);
-            String restrictions = h_restrictions.nextValue();
-            // Check for Oracle
-            double pageRandom = rand.nextDouble();
-            String pageTouched = TimeUtil.getCurrentTimeString14();
+            for (int i = lo; i <= hi; i++) {
+                String title = WikipediaUtil.generatePageTitle(rand, i);
+                int namespace = WikipediaUtil.generatePageNamespace(rand, i);
+                String restrictions = h_restrictions.nextValue();
+                // Check for Oracle
+                double pageRandom = rand.nextDouble();
+                String pageTouched = TimeUtil.getCurrentTimeString14();
 
-            int param = 1;
-            pageInsert.setInt(param++, i); // page_id
-            pageInsert.setInt(param++, namespace); // page_namespace
-            pageInsert.setString(param++, title); // page_title
-            pageInsert.setString(param++, restrictions);// page_restrictions
-            pageInsert.setInt(param++, 0); // page_counter
-            pageInsert.setInt(param++, 0); // page_is_redirect
-            pageInsert.setInt(param++, 0); // page_is_new
-            pageInsert.setDouble(param++, pageRandom); // page_random
-            pageInsert.setString(param++, pageTouched); // page_touched
-            pageInsert.setInt(param++, 0); // page_latest
-            pageInsert.setInt(param++, 0); // page_len
-            pageInsert.addBatch();
+                int param = 1;
+                pageInsert.setInt(param++, i); // page_id
+                pageInsert.setInt(param++, namespace); // page_namespace
+                pageInsert.setString(param++, title); // page_title
+                pageInsert.setString(param++, restrictions);// page_restrictions
+                pageInsert.setInt(param++, 0); // page_counter
+                pageInsert.setInt(param++, 0); // page_is_redirect
+                pageInsert.setInt(param++, 0); // page_is_new
+                pageInsert.setDouble(param++, pageRandom); // page_random
+                pageInsert.setString(param++, pageTouched); // page_touched
+                pageInsert.setInt(param++, 0); // page_latest
+                pageInsert.setInt(param++, 0); // page_len
+                pageInsert.addBatch();
 
-            if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+                if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+                    pageInsert.executeBatch();
+                    pageInsert.clearBatch();
+                    this.addToTableCount(catalog_tbl.getName(), batchSize);
+                    batchSize = 0;
+                    if (LOG.isDebugEnabled()) {
+                        int percent = (int) (((double) i / (double) this.num_pages) * 100);
+                        if (percent != lastPercent) {
+                            LOG.debug("PAGE ({}%)", percent);
+                        }
+                        lastPercent = percent;
+                    }
+                }
+            } // FOR
+            if (batchSize > 0) {
                 pageInsert.executeBatch();
                 pageInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
-                batchSize = 0;
-                if (LOG.isDebugEnabled()) {
-                    int percent = (int) (((double) i / (double) this.num_pages) * 100);
-                    if (percent != lastPercent) {
-                        LOG.debug("PAGE ({}%)", percent);
-                    }
-                    lastPercent = percent;
-                }
             }
-        } // FOR
-        if (batchSize > 0) {
-            pageInsert.executeBatch();
-            pageInsert.clearBatch();
-            this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
-        pageInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.num_pages);
         }
@@ -337,78 +342,78 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement watchInsert = conn.prepareStatement(sql);
+        try (PreparedStatement watchInsert = conn.prepareStatement(sql)) {
 
-        Random rand = new Random();
+            Random rand = new Random();
 
-        int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
-        Zipf h_numWatches = new Zipf(rand, 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
-        Zipf h_pageId = new Zipf(rand, 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
+            int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
+            Zipf h_numWatches = new Zipf(rand, 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
+            Zipf h_pageId = new Zipf(rand, 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
-        // Use a large max batch size for tables with smaller tuples
-        int maxBatchSize = WikipediaConstants.BATCH_SIZE * 5;
+            // Use a large max batch size for tables with smaller tuples
+            int maxBatchSize = WikipediaConstants.BATCH_SIZE * 5;
 
-        int batchSize = 0;
-        int lastPercent = -1;
-        Set<Integer> userPages = new HashSet<>();
+            int batchSize = 0;
+            int lastPercent = -1;
+            Set<Integer> userPages = new HashSet<>();
 
-        for (int user_id = 1; user_id <= this.num_users; user_id++) {
-            int num_watches = h_numWatches.nextInt();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("{} => {}", user_id, num_watches);
-            }
-            if (num_watches == 0) {
-                continue;
-            }
-
-            userPages.clear();
-            for (int i = 0; i < num_watches; i++) {
-                int pageId = -1;
-                // HACK: Work around for testing with small database sizes
-                if (num_watches == max_watches_per_user) {
-                    pageId = i + 1;
-                } else {
-                    pageId = h_pageId.nextInt();
-                    while (userPages.contains(pageId)) {
-                        pageId = h_pageId.nextInt();
-                    } // WHILE
+            for (int user_id = 1; user_id <= this.num_users; user_id++) {
+                int num_watches = h_numWatches.nextInt();
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("{} => {}", user_id, num_watches);
+                }
+                if (num_watches == 0) {
+                    continue;
                 }
 
-                userPages.add(pageId);
+                userPages.clear();
+                for (int i = 0; i < num_watches; i++) {
+                    int pageId = -1;
+                    // HACK: Work around for testing with small database sizes
+                    if (num_watches == max_watches_per_user) {
+                        pageId = i + 1;
+                    } else {
+                        pageId = h_pageId.nextInt();
+                        while (userPages.contains(pageId)) {
+                            pageId = h_pageId.nextInt();
+                        } // WHILE
+                    }
 
-                Integer namespace = WikipediaUtil.generatePageNamespace(rand, pageId);
-                String title = WikipediaUtil.generatePageTitle(rand, pageId);
+                    userPages.add(pageId);
 
-                int param = 1;
-                watchInsert.setInt(param++, user_id); // wl_user
-                watchInsert.setInt(param++, namespace); // wl_namespace
-                watchInsert.setString(param++, title); // wl_title
-                watchInsert.setNull(param++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
-                watchInsert.addBatch();
-                batchSize++;
+                    Integer namespace = WikipediaUtil.generatePageNamespace(rand, pageId);
+                    String title = WikipediaUtil.generatePageTitle(rand, pageId);
+
+                    int param = 1;
+                    watchInsert.setInt(param++, user_id); // wl_user
+                    watchInsert.setInt(param++, namespace); // wl_namespace
+                    watchInsert.setString(param++, title); // wl_title
+                    watchInsert.setNull(param++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
+                    watchInsert.addBatch();
+                    batchSize++;
+                } // FOR
+
+                if (batchSize >= maxBatchSize) {
+                    watchInsert.executeBatch();
+                    watchInsert.clearBatch();
+                    this.addToTableCount(catalog_tbl.getName(), batchSize);
+                    batchSize = 0;
+                    if (LOG.isDebugEnabled()) {
+                        int percent = (int) (((double) user_id / (double) this.num_users) * 100);
+                        if (percent != lastPercent) {
+                            LOG.debug("WATCHLIST ({}%)", percent);
+                        }
+                        lastPercent = percent;
+                    }
+                }
             } // FOR
 
-            if (batchSize >= maxBatchSize) {
+            if (batchSize > 0) {
                 watchInsert.executeBatch();
                 watchInsert.clearBatch();
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
-                batchSize = 0;
-                if (LOG.isDebugEnabled()) {
-                    int percent = (int) (((double) user_id / (double) this.num_users) * 100);
-                    if (percent != lastPercent) {
-                        LOG.debug("WATCHLIST ({}%)", percent);
-                    }
-                    lastPercent = percent;
-                }
             }
-        } // FOR
-
-        if (batchSize > 0) {
-            watchInsert.executeBatch();
-            watchInsert.clearBatch();
-            this.addToTableCount(catalog_tbl.getName(), batchSize);
         }
-        watchInsert.close();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Watchlist Loaded");
         }
@@ -503,12 +508,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.page_last_rev_length[page_id - 1] = old_text_length;
                 rev_id++;
                 if (this.getDatabaseType() == DatabaseType.ORACLE) {
-                    PreparedStatement text_seq = conn.prepareStatement("select text_seq.nextval from dual");
-                    text_seq.execute();
-                    text_seq.close();
-                    PreparedStatement revision_seq = conn.prepareStatement("select revision_seq.nextval from dual");
-                    revision_seq.execute();
-                    revision_seq.close();
+                    try (PreparedStatement text_seq = conn.prepareStatement("select text_seq.nextval from dual")) {
+                        text_seq.execute();
+                    }
+                    try (PreparedStatement revision_seq = conn.prepareStatement("select revision_seq.nextval from dual")) {
+                        revision_seq.execute();
+                    }
                 }
                 batchSize++;
             } // FOR (revision)
@@ -541,25 +546,25 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         String revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
         String updateUserSql = "UPDATE " + revTableName + "   SET user_editcount = ?, " + "       user_touched = ? " + " WHERE user_id = ?";
-        PreparedStatement userUpdate = conn.prepareStatement(updateUserSql);
-        batchSize = 0;
-        for (int i = 0; i < this.num_users; i++) {
-            int col = 1;
-            userUpdate.setInt(col++, this.user_revision_ctr[i]);
-            userUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
-            userUpdate.setInt(col++, i + 1); // ids start at 1
-            userUpdate.addBatch();
-            if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+        try (PreparedStatement userUpdate = conn.prepareStatement(updateUserSql)) {
+            batchSize = 0;
+            for (int i = 0; i < this.num_users; i++) {
+                int col = 1;
+                userUpdate.setInt(col++, this.user_revision_ctr[i]);
+                userUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
+                userUpdate.setInt(col++, i + 1); // ids start at 1
+                userUpdate.addBatch();
+                if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                    userUpdate.executeBatch();
+                    userUpdate.clearBatch();
+                    batchSize = 0;
+                }
+            } // FOR
+            if (batchSize > 0) {
                 userUpdate.executeBatch();
                 userUpdate.clearBatch();
-                batchSize = 0;
             }
-        } // FOR
-        if (batchSize > 0) {
-            userUpdate.executeBatch();
-            userUpdate.clearBatch();
         }
-        userUpdate.close();
 
         // UPDATE PAGES
         revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
@@ -567,30 +572,30 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
         String updatePageSql = "UPDATE " + revTableName + "   SET page_latest = ?, " + "       page_touched = ?, " + "       page_is_new = 0, " + "       page_is_redirect = 0, " + "       page_len = ? " + " WHERE page_id = ?";
-        PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql);
-        batchSize = 0;
-        for (int i = 0; i < this.num_pages; i++) {
-            if (this.page_last_rev_id[i] == -1) {
-                continue;
-            }
+        try (PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql)) {
+            batchSize = 0;
+            for (int i = 0; i < this.num_pages; i++) {
+                if (this.page_last_rev_id[i] == -1) {
+                    continue;
+                }
 
-            int col = 1;
-            pageUpdate.setInt(col++, this.page_last_rev_id[i]);
-            pageUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
-            pageUpdate.setInt(col++, this.page_last_rev_length[i]);
-            pageUpdate.setInt(col++, i + 1); // ids start at 1
-            pageUpdate.addBatch();
-            if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                int col = 1;
+                pageUpdate.setInt(col++, this.page_last_rev_id[i]);
+                pageUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
+                pageUpdate.setInt(col++, this.page_last_rev_length[i]);
+                pageUpdate.setInt(col++, i + 1); // ids start at 1
+                pageUpdate.addBatch();
+                if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                    pageUpdate.executeBatch();
+                    pageUpdate.clearBatch();
+                    batchSize = 0;
+                }
+            } // FOR
+            if (batchSize > 0) {
                 pageUpdate.executeBatch();
                 pageUpdate.clearBatch();
-                batchSize = 0;
             }
-        } // FOR
-        if (batchSize > 0) {
-            pageUpdate.executeBatch();
-            pageUpdate.clearBatch();
         }
-        pageUpdate.close();
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Revision loaded");
