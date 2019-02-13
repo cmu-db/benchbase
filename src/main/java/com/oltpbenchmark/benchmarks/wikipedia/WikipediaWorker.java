@@ -102,7 +102,6 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
                 this.getPageAuthenticated(conn, true, this.generateUserIP(), userId, nameSpace, pageTitle);
             }
-            conn.commit();
         } catch (SQLException esql) {
             LOG.error("Caught SQL Exception in WikipediaWorker for procedure{}:{}", procClass.getName(), esql, esql);
             throw esql;
@@ -151,7 +150,6 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
     public void updatePage(Connection conn, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
         Article a = this.getPageAnonymous(conn, false, userIp, nameSpace, pageTitle);
-        conn.commit();
 
         // TODO: If the Article is null, then we want to insert a new page.
         // But we don't support that right now.

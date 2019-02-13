@@ -37,102 +37,22 @@ public class UpdatePage extends Procedure {
     // STATEMENTS
     // -----------------------------------------------------------------
 
-    public SQLStmt insertText = new SQLStmt(
-            "INSERT INTO " + WikipediaConstants.TABLENAME_TEXT + " (" +
-                    "old_page,old_text,old_flags" +
-                    ") VALUES (" +
-                    "?,?,?" +
-                    ")"
-    );
-    public SQLStmt insertRevision = new SQLStmt(
-            "INSERT INTO " + WikipediaConstants.TABLENAME_REVISION + " (" +
-                    "rev_page, " +
-                    "rev_text_id, " +
-                    "rev_comment, " +
-                    "rev_minor_edit, " +
-                    "rev_user, " +
-                    "rev_user_text, " +
-                    "rev_timestamp, " +
-                    "rev_deleted, " +
-                    "rev_len, " +
-                    "rev_parent_id" +
-                    ") VALUES (" +
-                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
-                    ")"
-    );
-    public SQLStmt updatePage = new SQLStmt(
-            "UPDATE " + WikipediaConstants.TABLENAME_PAGE +
-                    "   SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? " +
-                    " WHERE page_id = ?"
-    );
-    public SQLStmt insertRecentChanges = new SQLStmt(
-            "INSERT INTO " + WikipediaConstants.TABLENAME_RECENTCHANGES + " (" +
-                    "rc_timestamp, " +
-                    "rc_cur_time, " +
-                    "rc_namespace, " +
-                    "rc_title, " +
-                    "rc_type, " +
-                    "rc_minor, " +
-                    "rc_cur_id, " +
-                    "rc_user, " +
-                    "rc_user_text, " +
-                    "rc_comment, " +
-                    "rc_this_oldid, " +
-                    "rc_last_oldid, " +
-                    "rc_bot, " +
-                    "rc_moved_to_ns, " +
-                    "rc_moved_to_title, " +
-                    "rc_ip, " +
-                    "rc_old_len, " +
-                    "rc_new_len " +
-                    ") VALUES (" +
-                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
-                    ")"
-    );
-    public SQLStmt selectWatchList = new SQLStmt(
-            "SELECT wl_user FROM " + WikipediaConstants.TABLENAME_WATCHLIST +
-                    " WHERE wl_title = ?" +
-                    "   AND wl_namespace = ?" +
-                    "   AND wl_user != ?" +
-                    "   AND wl_notificationtimestamp IS NULL"
-    );
-    public SQLStmt updateWatchList = new SQLStmt(
-            "UPDATE " + WikipediaConstants.TABLENAME_WATCHLIST +
-                    "   SET wl_notificationtimestamp = ? " +
-                    " WHERE wl_title = ?" +
-                    "   AND wl_namespace = ?" +
-                    "   AND wl_user = ?"
-    );
-    public SQLStmt selectUser = new SQLStmt(
-            "SELECT * FROM " + WikipediaConstants.TABLENAME_USER + " WHERE user_id = ?"
-    );
-    public SQLStmt insertLogging = new SQLStmt(
-            "INSERT INTO " + WikipediaConstants.TABLENAME_LOGGING + " (" +
-                    "log_type, log_action, log_timestamp, log_user, log_user_text, " +
-                    "log_namespace, log_title, log_page, log_comment, log_params" +
-                    ") VALUES (" +
-                    "'patrol','patrol',?,?,?,?,?,?,'',?" +
-                    ")"
-    );
-    public SQLStmt updateUserEdit = new SQLStmt(
-            "UPDATE " + WikipediaConstants.TABLENAME_USER +
-                    "   SET user_editcount=user_editcount+1" +
-                    " WHERE user_id = ?"
-    );
-    public SQLStmt updateUserTouched = new SQLStmt(
-            "UPDATE " + WikipediaConstants.TABLENAME_USER +
-                    "   SET user_touched = ?" +
-                    " WHERE user_id = ?"
-    );
+    public SQLStmt insertText = new SQLStmt("INSERT INTO " + WikipediaConstants.TABLENAME_TEXT + " (" + "old_page,old_text,old_flags" + ") VALUES (" + "?,?,?" + ")");
+    public SQLStmt insertRevision = new SQLStmt("INSERT INTO " + WikipediaConstants.TABLENAME_REVISION + " (" + "rev_page, " + "rev_text_id, " + "rev_comment, " + "rev_minor_edit, " + "rev_user, " + "rev_user_text, " + "rev_timestamp, " + "rev_deleted, " + "rev_len, " + "rev_parent_id" + ") VALUES (" + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?" + ")");
+    public SQLStmt updatePage = new SQLStmt("UPDATE " + WikipediaConstants.TABLENAME_PAGE + "   SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? " + " WHERE page_id = ?");
+    public SQLStmt insertRecentChanges = new SQLStmt("INSERT INTO " + WikipediaConstants.TABLENAME_RECENTCHANGES + " (" + "rc_timestamp, " + "rc_cur_time, " + "rc_namespace, " + "rc_title, " + "rc_type, " + "rc_minor, " + "rc_cur_id, " + "rc_user, " + "rc_user_text, " + "rc_comment, " + "rc_this_oldid, " + "rc_last_oldid, " + "rc_bot, " + "rc_moved_to_ns, " + "rc_moved_to_title, " + "rc_ip, " + "rc_old_len, " + "rc_new_len " + ") VALUES (" + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" + ")");
+    public SQLStmt selectWatchList = new SQLStmt("SELECT wl_user FROM " + WikipediaConstants.TABLENAME_WATCHLIST + " WHERE wl_title = ?" + "   AND wl_namespace = ?" + "   AND wl_user != ?" + "   AND wl_notificationtimestamp IS NULL");
+    public SQLStmt updateWatchList = new SQLStmt("UPDATE " + WikipediaConstants.TABLENAME_WATCHLIST + "   SET wl_notificationtimestamp = ? " + " WHERE wl_title = ?" + "   AND wl_namespace = ?" + "   AND wl_user = ?");
+    public SQLStmt selectUser = new SQLStmt("SELECT * FROM " + WikipediaConstants.TABLENAME_USER + " WHERE user_id = ?");
+    public SQLStmt insertLogging = new SQLStmt("INSERT INTO " + WikipediaConstants.TABLENAME_LOGGING + " (" + "log_type, log_action, log_timestamp, log_user, log_user_text, " + "log_namespace, log_title, log_page, log_comment, log_params" + ") VALUES (" + "'patrol','patrol',?,?,?,?,?,?,'',?" + ")");
+    public SQLStmt updateUserEdit = new SQLStmt("UPDATE " + WikipediaConstants.TABLENAME_USER + "   SET user_editcount=user_editcount+1" + " WHERE user_id = ?");
+    public SQLStmt updateUserTouched = new SQLStmt("UPDATE " + WikipediaConstants.TABLENAME_USER + "   SET user_touched = ?" + " WHERE user_id = ?");
 
     // -----------------------------------------------------------------
     // RUN
     // -----------------------------------------------------------------
 
-    public void run(Connection conn, long textId, int pageId,
-                    String pageTitle, String pageText, int pageNamespace,
-                    int userId, String userIp, String userText,
-                    long revisionId, String revComment, int revMinorEdit) throws SQLException {
+    public void run(Connection conn, long textId, int pageId, String pageTitle, String pageText, int pageNamespace, int userId, String userIp, String userText, long revisionId, String revComment, int revMinorEdit) throws SQLException {
 
         final String timestamp = TimeUtil.getCurrentTimeString14();
 
@@ -145,7 +65,6 @@ public class UpdatePage extends Procedure {
             ps.setInt(param++, pageId);
             ps.setString(param++, pageText);
             ps.setString(param++, "utf-8");  //This is an error
-//		ps.execute();
             execute(conn, ps);
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -169,7 +88,6 @@ public class UpdatePage extends Procedure {
             ps.setInt(param++, 0);            // rev_deleted //this is an error
             ps.setInt(param++, pageText.length()); // rev_len
             ps.setLong(param++, revisionId);   // rev_parent_id // this is an error
-//	    ps.execute();
             execute(conn, ps);
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -188,14 +106,8 @@ public class UpdatePage extends Procedure {
             ps.setString(param++, timestamp);
             ps.setInt(param++, pageText.length());
             ps.setInt(param++, pageId);
-//		int numUpdatePages = ps.executeUpdate();
-//		assert(numUpdatePages == 1) : "WE ARE NOT UPDATING the page table!";
             execute(conn, ps);
         }
-
-        // REMOVED
-        // sql="DELETE FROM `redirect` WHERE rd_from = '"+a.pageId+"';";
-        // st.addBatch(sql);
 
         try (PreparedStatement ps = this.getPreparedStatement(conn, insertRecentChanges)) {
             int param = 1;
@@ -217,8 +129,6 @@ public class UpdatePage extends Procedure {
             ps.setString(param++, userIp);        // rc_ip
             ps.setInt(param++, pageText.length());// rc_old_len
             ps.setInt(param++, pageText.length());// rc_new_len
-//		int count = ps.executeUpdate();
-//		assert(count == 1);
             execute(conn, ps);
         }
 
@@ -247,9 +157,6 @@ public class UpdatePage extends Procedure {
         // =====================================================================
         if (wlUser.isEmpty() == false) {
 
-            // NOTE: this commit is skipped if none is watching the page, and
-            // the transaction merge with the following one
-            conn.commit();
 
             try (PreparedStatement ps = this.getPreparedStatement(conn, updateWatchList)) {
                 int param = 1;
@@ -260,14 +167,9 @@ public class UpdatePage extends Procedure {
                     ps.setInt(param, otherUserId);
                     ps.addBatch();
                 } // FOR
-//			ps.executeUpdate(); // This is an error
-//			ps.executeBatch();
                 executeBatch(conn, ps);
             }
 
-            // NOTE: this commit is skipped if none is watching the page, and
-            // the transaction merge with the following one
-            conn.commit();
 
             // =====================================================================
             // UPDATING USER AND LOGGING STUFF: txn4 (might still be part of
@@ -299,14 +201,12 @@ public class UpdatePage extends Procedure {
             ps.setString(param++, userText);
             ps.setInt(param++, pageId);
             ps.setString(param++, String.format("%d\n%d\n%d", nextRevId, revisionId, 1));
-//		ps.executeUpdate();
             execute(conn, ps);
         }
 
         try (PreparedStatement ps = this.getPreparedStatement(conn, updateUserEdit)) {
             int param = 1;
             ps.setInt(param++, userId);
-//		ps.executeUpdate();
             execute(conn, ps);
         }
 
@@ -314,43 +214,20 @@ public class UpdatePage extends Procedure {
             int param = 1;
             ps.setString(param++, timestamp);
             ps.setInt(param++, userId);
-//		ps.executeUpdate();
             execute(conn, ps);
         }
     }
 
     public void execute(Connection conn, PreparedStatement p) throws SQLException {
-        boolean successful = false;
-        while (!successful) {
-            try {
-                p.execute();
-                successful = true;
-            } catch (SQLException esql) {
-                int errorCode = esql.getErrorCode();
-                if (errorCode == 8177) {
-                    conn.rollback();
-                } else {
-                    throw esql;
-                }
-            }
-        }
+
+        p.execute();
+
     }
 
     public void executeBatch(Connection conn, PreparedStatement p) throws SQLException {
-        boolean successful = false;
-        while (!successful) {
-            try {
-                p.executeBatch();
-                successful = true;
-            } catch (SQLException esql) {
-                int errorCode = esql.getErrorCode();
-                if (errorCode == 8177) {
-                    conn.rollback();
-                } else {
-                    throw esql;
-                }
-            }
-        }
+
+        p.executeBatch();
+
     }
 }
 
