@@ -121,7 +121,6 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
             this.procWriteCheck.run(conn, custName, SmallBankConstants.PARAM_WRITE_CHECK_AMOUNT);
 
         }
-        conn.commit();
 
         return TransactionStatus.SUCCESS;
     }
