@@ -32,6 +32,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
 * Removed calls to `commit()` during `Loader` operations
 * Refactored `Worker` and `Loader` useage of `Connection` objects and cleaned up transaction handling
+* Introduced `HikariCP` as connection pool and `DataSource`
 
 ## Benchmarks
 
@@ -73,6 +74,8 @@ comming soon
 ## Known Issues
 
 ### Cockroach DB
+
+My first priority is simply getting this code working against CockroachDB.  No work has been put in to optimizing either the Database or the configurations for performance.
 
 | Benchmark | Config | Load | Run | Notes |
 | -------------| ------------- | ------------- | ------------- | ------------- |
