@@ -34,11 +34,12 @@ public class GetAccessData extends Procedure {
     );
 
     public void run(Connection conn, long s_id, byte ai_type) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getAccessInfo);
-        stmt.setLong(1, s_id);
-        stmt.setByte(2, ai_type);
-        ResultSet results = stmt.executeQuery();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getAccessInfo)) {
+            stmt.setLong(1, s_id);
+            stmt.setByte(2, ai_type);
+            try (ResultSet results = stmt.executeQuery()) {
 
-        results.close();
+            }
+        }
     }
 }

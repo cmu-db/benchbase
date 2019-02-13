@@ -181,7 +181,6 @@ public class TATPWorker extends Worker<TATPBenchmark> {
         }
 
         t.invoke(conn, proc, subscriberSize);
-        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 
