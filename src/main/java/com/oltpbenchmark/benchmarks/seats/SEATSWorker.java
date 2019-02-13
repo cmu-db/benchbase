@@ -65,13 +65,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     /**
      * Airline Benchmark Transactions
      */
-    private static enum Transaction {
-        DeleteReservation(DeleteReservation.class),
-        FindFlights(FindFlights.class),
-        FindOpenSeats(FindOpenSeats.class),
-        NewReservation(NewReservation.class),
-        UpdateCustomer(UpdateCustomer.class),
-        UpdateReservation(UpdateReservation.class);
+    private static enum Transaction {DeleteReservation(DeleteReservation.class), FindFlights(FindFlights.class), FindOpenSeats(FindOpenSeats.class), NewReservation(NewReservation.class), UpdateCustomer(UpdateCustomer.class), UpdateReservation(UpdateReservation.class);
 
         private Transaction(Class<? extends Procedure> proc_class) {
             this.proc_class = proc_class;
@@ -108,17 +102,14 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
         public String getExecName() {
             return (this.execName);
-        }
-    }
+        }}
 
     // -----------------------------------------------------------------
     // RESERVED SEAT BITMAPS
     // -----------------------------------------------------------------
 
     public enum CacheType {
-        PENDING_INSERTS(SEATSConstants.CACHE_LIMIT_PENDING_INSERTS),
-        PENDING_UPDATES(SEATSConstants.CACHE_LIMIT_PENDING_UPDATES),
-        PENDING_DELETES(SEATSConstants.CACHE_LIMIT_PENDING_DELETES),
+        PENDING_INSERTS(SEATSConstants.CACHE_LIMIT_PENDING_INSERTS), PENDING_UPDATES(SEATSConstants.CACHE_LIMIT_PENDING_UPDATES), PENDING_DELETES(SEATSConstants.CACHE_LIMIT_PENDING_DELETES),
         ;
 
         private CacheType(int limit) {
@@ -261,15 +252,12 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
             Reservation r = (Reservation) obj;
             // Ignore id!
-            return (this.seatnum == r.seatnum &&
-                    this.flight_id.equals(r.flight_id) &&
-                    this.customer_id.equals(r.customer_id));
+            return (this.seatnum == r.seatnum && this.flight_id.equals(r.flight_id) && this.customer_id.equals(r.customer_id));
         }
 
         @Override
         public String toString() {
-            return String.format("{Id:%d / %s / %s / SeatNum:%d}",
-                    this.id, this.flight_id, this.customer_id, this.seatnum);
+            return String.format("{Id:%d / %s / %s / SeatNum:%d}", this.id, this.flight_id, this.customer_id, this.seatnum);
         }
     } // END CLASS
 
@@ -334,7 +322,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         try {
             switch (txn) {
                 case DeleteReservation: {
-                    ret = this.executeDeleteReservation(conn,(DeleteReservation) proc);
+                    ret = this.executeDeleteReservation(conn, (DeleteReservation) proc);
                     break;
                 }
                 case FindFlights: {
@@ -445,23 +433,9 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             LOG.trace("Calling {}", proc);
         }
 
-        boolean successful = false;
-        while (!successful) {
-            try {
-                proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
-                conn.commit();
-                successful = true;
-            } catch (SQLException esql) {
-                int error_code = esql.getErrorCode();
-//        		LOG.error("Delete Reservation Error code is "+error_code);
-                if (error_code == 8177) {
-                    conn.rollback();
-                } else {
-                    throw esql;
-                }
-//        		LOG.error("Delete Reservation Roll back");
-            }
-        }
+
+        proc.run(conn, f_id, c_id, c_id_str, ff_c_id_str, ff_al_id);
+
         // We can remove this from our set of full flights because know that there is now a free seat
         BitSet seats = getSeatsBitSet(r.flight_id);
         seats.set(r.seatnum, false);
@@ -513,8 +487,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             stop_date = new Timestamp(flightDate.getTime() + range);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Using %s as look up in %s: %d / %s",
-                        flight_id, proc, flight_id.encode(), flightDate));
+                LOG.debug(String.format("Using %s as look up in %s: %d / %s", flight_id, proc, flight_id.encode(), flightDate));
             }
         }
 
@@ -527,13 +500,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Calling {}", proc);
         }
-        List<Object[]> results = proc.run(conn,
-                depart_airport_id,
-                arrive_airport_id,
-                start_date,
-                stop_date,
-                distance);
-        conn.commit();
+        List<Object[]> results = proc.run(conn, depart_airport_id, arrive_airport_id, start_date, stop_date, distance);
 
         if (results.size() > 1) {
             // Convert the data into a FlightIds that other transactions can use
@@ -547,8 +514,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 }
             } // WHILE
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Added %d out of %d FlightIds to local cache",
-                        ctr, results.size()));
+                LOG.debug(String.format("Added %d out of %d FlightIds to local cache", ctr, results.size()));
             }
         }
         return (true);
@@ -608,10 +574,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                     LOG.trace("RANDOM CUSTOMER: {}", customer_id);
                 }
             } // WHILE
-            Reservation r = new Reservation(profile.getNextReservationId(getId()),
-                    search_flight,
-                    customer_id,
-                    seatnum);
+            Reservation r = new Reservation(profile.getNextReservationId(getId()), search_flight, customer_id, seatnum);
             seats.set(seatnum);
             tmp_reservations.add(r);
             if (LOG.isTraceEnabled()) {
@@ -626,8 +589,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 cache.remove();
             } // WHILE
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Stored %d pending inserts for %s [totalPendingInserts=%d]",
-                        tmp_reservations.size(), search_flight, cache.size()));
+                LOG.debug(String.format("Stored %d pending inserts for %s [totalPendingInserts=%d]", tmp_reservations.size(), search_flight, cache.size()));
             }
         }
         return (true);
@@ -644,8 +606,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Attempting to get a new pending insert Reservation [totalPendingInserts=%d]",
-                    cache.size()));
+            LOG.debug(String.format("Attempting to get a new pending insert Reservation [totalPendingInserts=%d]", cache.size()));
         }
         while (reservation == null) {
             Reservation r = cache.poll();
@@ -682,8 +643,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         // Generate a random price for now
-        double price = 2.0 * rng.number(SEATSConstants.RESERVATION_PRICE_MIN,
-                SEATSConstants.RESERVATION_PRICE_MAX);
+        double price = 2.0 * rng.number(SEATSConstants.RESERVATION_PRICE_MIN, SEATSConstants.RESERVATION_PRICE_MAX);
 
         // Generate random attributes
         long[] attributes = new long[9];
@@ -695,34 +655,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             LOG.trace("Calling {}", proc);
         }
 
-        boolean successful = false;
-        //      int count = 0;
-        while (successful == false) {
-            try {
-                //       		count ++;
-                proc.run(conn,
-                        reservation.id,
-                        reservation.customer_id.encode(),
-                        reservation.flight_id.encode(),
-                        reservation.seatnum,
-                        price,
-                        attributes);
-                conn.commit();
-                successful = true;
-                //      		LOG.debug("Inside loop, Count is "+count +" Successful is "+successful);
-            } catch (SQLException esql) {
-                int error_code = esql.getErrorCode();
-//        		LOG.error("New Reservation Error code is "+error_code);
-                if (error_code == 8177) {
-                    conn.rollback();
-                } else {
-                    throw esql;
-                }
-//        		LOG.error("New Reservation Roll Back");
-            }
-            //       	LOG.debug("End of loop, Count is "+count +" Successful is "+successful);
-        }
-
+        proc.run(conn, reservation.id, reservation.customer_id.encode(), reservation.flight_id.encode(), reservation.seatnum, price, attributes);
 
         // Mark this seat as successfully reserved
         seats.set(reservation.seatnum);
@@ -761,23 +694,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
 
-        boolean successful = false;
-        while (!successful) {
-            try {
-                proc.run(conn, c_id, c_id_str, update_ff, attr0, attr1);
-                conn.commit();
-                successful = true;
-            } catch (SQLException esql) {
-                int error_code = esql.getErrorCode();
-//        		LOG.error("Update Customer Error code is "+error_code);
-                if (error_code == 8177) {
-                    conn.rollback();
-                } else {
-                    throw esql;
-                }
-//        		LOG.error("Update Reservation Roll Back");
-            }
-        }
+        proc.run(conn, c_id, c_id_str, update_ff, attr0, attr1);
 
 
         return (true);
@@ -818,29 +735,11 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             LOG.trace("Calling {}", proc);
         }
 
-        boolean successful = false;
-        while (!successful) {
-            try {
-                proc.run(conn, r.id,
-                        r.flight_id.encode(),
-                        r.customer_id.encode(),
-                        seatnum,
-                        attribute_idx,
-                        value);
-                conn.commit();
-                successful = true;
-            } catch (SQLException esql) {
-                int error_code = esql.getErrorCode();
-//        		LOG.error("Update Reservation Error code is "+error_code);
-                if (error_code == 8177) {
-                    conn.rollback();
-                } else {
-                    throw esql;
-                }
-//        		LOG.error("Update Reservation Roll Back");
-            }
-        }
-        SEATSWorker.this.requeueReservation(r);
+
+        proc.run(conn, r.id, r.flight_id.encode(), r.customer_id.encode(), seatnum, attribute_idx, value);
+
+        requeueReservation(r);
+
         return (true);
     }
 
