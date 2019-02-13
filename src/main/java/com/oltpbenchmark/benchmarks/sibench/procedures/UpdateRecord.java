@@ -29,10 +29,10 @@ public class UpdateRecord extends Procedure {
     );
 
     public void run(Connection conn, int id) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, updateStmt);
-        stmt.setInt(1, id);
-        stmt.executeUpdate();
-        conn.commit();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateStmt)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
     }
 
 }

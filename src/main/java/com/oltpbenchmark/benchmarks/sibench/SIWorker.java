@@ -53,7 +53,6 @@ public class SIWorker extends Worker<SIBenchmark> {
         } else if (procClass.equals(UpdateRecord.class)) {
             updateRecord(conn);
         }
-        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 
