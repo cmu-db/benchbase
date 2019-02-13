@@ -113,7 +113,7 @@ public abstract class BenchmarkModule {
      * @return
      * @throws SQLException
      */
-    public final Connection makeConnection() throws SQLException {
+    public final Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
@@ -209,7 +209,7 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        try (Connection conn = this.makeConnection()) {
+        try (Connection conn = this.getConnection()) {
             this.createDatabase(this.workConf.getDBType(), conn);
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
@@ -241,7 +241,7 @@ public abstract class BenchmarkModule {
      * Run a scriptPath on a Database
      */
     public final void runScript(String scriptPath) {
-        try (Connection conn = this.makeConnection()) {
+        try (Connection conn = this.getConnection()) {
             ScriptRunner runner = new ScriptRunner(conn, true, true);
             runner.runScript(scriptPath);
         } catch (SQLException ex) {
@@ -295,7 +295,7 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public final void clearDatabase() {
-        try (Connection conn = this.makeConnection()) {
+        try (Connection conn = this.getConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);

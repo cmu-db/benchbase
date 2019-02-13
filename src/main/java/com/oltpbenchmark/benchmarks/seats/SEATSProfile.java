@@ -303,7 +303,7 @@ public class SEATSProfile {
             // Otherwise we have to go fetch everything again
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
 
-            try (Connection conn = benchmark.makeConnection()) {
+            try (Connection conn = benchmark.getConnection()) {
                 int result_idx = 0;
                 ResultSet[] results = proc.run(conn);
 

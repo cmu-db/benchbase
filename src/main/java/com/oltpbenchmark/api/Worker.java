@@ -348,7 +348,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         final DatabaseType dbType = wrkld.getDBType();
         final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
 
-        try (Connection conn = benchmarkModule.makeConnection()) {
+        try (Connection conn = benchmarkModule.getConnection()) {
 
             conn.setAutoCommit(false);
 

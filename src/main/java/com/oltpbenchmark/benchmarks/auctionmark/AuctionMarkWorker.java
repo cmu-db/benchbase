@@ -88,7 +88,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Executing %s in separate thread", txnType));
                     }
-                    try (Connection conn = getBenchmarkModule().makeConnection()) {
+                    try (Connection conn = getBenchmarkModule().getConnection()) {
                         executeCloseAuctions(conn, (CloseAuctions) proc);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);

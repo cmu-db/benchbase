@@ -50,7 +50,7 @@ public class SIBenchmark extends BenchmarkModule {
 
         String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "id");
 
-        try (Connection metaConn = this.makeConnection();
+        try (Connection metaConn = this.getConnection();
              Statement stmt = metaConn.createStatement();
              ResultSet res = stmt.executeQuery(recordCount)) {
 
