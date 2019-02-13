@@ -92,7 +92,7 @@ My first priority is simply getting this code working against CockroachDB.  No w
 | `tatp` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcc` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcds` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config, [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
-| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :x: | fails on Q9 in CRDB 2.1.x [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12); fails on Q18 in CRDB 2.2 |
+| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :x: | fails on Q9 in CRDB 2.1.x [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12); fails on Q18 in CRDB 2.2 [issue #14](https://github.com/timveil-cockroach/oltpbench/issues/14) |
 | `twitter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #13~~](https://github.com/timveil-cockroach/oltpbench/issues/13) |
 | `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
