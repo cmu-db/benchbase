@@ -70,15 +70,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
                 } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
                     updateTrustRating(conn);
                 }
-                conn.commit();
                 successful = true;
-            } catch (SQLException esql) {
-                int error_code = esql.getErrorCode();
-                if (error_code == 8177) {
-                    conn.rollback();
-                } else {
-                    LOG.error("caught sql error in Epinions Benchmark for the procedure {}:{}", nextTrans.getName(), esql);
-                }
             } catch (Exception e) {
                 LOG.error("caught Exceptions in Epinions for the procedure {}:{}", nextTrans.getName(), e);
             }

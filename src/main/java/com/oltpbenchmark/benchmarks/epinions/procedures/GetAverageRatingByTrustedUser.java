@@ -31,12 +31,13 @@ public class GetAverageRatingByTrustedUser extends Procedure {
     );
 
     public void run(Connection conn, long iid, long uid) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, getAverageRating);
-        stmt.setLong(1, iid);
-        stmt.setLong(2, uid);
-        try (ResultSet r = stmt.executeQuery()) {
-            while (r.next()) {
-                continue;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getAverageRating)) {
+            stmt.setLong(1, iid);
+            stmt.setLong(2, uid);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    continue;
+                }
             }
         }
     }

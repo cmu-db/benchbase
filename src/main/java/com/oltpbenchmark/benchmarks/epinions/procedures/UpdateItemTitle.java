@@ -30,9 +30,10 @@ public class UpdateItemTitle extends Procedure {
     );
 
     public void run(Connection conn, long iid, String title) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, updateItem);
-        stmt.setString(1, title);
-        stmt.setLong(2, iid);
-        stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateItem)) {
+            stmt.setString(1, title);
+            stmt.setLong(2, iid);
+            stmt.executeUpdate();
+        }
     }
 }

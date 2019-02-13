@@ -30,10 +30,11 @@ public class UpdateReviewRating extends Procedure {
     );
 
     public void run(Connection conn, long iid, long uid, int rating) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, updateReview);
-        stmt.setInt(1, rating);
-        stmt.setLong(2, iid);
-        stmt.setLong(3, uid);
-        stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateReview)) {
+            stmt.setInt(1, rating);
+            stmt.setLong(2, iid);
+            stmt.setLong(3, uid);
+            stmt.executeUpdate();
+        }
     }
 }

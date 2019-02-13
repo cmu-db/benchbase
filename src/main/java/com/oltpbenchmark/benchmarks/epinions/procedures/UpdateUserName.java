@@ -28,9 +28,10 @@ public class UpdateUserName extends Procedure {
     public final SQLStmt updateUser = new SQLStmt("UPDATE useracct SET name = ? WHERE u_id=?");
 
     public void run(Connection conn, long uid, String name) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, updateUser);
-        stmt.setString(1, name);
-        stmt.setLong(2, uid);
-        stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateUser)) {
+            stmt.setString(1, name);
+            stmt.setLong(2, uid);
+            stmt.executeUpdate();
+        }
     }
 }

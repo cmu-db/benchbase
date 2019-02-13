@@ -363,9 +363,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             // For Postgres, we have to create a savepoint in order to rollback a user aborted transaction
             if (dbType == DatabaseType.POSTGRES) {
+                LOG.debug("setting savepoint");
                 savepoint = conn.setSavepoint();
             } else if (dbType == DatabaseType.COCKROACHDB) {
                 // For cockroach, a savepoint must be created with a specific name in order to rollback
+                LOG.debug("setting savepoint COCKROACH_RESTART");
                 savepoint = conn.setSavepoint("COCKROACH_RESTART");
             }
 
@@ -386,7 +388,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     status = this.executeWork(conn, next);
 
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s %s completed...", this, next));
+                    }
+
                     if (savepoint != null) {
+
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(String.format("%s %s releasing savepoint...", this, next));
+                        }
+
                         conn.releaseSavepoint(savepoint);
                     }
 

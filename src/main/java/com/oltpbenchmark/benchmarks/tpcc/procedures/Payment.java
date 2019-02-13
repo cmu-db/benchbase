@@ -293,7 +293,7 @@ public class Payment extends TPCCProcedure {
         payInsertHist.setString(8, h_data);
         payInsertHist.executeUpdate();
 
-        conn.commit();
+        //conn.commit();
 
         if (LOG.isTraceEnabled()) {
             StringBuilder terminalMessage = new StringBuilder();

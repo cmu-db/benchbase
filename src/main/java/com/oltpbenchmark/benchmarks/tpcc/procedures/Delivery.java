@@ -268,7 +268,7 @@ public class Delivery extends TPCCProcedure {
             }
         }
 
-        conn.commit();
+        //conn.commit();
 
         if (trace) {
             StringBuilder terminalMessage = new StringBuilder();

@@ -172,7 +172,7 @@ public class OrderStatus extends TPCCProcedure {
         rs = null;
 
         // commit the transaction
-        conn.commit();
+        //conn.commit();
 
         if (orderLines.isEmpty()) {
             String msg = String.format("Order record had no order line items [C_W_ID=%d, C_D_ID=%d, C_ID=%d, O_ID=%d]",

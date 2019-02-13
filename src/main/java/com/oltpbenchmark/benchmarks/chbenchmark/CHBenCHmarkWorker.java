@@ -39,7 +39,6 @@ public class CHBenCHmarkWorker extends Worker<CHBenCHmark> {
             throw new RuntimeException(e);
         }
 
-        conn.commit();
         return (TransactionStatus.SUCCESS);
 
     }
