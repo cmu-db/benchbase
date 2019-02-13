@@ -47,7 +47,6 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
         LOG.debug("Executing {}", this.procNoOp);
         try {
             this.procNoOp.run(conn);
-            conn.commit();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Successfully completed {} execution!", this.procNoOp);
             }

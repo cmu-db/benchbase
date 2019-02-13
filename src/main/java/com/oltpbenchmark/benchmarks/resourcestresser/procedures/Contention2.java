@@ -33,37 +33,34 @@ import java.sql.SQLException;
 public class Contention2 extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Contention2.class);
 
-    public final SQLStmt lockUpdate = new SQLStmt(
-            "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +
-                    " SET salary = ? WHERE empid >= ? AND empid < ?"
-    );
+    public final SQLStmt lockUpdate = new SQLStmt("UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE + " SET salary = ? WHERE empid >= ? AND empid < ?");
 
-    public final SQLStmt lockSleep = new SQLStmt(
-            "SELECT SLEEP(?)"
-    );
+    public final SQLStmt lockSleep = new SQLStmt("SELECT SLEEP(?)");
 
     public void run(Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
 
 
-        PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate);
-        PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep);
+        try (PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate)) {
+            try (PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep)) {
 
-        for (int sel = 0; sel < howManyUpdates; ++sel) {
-            int leftKey = ResourceStresserWorker.gen.nextInt(numKeys - howManyKeys);
-            int rightKey = leftKey + howManyKeys;
-            int salary = ResourceStresserWorker.gen.nextInt();
+                for (int sel = 0; sel < howManyUpdates; ++sel) {
+                    int leftKey = ResourceStresserWorker.gen.nextInt(numKeys - howManyKeys);
+                    int rightKey = leftKey + howManyKeys;
+                    int salary = ResourceStresserWorker.gen.nextInt();
 
-            stmtUpdate.setInt(1, salary);
-            stmtUpdate.setInt(2, leftKey + 1);
-            stmtUpdate.setInt(3, rightKey + 1);
-            int result = stmtUpdate.executeUpdate();
-            if (result != howManyKeys) {
-                LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
+                    stmtUpdate.setInt(1, salary);
+                    stmtUpdate.setInt(2, leftKey + 1);
+                    stmtUpdate.setInt(3, rightKey + 1);
+                    int result = stmtUpdate.executeUpdate();
+                    if (result != howManyKeys) {
+                        LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
+                    }
+
+                    stmtSleep.setInt(1, sleepLength);
+                    stmtSleep.execute();
+                } // FOR
             }
-
-            stmtSleep.setInt(1, sleepLength);
-            stmtSleep.execute();
-        } // FOR
+        }
     }
 
 }

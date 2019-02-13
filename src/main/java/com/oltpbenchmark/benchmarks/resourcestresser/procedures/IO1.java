@@ -33,8 +33,7 @@ public class IO1 extends Procedure {
     public final SQLStmt ioUpdate;
 
     {
-        String sql = "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLE +
-                " SET %s WHERE empid >= ? AND empid < ?";
+        String sql = "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLE + " SET %s WHERE empid >= ? AND empid < ?";
         String setClause = "";
         for (int col = 1; col <= ResourceStresserWorker.IO1_howManyColsPerRow; ++col) {
             setClause = setClause + (col > 1 ? "," : "") + " data" + col + "=?";
@@ -42,31 +41,31 @@ public class IO1 extends Procedure {
         this.ioUpdate = new SQLStmt(String.format(sql, setClause));
     }
 
-    public void run(Connection conn, int myId, int howManyColsPerRow, int howManyUpdatesPerTransaction,
-                    int howManyRowsPerUpdate, int keyRange) throws SQLException {
+    public void run(Connection conn, int myId, int howManyColsPerRow, int howManyUpdatesPerTransaction, int howManyRowsPerUpdate, int keyRange) throws SQLException {
 
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {
 
-        //int keyRange = 20; //1024000 / 200; // FIXME
-        int startingKey = myId * keyRange;
-        int lastKey = (myId + 1) * keyRange - 1;
+            //int keyRange = 20; //1024000 / 200; // FIXME
+            int startingKey = myId * keyRange;
+            int lastKey = (myId + 1) * keyRange - 1;
 
-        for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
-            int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
-            int rightKey = leftKey + howManyRowsPerUpdate;
+            for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
+                int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
+                int rightKey = leftKey + howManyRowsPerUpdate;
 
 
-            for (int col = 1; col <= howManyColsPerRow; ++col) {
-                double value = ResourceStresserWorker.gen.nextDouble() + ResourceStresserWorker.gen.nextDouble();
-                stmt.setString(col, Double.toString(value));
-            }
-            stmt.setInt(howManyColsPerRow + 1, leftKey);
-            stmt.setInt(howManyColsPerRow + 2, rightKey);
-            int result = stmt.executeUpdate();
-            if (result != howManyRowsPerUpdate) {
-                LOG.warn("supposedtochange={} but result={}", howManyRowsPerUpdate, result);
-            }
-        } // FOR
+                for (int col = 1; col <= howManyColsPerRow; ++col) {
+                    double value = ResourceStresserWorker.gen.nextDouble() + ResourceStresserWorker.gen.nextDouble();
+                    stmt.setString(col, Double.toString(value));
+                }
+                stmt.setInt(howManyColsPerRow + 1, leftKey);
+                stmt.setInt(howManyColsPerRow + 2, rightKey);
+                int result = stmt.executeUpdate();
+                if (result != howManyRowsPerUpdate) {
+                    LOG.warn("supposedtochange={} but result={}", howManyRowsPerUpdate, result);
+                }
+            } // FOR
+        }
     }
 }

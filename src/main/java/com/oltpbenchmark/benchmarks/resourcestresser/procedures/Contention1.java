@@ -36,38 +36,34 @@ import java.sql.SQLException;
 public class Contention1 extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Contention1.class);
 
-    public final SQLStmt lockUpdate = new SQLStmt(
-            "UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE +
-                    " locktable SET salary = ? WHERE empid IN (??)",
-            ResourceStresserWorker.CONTENTION1_howManyKeys
-    );
+    public final SQLStmt lockUpdate = new SQLStmt("UPDATE " + ResourceStresserConstants.TABLENAME_LOCKTABLE + " locktable SET salary = ? WHERE empid IN (??)", ResourceStresserWorker.CONTENTION1_howManyKeys);
 
-    public final SQLStmt lockSleep = new SQLStmt(
-            "SELECT SLEEP(?)"
-    );
+    public final SQLStmt lockSleep = new SQLStmt("SELECT SLEEP(?)");
 
     public void run(Connection conn, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
         int howManyKeys = ResourceStresserWorker.CONTENTION1_howManyKeys;
 
 
-        PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate);
-        PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep);
-        for (int sel = 0; sel < howManyUpdates; ++sel) {
-            int nextKey = -1;
-            for (int key = 1; key <= howManyKeys; ++key) {
-                nextKey = ResourceStresserWorker.gen.nextInt(numKeys);
-                stmtUpdate.setInt(key + 1, nextKey);
-            }
-            // setting the parameter that corresponds to the salary in
-            // the SET clause
-            stmtUpdate.setInt(1, ResourceStresserWorker.gen.nextInt());
-            int result = stmtUpdate.executeUpdate();
-            if (result != howManyKeys) {
-                LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
-            }
+        try (PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate)) {
+            try (PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep)) {
+                for (int sel = 0; sel < howManyUpdates; ++sel) {
+                    int nextKey = -1;
+                    for (int key = 1; key <= howManyKeys; ++key) {
+                        nextKey = ResourceStresserWorker.gen.nextInt(numKeys);
+                        stmtUpdate.setInt(key + 1, nextKey);
+                    }
+                    // setting the parameter that corresponds to the salary in
+                    // the SET clause
+                    stmtUpdate.setInt(1, ResourceStresserWorker.gen.nextInt());
+                    int result = stmtUpdate.executeUpdate();
+                    if (result != howManyKeys) {
+                        LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
+                    }
 
-            stmtSleep.setInt(1, sleepLength);
-            stmtSleep.execute();
+                    stmtSleep.setInt(1, sleepLength);
+                    stmtSleep.execute();
+                }
+            }
         }
     }
 

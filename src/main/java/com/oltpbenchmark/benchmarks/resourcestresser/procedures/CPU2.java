@@ -35,34 +35,29 @@ public class CPU2 extends Procedure {
         for (int i = 1; i <= ResourceStresserWorker.CPU2_nestedLevel; ++i) {
             complexClause = "md5(concat(" + complexClause + ",?))";
         } // FOR
-        cpuSelect = new SQLStmt(
-                "SELECT count(*) FROM (SELECT " + complexClause +
-                        " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE +
-                        " WHERE empid >= 0 AND empid < 100) AS T2"
-        );
+        cpuSelect = new SQLStmt("SELECT count(*) FROM (SELECT " + complexClause + " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE + " WHERE empid >= 0 AND empid < 100) AS T2");
     }
 
-    public void run(Connection conn, int howManyPerTransaction, int sleepLength,
-                    int nestedLevel) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect);
+    public void run(Connection conn, int howManyPerTransaction, int sleepLength, int nestedLevel) throws SQLException {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect)) {
 
-        for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
-            double randNoise = ResourceStresserWorker.gen.nextDouble();
+            for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
+                double randNoise = ResourceStresserWorker.gen.nextDouble();
 
-            for (int i = 1; i <= nestedLevel; ++i) {
-                stmt.setString(i, Double.toString(randNoise));
+                for (int i = 1; i <= nestedLevel; ++i) {
+                    stmt.setString(i, Double.toString(randNoise));
+                } // FOR
+
+                // TODO: Is this the right place to sleep?  With rs open???
+                try (ResultSet rs = stmt.executeQuery()) {
+                    try {
+                        Thread.sleep(sleepLength);
+                    } catch (InterruptedException e) {
+                        throw new SQLException("Unexpected interupt while sleeping!");
+                    }
+                }
             } // FOR
-
-            // TODO: Is this the right place to sleep?  With rs open???
-            ResultSet rs = stmt.executeQuery();
-            try {
-                Thread.sleep(sleepLength);
-            } catch (InterruptedException e) {
-                rs.close();
-                throw new SQLException("Unexpected interupt while sleeping!");
-            }
-            rs.close();
-        } // FOR
+        }
     }
 
 }

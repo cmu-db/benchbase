@@ -35,33 +35,30 @@ import java.sql.SQLException;
 public class IO2 extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(IO2.class);
 
-    public final SQLStmt ioUpdate = new SQLStmt(
-            "UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLESMALLROW +
-                    " SET flag1 = ? WHERE empid = ?"
-    );
+    public final SQLStmt ioUpdate = new SQLStmt("UPDATE " + ResourceStresserConstants.TABLENAME_IOTABLESMALLROW + " SET flag1 = ? WHERE empid = ?");
 
-    public void run(Connection conn, int myId, int howManyUpdatesPerTransaction,
-                    boolean makeSureWorkerSetFitsInMemory, int keyRange) throws SQLException {
+    public void run(Connection conn, int myId, int howManyUpdatesPerTransaction, boolean makeSureWorkerSetFitsInMemory, int keyRange) throws SQLException {
 
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {
 
-        //int keyRange = (makeSureWorkerSetFitsInMemory ? 16777216 / 160 : 167772160 / 160); // FIXME
-        int startingKey = myId * keyRange;
-        int lastKey = (myId + 1) * keyRange - 1;
+            //int keyRange = (makeSureWorkerSetFitsInMemory ? 16777216 / 160 : 167772160 / 160); // FIXME
+            int startingKey = myId * keyRange;
+            int lastKey = (myId + 1) * keyRange - 1;
 
-        for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
-            int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;
-            int value = ResourceStresserWorker.gen.nextInt();
+            for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
+                int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;
+                int value = ResourceStresserWorker.gen.nextInt();
 
-            stmt.setInt(1, value);
-            stmt.setInt(2, key);
+                stmt.setInt(1, value);
+                stmt.setInt(2, key);
 
-            int result = stmt.executeUpdate();
-            if (result != 1) {
-                LOG.warn("supposedtochange=" + 1 + " but rc={}", result);
-            }
+                int result = stmt.executeUpdate();
+                if (result != 1) {
+                    LOG.warn("supposedtochange=" + 1 + " but rc={}", result);
+                }
 
-        } // FOR
+            } // FOR
+        }
     }
 }
