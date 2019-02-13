@@ -42,7 +42,6 @@ public class VoterWorker extends Worker<VoterBenchmark> {
         Vote proc = getProcedure(Vote.class);
 
         proc.run(conn, call.voteId, call.phoneNumber, call.contestantNumber, VoterConstants.MAX_VOTES);
-        conn.commit();
         return TransactionStatus.SUCCESS;
     }
 

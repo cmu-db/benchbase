@@ -76,11 +76,11 @@ comming soon
 
 | Benchmark | Config | Load | Run | Notes |
 | -------------| ------------- | ------------- | ------------- | ------------- |
-| `auctionmark` | :heavy_check_mark: | :x: | :heavy_minus_sign: | [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
+| `auctionmark` | :heavy_check_mark: | :x: | :heavy_minus_sign: | self-referencing insert constaint [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
 | `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #5~~](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6)|
 | `epinions` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #7~~](https://github.com/timveil-cockroach/oltpbench/issues/7) |
-| `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
-| `linkbench` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
+| `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config, [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
+| `linkbench` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no implementation [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
 | `noop` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `seats` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #10~~](https://github.com/timveil-cockroach/oltpbench/issues/10) |
@@ -88,8 +88,8 @@ comming soon
 | `smallbank` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tatp` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcc` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
-| `tpcds` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
-| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :x: | [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12) |
+| `tpcds` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config, [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
+| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :x: | query does not complete [issue #12](https://github.com/timveil-cockroach/oltpbench/issues/12) |
 | `twitter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #13~~](https://github.com/timveil-cockroach/oltpbench/issues/13) |
 | `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
