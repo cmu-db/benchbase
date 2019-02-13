@@ -32,15 +32,13 @@ public abstract class GenericQuery extends Procedure {
 
     protected abstract PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException;
 
-    public ResultSet run(Connection conn, RandomGenerator rand) throws SQLException {
+    public final void run(Connection conn, RandomGenerator rand) throws SQLException {
 
         try (PreparedStatement stmt = getStatement(conn, rand); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 //do nothing
             }
         }
-
-        return null;
 
     }
 }

@@ -45,7 +45,6 @@ public class TPCHWorker extends Worker<TPCHBenchmark> {
             throw new RuntimeException(e);
         }
 
-        conn.commit();
         return (TransactionStatus.SUCCESS);
 
     }
