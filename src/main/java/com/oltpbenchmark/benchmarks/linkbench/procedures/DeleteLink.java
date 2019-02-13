@@ -167,7 +167,6 @@ public class DeleteLink extends Procedure {
 
             stmt4.executeUpdate();
         }
-        conn.commit();
         return found;
     }
 

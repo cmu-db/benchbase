@@ -189,7 +189,7 @@ public class CloseAuctions extends Procedure {
                     } // WHILE
                 }
                 if (round > 0) {
-                    conn.commit();
+                    //conn.commit();
                 }
             } // WHILE
 

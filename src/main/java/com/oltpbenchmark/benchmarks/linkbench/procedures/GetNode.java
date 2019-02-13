@@ -49,7 +49,6 @@ public class GetNode extends Procedure {
         }
         stmt.setLong(1, id);
         ResultSet rs = stmt.executeQuery();
-        conn.commit();
         if (rs.next()) {
             Node res = new Node(rs.getLong(1), rs.getInt(2),
                     rs.getLong(3), rs.getInt(4), rs.getBytes(5));

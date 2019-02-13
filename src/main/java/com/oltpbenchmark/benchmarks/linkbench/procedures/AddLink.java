@@ -143,7 +143,6 @@ public class AddLink extends Procedure {
             // extra round trip
             if (!update_data) {
                 updateCount.setSQL(updateCount.getSQL());
-                conn.commit();
             }
             if (stmt2 == null) {
                 stmt2 = this.getPreparedStatement(conn, updateCount);
@@ -177,7 +176,6 @@ public class AddLink extends Procedure {
                 LOG.trace(updateData.toString());
             }
             stmt3.executeUpdate();
-            conn.commit();
         }
         return row_found;
     }

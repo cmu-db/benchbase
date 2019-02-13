@@ -46,7 +46,6 @@ public class DeleteNode extends Procedure {
         stmt.setLong(1, id);
         stmt.setInt(2, type);
         int rows = stmt.executeUpdate();
-        conn.commit();
         if (rows == 0) {
             return false;
         } else if (rows == 1) {

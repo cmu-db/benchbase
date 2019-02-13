@@ -20,10 +20,8 @@ package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
-import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdException;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,92 +40,38 @@ public class NewItem extends Procedure {
     // STATEMENTS
     // -----------------------------------------------------------------
 
-    public final SQLStmt insertItem = new SQLStmt(
-            "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM + "(" +
-                    "i_id," +
-                    "i_u_id," +
-                    "i_c_id," +
-                    "i_name," +
-                    "i_description," +
-                    "i_user_attributes," +
-                    "i_initial_price," +
-                    "i_current_price," +
-                    "i_num_bids," +
-                    "i_num_images," +
-                    "i_num_global_attrs," +
-                    "i_start_date," +
-                    "i_end_date," +
-                    "i_status, " +
-                    "i_created," +
-                    "i_updated," +
-                    "i_iattr0" +
-                    ") VALUES (" +
-                    "?," +  // i_id
-                    "?," +  // i_u_id
-                    "?," +  // i_c_id
-                    "?," +  // i_name
-                    "?," +  // i_description
-                    "?," +  // i_user_attributes
-                    "?," +  // i_initial_price
-                    "?," +  // i_current_price
-                    "?," +  // i_num_bids
-                    "?," +  // i_num_images
-                    "?," +  // i_num_global_attrs
-                    "?," +  // i_start_date
-                    "?," +  // i_end_date
-                    "?," +  // i_status
-                    "?," +  // i_created
-                    "?," +  // i_updated
-                    "1" +  // i_attr0
-                    ")"
-    );
+    public final SQLStmt insertItem = new SQLStmt("INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM + "(" + "i_id," + "i_u_id," + "i_c_id," + "i_name," + "i_description," + "i_user_attributes," + "i_initial_price," + "i_current_price," + "i_num_bids," + "i_num_images," + "i_num_global_attrs," + "i_start_date," + "i_end_date," + "i_status, " + "i_created," + "i_updated," + "i_iattr0" + ") VALUES (" + "?," +  // i_id
+            "?," +  // i_u_id
+            "?," +  // i_c_id
+            "?," +  // i_name
+            "?," +  // i_description
+            "?," +  // i_user_attributes
+            "?," +  // i_initial_price
+            "?," +  // i_current_price
+            "?," +  // i_num_bids
+            "?," +  // i_num_images
+            "?," +  // i_num_global_attrs
+            "?," +  // i_start_date
+            "?," +  // i_end_date
+            "?," +  // i_status
+            "?," +  // i_created
+            "?," +  // i_updated
+            "1" +  // i_attr0
+            ")");
 
-    public final SQLStmt getSellerItemCount = new SQLStmt(
-            "SELECT COUNT(*) FROM " + AuctionMarkConstants.TABLENAME_ITEM +
-                    " WHERE i_u_id = ?"
-    );
+    public final SQLStmt getSellerItemCount = new SQLStmt("SELECT COUNT(*) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " WHERE i_u_id = ?");
 
-    public final SQLStmt getCategory = new SQLStmt(
-            "SELECT * FROM " + AuctionMarkConstants.TABLENAME_CATEGORY + " WHERE c_id = ? "
-    );
+    public final SQLStmt getCategory = new SQLStmt("SELECT * FROM " + AuctionMarkConstants.TABLENAME_CATEGORY + " WHERE c_id = ? ");
 
-    public final SQLStmt getCategoryParent = new SQLStmt(
-            "SELECT * FROM " + AuctionMarkConstants.TABLENAME_CATEGORY + " WHERE c_parent_id = ? "
-    );
+    public final SQLStmt getCategoryParent = new SQLStmt("SELECT * FROM " + AuctionMarkConstants.TABLENAME_CATEGORY + " WHERE c_parent_id = ? ");
 
-    public final SQLStmt getGlobalAttribute = new SQLStmt(
-            "SELECT gag_name, gav_name, gag_c_id " +
-                    "FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP + ", " +
-                    AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE +
-                    " WHERE gav_id = ? AND gav_gag_id = ? " +
-                    "AND gav_gag_id = gag_id"
-    );
+    public final SQLStmt getGlobalAttribute = new SQLStmt("SELECT gag_name, gav_name, gag_c_id " + "FROM " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP + ", " + AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE + " WHERE gav_id = ? AND gav_gag_id = ? " + "AND gav_gag_id = gag_id");
 
-    public final SQLStmt insertItemAttribute = new SQLStmt(
-            "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE + "(" +
-                    "ia_id," +
-                    "ia_i_id," +
-                    "ia_u_id," +
-                    "ia_gav_id," +
-                    "ia_gag_id" +
-                    ") VALUES(?, ?, ?, ?, ?)"
-    );
+    public final SQLStmt insertItemAttribute = new SQLStmt("INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE + "(" + "ia_id," + "ia_i_id," + "ia_u_id," + "ia_gav_id," + "ia_gag_id" + ") VALUES(?, ?, ?, ?, ?)");
 
-    public final SQLStmt insertImage = new SQLStmt(
-            "INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_IMAGE + "(" +
-                    "ii_id," +
-                    "ii_i_id," +
-                    "ii_u_id," +
-                    "ii_sattr0" +
-                    ") VALUES(?, ?, ?, ?)"
-    );
+    public final SQLStmt insertImage = new SQLStmt("INSERT INTO " + AuctionMarkConstants.TABLENAME_ITEM_IMAGE + "(" + "ii_id," + "ii_i_id," + "ii_u_id," + "ii_sattr0" + ") VALUES(?, ?, ?, ?)");
 
-    public final SQLStmt updateUserBalance = new SQLStmt(
-            "UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " +
-                    "SET u_balance = u_balance - 1, " +
-                    "    u_updated = ? " +
-                    " WHERE u_id = ?"
-    );
+    public final SQLStmt updateUserBalance = new SQLStmt("UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " + "SET u_balance = u_balance - 1, " + "    u_updated = ? " + " WHERE u_id = ?");
 
     // -----------------------------------------------------------------
     // RUN METHOD
@@ -147,10 +91,7 @@ public class NewItem extends Procedure {
      * and so on. After these records are inserted, the transaction then updates
      * the USER record to add the listing fee to the seller's balance.
      */
-    public Object[] run(Connection conn, Timestamp[] benchmarkTimes,
-                        long item_id, long seller_id, long category_id,
-                        String name, String description, long duration, double initial_price, String attributes,
-                        long[] gag_ids, long[] gav_ids, String[] images) throws SQLException {
+    public Object[] run(Connection conn, Timestamp[] benchmarkTimes, long item_id, long seller_id, long category_id, String name, String description, long duration, double initial_price, String attributes, long[] gag_ids, long[] gav_ids, String[] images) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
 
@@ -209,8 +150,7 @@ public class NewItem extends Procedure {
         results.close();
 
         // Insert new ITEM tuple
-        stmt = this.getPreparedStatement(conn, insertItem,
-                item_id,         // i_id
+        stmt = this.getPreparedStatement(conn, insertItem, item_id,         // i_id
                 seller_id,       // i_u_id
                 category_id,     // i_c_id
                 name,            // i_name
@@ -227,25 +167,8 @@ public class NewItem extends Procedure {
                 currentTime,     // i_created
                 currentTime      // i_updated
         );
-        // NOTE: This may fail with a duplicate entry exception because 
-        // the client's internal count of the number of items that this seller 
-        // already has is wrong. That's ok. We'll just abort and ignore the problem
-        // Eventually the client's internal cache will catch up with what's in the database
-        try {
-            updated = stmt.executeUpdate();
-        } catch (SQLException ex) {
-            if (SQLUtil.isDuplicateKeyException(ex)) {
-                conn.rollback();
-                results = this.getPreparedStatement(conn, getSellerItemCount, seller_id).executeQuery();
-                adv = results.next();
 
-                int item_count = results.getInt(1);
-                results.close();
-                throw new DuplicateItemIdException(item_id, seller_id, item_count, ex);
-            } else {
-                throw ex;
-            }
-        }
+        updated = stmt.executeUpdate();
 
 
         // Insert ITEM_ATTRIBUTE tuples
@@ -292,7 +215,6 @@ public class NewItem extends Procedure {
                 // END DATE
                 end_date,
                 // STATUS
-                ItemStatus.OPEN.ordinal()
-        };
+                ItemStatus.OPEN.ordinal()};
     }
 }

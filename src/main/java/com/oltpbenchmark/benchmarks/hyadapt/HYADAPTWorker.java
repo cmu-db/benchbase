@@ -115,7 +115,6 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
             sumRecord10(conn);
         }
 
-        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 

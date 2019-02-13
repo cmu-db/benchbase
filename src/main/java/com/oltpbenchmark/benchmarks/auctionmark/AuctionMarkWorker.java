@@ -465,7 +465,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         Timestamp endTime = profile.updateAndGetLastCloseAuctionsTime();
 
         List<Object[]> results = proc.run(conn, benchmarkTimes, startTime, endTime);
-        conn.commit();
 
 
         for (Object[] row : results) {
@@ -490,7 +489,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         Object[][] results = proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
                 itemInfo.getSellerId().encode());
-        conn.commit();
 
         // The first row will have our item data that we want
         // We don't care about the user information...
@@ -535,7 +533,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 get_seller_items,
                 get_buyer_items,
                 get_watched_items);
-        conn.commit();
 
         List<Object[]> vt = null;
         int idx = 0;
@@ -656,7 +653,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 buyerId.encode(),
                 maxBid,
                 itemInfo.endDate);
-        conn.commit();
 
         ItemId itemId = this.processItemRecord(results);
 
@@ -681,7 +677,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 sellerId.encode(),
                 buyerId.encode(),
                 question);
-        conn.commit();
 
 
         profile.pending_commentResponses.add(new ItemCommentResponse(SQLUtil.getLong(results[0]),
@@ -711,7 +706,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 sellerId.encode(),
                 commentId,
                 response);
-        conn.commit();
 
         return (true);
     }
@@ -744,7 +738,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 from_id,
                 rating,
                 feedback);
-        conn.commit();
 
         return (true);
     }
@@ -801,7 +794,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             profile.seller_item_cnt.set(sellerId, ex.getItemCount());
             throw ex;
         }
-        conn.commit();
 
         itemId = this.processItemRecord(results);
 
@@ -843,7 +835,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 sellerId.encode(),
                 ip_id,
                 buyer_credit);
-        conn.commit();
 
         ItemId itemId = this.processItemRecord(results);
 
@@ -884,7 +875,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 description,
                 delete_attribute,
                 add_attribute);
-        conn.commit();
 
         return (true);
     }

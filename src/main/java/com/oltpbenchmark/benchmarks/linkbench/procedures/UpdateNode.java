@@ -54,7 +54,6 @@ public class UpdateNode extends Procedure {
         stmt.setLong(3, node.id);
         stmt.setInt(4, node.type);
         int rows = stmt.executeUpdate();
-        conn.commit();
         if (rows == 1) {
             return true;
         } else if (rows == 0) {
