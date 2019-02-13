@@ -22,6 +22,7 @@ import com.oltpbenchmark.util.RandomGenerator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class Q15 extends GenericQuery {
 
@@ -64,6 +65,30 @@ public class Q15 extends GenericQuery {
     public final SQLStmt dropview_stmt = new SQLStmt(
             "drop view revenue0"
     );
+
+    @Override
+    public void run(Connection conn, RandomGenerator rand) throws SQLException {
+        // With this query, we have to set up a view before we execute the
+        // query, then drop it once we're done.
+        try (Statement stmt = conn.createStatement()) {
+            try {
+                // DATE is the first day of a randomly selected month between
+                // the first month of 1993 and the 10th month of 1997
+                int year = rand.number(1993, 1997);
+                int month = rand.number(1, year == 1997 ? 10 : 12);
+                String date = String.format("%d-%02d-01", year, month);
+
+                String sql = createview_stmt.getSQL();
+                sql = sql.replace("?", String.format("'%s'", date));
+                stmt.execute(sql);
+                super.run(conn, rand);
+            } finally {
+                String sql = dropview_stmt.getSQL();
+                stmt.execute(sql);
+            }
+        }
+
+    }
 
     @Override
     protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {

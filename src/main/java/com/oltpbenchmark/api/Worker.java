@@ -368,7 +368,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             } else if (dbType == DatabaseType.COCKROACHDB) {
                 // For cockroach, a savepoint must be created with a specific name in order to rollback
                 LOG.debug("setting savepoint COCKROACH_RESTART");
-                savepoint = conn.setSavepoint("COCKROACH_RESTART");
+                savepoint = conn.setSavepoint("cockroach_restart");
             }
 
             while (status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
