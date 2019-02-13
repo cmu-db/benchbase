@@ -36,6 +36,7 @@ import com.oltpbenchmark.util.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -190,34 +191,34 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
 
         if (procClass.equals(AddNode.class)) {
-            addNode();
+            addNode(conn);
         } else if (procClass.equals(GetNode.class)) {
-            getNode();
+            getNode(conn);
         } else if (procClass.equals(DeleteNode.class)) {
-            deleteNode();
+            deleteNode(conn);
         } else if (procClass.equals(UpdateNode.class)) {
-            updateNode();
+            updateNode(conn);
         } else if (procClass.equals(GetLink.class)) {
-            getLink();
+            getLink(conn);
         } else if (procClass.equals(AddLink.class)) {
-            addLink();
+            addLink(conn);
         } else if (procClass.equals(DeleteLink.class)) {
-            deleteLink();
+            deleteLink(conn);
         } else if (procClass.equals(UpdateLink.class)) {
-            updateLink();
+            updateLink(conn);
         } else if (procClass.equals(CountLink.class)) {
-            countLink();
+            countLink(conn);
         } else if (procClass.equals(GetLinkList.class)) {
-            getLinkList();
+            getLinkList(conn);
         }
         return (TransactionStatus.SUCCESS);
     }
 
-    private void addNode() throws SQLException {
+    private void addNode(Connection conn) throws SQLException {
         AddNode proc = this.getProcedure(AddNode.class);
 
         Node newNode = createAddNode();
@@ -227,7 +228,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         }
     }
 
-    private void getNode() throws SQLException {
+    private void getNode(Connection conn) throws SQLException {
         GetNode proc = this.getProcedure(GetNode.class);
 
         long idToFetch = chooseRequestID(DistributionType.NODE_READS,
@@ -236,7 +237,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         lastNodeId = idToFetch;
     }
 
-    private void deleteNode() throws SQLException {
+    private void deleteNode(Connection conn) throws SQLException {
         DeleteNode proc = this.getProcedure(DeleteNode.class);
 
         long idToDelete = chooseRequestID(DistributionType.NODE_DELETES,
@@ -245,7 +246,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         lastNodeId = idToDelete;
     }
 
-    private void updateNode() throws SQLException {
+    private void updateNode(Connection conn) throws SQLException {
         UpdateNode proc = this.getProcedure(UpdateNode.class);
 
         // Choose an id that has previously been created (but might have
@@ -258,7 +259,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         lastNodeId = upId;
     }
 
-    private void getLink() throws SQLException {
+    private void getLink(Connection conn) throws SQLException {
         GetLink proc = this.getProcedure(GetLink.class);
 
         Link link = new Link();
@@ -271,7 +272,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         long[] id2s = id2chooser.chooseMultipleForOp(rng, id1, link_type, nid2s,
                 ID2Chooser.P_GET_EXIST);
 
-        int found = getLink(id1, link_type, id2s);
+        int found = getLink(conn, id1, link_type, id2s);
 
 
         if (found > 0) {
@@ -281,7 +282,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         }
     }
 
-    private void addLink() throws SQLException {
+    private void addLink(Connection conn) throws SQLException {
         AddLink proc = this.getProcedure(AddLink.class);
 
         // generate add request
@@ -300,7 +301,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         boolean added = !alreadyExists;
     }
 
-    private void deleteLink() throws SQLException {
+    private void deleteLink(Connection conn) throws SQLException {
         DeleteLink proc = this.getProcedure(DeleteLink.class);
 
         Link link = new Link();
@@ -312,7 +313,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                 false);
     }
 
-    private void updateLink() throws SQLException {
+    private void updateLink(Connection conn) throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         AddLink proc = this.getProcedure(AddLink.class);
 
@@ -332,7 +333,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         boolean found = found1;
     }
 
-    private void countLink() throws SQLException {
+    private void countLink(Connection conn) throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         CountLink proc = this.getProcedure(CountLink.class);
 
@@ -342,7 +343,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         long count = proc.run(conn, id1, link_type);
     }
 
-    private void getLinkList() throws SQLException {
+    private void getLinkList(Connection conn) throws SQLException {
         //yes, updateLink uses addlLink procedure .. 
         GetLinkList proc = this.getProcedure(GetLinkList.class);
 
@@ -350,11 +351,11 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         Link[] links;
         if (rng.nextDouble() < p_historical_getlinklist &&
                 !this.listTailHistory.isEmpty()) {
-            links = getLinkListTail();
+            links = getLinkListTail(conn);
         } else {
             long id1 = chooseRequestID(DistributionType.LINK_READS, link.id1);
             long link_type = id2chooser.chooseRandomLinkType(rng);
-            links = getLinkList(id1, link_type);
+            links = getLinkList(conn, id1, link_type);
         }
 
         int count = ((links == null) ? 0 : links.length);
@@ -586,12 +587,12 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
                 (int) (System.currentTimeMillis() / 1000), data);
     }
 
-    int getLink(long id1, long link_type, long[] id2s) throws SQLException {
-        Link[] links = multigetLinks(id1, link_type, id2s);
+    int getLink(Connection conn, long id1, long link_type, long[] id2s) throws SQLException {
+        Link[] links = multigetLinks(conn, id1, link_type, id2s);
         return links == null ? 0 : links.length;
     }
 
-    Link[] multigetLinks(long id1, long link_type, long[] id2s) throws SQLException {
+    Link[] multigetLinks(Connection conn, long id1, long link_type, long[] id2s) throws SQLException {
         GetLink proc = this.getProcedure(GetLink.class);
         Link[] links = proc.run(conn, id1, link_type, id2s);
         if (LOG.isTraceEnabled()) {
@@ -609,7 +610,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         return links;
     }
 
-    Link[] getLinkList(long id1, long link_type) throws SQLException {
+    Link[] getLinkList(Connection conn, long id1, long link_type) throws SQLException {
         GetLinkList proc = this.getProcedure(GetLinkList.class);
         Link[] links = proc.run(conn, id1, link_type);
         if (LOG.isTraceEnabled()) {
@@ -627,7 +628,7 @@ public class LinkBenchWorker extends Worker<LinkBenchBenchmark> {
         return links;
     }
 
-    Link[] getLinkListTail() throws SQLException {
+    Link[] getLinkListTail(Connection conn) throws SQLException {
         GetLinkList proc = this.getProcedure(GetLinkList.class);
 
 

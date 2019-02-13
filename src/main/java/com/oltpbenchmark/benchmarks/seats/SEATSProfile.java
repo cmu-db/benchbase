@@ -302,29 +302,32 @@ public class SEATSProfile {
 
             // Otherwise we have to go fetch everything again
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
-            ResultSet[] results = proc.run(worker.getConnection());
-            int result_idx = 0;
 
-            // CONFIG_PROFILE
-            this.loadConfigProfile(results[result_idx++]);
+            try (Connection conn = benchmark.makeConnection()) {
+                int result_idx = 0;
+                ResultSet[] results = proc.run(conn);
 
-            // CONFIG_HISTOGRAMS
-            this.loadConfigHistograms(results[result_idx++]);
+                // CONFIG_PROFILE
+                this.loadConfigProfile(results[result_idx++]);
 
-            // CODE XREFS
-            for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
-                String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
-                String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
-                this.loadCodeXref(results[result_idx++], codeCol, idCol);
-            } // FOR
+                // CONFIG_HISTOGRAMS
+                this.loadConfigHistograms(results[result_idx++]);
 
-            // CACHED FLIGHT IDS
-            this.loadCachedFlights(results[result_idx++]);
+                // CODE XREFS
+                for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
+                    String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
+                    String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
+                    this.loadCodeXref(results[result_idx++], codeCol, idCol);
+                } // FOR
 
-            for (ResultSet rs : results) {
-                rs.close();
+                // CACHED FLIGHT IDS
+                this.loadCachedFlights(results[result_idx++]);
+
+
+                for (ResultSet rs : results) {
+                    rs.close();
+                }
             }
-
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Loaded profile:\n{}", this.toString());
             }

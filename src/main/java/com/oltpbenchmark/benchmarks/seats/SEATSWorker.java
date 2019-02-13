@@ -54,6 +54,7 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -308,9 +309,8 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
         // Fire off a FindOpenSeats so that we can prime ourselves
         FindOpenSeats proc = this.getProcedure(FindOpenSeats.class);
-        try {
-            boolean ret = this.executeFindOpenSeats(proc);
-
+        try (Connection conn = getBenchmarkModule().makeConnection()) {
+            boolean ret = this.executeFindOpenSeats(conn, proc);
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -321,7 +321,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
         Transaction txn = Transaction.get(txnType.getName());
 
 
@@ -334,27 +334,27 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         try {
             switch (txn) {
                 case DeleteReservation: {
-                    ret = this.executeDeleteReservation((DeleteReservation) proc);
+                    ret = this.executeDeleteReservation(conn,(DeleteReservation) proc);
                     break;
                 }
                 case FindFlights: {
-                    ret = this.executeFindFlights((FindFlights) proc);
+                    ret = this.executeFindFlights(conn, (FindFlights) proc);
                     break;
                 }
                 case FindOpenSeats: {
-                    ret = this.executeFindOpenSeats((FindOpenSeats) proc);
+                    ret = this.executeFindOpenSeats(conn, (FindOpenSeats) proc);
                     break;
                 }
                 case NewReservation: {
-                    ret = this.executeNewReservation((NewReservation) proc);
+                    ret = this.executeNewReservation(conn, (NewReservation) proc);
                     break;
                 }
                 case UpdateCustomer: {
-                    ret = this.executeUpdateCustomer((UpdateCustomer) proc);
+                    ret = this.executeUpdateCustomer(conn, (UpdateCustomer) proc);
                     break;
                 }
                 case UpdateReservation: {
-                    ret = this.executeUpdateReservation((UpdateReservation) proc);
+                    ret = this.executeUpdateReservation(conn, (UpdateReservation) proc);
                     break;
                 }
                 default:
@@ -412,7 +412,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     // DeleteReservation
     // -----------------------------------------------------------------
 
-    private boolean executeDeleteReservation(DeleteReservation proc) throws SQLException {
+    private boolean executeDeleteReservation(Connection conn, DeleteReservation proc) throws SQLException {
         // Pull off the first cached reservation and drop it on the cluster...
         final Reservation r = CACHE_RESERVATIONS.get(CacheType.PENDING_DELETES).poll();
         if (r == null) {
@@ -484,7 +484,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
      * @param txn
      * @throws SQLException
      */
-    private boolean executeFindFlights(FindFlights proc) throws SQLException {
+    private boolean executeFindFlights(Connection conn, FindFlights proc) throws SQLException {
         long depart_airport_id;
         long arrive_airport_id;
         Timestamp start_date;
@@ -563,7 +563,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
      *
      * @throws SQLException
      */
-    private boolean executeFindOpenSeats(FindOpenSeats proc) throws SQLException {
+    private boolean executeFindOpenSeats(Connection conn, FindOpenSeats proc) throws SQLException {
         final FlightId search_flight = this.profile.getRandomFlightId();
 
         Long airport_depart_id = search_flight.getDepartAirportId();
@@ -572,7 +572,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             LOG.trace("Calling {}", proc);
         }
         Object[][] results = proc.run(conn, search_flight.encode());
-        conn.commit();
 
         int rowCount = results.length;
         // there is some tiny probability of an empty flight .. maybe 1/(20**150)
@@ -638,7 +637,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     // NewReservation
     // ----------------------------------------------------------------
 
-    private boolean executeNewReservation(NewReservation proc) throws SQLException {
+    private boolean executeNewReservation(Connection conn, NewReservation proc) throws SQLException {
         Reservation reservation = null;
         BitSet seats = null;
         LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_INSERTS);
@@ -738,7 +737,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     // UpdateCustomer
     // ----------------------------------------------------------------
 
-    private boolean executeUpdateCustomer(UpdateCustomer proc) throws SQLException {
+    private boolean executeUpdateCustomer(Connection conn, UpdateCustomer proc) throws SQLException {
         // Pick a random customer and then have at it!
         CustomerId customer_id = this.profile.getRandomCustomerId();
 
@@ -788,7 +787,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     // UpdateReservation
     // ----------------------------------------------------------------
 
-    private boolean executeUpdateReservation(UpdateReservation proc) throws SQLException {
+    private boolean executeUpdateReservation(Connection conn, UpdateReservation proc) throws SQLException {
         LinkedList<Reservation> cache = CACHE_RESERVATIONS.get(CacheType.PENDING_UPDATES);
 
 

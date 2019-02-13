@@ -24,6 +24,7 @@ import com.oltpbenchmark.benchmarks.sibench.procedures.MinRecord;
 import com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord;
 import com.oltpbenchmark.types.TransactionStatus;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;
 
@@ -44,25 +45,25 @@ public class SIWorker extends Worker<SIBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
 
         if (procClass.equals(MinRecord.class)) {
-            minRecord();
+            minRecord(conn);
         } else if (procClass.equals(UpdateRecord.class)) {
-            updateRecord();
+            updateRecord(conn);
         }
         conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 
-    private void minRecord() throws SQLException {
+    private void minRecord(Connection conn) throws SQLException {
         MinRecord proc = this.getProcedure(MinRecord.class);
 
         int minId = proc.run(conn);
     }
 
-    private void updateRecord() throws SQLException {
+    private void updateRecord(Connection conn) throws SQLException {
         UpdateRecord proc = this.getProcedure(UpdateRecord.class);
 
         int id = updateRecordIdGenerator.nextInt(this.recordCount);

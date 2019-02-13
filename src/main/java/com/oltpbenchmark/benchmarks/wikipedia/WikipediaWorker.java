@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
@@ -50,7 +51,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
         Flat z_users = new Flat(this.rng(), 1, this.num_users);
         Zipf z_pages = new Zipf(this.rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
 
@@ -81,27 +82,27 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         try {
             if (procClass.equals(AddWatchList.class)) {
 
-                this.addToWatchlist(userId, nameSpace, pageTitle);
+                this.addToWatchlist(conn, userId, nameSpace, pageTitle);
             }
             // RemoveWatchList
             else if (procClass.equals(RemoveWatchList.class)) {
 
-                this.removeFromWatchlist(userId, nameSpace, pageTitle);
+                this.removeFromWatchlist(conn, userId, nameSpace, pageTitle);
             }
             // UpdatePage
             else if (procClass.equals(UpdatePage.class)) {
-                this.updatePage(this.generateUserIP(), userId, nameSpace, pageTitle);
+                this.updatePage(conn, this.generateUserIP(), userId, nameSpace, pageTitle);
             }
             // GetPageAnonymous
             else if (procClass.equals(GetPageAnonymous.class)) {
-                this.getPageAnonymous(true, this.generateUserIP(), nameSpace, pageTitle);
+                this.getPageAnonymous(conn, true, this.generateUserIP(), nameSpace, pageTitle);
             }
             // GetPageAuthenticated
             else if (procClass.equals(GetPageAuthenticated.class)) {
 
-                this.getPageAuthenticated(true, this.generateUserIP(), userId, nameSpace, pageTitle);
+                this.getPageAuthenticated(conn, true, this.generateUserIP(), userId, nameSpace, pageTitle);
             }
-            this.conn.commit();
+            conn.commit();
         } catch (SQLException esql) {
             LOG.error("Caught SQL Exception in WikipediaWorker for procedure{}:{}", procClass.getName(), esql, esql);
             throw esql;
@@ -124,33 +125,33 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
      * @parama userIp contains the user's IP address in dotted quad form for
      * IP-based access control
      */
-    public Article getPageAnonymous(boolean forSelect, String userIp, int nameSpace, String pageTitle) throws SQLException {
+    public Article getPageAnonymous(Connection conn, boolean forSelect, String userIp, int nameSpace, String pageTitle) throws SQLException {
         GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);
 
-        return proc.run(this.conn, forSelect, userIp, nameSpace, pageTitle);
+        return proc.run(conn, forSelect, userIp, nameSpace, pageTitle);
     }
 
-    public Article getPageAuthenticated(boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
+    public Article getPageAuthenticated(Connection conn,boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
         GetPageAuthenticated proc = this.getProcedure(GetPageAuthenticated.class);
 
-        return proc.run(this.conn, forSelect, userIp, userId, nameSpace, pageTitle);
+        return proc.run(conn, forSelect, userIp, userId, nameSpace, pageTitle);
     }
 
-    public void addToWatchlist(int userId, int nameSpace, String pageTitle) throws SQLException {
+    public void addToWatchlist(Connection conn,int userId, int nameSpace, String pageTitle) throws SQLException {
         AddWatchList proc = this.getProcedure(AddWatchList.class);
 
-        proc.run(this.conn, userId, nameSpace, pageTitle);
+        proc.run(conn, userId, nameSpace, pageTitle);
     }
 
-    public void removeFromWatchlist(int userId, int nameSpace, String pageTitle) throws SQLException {
+    public void removeFromWatchlist(Connection conn,int userId, int nameSpace, String pageTitle) throws SQLException {
         RemoveWatchList proc = this.getProcedure(RemoveWatchList.class);
 
-        proc.run(this.conn, userId, nameSpace, pageTitle);
+        proc.run(conn, userId, nameSpace, pageTitle);
     }
 
-    public void updatePage(String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
-        Article a = this.getPageAnonymous(false, userIp, nameSpace, pageTitle);
-        this.conn.commit();
+    public void updatePage(Connection conn, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
+        Article a = this.getPageAnonymous(conn, false, userIp, nameSpace, pageTitle);
+        conn.commit();
 
         // TODO: If the Article is null, then we want to insert a new page.
         // But we don't support that right now.
@@ -173,23 +174,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         UpdatePage proc = this.getProcedure(UpdatePage.class);
 
 
-        proc.run(this.conn, a.textId, a.pageId, pageTitle, new String(newText), nameSpace, userId, userIp, a.userText, a.revisionId, revComment, revMinorEdit);
-        //
-        // boolean successful = false;
-        // while (!successful) {
-        // try {
-        // proc.run(conn, a.textId, a.pageId, pageTitle, new String(
-        // newText), nameSpace, userId, userIp, a.userText,
-        // a.revisionId, revComment, revMinorEdit);
-        // successful = true;
-        // } catch (SQLException esql) {
-        // int errorCode = esql.getErrorCode();
-        // if (errorCode == 8177)
-        // conn.rollback();
-        // else
-        // throw esql;
-        // }
-        // }
+        proc.run(conn, a.textId, a.pageId, pageTitle, new String(newText), nameSpace, userId, userIp, a.userText, a.revisionId, revComment, revMinorEdit);
+
     }
 
 }

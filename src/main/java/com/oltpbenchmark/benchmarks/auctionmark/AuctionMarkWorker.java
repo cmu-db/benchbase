@@ -30,6 +30,7 @@ import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -87,8 +88,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Executing %s in separate thread", txnType));
                     }
-                    try {
-                        executeCloseAuctions((CloseAuctions) proc);
+                    try (Connection conn = getBenchmarkModule().makeConnection()) {
+                        executeCloseAuctions(conn, (CloseAuctions) proc);
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -318,7 +319,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
         // We need to subtract the different between this and the profile's start time,
         // since that accounts for the time gap between when the loader started and when the client start.
         // Otherwise, all of our cache date will be out dated if it took a really long time
@@ -361,34 +362,34 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         boolean ret = false;
         switch (txn) {
             case CloseAuctions:
-                ret = executeCloseAuctions((CloseAuctions) proc);
+                ret = executeCloseAuctions(conn, (CloseAuctions) proc);
                 break;
             case GetItem:
-                ret = executeGetItem((GetItem) proc);
+                ret = executeGetItem(conn, (GetItem) proc);
                 break;
             case GetUserInfo:
-                ret = executeGetUserInfo((GetUserInfo) proc);
+                ret = executeGetUserInfo(conn, (GetUserInfo) proc);
                 break;
             case NewBid:
-                ret = executeNewBid((NewBid) proc);
+                ret = executeNewBid(conn, (NewBid) proc);
                 break;
             case NewComment:
-                ret = executeNewComment((NewComment) proc);
+                ret = executeNewComment(conn, (NewComment) proc);
                 break;
             case NewCommentResponse:
-                ret = executeNewCommentResponse((NewCommentResponse) proc);
+                ret = executeNewCommentResponse(conn, (NewCommentResponse) proc);
                 break;
             case NewFeedback:
-                ret = executeNewFeedback((NewFeedback) proc);
+                ret = executeNewFeedback(conn, (NewFeedback) proc);
                 break;
             case NewItem:
-                ret = executeNewItem((NewItem) proc);
+                ret = executeNewItem(conn, (NewItem) proc);
                 break;
             case NewPurchase:
-                ret = executeNewPurchase((NewPurchase) proc);
+                ret = executeNewPurchase(conn, (NewPurchase) proc);
                 break;
             case UpdateItem:
-                ret = executeUpdateItem((UpdateItem) proc);
+                ret = executeUpdateItem(conn, (UpdateItem) proc);
                 break;
             default:
 
@@ -455,7 +456,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // CLOSE_AUCTIONS
     // ----------------------------------------------------------------
 
-    protected boolean executeCloseAuctions(CloseAuctions proc) throws SQLException {
+    protected boolean executeCloseAuctions(Connection conn, CloseAuctions proc) throws SQLException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing {}", proc);
         }
@@ -483,7 +484,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // GetItem
     // ----------------------------------------------------------------
 
-    protected boolean executeGetItem(GetItem proc) throws SQLException {
+    protected boolean executeGetItem(Connection conn, GetItem proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomAvailableItemId();
 
@@ -503,7 +504,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // GetUserInfo
     // ----------------------------------------------------------------
 
-    protected boolean executeGetUserInfo(GetUserInfo proc) throws SQLException {
+    protected boolean executeGetUserInfo(Connection conn, GetUserInfo proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         UserId userId = profile.getRandomBuyerId();
         int rand;
@@ -595,7 +596,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // NewBid
     // ----------------------------------------------------------------
 
-    protected boolean executeNewBid(NewBid proc) throws SQLException {
+    protected boolean executeNewBid(Connection conn, NewBid proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = null;
         UserId sellerId;
@@ -667,7 +668,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // NewComment
     // ----------------------------------------------------------------
 
-    protected boolean executeNewComment(NewComment proc) throws SQLException {
+    protected boolean executeNewComment(Connection conn, NewComment proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomCompleteItem();
         UserId sellerId = itemInfo.getSellerId();
@@ -693,7 +694,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // NewCommentResponse
     // ----------------------------------------------------------------
 
-    protected boolean executeNewCommentResponse(NewCommentResponse proc) throws SQLException {
+    protected boolean executeNewCommentResponse(Connection conn, NewCommentResponse proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         int idx = profile.rng.nextInt(profile.pending_commentResponses.size());
         ItemCommentResponse cr = profile.pending_commentResponses.remove(idx);
@@ -719,7 +720,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // NewFeedback
     // ----------------------------------------------------------------
 
-    protected boolean executeNewFeedback(NewFeedback proc) throws SQLException {
+    protected boolean executeNewFeedback(Connection conn, NewFeedback proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomCompleteItem();
         UserId sellerId = itemInfo.getSellerId();
@@ -752,7 +753,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // NewItem
     // ----------------------------------------------------------------
 
-    protected boolean executeNewItem(NewItem proc) throws SQLException {
+    protected boolean executeNewItem(Connection conn, NewItem proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         UserId sellerId = profile.getRandomSellerId(this.getId());
         ItemId itemId = profile.getNextItemId(sellerId);
@@ -812,7 +813,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // NewPurchase
     // ----------------------------------------------------------------
 
-    protected boolean executeNewPurchase(NewPurchase proc) throws SQLException {
+    protected boolean executeNewPurchase(Connection conn, NewPurchase proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomWaitForPurchaseItem();
         long encodedItemId = itemInfo.itemId.encode();
@@ -854,7 +855,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     // UpdateItem
     // ----------------------------------------------------------------
 
-    protected boolean executeUpdateItem(UpdateItem proc) throws SQLException {
+    protected boolean executeUpdateItem(Connection conn, UpdateItem proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomAvailableItemId();
         UserId sellerId = itemInfo.getSellerId();

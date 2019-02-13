@@ -26,6 +26,7 @@ import com.oltpbenchmark.distributions.ZipfianGenerator;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.TextGenerator;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -77,61 +78,61 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
 
         if (procClass.equals(DeleteRecord.class)) {
-            deleteRecord();
+            deleteRecord(conn);
         } else if (procClass.equals(InsertRecord.class)) {
-            insertRecord();
+            insertRecord(conn);
         } else if (procClass.equals(ReadModifyWriteRecord.class)) {
-            readModifyWriteRecord();
+            readModifyWriteRecord(conn);
         } else if (procClass.equals(ReadRecord.class)) {
-            readRecord();
+            readRecord(conn);
         } else if (procClass.equals(ScanRecord.class)) {
-            scanRecord();
+            scanRecord(conn);
         } else if (procClass.equals(UpdateRecord.class)) {
-            updateRecord();
+            updateRecord(conn);
         }
         conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 
-    private void updateRecord() throws SQLException {
+    private void updateRecord(Connection conn) throws SQLException {
 
         int keyname = readRecord.nextInt();
         this.buildParameters();
         this.procUpdateRecord.run(conn, keyname, this.params);
     }
 
-    private void scanRecord() throws SQLException {
+    private void scanRecord(Connection conn) throws SQLException {
 
         int keyname = readRecord.nextInt();
         int count = randScan.nextInt();
         this.procScanRecord.run(conn, keyname, count, new ArrayList<>());
     }
 
-    private void readRecord() throws SQLException {
+    private void readRecord(Connection conn) throws SQLException {
 
         int keyname = readRecord.nextInt();
         this.procReadRecord.run(conn, keyname, this.results);
     }
 
-    private void readModifyWriteRecord() throws SQLException {
+    private void readModifyWriteRecord(Connection conn) throws SQLException {
 
         int keyname = readRecord.nextInt();
         this.buildParameters();
         this.procReadModifyWriteRecord.run(conn, keyname, this.params, this.results);
     }
 
-    private void insertRecord() throws SQLException {
+    private void insertRecord(Connection conn) throws SQLException {
 
         int keyname = insertRecord.nextInt();
         this.buildParameters();
         this.procInsertRecord.run(conn, keyname, this.params);
     }
 
-    private void deleteRecord() throws SQLException {
+    private void deleteRecord(Connection conn) throws SQLException {
 
         int keyname = readRecord.nextInt();
         this.procDeleteRecord.run(conn, keyname);

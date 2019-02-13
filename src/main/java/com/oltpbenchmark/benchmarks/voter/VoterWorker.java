@@ -23,6 +23,7 @@ import com.oltpbenchmark.benchmarks.voter.PhoneCallGenerator.PhoneCall;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 import com.oltpbenchmark.types.TransactionStatus;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class VoterWorker extends Worker<VoterBenchmark> {
@@ -35,7 +36,7 @@ public class VoterWorker extends Worker<VoterBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
 
         PhoneCall call = switchboard.receive();
         Vote proc = getProcedure(Vote.class);

@@ -26,6 +26,7 @@ import com.oltpbenchmark.util.TextGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -45,29 +46,29 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
 
         boolean successful = false;
         while (!successful) {
             try {
                 if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
-                    reviewItemByID();
+                    reviewItemByID(conn);
                 } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
-                    reviewsByUser();
+                    reviewsByUser(conn);
                 } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
-                    averageRatingByTrustedUser();
+                    averageRatingByTrustedUser(conn);
                 } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
-                    averageRatingOfItem();
+                    averageRatingOfItem(conn);
                 } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
-                    itemReviewsByTrustedUser();
+                    itemReviewsByTrustedUser(conn);
                 } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
-                    updateUserName();
+                    updateUserName(conn);
                 } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
-                    updateItemTitle();
+                    updateItemTitle(conn);
                 } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
-                    updateReviewRating();
+                    updateReviewRating(conn);
                 } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
-                    updateTrustRating();
+                    updateTrustRating(conn);
                 }
                 conn.commit();
                 successful = true;
@@ -86,21 +87,21 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
         return (TransactionStatus.SUCCESS);
     }
 
-    public void reviewItemByID() throws SQLException {
+    public void reviewItemByID(Connection conn) throws SQLException {
         GetReviewItemById proc = this.getProcedure(GetReviewItemById.class);
 
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
     }
 
-    public void reviewsByUser() throws SQLException {
+    public void reviewsByUser(Connection conn) throws SQLException {
         GetReviewsByUser proc = this.getProcedure(GetReviewsByUser.class);
 
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
         proc.run(conn, uid);
     }
 
-    public void averageRatingByTrustedUser() throws SQLException {
+    public void averageRatingByTrustedUser(Connection conn) throws SQLException {
         GetAverageRatingByTrustedUser proc = this.getProcedure(GetAverageRatingByTrustedUser.class);
 
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
@@ -108,14 +109,14 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
         proc.run(conn, iid, uid);
     }
 
-    public void averageRatingOfItem() throws SQLException {
+    public void averageRatingOfItem(Connection conn) throws SQLException {
         GetItemAverageRating proc = this.getProcedure(GetItemAverageRating.class);
 
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
         proc.run(conn, iid);
     }
 
-    public void itemReviewsByTrustedUser() throws SQLException {
+    public void itemReviewsByTrustedUser(Connection conn) throws SQLException {
         GetItemReviewsByTrustedUser proc = this.getProcedure(GetItemReviewsByTrustedUser.class);
 
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
@@ -123,7 +124,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
         proc.run(conn, iid, uid);
     }
 
-    public void updateUserName() throws SQLException {
+    public void updateUserName(Connection conn) throws SQLException {
         UpdateUserName proc = this.getProcedure(UpdateUserName.class);
 
         long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
@@ -131,7 +132,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
         proc.run(conn, uid, name);
     }
 
-    public void updateItemTitle() throws SQLException {
+    public void updateItemTitle(Connection conn) throws SQLException {
         UpdateItemTitle proc = this.getProcedure(UpdateItemTitle.class);
 
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
@@ -139,7 +140,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
         proc.run(conn, iid, title);
     }
 
-    public void updateReviewRating() throws SQLException {
+    public void updateReviewRating(Connection conn) throws SQLException {
         UpdateReviewRating proc = this.getProcedure(UpdateReviewRating.class);
 
         long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
@@ -148,7 +149,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
         proc.run(conn, iid, uid, rating);
     }
 
-    public void updateTrustRating() throws SQLException {
+    public void updateTrustRating(Connection conn) throws SQLException {
         UpdateTrustRating proc = this.getProcedure(UpdateTrustRating.class);
         int uix = rand.nextInt(user_ids.size());
         int uix2 = rand.nextInt(user_ids.size());

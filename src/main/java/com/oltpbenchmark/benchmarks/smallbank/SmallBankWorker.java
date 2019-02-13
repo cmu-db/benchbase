@@ -11,6 +11,7 @@ import com.oltpbenchmark.util.RandomDistribution.Flat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 
@@ -82,7 +83,7 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
 
 
     @Override
-    protected TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException {
         Class<? extends Procedure> procClass = txnType.getProcedureClass();
 
         // Amalgamate

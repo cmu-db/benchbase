@@ -49,7 +49,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     private final int id;
     private final T benchmarkModule;
-    protected final Connection conn;
     protected final WorkloadConfiguration wrkld;
     protected final TransactionTypes transactionTypes;
     protected final Map<TransactionType, Procedure> procedures = new HashMap<>();
@@ -71,21 +70,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.wrkldState = this.wrkld.getWorkloadState();
         this.currStatement = null;
         this.transactionTypes = this.wrkld.getTransTypes();
-
-
-        try {
-            this.conn = this.benchmarkModule.makeConnection();
-            this.conn.setAutoCommit(false);
-
-            // 2018-01-11: Since we want to support NoSQL systems 
-            // that do not support txns, we will not invoke certain JDBC functions
-            // that may cause an error in them.
-            if (this.wrkld.getDBType().shouldUseTransactions()) {
-                this.conn.setTransactionIsolation(this.wrkld.getIsolationMode());
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to connect to database", ex);
-        }
 
         // Generate all the Procedures that we're going to need
         this.procedures.putAll(this.benchmarkModule.getProcedures());
@@ -135,9 +119,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return (this.benchmarkModule.rng());
     }
 
-    public final Connection getConnection() {
-        return (this.conn);
-    }
 
     public final int getRequests() {
         return latencies.size();
@@ -363,25 +344,37 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
         TransactionType next = null;
         TransactionStatus status = TransactionStatus.RETRY;
-        Savepoint savepoint = null;
+
         final DatabaseType dbType = wrkld.getDBType();
         final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
 
-        try {
+        try (Connection conn = benchmarkModule.makeConnection()) {
+
+            conn.setAutoCommit(false);
+
+            // 2018-01-11: Since we want to support NoSQL systems
+            // that do not support txns, we will not invoke certain JDBC functions
+            // that may cause an error in them.
+            if (this.wrkld.getDBType().shouldUseTransactions()) {
+                conn.setTransactionIsolation(this.wrkld.getIsolationMode());
+            }
+
+            Savepoint savepoint = null;
+
+            // For Postgres, we have to create a savepoint in order to rollback a user aborted transaction
+            if (dbType == DatabaseType.POSTGRES) {
+                savepoint = conn.setSavepoint();
+            } else if (dbType == DatabaseType.COCKROACHDB) {
+                // For cockroach, a savepoint must be created with a specific name in order to rollback
+                savepoint = conn.setSavepoint("COCKROACH_RESTART");
+            }
+
             while (status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
                 if (next == null) {
                     next = transactionTypes.getType(pieceOfWork.getType());
                 }
 
-
                 try {
-                    // For Postgres, we have to create a savepoint in order to rollback a user aborted transaction
-                    if (dbType == DatabaseType.POSTGRES) {
-                        savepoint = this.conn.setSavepoint();
-                    } else if (dbType == DatabaseType.COCKROACHDB) {
-                        // For cockroach, a savepoint must be created with a specific name in order to rollback
-                        savepoint = this.conn.setSavepoint("COCKROACH_RESTART");
-                    }
 
                     status = TransactionStatus.UNKNOWN;
 
@@ -389,7 +382,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         LOG.debug(String.format("%s %s attempting...", this, next));
                     }
 
-                    status = this.executeWork(next);
+                    // this method should be responsible for commiting
+
+                    status = this.executeWork(conn, next);
+
+                    if (savepoint != null) {
+                        conn.releaseSavepoint(savepoint);
+                    }
 
                     // User Abort Handling
                     // These are not errors
@@ -409,9 +408,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     }
 
                     if (savepoint != null) {
-                        this.conn.rollback(savepoint);
+                        conn.rollback(savepoint);
                     } else {
-                        this.conn.rollback();
+                        conn.rollback();
                     }
 
                     status = TransactionStatus.USER_ABORTED;
@@ -426,9 +425,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     if (this.wrkld.getDBType().shouldUseTransactions()) {
                         if (savepoint != null) {
-                            this.conn.rollback(savepoint);
+                            conn.rollback(savepoint);
                         } else {
-                            this.conn.rollback();
+                            conn.rollback();
                         }
                     }
 
@@ -530,7 +529,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     } // SWITCH
                 }
 
-            } // WHILE
+            }
+
+            conn.commit();
+
+            conn.setAutoCommit(true);
         } catch (SQLException ex) {
             String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]", this, next, dbType);
             // FIXME: PAVLO 2016-12-29
@@ -561,12 +564,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     /**
      * Invoke a single transaction for the given TransactionType
      *
+     *
+     * @param conn
      * @param txnType
      * @return TODO
      * @throws UserAbortException TODO
      * @throws SQLException       TODO
      */
-    protected abstract TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException;
+    protected abstract TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException;
 
     /**
      * Called at the end of the test to do any clean up that may be required.
@@ -574,16 +579,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @param error TODO
      */
     public void tearDown(boolean error) {
-        try {
-            LOG.debug("calling teardown error = {}", error);
-            conn.close();
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
+
     }
 
     public void initializeState() {
-
         this.wrkldState = this.wrkld.getWorkloadState();
     }
 }

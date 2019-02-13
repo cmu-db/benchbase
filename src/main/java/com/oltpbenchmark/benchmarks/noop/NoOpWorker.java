@@ -24,6 +24,7 @@ import com.oltpbenchmark.types.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -41,12 +42,12 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
         // Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
         LOG.debug("Executing {}", this.procNoOp);
         try {
-            this.procNoOp.run(this.conn);
-            this.conn.commit();
+            this.procNoOp.run(conn);
+            conn.commit();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Successfully completed {} execution!", this.procNoOp);
             }

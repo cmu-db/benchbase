@@ -336,51 +336,53 @@ public class AuctionMarkProfile {
 
                 // Otherwise we have to go fetch everything again
                 // So first we want to reset the database
-                Connection conn = worker.getConnection();
-                if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Reseting database from last execution run");
+                try (Connection conn = benchmark.makeConnection()) {
+
+                    if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Reseting database from last execution run");
+                        }
+                        worker.getProcedure(ResetDatabase.class).run(conn);
                     }
-                    worker.getProcedure(ResetDatabase.class).run(conn);
+
+                    // Then invoke LoadConfig to pull down the profile information we need
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Loading AuctionMarkProfile for the first time");
+                    }
+                    ResultSet[] results = worker.getProcedure(LoadConfig.class).run(conn);
+                    int result_idx = 0;
+
+                    // CONFIG_PROFILE
+                    loadConfigProfile(cachedProfile, results[result_idx++]);
+
+                    // IMPORTANT: We need to set these timestamps here. It must be done
+                    // after we have loaded benchmarkStartTime
+                    cachedProfile.setAndGetClientStartTime();
+                    cachedProfile.updateAndGetCurrentTime();
+
+                    // ITEM CATEGORY COUNTS
+                    loadItemCategoryCounts(cachedProfile, results[result_idx++]);
+
+                    // GLOBAL_ATTRIBUTE_GROUPS
+                    loadGlobalAttributeGroups(cachedProfile, results[result_idx++]);
+
+                    // PENDING COMMENTS
+                    loadPendingItemComments(cachedProfile, results[result_idx++]);
+
+                    // ITEMS
+                    while (result_idx < results.length) {
+                        //                assert(results[result_idx].isClosed() == false) :
+                        //                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
+                        loadItems(cachedProfile, results[result_idx]);
+                        result_idx++;
+                    } // FOR
+
+                    for (ResultSet r : results) {
+                        r.close();
+                    }
+
+                    conn.commit();
                 }
-
-                // Then invoke LoadConfig to pull down the profile information we need
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Loading AuctionMarkProfile for the first time");
-                }
-                ResultSet[] results = worker.getProcedure(LoadConfig.class).run(conn);
-                int result_idx = 0;
-
-                // CONFIG_PROFILE
-                loadConfigProfile(cachedProfile, results[result_idx++]);
-
-                // IMPORTANT: We need to set these timestamps here. It must be done
-                // after we have loaded benchmarkStartTime
-                cachedProfile.setAndGetClientStartTime();
-                cachedProfile.updateAndGetCurrentTime();
-
-                // ITEM CATEGORY COUNTS
-                loadItemCategoryCounts(cachedProfile, results[result_idx++]);
-
-                // GLOBAL_ATTRIBUTE_GROUPS
-                loadGlobalAttributeGroups(cachedProfile, results[result_idx++]);
-
-                // PENDING COMMENTS
-                loadPendingItemComments(cachedProfile, results[result_idx++]);
-
-                // ITEMS
-                while (result_idx < results.length) {
-                    //                assert(results[result_idx].isClosed() == false) :
-                    //                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
-                    loadItems(cachedProfile, results[result_idx]);
-                    result_idx++;
-                } // FOR
-
-                for (ResultSet r : results) {
-                    r.close();
-                }
-
-                conn.commit();
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Loaded profile:\n{}", cachedProfile.toString());
