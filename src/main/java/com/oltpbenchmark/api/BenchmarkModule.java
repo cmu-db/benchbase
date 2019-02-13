@@ -24,6 +24,8 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -87,12 +88,21 @@ public abstract class BenchmarkModule {
      */
     protected boolean verbose;
 
+    private HikariDataSource dataSource = null;
+
     public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
 
 
         this.workConf = workConf;
         this.catalog = (withCatalog ? new Catalog(this) : null);
         this.dialects = new StatementDialects(workConf);
+
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(workConf.getDBConnection());
+        config.setUsername(workConf.getDBUsername());
+        config.setPassword(workConf.getDBPassword());
+
+        dataSource = new HikariDataSource(config);
     }
 
     // --------------------------------------------------------------------------
@@ -104,9 +114,7 @@ public abstract class BenchmarkModule {
      * @throws SQLException
      */
     public final Connection makeConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(workConf.getDBConnection(), workConf.getDBUsername(), workConf.getDBPassword());
-        Catalog.setSeparator(conn);
-        return (conn);
+        return dataSource.getConnection();
     }
 
     // --------------------------------------------------------------------------
