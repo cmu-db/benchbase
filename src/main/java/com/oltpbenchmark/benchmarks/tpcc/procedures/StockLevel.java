@@ -54,10 +54,7 @@ public class StockLevel extends TPCCProcedure {
     private PreparedStatement stockGetDistOrderId = null;
     private PreparedStatement stockGetCountStock = null;
 
-    public ResultSet run(Connection conn, Random gen,
-                         int w_id, int numWarehouses,
-                         int terminalDistrictLowerID, int terminalDistrictUpperID,
-                         TPCCWorker w) throws SQLException {
+    public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
         boolean trace = LOG.isTraceEnabled();
 
@@ -131,6 +128,5 @@ public class StockLevel extends TPCCProcedure {
             terminalMessage.append("\n+-----------------------------------------------------------------+\n\n");
             LOG.trace(terminalMessage.toString());
         }
-        return null;
     }
 }

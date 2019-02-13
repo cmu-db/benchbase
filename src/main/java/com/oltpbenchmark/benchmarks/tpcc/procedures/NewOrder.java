@@ -104,10 +104,7 @@ public class NewOrder extends TPCCProcedure {
     private PreparedStatement stmtInsertOrderLine = null;
 
 
-    public ResultSet run(Connection conn, Random gen,
-                         int terminalWarehouseID, int numWarehouses,
-                         int terminalDistrictLowerID, int terminalDistrictUpperID,
-                         TPCCWorker w) throws SQLException {
+    public void run(Connection conn, Random gen, int terminalWarehouseID, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
 
         //initializing all prepared statements
@@ -155,7 +152,6 @@ public class NewOrder extends TPCCProcedure {
         newOrderTransaction(terminalWarehouseID, districtID,
                 customerID, numItems, allLocal, itemIDs,
                 supplierWarehouseIDs, orderQuantities, conn, w);
-        return null;
 
     }
 

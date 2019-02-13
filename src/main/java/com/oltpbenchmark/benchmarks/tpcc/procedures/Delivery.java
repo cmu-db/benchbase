@@ -90,10 +90,7 @@ public class Delivery extends TPCCProcedure {
     private PreparedStatement delivUpdateCustBalDelivCnt = null;
 
 
-    public ResultSet run(Connection conn, Random gen,
-                         int w_id, int numWarehouses,
-                         int terminalDistrictLowerID, int terminalDistrictUpperID,
-                         TPCCWorker w) throws SQLException {
+    public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
         boolean trace = LOG.isDebugEnabled();
         int o_carrier_id = TPCCUtil.randomNumber(1, 10, gen);
@@ -295,7 +292,6 @@ public class Delivery extends TPCCProcedure {
             LOG.trace(terminalMessage.toString());
         }
 
-        return null;
     }
 
 }

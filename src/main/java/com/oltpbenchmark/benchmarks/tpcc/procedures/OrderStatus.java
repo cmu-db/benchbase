@@ -72,7 +72,7 @@ public class OrderStatus extends TPCCProcedure {
     private PreparedStatement customerByName = null;
 
 
-    public ResultSet run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
+    public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
         boolean trace = LOG.isTraceEnabled();
 
         // initializing all prepared statements
@@ -228,7 +228,6 @@ public class OrderStatus extends TPCCProcedure {
             LOG.trace(sb.toString());
         }
 
-        return null;
     }
 
     // attention duplicated code across trans... ok for now to maintain separate

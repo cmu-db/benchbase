@@ -117,9 +117,7 @@ public class Payment extends TPCCProcedure {
     private PreparedStatement payInsertHist = null;
     private PreparedStatement customerByName = null;
 
-    public ResultSet run(Connection conn, Random gen,
-                         int w_id, int numWarehouses,
-                         int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
+    public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
         // initializing all prepared statements
         payUpdateWhse = this.getPreparedStatement(conn, payUpdateWhseSQL);
@@ -375,7 +373,6 @@ public class Payment extends TPCCProcedure {
             LOG.trace(terminalMessage.toString());
         }
 
-        return null;
     }
 
     // attention duplicated code across trans... ok for now to maintain separate
