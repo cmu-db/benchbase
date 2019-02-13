@@ -77,7 +77,7 @@ comming soon
 | Benchmark | Config | Load | Run | Notes |
 | -------------| ------------- | ------------- | ------------- | ------------- |
 | `auctionmark` | :heavy_check_mark: | :x: | :heavy_minus_sign: | self-referencing insert constaint [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
-| `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #5~~](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6)|
+| `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :x: | query does not complete [issue #5](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6)|
 | `epinions` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #7~~](https://github.com/timveil-cockroach/oltpbench/issues/7) |
 | `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config, [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
 | `linkbench` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no implementation [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
