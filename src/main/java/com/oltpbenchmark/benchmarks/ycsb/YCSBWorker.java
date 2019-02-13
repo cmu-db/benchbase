@@ -94,7 +94,6 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
         } else if (procClass.equals(UpdateRecord.class)) {
             updateRecord(conn);
         }
-        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 
