@@ -65,7 +65,6 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
             String text = TextGenerator.randomStr(this.rng(), len);
             doInsertTweet(conn, t.uid, text);
         }
-        conn.commit();
         return (TransactionStatus.SUCCESS);
     }
 
