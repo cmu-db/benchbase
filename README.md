@@ -12,6 +12,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed static `lib` directory and dependencies
     * Updated required dependencies and removed unused or unwanted dependencies
     * Moved all non `.java` files to standard Maven `resources` directory
+    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper)
 * Improved packaging and versioning
     * Moved to Calendar Versioning (https://calver.org/)
     * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`
@@ -64,7 +65,7 @@ This fork contains a number of significant **structural** modifications to the o
 ## How to Build
 Run the following command to build the distribution:
 ```
-mvn clean package
+./mvnw clean package
 ```
 
 The following files will be placed in the `./target` folder, `oltpbench-2019.1-BETA.tgz` and `oltpbench-2019.1-BETA.zip`.  Pick your poison.
