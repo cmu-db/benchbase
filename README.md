@@ -62,10 +62,70 @@ This fork contains a number of significant **structural** modifications to the o
 * JPAB - this project appears abandoned and hasn't seen a an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
 
 ## How to Build
-comming soon
+Run the following command to build the distribution
+```
+mvn clean package
+```
+
+The following files will be placed in the `./target` folder: `oltpbench-2019.1-BETA.tgz` and `oltpbench-2019.1-BETA.zip`.  Pick your poison.
+
+The resulting `.zip` or `.tgz` file will have the following contents: 
+
+```
+\
+    \config
+        - sample configs for running benchmarks
+    \data
+        - sample data for certain benchmarks
+    \lib
+        - required 3rd party libraries for the benchmark
+    oltpbench-2019.1-BETA.jar
+```
 
 ## How to Run
-comming soon
+Once build you can unpack the distribution you can run the application just like any other executable jar.
+
+```
+java -jar oltpbench-2019.1-BETA.jar
+```
+
+The following options are provided.
+
+```
+usage: oltpbenchmark
+ -b,--bench <arg>               [required] Benchmark class. Currently
+                                supported: [tpcc, tpch, tatp, wikipedia,
+                                resourcestresser, twitter, epinions, ycsb,
+                                seats, auctionmark, chbenchmark, voter,
+                                linkbench, sibench, noop, smallbank,
+                                hyadapt]
+ -c,--config <arg>              [required] Workload configuration file
+    --clear <arg>               Clear all records in the database for this
+                                benchmark
+    --create <arg>              Initialize the database for this benchmark
+ -d,--directory <arg>           Base directory for the result files,
+                                default is current directory
+    --dialects-export <arg>     Export benchmark SQL to a dialects file
+    --execute <arg>             Execute the benchmark workload
+ -h,--help                      Print this help
+    --histograms                Print txn histograms
+ -im,--interval-monitor <arg>   Throughput Monitoring Interval in
+                                milliseconds
+    --load <arg>                Load data using the benchmark's data
+                                loader
+ -o,--output <arg>              Output file (default System.out)
+    --output-raw <arg>          Output raw data
+    --output-samples <arg>      Output sample data
+    --runscript <arg>           Run an SQL script
+ -s,--sample <arg>              Sampling window
+ -ss                            Verbose Sampling per Transaction
+ -t,--timestamp                 Each result file is prepended with a
+                                timestamp for the beginning of the
+                                experiment
+ -ts,--tracescript <arg>        Script of transactions to execute
+    --upload <arg>              Upload the result
+ -v,--verbose                   Display Messages
+```
 
 ## How to Add Support for a New Database
 comming soon
