@@ -72,14 +72,49 @@ The following files will be placed in the `./target` folder: `oltpbench-2019.1-B
 The resulting `.zip` or `.tgz` file will have the following contents: 
 
 ```
-\
-    \config
-        - sample configs for running benchmarks
-    \data
-        - sample data for certain benchmarks
-    \lib
-        - required 3rd party libraries for the benchmark
-    oltpbench-2019.1-BETA.jar
+├── CONTRIBUTORS.md
+├── LICENSE
+├── README.md
+├── config
+│   ├── cockroachdb
+│   │   ├── sample_auctionmark_config.xml
+│   │   ├── sample_chbenchmark_config.xml
+│   │   ├── sample_epinions_config.xml
+│   │   ├── sample_linkbench_config.xml
+│   │   ├── sample_noop_config.xml
+│   │   ├── sample_resourcestresser_config.xml
+│   │   ├── sample_seats_config.xml
+│   │   ├── sample_sibench_config.xml
+│   │   ├── sample_smallbank_config.xml
+│   │   ├── sample_tatp_config.xml
+│   │   ├── sample_tpcc_config.xml
+│   │   ├── sample_tpcds_config.xml
+│   │   ├── sample_tpch_config.xml
+│   │   ├── sample_twitter_config.xml
+│   │   ├── sample_voter_config.xml
+│   │   ├── sample_wikipedia_config.xml
+│   │   └── sample_ycsb_config.xml
+│   ├── plugin.xml
+│   └── postgres
+│       └── ...
+├── data
+│   ├── linkbench
+│   │   └── LinkBenchDistribution.dat
+│   ├── tpch
+│   │   ├── customer.tbl
+│   │   ├── lineitem.tbl
+│   │   ├── nation.tbl
+│   │   ├── orders.tbl
+│   │   ├── part.tbl
+│   │   ├── partsupp.tbl
+│   │   ├── region.tbl
+│   │   └── supplier.tbl
+│   └── twitter
+│       ├── twitter_tweetids.txt
+│       └── twitter_user_ids.txt
+├── lib
+│   └── ...
+└── oltpbench-2019.1-BETA.jar
 ```
 
 ## How to Run
