@@ -33,7 +33,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
 * Removed calls to `commit()` during `Loader` operations
 * Refactored `Worker` and `Loader` useage of `Connection` objects and cleaned up transaction handling
-* Introduced `HikariCP` as connection pool and `DataSource`
+* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed
 
 ## Benchmarks
 
