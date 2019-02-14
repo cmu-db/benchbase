@@ -120,9 +120,16 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 ## How to Run
 Once build you can unpack the distribution you can run the application just like any other executable jar.
 
+To bring up help...
 ```
-java -jar oltpbench-2019.1-BETA.jar
+java -jar oltpbench-2019.1-BETA.jar -h
 ```
+
+To execute the `tpcc` benchmark...
+```
+java -jar oltpbench-2019.1-BETA.jar -b tpch -c config/cockroachdb/sample_tpch_config.xml --create=true --load=true --execute=true -s 5
+```
+
 
 The following options are provided.
 
