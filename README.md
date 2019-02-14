@@ -62,12 +62,12 @@ This fork contains a number of significant **structural** modifications to the o
 * JPAB - this project appears abandoned and hasn't seen a an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
 
 ## How to Build
-Run the following command to build the distribution
+Run the following command to build the distribution:
 ```
 mvn clean package
 ```
 
-The following files will be placed in the `./target` folder: `oltpbench-2019.1-BETA.tgz` and `oltpbench-2019.1-BETA.zip`.  Pick your poison.
+The following files will be placed in the `./target` folder, `oltpbench-2019.1-BETA.tgz` and `oltpbench-2019.1-BETA.zip`.  Pick your poison.
 
 The resulting `.zip` or `.tgz` file will have the following contents: 
 
@@ -118,20 +118,20 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 ```
 
 ## How to Run
-Once build you can unpack the distribution you can run the application just like any other executable jar.
+Once you build and unpack the distribution, you can run `oltpbenchmark` just like any other executable jar.
 
-To bring up help...
+To bring up help contents:
 ```
 java -jar oltpbench-2019.1-BETA.jar -h
 ```
 
-To execute the `tpcc` benchmark...
+To execute the `tpcc` benchmark:
 ```
 java -jar oltpbench-2019.1-BETA.jar -b tpch -c config/cockroachdb/sample_tpch_config.xml --create=true --load=true --execute=true -s 5
 ```
 
 
-The following options are provided.
+The following options are provided:
 
 ```
 usage: oltpbenchmark
