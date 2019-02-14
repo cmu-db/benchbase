@@ -14,7 +14,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Moved all non `.java` files to standard Maven `resources` directory
 * Improved packaging and versioning
     * Moved to Calendar Versioning (https://calver.org/)
-    * Project is now distributed as a `.tgz` with executable `.jar`
+    * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`
     * All code updated to read `resources` from inside `.jar` instead of directory
 * Built with and for Java 1.8
 * Moved from direct dependence on Log4J to SLF4J
