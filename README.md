@@ -4,37 +4,6 @@ Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup a
 
 See also: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
 
-## Modifications to Original
-This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
-
-* Moved from Ant to Maven
-    * Reorganized project to fit Maven structure
-    * Removed static `lib` directory and dependencies
-    * Updated required dependencies and removed unused or unwanted dependencies
-    * Moved all non `.java` files to standard Maven `resources` directory
-    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper)
-* Improved packaging and versioning
-    * Moved to Calendar Versioning (https://calver.org/)
-    * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`
-    * All code updated to read `resources` from inside `.jar` instead of directory
-* Built with and for Java 1.8
-* Moved from direct dependence on Log4J to SLF4J
-* Reorganized and renamed many files (mostly `resources`) for clarity and consistency
-* Applied countless fixes based on "Static Analysis"
-    * JDK migrations (boxing, un-boxing, etc.)
-    * Implemented `try-with-resources` for all `java.lang.AutoCloseable` instances
-    * Removed calls to `printStackTrace()` or `System.out.println` in favor of proper logging
-* Reformatted code and cleaned up imports based on my preferences and using IntelliJ
-* Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
-* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations that didn't appear directly related to excuting benchmarks
-    * Removed IDE specific settings
-    * Removed references to personal setups or cloud instances
-    * Removed directories such as `run`, `tools`, `nbproject`, `matlab`, `traces`
-    * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
-* Removed calls to `commit()` during `Loader` operations
-* Refactored `Worker` and `Loader` useage of `Connection` objects and cleaned up transaction handling
-* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed
-
 ## Benchmarks
 
 ### From Original Paper
@@ -200,3 +169,34 @@ My first priority is simply getting this code working against CockroachDB.  No w
 | `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `ycsb` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+
+## Modifications to Original
+This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
+
+* Moved from Ant to Maven
+    * Reorganized project to fit Maven structure
+    * Removed static `lib` directory and dependencies
+    * Updated required dependencies and removed unused or unwanted dependencies
+    * Moved all non `.java` files to standard Maven `resources` directory
+    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper)
+* Improved packaging and versioning
+    * Moved to Calendar Versioning (https://calver.org/)
+    * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`
+    * All code updated to read `resources` from inside `.jar` instead of directory
+* Built with and for Java 1.8
+* Moved from direct dependence on Log4J to SLF4J
+* Reorganized and renamed many files (mostly `resources`) for clarity and consistency
+* Applied countless fixes based on "Static Analysis"
+    * JDK migrations (boxing, un-boxing, etc.)
+    * Implemented `try-with-resources` for all `java.lang.AutoCloseable` instances
+    * Removed calls to `printStackTrace()` or `System.out.println` in favor of proper logging
+* Reformatted code and cleaned up imports based on my preferences and using IntelliJ
+* Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
+* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations that didn't appear directly related to excuting benchmarks
+    * Removed IDE specific settings
+    * Removed references to personal setups or cloud instances
+    * Removed directories such as `run`, `tools`, `nbproject`, `matlab`, `traces`
+    * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
+* Removed calls to `commit()` during `Loader` operations
+* Refactored `Worker` and `Loader` useage of `Connection` objects and cleaned up transaction handling
+* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed
