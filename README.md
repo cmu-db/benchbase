@@ -64,7 +64,7 @@ This fork contains a number of significant **structural** modifications to the o
 
 ## How to Build
 Run the following command to build the distribution:
-```
+```bash
 ./mvnw clean package
 ```
 
@@ -72,7 +72,7 @@ The following files will be placed in the `./target` folder, `oltpbench-2019.1-B
 
 The resulting `.zip` or `.tgz` file will have the following contents: 
 
-```
+```text
 ├── CONTRIBUTORS.md
 ├── LICENSE
 ├── README.md
@@ -122,19 +122,19 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 Once you build and unpack the distribution, you can run `oltpbenchmark` just like any other executable jar.
 
 To bring up help contents:
-```
+```bash
 java -jar oltpbench-2019.1-BETA.jar -h
 ```
 
 To execute the `tpcc` benchmark:
-```
+```bash
 java -jar oltpbench-2019.1-BETA.jar -b tpch -c config/cockroachdb/sample_tpch_config.xml --create=true --load=true --execute=true -s 5
 ```
 
 
 The following options are provided:
 
-```
+```text
 usage: oltpbenchmark
  -b,--bench <arg>               [required] Benchmark class. Currently
                                 supported: [tpcc, tpch, tatp, wikipedia,
