@@ -171,7 +171,7 @@ usage: oltpbenchmark
 ```
 
 ## How to Add Support for a New Database
-comming soon
+coming soon
 
 
 ## Known Issues
