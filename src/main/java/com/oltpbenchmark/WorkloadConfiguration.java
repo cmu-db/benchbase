@@ -22,7 +22,7 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.ThreadUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;

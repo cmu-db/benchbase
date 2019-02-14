@@ -18,7 +18,7 @@ package com.oltpbenchmark.benchmarks.linkbench;
 
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
 
 public class LinkBenchConfiguration {
 

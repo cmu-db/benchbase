@@ -22,8 +22,9 @@ import com.oltpbenchmark.api.collectors.DBParameterCollector;
 import com.oltpbenchmark.api.collectors.DBParameterCollectorGen;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.FileHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -83,12 +84,6 @@ public class ResultUploader {
         username = expConf.getString("username");
         password = expConf.getString("password");
         benchType = argsLine.getOptionValue("b");
-//        windowSize = 1;
-//        if (argsLine.hasOption("s")) {
-//        	windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
-//        } else {
-//        	windowSize = 1;
-//        }
         uploadCode = expConf.getString("uploadCode");
         uploadUrl = expConf.getString("uploadUrl");
 
@@ -110,11 +105,14 @@ public class ResultUploader {
     }
 
     public void writeBenchmarkConf(PrintStream os) throws ConfigurationException {
+
         XMLConfiguration outputConf = (XMLConfiguration) expConf.clone();
         for (String key : IGNORE_CONF) {
             outputConf.clearProperty(key);
         }
-        outputConf.save(os);
+
+        FileHandler handler = new FileHandler(outputConf);
+        handler.save(os);
     }
 
     public void writeSummary(PrintStream os) {
