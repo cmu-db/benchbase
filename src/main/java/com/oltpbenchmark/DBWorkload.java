@@ -54,10 +54,6 @@ public class DBWorkload {
      */
     public static void main(String[] args) throws Exception {
 
-        if (ClassUtil.isAssertsEnabled()) {
-            LOG.warn("\n{}", getAssertWarning());
-        }
-
         // create the command line parser
         CommandLineParser parser = new PosixParser();
 
@@ -776,10 +772,5 @@ public class DBWorkload {
             return (val != null ? val.equalsIgnoreCase("true") : false);
         }
         return (false);
-    }
-
-    public static String getAssertWarning() {
-        String msg = "!!! WARNING !!!\n" + "OLTP-Bench is executing with JVM asserts enabled. This will degrade runtime performance.\n" + "You can disable them by setting the config option 'assertions' to FALSE";
-        return StringBoxUtil.heavyBox(msg);
     }
 }
