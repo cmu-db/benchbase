@@ -225,27 +225,6 @@ public abstract class AuctionMarkConstants {
     public static final String ITEM_COLUMNS_STR = StringUtil.join(", ", ITEM_COLUMNS);
 
     // ----------------------------------------------------------------
-    // DEFAULT BATCH SIZES
-    // ----------------------------------------------------------------
-
-    public static final long BATCHSIZE_REGION = 5000;
-    public static final long BATCHSIZE_GLOBAL_ATTRIBUTE_GROUP = 5000;
-    public static final long BATCHSIZE_GLOBAL_ATTRIBUTE_VALUE = 5000;
-    public static final long BATCHSIZE_CATEGORY = 5000;
-    public static final long BATCHSIZE_USERACCT = 1000;
-    public static final long BATCHSIZE_USERACCT_ATTRIBUTES = 5000;
-    public static final long BATCHSIZE_USERACCT_FEEDBACK = 5000;
-    public static final long BATCHSIZE_USERACCT_ITEM = 5000;
-    public static final long BATCHSIZE_USERACCT_WATCH = 5000;
-    public static final long BATCHSIZE_ITEM = 2000;
-    public static final long BATCHSIZE_ITEM_ATTRIBUTE = 5000;
-    public static final long BATCHSIZE_ITEM_IMAGE = 5000;
-    public static final long BATCHSIZE_ITEM_COMMENT = 1000;
-    public static final long BATCHSIZE_ITEM_BID = 5000;
-    public static final long BATCHSIZE_ITEM_MAX_BID = 5000;
-    public static final long BATCHSIZE_ITEM_PURCHASE = 5000;
-
-    // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
     public static final String TABLENAME_CONFIG_PROFILE = "CONFIG_PROFILE";

@@ -230,15 +230,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             while (generator.hasMore()) {
                 generator.generateBatch();
 
-                //            StringBuilder sb = new StringBuilder();
-                //            if (tableName.equalsIgnoreCase("USER_FEEDBACK")) { //  || tableName.equalsIgnoreCase("USER_ATTRIBUTES")) {
-                //                sb.append(tableName + "\n");
-                //                for (int i = 0; i < volt_table.size(); i++) {
-                //                    sb.append(String.format("[%03d] %s\n", i, StringUtil.abbrv(Arrays.toString(volt_table.get(i)), 100)));
-                //                }
-                //                LOG.info(sb.toString() + "\n");
-                //            }
-
                 for (Object[] row : volt_table) {
                     for (int i = 0; i < row.length; i++) {
                         if (row[i] != null) {
@@ -284,7 +275,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         private final Table catalog_tbl;
         protected final List<Object[]> table = new ArrayList<>();
         protected Long tableSize;
-        protected Long batchSize;
+        protected int batchSize;
         protected final CountDownLatch latch = new CountDownLatch(1);
         protected final List<String> dependencyTables = new ArrayList<>();
 
@@ -319,6 +310,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             super(benchmark);
             this.tableName = tableName;
             this.catalog_tbl = benchmark.getCatalog().getTable(tableName);
+            this.batchSize = workConf.getDBBatchSize();
 
 
             boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getName());
@@ -328,18 +320,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // Add the dependencies so that we know what we need to block on
             CollectionUtil.addAll(this.dependencyTables, dependencies);
 
-            String field_name = "BATCHSIZE_" + catalog_tbl.getName();
-            try {
-                Field field_handle = AuctionMarkConstants.class.getField(field_name);
-
-                this.batchSize = (Long) field_handle.get(null);
-            } catch (Exception ex) {
-                throw new RuntimeException("Missing field '" + field_name + "' needed for '" + tableName + "'", ex);
-            }
-
             // Initialize dynamic parameters for tables that are not loaded from data files
             if (!data_file && !dynamic_size && tableName.equalsIgnoreCase(AuctionMarkConstants.TABLENAME_ITEM) == false) {
-                field_name = "TABLESIZE_" + catalog_tbl.getName();
+                String field_name = "TABLESIZE_" + catalog_tbl.getName();
                 try {
 
                     Field field_handle = AuctionMarkConstants.class.getField(field_name);
@@ -527,7 +510,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
          *
          * @return
          */
-        public Long getBatchSize() {
+        public int getBatchSize() {
             return this.batchSize;
         }
 
