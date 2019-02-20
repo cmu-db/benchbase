@@ -29,6 +29,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
@@ -514,7 +515,7 @@ public class DBWorkload {
     private static XMLConfiguration buildConfiguration(String filename) throws ConfigurationException {
 
         Parameters params = new Parameters();
-        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<XMLConfiguration>(XMLConfiguration.class).configure(params.xml().setFileName(filename).setExpressionEngine(new XPathExpressionEngine()));
+        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<XMLConfiguration>(XMLConfiguration.class).configure(params.xml().setFileName(filename).setListDelimiterHandler(new LegacyListDelimiterHandler(',')).setExpressionEngine(new XPathExpressionEngine()));
         return builder.getConfiguration();
 
     }
