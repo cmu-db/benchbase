@@ -151,7 +151,7 @@ My first priority is simply getting this code working against CockroachDB.  No w
 
 | Benchmark | Config | Load | Run | Notes |
 | -------------| ------------- | ------------- | ------------- | ------------- |
-| `auctionmark` | :heavy_check_mark: | :x: | :heavy_minus_sign: | self-referencing insert constaint [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
+| `auctionmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_minus_sign: | self-referencing insert constaint [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
 | `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | fails in CRDB `v2.1.4`, [~~issue #5~~](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6); works well in CRDB `v2.2.0-alpha` |
 | `epinions` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #7~~](https://github.com/timveil-cockroach/oltpbench/issues/7) |
 | `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config, [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
