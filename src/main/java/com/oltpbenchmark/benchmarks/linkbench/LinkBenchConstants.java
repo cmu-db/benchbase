@@ -20,7 +20,6 @@ public abstract class LinkBenchConstants {
 
     public static final long MAX_NODE_DATA = 1024 * 1024;
     public static final int START_ID = 1;
-    public static final int configCommitCount = 100;
 
     // visibility
     public static final byte VISIBILITY_HIDDEN = 0;

@@ -167,7 +167,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                 userInsert.addBatch();
                 total++;
 
-                if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                if ((++batch % workConf.getDBBatchSize()) == 0) {
                     userInsert.executeBatch();
                     batch = 0;
                     userInsert.clearBatch();
@@ -207,7 +207,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                 itemInsert.addBatch();
                 total++;
 
-                if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                if ((++batch % workConf.getDBBatchSize()) == 0) {
                     itemInsert.executeBatch();
                     batch = 0;
                     itemInsert.clearBatch();
@@ -267,7 +267,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         reviewers.add(u_id);
                         total++;
 
-                        if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                        if ((++batch % workConf.getDBBatchSize()) == 0) {
                             reviewInsert.executeBatch();
                             batch = 0;
                             reviewInsert.clearBatch();
@@ -329,7 +329,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         trusted.add(u_id);
                         total++;
 
-                        if ((++batch % EpinionsConstants.BATCH_SIZE) == 0) {
+                        if ((++batch % workConf.getDBBatchSize()) == 0) {
                             trustInsert.executeBatch();
                             batch = 0;
                             trustInsert.clearBatch();

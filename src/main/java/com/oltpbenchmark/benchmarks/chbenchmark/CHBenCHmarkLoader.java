@@ -43,7 +43,6 @@ import java.util.concurrent.CountDownLatch;
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     private static final Logger LOG = LoggerFactory.getLogger(CHBenCHmarkLoader.class);
 
-    private final static int configCommitCount = 1000; // commit every n records
     private static final RandomGenerator ran = new RandomGenerator(0);
 
 
@@ -194,7 +193,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 statement.setString(3, region.r_comment);
                 statement.addBatch();
 
-                if ((k % configCommitCount) == 0) {
+                if ((k % workConf.getDBBatchSize()) == 0) {
 
                     statement.executeBatch();
                     statement.clearBatch();
@@ -258,7 +257,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 statement.setString(4, nation.n_comment);
                 statement.addBatch();
 
-                if ((k % configCommitCount) == 0) {
+                if ((k % workConf.getDBBatchSize()) == 0) {
 
                     statement.executeBatch();
                     statement.clearBatch();
@@ -310,7 +309,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 statement.setString(7, supplier.su_comment);
                 statement.addBatch();
 
-                if ((k % configCommitCount) == 0) {
+                if ((k % workConf.getDBBatchSize()) == 0) {
 
                     statement.executeBatch();
                     statement.clearBatch();

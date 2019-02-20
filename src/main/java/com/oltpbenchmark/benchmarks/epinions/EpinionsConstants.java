@@ -28,5 +28,4 @@ public abstract class EpinionsConstants {
     public static final int REVIEW = 500; // this is the average .. expand to max
     public static final int TRUST = 200; // this is the average .. expand to max
 
-    public final static int BATCH_SIZE = 1000;
 }

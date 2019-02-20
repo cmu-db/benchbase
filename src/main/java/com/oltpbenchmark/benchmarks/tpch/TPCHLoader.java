@@ -45,7 +45,6 @@ import java.util.regex.Pattern;
 public class TPCHLoader extends Loader<TPCHBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(TPCHLoader.class);
 
-    private final static int configCommitCount = 500; // commit every n records
 
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
@@ -357,7 +356,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 prepStmt.addBatch();
                 ++recordsRead;
 
-                if ((recordsRead % configCommitCount) == 0) {
+                if ((recordsRead % workConf.getDBBatchSize()) == 0) {
 
                     LOG.debug("writing batch {} for table {}", recordsRead, tableName);
 

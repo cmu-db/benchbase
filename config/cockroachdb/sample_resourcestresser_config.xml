@@ -8,6 +8,7 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
 
     <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
     <scalefactor>2</scalefactor>

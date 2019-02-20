@@ -239,7 +239,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 userInsert.setInt(param++, revCount); // user_editcount
                 userInsert.addBatch();
 
-                if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+                if (++batchSize % workConf.getDBBatchSize() == 0) {
                     userInsert.executeBatch();
                     userInsert.clearBatch();
                     this.addToTableCount(catalog_tbl.getName(), batchSize);
@@ -306,7 +306,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 pageInsert.setInt(param++, 0); // page_len
                 pageInsert.addBatch();
 
-                if (++batchSize % WikipediaConstants.BATCH_SIZE == 0) {
+                if (++batchSize % workConf.getDBBatchSize() == 0) {
                     pageInsert.executeBatch();
                     pageInsert.clearBatch();
                     this.addToTableCount(catalog_tbl.getName(), batchSize);
@@ -351,7 +351,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             Zipf h_pageId = new Zipf(rand, 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
             // Use a large max batch size for tables with smaller tuples
-            int maxBatchSize = WikipediaConstants.BATCH_SIZE * 5;
+            int maxBatchSize = workConf.getDBBatchSize() * 5;
 
             int batchSize = 0;
             int lastPercent = -1;
@@ -517,7 +517,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 }
                 batchSize++;
             } // FOR (revision)
-            if (batchSize > WikipediaConstants.BATCH_SIZE) {
+            if (batchSize > workConf.getDBBatchSize()) {
                 textInsert.executeBatch();
                 revisionInsert.executeBatch();
                 this.addToTableCount(textTable.getName(), batchSize);
@@ -554,7 +554,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 userUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
                 userUpdate.setInt(col++, i + 1); // ids start at 1
                 userUpdate.addBatch();
-                if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                if ((++batchSize % workConf.getDBBatchSize()) == 0) {
                     userUpdate.executeBatch();
                     userUpdate.clearBatch();
                     batchSize = 0;
@@ -585,7 +585,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 pageUpdate.setInt(col++, this.page_last_rev_length[i]);
                 pageUpdate.setInt(col++, i + 1); // ids start at 1
                 pageUpdate.addBatch();
-                if ((++batchSize % WikipediaConstants.BATCH_SIZE) == 0) {
+                if ((++batchSize % workConf.getDBBatchSize()) == 0) {
                     pageUpdate.executeBatch();
                     pageUpdate.clearBatch();
                     batchSize = 0;

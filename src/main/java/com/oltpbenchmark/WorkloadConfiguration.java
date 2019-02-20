@@ -48,6 +48,7 @@ public class WorkloadConfiguration {
     private String db_username;
     private String db_password;
     private String db_driver;
+    private int db_batch_size;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
     private int terminals;
@@ -95,6 +96,14 @@ public class WorkloadConfiguration {
 
     public void setDBType(DatabaseType dbType) {
         db_type = dbType;
+    }
+
+    public void setDBBatchSize(int db_batch_size) {
+        this.db_batch_size = db_batch_size;
+    }
+
+    public int getDBBatchSize() {
+        return db_batch_size;
     }
 
     public DatabaseType getDBType() {

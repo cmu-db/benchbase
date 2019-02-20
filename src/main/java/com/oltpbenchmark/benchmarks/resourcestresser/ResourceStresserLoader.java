@@ -81,7 +81,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
                 }
 
                 stmt.addBatch();
-                if (++batch >= ResourceStresserConstants.COMMIT_BATCH_SIZE) {
+                if (++batch >= workConf.getDBBatchSize()) {
                     int[] result = stmt.executeBatch();
 
                     batch = 0;

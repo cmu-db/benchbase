@@ -39,7 +39,6 @@ import java.util.concurrent.CountDownLatch;
 public class TwitterLoader extends Loader<TwitterBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(TwitterLoader.class);
 
-    public final static int configCommitCount = 1000;
 
     private final int num_users;
     private final long num_tweets;
@@ -175,7 +174,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
                 batchSize++;
                 total++;
-                if ((batchSize % configCommitCount) == 0) {
+                if ((batchSize % workConf.getDBBatchSize()) == 0) {
                     int[] result = userInsert.executeBatch();
 
                     userInsert.clearBatch();
@@ -227,7 +226,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                 batchSize++;
                 total++;
 
-                if ((batchSize % configCommitCount) == 0) {
+                if ((batchSize % workConf.getDBBatchSize()) == 0) {
                     tweetInsert.executeBatch();
                     tweetInsert.clearBatch();
                     batchSize = 0;
@@ -296,7 +295,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                         batchSize++;
                         f++;
 
-                        if ((batchSize % configCommitCount) == 0) {
+                        if ((batchSize % workConf.getDBBatchSize()) == 0) {
                             followsInsert.executeBatch();
                             followersInsert.executeBatch();
                             followsInsert.clearBatch();

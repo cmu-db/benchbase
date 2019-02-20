@@ -22,6 +22,5 @@ public abstract class SIConstants {
 
     public static final int RECORD_COUNT = 10;
 
-    public static final int configCommitCount = 10;
 
 }

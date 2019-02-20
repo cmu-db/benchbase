@@ -557,7 +557,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                     } // FOR
 
                     ps.addBatch();
-                    if (++batchSize % TPCDSConstants.BATCH_SIZE == 0) {
+                    if (++batchSize % workConf.getDBBatchSize() == 0) {
                         ps.executeBatch();
                         ps.clearBatch();
                         this.addToTableCount(table, batchSize);

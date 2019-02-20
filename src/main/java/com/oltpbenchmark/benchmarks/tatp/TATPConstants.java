@@ -23,7 +23,6 @@ public abstract class TATPConstants {
 
     public static final int SUB_NBR_PADDING_SIZE = 15;
 
-    public static final int BATCH_SIZE = 500;
 
     // ----------------------------------------------------------------
     // STORED PROCEDURE EXECUTION FREQUENCIES (0-100)

@@ -112,7 +112,7 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
                     stmtSavings.setInt(2, this.randBalance.nextInt());
                     stmtSavings.addBatch();
 
-                    if (++batchSize >= SmallBankConstants.BATCH_SIZE) {
+                    if (++batchSize >= workConf.getDBBatchSize()) {
                         this.loadTables(conn);
                         batchSize = 0;
                     }
