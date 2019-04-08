@@ -1,0 +1,38 @@
+version: '3.5'
+
+services:
+
+  roach-0:
+    container_name: roach-0
+    hostname: roach-0
+    image: cockroachdb/cockroach:latest
+    command: start --logtostderr --insecure --max-sql-memory=4GB
+
+  roach-1:
+    container_name: roach-1
+    hostname: roach-1
+    image: cockroachdb/cockroach:latest
+    command: start --logtostderr --insecure --join=roach-0 --max-sql-memory=4GB
+    depends_on:
+      - roach-0
+
+  roach-2:
+    container_name: roach-2
+    hostname: roach-2
+    image: cockroachdb/cockroach:latest
+    command: start --logtostderr --insecure --join=roach-0 --max-sql-memory=4GB
+    depends_on:
+      - roach-0
+
+  lb:
+    container_name: lb
+    hostname: lb
+    build: haproxy
+    ports:
+      - "5432:5432"
+      - "8080:8080"
+      - "8081:8081"
+    links:
+      - roach-0
+      - roach-1
+      - roach-2

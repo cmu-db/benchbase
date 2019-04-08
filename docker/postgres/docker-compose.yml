@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+
+  db:
+    image: postgres:latest
+    command: postgres -N 500
+    environment:
+      POSTGRES_PASSWORD: password
+
+  db-ui:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    links:
+      - db
+    ports:
+      - "8080:80"
