@@ -14,4 +14,4 @@ Execute this command to run `dbgen` with the provided `SCALE`. This will place t
 docker run --rm -t -e SCALE=.1 -v ${PWD}/output:/opt/tpch-output tpch:latest
 ```
 
-The resulting `.tbl` files can then be placed in `./data/tpch` to be used during benchmarek execution.  Some small starter files are already present in that directory.
+The resulting `.tbl` files can then be placed in `./data/tpch` to be used during benchmark execution.  Some small starter files are already present in that directory.
