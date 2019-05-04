@@ -121,9 +121,7 @@ public class TPCCBenchmark extends BenchmarkModule {
         }
 
 
-        ArrayList<TPCCWorker> ret = new ArrayList<>();
-        ret.addAll(Arrays.asList(terminals));
-        return ret;
+        return new ArrayList<>(Arrays.asList(terminals));
     }
 
 

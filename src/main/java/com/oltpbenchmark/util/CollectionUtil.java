@@ -21,7 +21,6 @@ import org.apache.commons.collections4.set.ListOrderedSet;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * @author pavlo
@@ -58,16 +57,6 @@ public abstract class CollectionUtil {
             }
         }
         return;
-    }
-
-    public static int[] toIntArray(Collection<Integer> items) {
-        int[] ret = new int[items.size()];
-        int idx = 0;
-        for (Integer i : items) {
-
-            ret[idx++] = i;
-        } // FOR
-        return (ret);
     }
 
     /**
@@ -130,36 +119,6 @@ public abstract class CollectionUtil {
     }
 
     /**
-     * Returns a list containing the string representations of the elements in the collection
-     *
-     * @param <T>
-     * @param data
-     * @return
-     */
-    public static <T> List<String> toStringList(Collection<T> data) {
-        List<String> ret = new ArrayList<>();
-        for (T t : data) {
-            ret.add(t.toString());
-        }
-        return (ret);
-    }
-
-    /**
-     * Returns a set containing the string representations of the elements in the collection
-     *
-     * @param <T>
-     * @param data
-     * @return
-     */
-    public static <T> Set<String> toStringSet(Collection<T> data) {
-        Set<String> ret = new HashSet<>();
-        for (T t : data) {
-            ret.add(t.toString());
-        }
-        return (ret);
-    }
-
-    /**
      * Return a random value from the given Collection
      *
      * @param <T>
@@ -209,22 +168,6 @@ public abstract class CollectionUtil {
         return (CollectionUtil.random(list, rand));
     }
 
-    public static <E extends Enum<?>> Set<E> getAllExcluding(E[] elements, E... excluding) {
-        Set<E> exclude_set = new HashSet<>();
-        exclude_set.addAll(Arrays.asList(excluding));
-
-        Set<E> elements_set = new HashSet<>();
-        for (E element : elements) {
-            if (!exclude_set.contains(element)) {
-                elements_set.add(element);
-            }
-        } // FOR
-        return (elements_set);
-//      Crappy java....
-//        Object new_elements[] = new Object[elements_set.size()];
-//        elements_set.toArray(new_elements);
-//        return ((E[])new_elements);
-    }
 
     /**
      * Add all the items in the array to a Collection
@@ -275,26 +218,6 @@ public abstract class CollectionUtil {
             data.add(items.next());
         } // WHILE
         return (data);
-    }
-
-    /**
-     * @param <T>
-     * @param <U>
-     * @param map
-     * @return
-     */
-    public static <T, U extends Comparable<U>> T getGreatest(Map<T, U> map) {
-        T max_key = null;
-        U max_value = null;
-        for (Entry<T, U> e : map.entrySet()) {
-            T key = e.getKey();
-            U value = e.getValue();
-            if (max_value == null || value.compareTo(max_value) > 0) {
-                max_value = value;
-                max_key = key;
-            }
-        } // FOR
-        return (max_key);
     }
 
     /**
@@ -388,20 +311,6 @@ public abstract class CollectionUtil {
     }
 
     /**
-     * @param <K>
-     * @param <V>
-     * @param map
-     * @return
-     */
-    public static <K extends Comparable<?>, V> List<V> getSortedList(SortedMap<K, Collection<V>> map) {
-        List<V> ret = new ArrayList<>();
-        for (Collection<V> col : map.values()) {
-            ret.addAll(col);
-        } // FOR
-        return (ret);
-    }
-
-    /**
      * Wrap an Iterable around an Iterator
      *
      * @param <T>
@@ -413,35 +322,6 @@ public abstract class CollectionUtil {
             @Override
             public Iterator<T> iterator() {
                 return (it);
-            }
-        });
-    }
-
-    public static <T> Iterable<T> iterable(final T[] values) {
-        return (new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return new Iterator<T>() {
-                    private int idx = 0;
-
-                    @Override
-                    public boolean hasNext() {
-                        return (this.idx < values.length);
-                    }
-
-                    @Override
-                    public T next() {
-                        if (this.idx == values.length) {
-                            throw new NoSuchElementException();
-                        }
-                        return values[this.idx++];
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException();
-                    }
-                };
             }
         });
     }
