@@ -8,6 +8,7 @@
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
 
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
     <scalefactor>2</scalefactor>

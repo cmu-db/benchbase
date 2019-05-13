@@ -8,6 +8,7 @@
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <batchsize>128</batchsize>
 
     <scalefactor>1</scalefactor>
 

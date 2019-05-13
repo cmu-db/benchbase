@@ -7,8 +7,8 @@
     <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=linkbench&amp;reWriteBatchedInserts=true</DBUrl>
     <username>admin</username>
     <password>password</password>
-
     <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    <batchsize>128</batchsize>
 
     <!-- Scalefactor is ignored in LinkBench for now, to be replaced by max_id -->
     <scalefactor>1</scalefactor>

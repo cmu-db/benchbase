@@ -8,6 +8,7 @@
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
 
     <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
     <scalefactor>2</scalefactor>
