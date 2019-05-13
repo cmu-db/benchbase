@@ -6,7 +6,11 @@ services:
     image: postgres:latest
     command: postgres -N 500
     environment:
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: oltpbench
+    ports:
+      - "5432:5432"
 
   db-ui:
     image: dpage/pgadmin4:latest

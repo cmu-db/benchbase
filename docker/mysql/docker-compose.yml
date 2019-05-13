@@ -1,0 +1,22 @@
+version: '3.5'
+
+services:
+
+  db:
+    image: mysql:latest
+    command: mysqld --max-connections=500
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_HOST: "%"
+
+  db-ui:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+    links:
+      - db
+    ports:
+      - "8080:80"

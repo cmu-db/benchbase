@@ -5,8 +5,8 @@
     <dbtype>POSTGRES</dbtype>
     <driver>org.postgresql.Driver</driver>
     <DBUrl>jdbc:postgresql://localhost:5432/oltpbench?sslmode=disable&amp;ApplicationName=auctionmark&amp;reWriteBatchedInserts=true</DBUrl>
-    <username>root</username>
-    <password></password>
+    <username>admin</username>
+    <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
 
     <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
