@@ -18,8 +18,8 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
     private static final Logger LOG = Logger.getLogger(ResourceStresserLoader.class);
     private final int numEmployees;
 
-	public ResourceStresserLoader(ResourceStresserBenchmark benchmark, Connection conn) {
-		super(benchmark, conn);
+	public ResourceStresserLoader(ResourceStresserBenchmark benchmark) {
+		super(benchmark);
         this.numEmployees = (int) (this.scaleFactor * ResourceStresserConstants.RECORD_COUNT);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of EMPLOYEES:  " + this.numEmployees);

@@ -23,11 +23,8 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
-import com.mysql.jdbc.log.Log;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTConstants;
 
 public class MaxRecord1 extends Procedure{
     private static final Logger LOG = Logger.getLogger(MaxRecord1.class);

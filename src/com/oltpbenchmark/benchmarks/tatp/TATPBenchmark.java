@@ -50,7 +50,7 @@ public class TATPBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader<TATPBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return (new TATPLoader(this, conn));
+	protected Loader<TATPBenchmark> makeLoaderImpl() throws SQLException {
+		return (new TATPLoader(this));
 	}
 }

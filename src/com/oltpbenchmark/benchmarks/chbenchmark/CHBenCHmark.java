@@ -59,8 +59,8 @@ public class CHBenCHmark extends BenchmarkModule {
 		return workers;
 	}
 	
-	protected Loader<CHBenCHmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new CHBenCHmarkLoader(this, conn);
+	protected Loader<CHBenCHmark> makeLoaderImpl() throws SQLException {
+		return new CHBenCHmarkLoader(this);
 	}
 	
 }

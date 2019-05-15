@@ -44,11 +44,11 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     private final long num_tweets;
     private final int num_follows;
 
-    public TwitterLoader(TwitterBenchmark benchmark, Connection c) {
-        super(benchmark, c);
-        this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
-        this.num_tweets = (int) Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
-        this.num_follows = (int) Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
+    public TwitterLoader(TwitterBenchmark benchmark) {
+        super(benchmark);
+        this.num_users = (int)Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
+        this.num_tweets = (int)Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
+        this.num_follows = (int)Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  " + this.num_users);
             LOG.debug("# of TWEETS: " + this.num_tweets);
@@ -125,7 +125,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             });
         }
 
-        return threads;
+        return (threads);
     }
 
     /**

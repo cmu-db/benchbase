@@ -86,6 +86,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
     private final Histogram<String> tableSizes = new Histogram<String>();
 
+    private final File category_file;
+
     private boolean fail = false;
 
     // -----------------------------------------------------------------
@@ -97,13 +99,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      * 
      * @param args
      */
-    public AuctionMarkLoader(AuctionMarkBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public AuctionMarkLoader(AuctionMarkBenchmark benchmark) {
+        super(benchmark);
 
         // BenchmarkProfile
         this.profile = new AuctionMarkProfile(benchmark, benchmark.getRandomGenerator());
 
-        File category_file = new File(benchmark.getDataDir().getAbsolutePath() + "/table.category.gz");
+        this.category_file = new File(benchmark.getDataDir().getAbsolutePath() + "/table.category.gz");
 
         try {
             // ---------------------------
@@ -156,7 +158,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     // -----------------------------------------------------------------
     // LOADING METHODS
     // -----------------------------------------------------------------
-
     private class CountdownLoaderThread extends LoaderThread {
         private final AbstractTableGenerator generator;
         private final CountDownLatch latch;
@@ -985,7 +986,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public ItemGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_ITEM,
                   AuctionMarkConstants.TABLENAME_USERACCT,
-                  AuctionMarkConstants.TABLENAME_USERACCT, AuctionMarkConstants.TABLENAME_CATEGORY);
+                  AuctionMarkConstants.TABLENAME_USERACCT,
+                  AuctionMarkConstants.TABLENAME_CATEGORY);
         }
         
         @Override
@@ -1163,7 +1165,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public ItemAttributeGenerator() throws SQLException {
             super(AuctionMarkConstants.TABLENAME_ITEM_ATTRIBUTE,
                   AuctionMarkConstants.TABLENAME_ITEM,
-                  AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP, AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE);
+                  AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP,
+                  AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_VALUE);
         }
         @Override
         public short getElementCounter(LoaderItemInfo itemInfo) {

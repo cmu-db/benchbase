@@ -28,10 +28,6 @@ import com.oltpbenchmark.util.FileUtil;
 
 public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
     
-    static {
-      org.apache.log4j.PropertyConfigurator.configure("/home/pavlo/Documents/OLTPBenchmark/OLTPBenchmark/log4j.properties");
-    }
-    
     private File xmlFile;
     
     private static final DatabaseType TARGET_DATABASE = DatabaseType.SQLITE;

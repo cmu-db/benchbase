@@ -42,8 +42,8 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     private final long num_reviews;
     private final int num_trust;
 
-    public EpinionsLoader(EpinionsBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public EpinionsLoader(EpinionsBenchmark benchmark) {
+        super(benchmark);
         this.num_users = (int) Math.round(EpinionsConstants.NUM_USERS * this.scaleFactor);
         this.num_items = (int) Math.round(EpinionsConstants.NUM_ITEMS * this.scaleFactor);
         this.num_reviews = (int) Math.round(EpinionsConstants.REVIEW * this.scaleFactor);

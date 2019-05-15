@@ -43,7 +43,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TPCDSBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new TPCDSLoader(this, conn);
+    protected Loader<TPCDSBenchmark> makeLoaderImpl() throws SQLException {
+        return new TPCDSLoader(this);
     }
 }

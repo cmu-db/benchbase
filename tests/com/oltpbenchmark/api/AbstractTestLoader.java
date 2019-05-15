@@ -22,6 +22,8 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.util.StringUtil;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.catalog.Table;
@@ -60,12 +62,10 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
     public void testLoad() throws Exception {
         Statement stmt = conn.createStatement();
         ResultSet result = null;
-        String sql = null;
-        
-        
+
         // All we really can do here is just invoke the loader 
         // and then check to make sure that our tables aren't empty
-        this.benchmark.loadDatabase(this.conn);
+        this.benchmark.loadDatabase();
         assertFalse("Failed to get table names for " + benchmark.getBenchmarkName().toUpperCase(),
                     this.catalog.getTableNames().isEmpty());
         
@@ -75,17 +75,17 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
             Table catalog_tbl = this.catalog.getTable(tableName);
             
-            sql = SQLUtil.getCountSQL(this.workConf.getDBType(), catalog_tbl);
+            String sql = SQLUtil.getCountSQL(this.workConf.getDBType(), catalog_tbl);
             result = stmt.executeQuery(sql);
             assertNotNull(result);
             boolean adv = result.next();
             assertTrue(sql, adv);
             int count = result.getInt(1);
             result.close();
-            System.out.println(sql + " => " + count);
+            LOG.debug(sql + " => " + count);
             tableSizes.put(tableName, count);            
         } // FOR
-        System.out.println("=== TABLE SIZES ===\n" + tableSizes);
+        LOG.info("=== TABLE SIZES ===\n" + tableSizes);
         assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
                     tableSizes.isEmpty());
         

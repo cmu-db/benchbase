@@ -33,8 +33,8 @@ public class SILoader extends Loader<SIBenchmark> {
     private static final Logger LOG = Logger.getLogger(SILoader.class);
     private final int num_record;
 
-    public SILoader(SIBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public SILoader(SIBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(SIConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  " + this.num_record);

@@ -42,8 +42,8 @@ import com.oltpbenchmark.util.SQLUtil;
 public class TPCDSLoader extends Loader<TPCDSBenchmark> {
     private static final Logger LOG = Logger.getLogger(TPCDSLoader.class);
 
-    public TPCDSLoader(TPCDSBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public TPCDSLoader(TPCDSBenchmark benchmark) {
+        super(benchmark);
     }
 
     @Override

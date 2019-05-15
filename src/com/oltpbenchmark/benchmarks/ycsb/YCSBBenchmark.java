@@ -71,8 +71,8 @@ public class YCSBBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<YCSBBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new YCSBLoader(this, conn);
+    protected Loader<YCSBBenchmark> makeLoaderImpl() throws SQLException {
+        return new YCSBLoader(this);
     }
 
     @Override

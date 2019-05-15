@@ -36,7 +36,7 @@ public class MockBenchmark extends BenchmarkModule {
         return null;
     }
     @Override
-    protected Loader<MockBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
+    protected Loader<MockBenchmark> makeLoaderImpl() throws SQLException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -49,7 +49,7 @@ public class MockBenchmark extends BenchmarkModule {
     public URL getDatabaseDDL(DatabaseType db_type) {
         // Get our sample DDL file
         URL testDDLURL = MockBenchmark.class.getResource("test-ddl.sql");
-        assert(testDDLURL != null);
+        assert(testDDLURL != null) : "Unable to get " + MockBenchmark.class.getSimpleName() + " DDL file";
         File testDDL = new File(testDDLURL.getPath());
         assert(testDDL.exists()) : testDDL.getAbsolutePath();
         return (testDDLURL);

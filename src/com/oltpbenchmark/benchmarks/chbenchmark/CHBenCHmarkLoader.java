@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -48,8 +49,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 	
 	private static Date now;
 	private static long lastTimeMS;
-	private static Connection conn;
-	
+
 	//create possible keys for n_nationkey ([a-zA-Z0-9])
 	private static final int[] nationkeys = new int[62];
 	static {
@@ -64,46 +64,37 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         }
 	}
 	
-	public CHBenCHmarkLoader(CHBenCHmark benchmark, Connection c) {
-		super(benchmark, c);
-		conn =c;
+	public CHBenCHmarkLoader(CHBenCHmark benchmark) {
+		super(benchmark);
 	}
 	
 	@Override
 	public List<LoaderThread> createLoaderThreads() throws SQLException {
-	    // TODO Auto-generated method stub
-	    return null;
-	}
+		List<LoaderThread> threads = new ArrayList<LoaderThread>();
 
-	public void load() throws SQLException {
-		try {
-			regionPrepStmt = conn.prepareStatement("INSERT INTO region "
-					+ " (r_regionkey, r_name, r_comment) "
-					+ "VALUES (?, ?, ?)");
-			
-			nationPrepStmt = conn.prepareStatement("INSERT INTO nation "
-					+ " (n_nationkey, n_name, n_regionkey, n_comment) "
-					+ "VALUES (?, ?, ?, ?)");
-			
-			supplierPrepStmt = conn.prepareStatement("INSERT INTO supplier "
-					+ " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?)");
+		threads.add(new LoaderThread() {
+			@Override
+			public void load(Connection conn) throws SQLException {
+				regionPrepStmt = conn.prepareStatement("INSERT INTO region "
+						+ " (r_regionkey, r_name, r_comment) "
+						+ "VALUES (?, ?, ?)");
 
-		} catch (SQLException se) {
-			LOG.debug(se.getMessage());
-			conn.rollback();
+				nationPrepStmt = conn.prepareStatement("INSERT INTO nation "
+						+ " (n_nationkey, n_name, n_regionkey, n_comment) "
+						+ "VALUES (?, ?, ?, ?)");
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			conn.rollback();
+				supplierPrepStmt = conn.prepareStatement("INSERT INTO supplier "
+						+ " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) "
+						+ "VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-		} // end try
-		
-		loadHelper();
-		conn.commit();
+				loadHelper(conn);
+				conn.commit();
+			}
+		});
+		return (threads);
 	}
 	
-   static void truncateTable(String strTable) throws SQLException {
+   static void truncateTable(Connection conn, String strTable) throws SQLException {
 
         LOG.debug("Truncating '" + strTable + "' ...");
         try {
@@ -115,7 +106,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         }
    }
 	
-	static int loadRegions() throws SQLException {
+	static int loadRegions(Connection conn) throws SQLException {
 		
 		int k = 0;
 		int t = 0;
@@ -123,9 +114,9 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 		
 		try {
 		    
-		    truncateTable("region");
-		    truncateTable("nation");
-		    truncateTable("supplier");
+		    truncateTable(conn,"region");
+		    truncateTable(conn,"nation");
+		    truncateTable(conn,"supplier");
 
 			now = new java.util.Date();
 			LOG.debug("\nStart Region Load @ " + now
@@ -203,7 +194,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
 	} // end loadRegions()
 	
-	static int loadNations() throws SQLException {
+	static int loadNations(Connection conn) throws SQLException {
 		
 		int k = 0;
 		int t = 0;
@@ -287,7 +278,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
 	} // end loadNations()
 	
-	static int loadSuppliers() throws SQLException {
+	static int loadSuppliers(Connection conn) throws SQLException {
 		
 		int k = 0;
 		int t = 0;
@@ -360,12 +351,12 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
 	} // end loadSuppliers()
 
-	protected long loadHelper() {
+	protected long loadHelper(Connection conn) {
 		long totalRows = 0;
 		try {
-			totalRows += loadRegions();
-			totalRows += loadNations();
-			totalRows += loadSuppliers();
+			totalRows += loadRegions(conn);
+			totalRows += loadNations(conn);
+			totalRows += loadSuppliers(conn);
 		}
 		catch (SQLException e) {
 			LOG.debug(e.getMessage());

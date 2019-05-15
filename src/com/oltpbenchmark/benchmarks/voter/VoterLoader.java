@@ -26,8 +26,12 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+import org.hibernate.exception.SQLGrammarException;
 
 public class VoterLoader extends Loader<VoterBenchmark> {
+
+    private static final Logger LOG = Logger.getLogger(VoterLoader.class);
 
     // Domain data: matching lists of Area codes and States
     private static final short[] areaCodes = new short[]{
@@ -72,8 +76,8 @@ public class VoterLoader extends Loader<VoterBenchmark> {
         "VA","VA","VA","VA","VA","VA","VT","WA","WA","WA","WA","WA","WA","WI","WI",
         "WI","WI","WI","WV","WY"};
 
-    public VoterLoader(VoterBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public VoterLoader(VoterBenchmark benchmark) {
+        super(benchmark);
     }
 
     @Override

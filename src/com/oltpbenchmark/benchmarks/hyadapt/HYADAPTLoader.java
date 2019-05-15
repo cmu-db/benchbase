@@ -27,6 +27,7 @@ import com.oltpbenchmark.api.Loader.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -35,8 +36,8 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     private final int num_record;
     private static final Random rand = new Random();
 
-    public HYADAPTLoader(HYADAPTBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public HYADAPTLoader(HYADAPTBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(HYADAPTConstants.RECORD_COUNT * this.scaleFactor);
         LOG.info("# of RECORDS:  " + this.num_record);        
     }    
@@ -63,39 +64,46 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
-    }    
-    
-    @Override
-    public void load() throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("HTABLE");
-        assert (catalog_tbl != null);
-        
-        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement stmt = this.conn.prepareStatement(sql);
-        long total = 0;
-        int batch = 0;
-        for (int i = 0; i < this.num_record; i++) {
-            stmt.setInt(1, i);
-            for (int j = 2; j <= HYADAPTConstants.FIELD_COUNT + 1; j++) {
-                stmt.setInt(j, getRandInt());
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) {
+                try {
+                    Table catalog_tbl = benchmark.getTableCatalog("HTABLE");
+                    assert (catalog_tbl != null);
+
+                    String sql = SQLUtil.getInsertSQL(getDatabaseType(), catalog_tbl);
+                    PreparedStatement stmt = conn.prepareStatement(sql);
+                    long total = 0;
+                    int batch = 0;
+                    for (int i = 0; i < num_record; i++) {
+                        stmt.setInt(1, i);
+                        for (int j = 2; j <= HYADAPTConstants.FIELD_COUNT + 1; j++) {
+                            stmt.setInt(j, getRandInt());
+                        }
+                        stmt.addBatch();
+                        total++;
+                        if (++batch >= HYADAPTConstants.configCommitCount) {
+                            int result[] = stmt.executeBatch();
+                            assert (result != null);
+                            conn.commit();
+                            batch = 0;
+                            LOG.info(String.format("Records Loaded %d / %d", total, num_record));
+                        }
+                    } // FOR
+                    if (batch > 0) {
+                        stmt.executeBatch();
+                        LOG.info(String.format("Records Loaded %d / %d", total, num_record));
+                    }
+                    stmt.close();
+                    LOG.info("Finished loading " + catalog_tbl.getName());
+                } catch (SQLException ex) {
+                    throw new RuntimeException("Failed to load database", ex);
+                }
             }
-            stmt.addBatch();
-            total++;
-            if (++batch >= HYADAPTConstants.configCommitCount) {
-                int result[] = stmt.executeBatch();
-                assert (result != null);
-                conn.commit();
-                batch = 0;
-                LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
-            }
-        } // FOR
-        if (batch > 0) {
-            stmt.executeBatch();
-            LOG.info(String.format("Records Loaded %d / %d", total, this.num_record));
-        }
-        stmt.close();
-        LOG.info("Finished loading " + catalog_tbl.getName());
+        });
+
+        return (threads);
     }
 }

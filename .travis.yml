@@ -7,12 +7,14 @@ cache:
   directories:
     - lib
 
+# We only are going to test on jdk8 + jdk10.
+# openjdk9 + oraclejdk10 were both removed from Ubuntu
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk10
   - openjdk8
+  - oraclejdk8
 
-# oraclejdk9 failures - https://github.com/oltpbenchmark/oltpbench/issues/137
 #matrix:
 #  allow_failures:
 #    - jdk: oraclejdk9
@@ -137,6 +139,8 @@ before_script:
 
 script:
   - SCALEFACTOR=0.5
+  - ant bootstrap
+  - ant resolve
   - if [ $TEST == junit ]; then
       ant junit;
     else
@@ -153,7 +157,7 @@ script:
            -e '/<time>/c\<time>60</time>'
            -e '/<isolation>/c\<isolation>TRANSACTION_READ_COMMITTED</isolation>'
            "${config}";
-      ./oltpbenchmark --bench "${TEST}" --config "${config}"  --create true    --load true   --execute true ;
+      ./oltpbenchmark --bench "${TEST}" --config "${config}" --create true --load true --execute true ;
     fi
 
 

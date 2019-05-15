@@ -69,8 +69,8 @@ public class JPABBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<JPABBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new JPABLoader(this, conn, jpabConf.getPersistanceUnit());
+    protected Loader<JPABBenchmark> makeLoaderImpl() throws SQLException {
+        return new JPABLoader(this, jpabConf.getPersistanceUnit());
     }
 
     @Override

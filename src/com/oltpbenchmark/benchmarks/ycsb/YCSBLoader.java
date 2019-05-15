@@ -33,8 +33,8 @@ public class YCSBLoader extends Loader<YCSBBenchmark> {
     private static final Logger LOG = Logger.getLogger(YCSBLoader.class);
     private final int num_record;
 
-    public YCSBLoader(YCSBBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public YCSBLoader(YCSBBenchmark benchmark) {
+        super(benchmark);
         this.num_record = (int) Math.round(YCSBConstants.RECORD_COUNT * this.scaleFactor);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of RECORDS:  " + this.num_record);

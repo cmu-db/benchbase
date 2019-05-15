@@ -58,8 +58,8 @@ import com.oltpbenchmark.util.SQLUtil;
 public class TPCCLoader extends Loader<TPCCBenchmark> {
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 
-    public TPCCLoader(TPCCBenchmark benchmark, Connection c) {
-        super(benchmark, c);
+    public TPCCLoader(TPCCBenchmark benchmark) {
+        super(benchmark);
         numWarehouses = (int)Math.round(TPCCConfig.configWhseCount * this.scaleFactor);
         if (numWarehouses <= 0) {
             //where would be fun in that?

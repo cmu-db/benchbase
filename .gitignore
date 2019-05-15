@@ -4,6 +4,7 @@ output.raw
 output.res
 .classpath
 .settings
+.idea
 results
 
 ## -------------------------------

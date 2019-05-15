@@ -108,16 +108,13 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     // INITIALIZATION
     // -----------------------------------------------------------------
 
-    public SEATSLoader(SEATSBenchmark benchmark, Connection c) {
-        super(benchmark, c);
-
-        this.rng = benchmark.getRandomGenerator();
-        // TODO: Sync with the base class rng
-        this.profile = new SEATSProfile(benchmark, this.rng);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("CONSTRUCTOR: " + SEATSLoader.class.getName());
-        }
+    public SEATSLoader(SEATSBenchmark benchmark) {
+    	super(benchmark);
+    	
+    	this.rng = benchmark.getRandomGenerator(); // TODO: Sync with the base class rng
+    	this.profile = new SEATSProfile(benchmark, this.rng);
+    	
+    	if (LOG.isDebugEnabled()) LOG.debug("CONSTRUCTOR: " + SEATSLoader.class.getName());
     }
 
     // -----------------------------------------------------------------
@@ -412,10 +409,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
     /**
      * The fixed tables are those that are generated from the static data files
-     * The number of tuples in these tables will not change based on the scale
-     * factor.
-     *
-     * @param catalog_db
+     * The number of tuples in these tables will not change based on the scale factor.
      */
     protected void loadFixedTable(Connection conn, String table_name) {
         LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
@@ -430,10 +424,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     }
 
     /**
-     * The scaling tables are things that we will scale the number of tuples
-     * based on the given scaling factor at runtime
-     *
-     * @param catalog_db
+     * The scaling tables are things that we will scale the number of tuples based
+     * on the given scaling factor at runtime 
      */
     protected void loadScalingTable(Connection conn, String table_name) {
         try {
@@ -776,8 +768,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         /**
          * Generate a special value for this particular column index
-         *
-         * @param idx
          * @return
          */
         protected abstract Object specialValue(long id, int column_idx);
@@ -947,7 +937,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             this.customer_id_iterator = new CustomerIdIterable(SEATSLoader.this.profile.airport_max_customer_id).iterator();
             this.last_customer_id = this.customer_id_iterator.next();
 
-            // A customer is more likely to have a FREQUENTY_FLYER account with
+            // A customer is more likely to have a FREQUENT_FLYER account with
             // an airline that has more flights.
             // IMPORTANT: Add one to all of the airlines so that we don't get
             // trapped

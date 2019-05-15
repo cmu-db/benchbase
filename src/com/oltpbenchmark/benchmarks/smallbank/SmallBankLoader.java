@@ -32,8 +32,8 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
     private final long numAccounts;
     private final int custNameLength;
     
-    public SmallBankLoader(SmallBankBenchmark benchmark, Connection conn) {
-        super(benchmark, conn);
+    public SmallBankLoader(SmallBankBenchmark benchmark) {
+        super(benchmark);
         
         this.catalogAccts = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
         assert(this.catalogAccts != null);

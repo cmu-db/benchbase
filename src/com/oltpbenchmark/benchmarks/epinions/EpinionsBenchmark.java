@@ -94,8 +94,8 @@ public class EpinionsBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<EpinionsBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-        return new EpinionsLoader(this, conn);
+    protected Loader<EpinionsBenchmark> makeLoaderImpl() throws SQLException {
+        return new EpinionsLoader(this);
     }
 
 }

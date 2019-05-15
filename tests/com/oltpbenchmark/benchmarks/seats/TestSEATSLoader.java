@@ -34,20 +34,23 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
      * testSaveLoadProfile
      */
     public void testSaveLoadProfile() throws Exception {
-        SEATSLoader loader = (SEATSLoader)this.benchmark.makeLoaderImpl(conn);
+        this.benchmark.createDatabase();
+        SEATSLoader loader = (SEATSLoader)this.benchmark.loadDatabase();
         assertNotNull(loader);
-        loader.load();
-        
+
         SEATSProfile orig = loader.profile;
         assertNotNull(orig);
-        
+
+        // Make sure there is something in our profile after loading the database
+        assertFalse("Empty Profile: airport_max_customer_id", orig.airport_max_customer_id.isEmpty());
+
         SEATSProfile copy = new SEATSProfile(this.benchmark, new RandomGenerator(0));
         assert(copy.airport_histograms.isEmpty());
         
         List<Worker<?>> workers = this.benchmark.makeWorkers(false);
         SEATSWorker worker = (SEATSWorker)workers.get(0);
         copy.loadProfile(worker);
-        
+
         assertEquals(orig.scale_factor, copy.scale_factor);
         assertEquals(orig.airport_max_customer_id, copy.airport_max_customer_id);
         assertEquals(orig.flight_start_date.toString(), copy.flight_start_date.toString());

@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
@@ -64,8 +63,8 @@ public class TPCCBenchmark extends BenchmarkModule {
 	}
 
 	@Override
-	protected Loader<TPCCBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new TPCCLoader(this, conn);
+	protected Loader<TPCCBenchmark> makeLoaderImpl() throws SQLException {
+		return new TPCCLoader(this);
 	}
 
 	protected ArrayList<TPCCWorker> createTerminals() throws SQLException {

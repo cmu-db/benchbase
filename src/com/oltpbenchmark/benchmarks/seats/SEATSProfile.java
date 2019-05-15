@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.oltpbenchmark.types.DatabaseType;
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.log4j.Logger;
 
@@ -210,14 +211,16 @@ public class SEATSProfile {
      * Save the profile information into the database
      */
     protected final void saveProfile(Connection conn) throws SQLException {
+        DatabaseType dbType = this.benchmark.getWorkloadConfiguration().getDBType();
         PreparedStatement stmt = null;
         String sql;
 
         // CONFIG_PROFILE
         Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
         assert (catalog_tbl != null);
-        sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
+        sql = SQLUtil.getInsertSQL(catalog_tbl, dbType);
         stmt = conn.prepareStatement(sql);
+
         int param_idx = 1;
         stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
         stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
@@ -239,7 +242,7 @@ public class SEATSProfile {
 
         // CONFIG_HISTOGRAMS
         catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-        sql = SQLUtil.getInsertSQL(catalog_tbl, this.benchmark.getWorkloadConfiguration().getDBType());
+        sql = SQLUtil.getInsertSQL(catalog_tbl, dbType);
         stmt = conn.prepareStatement(sql);
         for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
             param_idx = 1;

@@ -80,8 +80,8 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
 	}
 	
 	@Override
-	protected Loader<AuctionMarkBenchmark> makeLoaderImpl(Connection conn) throws SQLException {
-		return new AuctionMarkLoader(this, conn);
+	protected Loader<AuctionMarkBenchmark> makeLoaderImpl() throws SQLException {
+		return new AuctionMarkLoader(this);
 	}
 	
 	/**

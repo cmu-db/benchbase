@@ -35,6 +35,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -67,12 +68,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     private static Date now;
     private static long lastTimeMS;
-    private static Connection conn;
 
-
-    public TPCHLoader(TPCHBenchmark benchmark, Connection c) {
-        super(benchmark, c);
-        conn =c;
+    public TPCHLoader(TPCHBenchmark benchmark) {
+        super(benchmark);
     }
 
     private static enum CastTypes { LONG, DOUBLE, STRING, DATE };
@@ -165,68 +163,66 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
-        // TODO Auto-generated method stub
-        return null;
+        List<LoaderThread> threads = new ArrayList<LoaderThread>();
+
+        threads.add(new LoaderThread() {
+            @Override
+            public void load(Connection conn) {
+                try {
+                    customerPrepStmt = conn.prepareStatement("INSERT INTO customer "
+                            + "(c_custkey, c_name, c_address, c_nationkey,"
+                            + " c_phone, c_acctbal, c_mktsegment, c_comment ) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+                    lineitemPrepStmt = conn.prepareStatement("INSERT INTO lineitem "
+                            + "(l_orderkey, l_partkey, l_suppkey, l_linenumber,"
+                            + " l_quantity, l_extendedprice, l_discount, l_tax,"
+                            + " l_returnflag, l_linestatus, l_shipdate, l_commitdate,"
+                            + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                    nationPrepStmt = conn.prepareStatement("INSERT INTO nation "
+                            + "(n_nationkey, n_name, n_regionkey, n_comment) "
+                            + "VALUES (?, ?, ?, ?)");
+
+                    ordersPrepStmt = conn.prepareStatement("INSERT INTO orders "
+                            + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice,"
+                            + " o_orderdate, o_orderpriority, o_clerk, o_shippriority,"
+                            + " o_comment) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                    partPrepStmt = conn.prepareStatement("INSERT INTO part "
+                            + "(p_partkey, p_name, p_mfgr, p_brand, p_type,"
+                            + " p_size, p_container, p_retailprice, p_comment) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                    partsuppPrepStmt = conn.prepareStatement("INSERT INTO partsupp "
+                            + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost,"
+                            + " ps_comment) "
+                            + "VALUES (?, ?, ?, ?, ?)");
+
+                    regionPrepStmt = conn.prepareStatement("INSERT INTO region "
+                            + " (r_regionkey, r_name, r_comment) "
+                            + "VALUES (?, ?, ?)");
+
+                    supplierPrepStmt = conn.prepareStatement("INSERT INTO supplier "
+                            + "(s_suppkey, s_name, s_address, s_nationkey, s_phone,"
+                            + " s_acctbal, s_comment) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+                    loadHelper();
+                    conn.commit();
+                } catch (Exception ex) {
+                    throw new RuntimeException("Failed to load database", ex);
+                }
+            }
+        });
+
+        return (threads);
+
     }
 
-    @Override
-    public void load() throws SQLException {
-        try {
-            customerPrepStmt = conn.prepareStatement("INSERT INTO customer "
-                    + "(c_custkey, c_name, c_address, c_nationkey,"
-                    + " c_phone, c_acctbal, c_mktsegment, c_comment ) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-            lineitemPrepStmt = conn.prepareStatement("INSERT INTO lineitem "
-                    + "(l_orderkey, l_partkey, l_suppkey, l_linenumber,"
-                    + " l_quantity, l_extendedprice, l_discount, l_tax,"
-                    + " l_returnflag, l_linestatus, l_shipdate, l_commitdate,"
-                    + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            nationPrepStmt = conn.prepareStatement("INSERT INTO nation "
-                    + "(n_nationkey, n_name, n_regionkey, n_comment) "
-                    + "VALUES (?, ?, ?, ?)");
-
-            ordersPrepStmt = conn.prepareStatement("INSERT INTO orders "
-                    + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice,"
-                    + " o_orderdate, o_orderpriority, o_clerk, o_shippriority,"
-                    + " o_comment) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            partPrepStmt = conn.prepareStatement("INSERT INTO part "
-                    + "(p_partkey, p_name, p_mfgr, p_brand, p_type,"
-                    + " p_size, p_container, p_retailprice, p_comment) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            partsuppPrepStmt = conn.prepareStatement("INSERT INTO partsupp "
-                    + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost,"
-                    + " ps_comment) "
-                    + "VALUES (?, ?, ?, ?, ?)");
-
-            regionPrepStmt = conn.prepareStatement("INSERT INTO region "
-                    + " (r_regionkey, r_name, r_comment) "
-                    + "VALUES (?, ?, ?)");
-
-            supplierPrepStmt = conn.prepareStatement("INSERT INTO supplier "
-                    + "(s_suppkey, s_name, s_address, s_nationkey, s_phone,"
-                    + " s_acctbal, s_comment) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)");
-
-        } catch (SQLException se) {
-            LOG.debug(se.getMessage());
-            conn.rollback();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            conn.rollback();
-        } // end try
-
-        loadHelper();
-        conn.commit();
-    }
-
-    static void truncateTable(String strTable) throws SQLException {
+    static void truncateTable(Connection conn, String strTable) throws SQLException {
         LOG.debug("Truncating '" + strTable + "' ...");
         try {
             conn.createStatement().execute("DELETE FROM " + strTable);
@@ -357,7 +353,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             long lastTimeMS = new java.util.Date().getTime();
 
             try {
-                truncateTable(this.tableName.toLowerCase());
+                // FIXME: This should be the Connection given to the LoaderThread
+                this.conn = benchmark.makeConnection();
+                truncateTable(this.conn, this.tableName.toLowerCase());
             } catch (SQLException e) {
                 LOG.error("Failed to truncate table \""
                         + this.tableName.toLowerCase()
@@ -365,11 +363,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             }
 
             try {
-                this.conn = DriverManager.getConnection(workConf.getDBConnection(),
-                        workConf.getDBUsername(),
-                        workConf.getDBPassword());
                 this.conn.setAutoCommit(false);
-
                 try {
                     now = new java.util.Date();
                     LOG.debug("\nStart " + tableName + " load @ " + now + "...");
