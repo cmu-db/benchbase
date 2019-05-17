@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <dbtype>postgres</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/wikipedia/</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/wikipedia</DBUrl>
     <DBName>wikipedia</DBName>
     <username>joe</username>
     <password>joe</password>

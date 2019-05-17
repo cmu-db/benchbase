@@ -2,7 +2,7 @@
 <parameters>
     <dbtype>postgres</dbtype>
     <driver>org.postgresql.Driver</driver>
-    <DBUrl>jdbc:postgresql://localhost:5432/ycsb/</DBUrl>
+    <DBUrl>jdbc:postgresql://localhost:5432/ycsb</DBUrl>
     <DBName>ycsb</DBName>
     <username>joe</username>
     <password>joe</password>
