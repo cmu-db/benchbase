@@ -8,6 +8,8 @@
     <username>root</username>
     <password>pwd</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
     <scalefactor>100</scalefactor>
     

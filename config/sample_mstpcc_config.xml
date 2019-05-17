@@ -7,6 +7,8 @@
     <username>sa</username>
     <password></password>
     <terminals>10</terminals>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
    <works>
         <work>

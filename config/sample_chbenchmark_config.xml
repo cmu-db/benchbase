@@ -8,6 +8,8 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
     <!-- Scale factor is the number of warehouses in TPCC -->
     <scalefactor>2</scalefactor>

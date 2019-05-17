@@ -8,6 +8,8 @@
     <username>user</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
         
     <!-- Scalefactor increases the number of subscribers -->
     <scalefactor>100</scalefactor>

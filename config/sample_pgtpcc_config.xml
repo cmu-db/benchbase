@@ -9,6 +9,8 @@
     <terminals>10</terminals>
     
     <scalefactor>1</scalefactor>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
    	
    	<transactiontypes>

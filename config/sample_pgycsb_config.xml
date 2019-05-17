@@ -6,6 +6,8 @@
     <DBName>ycsb</DBName>
     <username>joe</username>
     <password>joe</password>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
     <scalefactor>1000</scalefactor>

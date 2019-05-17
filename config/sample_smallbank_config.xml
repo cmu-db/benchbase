@@ -8,6 +8,8 @@
     <username>user</username>
     <password>pass</password>    
     <isolation>TRANSACTION_READ_COMMITTED</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
     <scalefactor>1</scalefactor>
     

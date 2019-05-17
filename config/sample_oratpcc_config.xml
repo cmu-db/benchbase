@@ -8,6 +8,8 @@
     <username>tpcc</username>
     <password></password>
     <terminals>1</terminals>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
    	
     <works>
         <work>

@@ -7,6 +7,8 @@
     <username>user</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
     <!-- Number of Initial Objects -->
     <scalefactor>1000000</scalefactor>

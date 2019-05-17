@@ -7,6 +7,8 @@
 	<DBUrl>jdbc:mysql://diufpc312:3306/linkdb?elideSetAutoCommits=true&amp;useLocalTransactionState=true&amp;allowMultiQueries=true&amp;useLocalSessionState=true&amp;useAffectedRows=true</DBUrl>
 	<username>root</username>
 	<password>hello</password>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
 
 	<isolation>TRANSACTION_REPEATABLE_READ</isolation>
 

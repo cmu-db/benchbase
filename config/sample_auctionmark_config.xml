@@ -8,6 +8,8 @@
     <username>user</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     
     <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
     <scalefactor>10</scalefactor>

@@ -8,6 +8,8 @@
    <isolation>TRANSACTION_SERIALIZABLE</isolation>
    <scalefactor>32</scalefactor>
    <terminals>200</terminals>
+   <uploadCode></uploadCode>
+   <uploadUrl></uploadUrl>
 
    <works>
       <work>

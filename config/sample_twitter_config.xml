@@ -9,6 +9,8 @@
     <password>password</password>
 
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
           
     <!-- Scalefactor in Twitter scales by *500 the number of users-->
     <scalefactor>100</scalefactor>

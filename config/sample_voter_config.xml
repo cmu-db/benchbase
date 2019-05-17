@@ -8,7 +8,8 @@
     <username>pavlo</username>
     <password>xxx</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
     <scalefactor>10</scalefactor>
     
     <!-- The workload -->

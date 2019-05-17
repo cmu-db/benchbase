@@ -8,6 +8,8 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <uploadCode></uploadCode>
+    <uploadUrl></uploadUrl>
 
     <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
     <scalefactor>2</scalefactor>
