@@ -129,6 +129,11 @@ public class DBWorkload {
                 "upload",
                 true,
                 "Upload the result");
+        options.addOption(
+                null,
+                "uploadHash",
+                true,
+                "git hash to be associated with the upload");
 
         options.addOption("v", "verbose", false, "Display Messages");
         options.addOption("h", "help", false, "Print this help");

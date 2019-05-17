@@ -72,6 +72,7 @@ public class ResultUploader {
     String benchType;
 //    int windowSize;
     String uploadCode, uploadUrl;
+    String uploadHash;
 
     public ResultUploader(Results r, XMLConfiguration conf, CommandLine argsLine) {
         this.expConf = conf;
@@ -91,6 +92,8 @@ public class ResultUploader {
 //        }
         uploadCode = expConf.getString("uploadCode");
         uploadUrl = expConf.getString("uploadUrl");
+        uploadHash = argsLine.getOptionValue("uploadHash");
+        uploadHash = uploadHash == null ? "" : uploadHash;
 
         this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
         assert(this.collector != null);
@@ -171,6 +174,7 @@ public class ResultUploader {
 
             HttpEntity reqEntity = MultipartEntityBuilder.create()
                     .addTextBody("upload_code", uploadCode)
+                    .addTextBody("upload_hash", uploadHash)
                     .addPart("sample_data", new FileBody(samplesFile))
                     .addPart("raw_data", new FileBody(csvDataFile))
                     .addPart("db_parameters_data", new FileBody(paramsFile))
