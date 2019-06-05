@@ -20,6 +20,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -46,11 +47,11 @@ public class Q14 extends GenericQuery {
         // DATE is the first day of a month randomly selected from a random year within [1993 .. 1997]
         int year = rand.number(1993, 1997);
         int month = rand.number(1, 12);
-        String date = String.format("%d-%02d-01", year, month);
+        Date date = Date.valueOf(String.format("%d-%02d-01", year, month));
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, date);
-        stmt.setString(2, date);
+        stmt.setDate(1, date);
+        stmt.setDate(2, date);
         return stmt;
     }
 }

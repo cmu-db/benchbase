@@ -93,10 +93,10 @@ public class Q22 extends GenericQuery {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         for (int i = 0; i < 7; i++) {
-            stmt.setInt(1 + i, codes[i]);
+            stmt.setString(1 + i, String.valueOf(codes[i]));
         }
         for (int i = 0; i < 7; i++) {
-            stmt.setInt(8 + i, codes[i]);
+            stmt.setString(8 + i, String.valueOf(codes[i]));
         }
         return stmt;
     }

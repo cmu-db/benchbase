@@ -22,6 +22,7 @@ import com.oltpbenchmark.benchmarks.tpch.util.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -59,12 +60,12 @@ public class Q5 extends GenericQuery {
         String region = TPCHUtil.choice(TPCHConstants.R_NAME, rand);
 
         int year = rand.number(1993, 1997);
-        String date = String.format("%d-01-01", year);
+        Date date = Date.valueOf(String.format("%d-01-01", year));
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, region);
-        stmt.setString(2, date);
-        stmt.setString(3, date);
+        stmt.setDate(2, date);
+        stmt.setDate(3, date);
         return stmt;
     }
 }

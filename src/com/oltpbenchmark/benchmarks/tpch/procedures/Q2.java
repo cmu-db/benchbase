@@ -70,7 +70,8 @@ public class Q2 extends GenericQuery {
             +     "s_acctbal desc, "
             +     "n_name, "
             +     "s_name, "
-            +     "p_partkey"
+            +     "p_partkey "
+            + "limit 100"
         );
 
     @Override

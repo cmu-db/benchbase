@@ -31,16 +31,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.oltpbenchmark.benchmarks.tpch.util.CopyUtil;
+import com.oltpbenchmark.types.DatabaseType;
 import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.api.Loader;
@@ -160,7 +159,56 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         CastTypes.DOUBLE, // s_acctbal
         CastTypes.STRING, // s_comment
     };
-    
+
+    /**
+     * @return true if COPY was successful, false if it wasn't
+     */
+    private boolean loadCopy(Connection conn) {
+        DatabaseType dbType = workConf.getDBType();
+        String[] copySQL = null;
+
+        switch (dbType) {
+            case PELOTON: {
+                copySQL = CopyUtil.copyPELOTON(workConf);
+                break;
+            }
+            case POSTGRES: {
+                copySQL = CopyUtil.copyPOSTGRES(workConf, conn, LOG);
+                break;
+            }
+            case MYSQL: {
+                copySQL = CopyUtil.copyMYSQL(workConf);
+                break;
+            }
+            case MEMSQL: {
+                copySQL = CopyUtil.copyMEMSQL(workConf);
+                break;
+            }
+            default:
+                return false;
+        }
+
+        try {
+            if (copySQL != null) {
+                // we should support COPY, use it and return
+                Statement stmt = conn.createStatement();
+                for (String sql : copySQL) {
+                    LOG.info(String.format("Executing %s", sql));
+                    stmt.execute(sql);
+                    conn.commit();
+                }
+                LOG.info("Finished loading");
+                return true;
+            } else {
+                LOG.info("No COPY support detected. Loading with INSERT.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error("Something bad happened. Loading with INSERT.");
+        }
+        return false;
+    }
+
     @Override
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
@@ -168,6 +216,10 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread() {
             @Override
             public void load(Connection conn) {
+                if (loadCopy(conn)) {
+                    return;
+                }
+
                 try {
                     customerPrepStmt = conn.prepareStatement("INSERT INTO customer "
                             + "(c_custkey, c_name, c_address, c_nationkey,"
@@ -210,8 +262,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             + " s_acctbal, s_comment) "
                             + "VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-                    loadHelper();
-                    conn.commit();
+                    loadHelper(conn);
                 } catch (Exception ex) {
                     throw new RuntimeException("Failed to load database", ex);
                 }
@@ -222,61 +273,50 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     }
 
-    static void truncateTable(Connection conn, String strTable) throws SQLException {
-        LOG.debug("Truncating '" + strTable + "' ...");
-        try {
-            conn.createStatement().execute("DELETE FROM " + strTable);
-            conn.commit();
-        } catch (SQLException se) {
-            LOG.debug(se.getMessage());
-            conn.rollback();
-        }
+    Thread loadCustomers(Connection conn) {
+        return new Thread(new TableLoader(conn,"Customer", customerTypes, customerPrepStmt, this));
     }
 
-    Thread loadCustomers() {
-        return new Thread(new TableLoader("Customer", customerTypes, customerPrepStmt, this));
+    Thread loadLineItems(Connection conn) {
+        return new Thread(new TableLoader(conn,"LineItem", lineitemTypes, lineitemPrepStmt, this));
     }
 
-    Thread loadLineItems() {
-        return new Thread(new TableLoader("LineItem", lineitemTypes, lineitemPrepStmt, this));
+    Thread loadNations(Connection conn) {
+        return new Thread(new TableLoader(conn,"Nation", nationTypes, nationPrepStmt, this));
     }
 
-    Thread loadNations() {
-        return new Thread(new TableLoader("Nation", nationTypes, nationPrepStmt, this));
+    Thread loadOrders(Connection conn) {
+        return new Thread(new TableLoader(conn,"Orders", ordersTypes, ordersPrepStmt, this));
     }
 
-    Thread loadOrders() {
-        return new Thread(new TableLoader("Orders", ordersTypes, ordersPrepStmt, this));
+    Thread loadParts(Connection conn) {
+        return new Thread(new TableLoader(conn,"Part", partTypes, partPrepStmt, this));
     }
 
-    Thread loadParts() {
-        return new Thread(new TableLoader("Part", partTypes, partPrepStmt, this));
+    Thread loadPartSupps(Connection conn) {
+        return new Thread(new TableLoader(conn,"PartSupp", partsuppTypes, partsuppPrepStmt, this));
     }
 
-    Thread loadPartSupps() {
-        return new Thread(new TableLoader("PartSupp", partsuppTypes, partsuppPrepStmt, this));
+    Thread loadRegions(Connection conn) {
+        return new Thread(new TableLoader(conn,"Region", regionTypes, regionPrepStmt, this));
     }
 
-    Thread loadRegions() {
-        return new Thread(new TableLoader("Region", regionTypes, regionPrepStmt, this));
-    }
-
-    Thread loadSuppliers() {
-        return new Thread(new TableLoader("Supplier", supplierTypes, supplierPrepStmt, this));
+    Thread loadSuppliers(Connection conn) {
+        return new Thread(new TableLoader(conn,"Supplier", supplierTypes, supplierPrepStmt, this));
     }
 
     protected long totalRows = 0;
 
-    protected long loadHelper() {
+    protected long loadHelper(Connection conn) {
         Thread loaders[] = new Thread[8];
-        loaders[0] = loadCustomers();
-        loaders[1] = loadLineItems();
-        loaders[2] = loadNations();
-        loaders[3] = loadOrders();
-        loaders[4] = loadParts();
-        loaders[5] = loadPartSupps();
-        loaders[6] = loadRegions();
-        loaders[7] = loadSuppliers();
+        loaders[0] = loadCustomers(conn);
+        loaders[1] = loadLineItems(conn);
+        loaders[2] = loadNations(conn);
+        loaders[3] = loadOrders(conn);
+        loaders[4] = loadParts(conn);
+        loaders[5] = loadPartSupps(conn);
+        loaders[6] = loadRegions(conn);
+        loaders[7] = loadSuppliers(conn);
 
         for (int i = 0; i < 8; ++i)
             if (loaders[i] != null)
@@ -302,9 +342,10 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
         private Connection conn;
 
-        TableLoader(String tableName, CastTypes[] types
+        TableLoader(Connection conn, String tableName, CastTypes[] types
                   , PreparedStatement prepStmt, TPCHLoader parent)
         {
+            this.conn = conn;
             this.tableName = tableName;
             this.prepStmt = prepStmt;
             this.types = types;
@@ -339,9 +380,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         }
         
         private int getFormatGroup(String format){
-            if("csv".equals(format)){
+            if("csv".equals(format)) {
                return  1;
-            }else{
+            } else{
                 return 0;
             }
         }
@@ -353,9 +394,14 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             long lastTimeMS = new java.util.Date().getTime();
 
             try {
-                // FIXME: This should be the Connection given to the LoaderThread
-                this.conn = benchmark.makeConnection();
-                truncateTable(this.conn, this.tableName.toLowerCase());
+                LOG.debug("Truncating '" + this.tableName.toLowerCase() + "' ...");
+                try {
+                    conn.createStatement().execute("DELETE FROM " + this.tableName.toLowerCase());
+                    conn.commit();
+                } catch (SQLException se) {
+                    LOG.debug(se.getMessage());
+                    conn.rollback();
+                }
             } catch (SQLException e) {
                 LOG.error("Failed to truncate table \""
                         + this.tableName.toLowerCase()
@@ -513,7 +559,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 synchronized(parent) {
                     parent.totalRows += recordsRead;
                 }
-                this.conn.close();
             } catch(SQLException e) {
                 LOG.debug(e.getMessage());
             }

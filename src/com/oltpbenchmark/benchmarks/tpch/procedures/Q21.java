@@ -66,7 +66,8 @@ public class Q21 extends GenericQuery {
             +     "s_name "
             + "order by "
             +     "numwait desc, "
-            +     "s_name"
+            +     "s_name "
+            + "limit 100"
         );
 
     @Override

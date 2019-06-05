@@ -22,6 +22,7 @@ import com.oltpbenchmark.benchmarks.tpch.util.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -49,7 +50,8 @@ public class Q3 extends GenericQuery {
             +     "o_shippriority "
             + "order by "
             +     "revenue desc, "
-            +     "o_orderdate"
+            +     "o_orderdate "
+            + "limit 10"
         );
 
     @Override
@@ -58,12 +60,12 @@ public class Q3 extends GenericQuery {
 
         // date must be randomly selected between [1995-03-01, 1995-03-31]
         int day = rand.number(1, 31);
-        String date = String.format("1995-03-%02d", day);
+        Date date = Date.valueOf(String.format("1995-03-%02d", day));
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, segment);
-        stmt.setString(2, date);
-        stmt.setString(3, date);
+        stmt.setDate(2, date);
+        stmt.setDate(3, date);
         return stmt;
     }
 }

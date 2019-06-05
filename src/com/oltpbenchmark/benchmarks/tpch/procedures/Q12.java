@@ -22,6 +22,7 @@ import com.oltpbenchmark.benchmarks.tpch.util.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -72,13 +73,13 @@ public class Q12 extends GenericQuery {
 
         // DATE is the first of January of a randomly selected year within [1993 .. 1997]
         int year = rand.number(1993, 1997);
-        String date = String.format("%d-01-01", year);
+        Date date = Date.valueOf(String.format("%d-01-01", year));
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, shipMode1);
         stmt.setString(2, shipMode2);
-        stmt.setString(3, date);
-        stmt.setString(4, date);
+        stmt.setDate(3, date);
+        stmt.setDate(4, date);
         return stmt;
     }
 }

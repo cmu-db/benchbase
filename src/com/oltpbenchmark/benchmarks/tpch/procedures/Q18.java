@@ -57,7 +57,8 @@ public class Q18 extends GenericQuery {
             +     "o_totalprice "
             + "order by "
             +     "o_totalprice desc, "
-            +     "o_orderdate"
+            +     "o_orderdate "
+            + "limit 100"
         );
 
     @Override
