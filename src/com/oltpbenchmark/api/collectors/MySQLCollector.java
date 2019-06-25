@@ -16,50 +16,43 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.oltpbenchmark.catalog.Catalog;
-
 public class MySQLCollector extends DBCollector {
+
     private static final Logger LOG = Logger.getLogger(MySQLCollector.class);
 
-    private static final String VERSION_SQL = "SELECT @@GLOBAL.version;";
+    private static final String PARAMETERS_SQL = "SHOW GLOBAL VARIABLES";
 
-    private static final String PARAMETERS_SQL = "SHOW VARIABLES;";
+    private static final String METRICS_SQL = "SHOW GLOBAL STATUS";
 
-    private static final String METRICS_SQL = "SHOW STATUS";
-
-    public MySQLCollector(String oriDBUrl, String username, String password) {
-        try {
-            Connection conn = DriverManager.getConnection(oriDBUrl, username, password);
-            Catalog.setSeparator(conn);
-            Statement s = conn.createStatement();
-
-            // Collect DBMS version
-            ResultSet out = s.executeQuery(VERSION_SQL);
-            if (out.next()) {
-            	this.version.append(out.getString(1));
-            }
-
-            // Collect DBMS parameters
-            out = s.executeQuery(PARAMETERS_SQL);
-            while(out.next()) {
-                dbParameters.put(out.getString(1).toLowerCase(), out.getString(2));
-            }
-
-            // Collect DBMS internal metrics
-            out = s.executeQuery(METRICS_SQL);
-            while (out.next()) {
-            	dbMetrics.put(out.getString(1).toLowerCase(), out.getString(2));
-            }
-        } catch (SQLException e) {
-            LOG.error("Error while collecting DB parameters: " + e.getMessage());
-        }
+    public MySQLCollector(String dbUrl, String dbUsername, String dbPassword) {
+        super(dbUrl, dbUsername, dbPassword);
     }
+
+    @Override
+    public String collectParameters() {
+        Map<String, String> parameters = null;
+        try {
+            parameters = getKeyValueResults(PARAMETERS_SQL);
+        } catch (SQLException ex) {
+            LOG.warn("Error collecting DB parameters: " + ex.getMessage());
+        }
+        return toJSONString(parameters);
+    }
+
+    @Override
+    public String collectMetrics() {
+        Map<String, String> metrics = null;
+        try {
+            metrics = getKeyValueResults(METRICS_SQL);
+        } catch (SQLException ex) {
+            LOG.warn("Error collecting DB metrics: " + ex.getMessage());
+        }
+        return toJSONString(metrics);
+    }
+
 }
