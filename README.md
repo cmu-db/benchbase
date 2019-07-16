@@ -100,7 +100,6 @@ To execute the `tpcc` benchmark:
 java -jar oltpbench-2019.1-BETA.jar -b tpch -c config/cockroachdb/sample_tpch_config.xml --create=true --load=true --execute=true -s 5
 ```
 
-
 The following options are provided:
 
 ```text
@@ -138,6 +137,13 @@ usage: oltpbenchmark
     --upload <arg>              Upload the result
  -v,--verbose                   Display Messages
 ```
+
+## How to see Postgres Driver logging
+To enable logging for the PostgreSQL JDBC driver, add the following JVM property when starting...
+```
+-Djava.util.logging.config.file=src/main/resources/logging.properties
+```
+To modify the logging level you can update `logging.properties`
 
 ## How to Add Support for a New Database
 coming soon
