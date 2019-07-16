@@ -3,6 +3,8 @@ version: '3.5'
 services:
 
   db:
+    container_name: db
+    hostname: db
     image: postgres:latest
     command: postgres -N 500
     environment:
@@ -13,6 +15,8 @@ services:
       - "5432:5432"
 
   db-ui:
+    container_name: db-ui
+    hostname: db-ui
     image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com

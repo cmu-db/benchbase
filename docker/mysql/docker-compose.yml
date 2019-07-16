@@ -3,6 +3,8 @@ version: '3.5'
 services:
 
   db:
+    container_name: db
+    hostname: db
     image: mysql:latest
     command: mysqld --max-connections=500
     environment:
@@ -10,6 +12,8 @@ services:
       MYSQL_ROOT_HOST: "%"
 
   db-ui:
+    container_name: db-ui
+    hostname: db-ui
     image: phpmyadmin/phpmyadmin:latest
     environment:
       PMA_HOST: db
