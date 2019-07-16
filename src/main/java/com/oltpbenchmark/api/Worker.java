@@ -350,6 +350,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
         final TransactionType next = transactionTypes.getType(pieceOfWork.getType());
 
+        final int isolationMode = this.wrkld.getIsolationMode();
+
+        LOG.info("transaction isolation mode = {}", isolationMode);
+
         try (Connection conn = benchmarkModule.getConnection()) {
 
             if (!conn.getAutoCommit()) {
@@ -359,7 +363,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             conn.setAutoCommit(false);
 
             if (this.wrkld.getDBType().shouldUseTransactions()) {
-                conn.setTransactionIsolation(this.wrkld.getIsolationMode());
+                conn.setTransactionIsolation(isolationMode);
             }
 
             // lets add a max retry loop

@@ -9,6 +9,5 @@
       "SSLMode": "disable",
       "MaintenanceDB": "postgres"
     }
-
   }
 }
