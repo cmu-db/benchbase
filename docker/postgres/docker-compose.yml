@@ -17,7 +17,8 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 8080
     links:
       - db
     ports:
-      - "8080:80"
+      - "8888:8080"

@@ -40,6 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
+    private static final int MAX_RETRY_COUNT = 3;
+
     private WorkloadState wrkldState;
     private LatencyRecord latencies;
     private Statement currStatement;
@@ -342,54 +344,54 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @param llr
      */
     protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
-        TransactionType next = null;
         TransactionStatus status = TransactionStatus.RETRY;
 
         final DatabaseType dbType = wrkld.getDBType();
         final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
+        final TransactionType next = transactionTypes.getType(pieceOfWork.getType());
 
         try (Connection conn = benchmarkModule.getConnection()) {
 
+            if (!conn.getAutoCommit()) {
+                LOG.warn("autocommit is already false at beginning of work.  this is a problem");
+            }
+
             conn.setAutoCommit(false);
 
-            // 2018-01-11: Since we want to support NoSQL systems
-            // that do not support txns, we will not invoke certain JDBC functions
-            // that may cause an error in them.
             if (this.wrkld.getDBType().shouldUseTransactions()) {
                 conn.setTransactionIsolation(this.wrkld.getIsolationMode());
             }
 
-            Savepoint savepoint = null;
+            // lets add a max retry loop
 
-            // For Postgres, we have to create a savepoint in order to rollback a user aborted transaction
-            if (dbType == DatabaseType.POSTGRES) {
-                LOG.debug("setting savepoint");
-                savepoint = conn.setSavepoint();
-            } else if (dbType == DatabaseType.COCKROACHDB) {
-                // For cockroach, a savepoint must be created with a specific name in order to rollback
-                LOG.debug("setting savepoint COCKROACH_RESTART");
-                savepoint = conn.setSavepoint("cockroach_restart");
-            }
+            int retryCount = 0;
 
-            while (status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
-                if (next == null) {
-                    next = transactionTypes.getType(pieceOfWork.getType());
+            while (retryCount < MAX_RETRY_COUNT && status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
+
+
+                Savepoint savepoint = null;
+
+                // For Postgres, we have to create a savepoint in order to rollback a user aborted transaction
+                if (dbType == DatabaseType.POSTGRES) {
+                    LOG.debug("setting savepoint");
+                    savepoint = conn.setSavepoint();
+                } else if (dbType == DatabaseType.COCKROACHDB) {
+                    // For cockroach, a savepoint must be created with a specific name in order to rollback
+                    LOG.debug("setting savepoint COCKROACH_RESTART");
+                    savepoint = conn.setSavepoint("cockroach_restart");
                 }
 
-                try {
 
-                    status = TransactionStatus.UNKNOWN;
+                try {
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s %s attempting...", this, next));
                     }
 
-                    // this method should be responsible for commiting
-
                     status = this.executeWork(conn, next);
 
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("%s %s completed...", this, next));
+                        LOG.debug(String.format("%s %s completed with status [%s]...", this, next, status.name()));
                     }
 
                     if (savepoint != null) {
@@ -400,6 +402,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                         conn.releaseSavepoint(savepoint);
                     }
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s %s committing...", this, next));
+                    }
+
+                    conn.commit();
 
                     // User Abort Handling
                     // These are not errors
@@ -466,6 +474,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         // ------------------
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
+                        LOG.warn("calling PG/CRDB retry...");
                         continue;
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("53200")) {
                         // Postgres OOM error
@@ -534,6 +543,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             this.txnAbort.put(next);
                             break;
                         case RETRY:
+                            retryCount++;
+
+                            if (retryCount >= MAX_RETRY_COUNT) {
+                                LOG.warn(String.format("%s %s retry count exceeded for transaction: %s", this, next, status));
+                            } else {
+                                LOG.warn(String.format("%s %s retry transaction iteration %d: %s", this, next, retryCount, status));
+                            }
+
                             continue;
                         default:
 
@@ -542,23 +559,15 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             }
 
-            conn.commit();
+            if (conn.getAutoCommit()) {
+                LOG.warn("autocommit is already true at end of work.  this is a problem");
+            }
 
             conn.setAutoCommit(true);
         } catch (SQLException ex) {
             String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]", this, next, dbType);
-            // FIXME: PAVLO 2016-12-29
-            // Right now our DBMS throws an exception when the txn gets aborted
-            // due to a conflict, so for now we have to not kill ourselves.
-            // This *does not* incorrectly inflate our performance numbers.
-            // It's more of a workaround for now until I can figure out how to do
-            // this correctly in JDBC.
-            if (dbType == DatabaseType.PELOTON) {
-                msg += "\nBut we are not stopping because " + dbType + " cannot handle this correctly";
-                LOG.warn(msg);
-            } else {
-                throw new RuntimeException(msg, ex);
-            }
+
+            throw new RuntimeException(msg, ex);
         }
 
         return (next);
@@ -574,7 +583,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     /**
      * Invoke a single transaction for the given TransactionType
-     *
      *
      * @param conn
      * @param txnType
