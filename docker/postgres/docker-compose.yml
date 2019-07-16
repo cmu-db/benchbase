@@ -26,3 +26,5 @@ services:
       - db
     ports:
       - "8888:8080"
+    volumes:
+      - ${PWD}/servers.json:/pgadmin4/servers.json
