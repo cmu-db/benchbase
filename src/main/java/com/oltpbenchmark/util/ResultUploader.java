@@ -48,9 +48,9 @@ public class ResultUploader {
     private static final Logger LOG = LoggerFactory.getLogger(ResultUploader.class);
 
     private static String[] IGNORE_CONF = {
-            "dbtype",
+            "type",
             "driver",
-            "DBUrl",
+            "url",
             "username",
             "password",
             "uploadCode",

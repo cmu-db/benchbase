@@ -124,13 +124,13 @@ public class DBWorkload {
             }
 
             // Pull in database configuration
-            wrkld.setDBType(DatabaseType.get(xmlConfig.getString("dbtype")));
+            wrkld.setDBType(DatabaseType.get(xmlConfig.getString("type")));
             wrkld.setDBDriver(xmlConfig.getString("driver"));
-            wrkld.setDBConnection(xmlConfig.getString("DBUrl"));
-            wrkld.setDBName(xmlConfig.getString("DBName"));
+            wrkld.setDBConnection(xmlConfig.getString("url"));
             wrkld.setDBUsername(xmlConfig.getString("username"));
             wrkld.setDBPassword(xmlConfig.getString("password"));
             wrkld.setDBBatchSize(xmlConfig.getInt("batchsize", 500));
+            wrkld.setDBPoolSize(xmlConfig.getInt("poolsize", 25));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
             terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);

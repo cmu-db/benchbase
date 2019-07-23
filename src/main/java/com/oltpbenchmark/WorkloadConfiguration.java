@@ -44,10 +44,10 @@ public class WorkloadConfiguration {
     }
 
     private String db_connection;
-    private String db_name;
     private String db_username;
     private String db_password;
     private String db_driver;
+    private int db_pool_size;
     private int db_batch_size;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
@@ -118,10 +118,6 @@ public class WorkloadConfiguration {
         return db_connection;
     }
 
-    public void setDBName(String dbname) {
-        this.db_name = dbname;
-    }
-
     public void setLoaderThreads(int loaderThreads) {
         this.loaderThreads = loaderThreads;
     }
@@ -141,10 +137,6 @@ public class WorkloadConfiguration {
 
     public void setNumTxnTypes(int numTxnTypes) {
         this.numTxnTypes = numTxnTypes;
-    }
-
-    public String getDBName() {
-        return db_name;
     }
 
     public void setDBUsername(String username) {
@@ -182,6 +174,16 @@ public class WorkloadConfiguration {
     public void setRecordAbortMessages(boolean recordAbortMessages) {
         this.recordAbortMessages = recordAbortMessages;
     }
+
+
+    public void setDBPoolSize(int poolSize) {
+        this.db_pool_size = db_pool_size;
+    }
+
+    public int getDBPoolSize() {
+        return this.db_pool_size;
+    }
+
 
     /**
      * Whether each worker should record the transaction's UserAbort messages

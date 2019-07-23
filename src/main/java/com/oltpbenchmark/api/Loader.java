@@ -130,7 +130,7 @@ public abstract class Loader<T extends BenchmarkModule> {
         conn.setTransactionIsolation(workConf.getIsolationMode());
         try (Statement st = conn.createStatement()) {
             for (Table catalog_tbl : catalog.getTables()) {
-                LOG.debug(String.format("Deleting data from %s.%s", workConf.getDBName(), catalog_tbl.getName()));
+                LOG.debug(String.format("Deleting data from table %s", catalog_tbl.getName()));
                 String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
                 st.execute(sql);
             } // FOR
