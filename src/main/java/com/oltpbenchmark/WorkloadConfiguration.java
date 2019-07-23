@@ -177,7 +177,7 @@ public class WorkloadConfiguration {
 
 
     public void setDBPoolSize(int poolSize) {
-        this.db_pool_size = db_pool_size;
+        this.db_pool_size = poolSize;
     }
 
     public int getDBPoolSize() {
