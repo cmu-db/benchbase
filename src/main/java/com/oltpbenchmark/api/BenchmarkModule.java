@@ -90,6 +90,8 @@ public abstract class BenchmarkModule {
 
     private HikariDataSource dataSource = null;
 
+    private static final Integer MAX_POOL_SIZE = 50;
+
     public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
 
 
@@ -101,6 +103,7 @@ public abstract class BenchmarkModule {
         config.setJdbcUrl(workConf.getDBConnection());
         config.setUsername(workConf.getDBUsername());
         config.setPassword(workConf.getDBPassword());
+        config.setMaximumPoolSize(MAX_POOL_SIZE);
 
         dataSource = new HikariDataSource(config);
     }
