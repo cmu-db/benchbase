@@ -172,6 +172,7 @@ public class DBWorkload {
             initDebug.put("Type", wrkld.getDBType());
             initDebug.put("Driver", wrkld.getDBDriver());
             initDebug.put("URL", wrkld.getDBConnection());
+            initDebug.put("Pool Size", wrkld.getDBPoolSize());
             initDebug.put("Isolation", wrkld.getIsolationString());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
 
