@@ -34,7 +34,7 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(HYADAPTWorker.class);
 
     private static CounterGenerator insertRecord;
-    private double selectivity = wrkld.getSelectivity();
+    private double selectivity = configuration.getSelectivity();
     private int key_lower_bound = (int) ((1 - selectivity) * HYADAPTConstants.RANGE);
 
     public HYADAPTWorker(HYADAPTBenchmark benchmarkModule, int id, int init_record_count) {

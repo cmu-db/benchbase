@@ -427,12 +427,12 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         long i_num_bids = SQLUtil.getLong(row[col++]);          // i_num_bids
         Timestamp i_end_date = SQLUtil.getTimestamp(row[col++]);// i_end_date
         if (i_end_date == null) {
-            throw new RuntimeException("DJELLEL IS THE MAN! --> " + row[col - 1] + " / " + row[col - 1].getClass());
+            LOG.warn("end date is null: " + row[col - 1] + " / " + row[col - 1].getClass() + " expected timestamp or date");
         }
 
-        Integer temp = SQLUtil.getInteger(row[col++]);
+        Long temp = SQLUtil.getLong(row[col++]);
         if (temp == null) {
-            throw new RuntimeException("DJELLEL IS STILL THE MAN! --> " + row[col - 1] + " / " + row[col - 1].getClass());
+            LOG.warn("status is null: " + row[col - 1] + " / " + row[col - 1].getClass() + " expected Long");
         }
         ItemStatus i_status = ItemStatus.get(temp); // i_status
 

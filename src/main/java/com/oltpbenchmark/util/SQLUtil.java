@@ -53,9 +53,14 @@ public abstract class SQLUtil {
 
         if (obj instanceof Integer || obj.getClass().equals(int.class)) {
             return (Integer) obj;
+        } else if (obj instanceof Long || obj.getClass().equals(long.class)) {
+            return ((Long) obj).intValue();
         } else if (obj instanceof BigDecimal) {
             return ((BigDecimal) obj).intValue();
         }
+
+        LOG.warn("BAD BAD BAD: returning null because getInteger does not support " + obj.getClass());
+
         return (null);
     }
 
@@ -71,13 +76,16 @@ public abstract class SQLUtil {
             return (null);
         }
 
-        if (obj instanceof Long) {
+        if (obj instanceof Long || obj.getClass().equals(long.class)) {
             return (Long) obj;
-        } else if (obj.getClass().equals(long.class)) {
-            return (Long) obj;
+        } else if (obj instanceof Integer || obj.getClass().equals(int.class)) {
+            return ((Integer) obj).longValue();
         } else if (obj instanceof BigDecimal) {
             return ((BigDecimal) obj).longValue();
         }
+
+        LOG.warn("BAD BAD BAD: returning null because getLong does not support " + obj.getClass());
+
         return (null);
     }
 
@@ -100,6 +108,9 @@ public abstract class SQLUtil {
         } else if (obj instanceof BigDecimal) {
             return ((BigDecimal) obj).doubleValue();
         }
+
+        LOG.warn("BAD BAD BAD: returning null because getDouble does not support " + obj.getClass());
+
         return (null);
     }
 
@@ -120,18 +131,6 @@ public abstract class SQLUtil {
         } else if (obj instanceof Date) {
             return new Timestamp(((Date) obj).getTime());
         }
-//         else {
-//             LOG.error(String.format("Unexpected timestamp object type '%s': %s",
-//                                     obj.getClass().getName(), obj));
-//         }
-        // FIXME: Not sure how to include this without including Oracle jars
-//        else if (obj instanceof oracle.sql.TIMESTAMP) {
-//            try {
-//                return ((oracle.sql.TIMESTAMP)obj).timestampValue();
-//            } catch (SQLException ex) {
-//                throw new RuntimeException("Failed to get timestamp from '" + obj + "'", ex);
-//            }
-//        }
 
         Long timestamp = SQLUtil.getLong(obj);
         return (timestamp != null ? new Timestamp(timestamp) : null);
