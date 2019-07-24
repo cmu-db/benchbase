@@ -39,7 +39,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
@@ -224,7 +227,6 @@ public class DBWorkload {
 
             // Read in the groupings of transactions (if any) defined for this
             // benchmark
-            HashMap<String, List<String>> groupings = new HashMap<>();
             int numGroupings = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/groupings/grouping").size();
             LOG.debug("Num groupings: {}", numGroupings);
             for (int i = 1; i < numGroupings + 1; i++) {
@@ -249,16 +251,9 @@ public class DBWorkload {
                 }
 
                 LOG.debug("Creating grouping with name, weights: {}, {}", groupingName, groupingWeights);
-                groupings.put(groupingName, groupingWeights);
             }
 
-            // All benchmarks should also have an "all" grouping that gives
-            // even weight to all transactions in the benchmark.
-            List<String> weightAll = new ArrayList<>();
-            for (int i = 0; i < numTxnTypes; ++i) {
-                weightAll.add("1");
-            }
-            groupings.put("all", weightAll);
+
             benchList.add(bench);
 
             // ----------------------------------------------------------------
@@ -273,20 +268,11 @@ public class DBWorkload {
                 // use a workaround if there multiple workloads or single
                 // attributed workload
                 if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
-                    String weightKey = work.getString("weights" + pluginTest).toLowerCase();
-                    if (groupings.containsKey(weightKey)) {
-                        weight_strings = groupings.get(weightKey);
-                    } else {
-                        weight_strings = getWeights(plugin, work);
-                    }
+                    weight_strings = work.getList(String.class, "weights" + pluginTest);
                 } else {
-                    String weightKey = work.getString("weights[not(@bench)]").toLowerCase();
-                    if (groupings.containsKey(weightKey)) {
-                        weight_strings = groupings.get(weightKey);
-                    } else {
-                        weight_strings = work.getList(String.class, "weights[not(@bench)]");
-                    }
+                    weight_strings = work.getList(String.class, "weights[not(@bench)]");
                 }
+
                 int rate = 1;
                 boolean rateLimited = true;
                 boolean disabled = false;
@@ -690,35 +676,6 @@ public class DBWorkload {
         }
     }
 
-    /* buggy piece of shit of Java XPath implementation made me do it 
-       replaces good old [@bench="{plugin_name}", which doesn't work in Java XPath with lists
-     */
-    private static List<String> getWeights(String plugin, HierarchicalConfiguration<ImmutableNode> work) {
-
-        throw new RuntimeException("this old code doesn't compile under commons-configuration2; not clear how/why its used.  if you've encountered it, help me fix it.");
-
-        /*List<String> weight_strings = new LinkedList<>();
-        List<HierarchicalConfiguration<ImmutableNode>> weights = work.configurationsAt("weights");
-        boolean weights_started = false;
-
-        for (HierarchicalConfiguration<ImmutableNode> weight : weights) {
-
-            // stop if second attributed node encountered
-            if (weights_started && weight.getRootNode().getAttributeCount() > 0) {
-                break;
-            }
-            // start adding node values, if node with attribute equal to current
-            // plugin encountered
-            if (weight.getRootNode().getAttributeCount() > 0 && weight.getRootNode().getAttribute(0).getValue().equals(plugin)) {
-                weights_started = true;
-            }
-            if (weights_started) {
-                weight_strings.add(weight.getString(""));
-            }
-
-        }
-        return weight_strings;*/
-    }
 
     private static void runScript(BenchmarkModule bench, String script) {
         LOG.debug(String.format("Running %s", script));
