@@ -1,4 +1,4 @@
-# OLTP-Bench: Part Deux
+# OLTP-Bench II
 
 Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Given the volume and scope of these changes, I have elected not to submit pull requests to the original project as it is unlikely they would or could be accepted.  Please see [Modifications to Original](#modifications-to-original) for changes in this fork.
 
