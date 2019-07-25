@@ -7,8 +7,8 @@
     <groupId>com.oltpbenchmark</groupId>
     <artifactId>oltpbench</artifactId>
     <version>2019.1-BETA</version>
-    <name>OLTP-Bench: Part Deux</name>
-    <description>OLTP-Bench: Part Deux is a database benchmarking framework inspired by http://oltpbenchmark.com/
+    <name>OLTP-Bench II</name>
+    <description>OLTP-Bench II is a database benchmarking framework inspired by http://oltpbenchmark.com/
     </description>
     <url>https://github.com/timveil-cockroach/oltpbench</url>
     <contributors>
@@ -43,7 +43,7 @@
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.16</version>
+                    <version>8.0.17</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
