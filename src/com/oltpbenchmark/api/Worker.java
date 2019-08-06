@@ -516,7 +516,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             break;
                         case RETRY_DIFFERENT:
                             this.txnRetry.put(next);
-                            return null;
+                            break;
                         case USER_ABORTED:
                             this.txnAbort.put(next);
                             break;
