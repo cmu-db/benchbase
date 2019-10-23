@@ -50,8 +50,8 @@ public enum DatabaseType {
     NUODB("com.nuodb.jdbc.Driver", true, false, true),
     TIMESTEN("com.timesten.jdbc.TimesTenDriver", true, false, true),
     CASSANDRA("com.github.adejanovski.cassandra.jdbc.CassandraDriver", true, true, false),
-    PELOTON("org.postgresql.Driver", false, false, true),
     MEMSQL("com.mysql.jdbc.Driver", true, false, false),
+    NOISEPAGE("org.postgresql.Driver", false, false, true),
     ;
     
     private DatabaseType(String driver,

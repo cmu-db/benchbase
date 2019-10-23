@@ -168,8 +168,8 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         String[] copySQL = null;
 
         switch (dbType) {
-            case PELOTON: {
-                copySQL = CopyUtil.copyPELOTON(workConf);
+            case NOISEPAGE: {
+                copySQL = CopyUtil.copyNOISEPAGE(workConf);
                 break;
             }
             case POSTGRES: {

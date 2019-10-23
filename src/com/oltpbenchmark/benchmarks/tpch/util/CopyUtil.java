@@ -57,7 +57,7 @@ public class CopyUtil {
         return result;
     }
 
-    public static String[] copyPELOTON(WorkloadConfiguration workConf) {
+    public static String[] copyNOISEPAGE(WorkloadConfiguration workConf) {
         return fillTablePaths(workConf, new String[]{
                 "COPY region FROM '%s' WITH (DELIMITER '|')",
                 "COPY nation FROM '%s' WITH (DELIMITER '|')",

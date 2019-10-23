@@ -142,9 +142,9 @@ public class TPCCBenchmark extends BenchmarkModule {
     public Timestamp getTimestamp(long time) {
         Timestamp timestamp;
         
-        // HACK: Peloton doesn't support JDBC timestamps.
+        // HACK: NoisePage doesn't support JDBC timestamps.
         // We have to use the postgres-specific type
-        if (this.workConf.getDBType() == DatabaseType.PELOTON) {
+        if (this.workConf.getDBType() == DatabaseType.NOISEPAGE) {
             timestamp = new org.postgresql.util.PGTimestamp(time);
         } else {
             timestamp = new java.sql.Timestamp(time);
