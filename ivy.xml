@@ -27,9 +27,9 @@
 
       <!-- Core Libraries -->
 		<dependency org="junit" name="junit" rev="4.11" force="true" conf="test->compile(*),runtime(*),master(*)"/>
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.3.1" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
-		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.3.1" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
-		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.3.1" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.3.6" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.3.6" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
+		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.3.6" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
 		<dependency org="log4j" name="log4j" rev="1.2.17" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
 		<dependency org="commons-collections" name="commons-collections" rev="3.2.1" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
 		<dependency org="net.sourceforge.collections" name="collections-generic" rev="4.01" force="true" conf="compile->compile(*),master(*);runtime->runtime(*)"/>
