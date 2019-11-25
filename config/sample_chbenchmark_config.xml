@@ -1,103 +1,162 @@
 <?xml version="1.0"?>
 <parameters>
-	
-    <!-- Connection details -->
+
+	<!-- Connection details -->
     <dbtype>mysql</dbtype>
     <driver>com.mysql.jdbc.Driver</driver>
-    <DBUrl>jdbc:mysql://localhost:3306/tpcc</DBUrl>
+    <DBUrl>jdbc:mysql://localhost:3306/chbenchmark</DBUrl>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <uploadCode></uploadCode>
     <uploadUrl></uploadUrl>
-    
-    <!-- Scale factor is the number of warehouses in TPCC -->
-    <scalefactor>2</scalefactor>
-    
-    <!-- The workload -->
-    <terminals>2</terminals>
-    <works>
-        <work>
-          <time>10</time>
-          <rate>10000</rate>
-          <weights>10, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
-        </work>
+
+	<!-- Scale factor is the number of warehouses in TPCC -->
+	<scalefactor>2</scalefactor>
+
+	<!-- The workload -->
+	<!-- Number of terminal per workload -->
+	<terminals>2</terminals>
+
+	<!-- Note: Workload-specific options are marked with @bench=[workload_name] -->
+
+	<!-- Workload-specific number of terminals -->
+	<!-- <terminals bench="chbenchmark">2</terminals> -->
+	<!-- <terminals bench="tpcc">5</terminals> -->
+
+	<works>
+ 
+	    <!-- A Basic WorkPhase for Mixed Workloads -->
+		<work>
+			<time>60</time>
+
+			<!-- Note: The rate can also be set to UNLIMITED or DISABLED -->
+			<rate>10000</rate>
+
+            <!-- Serial execution of the chbenchmark queries -->
+            <!-- Note: Weights are interpreted differently when serial is enabled: -->
+            <!--   Queries with positive weights are executed -->
+            <!--   Queries with negative weights are skipped -->
+            <serial bench="chbenchmark">true</serial>
+
+            <!-- Non-serial execution of the tpcc transactions -->
+            <serial bench="tpcc">false</serial>
+
+			<!-- Must specify transaction weights for each workload -->
+			<weights bench="chbenchmark">5, 5, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4, 5, 4</weights>
+			<weights bench="tpcc">45,43,4,4,4</weights>
+		</work>
+
+	    <!-- Extra features showcase -->
+        <!-- <work> -->
+			<!-- <time>10</time> -->
+
+            <!-- Workload-specific rates -->
+			<!-- <rate bench="chbenchmark">unlimited</rate> -->
+			<!-- <rate bench="tpcc">100</rate> -->
+
+            <!-- Number of active terminals per work -->
+			<!-- NOTE: TPCC workers won't be distributed evenly between -->
+            <!-- warehouses if some workers are inactive -->
+			<!-- <active_terminals>2</active_terminals> -->
+			<!-- <active_terminals bench="chbenchmark">1</active_terminals> -->
+
+			<!-- Specifies transaction weight for each workload. -->
+			<!--<weights bench="tpcc">45,43,4,4,4</weights> -->
+			<!-- <weights bench="chbenchmark">5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8, 5, 7, 5, 5, 5, 5</weights> -->
+		<!-- </work> -->
+
 	</works>
-	
-	<!-- TPCC specific -->  
-   	<transactiontypes>
-    	<transactiontype>
-    		<name>Q1</name>
-    	</transactiontype>
-    	<!-- Doesn't work with MysQL
-    	<transactiontype>
-    		<name>Q2</name>
-    	</transactiontype>
-    	-->
-    	<transactiontype>
-    		<name>Q3</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q4</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q5</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q6</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q7</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q8</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q9</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q10</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q11</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q12</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q13</name>
-    	</transactiontype>    	
-    	<transactiontype>
-    		<name>Q14</name>
-    	</transactiontype>      
-    	<transactiontype>
-    	<!-- Needs optimization -->
-    		<name>Q15</name>
-    	</transactiontype>   
-    	<transactiontype>
-    		<name>Q16</name>
-    	</transactiontype>
-    	<!-- Doesn't work with MySQL
-    	<transactiontype>
-    		<name>Q17</name>
-    	</transactiontype>   
-    	-->
-    	<transactiontype>
-    		<name>Q18</name>
-    	</transactiontype>   
-    	<transactiontype>
-    		<name>Q19</name>
-    	</transactiontype>
-    	<!-- Doesn't work with MySQL
-    	<transactiontype>
-    		<name>Q20</name>
-    	</transactiontype>
-    	-->   
-    	<transactiontype>
-    		<name>Q21</name>
-    	</transactiontype>
-    	<transactiontype>
-    		<name>Q22</name>
-    	</transactiontype>
-   	</transactiontypes>	
+
+	<!-- Must list all transactions -->
+
+	<!-- CH specific -->
+	<transactiontypes bench="chbenchmark">
+		<transactiontype>
+			<name>Q1</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q2</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q3</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q4</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q5</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q6</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q7</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q8</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q9</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q10</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q11</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q12</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q13</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q14</name>
+		</transactiontype>
+		<transactiontype>
+			<!-- Needs optimization -->
+			<name>Q15</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q16</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q17</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q18</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q19</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q20</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q21</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Q22</name>
+		</transactiontype>
+	</transactiontypes>
+
+	<!-- TPCC specific -->
+	<transactiontypes bench="tpcc">
+		<transactiontype>
+			<name>NewOrder</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Payment</name>
+		</transactiontype>
+		<transactiontype>
+			<name>OrderStatus</name>
+		</transactiontype>
+		<transactiontype>
+			<name>Delivery</name>
+		</transactiontype>
+		<transactiontype>
+			<name>StockLevel</name>
+		</transactiontype>
+	</transactiontypes>
 </parameters>

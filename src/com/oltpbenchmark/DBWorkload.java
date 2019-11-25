@@ -409,10 +409,11 @@ public class DBWorkload {
                 if(arrive.toUpperCase().equals("POISSON"))
                     arrival=Phase.Arrival.POISSON;
                 
-                // We now have the option to run all queries exactly once in
-                // a serial (rather than random) order.
+                // If serial is enabled then run all queries exactly once in serial (rather than
+                // random) order
                 String serial_string;
-                serial_string = work.getString("serial", "false");
+                serial_string = work.getString("serial[not(@bench)]", "false");
+                serial_string = work.getString("serial" + pluginTest, serial_string);
                 if (serial_string.equals("true")) {
                     serial = true;
                 }
@@ -420,7 +421,8 @@ public class DBWorkload {
                     serial = false;
                 }
                 else {
-                    LOG.fatal("Serial string should be either 'true' or 'false'.");
+                    LOG.fatal(String.format("Invalid string for serial: '%s'. Serial string must be 'true' or 'false'",
+                            serial_string));
                     System.exit(-1);
                 }
 
@@ -431,15 +433,9 @@ public class DBWorkload {
                 int activeTerminals;
                 activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
                 activeTerminals = work.getInt("active_terminals" + pluginTest, activeTerminals);
-                // If using serial, we should have only one terminal
-                if (serial && activeTerminals != 1) {
-                    LOG.warn("Serial ordering is enabled, so # of active terminals is clamped to 1.");
-                    activeTerminals = 1;
-                }
                 if (activeTerminals > terminals) {
-                    LOG.error(String.format("Configuration error in work %d: " +
-                                            "Number of active terminals is bigger than the total number of terminals",
-                              i));
+                    LOG.error(String.format("Configuration error in work %d: "
+                            + "Number of active terminals is bigger than the total number of terminals", i));
                     System.exit(-1);
                 }
 
@@ -450,10 +446,17 @@ public class DBWorkload {
                     LOG.info("Running a script; ignoring timer, serial, and weight settings.");
                 }
                 else if (!timed) {
-                    if (serial)
+                    if (serial) {
+                        if (activeTerminals > 1) {
+                            // For serial executions, we usually want only one terminal, but not always!
+                            // (e.g. the CHBenCHmark)
+                            LOG.warn("\n" + StringBoxUtil.heavyBox(String.format(
+                                    "WARNING: Serial execution is enabled but the number of active terminals[=%d] > 1.\nIs this intentional??",
+                                    activeTerminals)));
+                        }
                         LOG.info("Timer disabled for serial run; will execute"
                                  + " all queries exactly once.");
-                    else {
+                    } else {
                         LOG.fatal("Must provide positive time bound for"
                                   + " non-serial executions. Either provide"
                                   + " a valid time or enable serial mode.");

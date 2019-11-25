@@ -264,7 +264,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             // Grab some work and update the state, in case it changed while we
             // waited.
-            pieceOfWork = wrkldState.fetchWork();
+            pieceOfWork = wrkldState.fetchWork(this.id);
             preState = wrkldState.getGlobalState();
 
             phase = this.wrkldState.getCurrentPhase();

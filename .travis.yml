@@ -78,6 +78,7 @@ env:
   - TEST=smallbank
   - TEST=twitter
   - TEST=resourcestresser
+  - TEST=chbenchmark
 
 # Missing loader com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark.makeLoaderImpl(ResourceStresserBenchmark.java:58)
 # -> org.apache.commons.lang.NotImplementedException: Code is not implemented
@@ -113,6 +114,8 @@ install:
       DB=postgres ;
     fi
   - if [ $DB == mysql ]; then mysql -e "SELECT VERSION()";
+      echo -e "[mysqld]\nlower_case_table_names=1" | sudo tee -a /etc/mysql/my.cnf ;
+      sudo service mysql restart ;
       mysql -e "CREATE DATABASE IF NOT EXISTS ${TEST}" ;
       mysql -e "CREATE USER 'travis'@'localhost' IDENTIFIED BY 'travis'; GRANT ALL ON *.* TO 'travis'@'localhost'";
     elif [ $DB == postgres ]; then psql -c "SELECT VERSION()" -U travis;
@@ -139,6 +142,13 @@ before_script:
 
 script:
   - SCALEFACTOR=0.5
+  - TIME=60
+  - TERMINALS=3
+  - if [ $TEST == chbenchmark ]; then
+      BENCH=${TEST},tpcc ;
+    else
+      BENCH=${TEST} ;
+    fi
   - ant bootstrap
   - ant resolve
   - if [ $TEST == junit ]; then
@@ -150,14 +160,14 @@ script:
            -e "/<dbtype>/c\<dbtype>${TYPE}</dbtype>"
            -e "/<driver>/c\<driver>${DRIVER}</driver>"
            -e "/<DBUrl>/c\<DBUrl>${URLBASE}/${TEST}</DBUrl>"
-           -e '/<username>/c\<username>travis</username>'
-           -e '/<password>/c\<password>travis</password>'
+           -e "/<username>/c\<username>travis</username>"
+           -e "/<password>/c\<password>travis</password>"
            -e "/<scalefactor>/c\\<scalefactor>${SCALEFACTOR}</scalefactor>"
-           -e '/<terminals>/c\<terminals>3</terminals>'
-           -e '/<time>/c\<time>60</time>'
-           -e '/<isolation>/c\<isolation>TRANSACTION_READ_COMMITTED</isolation>'
+           -e "/<terminals>/c\<terminals>${TERMINALS}</terminals>"
+           -e "/<time>/c\<time>${TIME}</time>"
+           -e "/<isolation>/c\<isolation>TRANSACTION_READ_COMMITTED</isolation>"
            "${config}";
-      ./oltpbenchmark --bench "${TEST}" --config "${config}" --create true --load true --execute true ;
+      ./oltpbenchmark --bench "${BENCH}" --config "${config}" --create true --load true --execute true ;
     fi
 
 
