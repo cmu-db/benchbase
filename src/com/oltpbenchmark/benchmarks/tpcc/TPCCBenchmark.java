@@ -142,13 +142,9 @@ public class TPCCBenchmark extends BenchmarkModule {
     public Timestamp getTimestamp(long time) {
         Timestamp timestamp;
         
-        // HACK: NoisePage doesn't support JDBC timestamps.
-        // We have to use the postgres-specific type
-        if (this.workConf.getDBType() == DatabaseType.NOISEPAGE) {
-            timestamp = new org.postgresql.util.PGTimestamp(time);
-        } else {
-            timestamp = new java.sql.Timestamp(time);
-        }
+	// 2020-03-03: I am no longer aware of any DBMS that needs a specialized data type for timestamps.
+        timestamp = new java.sql.Timestamp(time);
+        
         return (timestamp);
     }
 
