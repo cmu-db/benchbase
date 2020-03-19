@@ -52,6 +52,8 @@ import com.oltpbenchmark.util.ResultUploader;
 import com.oltpbenchmark.util.StringBoxUtil;
 import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.TimeUtil;
+import com.oltpbenchmark.util.JSONUtil;
+import com.oltpbenchmark.util.JSONSerializable;
 
 public class DBWorkload {
     private static final Logger LOG = Logger.getLogger(DBWorkload.class);
@@ -145,6 +147,7 @@ public class DBWorkload {
         options.addOption("t", "timestamp", false, "Each result file is prepended with a timestamp for the beginning of the experiment");
         options.addOption("ts", "tracescript", true, "Script of transactions to execute");
         options.addOption(null, "histograms", false, "Print txn histograms");
+        options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         options.addOption(null, "output-raw", true, "Output raw data");
         options.addOption(null, "output-samples", true, "Output sample data");
@@ -590,19 +593,13 @@ public class DBWorkload {
 
             // WRITE OUTPUT
             writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
-            
-            // WRITE HISTOGRAMS
-            if (argsLine.hasOption("histograms")) {
-                writeHistograms(r);
-            }
-
 
         } else {
             LOG.info("Skipping benchmark workload execution");
         }
     }
     
-    private static void writeHistograms(Results r) {
+    private static String writeHistograms(Results r) {
         StringBuilder sb = new StringBuilder();
         
         sb.append(StringUtil.bold("Completed Transactions:"))
@@ -630,9 +627,16 @@ public class DBWorkload {
               .append("\n")
               .append(r.getTransactionAbortMessageHistogram());
         
-        LOG.info(SINGLE_LINE);
-        LOG.info("Workload Histograms:\n" + sb.toString());
-        LOG.info(SINGLE_LINE);
+        return (sb.toString());
+    }
+    
+    private static String writeJSONHistograms(Results r) {
+        Map<String, JSONSerializable> map = new HashMap<>();
+        map.put("completed", r.getTransactionSuccessHistogram());
+        map.put("aborted", r.getTransactionAbortHistogram());
+        map.put("rejected", r.getTransactionRetryHistogram());
+        map.put("unexpected", r.getTransactionErrorHistogram());
+        return JSONUtil.toJSONString(map);
     }
     
         
@@ -774,6 +778,21 @@ public class DBWorkload {
         } else if (LOG.isDebugEnabled()) {
             LOG.warn("No bucket size specified");
         }
+        
+        // WRITE HISTOGRAMS
+        if (argsLine.hasOption("histograms")) {
+            String histogram_result = writeHistograms(r);
+            LOG.info(SINGLE_LINE);
+            LOG.info("Workload Histograms:\n" + histogram_result);
+            LOG.info(SINGLE_LINE);
+        }
+        if (argsLine.hasOption("json-histograms")) {
+            String histogram_json = writeJSONHistograms(r);
+            String fileName = argsLine.getOptionValue("json-histograms");
+            FileUtil.writeStringToFile(new File(fileName), histogram_json);
+            LOG.info("Histograms JSON Data: " + fileName);
+        }
+        
         
         if (ps != null) ps.close();
         if (rs != null) rs.close();
