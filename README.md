@@ -8,7 +8,7 @@ See also: [OLTP-Bench: An extensible testbed for benchmarking relational databas
 
 ### From Original Paper
 * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
-* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en), mixed workload based on `TPC-C` and `TPC-H`
+* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en) - a mixed workload based on `TPC-C` and `TPC-H`
 * Epinions.com
 * [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
 * Synthetic Resource Stresser 
@@ -29,7 +29,7 @@ See also: [OLTP-Bench: An extensible testbed for benchmarking relational databas
 * NoOp
 
 ### Removed
-* JPAB - this project appears abandoned and hasn't seen a an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
+* JPAB - this project appears abandoned and hasn't seen an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
 
 ## How to Build
 Run the following command to build the distribution:
@@ -157,7 +157,7 @@ My first priority is simply getting this code working against CockroachDB.  No w
 
 | Benchmark | Config | Load | Run | Notes |
 | -------------| ------------- | ------------- | ------------- | ------------- |
-| `auctionmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | self-referencing insert constaint [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
+| `auctionmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | self-referencing insert constraint [issue #4](https://github.com/timveil-cockroach/oltpbench/issues/4) |
 | `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | fails in CRDB `v2.1.4`, [~~issue #5~~](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6); works well in CRDB `v2.2.0-alpha` |
 | `epinions` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #7~~](https://github.com/timveil-cockroach/oltpbench/issues/7) |
 | `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config, [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
@@ -177,7 +177,7 @@ My first priority is simply getting this code working against CockroachDB.  No w
 | `ycsb` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 
 ## Modifications to Original
-This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to cleanup and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
+This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to clean up and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
 
 * Moved from Ant to Maven
     * Reorganized project to fit Maven structure
@@ -198,11 +198,12 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed calls to `printStackTrace()` or `System.out.println` in favor of proper logging
 * Reformatted code and cleaned up imports based on my preferences and using IntelliJ
 * Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
-* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations that didn't appear directly related to excuting benchmarks
+* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations that didn't appear directly related to executing benchmarks
     * Removed IDE specific settings
     * Removed references to personal setups or cloud instances
     * Removed directories such as `run`, `tools`, `nbproject`, `matlab`, `traces`
     * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
 * Removed calls to `commit()` during `Loader` operations
-* Refactored `Worker` and `Loader` useage of `Connection` objects and cleaned up transaction handling
+* Refactored `Worker` and `Loader` usage of `Connection` objects and cleaned up transaction handling
 * Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed (default `poolsize` is 25)
+* Introduced [Dependabot](https://dependabot.com/) to keep Maven dependencies up to date
