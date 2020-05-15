@@ -168,7 +168,7 @@ My first priority is simply getting this code working against CockroachDB.  No w
 | `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config - [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
 | `linkbench` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no implementation - [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
 | `noop` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
-| `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | [issue #41](https://github.com/timveil-cockroach/oltpbench/issues/41) |
 | `seats` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #10~~](https://github.com/timveil-cockroach/oltpbench/issues/10) |
 | `sibench` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `smallbank` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
