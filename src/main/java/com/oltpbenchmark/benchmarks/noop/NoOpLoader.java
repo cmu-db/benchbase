@@ -32,8 +32,6 @@ import java.util.List;
  * @author eric-haibin-lin
  */
 public class NoOpLoader extends Loader<NoOpBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(NoOpLoader.class);
-
     public NoOpLoader(NoOpBenchmark benchmark) {
         super(benchmark);
     }

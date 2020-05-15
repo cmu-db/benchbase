@@ -51,8 +51,6 @@ import java.util.concurrent.CountDownLatch;
  * TPC-C Benchmark Loader
  */
 public class TPCCLoader extends Loader<TPCCBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(TPCCLoader.class);
-
     public TPCCLoader(TPCCBenchmark benchmark) {
         super(benchmark);
         numWarehouses = (int) Math.round(TPCCConfig.configWhseCount * this.scaleFactor);

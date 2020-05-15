@@ -46,7 +46,6 @@ import java.util.regex.Pattern;
  * @author visawee
  */
 public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkLoader.class);
 
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS

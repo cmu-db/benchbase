@@ -42,8 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
 public class SEATSLoader extends Loader<SEATSBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(SEATSLoader.class);
-
     // -----------------------------------------------------------------
     // INTERNAL DATA MEMBERS
     // -----------------------------------------------------------------

@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LinkBenchLoader extends Loader<LinkBenchBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(LinkBenchLoader.class);
-
     private final int num_record;
 
     public LinkBenchLoader(LinkBenchBenchmark benchmark) {

@@ -46,8 +46,6 @@ import java.util.concurrent.CountDownLatch;
  * @author djellel
  */
 public class WikipediaLoader extends Loader<WikipediaBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(WikipediaLoader.class);
-
     private final int num_users;
     private final int num_pages;
 

@@ -36,8 +36,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TPCDSLoader extends Loader<TPCDSBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(TPCDSLoader.class);
-
     public TPCDSLoader(TPCDSBenchmark benchmark) {
         super(benchmark);
     }

@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TATPLoader extends Loader<TATPBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(TATPLoader.class);
-
     private final long subscriberSize;
 
     public TATPLoader(TATPBenchmark benchmark) {

@@ -16,7 +16,6 @@ import java.util.List;
 
 public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserLoader.class);
     private final int numEmployees;
 
     public ResourceStresserLoader(ResourceStresserBenchmark benchmark) {

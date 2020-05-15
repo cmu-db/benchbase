@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Random;
 
 public class SILoader extends Loader<SIBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(SILoader.class);
     private final int num_record;
 
     public SILoader(SIBenchmark benchmark) {

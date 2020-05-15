@@ -43,9 +43,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(TPCHLoader.class);
-
-
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
     }

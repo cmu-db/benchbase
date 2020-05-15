@@ -37,7 +37,7 @@ import java.util.Random;
  * @author pavlo
  */
 public abstract class Loader<T extends BenchmarkModule> {
-    private static final Logger LOG = LoggerFactory.getLogger(Loader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(Loader.class);
 
     protected final T benchmark;
 

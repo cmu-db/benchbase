@@ -37,9 +37,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TwitterLoader extends Loader<TwitterBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(TwitterLoader.class);
-
-
     private final int num_users;
     private final long num_tweets;
     private final int num_follows;

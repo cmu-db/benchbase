@@ -21,8 +21,6 @@ import java.util.List;
  * @author pavlo
  */
 public class SmallBankLoader extends Loader<SmallBankBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(SmallBankLoader.class);
-
     private final Table catalogAccts;
     private final Table catalogSavings;
     private final Table catalogChecking;

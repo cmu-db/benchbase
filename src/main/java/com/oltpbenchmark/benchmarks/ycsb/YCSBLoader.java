@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 class YCSBLoader extends Loader<YCSBBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(YCSBLoader.class);
     private final int num_record;
 
     public YCSBLoader(YCSBBenchmark benchmark) {

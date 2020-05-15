@@ -41,8 +41,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.CountDownLatch;
 
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(CHBenCHmarkLoader.class);
-
     private static final RandomGenerator ran = new RandomGenerator(0);
 
 

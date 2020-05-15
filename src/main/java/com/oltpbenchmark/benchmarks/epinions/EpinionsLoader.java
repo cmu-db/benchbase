@@ -36,8 +36,6 @@ import java.util.concurrent.CountDownLatch;
 
 public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EpinionsLoader.class);
-
     private final int num_users;
     private final int num_items;
     private final long num_reviews;

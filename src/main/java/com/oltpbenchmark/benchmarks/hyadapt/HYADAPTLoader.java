@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Random;
 
 public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
-    private static final Logger LOG = LoggerFactory.getLogger(HYADAPTLoader.class);
     private final int num_record;
     private static final Random rand = new Random();
 
