@@ -97,7 +97,7 @@ java -jar oltpbench-2019.1-BETA.jar -h
 
 To execute the `tpcc` benchmark:
 ```bash
-java -jar oltpbench-2019.1-BETA.jar -b tpch -c config/cockroachdb/sample_tpch_config.xml --create=true --load=true --execute=true -s 5
+java -jar oltpbench-2019.1-BETA.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=true -s 5
 ```
 
 The following options are provided:
