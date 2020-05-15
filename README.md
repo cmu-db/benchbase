@@ -37,7 +37,7 @@ Run the following command to build the distribution:
 ./mvnw clean package
 ```
 
-The following files will be placed in the `./target` folder, `oltpbench-2019.1-BETA.tgz` and `oltpbench-2019.1-BETA.zip`.  Pick your poison.
+The following files will be placed in the `./target` folder, `oltpbench-20.1-SNAPSHOT.tgz` and `oltpbench-20.1-SNAPSHOT.zip`.  Pick your poison.
 
 The resulting `.zip` or `.tgz` file will have the following contents: 
 
@@ -84,7 +84,7 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 │       └── twitter_user_ids.txt
 ├── lib
 │   └── ...
-└── oltpbench-2019.1-BETA.jar
+└── oltpbench-20.1-SNAPSHOT.jar
 ```
 
 ## How to Run
@@ -92,17 +92,17 @@ Once you build and unpack the distribution, you can run `oltpbenchmark` just lik
 
 To bring up help contents:
 ```bash
-java -jar oltpbench-2019.1-BETA.jar -h
+java -jar oltpbench-20.1-SNAPSHOT.jar -h
 ```
 
 To execute the `tpcc` benchmark:
 ```bash
-java -jar oltpbench-2019.1-BETA.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=true -s 5
+java -jar oltpbench-20.1-SNAPSHOT.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=true -s 5
 ```
 
 For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list: `
 ```bash
-java -jar oltpbench-2019.1-BETA.jar -b tpcc,chbenchmark -c config/cockroachdb/sample_chbenchmark_config.xml --create=true --load=true --execute=true -s 5
+java -jar oltpbench-20.1-SNAPSHOT.jar -b tpcc,chbenchmark -c config/cockroachdb/sample_chbenchmark_config.xml --create=true --load=true --execute=true -s 5
 ```
 
 The following options are provided:

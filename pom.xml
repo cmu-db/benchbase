@@ -6,7 +6,7 @@
 
     <groupId>com.oltpbenchmark</groupId>
     <artifactId>oltpbench</artifactId>
-    <version>2019.1-BETA</version>
+    <version>20.1-SNAPSHOT</version>
     <name>OLTP-Bench II</name>
     <description>OLTP-Bench II is a database benchmarking framework inspired by http://oltpbenchmark.com/
     </description>
