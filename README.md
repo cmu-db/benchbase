@@ -100,6 +100,11 @@ To execute the `tpcc` benchmark:
 java -jar oltpbench-2019.1-BETA.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=true -s 5
 ```
 
+For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list: `
+```bash
+java -jar oltpbench-2019.1-BETA.jar -b tpcc,chbenchmark -c config/cockroachdb/sample_chbenchmark_config.xml --create=true --load=true --execute=true -s 5
+```
+
 The following options are provided:
 
 ```text
