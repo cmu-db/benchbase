@@ -26,17 +26,17 @@
         <work>
             <serial>true</serial>
             <rate>unlimited</rate>
-            <weights>all</weights>
+            <weights>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1</weights>
         </work>
         <work>
             <serial>true</serial>
             <rate>unlimited</rate>
-            <weights>even</weights>
+            <weights>0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1</weights>
         </work>
         <work>
             <serial>true</serial>
             <rate>unlimited</rate>
-            <weights>odd</weights>
+            <weights>1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0</weights>
         </work>
     </works>
 

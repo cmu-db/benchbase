@@ -175,7 +175,7 @@ My first priority is simply getting this code working against CockroachDB.  No w
 | `tatp` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcc` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `tpcds` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config - [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
-| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | fails on `Q9` in CRDB `v2.1.4`, [~~issue #12~~](https://github.com/timveil-cockroach/oltpbench/issues/12); works well in CRDB `v2.2.0-alpha` |
+| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | [~~issue #12~~](https://github.com/timveil-cockroach/oltpbench/issues/12) |
 | `twitter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #13~~](https://github.com/timveil-cockroach/oltpbench/issues/13) |
 | `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
