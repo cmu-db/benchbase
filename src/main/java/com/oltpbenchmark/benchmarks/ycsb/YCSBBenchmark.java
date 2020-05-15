@@ -36,7 +36,7 @@ import java.util.List;
 
 public class YCSBBenchmark extends BenchmarkModule {
 
-    private final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf, true);

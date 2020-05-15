@@ -13,7 +13,7 @@ import java.sql.SQLException;
  */
 public abstract class LoaderThread implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Loader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoaderThread.class);
 
     private BenchmarkModule benchmarkModule;
 

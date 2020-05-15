@@ -59,7 +59,7 @@ public abstract class SQLUtil {
             return ((BigDecimal) obj).intValue();
         }
 
-        LOG.warn("BAD BAD BAD: returning null because getInteger does not support " + obj.getClass());
+        LOG.warn("BAD BAD BAD: returning null because getInteger does not support {}", obj.getClass());
 
         return (null);
     }
@@ -84,7 +84,7 @@ public abstract class SQLUtil {
             return ((BigDecimal) obj).longValue();
         }
 
-        LOG.warn("BAD BAD BAD: returning null because getLong does not support " + obj.getClass());
+        LOG.warn("BAD BAD BAD: returning null because getLong does not support {}", obj.getClass());
 
         return (null);
     }
@@ -109,7 +109,7 @@ public abstract class SQLUtil {
             return ((BigDecimal) obj).doubleValue();
         }
 
-        LOG.warn("BAD BAD BAD: returning null because getDouble does not support " + obj.getClass());
+        LOG.warn("BAD BAD BAD: returning null because getDouble does not support {}", obj.getClass());
 
         return (null);
     }

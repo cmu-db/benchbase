@@ -27,7 +27,7 @@ import java.util.Random;
 
 
 public class ZipfDistribution implements ProbabilityDistribution {
-    private final Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigUtil.LINKBENCH_LOGGER);
 
     private long min = 0;
     private long max = 1;

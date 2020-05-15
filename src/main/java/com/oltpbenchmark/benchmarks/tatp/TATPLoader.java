@@ -235,7 +235,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             LOG.debug("subscriberSize = {}", subscriberSize);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("batchSize = " + workConf.getDBBatchSize());
+            LOG.debug("batchSize = {}", workConf.getDBBatchSize());
         }
         while (s_id++ < subscriberSize) {
             int[] sf_types = TATPUtil.subArr(spe_arr, 1, 4);
