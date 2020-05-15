@@ -121,7 +121,7 @@ DROP TABLE IF EXISTS category CASCADE;
 CREATE TABLE category (
     c_id                BIGINT NOT NULL,
     c_name              VARCHAR(50),
-    c_parent_id         BIGINT,
+    c_parent_id         BIGINT REFERENCES category (c_id),
     PRIMARY KEY (c_id)
 );
 CREATE INDEX IDX_CATEGORY_PARENT ON category (c_parent_id);
