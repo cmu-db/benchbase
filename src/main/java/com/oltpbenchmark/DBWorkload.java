@@ -401,25 +401,21 @@ public class DBWorkload {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runCreator(benchmark, verbose);
-                LOG.info("Finished!");
-                LOG.info(SINGLE_LINE);
+                LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
-        } else if (LOG.isDebugEnabled()) {
+        } else  {
             LOG.debug("Skipping creating benchmark database tables");
-            LOG.debug(SINGLE_LINE);
         }
 
         // Clear the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "clear")) {
             for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Resetting {} database...", benchmark.getBenchmarkName().toUpperCase());
+                LOG.info("Clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
                 benchmark.clearDatabase();
-                LOG.info("Finished!");
-                LOG.info(SINGLE_LINE);
+                LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
-        } else if (LOG.isDebugEnabled()) {
-            LOG.debug("Skipping creating benchmark database tables");
-            LOG.debug(SINGLE_LINE);
+        } else  {
+            LOG.debug("Skipping clearing benchmark database tables");
         }
 
         // Execute Loader
@@ -427,12 +423,10 @@ public class DBWorkload {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runLoader(benchmark, verbose);
-                LOG.info("Finished!");
-                LOG.info(SINGLE_LINE);
+                LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
-        } else if (LOG.isDebugEnabled()) {
+        } else {
             LOG.debug("Skipping loading benchmark database records");
-            LOG.debug(SINGLE_LINE);
         }
 
         // Execute a Script
@@ -441,8 +435,7 @@ public class DBWorkload {
                 String script = argsLine.getOptionValue("runscript");
                 LOG.info("Running a SQL script: {}", script);
                 runScript(benchmark, script);
-                LOG.info("Finished!");
-                LOG.info(SINGLE_LINE);
+                LOG.info("Finished running a SQL script: {}", script);
             }
         }
 
