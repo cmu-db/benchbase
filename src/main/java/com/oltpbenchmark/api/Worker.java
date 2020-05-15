@@ -408,17 +408,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     break;
 
                 } catch (SQLException ex) {
-                    LOG.warn(String.format("%s thrown when executing '%s' on '%s' " + "[Message='%s', ErrorCode='%d', SQLState='%s']", ex.getClass().getSimpleName(), transactionType, this.toString(), ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
+                    LOG.warn(String.format("SQLException occurred during [%s], retry count [%d], will attempt rollback!", transactionType, retryCount), ex);
 
                     this.txnErrors.put(transactionType);
 
                     conn.rollback();
 
                     retryCount++;
-
-                    continue;
-
-                } finally {
 
                 }
 

@@ -188,19 +188,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         return (f_ids);
     }
 
-    @Override
-    public String toString() {
-        Map<String, Object> m = new ListOrderedMap<>();
-        for (CacheType ctype : CACHE_RESERVATIONS.keySet()) {
-            m.put(ctype.name(), CACHE_RESERVATIONS.get(ctype).size());
-        } // FOR
-        m.put("CACHE_CUSTOMER_BOOKED_FLIGHTS", CACHE_CUSTOMER_BOOKED_FLIGHTS.size());
-        m.put("CACHE_BOOKED_SEATS", CACHE_BOOKED_SEATS.size());
-        m.put("PROFILE", this.profile);
-
-        return StringUtil.formatMaps(m);
-    }
-
     // -----------------------------------------------------------------
     // ADDITIONAL DATA MEMBERS
     // -----------------------------------------------------------------
