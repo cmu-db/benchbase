@@ -30,21 +30,14 @@ package com.oltpbenchmark.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public abstract class ThreadUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadUtil.class);
-
-    private static final Object lock = new Object();
-    private static ExecutorService pool;
-
-    private static final int DEFAULT_NUM_THREADS = Runtime.getRuntime().availableProcessors();
-    private static Integer OVERRIDE_NUM_THREADS = null;
 
     public static int availableProcessors() {
         return Math.max(1, Runtime.getRuntime().availableProcessors());
@@ -66,192 +59,9 @@ public abstract class ThreadUtil {
         }
     }
 
-    /**
-     * Have shutdown actually means shutdown. Tasks that need to complete should use
-     * futures.
-     */
-    public static ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor(String name, UncaughtExceptionHandler handler, int poolSize, int stackSize) {
-        // HACK: ScheduledThreadPoolExecutor won't let use the handler so
-        // if we're using ExceptionHandlingRunnable then we'll be able to 
-        // pick up the exceptions
-        Thread.setDefaultUncaughtExceptionHandler(handler);
-
-        ThreadFactory factory = getThreadFactory(name, handler);
-        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(poolSize, factory);
-        executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-        executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-        return executor;
-    }
-
-    public static ThreadFactory getThreadFactory(final String name, final UncaughtExceptionHandler handler) {
-        return new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(null, r, name, 1024 * 1024);
-                t.setDaemon(true);
-                t.setUncaughtExceptionHandler(handler);
-                return t;
-            }
-        };
-    }
-
-    /**
-     * Executes the given command and returns a pair containing the PID and
-     * Process handle
-     *
-     * @param command
-     * @return
-     */
-    public static Pair<Integer, Process> exec(String[] command) {
-        ProcessBuilder pb = new ProcessBuilder(command);
-        Process p = null;
-        try {
-            p = pb.start();
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-        }
-
-        Class<? extends Process> p_class = p.getClass();
-
-
-        Integer pid = null;
-        try {
-            Field pid_field = p_class.getDeclaredField("pid");
-            pid_field.setAccessible(true);
-            pid = pid_field.getInt(p);
-        } catch (Exception ex) {
-            LOG.error("Faild to get pid for {}", p, ex);
-            return (null);
-        }
-
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Starting new process with PID {}", pid);
-        }
-        return (Pair.of(pid, p));
-    }
-
-    /**
-     * Fork the command (in the current thread)
-     *
-     * @param command
-     */
-    public static <T> void fork(String[] command, EventObservable<T> stop_observable) {
-        ThreadUtil.fork(command, stop_observable, null, false);
-    }
-
-    /**
-     * @param command
-     * @param prefix
-     * @param stop_observable
-     * @param print_output
-     */
-    public static <T> void fork(String[] command, final EventObservable<T> stop_observable, final String prefix, final boolean print_output) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Forking off process: {}", Arrays.toString(command));
-        }
-
-        // Copied from ShellTools
-        ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
-        Process temp = null;
-        try {
-            temp = pb.start();
-        } catch (IOException e) {
-            LOG.error("Failed to fork command", e);
-            return;
-        }
-
-        final Process p = temp;
-
-        // Register a observer if we have a stop observable
-        if (stop_observable != null) {
-            final String prog_name = FileUtil.basename(command[0]);
-            stop_observable.addObserver(new EventObserver<T>() {
-                boolean first = true;
-
-                @Override
-                public void update(EventObservable<T> arg0, T arg1) {
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Stopping Process -> {}", prog_name);
-                    }
-                    p.destroy();
-                    first = false;
-                }
-            });
-        }
 
 
 
-        try {
-            p.waitFor();
-        } catch (InterruptedException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        p.destroy();
-    }
-
-    /**
-     * Get the max number of threads that will be allowed to run concurrenctly
-     * in the global pool
-     *
-     * @return
-     */
-    public static int getMaxGlobalThreads() {
-        if (OVERRIDE_NUM_THREADS != null) {
-            return (OVERRIDE_NUM_THREADS);
-        }
-        int max_threads = DEFAULT_NUM_THREADS;
-        String prop = System.getProperty("hstore.max_threads");
-        if (prop != null && prop.startsWith("${") == false) {
-            max_threads = Integer.parseInt(prop);
-        }
-        return (max_threads);
-    }
-
-    public static void setMaxGlobalThreads(int max_threads) {
-        OVERRIDE_NUM_THREADS = max_threads;
-    }
-
-    /**
-     * Execute the given collection of Runnables in the global thread pool. The
-     * calling thread will block until all of the threads finish
-     *
-     * @param <R>
-     * @param runnables
-     */
-    public static <R extends Runnable> void runGlobalPool(final Collection<R> runnables) {
-        // Initialize the thread pool the first time that we run
-        synchronized (ThreadUtil.lock) {
-            if (ThreadUtil.pool == null) {
-                int max_threads = ThreadUtil.getMaxGlobalThreads();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Creating new fixed thread pool [num_threads={}]", max_threads);
-                }
-                ThreadUtil.pool = Executors.newFixedThreadPool(max_threads, factory);
-            }
-        } // SYNCHRONIZED
-        ThreadUtil.run(runnables, ThreadUtil.pool, false);
-    }
-
-    public static synchronized void shutdownGlobalPool() {
-        if (ThreadUtil.pool != null) {
-            ThreadUtil.pool.shutdown();
-            ThreadUtil.pool = null;
-        }
-    }
-
-    /**
-     * Execute all the given Runnables in a new pool
-     *
-     * @param <R>
-     * @param threads
-     */
-    public static <R extends Runnable> void runNewPool(final Collection<R> threads) {
-        ExecutorService pool = Executors.newCachedThreadPool(factory);
-        ThreadUtil.run(threads, pool, true);
-    }
 
     /**
      * @param <R>
@@ -290,7 +100,7 @@ public abstract class ThreadUtil {
         try {
             latch.await();
         } catch (InterruptedException ex) {
-            LOG.error("ThreadUtil.run() was interupted!", ex);
+            LOG.error("ThreadUtil.run() was interrupted!", ex);
             throw new RuntimeException(ex);
         } finally {
             if (handler.hasError()) {

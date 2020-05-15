@@ -132,8 +132,8 @@ public class DBWorkload {
             wrkld.setDBConnection(xmlConfig.getString("url"));
             wrkld.setDBUsername(xmlConfig.getString("username"));
             wrkld.setDBPassword(xmlConfig.getString("password"));
-            wrkld.setDBBatchSize(xmlConfig.getInt("batchsize", 500));
-            wrkld.setDBPoolSize(xmlConfig.getInt("poolsize", 25));
+            wrkld.setDBBatchSize(xmlConfig.getInt("batchsize", 128));
+            wrkld.setDBPoolSize(xmlConfig.getInt("poolsize", 12));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
             terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
