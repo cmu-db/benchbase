@@ -194,7 +194,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Moved to Calendar Versioning (https://calver.org/)
     * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`
     * All code updated to read `resources` from inside `.jar` instead of directory
-* Built with and for Java 1.8
+* Built with and for Java ~~1.8~~ 11
 * Moved from direct dependence on Log4J to SLF4J
 * Reorganized and renamed many files (mostly `resources`) for clarity and consistency
 * Applied countless fixes based on "Static Analysis"
