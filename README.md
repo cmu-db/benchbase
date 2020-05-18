@@ -10,7 +10,6 @@ See also: [OLTP-Bench: An extensible testbed for benchmarking relational databas
 * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
 * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en) - a mixed workload based on `TPC-C` and `TPC-H`
 * Epinions.com
-* [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
 * Synthetic Resource Stresser 
 * [SEATS](http://hstore.cs.brown.edu/projects/seats)
 * [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf)
@@ -30,6 +29,7 @@ See also: [OLTP-Bench: An extensible testbed for benchmarking relational databas
 
 ### Removed
 * JPAB - this project appears abandoned and hasn't seen an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
+* [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf) - no implementation
 
 ## How to Build
 Run the following command to build the distribution:
@@ -50,7 +50,6 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 │   │   ├── sample_auctionmark_config.xml
 │   │   ├── sample_chbenchmark_config.xml
 │   │   ├── sample_epinions_config.xml
-│   │   ├── sample_linkbench_config.xml
 │   │   ├── sample_noop_config.xml
 │   │   ├── sample_resourcestresser_config.xml
 │   │   ├── sample_seats_config.xml
@@ -68,8 +67,6 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 │   └── postgres
 │       └── ...
 ├── data
-│   ├── linkbench
-│   │   └── LinkBenchDistribution.dat
 │   ├── tpch
 │   │   ├── customer.tbl
 │   │   ├── lineitem.tbl
@@ -113,8 +110,7 @@ usage: oltpbenchmark
                                 supported: [tpcc, tpch, tatp, wikipedia,
                                 resourcestresser, twitter, epinions, ycsb,
                                 seats, auctionmark, chbenchmark, voter,
-                                linkbench, sibench, noop, smallbank,
-                                hyadapt]
+                                sibench, noop, smallbank, hyadapt]
  -c,--config <arg>              [required] Workload configuration file
     --clear <arg>               Clear all records in the database for this
                                 benchmark
@@ -166,7 +162,6 @@ My first priority is simply getting this code working against CockroachDB.  No w
 | `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #5~~](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6) |
 | `epinions` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #7~~](https://github.com/timveil-cockroach/oltpbench/issues/7) |
 | `hyadapt` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no config - [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
-| `linkbench` | :x: | :heavy_minus_sign: | :heavy_minus_sign: | no implementation - [issue #9](https://github.com/timveil-cockroach/oltpbench/issues/9) |
 | `noop` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 | `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | [issue #41](https://github.com/timveil-cockroach/oltpbench/issues/41) |
 | `seats` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #10~~](https://github.com/timveil-cockroach/oltpbench/issues/10) |
