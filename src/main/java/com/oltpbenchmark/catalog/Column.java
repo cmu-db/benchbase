@@ -33,7 +33,6 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     private String defaultValue;
     private boolean nullable = false;
     private boolean autoincrement = false;
-    private boolean signed = false;
     private Column foreignkey = null;
 
     public Column(Table catalog_tbl, String name, int type, String typename, Integer size) {
@@ -109,12 +108,6 @@ public class Column extends AbstractCatalogObject implements Cloneable {
         return autoincrement;
     }
 
-    /**
-     * @return the signed
-     */
-    public boolean isSigned() {
-        return signed;
-    }
 
     /**
      * @return the foreign key parent for this column
@@ -142,13 +135,6 @@ public class Column extends AbstractCatalogObject implements Cloneable {
      */
     public void setAutoincrement(boolean autoincrement) {
         this.autoincrement = autoincrement;
-    }
-
-    /**
-     * @param signed the signed to set
-     */
-    public void setSigned(boolean signed) {
-        this.signed = signed;
     }
 
     /**

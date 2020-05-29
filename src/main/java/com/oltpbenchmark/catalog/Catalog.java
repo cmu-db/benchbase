@@ -138,13 +138,13 @@ public final class Catalog {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(SQLUtil.debug(table_rs));
                     }
-                    String internal_table_name = table_rs.getString(3);
-                    String table_name = origTableNames.get(table_rs.getString(3).toUpperCase());
+                    String internal_table_name = table_rs.getString("TABLE_NAME");
+                    String table_name = origTableNames.get(internal_table_name.toUpperCase());
 
                     LOG.debug(String.format("ORIG:%s -> CATALOG:%s", internal_table_name, table_name));
 
-                    String table_type = table_rs.getString(4);
-                    if (table_type.equalsIgnoreCase("TABLE") == false) {
+                    String table_type = table_rs.getString("TABLE_TYPE");
+                    if (!table_type.equalsIgnoreCase("TABLE")) {
                         continue;
                     }
                     Table catalog_tbl = new Table(table_name);
@@ -158,19 +158,18 @@ public final class Catalog {
                             if (LOG.isTraceEnabled()) {
                                 LOG.trace(SQLUtil.debug(col_rs));
                             }
-                            String col_name = col_rs.getString(4);
-                            int col_type = col_rs.getInt(5);
-                            String col_typename = col_rs.getString(6);
-                            Integer col_size = col_rs.getInt(7);
-                            String col_defaultValue = col_rs.getString(13);
-                            boolean col_nullable = col_rs.getString(18).equalsIgnoreCase("YES");
-                            boolean col_autoinc = false; // FIXME col_rs.getString(22).toUpperCase().equals("YES");
+                            String col_name = col_rs.getString("COLUMN_NAME");
+                            int col_type = col_rs.getInt("DATA_TYPE");
+                            String col_typename = col_rs.getString("TYPE_NAME");
+                            Integer col_size = col_rs.getInt("COLUMN_SIZE");
+                            String col_defaultValue = col_rs.getString("COLUMN_DEF");
+                            boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
+                            boolean col_autoinc = col_rs.getString("IS_AUTOINCREMENT").equalsIgnoreCase("YES");
 
                             Column catalog_col = new Column(catalog_tbl, col_name, col_type, col_typename, col_size);
                             catalog_col.setDefaultValue(col_defaultValue);
                             catalog_col.setAutoincrement(col_autoinc);
                             catalog_col.setNullable(col_nullable);
-                            // FIXME col_catalog.setSigned();
 
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug(String.format("Adding %s.%s [%s / %d]",
@@ -187,8 +186,8 @@ public final class Catalog {
                     SortedMap<Integer, String> pkey_cols = new TreeMap<>();
                     try (ResultSet pkey_rs = md.getPrimaryKeys(null, null, internal_table_name)) {
                         while (pkey_rs.next()) {
-                            String col_name = pkey_rs.getString(4);
-                            int col_idx = pkey_rs.getShort(5);
+                            String col_name = pkey_rs.getString("COLUMN_NAME");
+                            int col_idx = pkey_rs.getShort("KEY_SEQ");
                             // HACK: SQLite doesn't return the KEY_SEQ, so if we get back
                             //       a zero for this value, then we'll just length of the pkey_cols map
                             if (col_idx == 0) {
@@ -210,12 +209,12 @@ public final class Catalog {
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug(SQLUtil.debug(idx_rs));
                             }
-                            boolean idx_unique = (idx_rs.getBoolean(4) == false);
-                            String idx_name = idx_rs.getString(6);
-                            int idx_type = idx_rs.getShort(7);
-                            int idx_col_pos = idx_rs.getInt(8) - 1;
-                            String idx_col_name = idx_rs.getString(9);
-                            String sort = idx_rs.getString(10);
+                            boolean idx_unique = (idx_rs.getBoolean("NON_UNIQUE") == false);
+                            String idx_name = idx_rs.getString("INDEX_NAME");
+                            int idx_type = idx_rs.getShort("TYPE");
+                            int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
+                            String idx_col_name = idx_rs.getString("COLUMN_NAME");
+                            String sort = idx_rs.getString("ASC_OR_DESC");
                             SortDirectionType idx_direction;
                             if (sort != null) {
                                 idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
@@ -245,9 +244,9 @@ public final class Catalog {
                             }
 
 
-                            String colName = fk_rs.getString(8);
-                            String fk_tableName = origTableNames.get(fk_rs.getString(3).toUpperCase());
-                            String fk_colName = fk_rs.getString(4);
+                            String colName = fk_rs.getString("FKCOLUMN_NAME");
+                            String fk_tableName = origTableNames.get(fk_rs.getString("PKTABLE_NAME").toUpperCase());
+                            String fk_colName = fk_rs.getString("PKCOLUMN_NAME");
 
                             foreignKeys.get(table_name).put(colName, Pair.of(fk_tableName, fk_colName));
                         } // WHILE
@@ -308,7 +307,6 @@ public final class Catalog {
         while (m.find()) {
             String tableName = m.group(1).trim();
             origTableNames.put(tableName.toUpperCase(), tableName);
-//            origTableNames.put(tableName, tableName);
         } // WHILE
         if (LOG.isDebugEnabled()) {
             LOG.debug("Original Table Names:\n{}", StringUtil.formatMaps(origTableNames));
