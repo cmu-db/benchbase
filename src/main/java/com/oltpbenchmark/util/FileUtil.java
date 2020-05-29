@@ -55,38 +55,6 @@ public abstract class FileUtil {
         return result.toString();
     }
 
-    /**
-     * Given a basename for a file, find the next possible filename if this file
-     * already exists. For example, if the file test.res already exists, create
-     * a file called, test.1.res
-     *
-     * @param basename
-     * @return
-     */
-    public static String getNextFilename(String basename) {
-
-        if (!exists(basename)) {
-            return basename;
-        }
-
-        File f = new File(basename);
-        if (f != null && f.isFile()) {
-            String[] parts = EXT_SPLIT.split(basename);
-
-            // Check how many files already exist
-            int counter = 1;
-            String nextName = parts[0] + "." + counter + "." + parts[1];
-            while (exists(nextName)) {
-                ++counter;
-                nextName = parts[0] + "." + counter + "." + parts[1];
-            }
-            return nextName;
-        }
-
-
-        // Should we throw instead??
-        return null;
-    }
 
     public static boolean exists(String path) {
         return (new File(path).exists());

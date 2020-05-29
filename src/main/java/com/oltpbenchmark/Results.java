@@ -24,7 +24,9 @@ import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.StringUtil;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class Results {
     public final long nanoSeconds;
@@ -48,7 +50,7 @@ public final class Results {
             this.latencySamples = null;
         } else {
             // defensive copy
-            this.latencySamples = Collections.unmodifiableList(new ArrayList<>(latencySamples));
+            this.latencySamples = List.copyOf(latencySamples);
 
         }
     }

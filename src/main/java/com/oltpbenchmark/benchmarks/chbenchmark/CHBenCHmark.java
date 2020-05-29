@@ -45,7 +45,7 @@ public class CHBenCHmark extends BenchmarkModule {
      * @param Bool
      */
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
         // HACK: Turn off terminal messages
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 

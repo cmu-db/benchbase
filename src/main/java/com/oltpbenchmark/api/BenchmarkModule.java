@@ -123,11 +123,10 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
-     * @param verbose
      * @return
      * @throws IOException
      */
-    protected abstract List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException;
+    protected abstract List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException;
 
     /**
      * Each BenchmarkModule needs to implement this method to load a sample
@@ -200,8 +199,8 @@ public abstract class BenchmarkModule {
     }
 
 
-    public final List<Worker<? extends BenchmarkModule>> makeWorkers(boolean verbose) throws IOException {
-        return (this.makeWorkersImpl(verbose));
+    public final List<Worker<? extends BenchmarkModule>> makeWorkers() throws IOException {
+        return (this.makeWorkersImpl());
     }
 
     /**

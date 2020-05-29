@@ -277,7 +277,7 @@ public class DBWorkload {
                 boolean rateLimited = true;
                 boolean disabled = false;
                 boolean serial = false;
-                boolean timed = false;
+                boolean timed;
 
                 // can be "disabled", "unlimited" or a number
                 String rate_string;
@@ -310,8 +310,7 @@ public class DBWorkload {
 
                 // We now have the option to run all queries exactly once in
                 // a serial (rather than random) order.
-                String serial_string;
-                serial_string = work.getString("serial", "false");
+                String serial_string = work.getString("serial", "false");
                 if (serial_string.equals("true")) {
                     serial = true;
                 } else if (serial_string.equals("false")) {
@@ -393,14 +392,11 @@ public class DBWorkload {
             throw new RuntimeException("No StatementDialects is available for " + bench);
         }
 
-
-        @Deprecated boolean verbose = argsLine.hasOption("v");
-
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
-                runCreator(benchmark, verbose);
+                runCreator(benchmark);
                 LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
         } else {
@@ -422,7 +418,7 @@ public class DBWorkload {
         if (isBooleanOptionSet(argsLine, "load")) {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
-                runLoader(benchmark, verbose);
+                runLoader(benchmark);
                 LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
         } else {
@@ -442,20 +438,14 @@ public class DBWorkload {
         // Execute Workload
         if (isBooleanOptionSet(argsLine, "execute")) {
             // Bombs away!
-            Results r = null;
             try {
-                r = runWorkload(benchList, verbose, intervalMonitor);
+                Results r = runWorkload(benchList, intervalMonitor);
+                writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
+                writeHistograms(r);
             } catch (Throwable ex) {
                 LOG.error("Unexpected error when running benchmarks.", ex);
                 System.exit(1);
             }
-
-
-            // WRITE OUTPUT
-            writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
-
-            writeHistograms(r);
-
 
         } else {
             LOG.info("Skipping benchmark workload execution");
@@ -471,15 +461,11 @@ public class DBWorkload {
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
         options.addOption(null, "execute", true, "Execute the benchmark workload");
         options.addOption(null, "runscript", true, "Run an SQL script");
-
-        options.addOption("v", "verbose", false, "Display Messages");
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
         options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
         options.addOption("ss", false, "Verbose Sampling per Transaction");
-        options.addOption("o", "output", true, "Output file (default System.out)");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
-        options.addOption("t", "timestamp", false, "Each result file is prepended with a timestamp for the beginning of the experiment");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         return options;
     }
@@ -487,7 +473,11 @@ public class DBWorkload {
     private static XMLConfiguration buildConfiguration(String filename) throws ConfigurationException {
 
         Parameters params = new Parameters();
-        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<XMLConfiguration>(XMLConfiguration.class).configure(params.xml().setFileName(filename).setListDelimiterHandler(new LegacyListDelimiterHandler(',')).setExpressionEngine(new XPathExpressionEngine()));
+        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
+                .configure(params.xml()
+                        .setFileName(filename)
+                        .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+                        .setExpressionEngine(new XPathExpressionEngine()));
         return builder.getConfiguration();
 
     }
@@ -526,123 +516,73 @@ public class DBWorkload {
 
         // If an output directory is used, store the information
         String outputDirectory = "results";
+
         if (argsLine.hasOption("d")) {
             outputDirectory = argsLine.getOptionValue("d");
         }
-        String filePrefix = "";
-        if (argsLine.hasOption("t")) {
-            filePrefix = TimeUtil.getCurrentTime().getTime() + "_";
-        }
+
+        FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
+
+        String filePrefix = TimeUtil.getCurrentTimeString() + "_";
+
 
         // Special result uploader
         ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
 
         // Output target 
-        PrintStream ps = null;
-        PrintStream rs = null;
-        String baseFileName = "oltpbench";
-        if (argsLine.hasOption("o")) {
-            if (argsLine.getOptionValue("o").equals("-")) {
-                ps = System.out;
-                rs = System.out;
-                baseFileName = null;
-            } else {
-                baseFileName = argsLine.getOptionValue("o");
-            }
-        }
 
-        // Build the complex path
-        String baseFile = filePrefix;
-        String nextName;
-
-        if (baseFileName != null) {
-            // Check if directory needs to be created
-            if (outputDirectory.length() > 0) {
-                FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
-            }
-
-            baseFile = filePrefix + baseFileName;
-
-
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
-            rs = new PrintStream(new File(nextName));
-            LOG.info("Output Raw data into file: {}", nextName);
-            r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
-            rs.close();
-
-
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
-            rs = new PrintStream(new File(nextName));
-            LOG.info("Output samples into file: {}", nextName);
-            r.writeCSV2(rs);
-            rs.close();
-
-            // Summary Data
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
-            PrintStream ss = new PrintStream(new File(nextName));
-            LOG.info("Output summary data into file: {}", nextName);
-            ru.writeSummary(ss);
-            ss.close();
-
-            // DBMS Parameters
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".params"));
-            ss = new PrintStream(new File(nextName));
-            LOG.info("Output DBMS parameters into file: {}", nextName);
-            ru.writeDBParameters(ss);
-            ss.close();
-
-            // DBMS Metrics
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".metrics"));
-            ss = new PrintStream(new File(nextName));
-            LOG.info("Output DBMS metrics into file: {}", nextName);
-            ru.writeDBMetrics(ss);
-            ss.close();
-
-            // Experiment Configuration
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".expconfig"));
-            ss = new PrintStream(new File(nextName));
-            LOG.info("Output experiment config into file: {}", nextName);
-            ru.writeBenchmarkConf(ss);
-            ss.close();
-
-
-        } else if (LOG.isDebugEnabled()) {
-            LOG.debug("No output file specified");
-        }
-
-
-
-        nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
-        ps = new PrintStream(new File(nextName));
-        LOG.info("Output into file: {}", nextName);
-
+        String baseFileName = filePrefix + "oltpbench";
         int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
-        LOG.info("Grouped into Buckets of {} seconds", windowSize);
-        r.writeCSV(windowSize, ps);
 
-        // Allow more detailed reporting by transaction to make it easier to check
-       // if (argsLine.hasOption("ss")) {
+        String rawFileName = baseFileName + ".raw.csv";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, rawFileName)))) {
+            LOG.info("Output Raw data into file: {}", rawFileName);
+            r.writeAllCSVAbsoluteTiming(activeTXTypes, ps);
+        }
 
-            for (TransactionType t : activeTXTypes) {
-                PrintStream ts = ps;
-                if (ts != System.out) {
-                    // Get the actual filename for the output
-                    baseFile = filePrefix + baseFileName + "_" + t.getName();
-                    nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
-                    ts = new PrintStream(new File(nextName));
-                    r.writeCSV(windowSize, ts, t);
-                    ts.close();
-                }
+        String sampleFileName = baseFileName + ".samples.csv";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, sampleFileName)))) {
+            LOG.info("Output samples into file: {}", sampleFileName);
+            r.writeCSV2(ps);
+        }
+
+        String summaryFileName = baseFileName + ".summary.json";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, summaryFileName)))) {
+            LOG.info("Output summary data into file: {}", summaryFileName);
+            ru.writeSummary(ps);
+        }
+
+        String paramsFileName = baseFileName + ".params.json";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, paramsFileName)))) {
+            LOG.info("Output DBMS parameters into file: {}", paramsFileName);
+            ru.writeDBParameters(ps);
+        }
+
+        String metricsFileName = baseFileName + ".metrics.json";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, metricsFileName)))) {
+            LOG.info("Output DBMS metrics into file: {}", metricsFileName);
+            ru.writeDBMetrics(ps);
+        }
+
+        String configFileName = baseFileName + ".config.xml";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, configFileName)))) {
+            LOG.info("Output benchmark config into file: {}", configFileName);
+            ru.writeBenchmarkConf(ps);
+        }
+
+        String resultsFileName = baseFileName + ".results.csv";
+        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, resultsFileName)))) {
+            LOG.info("Output results into file: {} with window size {}", resultsFileName, windowSize);
+            r.writeCSV(windowSize, ps);
+        }
+
+        for (TransactionType t : activeTXTypes) {
+            String fileName = baseFileName + ".results." + t.getName() + ".csv";
+            try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, fileName)))) {
+                r.writeCSV(windowSize, ps, t);
             }
-        //}
-
-
-        if (ps != null) {
-            ps.close();
         }
-        if (rs != null) {
-            rs.close();
-        }
+
     }
 
 
@@ -651,23 +591,22 @@ public class DBWorkload {
         bench.runScript(script);
     }
 
-    private static void runCreator(BenchmarkModule bench, boolean verbose) {
+    private static void runCreator(BenchmarkModule bench) {
         LOG.debug(String.format("Creating %s Database", bench));
         bench.createDatabase();
     }
 
-    private static void runLoader(BenchmarkModule bench, boolean verbose) {
+    private static void runLoader(BenchmarkModule bench) {
         LOG.debug(String.format("Loading %s Database", bench));
         bench.loadDatabase();
     }
 
-    private static Results runWorkload(List<BenchmarkModule> benchList, boolean verbose, int intervalMonitor) throws QueueLimitException, IOException {
+    private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor) throws QueueLimitException, IOException {
         List<Worker<?>> workers = new ArrayList<>();
         List<WorkloadConfiguration> workConfs = new ArrayList<>();
         for (BenchmarkModule bench : benchList) {
             LOG.info("Creating {} virtual terminals...", bench.getWorkloadConfiguration().getTerminals());
-            workers.addAll(bench.makeWorkers(verbose));
-            // LOG.info("done.");
+            workers.addAll(bench.makeWorkers());
 
             int num_phases = bench.getWorkloadConfiguration().getNumberOfPhases();
             LOG.info(String.format("Launching the %s Benchmark with %s Phase%s...", bench.getBenchmarkName().toUpperCase(), num_phases, (num_phases > 1 ? "s" : "")));
@@ -698,7 +637,7 @@ public class DBWorkload {
             LOG.debug("CommandLine has option '{}'. Checking whether set to true", key);
             String val = argsLine.getOptionValue(key);
             LOG.debug(String.format("CommandLine %s => %s", key, val));
-            return (val != null ? val.equalsIgnoreCase("true") : false);
+            return (val != null && val.equalsIgnoreCase("true"));
         }
         return (false);
     }
