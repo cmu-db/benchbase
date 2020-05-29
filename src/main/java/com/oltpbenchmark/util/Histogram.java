@@ -39,7 +39,7 @@ public class Histogram<X> implements JSONSerializable {
 
     private static final String MARKER = "*";
     private static final Integer MAX_CHARS = 80;
-    private static final Integer MAX_VALUE_LENGTH = 20;
+    private static final Integer MAX_VALUE_LENGTH = 80;
 
     public enum Members {
         VALUE_TYPE,
