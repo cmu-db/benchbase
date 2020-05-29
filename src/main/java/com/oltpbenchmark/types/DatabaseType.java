@@ -35,22 +35,10 @@ public enum DatabaseType {
      * (3) Should SQLUtil.getInsertSQL include col names
      * (4) Does this DBMS support "real" transactions?
      */
-    DB2("com.ibm.db2.jcc.DB2Driver", true, false),
-    MYSQL("com.mysql.jdbc.Driver", true, false),
-    MYROCKS("com.mysql.jdbc.Driver", true, false),
+    MYSQL("com.mysql.cj.jdbc.Driver", true, false),
     POSTGRES("org.postgresql.Driver", false, false),
-    ORACLE("oracle.jdbc.driver.OracleDriver", true, false),
-    SQLSERVER("com.microsoft.sqlserver.jdbc.SQLServerDriver", true, false),
-    SQLITE("org.sqlite.JDBC", true, false),
     HSQLDB("org.hsqldb.jdbcDriver", false, false),
-    H2("org.h2.Driver", true, false),
-    MONETDB("nl.cwi.monetdb.jdbc.MonetDriver", false, false),
-    NUODB("com.nuodb.jdbc.Driver", true, false),
-    TIMESTEN("com.timesten.jdbc.TimesTenDriver", true, false),
-    CASSANDRA("com.github.adejanovski.cassandra.jdbc.CassandraDriver", true, true),
-    MEMSQL("com.mysql.jdbc.Driver", true, false),
-    COCKROACHDB("org.postgresql.Driver", false, false),
-    ;
+    COCKROACHDB("org.postgresql.Driver", false, false);
 
     private DatabaseType(String driver,
                          boolean escapeNames,

@@ -30,8 +30,6 @@ import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.TimeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -505,14 +503,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.page_last_rev_id[page_id - 1] = rev_id;
                 this.page_last_rev_length[page_id - 1] = old_text_length;
                 rev_id++;
-                if (this.getDatabaseType() == DatabaseType.ORACLE) {
-                    try (PreparedStatement text_seq = conn.prepareStatement("select text_seq.nextval from dual")) {
-                        text_seq.execute();
-                    }
-                    try (PreparedStatement revision_seq = conn.prepareStatement("select revision_seq.nextval from dual")) {
-                        revision_seq.execute();
-                    }
-                }
                 batchSize++;
             } // FOR (revision)
             if (batchSize > workConf.getDBBatchSize()) {

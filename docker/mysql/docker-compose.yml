@@ -10,6 +10,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: oltpbench
+    ports:
+      - "3306:3306"
+
 
   db-ui:
     container_name: db-ui

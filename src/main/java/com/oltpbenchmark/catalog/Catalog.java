@@ -57,10 +57,6 @@ public final class Catalog {
     private static final String DB_JDBC = "org.hsqldb.jdbcDriver";
     private static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
 
-//    private static final String DB_CONNECTION = "jdbc:h2:mem:";
-//    private static final String DB_JDBC = "org.h2.Driver";
-//    private static final DatabaseType DB_TYPE = DatabaseType.H2;
-
     private final BenchmarkModule benchmark;
     private final Map<String, Table> tables = new HashMap<>();
     private final Map<String, String> origTableNames;
