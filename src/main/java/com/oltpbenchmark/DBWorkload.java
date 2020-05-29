@@ -426,9 +426,9 @@ public class DBWorkload {
         }
 
         // Execute a Script
-        if (argsLine.hasOption("runscript")) {
+        if (argsLine.hasOption("run-script")) {
             for (BenchmarkModule benchmark : benchList) {
-                String script = argsLine.getOptionValue("runscript");
+                String script = argsLine.getOptionValue("run-script");
                 LOG.info("Running a SQL script: {}", script);
                 runScript(benchmark, script);
                 LOG.info("Finished running a SQL script: {}", script);
@@ -460,11 +460,10 @@ public class DBWorkload {
         options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
         options.addOption(null, "execute", true, "Execute the benchmark workload");
-        options.addOption(null, "runscript", true, "Run an SQL script");
+        options.addOption(null, "run-script", true, "Run an SQL script");
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
         options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
-        options.addOption("ss", false, "Verbose Sampling per Transaction");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         return options;

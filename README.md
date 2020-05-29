@@ -124,14 +124,8 @@ usage: oltpbenchmark
                                 milliseconds
     --load <arg>                Load data using the benchmark's data
                                 loader
- -o,--output <arg>              Output file (default System.out)
-    --runscript <arg>           Run an SQL script
+    --run-script <arg>          Run an SQL script
  -s,--sample <arg>              Sampling window
- -ss                            Verbose Sampling per Transaction
- -t,--timestamp                 Each result file is prepended with a
-                                timestamp for the beginning of the
-                                experiment
- -v,--verbose                   Display Messages
 ```
 
 ## How to see Postgres Driver logging
