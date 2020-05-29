@@ -120,22 +120,17 @@ usage: oltpbenchmark
     --dialects-export <arg>     Export benchmark SQL to a dialects file
     --execute <arg>             Execute the benchmark workload
  -h,--help                      Print this help
-    --histograms                Print txn histograms
  -im,--interval-monitor <arg>   Throughput Monitoring Interval in
                                 milliseconds
     --load <arg>                Load data using the benchmark's data
                                 loader
  -o,--output <arg>              Output file (default System.out)
-    --output-raw <arg>          Output raw data
-    --output-samples <arg>      Output sample data
     --runscript <arg>           Run an SQL script
  -s,--sample <arg>              Sampling window
  -ss                            Verbose Sampling per Transaction
  -t,--timestamp                 Each result file is prepended with a
                                 timestamp for the beginning of the
                                 experiment
- -ts,--tracescript <arg>        Script of transactions to execute
-    --upload <arg>              Upload the result
  -v,--verbose                   Display Messages
 ```
 

@@ -214,8 +214,7 @@
                         <fileset>
                             <directory>results</directory>
                             <includes>
-                                <include>*.csv</include>
-                                <include>*.res</include>
+                                <include>*.*</include>
                             </includes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>

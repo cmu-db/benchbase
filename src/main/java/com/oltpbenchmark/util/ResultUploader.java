@@ -17,82 +17,56 @@
 package com.oltpbenchmark.util;
 
 import com.oltpbenchmark.Results;
-import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.collectors.DBParameterCollector;
 import com.oltpbenchmark.api.collectors.DBParameterCollectorGen;
+import com.oltpbenchmark.types.DatabaseType;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
-import java.util.zip.GZIPOutputStream;
+import java.util.Date;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 public class ResultUploader {
-    private static final Logger LOG = LoggerFactory.getLogger(ResultUploader.class);
 
-    private static String[] IGNORE_CONF = {
+    private static final String[] IGNORE_CONF = {
             "type",
             "driver",
             "url",
             "username",
-            "password",
-            "uploadCode",
-            "uploadUrl"
+            "password"
     };
 
-    private static String[] BENCHMARK_KEY_FIELD = {
+    private static final String[] BENCHMARK_KEY_FIELD = {
             "isolation",
             "scalefactor",
             "terminals"
     };
 
-    XMLConfiguration expConf;
-    Results results;
-    CommandLine argsLine;
-    DBParameterCollector collector;
+    private final XMLConfiguration expConf;
+    private final DBParameterCollector collector;
+    private final Results results;
+    private final DatabaseType dbType;
+    private final String benchType;
 
-    String dbUrl, dbType;
-    String username, password;
-    String benchType;
-    //    int windowSize;
-    String uploadCode, uploadUrl;
 
     public ResultUploader(Results r, XMLConfiguration conf, CommandLine argsLine) {
         this.expConf = conf;
         this.results = r;
-        this.argsLine = argsLine;
+        this.dbType = DatabaseType.valueOf(expConf.getString("type"));
+        this.benchType = argsLine.getOptionValue("b");
 
-        dbUrl = expConf.getString("DBUrl");
-        dbType = expConf.getString("dbtype");
-        username = expConf.getString("username");
-        password = expConf.getString("password");
-        benchType = argsLine.getOptionValue("b");
-        uploadCode = expConf.getString("uploadCode");
-        uploadUrl = expConf.getString("uploadUrl");
+        String dbUrl = expConf.getString("url");
+        String username = expConf.getString("username");
+        String password = expConf.getString("password");
+
 
         this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
 
-    }
-
-    public DBParameterCollector getConfCollector() {
-        return (this.collector);
     }
 
     public void writeDBParameters(PrintStream os) {
@@ -131,63 +105,5 @@ public class ResultUploader {
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }
 
-    public void uploadResult(List<TransactionType> activeTXTypes) throws ParseException {
-        try {
-            File expConfigFile = File.createTempFile("expconfig", ".tmp");
-            File samplesFile = File.createTempFile("samples", ".tmp");
-            File summaryFile = File.createTempFile("summary", ".tmp");
-            File paramsFile = File.createTempFile("params", ".tmp");
-            File metricsFile = File.createTempFile("metrics", ".tmp");
-            File csvDataFile = File.createTempFile("csv", ".gz");
 
-            PrintStream confOut = new PrintStream(new FileOutputStream(expConfigFile));
-            writeBenchmarkConf(confOut);
-            confOut.close();
-
-            confOut = new PrintStream(new FileOutputStream(paramsFile));
-            writeDBParameters(confOut);
-            confOut.close();
-
-            confOut = new PrintStream(new FileOutputStream(metricsFile));
-            writeDBMetrics(confOut);
-            confOut.close();
-
-            confOut = new PrintStream(new FileOutputStream(samplesFile));
-            results.writeCSV2(confOut);
-            confOut.close();
-
-            confOut = new PrintStream(new FileOutputStream(summaryFile));
-            writeSummary(confOut);
-            confOut.close();
-
-            confOut = new PrintStream(new GZIPOutputStream(new FileOutputStream(csvDataFile)));
-            results.writeAllCSVAbsoluteTiming(activeTXTypes, confOut);
-            confOut.close();
-
-            try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-                HttpPost httppost = new HttpPost(uploadUrl);
-
-                HttpEntity reqEntity = MultipartEntityBuilder.create()
-                        .addTextBody("upload_code", uploadCode)
-                        .addPart("sample_data", new FileBody(samplesFile))
-                        .addPart("raw_data", new FileBody(csvDataFile))
-                        .addPart("db_parameters_data", new FileBody(paramsFile))
-                        .addPart("db_metrics_data", new FileBody(metricsFile))
-                        .addPart("benchmark_conf_data", new FileBody(expConfigFile))
-                        .addPart("summary_data", new FileBody(summaryFile))
-                        .build();
-
-                httppost.setEntity(reqEntity);
-
-                LOG.info("executing request {}", httppost.getRequestLine());
-                try (CloseableHttpResponse response = httpclient.execute(httppost)) {
-                    HttpEntity resEntity = response.getEntity();
-                    LOG.info(IOUtils.toString(resEntity.getContent()));
-                    EntityUtils.consume(resEntity);
-                }
-            }
-        } catch (IOException | ConfigurationException e) {
-            LOG.error(e.getMessage(), e);
-        }
-    }
 }

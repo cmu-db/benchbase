@@ -16,17 +16,18 @@
 
 package com.oltpbenchmark.api.collectors;
 
+import com.oltpbenchmark.types.DatabaseType;
+
 public class DBParameterCollectorGen {
-    public static DBParameterCollector getCollector(String dbType, String dbUrl, String username, String password) {
-        String db = dbType.toLowerCase();
-        if (db.equals("mysql") || db.equals("memsql")) {
-            return new MySQLCollector(dbUrl, username, password);
-        } else if (db.equals("myrocks")) {
-            return new MyRocksCollector(dbUrl, username, password);
-        } else if (db.equals("postgres")) {
-            return new PostgresCollector(dbUrl, username, password);
-        } else {
-            return new DBCollector();
-        }
+    public static DBParameterCollector getCollector(DatabaseType dbType, String dbUrl, String username, String password) {
+       switch (dbType) {
+
+           case MYSQL:
+               return new MySQLCollector(dbUrl, username, password);
+           case POSTGRES:
+               return new PostgresCollector(dbUrl, username, password);
+           default:
+               return new DBCollector();
+       }
     }
 }

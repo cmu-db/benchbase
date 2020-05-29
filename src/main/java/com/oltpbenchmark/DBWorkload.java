@@ -59,7 +59,7 @@ public class DBWorkload {
     public static void main(String[] args) throws Exception {
 
         // create the command line parser
-        CommandLineParser parser = new PosixParser();
+        CommandLineParser parser = new DefaultParser();
 
         XMLConfiguration pluginConfig = buildConfiguration("config/plugin.xml");
 
@@ -70,11 +70,11 @@ public class DBWorkload {
         if (argsLine.hasOption("h")) {
             printUsage(options);
             return;
-        } else if (argsLine.hasOption("c") == false) {
+        } else if (!argsLine.hasOption("c")) {
             LOG.error("Missing Configuration file");
             printUsage(options);
             return;
-        } else if (argsLine.hasOption("b") == false) {
+        } else if (!argsLine.hasOption("b")) {
             LOG.error("Missing Benchmark Class to load");
             printUsage(options);
             return;
@@ -403,7 +403,7 @@ public class DBWorkload {
                 runCreator(benchmark, verbose);
                 LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
-        } else  {
+        } else {
             LOG.debug("Skipping creating benchmark database tables");
         }
 
@@ -414,7 +414,7 @@ public class DBWorkload {
                 benchmark.clearDatabase();
                 LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
-        } else  {
+        } else {
             LOG.debug("Skipping clearing benchmark database tables");
         }
 
@@ -454,10 +454,7 @@ public class DBWorkload {
             // WRITE OUTPUT
             writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
 
-            // WRITE HISTOGRAMS
-            if (argsLine.hasOption("histograms")) {
-                writeHistograms(r);
-            }
+            writeHistograms(r);
 
 
         } else {
@@ -474,7 +471,6 @@ public class DBWorkload {
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
         options.addOption(null, "execute", true, "Execute the benchmark workload");
         options.addOption(null, "runscript", true, "Run an SQL script");
-        options.addOption(null, "upload", true, "Upload the result");
 
         options.addOption("v", "verbose", false, "Display Messages");
         options.addOption("h", "help", false, "Print this help");
@@ -484,11 +480,7 @@ public class DBWorkload {
         options.addOption("o", "output", true, "Output file (default System.out)");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
         options.addOption("t", "timestamp", false, "Each result file is prepended with a timestamp for the beginning of the experiment");
-        options.addOption("ts", "tracescript", true, "Script of transactions to execute");
-        options.addOption(null, "histograms", false, "Print txn histograms");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
-        options.addOption(null, "output-raw", true, "Output raw data");
-        options.addOption(null, "output-samples", true, "Output sample data");
         return options;
     }
 
@@ -511,7 +503,7 @@ public class DBWorkload {
 
         sb.append(StringUtil.bold("Unexpected Errors:")).append("\n").append(r.getTransactionErrorHistogram());
 
-        if (r.getTransactionAbortMessageHistogram().isEmpty() == false) {
+        if (!r.getTransactionAbortMessageHistogram().isEmpty()) {
             sb.append("\n\n").append(StringUtil.bold("User Aborts:")).append("\n").append(r.getTransactionAbortMessageHistogram());
         }
 
@@ -543,11 +535,7 @@ public class DBWorkload {
         }
 
         // Special result uploader
-        ResultUploader ru = null;
-        if (xmlConfig.containsKey("uploadUrl")) {
-            ru = new ResultUploader(r, xmlConfig, argsLine);
-            LOG.info("Upload Results URL: {}", ru);
-        }
+        ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
 
         // Output target 
         PrintStream ps = null;
@@ -575,91 +563,79 @@ public class DBWorkload {
 
             baseFile = filePrefix + baseFileName;
 
-            if (argsLine.getOptionValue("output-raw", "true").equalsIgnoreCase("true")) {
-                // RAW OUTPUT
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
-                rs = new PrintStream(new File(nextName));
-                LOG.info("Output Raw data into file: {}", nextName);
-                r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
-                rs.close();
-            }
 
-            if (isBooleanOptionSet(argsLine, "output-samples")) {
-                // Write samples using 1 second window
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
-                rs = new PrintStream(new File(nextName));
-                LOG.info("Output samples into file: {}", nextName);
-                r.writeCSV2(rs);
-                rs.close();
-            }
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".csv"));
+            rs = new PrintStream(new File(nextName));
+            LOG.info("Output Raw data into file: {}", nextName);
+            r.writeAllCSVAbsoluteTiming(activeTXTypes, rs);
+            rs.close();
 
-            // Result Uploader Files
-            if (ru != null) {
-                // Summary Data
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
-                PrintStream ss = new PrintStream(new File(nextName));
-                LOG.info("Output summary data into file: {}", nextName);
-                ru.writeSummary(ss);
-                ss.close();
 
-                // DBMS Parameters
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".params"));
-                ss = new PrintStream(new File(nextName));
-                LOG.info("Output DBMS parameters into file: {}", nextName);
-                ru.writeDBParameters(ss);
-                ss.close();
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".samples"));
+            rs = new PrintStream(new File(nextName));
+            LOG.info("Output samples into file: {}", nextName);
+            r.writeCSV2(rs);
+            rs.close();
 
-                // DBMS Metrics
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".metrics"));
-                ss = new PrintStream(new File(nextName));
-                LOG.info("Output DBMS metrics into file: {}", nextName);
-                ru.writeDBMetrics(ss);
-                ss.close();
+            // Summary Data
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".summary"));
+            PrintStream ss = new PrintStream(new File(nextName));
+            LOG.info("Output summary data into file: {}", nextName);
+            ru.writeSummary(ss);
+            ss.close();
 
-                // Experiment Configuration
-                nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".expconfig"));
-                ss = new PrintStream(new File(nextName));
-                LOG.info("Output experiment config into file: {}", nextName);
-                ru.writeBenchmarkConf(ss);
-                ss.close();
-            }
+            // DBMS Parameters
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".params"));
+            ss = new PrintStream(new File(nextName));
+            LOG.info("Output DBMS parameters into file: {}", nextName);
+            ru.writeDBParameters(ss);
+            ss.close();
+
+            // DBMS Metrics
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".metrics"));
+            ss = new PrintStream(new File(nextName));
+            LOG.info("Output DBMS metrics into file: {}", nextName);
+            ru.writeDBMetrics(ss);
+            ss.close();
+
+            // Experiment Configuration
+            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".expconfig"));
+            ss = new PrintStream(new File(nextName));
+            LOG.info("Output experiment config into file: {}", nextName);
+            ru.writeBenchmarkConf(ss);
+            ss.close();
+
 
         } else if (LOG.isDebugEnabled()) {
             LOG.debug("No output file specified");
         }
 
-        if (isBooleanOptionSet(argsLine, "upload") && ru != null) {
-            ru.uploadResult(activeTXTypes);
-        }
 
-        // SUMMARY FILE
-        if (argsLine.hasOption("s")) {
-            nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
-            ps = new PrintStream(new File(nextName));
-            LOG.info("Output into file: {}", nextName);
 
-            int windowSize = Integer.parseInt(argsLine.getOptionValue("s"));
-            LOG.info("Grouped into Buckets of {} seconds", windowSize);
-            r.writeCSV(windowSize, ps);
+        nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
+        ps = new PrintStream(new File(nextName));
+        LOG.info("Output into file: {}", nextName);
 
-            // Allow more detailed reporting by transaction to make it easier to check
-            if (argsLine.hasOption("ss")) {
+        int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
+        LOG.info("Grouped into Buckets of {} seconds", windowSize);
+        r.writeCSV(windowSize, ps);
 
-                for (TransactionType t : activeTXTypes) {
-                    PrintStream ts = ps;
-                    if (ts != System.out) {
-                        // Get the actual filename for the output
-                        baseFile = filePrefix + baseFileName + "_" + t.getName();
-                        nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
-                        ts = new PrintStream(new File(nextName));
-                        r.writeCSV(windowSize, ts, t);
-                        ts.close();
-                    }
+        // Allow more detailed reporting by transaction to make it easier to check
+       // if (argsLine.hasOption("ss")) {
+
+            for (TransactionType t : activeTXTypes) {
+                PrintStream ts = ps;
+                if (ts != System.out) {
+                    // Get the actual filename for the output
+                    baseFile = filePrefix + baseFileName + "_" + t.getName();
+                    nextName = FileUtil.getNextFilename(FileUtil.joinPath(outputDirectory, baseFile + ".res"));
+                    ts = new PrintStream(new File(nextName));
+                    r.writeCSV(windowSize, ts, t);
+                    ts.close();
                 }
             }
-        } else {
-            LOG.warn("No bucket size specified");
-        }
+        //}
+
 
         if (ps != null) {
             ps.close();
