@@ -18,7 +18,7 @@ CREATE TABLE review (
   u_id int NOT NULL REFERENCES useracct (u_id),
   i_id int NOT NULL REFERENCES item (i_id),
   rating int DEFAULT NULL,
-  rank int DEFAULT NULL
+  `rank` int DEFAULT NULL
 );
 CREATE INDEX IDX_RATING_UID ON review (u_id);
 CREATE INDEX IDX_RATING_AID ON review (a_id);
