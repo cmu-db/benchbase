@@ -395,7 +395,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     conn.rollback();
 
                     if (isRetryable(ex)) {
-                        LOG.warn(String.format("SQLException occurred during [%s], current retry attempt [%d], max retry attempts [%d]!", transactionType, retryCount, MAX_RETRY_COUNT), ex);
+                        LOG.warn(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, MAX_RETRY_COUNT, ex.getSQLState(), ex.getErrorCode()), ex);
 
                         status = TransactionStatus.RETRY;
 
@@ -403,7 +403,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     } else {
 
-                        LOG.warn(String.format("SQLException occurred during [%s] and will not be retried", transactionType), ex);
+                        LOG.warn(String.format("SQLException occurred during [%s] and will not be retried... sql state [%s], error code [%d].", transactionType, ex.getSQLState(), ex.getErrorCode()), ex);
 
                         status = TransactionStatus.ERROR;
 
