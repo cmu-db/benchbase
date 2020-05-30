@@ -524,11 +524,7 @@ public class DBWorkload {
 
         String filePrefix = TimeUtil.getCurrentTimeString() + "_";
 
-
-        // Special result uploader
         ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
-
-        // Output target 
 
         String baseFileName = filePrefix + "oltpbench";
         int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
