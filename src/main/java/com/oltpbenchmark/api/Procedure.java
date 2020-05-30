@@ -245,5 +245,5 @@ public abstract class Procedure {
         public UserAbortException(String msg) {
             this(msg, null);
         }
-    } // END CLASS    
+    }
 }

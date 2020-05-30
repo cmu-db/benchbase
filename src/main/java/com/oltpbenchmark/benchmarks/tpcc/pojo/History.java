@@ -39,4 +39,4 @@ public class History {
                 + "\n* h_amount = " + h_amount + "\n*   h_data = " + h_data + "\n**********************************************");
     }
 
-} // end History
+}

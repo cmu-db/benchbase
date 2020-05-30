@@ -41,4 +41,4 @@ public class Warehouse implements Serializable {
                 + "\n*    w_state = " + w_state + "\n*      w_zip = " + w_zip + "\n**********************************************");
     }
 
-} // end Warehouse
+}

@@ -75,4 +75,4 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
             }
         };
     }
-} // END CLASS
+}

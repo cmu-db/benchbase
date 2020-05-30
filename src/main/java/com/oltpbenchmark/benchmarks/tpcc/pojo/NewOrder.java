@@ -32,4 +32,4 @@ public class NewOrder implements Serializable {
                 + no_d_id + "\n*      no_o_id = " + no_o_id + "\n**********************************************");
     }
 
-} // end NewOrder
+}

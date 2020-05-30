@@ -718,7 +718,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 }
             });
         }
-    } // END CLASS
+    }
 
     // ----------------------------------------------------------------
     // SCALING TABLE DATA GENERATION
@@ -886,7 +886,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             };
             return (it);
         }
-    } // END CLASS
+    }
 
     // ----------------------------------------------------------------
     // CUSTOMERS
@@ -957,7 +957,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // BAD MOJO!
                 default:
 
-            } // SWITCH
+            }
             return (value);
         }
 
@@ -1067,7 +1067,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // BAD MOJO!
                 default:
 
-            } // SWITCH
+            }
             return (value);
         }
 
@@ -1173,7 +1173,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // BAD MOJO!
                 default:
 
-            } // SWITCH
+            }
             return (value);
         }
     }
@@ -1439,7 +1439,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // BAD MOJO!
                 default:
 
-            } // SWITCH
+            }
             return (value);
         }
     }
@@ -1511,7 +1511,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         }
                         ReservationIterable.this.done = true;
                     }
-                } // run
+                }
             }.start();
         }
 
@@ -1700,10 +1700,10 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // BAD MOJO!
                 default:
 
-            } // SWITCH
+            }
             return (value);
         }
-    } // END CLASS
+    }
 
     // -----------------------------------------------------------------
     // FLIGHT IDS

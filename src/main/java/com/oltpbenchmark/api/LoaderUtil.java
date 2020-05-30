@@ -48,7 +48,7 @@ public class LoaderUtil {
 
         return sb.toString();
 
-    } // end randomStr
+    }
 
     public static String blockBuilder(String piece, int repeat) {
         StringBuilder sb = new StringBuilder("<HTML>");
@@ -93,4 +93,4 @@ public class LoaderUtil {
         return (int) (r.nextDouble() * (max - min + 1) + min);
     }
 
-} // end jTPCCUtil
+}

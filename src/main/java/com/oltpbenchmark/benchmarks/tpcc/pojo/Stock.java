@@ -78,4 +78,4 @@ public class Stock implements Serializable {
                         + s_dist_09 + "\n*    s_dist_10 = " + s_dist_10 + "\n**********************************************");
     }
 
-} // end Stock
+}

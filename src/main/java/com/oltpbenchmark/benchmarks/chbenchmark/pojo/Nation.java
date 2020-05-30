@@ -33,6 +33,6 @@ public class Nation {
                 + "\n**********************************************");
     }
 
-} // end Nation
+}
 
 //<<< CH-benCHmark

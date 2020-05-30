@@ -160,7 +160,7 @@ public class TATPWorker extends Worker<TATPBenchmark> {
             this.generator.invoke(conn, proc, subscriberSize);
         }
 
-    } // TRANSCTION ENUM
+    }
 
     private final long subscriberSize;
 

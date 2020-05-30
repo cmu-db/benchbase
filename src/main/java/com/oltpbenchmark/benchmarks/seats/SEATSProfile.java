@@ -533,7 +533,7 @@ public class SEATSProfile {
                     f = new FlatHistogram<>(this.rng, h);
                     this.airport_distributions.put(code, f);
                 }
-            } // SYCH
+            }
         }
 
         String other = f.nextValue();

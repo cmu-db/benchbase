@@ -57,4 +57,4 @@ public class District implements Serializable {
                 + "\n*     d_state = " + d_state + "\n*       d_zip = " + d_zip + "\n**********************************************");
     }
 
-} // end District
+}

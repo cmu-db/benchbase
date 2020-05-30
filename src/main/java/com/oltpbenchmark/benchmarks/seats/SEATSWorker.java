@@ -136,7 +136,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         for (int i = 0; i < SEATSConstants.FLIGHTS_NUM_SEATS; i++) {
             FULL_FLIGHT_BITSET.set(i);
         }
-    } // STATIC
+    }
 
     protected BitSet getSeatsBitSet(FlightId flight_id) {
         BitSet seats = CACHE_BOOKED_SEATS.get(flight_id);
@@ -245,7 +245,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         public String toString() {
             return String.format("{Id:%d / %s / %s / SeatNum:%d}", this.id, this.flight_id, this.customer_id, this.seatnum);
         }
-    } // END CLASS
+    }
 
     // -----------------------------------------------------------------
     // REQUIRED METHODS
@@ -333,7 +333,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 }
                 default:
 
-            } // SWITCH
+            }
         } catch (SQLException esql) {
             LOG.error("caught SQLException in SEATSWorker for procedure {}:{}", txnType.getName(), esql, esql);
             throw esql;

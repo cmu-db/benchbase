@@ -34,7 +34,7 @@ public abstract class TextGenerator {
         for (int i = 0; i < CHAR_SYMBOLS.length; i++) {
             CHAR_SYMBOLS[i] = (char) (CHAR_START + i);
         }
-    } // STATIC
+    }
 
     private static final int[] FAST_MASKS = {
             554189328, // 10000

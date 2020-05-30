@@ -37,6 +37,6 @@ public class Supplier {
                 + "\n* su_comment = " + su_comment + "\n**********************************************");
     }
 
-} // end Supplier
+}
 
 //<<< CH-benCHmark

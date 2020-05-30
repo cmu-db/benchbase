@@ -686,42 +686,42 @@ public abstract class JSONUtil {
                 return (Class.class);
             }
         } catch (Throwable ignored) {
-        } // IGNORE
+        }
 
         // Short
         try {
             value = Short.parseShort(json_value);
             return (Short.class);
         } catch (NumberFormatException ignored) {
-        } // IGNORE
+        }
 
         // Integer
         try {
             value = Integer.parseInt(json_value);
             return (Integer.class);
         } catch (NumberFormatException ignored) {
-        } // IGNORE
+        }
 
         // Long
         try {
             value = Long.parseLong(json_value);
             return (Long.class);
         } catch (NumberFormatException ignored) {
-        } // IGNORE
+        }
 
         // Float
         try {
             value = Float.parseFloat(json_value);
             return (Float.class);
         } catch (NumberFormatException ignored) {
-        } // IGNORE
+        }
 
         // Double
         try {
             value = Double.parseDouble(json_value);
             return (Double.class);
         } catch (NumberFormatException ignored) {
-        } // IGNORE
+        }
 
 
         // Boolean

@@ -153,7 +153,7 @@ public abstract class SQLUtil {
                         catalog_tbl.getName(), catalog_col.getName());
             default:
                 LOG.warn("Unexpected request for sequence name on {} using {}", catalog_col, dbType);
-        } // SWITCH
+        }
         return (null);
     }
 
@@ -262,7 +262,7 @@ public abstract class SQLUtil {
             }
             default:
                 LOG.warn("Unexpected SQL Type '{}' for value '{}'", sqlType, value);
-        } // SWITCH
+        }
         return (ret);
     }
 

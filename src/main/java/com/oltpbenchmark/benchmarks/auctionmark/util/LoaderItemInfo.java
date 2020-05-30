@@ -130,5 +130,5 @@ public class LoaderItemInfo extends ItemInfo {
             }
             return (StringUtil.formatMaps(m));
         }
-    } // END CLASS
-} // END CLASS
+    }
+}

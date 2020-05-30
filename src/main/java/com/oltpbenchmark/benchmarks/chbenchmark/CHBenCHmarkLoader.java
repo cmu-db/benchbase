@@ -208,7 +208,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         return (k);
 
-    } // end loadRegions()
+    }
 
     private int loadNations(Connection conn, PreparedStatement statement) throws SQLException {
 
@@ -274,7 +274,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         return (k);
 
-    } // end loadNations()
+    }
 
     private int loadSuppliers(Connection conn, PreparedStatement statement) throws SQLException {
 
@@ -325,7 +325,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         return (k);
 
-    } // end loadSuppliers()
+    }
 
 
 }

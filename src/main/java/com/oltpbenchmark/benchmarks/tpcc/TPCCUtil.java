@@ -75,7 +75,7 @@ public class TPCCUtil {
         } else {
             return "";
         }
-    } // end randomStr
+    }
 
     public static String randomNStr(int stringLength) {
         if (stringLength > 0) {
@@ -138,4 +138,4 @@ public class TPCCUtil {
                 + min;
     }
 
-} // end jTPCCUtil
+}

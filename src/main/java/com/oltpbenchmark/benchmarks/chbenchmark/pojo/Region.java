@@ -31,6 +31,6 @@ public class Region {
                 + "\n* r_comment = " + r_comment + "\n**********************************************");
     }
 
-} // end Region
+}
 
 //<<< CH-benCHmark

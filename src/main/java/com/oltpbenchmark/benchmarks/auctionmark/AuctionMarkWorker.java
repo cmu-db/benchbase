@@ -393,7 +393,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 break;
             default:
 
-        } // SWITCH
+        }
 //        assert(ret);
         if (ret && LOG.isDebugEnabled()) {
             LOG.debug("Executed a new invocation of {}", txn);

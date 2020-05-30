@@ -200,7 +200,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     itemPrepStmt.clearBatch();
                     batchSize = 0;
                 }
-            } // end for
+            }
 
 
             if (batchSize > 0) {
@@ -223,7 +223,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         return (k);
 
-    } // end loadItem()
+    }
 
     private void closeStatement(PreparedStatement statement) {
         if (statement != null) {
@@ -276,7 +276,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         return (1);
 
-    } // end loadWhse()
+    }
 
     protected int loadStock(Connection conn, int w_id, int numItems) {
 
@@ -336,7 +336,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     stckPrepStmt.executeBatch();
                     stckPrepStmt.clearBatch();
                 }
-            } // end for [i]
+            }
 
             stckPrepStmt.executeBatch();
 
@@ -351,7 +351,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         return (k);
 
-    } // end loadStock()
+    }
 
     protected int loadDistricts(Connection conn, int w_id, int distWhseKount) {
 
@@ -394,7 +394,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 distPrepStmt.setString(idx++, district.d_state);
                 distPrepStmt.setString(idx++, district.d_zip);
                 distPrepStmt.executeUpdate();
-            } // end for [d]
+            }
 
         } catch (SQLException se) {
             LOG.debug(se.getMessage());
@@ -406,7 +406,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         return (k);
 
-    } // end loadDist()
+    }
 
     protected int loadCustomers(Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
 
@@ -513,8 +513,8 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         custPrepStmt.clearBatch();
                         custPrepStmt.clearBatch();
                     }
-                } // end for [c]
-            } // end for [d]
+                }
+            }
 
             custPrepStmt.executeBatch();
             histPrepStmt.executeBatch();
@@ -532,7 +532,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         return (k);
 
-    } // end loadCust()
+    }
 
     protected int loadOrders(Connection conn, int w_id, int districtsPerWarehouse, int customersPerDistrict) {
 
@@ -619,7 +619,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         nworPrepStmt.setInt(idx++, new_order.no_o_id);
                         nworPrepStmt.addBatch();
                         newOrderBatch++;
-                    } // end new order
+                    }
 
                     for (int l = 1; l <= oorder.o_ol_cnt; l++) {
                         order_line.ol_w_id = w_id;
@@ -670,11 +670,11 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                             orlnPrepStmt.clearBatch();
                         }
 
-                    } // end for [l]
+                    }
 
-                } // end for [c]
+                }
 
-            } // end for [d]
+            }
 
 
             if (LOG.isDebugEnabled()) {
@@ -694,6 +694,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
         return (k);
 
-    } // end loadOrder()
+    }
 
-} // end LoadData Class
+}

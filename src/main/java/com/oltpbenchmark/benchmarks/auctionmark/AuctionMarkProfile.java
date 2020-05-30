@@ -837,7 +837,7 @@ public class AuctionMarkProfile {
                         break;
                     default:
 
-                } // SWITCH
+                }
             }
             itemInfo.status = new_status;
         }
@@ -1045,7 +1045,7 @@ public class AuctionMarkProfile {
                     break;
                 default:
 
-            } // SWITCH
+            }
             itemCounts.put(status, cnt);
         }
         m.put("Item Queues", itemCounts);

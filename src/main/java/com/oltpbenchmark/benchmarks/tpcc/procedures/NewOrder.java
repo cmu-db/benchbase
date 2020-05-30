@@ -381,7 +381,7 @@ public class NewOrder extends TPCCProcedure {
                 stmtInsertOrderLine.setString(9, ol_dist_info);
                 stmtInsertOrderLine.addBatch();
 
-            } // end-for
+            }
 
             stmtInsertOrderLine.executeBatch();
             stmtUpdateStock.executeBatch();

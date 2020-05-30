@@ -236,7 +236,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         }
                     }
                     stmt.addBatch();
-                } // FO
+                }
 
                 stmt.executeBatch();
                 stmt.clearBatch();
@@ -592,7 +592,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public String toString() {
             return String.format("Generator[%s]", this.tableName);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * SubUserTableGenerator
@@ -688,7 +688,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected void newElementCallback(T t) {
             // Nothing... 
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * REGION Generator
@@ -720,7 +720,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * CATEGORY Generator
@@ -767,7 +767,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * GLOBAL_ATTRIBUTE_GROUP Generator
@@ -819,7 +819,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * GLOBAL_ATTRIBUTE_VALUE Generator
@@ -871,7 +871,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * USER Generator
@@ -979,7 +979,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * ITEM Generator
@@ -1156,7 +1156,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * ITEM_ATTRIBUTE Generator
@@ -1191,7 +1191,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * ITEM_COMMENT Generator
@@ -1429,7 +1429,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             }
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * USER_FEEDBACK Generator
@@ -1514,7 +1514,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             return (col);
         }
-    } // END CLASS
+    }
 
     /**********************************************************************************************
      * USER_WATCH Generator
@@ -1598,5 +1598,5 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             long offset = profile.rng.number(start, end);
             return new Timestamp(offset * AuctionMarkConstants.MILLISECONDS_IN_A_SECOND);
         }
-    } // END CLASS
-} // END CLASS
+    }
+}
