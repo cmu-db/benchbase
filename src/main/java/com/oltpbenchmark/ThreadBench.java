@@ -239,7 +239,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 LOG.info("Worker Thread Status:\n{}", StringUtil.formatMaps(m));
             }
         }
-    } // CLASS
+    }
 
     private class MonitorThread extends Thread {
         private final int intervalMonitor;
@@ -279,7 +279,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 LOG.info("Throughput: {} txn/sec", tps);
             }
         }
-    } // CLASS
+    }
 
     /*
      * public static Results runRateLimitedBenchmark(List<Worker> workers, File

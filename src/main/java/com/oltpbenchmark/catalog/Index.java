@@ -43,7 +43,7 @@ public class Index extends AbstractCatalogObject {
         public String toString() {
             return this.name + " / " + this.dir;
         }
-    } // CLASS
+    }
 
     public Index(Table catalog_tbl, String name, int type, boolean unique) {
         super(name);

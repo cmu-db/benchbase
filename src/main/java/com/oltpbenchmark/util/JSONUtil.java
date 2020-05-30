@@ -603,7 +603,7 @@ public abstract class JSONUtil {
     private static Object makePrimitiveValue(Class<?> field_class, Object field_value) {
         Object value = null;
 
-        // Class
+
         if (field_class.equals(Class.class)) {
             value = ((Class<?>) field_value).getName();
             // JSONSerializable
@@ -631,7 +631,7 @@ public abstract class JSONUtil {
     public static Object getPrimitiveValue(String json_value, Class<?> field_class) throws Exception {
         Object value = null;
 
-        // Class
+
         if (field_class.equals(Class.class)) {
             value = ClassUtil.getClass(json_value);
             if (value == null) {
@@ -679,7 +679,7 @@ public abstract class JSONUtil {
     public static Class<?> getPrimitiveType(String json_value) {
         Object value = null;
 
-        // Class
+
         try {
             value = ClassUtil.getClass(json_value);
             if (value != null) {

@@ -43,7 +43,7 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
-        // Class<? extends Procedure> procClass = nextTrans.getProcedureClass();
+
         LOG.debug("Executing {}", this.procNoOp);
         try {
             this.procNoOp.run(conn);
