@@ -38,7 +38,7 @@ public class ItemId extends CompositeId {
     private int item_ctr;
 
     public ItemId() {
-        // For serialization
+
     }
 
     public ItemId(UserId seller_id, int item_ctr) {

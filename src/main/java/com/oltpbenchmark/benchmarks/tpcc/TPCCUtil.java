@@ -97,7 +97,7 @@ public class TPCCUtil {
     // TODO: TPCC-C 2.1.6: For non-uniform random number generation, the
     // constants for item id,
     // customer id and customer name are supposed to be selected ONCE and reused
-    // for all terminals.
+
     // We just hardcode one selection of parameters here, but we should generate
     // these each time.
     private static final int OL_I_ID_C = 7911; // in range [0, 8191]

@@ -34,7 +34,7 @@ public class CPU2 extends Procedure {
         String complexClause = "passwd";
         for (int i = 1; i <= ResourceStresserWorker.CPU2_nestedLevel; ++i) {
             complexClause = "md5(concat(" + complexClause + ",?))";
-        } // FOR
+        }
         cpuSelect = new SQLStmt("SELECT count(*) FROM (SELECT " + complexClause + " FROM " + ResourceStresserConstants.TABLENAME_CPUTABLE + " WHERE empid >= 0 AND empid < 100) AS T2");
     }
 
@@ -46,7 +46,7 @@ public class CPU2 extends Procedure {
 
                 for (int i = 1; i <= nestedLevel; ++i) {
                     stmt.setString(i, Double.toString(randNoise));
-                } // FOR
+                }
 
                 // TODO: Is this the right place to sleep?  With rs open???
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -56,7 +56,7 @@ public class CPU2 extends Procedure {
                         throw new SQLException("Unexpected interupt while sleeping!");
                     }
                 }
-            } // FOR
+            }
         }
     }
 

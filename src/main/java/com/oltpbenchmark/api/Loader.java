@@ -133,7 +133,7 @@ public abstract class Loader<T extends BenchmarkModule> {
                 LOG.debug(String.format("Deleting data from table %s", catalog_tbl.getName()));
                 String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
                 st.execute(sql);
-            } // FOR
+            }
             conn.commit();
         }
     }

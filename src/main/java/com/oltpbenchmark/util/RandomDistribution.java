@@ -185,7 +185,7 @@ public class RandomDistribution {
             long total = 0L;
             for (int i = 0; i < num_samples; i++) {
                 total += this.nextLong();
-            } // FOR
+            }
             return (total / (double) num_samples);
         }
 
@@ -296,7 +296,7 @@ public class RandomDistribution {
                 long v = this.histogram.get(k);
                 total += v;
                 this.value_rle.put(total, k);
-            } // FOR
+            }
         }
 
         @Override
@@ -422,7 +422,7 @@ public class RandomDistribution {
                     v.add(sum);
                     last = i;
                 }
-            } // FOR
+            }
 
             if (last != max - 1) {
                 k.add(max - 1);

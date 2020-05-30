@@ -217,7 +217,7 @@ public class DBWorkload {
                 // Add a ref for the active TTypes in this benchmark
                 ttypes.add(tmpType);
                 lastTxnId = i;
-            } // FOR
+            }
 
             // Wrap the list of transactions and save them
             TransactionTypes tt = new TransactionTypes(ttypes);
@@ -357,7 +357,7 @@ public class DBWorkload {
                 }
 
                 wrkld.addWork(time, warmup, rate, weight_strings, rateLimited, disabled, serial, timed, activeTerminals, arrival);
-            } // FOR
+            }
 
             // CHECKING INPUT PHASES
             int j = 0;
@@ -370,7 +370,7 @@ public class DBWorkload {
                     }
                     System.exit(-1);
                 }
-            } // FOR
+            }
 
             // Generate the dialect map
             wrkld.init();

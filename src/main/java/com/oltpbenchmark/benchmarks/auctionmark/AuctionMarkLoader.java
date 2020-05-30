@@ -199,7 +199,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         for (AbstractTableGenerator sub_generator : generator.getSubTableGenerators()) {
             this.registerGenerator(sub_generator);
             this.sub_generators.add(sub_generator.getTableName());
-        } // FOR
+        }
     }
 
     protected AbstractTableGenerator getGenerator(String table_name) {
@@ -234,7 +234,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         } else {
                             stmt.setNull(i + 1, types[i]);
                         }
-                    } // FOR
+                    }
                     stmt.addBatch();
                 } // FO
 
@@ -349,7 +349,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         LOG.trace("Random Integer Column: {}", catalog_col.fullName());
                     }
                 }
-            } // FOR
+            }
             if (LOG.isDebugEnabled()) {
                 if (this.random_str_cols.size() > 0) {
                     LOG.debug(String.format("%s Random String Columns: %s", tableName, this.random_str_cols));
@@ -401,7 +401,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException("Unexpected interruption for '" + this.tableName + "' waiting for '" + dependency + "'", ex);
                 }
-            } // FOR
+            }
 
             // Make sure we call prepare before we start generating table data
             this.prepare();
@@ -418,7 +418,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
                 for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
                     sub_generator.queue.addAll(this.subGenerator_hold);
-                } // FOR
+                }
                 this.subGenerator_hold.clear();
             }
         }
@@ -455,13 +455,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 int size = catalog_col.getSize();
                 row[catalog_col.getIndex()] = profile.rng.astring(profile.rng.nextInt(size - 1), size);
                 cols++;
-            } // FOR
+            }
 
             // INTEGER
             for (Column catalog_col : this.random_int_cols) {
                 row[catalog_col.getIndex()] = profile.rng.number(0, 1 << 30);
                 cols++;
-            } // FOR
+            }
 
             return (cols);
         }
@@ -546,7 +546,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 if (row[i] != null && row[i] instanceof CompositeId) {
                     row[i] = ((CompositeId) row[i]).encode();
                 }
-            } // FOR
+            }
 
             this.count++;
             this.table.add(row);
@@ -577,7 +577,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.latch.countDown();
             for (SubTableGenerator<?> sub_generator : this.sub_generators) {
                 sub_generator.stopWhenEmpty();
-            } // FOR
+            }
         }
 
         public boolean isFinish() {
@@ -743,7 +743,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     profile.items_per_category.put(category.getCategoryID(), category.getItemCount());
                 }
                 this.categories.add(category);
-            } // FOR
+            }
         }
 
         @Override
@@ -800,7 +800,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
                 profile.gag_ids.add(gag_id);
                 this.group_ids.add(gag_id);
-            } // FOR
+            }
         }
 
         @Override
@@ -846,7 +846,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             for (GlobalAttributeGroupId gag_id : profile.gag_ids) {
                 this.gag_counters.set(gag_id, 0);
                 this.tableSize += gag_id.getCount();
-            } // FOR
+            }
             this.gag_iterator = profile.gag_ids.iterator();
         }
 
@@ -901,7 +901,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             for (long i = 0; i < this.tableSize; i++) {
                 long num_items = randomNumItems.nextInt();
                 profile.users_per_itemCount.put(num_items);
-            } // FOR
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Users Per Item Count:\n{}", profile.users_per_itemCount);
             }
@@ -1006,7 +1006,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.tableSize = 0L;
             for (Long size : profile.users_per_itemCount.values()) {
                 this.tableSize += size.intValue() * profile.users_per_itemCount.get(size);
-            } // FOR
+            }
         }
 
         @Override
@@ -1035,7 +1035,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             short numWatches = (short) p.second.nextInt();
 
             // Create the ItemInfo object that we will use to cache the local data 
-            // for this item. This will get garbage collected once all the derivative
+
             // tables are done with it.
             LoaderItemInfo itemInfo = new LoaderItemInfo(itemId, endDate, numBids);
             itemInfo.sellerId = seller_id;

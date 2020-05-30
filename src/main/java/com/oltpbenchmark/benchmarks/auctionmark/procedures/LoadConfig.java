@@ -93,7 +93,7 @@ public class LoadConfig extends Procedure {
             stmt = conn.prepareStatement((status == ItemStatus.OPEN ? getFutureItems : getPastItems).getSQL());
             stmt.setLong(1, status.ordinal());
             results.add(stmt.executeQuery());
-        } // FOR
+        }
 
         return (results.toArray(new ResultSet[0]));
     }

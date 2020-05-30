@@ -189,7 +189,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 pstmt.addBatch();
                 batch++;
                 total++;
-            } // FOR
+            }
             if (batch >= workConf.getDBBatchSize()) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
@@ -260,8 +260,8 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                     cal_pstmt.setString(++cal_col, TATPUtil.nstring(15, 15));
                     cal_pstmt.addBatch();
                     cal_total++;
-                } // FOR
-            } // FOR
+                }
+            }
 
             if (spe_batch > workConf.getDBBatchSize()) {
                 if (LOG.isDebugEnabled()) {

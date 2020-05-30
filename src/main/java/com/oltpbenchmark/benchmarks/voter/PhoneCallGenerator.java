@@ -87,7 +87,7 @@ public class PhoneCallGenerator {
      * @return Call details (calling number and contestant to whom the vote is given)
      */
     public PhoneCall receive() {
-        // For the purpose of a benchmark, issue random voting activity
+
         // (including invalid votes to demonstrate transaction validationg in the database)
 
         // Pick a random area code for the originating phone call

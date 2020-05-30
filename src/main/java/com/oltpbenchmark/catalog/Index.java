@@ -83,7 +83,7 @@ public class Index extends AbstractCatalogObject {
         List<String> colNames = new ArrayList<>();
         for (IndexColumn idx_col : this.columns.values()) {
             colNames.add(idx_col.name);
-        } // FOR
+        }
         return (colNames);
     }
 
@@ -117,7 +117,7 @@ public class Index extends AbstractCatalogObject {
         for (int i = 0, cnt = this.columns.size(); i < cnt; i++) {
             IndexColumn idx_col = this.columns.get(i);
             inner.put(String.format("[%02d]", i), idx_col);
-        } // FOR
+        }
         m.put("Columns", inner);
 
         return (StringUtil.formatMaps(m));

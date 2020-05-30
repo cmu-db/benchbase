@@ -123,7 +123,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     {
         for (CacheType ctype : CacheType.values()) {
             CACHE_RESERVATIONS.put(ctype, new LinkedList<>());
-        } // FOR
+        }
     }
 
 
@@ -635,7 +635,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         long[] attributes = new long[9];
         for (int i = 0; i < attributes.length; i++) {
             attributes[i] = rng.nextLong();
-        } // FOR
+        }
 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Calling {}", proc);

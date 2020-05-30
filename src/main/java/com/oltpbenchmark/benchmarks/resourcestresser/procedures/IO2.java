@@ -58,7 +58,7 @@ public class IO2 extends Procedure {
                     LOG.warn("supposedtochange=" + 1 + " but rc={}", result);
                 }
 
-            } // FOR
+            }
         }
     }
 }

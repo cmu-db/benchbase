@@ -164,7 +164,7 @@ public abstract class CollectionUtil {
         List<T> list = new ArrayList<>();
         for (T t : it) {
             list.add(t);
-        } // FOR
+        }
         return (CollectionUtil.random(list, rand));
     }
 

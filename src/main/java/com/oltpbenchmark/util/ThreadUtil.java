@@ -92,7 +92,7 @@ public abstract class ThreadUtil {
         }
         for (R r : runnables) {
             pool.execute(new LatchRunnable(r, latch, handler));
-        } // FOR
+        }
         if (stop_pool) {
             pool.shutdown();
         }

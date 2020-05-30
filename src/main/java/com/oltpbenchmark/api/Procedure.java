@@ -60,7 +60,7 @@ public abstract class Procedure {
         this.name_stmt_xref = Procedure.getStatments(this);
         for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
             this.stmt_name_xref.put(e.getValue(), e.getKey());
-        } // FOR
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Initialized %s with %d SQLStmts: %s",
                     this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));
@@ -99,7 +99,7 @@ public abstract class Procedure {
         PreparedStatement pStmt = this.getPreparedStatementReturnKeys(conn, stmt, null);
         for (int i = 0; i < params.length; i++) {
             pStmt.setObject(i + 1, params[i]);
-        } // FOR
+        }
         return (pStmt);
     }
 
@@ -150,7 +150,7 @@ public abstract class Procedure {
             } catch (Throwable ex) {
                 throw new RuntimeException(String.format("Failed to generate PreparedStatements for %s.%s", this, e.getKey()), ex);
             }
-        } // FOR
+        }
     }
 
     /**
@@ -173,7 +173,7 @@ public abstract class Procedure {
                         dialects.getDatabaseType(), this.procName, stmtName));
             }
             stmt.setSQL(sql);
-        } // FOR (stmt)
+        }
     }
 
     /**
@@ -212,7 +212,7 @@ public abstract class Procedure {
                     throw new RuntimeException("Failed to retrieve " + f + " from " + c.getSimpleName(), ex);
                 }
             }
-        } // FOR
+        }
         return (stmts);
     }
 

@@ -86,7 +86,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
                         LOG.debug(String.format("Records Loaded %d / %d", i + 1, this.numEmployees));
                     }
                 }
-            } // FOR
+            }
             if (batch > 0) {
                 stmt.executeBatch();
                 if (LOG.isDebugEnabled()) {

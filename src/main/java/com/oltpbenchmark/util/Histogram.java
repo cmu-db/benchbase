@@ -248,7 +248,7 @@ public class Histogram<X> implements JSONSerializable {
                 this.max_count_values.add(value);
                 this.max_count = cnt;
             }
-        } // FOR
+        }
         this.dirty = false;
     }
 
@@ -377,7 +377,7 @@ public class Histogram<X> implements JSONSerializable {
             if (e.getValue() == count) {
                 ret.add(e.getKey());
             }
-        } // FOR
+        }
         return (ret);
     }
 
@@ -409,7 +409,7 @@ public class Histogram<X> implements JSONSerializable {
         if (this.keep_zero_entries) {
             for (Entry<X, Integer> e : this.histogram.entrySet()) {
                 this.histogram.put(e.getKey(), 0);
-            } // FOR
+            }
             this.num_samples = 0;
             this.min_count = 0;
             if (this.min_count_values != null) {
@@ -490,7 +490,7 @@ public class Histogram<X> implements JSONSerializable {
     public synchronized void putAll(Collection<X> values, int count) {
         for (X v : values) {
             this._put(v, count);
-        } // FOR
+        }
     }
 
     /**
@@ -503,7 +503,7 @@ public class Histogram<X> implements JSONSerializable {
             if (e.getValue() > 0) {
                 this._put(e.getKey(), e.getValue());
             }
-        } // FOR
+        }
     }
 
     /**
@@ -559,7 +559,7 @@ public class Histogram<X> implements JSONSerializable {
     public synchronized void removeValues(Collection<X> values, int delta) {
         for (X v : values) {
             this._put(v, -1 * delta);
-        } // FOR
+        }
     }
 
     /**
@@ -573,7 +573,7 @@ public class Histogram<X> implements JSONSerializable {
             if (e.getValue() > 0) {
                 this._put(e.getKey(), -1 * e.getValue());
             }
-        } // FOR
+        }
     }
 
     /**
@@ -651,7 +651,7 @@ public class Histogram<X> implements JSONSerializable {
         int max_ctr_length = 4;
         for (Integer ctr : this.histogram.values()) {
             max_ctr_length = Math.max(max_ctr_length, ctr.toString().length());
-        } // FOR
+        }
 
         // Don't let anything go longer than MAX_VALUE_LENGTH chars
         String f = "%-" + max_length + "s [%" + max_ctr_length + "d] ";
@@ -680,7 +680,7 @@ public class Histogram<X> implements JSONSerializable {
                 s.append(MARKER);
             }
             first = false;
-        } // FOR
+        }
         if (this.histogram.isEmpty()) {
             s.append("<EMPTY>");
         }
@@ -722,7 +722,7 @@ public class Histogram<X> implements JSONSerializable {
                             value_type = value.getClass();
                         }
                         stringer.key(value.toString()).value(this.histogram.get(value));
-                    } // FOR
+                    }
                     stringer.endObject();
                 } else if (element == Members.KEEP_ZERO_ENTRIES) {
                     if (this.keep_zero_entries) {
@@ -735,7 +735,7 @@ public class Histogram<X> implements JSONSerializable {
                 LOG.error(e.getMessage(), e);
                 System.exit(1);
             }
-        } // FOR
+        }
         if (value_type != null) {
             stringer.key(Histogram.Members.VALUE_TYPE.name()).value(value_type.getCanonicalName());
         }
@@ -778,7 +778,7 @@ public class Histogram<X> implements JSONSerializable {
                 LOG.error(e.getMessage(), e);
                 System.exit(1);
             }
-        } // FOR
+        }
 
         this.dirty = true;
         this.calculateInternalValues();

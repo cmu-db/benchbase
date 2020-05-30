@@ -388,14 +388,14 @@ public abstract class BenchmarkModule {
                     txn = new TransactionType(procClass, procClass.hashCode(), true);
                     txns.add(txn);
                 }
-            } // FOR
+            }
 
             for (TransactionType txn : txns) {
                 Procedure proc = ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
                 proc.initialize(this.workConf.getDBType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
-            } // FOR
+            }
         }
         if (proc_xref.isEmpty()) {
             LOG.warn("No procedures defined for {}", this);

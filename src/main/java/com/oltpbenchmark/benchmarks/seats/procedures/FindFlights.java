@@ -125,7 +125,7 @@ public class FindFlights extends Procedure {
                 f_stmt.setTimestamp(3, end_date);
                 for (int i = 0, cnt = Math.min(3, num_nearby); i < cnt; i++) {
                     f_stmt.setLong(4 + i, arrive_aids.get(i));
-                } // FOR
+                }
 
 
                 // Process Result

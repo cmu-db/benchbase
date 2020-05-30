@@ -118,7 +118,7 @@ public class GetPageAnonymous extends Procedure {
         // not contain old_page column!
         // sql =
         // "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
-        // For now we run the original one, which works on the data we have
+
         st = this.getPreparedStatement(conn, selectText);
         st.setLong(1, textId);
         rs = st.executeQuery();

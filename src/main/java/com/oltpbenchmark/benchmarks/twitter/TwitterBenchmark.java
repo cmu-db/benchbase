@@ -60,7 +60,7 @@ public class TwitterBenchmark extends BenchmarkModule {
             TransactionGenerator<TwitterOperation> generator =
                     new TraceTransactionGenerator(trace);
             workers.add(new TwitterWorker(this, i, generator));
-        } // FOR
+        }
         return workers;
     }
 

@@ -127,7 +127,7 @@ public class NewItem extends Procedure {
                 description += String.format(" * %s -> %s\n", results.getString(col++), results.getString(col++));
             }
             results.close();
-        } // FOR
+        }
 
         // CATEGORY
         stmt = this.getPreparedStatement(conn, getCategory, category_id);
@@ -182,7 +182,7 @@ public class NewItem extends Procedure {
             stmt.setLong(param++, gag_ids[i]);
             updated = stmt.executeUpdate();
 
-        } // FOR
+        }
 
         // Insert ITEM_IMAGE tuples
         stmt = this.getPreparedStatement(conn, insertImage);
@@ -194,7 +194,7 @@ public class NewItem extends Procedure {
             stmt.setString(param++, images[i]);
             updated = stmt.executeUpdate();
 
-        } // FOR
+        }
 
         // Update listing fee
         updated = this.getPreparedStatement(conn, updateUserBalance, currentTime, seller_id).executeUpdate();

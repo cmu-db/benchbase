@@ -439,7 +439,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     hist = new Histogram<>();
                     for (Entry<String, Histogram<String>> e : m.entrySet()) {
                         hist.put(e.getKey(), e.getValue().getSampleCount());
-                    } // FOR
+                    }
 
                     // All other histograms are just serialized and can be
                     // loaded directly
@@ -454,7 +454,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Loaded histogram '%s' [sampleCount=%d, valueCount=%d]", histogramName, hist.getSampleCount(), hist.getValueCount()));
             }
-        } // FOR
+        }
 
     }
 
@@ -525,7 +525,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 code_2_id.put(col_code_idx, col_id_idx);
             }
 
-            // Foreign Key Column to Code->Id Mapping
+
             // If this columns references a foreign key that is used in the
             // Code->Id mapping that we generating above,
             // then we need to know when we should change the
@@ -534,7 +534,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 String col_fkey_name = this.profile.fkey_value_xref.get(col_name);
                 mapping_columns.put(col_code_idx, this.profile.code_id_xref.get(col_fkey_name));
             }
-        } // FOR
+        }
 
         int row_idx = 0;
         int row_batch = 0;
@@ -592,9 +592,9 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         }
                         this.profile.code_id_xref.get(to_column.getName()).put(code, id);
                     }
-                } // FOR
+                }
 
-                // Foreign Key Code -> Foreign Key Id
+
                 for (int col_code_idx : mapping_columns.keySet()) {
                     Column catalog_col = columns.get(col_code_idx);
                     if (tuple[col_code_idx] != null) {
@@ -604,7 +604,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                             LOG.trace(String.format("Mapped %s '%s' -> %s '%s'", catalog_col.fullName(), code, catalog_col.getForeignKey().fullName(), tuple[col_code_idx]));
                         }
                     }
-                } // FOR
+                }
 
                 for (int i = 0; i < tuple.length; i++) {
                     try {
@@ -617,7 +617,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         LOG.error("INVALID {} TUPLE: {}", catalog_tbl.getName(), Arrays.toString(tuple));
                         throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).fullName(), ex);
                     }
-                } // FOR
+                }
                 insert_stmt.addBatch();
                 row_idx++;
 
@@ -628,7 +628,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     row_batch = 0;
                 }
 
-            } // FOR
+            }
 
             if (row_batch > 0) {
                 insert_stmt.executeBatch();
@@ -691,7 +691,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 } else if (col_name.contains("_IATTR")) {
                     this.rnd_integer.add(catalog_col.getIndex());
                 }
-            } // FOR
+            }
         }
 
         @Override
@@ -708,11 +708,11 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         int min_length = FixedDataIterable.this.rnd_string_min.get(col_idx);
                         int max_length = FixedDataIterable.this.rnd_string_max.get(col_idx);
                         tuple[col_idx] = SEATSLoader.this.rng.astring(min_length, max_length);
-                    } // FOR
+                    }
                     // Random Integer (*_IATTR##)
                     for (int col_idx : FixedDataIterable.this.rnd_integer) {
                         tuple[col_idx] = SEATSLoader.this.rng.nextLong();
-                    } // FOR
+                    }
 
                     return (tuple);
                 }
@@ -812,7 +812,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             this.types = new int[catalog_tbl.getColumns().size()];
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 this.types[catalog_col.getIndex()] = catalog_col.getType();
-            } // FOR
+            }
         }
 
         /**
@@ -874,7 +874,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                             ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.number(0, 1 << 30);
                         }
-                    } // FOR
+                    }
                     ScalingDataIterable.this.last_id++;
                     return (ScalingDataIterable.this.data);
                 }
@@ -1020,7 +1020,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     this.ff_per_customer[i] = (short) max_per_customer;
                 }
                 new_total += this.ff_per_customer[i];
-            } // FOR
+            }
             this.total = new_total;
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Constructing {} FrequentFlyer tuples...", this.total);
@@ -1149,8 +1149,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         this.last_inner_ctr = inner_ctr + 1;
                         return (true);
                     }
-                } // FOR
-            } // FOR
+                }
+            }
             return (false);
         }
 
@@ -1226,7 +1226,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 histogram = SEATSLoader.this.profile.getFightsPerAirportHistogram(airport_code);
 
                 this.flights_per_airport.put(airport_code, new FlatHistogram<>(SEATSLoader.this.rng, histogram));
-            } // FOR
+            }
 
             // Flights Per Departure Time
             histogram = SEATSLoader.this.profile.getHistogram(SEATSConstants.HISTOGRAM_FLIGHTS_PER_DEPART_TIMES);
@@ -1250,7 +1250,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 int num_flights = gaussian.nextInt();
                 this.flights_per_day.put(timestamp, num_flights);
                 this.total += num_flights;
-            } // FOR
+            }
             if (this.start_date == null) {
                 this.start_date = this.today;
             }
@@ -1264,7 +1264,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 int num_flights = gaussian.nextInt();
                 this.flights_per_day.put(timestamp, num_flights);
                 this.total += num_flights;
-            } // FOR
+            }
 
             // Update profile
             SEATSLoader.this.profile.setFlightPastDays(days_past);
@@ -1429,7 +1429,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                             continue;
                         }
                         SEATSLoader.this.decrementFlightSeat(this.flight_id);
-                    } // FOR
+                    }
                     value = (long) SEATSLoader.this.getFlightRemainingSeats(this.flight_id);
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("{} SEATS REMAINING: {}", this.flight_id, value);
@@ -1486,7 +1486,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             for (long airport_id : SEATSLoader.this.profile.getAirportIds()) {
                 // Return Flights per airport
                 this.airport_returns.put(airport_id, new TreeSet<>());
-            } // FOR
+            }
 
             // Data Generation Thread
             // Ok, hang on tight. We are going to fork off a separate thread to
@@ -1533,7 +1533,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 Timestamp arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
                 flight_customer_ids.clear();
 
-                // For each flight figure out which customers are returning
+
                 this.getReturningCustomers(returning_customers, flight_id);
                 int booked_seats = SEATSConstants.FLIGHTS_NUM_SEATS - SEATSLoader.this.getFlightRemainingSeats(flight_id);
 
@@ -1609,8 +1609,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         LOG.trace(String.format("New reservation ready. Adding to queue! [queueSize=%d]", this.queue.size()));
                     }
                     this.queue.put(new Object[]{customer_id, flight_id, seatnum});
-                } // FOR (seats)
-            } // FOR (flights)
+                }
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Reservation data generation thread is finished");
             }
@@ -1635,7 +1635,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     if (return_flight.getReturnAirportId() == flight_id.getArriveAirportId()) {
                         returning_customers.add(return_flight);
                     }
-                } // FOR
+                }
                 if (!returning_customers.isEmpty()) {
                     returns.removeAll(returning_customers);
                 }
@@ -1814,7 +1814,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 this.airport_distances.put(a[0], new HashMap<>());
             }
             this.airport_distances.get(a[0]).put(a[1], short_distance);
-        } // FOR
+        }
     }
 
     public Integer getDistance(String airport0, String airport1) {

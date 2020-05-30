@@ -68,11 +68,11 @@ public final class SQLStmt {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < ctr; i++) {
                 sb.append((i > 0 ? ", " : "") + "?");
-            } // FOR
+            }
             Matcher m = SUBSTITUTION_PATTERN.matcher(sql);
             String replace = sb.toString();
             sql = m.replaceFirst(replace);
-        } // FOR
+        }
         this.sql = sql;
         if (LOG.isDebugEnabled()) {
             LOG.debug("Initialized SQL:\n{}", this.sql);

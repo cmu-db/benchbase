@@ -72,7 +72,7 @@ public class SEATSBenchmark extends BenchmarkModule {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < this.workConf.getTerminals(); ++i) {
             workers.add(new SEATSWorker(this, i));
-        } // FOR
+        }
         return (workers);
     }
 

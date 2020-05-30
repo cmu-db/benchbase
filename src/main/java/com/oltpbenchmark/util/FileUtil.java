@@ -100,7 +100,7 @@ public abstract class FileUtil {
             if (f.exists() == false) {
                 f.mkdirs();
             }
-        } // FOR
+        }
     }
 
     /**
@@ -316,7 +316,7 @@ public abstract class FileUtil {
             } else if (file.getCanonicalPath().endsWith(File.separator + ".svn")) {
                 has_svn = true;
             }
-        } // FOR
+        }
         // If we didn't see an .svn directory, then we went too far down
         if (!has_svn) {
             throw new RuntimeException("Unable to find directory '" + name + "' [last_dir=" + current.getAbsolutePath() + "]");

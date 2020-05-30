@@ -305,7 +305,7 @@ public class WorkloadConfiguration {
                 throw new RuntimeException(ex);
             }
             m.put(f.getName().toUpperCase(), obj);
-        } // FOR
+        }
         return StringUtil.formatMaps(m);
     }
 }

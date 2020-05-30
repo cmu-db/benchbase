@@ -34,7 +34,7 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
         this.airport_max_customer_id = airport_max_customer_id;
         for (long id : airport_ids) {
             this.airport_ids.add(id);
-        } // FOR
+        }
     }
 
     public CustomerIdIterable(Histogram<Long> airport_max_customer_id) {

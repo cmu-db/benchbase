@@ -550,7 +550,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                 throw new RuntimeException("Unrecognized type for prepared statement");
                         }
 
-                    } // FOR
+                    }
 
                     ps.addBatch();
                     if (++batchSize % workConf.getDBBatchSize() == 0) {

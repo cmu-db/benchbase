@@ -166,7 +166,7 @@ public class UpdatePage extends Procedure {
                 for (Integer otherUserId : wlUser) {
                     ps.setInt(param, otherUserId);
                     ps.addBatch();
-                } // FOR
+                }
                 executeBatch(conn, ps);
             }
 
@@ -177,7 +177,7 @@ public class UpdatePage extends Procedure {
             // =====================================================================
 
             // This seems to be executed only if the page is watched, and once
-            // for each "watcher"
+
             try (PreparedStatement ps = this.getPreparedStatement(conn, selectUser)) {
                 int param = 1;
                 for (Integer otherUserId : wlUser) {
@@ -185,7 +185,7 @@ public class UpdatePage extends Procedure {
                     try (ResultSet rs = ps.executeQuery()) {
                         rs.next();
                     }
-                } // FOR
+                }
             }
         }
 

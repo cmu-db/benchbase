@@ -248,7 +248,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                         lastPercent = percent;
                     }
                 }
-            } // FOR
+            }
             if (batchSize > 0) {
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
                 userInsert.executeBatch();
@@ -315,7 +315,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                         lastPercent = percent;
                     }
                 }
-            } // FOR
+            }
             if (batchSize > 0) {
                 pageInsert.executeBatch();
                 pageInsert.clearBatch();
@@ -387,7 +387,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     watchInsert.setNull(param++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
                     watchInsert.addBatch();
                     batchSize++;
-                } // FOR
+                }
 
                 if (batchSize >= maxBatchSize) {
                     watchInsert.executeBatch();
@@ -402,7 +402,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                         lastPercent = percent;
                     }
                 }
-            } // FOR
+            }
 
             if (batchSize > 0) {
                 watchInsert.executeBatch();
@@ -504,7 +504,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.page_last_rev_length[page_id - 1] = old_text_length;
                 rev_id++;
                 batchSize++;
-            } // FOR (revision)
+            }
             if (batchSize > workConf.getDBBatchSize()) {
                 textInsert.executeBatch();
                 revisionInsert.executeBatch();
@@ -520,7 +520,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     lastPercent = percent;
                 }
             }
-        } // FOR (page)
+        }
         revisionInsert.close();
         textInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
@@ -547,7 +547,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     userUpdate.clearBatch();
                     batchSize = 0;
                 }
-            } // FOR
+            }
             if (batchSize > 0) {
                 userUpdate.executeBatch();
                 userUpdate.clearBatch();
@@ -578,7 +578,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     pageUpdate.clearBatch();
                     batchSize = 0;
                 }
-            } // FOR
+            }
             if (batchSize > 0) {
                 pageUpdate.executeBatch();
                 pageUpdate.clearBatch();

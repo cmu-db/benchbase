@@ -139,9 +139,9 @@ public abstract class StringUtil {
             prefixes[i] = (i == 0 ? "" : " \u2503 ");
             for (String line : lines[i]) {
                 max_length = Math.max(max_length, line.length());
-            } // FOR
+            }
             max_lines = Math.max(max_lines, lines[i].length);
-        } // FOR
+        }
 
         String f = "%-" + max_length + "s";
         StringBuilder sb = new StringBuilder();
@@ -149,9 +149,9 @@ public abstract class StringUtil {
             for (int i = 0; i < strs.length; i++) {
                 String line = (ii >= lines[i].length ? "" : lines[i][ii]);
                 sb.append(prefixes[i]).append(String.format(f, line));
-            } // FOR
+            }
             sb.append("\n");
-        } // FOR
+        }
 
         return (sb.toString());
     }
@@ -225,20 +225,20 @@ public abstract class StringUtil {
                 if (first && first_element_title && m.get(k) == null) {
                     for (String line : k_str) {
                         max_title_size = Math.max(max_title_size, line.length());
-                    } // FOR
+                    }
                     map_titles[i] = true;
                 } else {
                     for (String line : k_str) {
                         max_key_size = Math.max(max_key_size, line.length());
-                    } // FOR
+                    }
                     if (first) {
                         map_titles[i] = false;
                     }
                 }
                 first = false;
-            } // FOR
+            }
             map_keys[i] = keys;
-        } // FOR
+        }
 
         boolean equalsDelimiter = delimiter.equals("=");
         final String f = "%-" + (max_key_size + delimiter.length() + 1) + "s" +
@@ -303,14 +303,14 @@ public abstract class StringUtil {
                         if (need_divider) {
                             max_value_size = Math.max(max_value_size, v_line.length());
                         }
-                    } // FOR
+                    }
                     if (v.endsWith("\n")) {
                         blocks[map_i].append("\n");
                     }
                 }
                 first = false;
             }
-        } // FOR
+        }
 
         // Put it all together!
 //        System.err.println("max_title_size=" + max_title_size + ", max_key_size=" + max_key_size + ", max_value_size=" + max_value_size + ", delimiter=" + delimiter.length());
@@ -329,7 +329,7 @@ public abstract class StringUtil {
                     sb.append(dividing_line).append("\n");
                 }
                 sb.append(blocks[i]);
-            } // FOR
+            }
         }
         return (box ? StringUtil.box(sb.toString()) :
                 (border_top ? dividing_line + "\n" : "") + sb.toString() + (border_bottom ? dividing_line : ""));
@@ -409,7 +409,7 @@ public abstract class StringUtil {
                 if (max_len == null || line.length() > max_len) {
                     max_len = line.length();
                 }
-            } // FOR
+            }
         }
 
         final String top_line = StringUtil.repeat(mark, max_len + 4); // padding
@@ -419,7 +419,7 @@ public abstract class StringUtil {
         sb.append(top_line).append("\n");
         for (String line : lines) {
             sb.append(String.format(f, mark, line, mark));
-        } // FOR
+        }
         sb.append(top_line);
 
         return (sb.toString());
@@ -441,7 +441,7 @@ public abstract class StringUtil {
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
             sb.append(prefix).append(line).append("\n");
-        } // FOR
+        }
         return (sb.toString());
     }
 
@@ -504,13 +504,13 @@ public abstract class StringUtil {
                         String c = part.substring(i, i + 1);
                         String up = c.toUpperCase();
                         sb.append(c.equals(up) ? c : c.toLowerCase());
-                    } // FOR
+                    }
                 } else {
                     sb.append(part.substring(1).toLowerCase());
                 }
             }
             add = " ";
-        } // FOR
+        }
         return (sb.toString());
     }
 
@@ -524,7 +524,7 @@ public abstract class StringUtil {
         StringBuilder sb = new StringBuilder();
         for (String line : LINE_SPLIT.split(str)) {
             sb.append(SPACER).append(line).append("\n");
-        } // FOR
+        }
         return (sb.toString());
     }
 

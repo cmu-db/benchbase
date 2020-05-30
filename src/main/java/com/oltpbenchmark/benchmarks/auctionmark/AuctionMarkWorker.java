@@ -565,12 +565,12 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                         valid = false;
                         break;
                     }
-                } // FOR
+                }
                 if (valid) {
                     ItemCommentResponse cr = new ItemCommentResponse(vals[0], vals[1], vals[2]);
                     profile.addPendingItemCommentResponse(cr);
                 }
-            } // FOR
+            }
         }
         idx++;
 
@@ -583,8 +583,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             for (Object[] row : vt) {
                 ItemId itemId = this.processItemRecord(row);
 
-            } // FOR
-        } // FOR
+            }
+        }
 
         return (true);
     }
@@ -765,7 +765,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             if (!gavList.contains(gav_id)) {
                 gavList.add(gav_id);
             }
-        } // FOR
+        }
 
         long[] gag_ids = new long[gavList.size()];
         long[] gav_ids = new long[gavList.size()];
@@ -773,13 +773,13 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             GlobalAttributeValueId gav_id = gavList.get(i);
             gag_ids[i] = gav_id.getGlobalAttributeGroup().encode();
             gav_ids[i] = gav_id.encode();
-        } // FOR
+        }
 
         int numImages = profile.randomNumImages.nextInt();
         String[] images = new String[numImages];
         for (int i = 0; i < numImages; i++) {
             images[i] = profile.rng.astring(20, 100);
-        } // FOR
+        }
 
         long duration = profile.randomDuration.nextInt();
 

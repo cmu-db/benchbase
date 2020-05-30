@@ -287,7 +287,7 @@ public class Delivery extends TPCCProcedure {
                     terminalMessage.append(orderIDs[i - 1]);
                     terminalMessage.append(" was delivered.\n");
                 }
-            } // FOR
+            }
             terminalMessage.append("+-----------------------------------------------------------------+\n\n");
             LOG.trace(terminalMessage.toString());
         }

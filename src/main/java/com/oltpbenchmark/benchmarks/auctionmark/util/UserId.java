@@ -39,7 +39,7 @@ public class UserId extends CompositeId {
     private int offset;
 
     public UserId() {
-        // For serialization
+
     }
 
     /**

@@ -33,7 +33,7 @@ public abstract class TextGenerator {
     static {
         for (int i = 0; i < CHAR_SYMBOLS.length; i++) {
             CHAR_SYMBOLS[i] = (char) (CHAR_START + i);
-        } // FOR
+        }
     } // STATIC
 
     private static final int[] FAST_MASKS = {
@@ -65,7 +65,7 @@ public abstract class TextGenerator {
     public static char[] randomChars(Random rng, char[] chars) {
         for (int i = 0; i < chars.length; i++) {
             chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
-        } // FOR
+        }
         return (chars);
     }
 
@@ -87,13 +87,13 @@ public abstract class TextGenerator {
             int rand = rng.nextInt(10000); // CHAR_SYMBOLS.length);
             for (int mask : FAST_MASKS) {
                 chars[i++] = CHAR_SYMBOLS[(rand | mask) % CHAR_SYMBOLS.length];
-            } // FOR
-        } // FOR
+            }
+        }
         // Use the old way for the remaining characters
         // I am doing this because I am too lazy to think of something more clever
         for (; i < chars.length; i++) {
             chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
-        } // FOR
+        }
         return (chars);
     }
 
@@ -137,7 +137,7 @@ public abstract class TextGenerator {
         char[] chars = Arrays.copyOf(orig, orig.length + delta);
         for (int i = orig.length; i < chars.length; i++) {
             chars[i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
-        } // FOR
+        }
         return (chars);
     }
 
@@ -167,13 +167,13 @@ public abstract class TextGenerator {
             if ((rand >> bit & 1) == 1) {
                 for (int i = 0; i < blockSize; i++) {
                     chars[idx + i] = CHAR_SYMBOLS[rng.nextInt(CHAR_SYMBOLS.length)];
-                } // FOR
+                }
             }
             idx += blockSize;
             if (idx >= chars.length) {
                 break;
             }
-        } // FOR
+        }
 
         return (chars);
     }

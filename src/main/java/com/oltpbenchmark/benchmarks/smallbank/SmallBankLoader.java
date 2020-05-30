@@ -113,7 +113,7 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
                         batchSize = 0;
                     }
 
-                } // FOR
+                }
                 if (batchSize > 0) {
                     this.loadTables(conn);
                 }

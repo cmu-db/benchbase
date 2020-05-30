@@ -141,6 +141,6 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
         Random rng = rng();
         for (int i = 0; i < this.params.length; i++) {
             this.params[i] = new String(TextGenerator.randomFastChars(rng, this.data));
-        } // FOR
+        }
     }
 }

@@ -192,7 +192,7 @@ public abstract class SQLUtil {
         Object[] data = new Object[num_cols];
         for (int i = 0; i < num_cols; i++) {
             data[i] = rs.getObject(i + 1);
-        } // FOR
+        }
 
         return (String.format("ROW[%02d] -> [%s]", rs.getRow(), StringUtil.join(",", data)));
     }
@@ -254,7 +254,7 @@ public abstract class SQLUtil {
                     if (ret != null) {
                         break;
                     }
-                } // FOR
+                }
                 if (ret == null) {
                     throw new RuntimeException("Failed to parse timestamp '" + value + "'");
                 }
@@ -403,7 +403,7 @@ public abstract class SQLUtil {
             }
             values.append("?");
             first = false;
-        } // FOR
+        }
         if (show_cols) {
             sb.append(")");
         }
@@ -416,7 +416,7 @@ public abstract class SQLUtil {
                 sb.append(", ");
             }
             sb.append("(").append(values.toString()).append(")");
-        } // FOR
+        }
 //    	sb.append(";");
 
         return (sb.toString());

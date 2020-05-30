@@ -146,7 +146,7 @@ public class StatementDialects {
                 continue;
             }
 
-            // For each Procedure in the XML file, go through its list of Statements
+
             // and populate our dialects map with the mapped SQL
             for (ProcedureType procedure : dialect.getProcedure()) {
                 String procName = procedure.getName();
@@ -162,9 +162,9 @@ public class StatementDialects {
                     }
                     procDialects.put(stmtName, stmtSQL);
                     LOG.debug(String.format("%s.%s.%s\n%s\n", dbType, procName, stmtName, stmtSQL));
-                } // FOR (stmt)
-            } // FOR (proc)
-        } // FOR (dbtype)
+                }
+            }
+        }
         if (this.dialectsMap.isEmpty()) {
             LOG.warn(String.format("No SQL dialect provided for %s. Using default %s",
                     dbType, DEFAULT_DB_TYPE));
@@ -222,9 +222,9 @@ public class StatementDialects {
                 sType.setName(e.getKey());
                 sType.setValue(e.getValue().getOriginalSQL());
                 pType.getStatement().add(sType);
-            } // FOR (stmt)
+            }
             dType.getProcedure().add(pType);
-        } // FOR
+        }
         DialectsType dialects = factory.createDialectsType();
         dialects.getDialect().add(dType);
 

@@ -34,7 +34,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
             for (int i = 0; i < this.workConf.getTerminals(); ++i) {
                 TPCDSWorker worker = new TPCDSWorker(this, i);
                 workers.add(worker);
-            } // FOR
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

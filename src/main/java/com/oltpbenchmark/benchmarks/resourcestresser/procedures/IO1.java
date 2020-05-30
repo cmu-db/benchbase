@@ -65,7 +65,7 @@ public class IO1 extends Procedure {
                 if (result != howManyRowsPerUpdate) {
                     LOG.warn("supposedtochange={} but result={}", howManyRowsPerUpdate, result);
                 }
-            } // FOR
+            }
         }
     }
 }

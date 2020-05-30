@@ -151,7 +151,7 @@ public class Phase {
                 // If it's a cold execution, then we don't want to advance yet,
                 // since the hot run needs to execute the same query.
                 if (!isColdQuery) {
-                    // For timed, serial executions, we're doing a QPS (query
+
                     // throughput) run, so we loop through the list multiple
                     // times. Note that we do the modulus before the increment
                     // so that we end up in the range [1,num_weights]
@@ -172,7 +172,7 @@ public class Phase {
                 if (randomPercentage <= weight) {
                     return i + 1;
                 }
-            } // FOR
+            }
         }
 
         return -1;

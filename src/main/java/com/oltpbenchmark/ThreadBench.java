@@ -192,7 +192,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (int i = 0; i < workerThreads.size(); ++i) {
 
             // FIXME not sure this is the best solution... ensure we don't hang
-            // forever, however we might ignore 
+
             // problems
             workerThreads.get(i).join(60000); // wait for 60second for threads
             // to terminate... hands otherwise
@@ -475,7 +475,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 LOG.info("{} :: Warmup complete, starting measurements.", StringUtil.bold("MEASURE"));
                 // measureEnd = measureStart + measureSeconds * 1000000000L;
 
-                // For serial executions, we want to do every query exactly
+
                 // once, so we need to restart in case some of the queries
                 // began during the warmup phase.
                 // If we're not doing serial executions, this function has no
@@ -527,7 +527,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 results.txnRetry.putHistogram(w.getTransactionRetryHistogram());
                 results.txnAbort.putHistogram(w.getTransactionAbortHistogram());
                 results.txnErrors.putHistogram(w.getTransactionErrorHistogram());
-            } // FOR
+            }
 
             return (results);
         } catch (InterruptedException e) {

@@ -58,7 +58,7 @@ public class Contention2 extends Procedure {
 
                     stmtSleep.setInt(1, sleepLength);
                     stmtSleep.execute();
-                } // FOR
+                }
             }
         }
     }

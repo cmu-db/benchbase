@@ -296,16 +296,16 @@ public class AuctionMarkProfile {
                     this.seller_item_cnt.set(sellerId, sellerId.getItemCount());
                     list.add(itemInfo);
                 }
-            } // FOR
+            }
             Collections.shuffle(list);
-        } // FOR
+        }
 
         for (ItemCommentResponse cr : other.pending_commentResponses) {
             UserId sellerId = new UserId(cr.sellerId);
             if (this.userIdGenerator.checkClient(sellerId)) {
                 this.pending_commentResponses.add(cr);
             }
-        } // FOR
+        }
 
         if (LOG.isTraceEnabled()) {
             LOG.trace("SellerItemCounts:\n{}", this.seller_item_cnt);
@@ -374,7 +374,7 @@ public class AuctionMarkProfile {
                         //                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
                         loadItems(cachedProfile, results[result_idx]);
                         result_idx++;
-                    } // FOR
+                    }
 
                     for (ResultSet r : results) {
                         r.close();
@@ -618,7 +618,7 @@ public class AuctionMarkProfile {
                         user_id = null;
                         break;
                     }
-                } // FOR
+                }
                 if (user_id == null) {
                     continue;
                 }
@@ -761,7 +761,7 @@ public class AuctionMarkProfile {
 
             for (ItemInfo itemInfo : items) {
                 this.addItemToProperQueue(itemInfo, currentTime);
-            } // FOR
+            }
         }
 
         if (LOG.isDebugEnabled()) {

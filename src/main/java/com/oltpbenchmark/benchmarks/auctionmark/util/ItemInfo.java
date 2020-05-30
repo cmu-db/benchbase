@@ -41,7 +41,7 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     }
 
     public ItemInfo() {
-        // For serialization
+
     }
 
     public ItemId getItemId() {

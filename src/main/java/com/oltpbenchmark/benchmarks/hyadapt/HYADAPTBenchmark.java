@@ -68,7 +68,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
 //                Connection conn = this.getConnection();
 //                conn.setAutoCommit(false);
                 workers.add(new HYADAPTWorker(this, i, init_record_count + 1));
-            } // FOR
+            }
 
             LOG.info("Init Record Count :: {}", init_record_count);
         } catch (SQLException e) {

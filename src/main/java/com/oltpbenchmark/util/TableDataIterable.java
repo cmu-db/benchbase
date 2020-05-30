@@ -59,7 +59,7 @@ public class TableDataIterable implements Iterable<Object[]> {
             this.types[i] = catalog_col.getType();
             this.fkeys[i] = (catalog_col.getForeignKey() != null);
             this.nullable[i] = catalog_col.isNullable();
-        } // FOR
+        }
 
         this.reader = new CSVReader(FileUtil.getReader(this.table_file));
 
@@ -117,7 +117,7 @@ public class TableDataIterable implements Iterable<Object[]> {
                 else if (row_idx >= row.length) {
                     tuple[col_idx] = null;
                 }
-                // Foreign Keys
+
                 else if (fkeys[col_idx]) {
                     tuple[col_idx] = row[row_idx++];
                 }
@@ -135,7 +135,7 @@ public class TableDataIterable implements Iterable<Object[]> {
                     }
                     row_idx++;
                 }
-            } // FOR
+            }
             TableDataIterable.this.line_ctr++;
             return (tuple);
         }

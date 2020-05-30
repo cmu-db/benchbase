@@ -143,7 +143,7 @@ public class FindOpenSeats extends Procedure {
                     break;
                 }
             }
-        } // FOR
+        }
 //        assert(seats_left == returnResults.getRowCount()) :
 //            String.format("Flight %d - Expected[%d] != Actual[%d]", f_id, seats_left, returnResults.getRowCount());
 

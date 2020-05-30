@@ -51,7 +51,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
         // TODO: check ranges
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
-        } // FOR
+        }
 
         return workers;
     }

@@ -263,7 +263,7 @@ public class WorkloadState {
     public void blockForStart() {
         benchmarkState.blockForStart();
 
-        // For scripted runs, the first one out the gate should tell the
+
         // benchmark to skip the warmup phase.
         if (traceReader != null) {
             synchronized (benchmarkState) {

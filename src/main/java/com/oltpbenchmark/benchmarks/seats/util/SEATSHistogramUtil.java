@@ -53,8 +53,8 @@ public abstract class SEATSHistogramUtil {
             for (String arrive : depart_h.values()) {
                 String key = depart + "-" + arrive;
                 h.put(key, depart_h.get(arrive));
-            } // FOR (arrival airport)
-        } // FOR (depart airport)
+            }
+        }
         return (h);
     }
 
@@ -85,7 +85,7 @@ public abstract class SEATSHistogramUtil {
                 m.put(split[0], src_h);
             }
             src_h.put(split[1], h.get(value));
-        } // FOR
+        }
 
         cached_AirportFlights = m;
         return (m);

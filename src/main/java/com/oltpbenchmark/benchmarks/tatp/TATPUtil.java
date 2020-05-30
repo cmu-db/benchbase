@@ -97,7 +97,7 @@ public abstract class TATPUtil {
             arr[arr_len - 1] = tmp;
 
             arr_len--;
-        } // FOR
+        }
 
         return sub;
     }

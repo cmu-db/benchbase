@@ -89,7 +89,7 @@ public class LoaderItemInfo extends ItemInfo {
                 val = ex.getMessage();
             }
             m.put(key, val);
-        } // FOR
+        }
         return (StringUtil.formatMaps(m));
     }
 
@@ -127,7 +127,7 @@ public class LoaderItemInfo extends ItemInfo {
                     val = ex.getMessage();
                 }
                 m.put(key, val);
-            } // FOR
+            }
             return (StringUtil.formatMaps(m));
         }
     } // END CLASS

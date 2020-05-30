@@ -78,7 +78,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new AuctionMarkWorker(i, this));
-        } // FOR
+        }
         return (workers);
     }
 

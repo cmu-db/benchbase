@@ -59,7 +59,7 @@ public abstract class JSONUtil {
                                 exclude.contains(f.getName()) == false) {
                             fields.add(f);
                         }
-                    } // FOR
+                    }
                     ret = fields.toArray(new Field[0]);
                     SERIALIZABLE_FIELDS.put(clazz, ret);
                 }
@@ -255,7 +255,7 @@ public abstract class JSONUtil {
             } catch (Exception ex) {
                 throw new JSONException(ex);
             }
-        } // FOR
+        }
     }
 
     /**
@@ -284,7 +284,7 @@ public abstract class JSONUtil {
                 } else {
                     writeFieldValue(stringer, value.getClass(), value);
                 }
-            } // FOR
+            }
             stringer.endArray();
 
             // Maps
@@ -309,7 +309,7 @@ public abstract class JSONUtil {
                 } else {
                     writeFieldValue(stringer, e.getValue().getClass(), e.getValue());
                 }
-            } // FOR
+            }
             stringer.endObject();
 
             // Primitive
@@ -413,7 +413,7 @@ public abstract class JSONUtil {
                 value = JSONUtil.getPrimitiveValue(json_string, inner_class);
             }
             collection.add(value);
-        } // FOR
+        }
         return;
     }
 
@@ -565,7 +565,7 @@ public abstract class JSONUtil {
                 LOG.error("Unable to deserialize field '{}' from {}", json_key, base_class.getSimpleName(), ex);
                 throw new JSONException(ex);
             }
-        } // FOR
+        }
     }
 
     /**
@@ -644,7 +644,7 @@ public abstract class JSONUtil {
                 if (json_value.equals(e.name())) {
                     return (e);
                 }
-            } // FOR
+            }
             throw new JSONException("Invalid enum value '" + json_value + "': " + Arrays.toString(field_class.getEnumConstants()));
             // JSONSerializable
         } else if (ClassUtil.getInterfaces(field_class).contains(JSONSerializable.class)) {

@@ -48,7 +48,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
         this.revisionDeltas = new FlatHistogram[RevisionHistograms.REVISION_DELTA_SIZES.length];
         for (int i = 0; i < this.revisionDeltas.length; i++) {
             this.revisionDeltas[i] = new FlatHistogram<>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
-        } // FOR
+        }
     }
 
     /**
@@ -72,7 +72,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
             if (orig_text.length <= RevisionHistograms.REVISION_DELTA_SIZES[i]) {
                 h = this.revisionDeltas[i];
             }
-        } // FOR
+        }
         if (h == null) {
             h = this.revisionDeltas[this.revisionDeltas.length - 1];
         }
@@ -109,7 +109,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
         for (int i = 0; i < this.workConf.getTerminals(); ++i) {
             WikipediaWorker worker = new WikipediaWorker(this, i);
             workers.add(worker);
-        } // FOR
+        }
         return workers;
     }
 

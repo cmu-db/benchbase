@@ -275,7 +275,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         }
                     }
                 }
-            } // FOR
+            }
             if (batch > 0) {
                 reviewInsert.executeBatch();
                 reviewInsert.clearBatch();
@@ -336,7 +336,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         }
                     }
                 }
-            } // FOR
+            }
             if (batch > 0) {
                 trustInsert.executeBatch();
                 trustInsert.clearBatch();

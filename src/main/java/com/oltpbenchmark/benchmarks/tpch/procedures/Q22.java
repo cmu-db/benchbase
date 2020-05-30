@@ -70,7 +70,7 @@ public class Q22 extends GenericQuery {
     @Override
     protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
         // I1 - I7 are randomly selected without repetition from the possible values
-        // for Country code as defined in Clause 4.2.2.9
+
 
         // We are given
         //      Let i be an index into the list of strings Nations

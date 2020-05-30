@@ -54,7 +54,7 @@ public abstract class ClassUtil {
         boolean[] is_array = new boolean[objs.length];
         for (int i = 0; i < objs.length; i++) {
             is_array[i] = ClassUtil.isArray(objs[i]);
-        } // FOR
+        }
         return (is_array);
     }
 
@@ -72,7 +72,7 @@ public abstract class ClassUtil {
         Field[] fields = new Field[members.length];
         for (int i = 0; i < members.length; i++) {
             fields[i] = clazz.getDeclaredField(members[i].name().toLowerCase());
-        } // FOR
+        }
         return (fields);
     }
 
@@ -104,7 +104,7 @@ public abstract class ClassUtil {
                 classes.add((Class<?>) next.getRawType());
                 getGenericTypesImpl(next, classes);
             }
-        } // FOR
+        }
         return;
     }
 
@@ -147,7 +147,7 @@ public abstract class ClassUtil {
 //                for (Class<?> i : current.getInterfaces()) {
 //                    ret.add(i);
 //                    queue.add(i);
-//                } // FOR
+//                }
 //            } // WHILE
             ret = new HashSet<Class<?>>(ClassUtils.getAllInterfaces(element_class));
             if (element_class.isInterface()) {
@@ -170,7 +170,7 @@ public abstract class ClassUtil {
 //        for (int i = 0; i < params.length; i++) {
 //            const_params[i] = params[i].getClass();
 //            System.err.println("[" + i + "] " + params[i] + " " + params[i].getClass());
-//        } // FOR
+//        }
 
         Constructor<T> constructor = ClassUtil.getConstructor(target_class, classes);
         T ret = null;
@@ -211,7 +211,7 @@ public abstract class ClassUtil {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("  SUPER[{}] => {}", params[i].getSimpleName(), paramSuper[i]);
             }
-        } // FOR
+        }
 
         for (Constructor<?> c : target_class.getConstructors()) {
             Class<?>[] cTypes = c.getParameterTypes();
@@ -231,8 +231,8 @@ public abstract class ClassUtil {
                 if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
                     return ((Constructor<T>) c);
                 }
-            } // FOR (param)
-        } // FOR (constructors)
+            }
+        }
         throw new RuntimeException("Failed to retrieve constructor for " + target_class.getSimpleName(), error);
     }
 

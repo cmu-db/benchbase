@@ -168,9 +168,9 @@ public class SEATSProfile {
                     LOG.debug(String.format("Added %s mapping from Code Column '%s' to Id Column '%s'", tableName, codeCol, idCol));
                 }
             }
-        } // FOR
+        }
 
-        // Foreign Key Code to Ids Mapping
+
         // In this data structure, the key will be the name of the dependent
         // column and the value will be the name of the foreign key parent
         // column. We then use this in conjunction with the Key->Id mapping
@@ -178,7 +178,7 @@ public class SEATSProfile {
         // child table AIRPORT has a column with a foreign key reference to
         // COUNTRY.CO_ID, then the data file for AIRPORT will have a value
         // 'USA' in the AP_CO_ID column. We can use mapping to get the id number
-        // for 'USA'. Long winded and kind of screwy, but hey what else are
+
         // you going to do?
         for (Table catalog_tbl : this.catalog.getTables()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
@@ -189,8 +189,8 @@ public class SEATSProfile {
                         LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.fullName(), catalog_fkey_col.fullName()));
                     }
                 }
-            } // FOR
-        } // FOR
+            }
+        }
 
     }
 
@@ -237,7 +237,7 @@ public class SEATSProfile {
                 stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
                 int result = stmt.executeUpdate();
 
-            } // FOR
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Saved airport histogram information into {}", histogramsTable.getName());
             }
@@ -249,7 +249,7 @@ public class SEATSProfile {
                 stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
                 int result = stmt.executeUpdate();
 
-            } // FOR
+            }
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Saved benchmark histogram information into {}", histogramsTable.getName());
@@ -318,7 +318,7 @@ public class SEATSProfile {
                     String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
                     String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
                     this.loadCodeXref(results[result_idx++], codeCol, idCol);
-                } // FOR
+                }
 
                 // CACHED FLIGHT IDS
                 this.loadCachedFlights(results[result_idx++]);
@@ -685,7 +685,7 @@ public class SEATSProfile {
             String airport_code = this.getAirportCode(airport_id);
             int count = this.airport_max_customer_id.get(airport_id);
             h.put(airport_code, count);
-        } // FOR
+        }
         return (h);
     }
 

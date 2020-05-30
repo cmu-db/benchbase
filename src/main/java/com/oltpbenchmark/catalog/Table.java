@@ -49,10 +49,10 @@ public class Table extends AbstractCatalogObject {
         for (int i = 0, cnt = srcTable.columns.size(); i < cnt; i++) {
             Column col = (Column) srcTable.columns.get(i).clone();
             this.columns.add(col);
-        } // FOR
+        }
         for (IntegrityConstraint ic : srcTable.constraints) {
             this.constraints.add(ic.clone());
-        } // FOR
+        }
     }
 
     @Override
@@ -94,7 +94,7 @@ public class Table extends AbstractCatalogObject {
             if (this.columns.get(i).getName().equalsIgnoreCase(columnName)) {
                 return (i);
             }
-        } // FOR
+        }
         return -1;
     }
 
@@ -102,7 +102,7 @@ public class Table extends AbstractCatalogObject {
         int[] types = new int[this.getColumnCount()];
         for (Column catalog_col : this.getColumns()) {
             types[catalog_col.getIndex()] = catalog_col.getType();
-        } // FOR
+        }
         return (types);
     }
 
@@ -149,7 +149,7 @@ public class Table extends AbstractCatalogObject {
             if (catalog_idx.getName().equalsIgnoreCase(indexName)) {
                 return (catalog_idx);
             }
-        } // FOR
+        }
         return (null);
     }
 
@@ -206,7 +206,7 @@ public class Table extends AbstractCatalogObject {
         sb.append(getName()).append(" (\n");
         for (Column column : this.columns) {
             sb.append("  ").append(column).append("\n");
-        } // FOR
+        }
         sb.append(")");
 
         return (sb.toString());

@@ -42,7 +42,7 @@ public class TransactionTypes implements Collection<TransactionType> {
             // System.err.println("Adding " + tt + " - " + this.types + " / " + transactiontypes);
             String key = tt.getName().toUpperCase();
             this.types.put(key, tt);
-        } // FOR
+        }
     }
 
     public TransactionType getType(String procName) {

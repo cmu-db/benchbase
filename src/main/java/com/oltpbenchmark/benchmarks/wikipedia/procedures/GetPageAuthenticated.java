@@ -161,7 +161,7 @@ public class GetPageAuthenticated extends Procedure {
         // not contain old_page column!
         // sql =
         // "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
-        // For now we run the original one, which works on the data we have
+
 
         Article a = null;
         try (PreparedStatement st = this.getPreparedStatement(conn, selectText)) {

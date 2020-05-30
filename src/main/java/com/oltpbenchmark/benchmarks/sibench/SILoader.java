@@ -80,7 +80,7 @@ public class SILoader extends Loader<SIBenchmark> {
 
                     batch = 0;
                 }
-            } // FOR
+            }
             if (batch > 0) {
                 stmt.executeBatch();
             }

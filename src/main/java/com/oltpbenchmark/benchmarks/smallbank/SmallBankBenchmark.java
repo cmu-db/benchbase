@@ -56,7 +56,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
                 acctNameLength = col.getSize();
                 break;
             }
-        } // FOR
+        }
 
         return (acctNameLength);
     }

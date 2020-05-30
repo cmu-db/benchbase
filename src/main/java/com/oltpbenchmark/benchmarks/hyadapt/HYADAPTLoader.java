@@ -88,7 +88,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
                             batch = 0;
                             LOG.info(String.format("Records Loaded %d / %d", total, num_record));
                         }
-                    } // FOR
+                    }
                     if (batch > 0) {
                         stmt.executeBatch();
                         LOG.info(String.format("Records Loaded %d / %d", total, num_record));

@@ -232,7 +232,7 @@ public final class Catalog {
                         } // WHILE
                     }
 
-                    // FOREIGN KEYS
+
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Retrieving FOREIGN KEY information for {}", table_name);
                     }
@@ -257,7 +257,7 @@ public final class Catalog {
                 table_rs.close();
             }
 
-            // FOREIGN KEYS
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Foreign Key Mappings:\n{}", StringUtil.formatMaps(foreignKeys));
             }
@@ -284,8 +284,8 @@ public final class Catalog {
                         LOG.debug("{} -> {}", catalog_col.fullName(), fkey_col.fullName());
                     }
                     catalog_col.setForeignKey(fkey_col);
-                } // FOR
-            } // FOR
+                }
+            }
 
         }
 

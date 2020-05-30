@@ -178,7 +178,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                         LOG.debug(String.format("Users %d / %d", total, this.num_users));
                     }
                 }
-            } // FOR
+            }
             if (batchSize > 0) {
                 userInsert.executeBatch();
                 userInsert.clearBatch();
@@ -301,8 +301,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                             }
                         }
                     }
-                } // FOR
-            } // FOR
+                }
+            }
             if (batchSize > 0) {
                 followsInsert.executeBatch();
                 followersInsert.executeBatch();

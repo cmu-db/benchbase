@@ -169,7 +169,7 @@ public class NewReservation extends Procedure {
         stmt.setDouble(5, price);
         for (int i = 0; i < attrs.length; i++) {
             stmt.setLong(6 + i, attrs[i]);
-        } // FOR
+        }
         int updated = stmt.executeUpdate();
         if (updated != 1) {
             String msg = String.format("Failed to add reservation for flight #%d - Inserted %d records for InsertReservation", f_id, updated);

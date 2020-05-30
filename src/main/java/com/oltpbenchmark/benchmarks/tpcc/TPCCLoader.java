@@ -138,7 +138,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                 }
             };
             threads.add(t);
-        } // FOR
+        }
         return (threads);
     }
 

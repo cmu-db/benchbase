@@ -191,13 +191,13 @@ public class GetUserInfo extends Procedure {
                     Object[] row = new Object[num_cols];
                     for (int i = 0; i < num_cols; i++) {
                         row[i] = results[result_idx].getObject(i + 1);
-                    } // FOR
+                    }
                     inner.add(row);
                 } // WHILE
                 results[result_idx].close();
             }
             final_results[result_idx] = inner;
-        } // FOR
+        }
 
         return (final_results);
     }
