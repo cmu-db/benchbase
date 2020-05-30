@@ -6,8 +6,6 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomDistribution.DiscreteRNG;
 import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.SQLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

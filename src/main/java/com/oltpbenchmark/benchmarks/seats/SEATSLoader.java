@@ -28,8 +28,6 @@ import com.oltpbenchmark.util.RandomDistribution.Gaussian;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.collections4.set.ListOrderedSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.*;

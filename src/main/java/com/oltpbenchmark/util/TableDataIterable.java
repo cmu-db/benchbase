@@ -17,9 +17,9 @@
 
 package com.oltpbenchmark.util;
 
-import com.opencsv.CSVReader;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
+import com.opencsv.CSVReader;
 
 import java.io.File;
 import java.util.Iterator;
