@@ -23,7 +23,6 @@ import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private final Histogram<TransactionType> txnAbort = new Histogram<>();
     private final Histogram<TransactionType> txnRetry = new Histogram<>();
     private final Histogram<TransactionType> txnErrors = new Histogram<>();
-    private final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<>();
 
     private boolean seenDone = false;
 
@@ -160,10 +158,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
-    }
-
-    public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
-        return (this.txnAbortMessages);
     }
 
     synchronized public void setCurrStatement(Statement s) {
@@ -343,7 +337,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
 
         final DatabaseType type = configuration.getDBType();
-        final boolean recordAbortMessages = configuration.getRecordAbortMessages();
         final TransactionType transactionType = transactionTypes.getType(pieceOfWork.getType());
 
         final int isolationMode = this.configuration.getIsolationMode();
@@ -363,7 +356,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             int retryCount = 0;
 
+
             while (retryCount < MAX_RETRY_COUNT && this.state.getGlobalState() != State.DONE) {
+
+                TransactionStatus status = TransactionStatus.UNKNOWN;
 
                 try {
 
@@ -371,7 +367,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         LOG.debug(String.format("%s %s attempting...", this, transactionType));
                     }
 
-                    TransactionStatus status = this.executeWork(conn, transactionType);
+                    status = this.executeWork(conn, transactionType);
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s %s completed with status [%s]...", this, transactionType, status.name()));
@@ -383,38 +379,59 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     conn.commit();
 
-                    this.txnSuccess.put(transactionType);
-
                     break;
 
                 } catch (UserAbortException ex) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("{} Aborted", transactionType, ex);
-                    }
-
-                    if (recordAbortMessages) {
-                        Histogram<String> error_h = this.txnAbortMessages.get(transactionType);
-                        if (error_h == null) {
-                            error_h = new Histogram<>();
-                            this.txnAbortMessages.put(transactionType, error_h);
-                        }
-                        error_h.put(StringUtil.abbrv(ex.getMessage(), 20));
-                    }
-
                     conn.rollback();
 
-                    this.txnAbort.put(transactionType);
+                    LOG.trace("{} Aborted", transactionType, ex);
+
+
+                    status = TransactionStatus.USER_ABORTED;
 
                     break;
 
                 } catch (SQLException ex) {
-                    LOG.warn(String.format("SQLException occurred during [%s], retry count [%d], will attempt rollback!", transactionType, retryCount), ex);
-
-                    this.txnErrors.put(transactionType);
-
                     conn.rollback();
 
-                    retryCount++;
+                    if (isRetryable(ex)) {
+                        LOG.warn(String.format("SQLException occurred during [%s], current retry attempt [%d], max retry attempts [%d]!", transactionType, retryCount, MAX_RETRY_COUNT), ex);
+
+                        status = TransactionStatus.RETRY;
+
+                        retryCount++;
+
+                    } else {
+
+                        LOG.warn(String.format("SQLException occurred during [%s] and will not be retried", transactionType), ex);
+
+                        status = TransactionStatus.ERROR;
+
+                    }
+
+                } finally {
+
+                    switch (status) {
+
+                        case UNKNOWN:
+                            LOG.warn(String.format("Transaction left in an UNKNOWN state [%s]", transactionType));
+                            break;
+                        case SUCCESS:
+                            this.txnSuccess.put(transactionType);
+                            break;
+                        case USER_ABORTED:
+                            this.txnAbort.put(transactionType);
+                            break;
+                        case RETRY:
+                            this.txnRetry.put(transactionType);
+                            break;
+                        case RETRY_DIFFERENT:
+                            LOG.debug(String.format("Transaction returned RETRY_DIFFERENT by design [%s]", transactionType));
+                            break;
+                        case ERROR:
+                            this.txnErrors.put(transactionType);
+                            break;
+                    }
 
                 }
 
@@ -433,6 +450,41 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
 
         return (transactionType);
+    }
+
+    private boolean isRetryable(SQLException ex) {
+
+        String sqlState = ex.getSQLState();
+        int errorCode = ex.getErrorCode();
+
+        LOG.debug("sql state [{}] and error code [{}]", sqlState, errorCode);
+
+        if (sqlState == null) {
+            return true;
+        }
+
+        // ------------------
+        // MYSQL: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-error-sqlstates.html
+        // ------------------
+        if (errorCode == 1213 && sqlState.equals("40001")) {
+            // MySQL ER_LOCK_DEADLOCK
+            return true;
+        } else if (errorCode == 1205 && sqlState.equals("41000")) {
+            // MySQL ER_LOCK_WAIT_TIMEOUT
+            return true;
+        }
+
+        // ------------------
+        // POSTGRES: https://www.postgresql.org/docs/current/errcodes-appendix.html
+        // ------------------
+        if (errorCode == 0 && sqlState.equals("40001")) {
+            // Postgres serialization_failure
+            return true;
+        }
+
+        return false;
+
+
     }
 
     /**

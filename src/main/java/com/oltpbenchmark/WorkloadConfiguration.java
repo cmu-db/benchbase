@@ -85,7 +85,6 @@ public class WorkloadConfiguration {
     private int numberOfPhases = 0;
     private TransactionTypes transTypes = null;
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
-    private boolean recordAbortMessages = false;
     private String dataDir = null;
 
 
@@ -171,26 +170,12 @@ public class WorkloadConfiguration {
         return this.db_driver;
     }
 
-    public void setRecordAbortMessages(boolean recordAbortMessages) {
-        this.recordAbortMessages = recordAbortMessages;
-    }
-
-
     public void setDBPoolSize(int poolSize) {
         this.db_pool_size = poolSize;
     }
 
     public int getDBPoolSize() {
         return this.db_pool_size;
-    }
-
-
-    /**
-     * Whether each worker should record the transaction's UserAbort messages
-     * This primarily useful for debugging a benchmark
-     */
-    public boolean getRecordAbortMessages() {
-        return (this.recordAbortMessages);
     }
 
     /**
@@ -292,7 +277,7 @@ public class WorkloadConfiguration {
         } else if (this.isolationMode == Connection.TRANSACTION_READ_UNCOMMITTED) {
             return "TRANSACTION_READ_UNCOMMITTED";
         } else {
-            return "TRANSACTION_SERIALIZABLE [DEFAULT]";
+            return "TRANSACTION_SERIALIZABLE";
         }
     }
 
