@@ -81,13 +81,6 @@ public abstract class BenchmarkModule {
      */
     private final Random rng = new Random();
 
-    /**
-     * Whether to use verbose output messages
-     *
-     * @deprecated
-     */
-    protected boolean verbose;
-
     private HikariDataSource dataSource = null;
 
     public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
