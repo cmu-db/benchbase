@@ -185,8 +185,6 @@ public class ScriptRunner {
             if (!autoCommit) {
                 conn.commit();
             }
-        } catch (SQLException | IOException e) {
-            LOG.error(e.getMessage(), e);
         } finally {
             if (!autoCommit) {
                 conn.rollback();
