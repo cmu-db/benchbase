@@ -116,9 +116,7 @@ public class TableDataIterable implements Iterable<Object[]> {
                 // Null Values
                 else if (row_idx >= row.length) {
                     tuple[col_idx] = null;
-                }
-
-                else if (fkeys[col_idx]) {
+                } else if (fkeys[col_idx]) {
                     tuple[col_idx] = row[row_idx++];
                 }
                 // Default: Cast the string into the proper type

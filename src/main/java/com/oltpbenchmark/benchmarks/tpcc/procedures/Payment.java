@@ -146,7 +146,8 @@ public class Payment extends TPCCProcedure {
             customerDistrictID = TPCCUtil.randomNumber(1, TPCCConfig.configDistPerWhse, gen);
             do {
                 customerWarehouseID = TPCCUtil.randomNumber(1, numWarehouses, gen);
-            } while (customerWarehouseID == w_id && numWarehouses > 1);
+            }
+            while (customerWarehouseID == w_id && numWarehouses > 1);
         }
 
         long y = TPCCUtil.randomNumber(1, 100, gen);

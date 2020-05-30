@@ -136,7 +136,8 @@ public class NewOrder extends TPCCProcedure {
                 do {
                     supplierWarehouseIDs[i] = TPCCUtil.randomNumber(1,
                             numWarehouses, gen);
-                } while (supplierWarehouseIDs[i] == terminalWarehouseID
+                }
+                while (supplierWarehouseIDs[i] == terminalWarehouseID
                         && numWarehouses > 1);
                 allLocal = 0;
             }

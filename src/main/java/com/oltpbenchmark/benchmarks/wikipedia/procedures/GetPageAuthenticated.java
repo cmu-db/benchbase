@@ -140,7 +140,7 @@ public class GetPageAuthenticated extends Procedure {
         }
 
         long revisionId;
-        long textId ;
+        long textId;
 
         try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRevision)) {
             st.setInt(1, pageId);

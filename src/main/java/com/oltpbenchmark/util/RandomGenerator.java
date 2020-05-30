@@ -38,7 +38,8 @@ public class RandomGenerator extends Random {
         Set<Integer> ret = new HashSet<>();
         do {
             ret.add(this.nextInt(max));
-        } while (ret.size() < cnt);
+        }
+        while (ret.size() < cnt);
         return (ret);
     }
 
@@ -74,7 +75,8 @@ public class RandomGenerator extends Random {
         do {
             bits = (this.nextLong() << 1) >>> 1;
             val = bits % range_size;
-        } while (bits - val + range_size < 0L);
+        }
+        while (bits - val + range_size < 0L);
         val += minimum;
 
 

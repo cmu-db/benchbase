@@ -456,7 +456,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 do {
                     intervalNs += getInterval(lowestRate, phase.arrival);
                     nextToAdd++;
-                } while ((-diff) > intervalNs && !lastEntry);
+                }
+                while ((-diff) > intervalNs && !lastEntry);
                 nextInterval += intervalNs;
             }
 

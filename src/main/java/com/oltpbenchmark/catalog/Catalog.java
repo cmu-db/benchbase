@@ -122,7 +122,7 @@ public final class Catalog {
 
         String dbName = String.format("catalog-%s-%d.db", benchmark.getBenchmarkName(), rand.nextInt());
 
-        LOG.debug("will establish connection to database name [{}] with url prefix [{}]", dbName, DB_CONNECTION );
+        LOG.debug("will establish connection to database name [{}] with url prefix [{}]", dbName, DB_CONNECTION);
 
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION + dbName, null, null)) {
 

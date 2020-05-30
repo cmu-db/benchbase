@@ -64,7 +64,8 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     /**
      * Airline Benchmark Transactions
      */
-    private static enum Transaction {DeleteReservation(DeleteReservation.class), FindFlights(FindFlights.class), FindOpenSeats(FindOpenSeats.class), NewReservation(NewReservation.class), UpdateCustomer(UpdateCustomer.class), UpdateReservation(UpdateReservation.class);
+    private static enum Transaction {
+        DeleteReservation(DeleteReservation.class), FindFlights(FindFlights.class), FindOpenSeats(FindOpenSeats.class), NewReservation(NewReservation.class), UpdateCustomer(UpdateCustomer.class), UpdateReservation(UpdateReservation.class);
 
         private Transaction(Class<? extends Procedure> proc_class) {
             this.proc_class = proc_class;
@@ -101,7 +102,8 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
         public String getExecName() {
             return (this.execName);
-        }}
+        }
+    }
 
     // -----------------------------------------------------------------
     // RESERVED SEAT BITMAPS

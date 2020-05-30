@@ -70,7 +70,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
                 userId = z_users.nextInt();
             }
             // Repeat if we need a user but we generated Anonymous
-        } while (needUser && userId == WikipediaConstants.ANONYMOUS_USER_ID);
+        }
+        while (needUser && userId == WikipediaConstants.ANONYMOUS_USER_ID);
 
         // Figure out what page they're going to update
         int page_id = z_pages.nextInt();
@@ -130,19 +131,19 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         return proc.run(conn, forSelect, userIp, nameSpace, pageTitle);
     }
 
-    public Article getPageAuthenticated(Connection conn,boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
+    public Article getPageAuthenticated(Connection conn, boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
         GetPageAuthenticated proc = this.getProcedure(GetPageAuthenticated.class);
 
         return proc.run(conn, forSelect, userIp, userId, nameSpace, pageTitle);
     }
 
-    public void addToWatchlist(Connection conn,int userId, int nameSpace, String pageTitle) throws SQLException {
+    public void addToWatchlist(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
         AddWatchList proc = this.getProcedure(AddWatchList.class);
 
         proc.run(conn, userId, nameSpace, pageTitle);
     }
 
-    public void removeFromWatchlist(Connection conn,int userId, int nameSpace, String pageTitle) throws SQLException {
+    public void removeFromWatchlist(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
         RemoveWatchList proc = this.getProcedure(RemoveWatchList.class);
 
         proc.run(conn, userId, nameSpace, pageTitle);

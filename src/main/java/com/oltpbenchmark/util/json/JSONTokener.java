@@ -414,7 +414,8 @@ public class JSONTokener {
                     this.index = startIndex;
                     return c;
                 }
-            } while (c != to);
+            }
+            while (c != to);
         } catch (IOException exc) {
             throw new JSONException(exc);
         }

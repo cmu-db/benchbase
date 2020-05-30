@@ -54,7 +54,7 @@ public class SILoader extends Loader<SIBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-                   loadSITest(conn, lo, hi);
+                    loadSITest(conn, lo, hi);
                 }
             });
         }

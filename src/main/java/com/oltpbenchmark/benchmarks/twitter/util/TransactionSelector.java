@@ -43,12 +43,12 @@ public class TransactionSelector {
 
         File file = new File(filename);
         FileInputStream fis = new FileInputStream(file);
-        BufferedInputStream  bis = new BufferedInputStream(fis);
+        BufferedInputStream bis = new BufferedInputStream(fis);
         dis = new DataInputStream(bis);
         dis.mark(1024 * 1024 * 1024);
 
         File file2 = new File(filename2);
-        FileInputStream  fis2 = new FileInputStream(file2);
+        FileInputStream fis2 = new FileInputStream(file2);
         BufferedInputStream bis2 = new BufferedInputStream(fis2);
         dis2 = new DataInputStream(bis2);
         dis2.mark(1024 * 1024 * 1024);
