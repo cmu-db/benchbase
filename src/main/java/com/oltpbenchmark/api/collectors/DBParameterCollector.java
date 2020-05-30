@@ -16,11 +16,6 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 public interface DBParameterCollector {
     boolean hasParameters();
 
@@ -31,6 +26,4 @@ public interface DBParameterCollector {
     String collectMetrics();
 
     String collectVersion();
-
-    List<Map<String, String>> getMetrics(ResultSet out) throws SQLException;
 }
