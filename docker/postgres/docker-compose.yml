@@ -5,7 +5,7 @@ services:
   db:
     container_name: db
     hostname: db
-    image: postgres:latest
+    image: postgres:alpine
     command: postgres -N 500
     environment:
       POSTGRES_USER: admin
