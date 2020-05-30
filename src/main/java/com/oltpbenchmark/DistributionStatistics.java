@@ -28,8 +28,7 @@ import java.util.Map;
 public class DistributionStatistics {
     private static final Logger LOG = LoggerFactory.getLogger(DistributionStatistics.class);
 
-    private static final double[] PERCENTILES = {0.0, 0.25, 0.5, 0.75, 0.9,
-            0.95, 0.99, 1.0};
+    private static final double[] PERCENTILES = {0.0, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99, 1.0};
 
     private static final int MINIMUM = 0;
     private static final int PERCENTILE_25TH = 1;
@@ -45,13 +44,9 @@ public class DistributionStatistics {
     private final double average;
     private final double standardDeviation;
 
-    public DistributionStatistics(int count, long[] percentiles,
-                                  double average, double standardDeviation) {
-
-
+    public DistributionStatistics(int count, long[] percentiles, double average, double standardDeviation) {
         this.count = count;
-        this.percentiles = Arrays.copyOfRange(percentiles, 0,
-                PERCENTILES.length);
+        this.percentiles = Arrays.copyOfRange(percentiles, 0, PERCENTILES.length);
         this.average = average;
         this.standardDeviation = standardDeviation;
     }
@@ -66,14 +61,8 @@ public class DistributionStatistics {
             long[] percentiles = new long[PERCENTILES.length];
             Arrays.fill(percentiles, -1);
             return new DistributionStatistics(0, percentiles, -1, -1);
-
-//			long[] percentiles = new long[PERCENTILES.length];
-//			for (int i = 0; i < percentiles.length; ++i) {
-//				percentiles[i] = -1;
-//			}
-//			return new DistributionStatistics(values.length, percentiles, 0,0);
-
         }
+
         Arrays.sort(values);
 
         double sum = 0;
@@ -105,8 +94,7 @@ public class DistributionStatistics {
             percentiles[i] = values[index];
         }
 
-        return new DistributionStatistics(values.length, percentiles, average,
-                standardDeviation);
+        return new DistributionStatistics(values.length, percentiles, average, standardDeviation);
     }
 
     public int getCount() {
@@ -156,14 +144,15 @@ public class DistributionStatistics {
     @Override
     public String toString() {
         // convert times to ms
-        return "[min=" + getMinimum() / 1e6 + ", " + "25th="
-                + get25thPercentile() / 1e6 + ", " + "median="
-                + getMedian() / 1e6 + ", " + "avg=" + getAverage() / 1e6 + ", "
-                + "75th=" + get75thPercentile() / 1e6 + ", " + "90th="
-                + get90thPercentile() / 1e6 + ", " + "95th="
-                + get95thPercentile() / 1e6 + ", " + "99th="
-                + get99thPercentile() / 1e6 + ", " + "max=" + getMaximum()
-                / 1e6 + "]";
+        return "[min=" + getMinimum() / 1e6 + ", "
+                + "25th=" + get25thPercentile() / 1e6 + ", "
+                + "median=" + getMedian() / 1e6 + ", "
+                + "avg=" + getAverage() / 1e6 + ", "
+                + "75th=" + get75thPercentile() / 1e6 + ", "
+                + "90th=" + get90thPercentile() / 1e6 + ", "
+                + "95th=" + get95thPercentile() / 1e6 + ", "
+                + "99th=" + get99thPercentile() / 1e6 + ", "
+                + "max=" + getMaximum() / 1e6 + "]";
     }
 
     public Map<String, Integer> toMap() {

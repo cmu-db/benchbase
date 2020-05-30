@@ -140,7 +140,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return (this.name_procedures.get(name));
     }
 
-
     public final <P extends Procedure> P getProcedure(Class<P> procClass) {
         return (P) (this.class_procedures.get(procClass));
     }
@@ -387,7 +386,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                     LOG.trace("{} Aborted", transactionType, ex);
 
-
                     status = TransactionStatus.USER_ABORTED;
 
                     break;
@@ -401,13 +399,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         status = TransactionStatus.RETRY;
 
                         retryCount++;
-
                     } else {
-
                         LOG.warn(String.format("SQLException occurred during [%s] and will not be retried... sql state [%s], error code [%d].", transactionType, ex.getSQLState(), ex.getErrorCode()), ex);
 
                         status = TransactionStatus.ERROR;
-
                     }
 
                 } finally {
