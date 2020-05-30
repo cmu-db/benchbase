@@ -479,8 +479,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
 
         return false;
-
-
     }
 
     /**
