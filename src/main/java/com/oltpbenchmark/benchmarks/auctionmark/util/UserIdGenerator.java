@@ -122,7 +122,7 @@ public class UserIdGenerator implements Iterator<UserId> {
                 this.currentPosition += num_users;
             }
             this.currentItemCount++;
-        } // WHILE
+        }
         return (user_id);
     }
 
@@ -171,13 +171,13 @@ public class UserIdGenerator implements Iterator<UserId> {
                     found = nextCtr;
                     break;
                 }
-            } // WHILE
+            }
             if (found != null) {
                 break;
             }
             this.currentItemCount++;
             this.currentOffset = this.usersPerItemCounts[this.currentItemCount];
-        } // WHILE
+        }
         if (found == null) {
             return (null);
         }

@@ -63,7 +63,7 @@ public abstract class JSONUtil {
                     ret = fields.toArray(new Field[0]);
                     SERIALIZABLE_FIELDS.put(clazz, ret);
                 }
-            } // SYNCH
+            }
         }
         return (ret);
     }

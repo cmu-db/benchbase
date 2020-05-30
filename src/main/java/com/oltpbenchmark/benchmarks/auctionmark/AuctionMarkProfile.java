@@ -386,7 +386,7 @@ public class AuctionMarkProfile {
                     LOG.debug("Loaded profile:\n{}", cachedProfile.toString());
                 }
             }
-        } // SYNCH
+        }
 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Using cached SEATSProfile");
@@ -422,7 +422,7 @@ public class AuctionMarkProfile {
             long i_c_id = vt.getLong(col++);
             int count = vt.getInt(col++);
             profile.items_per_category.put((int) i_c_id, count);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d CATEGORY records from %s",
                     profile.items_per_category.getValueCount(), AuctionMarkConstants.TABLENAME_ITEM));
@@ -443,7 +443,7 @@ public class AuctionMarkProfile {
             ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, i_num_bids);
             profile.addItemToProperQueue(itemInfo, false);
             ctr++;
-        } // WHILE
+        }
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d records from %s",
@@ -459,7 +459,7 @@ public class AuctionMarkProfile {
             long ic_u_id = vt.getLong(col++);
             ItemCommentResponse cr = new ItemCommentResponse(ic_id, ic_i_id, ic_u_id);
             profile.pending_commentResponses.add(cr);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d records from %s",
                     profile.pending_commentResponses.size(), AuctionMarkConstants.TABLENAME_ITEM_COMMENT));
@@ -471,7 +471,7 @@ public class AuctionMarkProfile {
             int col = 1;
             long gag_id = vt.getLong(col++);
             profile.gag_ids.add(new GlobalAttributeGroupId(gag_id));
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d records from %s",
                     profile.gag_ids.size(), AuctionMarkConstants.TABLENAME_GLOBAL_ATTRIBUTE_GROUP));
@@ -595,7 +595,7 @@ public class AuctionMarkProfile {
             // assert(min_item_count < this.users_per_item_count.getMaxValue());
             while (itemCount < min_item_count) {
                 itemCount = this.randomItemCount.nextValue();
-            } // WHILE
+            }
 
             // Set the current item count and then choose a random position
             // between where the generator is currently at and where it ends
@@ -629,7 +629,7 @@ public class AuctionMarkProfile {
                 LOG.trace("Selected {}", user_id);
             }
             break;
-        } // WHILE
+        }
         if (user_id == null && LOG.isDebugEnabled()) {
             LOG.warn(String.format("Failed to select a random UserId " +
                             "[minItemCount=%d, clientId=%d, exclude=%s, totalPossible=%d, currentPosition=%d]",
@@ -896,7 +896,7 @@ public class AuctionMarkProfile {
             // Uniform
             itemInfo = temp;
             break;
-        } // WHILE
+        }
         if (itemInfo == null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Failed to find ItemInfo [hasCurrentPrice={}, needFutureEndDate={}]", needCurrentPrice, needFutureEndDate);
@@ -986,7 +986,7 @@ public class AuctionMarkProfile {
         int idx = -1;
         while (idx == -1 || allItemSets[idx].isEmpty()) {
             idx = rng.nextInt(allItemSets.length);
-        } // WHILE
+        }
         return (this.getRandomItem(allItemSets[idx], false, false));
     }
 

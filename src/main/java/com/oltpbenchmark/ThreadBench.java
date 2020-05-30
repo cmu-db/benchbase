@@ -237,7 +237,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                     m.put(t.getName(), t.isAlive());
                 }
                 LOG.info("Worker Thread Status:\n{}", StringUtil.formatMaps(m));
-            } // WHILE
+            }
         }
     } // CLASS
 
@@ -277,7 +277,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 double seconds = this.intervalMonitor / 1000d;
                 double tps = (double) measuredRequests / seconds;
                 LOG.info("Throughput: {} txn/sec", tps);
-            } // WHILE
+            }
         }
     } // CLASS
 

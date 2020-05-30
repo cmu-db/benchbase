@@ -64,7 +64,7 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
             if (insertRecord == null) {
                 insertRecord = new CounterGenerator(init_record_count);
             }
-        } // SYNCH
+        }
 
         // This is a minor speed-up to avoid having to invoke the hashmap look-up
         // everytime we want to execute a txn. This is important to do on 

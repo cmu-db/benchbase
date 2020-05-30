@@ -150,7 +150,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
                 batch = 0;
             }
-        } // WHILE
+        }
         if (batch > 0) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
@@ -198,7 +198,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
                 batch = 0;
             }
-        } // WHILE
+        }
         if (batch > 0) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
@@ -278,7 +278,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
                 spe_batch = 0;
             }
-        } // WHILE
+        }
         LOG.debug("spe_batch = {}", spe_batch);
         if (spe_batch > 0) {
             if (LOG.isDebugEnabled()) {

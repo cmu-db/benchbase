@@ -99,7 +99,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                         LOG.debug(String.format("Marked ready flag for %s", txnType));
                     }
                 }
-            } // WHILE
+            }
         }
     }
 
@@ -470,7 +470,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         for (Object[] row : results) {
             ItemId itemId = this.processItemRecord(row);
 
-        } // WHILE
+        }
         profile.updateItemQueues();
 
         if (LOG.isDebugEnabled()) {

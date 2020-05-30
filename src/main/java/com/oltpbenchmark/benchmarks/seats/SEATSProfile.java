@@ -336,7 +336,7 @@ public class SEATSProfile {
             }
 
             cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
-        } // SYNCH
+        }
     }
 
     private final void loadConfigProfile(ResultSet vt) throws SQLException {
@@ -375,7 +375,7 @@ public class SEATSProfile {
                     LOG.trace(String.format("Loaded %d records for %s histogram", h.getValueCount(), name));
                 }
             }
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS));
         }
@@ -388,7 +388,7 @@ public class SEATSProfile {
             long id = vt.getLong(col++);
             String code = vt.getString(col++);
             m.put(code, id);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d xrefs for %s -> %s", m.size(), codeCol, idCol));
         }
@@ -401,7 +401,7 @@ public class SEATSProfile {
             long f_id = vt.getLong(col++);
             FlightId flight_id = new FlightId(f_id);
             this.cached_flight_ids.add(flight_id);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d cached FlightIds", this.cached_flight_ids.size()));
         }
@@ -466,7 +466,7 @@ public class SEATSProfile {
                 this.cached_flight_ids.addLast(flight_id);
                 added = true;
             }
-        } // SYNCH
+        }
         return (added);
     }
 
@@ -569,7 +569,7 @@ public class SEATSProfile {
         while (c_id == null) {
             Long airport_id = (long) this.rng.number(1, num_airports);
             c_id = this.getRandomCustomerId(airport_id);
-        } // WHILE
+        }
         return (c_id);
     }
 

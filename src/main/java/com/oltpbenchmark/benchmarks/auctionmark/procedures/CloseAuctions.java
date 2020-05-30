@@ -186,12 +186,12 @@ public class CloseAuctions extends Procedure {
                                 buyerId               // ib_buyer_id
                         };
                         output_rows.add(row);
-                    } // WHILE
+                    }
                 }
                 if (round > 0) {
                     //conn.commit();
                 }
-            } // WHILE
+            }
 
 
         }

@@ -47,11 +47,11 @@ public class GetTweetsFromFollowing extends Procedure {
                         last = folloingResult.getLong(1);
                         stmt.setLong(ctr, last);
 
-                    } // WHILE
+                    }
                     if (ctr > 0) {
                         while (ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
                             stmt.setLong(ctr, last);
-                        } // WHILE
+                        }
                         try (ResultSet getTweetsResult = stmt.executeQuery()) {
                         }
                     } else {

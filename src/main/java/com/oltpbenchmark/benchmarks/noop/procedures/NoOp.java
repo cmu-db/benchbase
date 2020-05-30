@@ -55,7 +55,7 @@ public class NoOp extends Procedure {
 
             while (r.next()) {
                 // Do nothing
-            } // WHILE
+            }
 
         } catch (Exception ex) {
             // This error should be something like "No results were returned by the query."

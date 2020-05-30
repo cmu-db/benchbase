@@ -104,7 +104,7 @@ public class TableDataIterable implements Iterable<Object[]> {
             synchronized (this) {
                 row = this.next;
                 this.next = null;
-            } // SYNCH
+            }
 
             Object[] tuple = new Object[types.length];
             int row_idx = 0;

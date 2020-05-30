@@ -124,7 +124,7 @@ public class Histogram<X> implements JSONSerializable {
                 if (this.debug_names == null) {
                     this.debug_names = new HashMap<>();
                 }
-            } // SYNCH
+            }
         }
         this.debug_names.putAll(names_map);
         return (this);
@@ -155,11 +155,11 @@ public class Histogram<X> implements JSONSerializable {
                         ctr++;
                         this.dirty = true;
                     }
-                } // WHILE
+                }
                 if (ctr > 0) {
                     LOG.debug("Removed {} zero entries from histogram", ctr);
                 }
-            } // SYNCHRONIZED
+            }
         }
         this.keep_zero_entries = flag;
     }
@@ -770,7 +770,7 @@ public class Histogram<X> implements JSONSerializable {
                         X key_value = (X) JSONUtil.getPrimitiveValue(key_name, value_type);
                         int count = jsonObject.getInt(key_name);
                         this.histogram.put(key_value, count);
-                    } // WHILE
+                    }
                 } else {
                     field.set(this, object.getInt(element.name()));
                 }

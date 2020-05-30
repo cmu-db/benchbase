@@ -147,7 +147,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 seats = new BitSet(SEATSConstants.FLIGHTS_NUM_SEATS);
                 CACHE_BOOKED_SEATS.put(flight_id, seats);
             }
-//            } // SYNCH
+//            }
         }
         return (seats);
     }
@@ -498,7 +498,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 if (added) {
                     ctr++;
                 }
-            } // WHILE
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Added %d out of %d FlightIds to local cache", ctr, results.size()));
             }
@@ -559,21 +559,21 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("RANDOM CUSTOMER: {}", customer_id);
                 }
-            } // WHILE
+            }
             Reservation r = new Reservation(profile.getNextReservationId(getId()), search_flight, customer_id, seatnum);
             seats.set(seatnum);
             tmp_reservations.add(r);
             if (LOG.isTraceEnabled()) {
                 LOG.trace("QUEUED INSERT: {} / {} -> {}", search_flight, search_flight.encode(), customer_id);
             }
-        } // WHILE
+        }
 
         if (tmp_reservations.isEmpty() == false) {
             Collections.shuffle(tmp_reservations);
             cache.addAll(tmp_reservations);
             while (cache.size() > SEATSConstants.CACHE_LIMIT_PENDING_INSERTS) {
                 cache.remove();
-            } // WHILE
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Stored %d pending inserts for %s [totalPendingInserts=%d]", tmp_reservations.size(), search_flight, cache.size()));
             }
@@ -622,7 +622,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
                 continue;
             }
             reservation = r;
-        } // WHILE
+        }
         if (reservation == null) {
             LOG.warn("Failed to find a valid pending insert Reservation\n{}", this.toString());
             return (false);

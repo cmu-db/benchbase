@@ -372,7 +372,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                         pageId = h_pageId.nextInt();
                         while (userPages.contains(pageId)) {
                             pageId = h_pageId.nextInt();
-                        } // WHILE
+                        }
                     }
 
                     userPages.add(pageId);

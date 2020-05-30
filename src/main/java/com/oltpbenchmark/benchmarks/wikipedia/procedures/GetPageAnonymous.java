@@ -85,7 +85,7 @@ public class GetPageAnonymous extends Procedure {
         while (rs.next()) {
             byte[] pr_type = rs.getBytes(1);
 
-        } // WHILE
+        }
         rs.close();
         // check using blocking of a user by either the IP address or the
         // user_name
@@ -96,7 +96,7 @@ public class GetPageAnonymous extends Procedure {
         while (rs.next()) {
             byte[] ipb_expiry = rs.getBytes(11);
 
-        } // WHILE
+        }
         rs.close();
 
         st = this.getPreparedStatement(conn, selectPageRevision);

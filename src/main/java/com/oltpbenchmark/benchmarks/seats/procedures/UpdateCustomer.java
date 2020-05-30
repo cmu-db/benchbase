@@ -109,7 +109,7 @@ public class UpdateCustomer extends Procedure {
             while (ff_results.next()) {
                 long ff_al_id = ff_results.getLong(2);
                 this.getPreparedStatement(conn, UpdatFrequentFlyers, attr0, attr1, c_id, ff_al_id).executeUpdate();
-            } // WHILE
+            }
             ff_results.close();
         }
 

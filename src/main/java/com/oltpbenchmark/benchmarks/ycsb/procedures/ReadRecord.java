@@ -39,7 +39,7 @@ public class ReadRecord extends Procedure {
                     for (int i = 0; i < YCSBConstants.NUM_FIELDS; i++) {
                         results[i] = r.getString(i + 1);
                     }
-                } // WHILE
+                }
             }
         }
     }

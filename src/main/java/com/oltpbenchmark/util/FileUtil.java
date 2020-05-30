@@ -218,7 +218,7 @@ public abstract class FileUtil {
         try (BufferedReader in = FileUtil.getReader(path)) {
             while (in.ready()) {
                 buffer.append(in.readLine()).append("\n");
-            } // WHILE
+            }
         } catch (IOException ex) {
             throw new RuntimeException("Failed to read file contents from '" + path + "'", ex);
         }
@@ -274,7 +274,7 @@ public abstract class FileUtil {
             int numRead = 0;
             while ((offset < bytes.length) && ((numRead = in.read(bytes, offset, bytes.length - offset)) >= 0)) {
                 offset += numRead;
-            } // WHILE
+            }
             if (offset < bytes.length) {
                 throw new IOException("Failed to read the entire contents of '" + file.getName() + "'");
             }

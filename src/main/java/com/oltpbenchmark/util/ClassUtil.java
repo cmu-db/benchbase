@@ -122,7 +122,7 @@ public abstract class ClassUtil {
             while (element_class != null) {
                 ret.add(element_class);
                 element_class = element_class.getSuperclass();
-            } // WHILE
+            }
             ret = Collections.unmodifiableList(ret);
             ClassUtil.CACHE_getSuperClasses.put(element_class, ret);
         }
@@ -148,7 +148,7 @@ public abstract class ClassUtil {
 //                    ret.add(i);
 //                    queue.add(i);
 //                }
-//            } // WHILE
+//            }
             ret = new HashSet<Class<?>>(ClassUtils.getAllInterfaces(element_class));
             if (element_class.isInterface()) {
                 ret.add(element_class);

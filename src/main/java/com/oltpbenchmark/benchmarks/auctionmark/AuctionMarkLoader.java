@@ -248,7 +248,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 // We have to do this to ensure that all of the parent tuples get
                 // insert first for foreign-key relationships
                 generator.releaseHoldsToSubTableGenerators();
-            } // WHILE
+            }
         }
 
         // Mark as finished
@@ -260,7 +260,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Remaining Tables: {}", CollectionUtils.subtract(this.generators.keySet(), this.finished));
                 }
-            } // SYNCH
+            }
         }
     }
 
@@ -564,7 +564,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             while (this.hasMore() && this.table.size() < this.batchSize) {
                 this.addRow();
                 batch_count++;
-            } // WHILE
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
             }
@@ -668,7 +668,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         continue;
                     }
                     this.currentCounter = this.getElementCounter(this.current);
-                } // WHILE
+                }
             }
             if (last != this.current) {
                 if (last != null) {
@@ -1569,7 +1569,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                     use_random = true;
                     tries = 500;
                 }
-            } // WHILE
+            }
             this.watchers.add(buyerId);
 
             // UW_U_ID

@@ -176,7 +176,7 @@ public final class Catalog {
                                         table_name, col_name, col_typename, col_type));
                             }
                             catalog_tbl.addColumn(catalog_col);
-                        } // WHILE
+                        }
                     }
 
                     // PRIMARY KEYS
@@ -196,7 +196,7 @@ public final class Catalog {
                             LOG.debug(String.format("PKEY[%02d]: %s.%s", col_idx, table_name, col_name));
 
                             pkey_cols.put(col_idx, col_name);
-                        } // WHILE
+                        }
                     }
                     catalog_tbl.setPrimaryKeyColumns(pkey_cols.values());
 
@@ -229,7 +229,7 @@ public final class Catalog {
                             }
 
                             catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
-                        } // WHILE
+                        }
                     }
 
 
@@ -249,11 +249,11 @@ public final class Catalog {
                             String fk_colName = fk_rs.getString("PKCOLUMN_NAME");
 
                             foreignKeys.get(table_name).put(colName, Pair.of(fk_tableName, fk_colName));
-                        } // WHILE
+                        }
                     }
 
                     tables.put(table_name, catalog_tbl);
-                } // WHILE
+                }
                 table_rs.close();
             }
 
@@ -307,7 +307,7 @@ public final class Catalog {
         while (m.find()) {
             String tableName = m.group(1).trim();
             origTableNames.put(tableName.toUpperCase(), tableName);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug("Original Table Names:\n{}", StringUtil.formatMaps(origTableNames));
         }

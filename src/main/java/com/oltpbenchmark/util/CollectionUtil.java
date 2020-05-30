@@ -191,7 +191,7 @@ public abstract class CollectionUtil {
     public static <T> Collection<T> addAll(Collection<T> data, Enumeration<T> items) {
         while (items.hasMoreElements()) {
             data.add(items.nextElement());
-        } // WHILE
+        }
         return (data);
     }
 
@@ -216,7 +216,7 @@ public abstract class CollectionUtil {
     public static <T> Collection<T> addAll(Collection<T> data, Iterator<T> items) {
         while (items.hasNext()) {
             data.add(items.next());
-        } // WHILE
+        }
         return (data);
     }
 

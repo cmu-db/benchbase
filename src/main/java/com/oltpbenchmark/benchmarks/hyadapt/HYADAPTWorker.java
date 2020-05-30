@@ -46,7 +46,7 @@ public class HYADAPTWorker extends Worker<HYADAPTBenchmark> {
             if (insertRecord == null) {
                 insertRecord = new CounterGenerator(init_record_count);
             }
-        } // SYNCH
+        }
     }
 
     @Override

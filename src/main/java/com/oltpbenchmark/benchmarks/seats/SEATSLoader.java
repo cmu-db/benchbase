@@ -924,7 +924,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     while (airport_id == null) {
                         this.airport_code = this.rand.nextValue();
                         airport_id = SEATSLoader.this.profile.getAirportId(this.airport_code);
-                    } // WHILE
+                    }
                     int next_customer_id = SEATSLoader.this.profile.incrementAirportCustomerCount(airport_id);
                     this.last_id = new CustomerId(next_customer_id, airport_id);
                     if (LOG.isTraceEnabled()) {
@@ -1041,7 +1041,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         }
 
                         this.last_customer_id = this.customer_id_iterator.next();
-                    } // WHILE
+                    }
                     this.ff_per_customer[this.customer_idx]--;
                     value = this.last_customer_id.encode();
                     break;
@@ -1368,7 +1368,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         if (this.todays_flights.contains(this.flight_id) == false) {
                             break;
                         }
-                    } // WHILE
+                    }
                     if (LOG.isTraceEnabled()) {
                         LOG.trace(String.format("%s [remaining=%d, dayIdx=%d]", this.flight_id, remaining, this.day_idx));
                     }
@@ -1576,7 +1576,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                             break;
                         }
                         tries--;
-                    } // WHILE
+                    }
 
 
                     // If this is return flight, then there's nothing extra that
@@ -1664,7 +1664,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("There were no new reservations. Let's try again!");
                 }
-            } // WHILE
+            }
             return (false);
         }
 

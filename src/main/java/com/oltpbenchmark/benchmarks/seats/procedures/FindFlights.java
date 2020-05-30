@@ -102,7 +102,7 @@ public class FindFlights extends Procedure {
                         LOG.debug("DEPART NEARBY: {} distance={} miles", aid, aid_distance);
                     }
                     arrive_aids.add(aid);
-                } // WHILE
+                }
                 nearby_results.close();
             }
 
@@ -174,7 +174,7 @@ public class FindFlights extends Procedure {
 
                     finalResults.add(row);
 
-                } // WHILE
+                }
                 //ai_stmt.close();
                 flightResults.close();
                 //f_stmt.close();

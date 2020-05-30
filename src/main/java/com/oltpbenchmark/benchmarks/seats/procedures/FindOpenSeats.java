@@ -128,7 +128,7 @@ public class FindOpenSeats extends Procedure {
             }
 
             seatmap[seatnum] = 1;
-        } // WHILE
+        }
         s_results.close();
 
         int ctr = 0;
