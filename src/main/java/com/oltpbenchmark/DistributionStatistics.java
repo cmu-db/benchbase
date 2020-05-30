@@ -57,7 +57,6 @@ public class DistributionStatistics {
      */
     public static DistributionStatistics computeStatistics(int[] values) {
         if (values.length == 0) {
-            LOG.warn("cannot compute statistics for an empty list");
             long[] percentiles = new long[PERCENTILES.length];
             Arrays.fill(percentiles, -1);
             return new DistributionStatistics(0, percentiles, -1, -1);

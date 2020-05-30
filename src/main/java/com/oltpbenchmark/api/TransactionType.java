@@ -18,6 +18,8 @@
 package com.oltpbenchmark.api;
 
 
+import java.util.Objects;
+
 public class TransactionType implements Comparable<TransactionType> {
 
     public static class Invalid extends Procedure {
@@ -28,16 +30,10 @@ public class TransactionType implements Comparable<TransactionType> {
 
     private final Class<? extends Procedure> procClass;
     private final int id;
-    private final boolean supplemental;
-
-    protected TransactionType(Class<? extends Procedure> procClass, int id, boolean supplemental) {
-        this.procClass = procClass;
-        this.id = id;
-        this.supplemental = supplemental;
-    }
 
     protected TransactionType(Class<? extends Procedure> procClass, int id) {
-        this(procClass, id, false);
+        this.procClass = procClass;
+        this.id = id;
     }
 
     public Class<? extends Procedure> getProcedureClass() {
@@ -52,28 +48,22 @@ public class TransactionType implements Comparable<TransactionType> {
         return this.id;
     }
 
-    public boolean isSupplemental() {
-        return this.supplemental;
-    }
-
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-
-        if (!(obj instanceof TransactionType) || obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        TransactionType other = (TransactionType) obj;
-        return (this.id == other.id && this.procClass.equals(other.procClass));
+        TransactionType that = (TransactionType) o;
+        return id == that.id &&
+                Objects.equals(procClass, that.procClass);
     }
-
 
     @Override
     public int hashCode() {
-        return (this.id * 31) + this.procClass.hashCode();
+        return Objects.hash(procClass, id);
     }
 
     @Override

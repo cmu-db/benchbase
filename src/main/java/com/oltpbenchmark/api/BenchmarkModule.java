@@ -386,7 +386,7 @@ public abstract class BenchmarkModule {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode(), true);
+                    txn = new TransactionType(procClass, procClass.hashCode());
                     txns.add(txn);
                 }
             }

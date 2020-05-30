@@ -40,7 +40,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
-    // private File profileFile;
     private List<WorkloadConfiguration> workConfs;
     private List<WorkloadState> workStates;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
@@ -119,7 +118,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // Check if a TX Type filter is set, in the default case,
                 // INVALID TXType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType == TransactionType.INVALID || txType.getId() == sample.tranType) {
+                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.tranType) {
                     latencies.add(sample.latencyUs);
                 }
 
