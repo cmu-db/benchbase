@@ -1,6 +1,6 @@
-DROP TABLE IF EXISTS `SITEST`;
-CREATE TABLE `SITEST` (
-  `id` int NOT NULL,
-  `value` int unsigned NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
+DROP TABLE IF EXISTS sitest CASCADE;
+CREATE TABLE sitest
+(
+    id    int PRIMARY KEY,
+    value int NOT NULL
+);
