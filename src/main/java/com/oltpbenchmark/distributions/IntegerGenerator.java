@@ -16,6 +16,7 @@
  */
 
 package com.oltpbenchmark.distributions;
+
 /**
  * A generator that is capable of generating ints as well as strings
  *

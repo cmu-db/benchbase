@@ -67,6 +67,7 @@ public class RandomDistribution {
 
         /**
          * Return the histogram of the values that have been generated
+         *
          * @return
          */
         public Histogram<Long> getHistory() {
@@ -77,6 +78,7 @@ public class RandomDistribution {
         /**
          * Return the count for the number of values that have been generated
          * Only works if history tracking is enabled
+         *
          * @return
          */
         public long getSampleCount() {
@@ -133,6 +135,7 @@ public class RandomDistribution {
 
         /**
          * Get the next random number as an int
+         *
          * @return the next random number.
          */
         @Override
@@ -146,6 +149,7 @@ public class RandomDistribution {
 
         /**
          * Get the next random number as a long
+         *
          * @return the next random number.
          */
         @Override
@@ -185,13 +189,9 @@ public class RandomDistribution {
          * Generate random integers from min (inclusive) to max (exclusive)
          * following even distribution.
          *
-         * @param random
-         *          The basic random number generator.
-         * @param min
-         *          Minimum integer
-         * @param max
-         *          maximum integer (exclusive).
-         *
+         * @param random The basic random number generator.
+         * @param min    Minimum integer
+         * @param max    maximum integer (exclusive).
          */
         public Flat(Random random, long min, long max) {
             super(random, min, max);
@@ -228,7 +228,6 @@ public class RandomDistribution {
 
         /**
          * Generate a run-length of the values of the histogram
-         *
          */
         public FlatHistogram(Random random, Histogram<T> histogram) {
             super(random, 0, histogram.getSampleCount());
@@ -310,7 +309,7 @@ public class RandomDistribution {
     /**
      * Zipf distribution. The ratio of the probabilities of integer i and j is
      * defined as follows:
-     *
+     * <p>
      * P(i)/P(j)=((j-min+1)/(i-min+1))^sigma.
      */
     public static class Zipf extends DiscreteRNG {
@@ -322,14 +321,10 @@ public class RandomDistribution {
         /**
          * Constructor
          *
-         * @param r
-         *          The random number generator.
-         * @param min
-         *          minimum integer (inclusvie)
-         * @param max
-         *          maximum integer (exclusive)
-         * @param sigma
-         *          parameter sigma. (sigma > 1.0)
+         * @param r     The random number generator.
+         * @param min   minimum integer (inclusvie)
+         * @param max   maximum integer (exclusive)
+         * @param sigma parameter sigma. (sigma > 1.0)
          */
         public Zipf(Random r, long min, long max, double sigma) {
             this(r, min, max, sigma, DEFAULT_EPSILON);
@@ -338,16 +333,11 @@ public class RandomDistribution {
         /**
          * Constructor.
          *
-         * @param r
-         *          The random number generator.
-         * @param min
-         *          minimum integer (inclusvie)
-         * @param max
-         *          maximum integer (exclusive)
-         * @param sigma
-         *          parameter sigma. (sigma > 1.0)
-         * @param epsilon
-         *          Allowable error percentage (0 < epsilon < 1.0).
+         * @param r       The random number generator.
+         * @param min     minimum integer (inclusvie)
+         * @param max     maximum integer (exclusive)
+         * @param sigma   parameter sigma. (sigma > 1.0)
+         * @param epsilon Allowable error percentage (0 < epsilon < 1.0).
          */
         public Zipf(Random r, long min, long max, double sigma, double epsilon) {
             super(r, min, max);
@@ -412,9 +402,9 @@ public class RandomDistribution {
 
     /**
      * Binomial distribution.
-     *
+     * <p>
      * P(k)=select(n, k)*p^k*(1-p)^(n-k) (k = 0, 1, ..., n)
-     *
+     * <p>
      * P(k)=select(max-min-1, k-min)*p^(k-min)*(1-p)^(k-min)*(1-p)^(max-k-1)
      */
     public static final class Binomial extends DiscreteRNG {
@@ -438,15 +428,10 @@ public class RandomDistribution {
          * Generate random integers from min (inclusive) to max (exclusive)
          * following Binomial distribution.
          *
-         * @param random
-         *          The basic random number generator.
-         * @param min
-         *          Minimum integer
-         * @param max
-         *          maximum integer (exclusive).
-         * @param p
-         *          parameter.
-         *
+         * @param random The basic random number generator.
+         * @param min    Minimum integer
+         * @param max    maximum integer (exclusive).
+         * @param p      parameter.
          */
         public Binomial(Random random, long min, long max, double p) {
             super(random, min, max);

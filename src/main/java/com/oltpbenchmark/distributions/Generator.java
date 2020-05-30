@@ -16,6 +16,7 @@
  */
 
 package com.oltpbenchmark.distributions;
+
 /**
  * An expression that generates a sequence of string values, following some distribution (Uniform, Zipfian, Sequential, etc.)
  */
