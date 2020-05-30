@@ -44,7 +44,7 @@ public class CockroachCollector extends DBCollector {
                 // Collect DBMS parameters
                 try (ResultSet out = s.executeQuery(PARAMETERS_SQL)) {
                     while (out.next()) {
-                        dbParameters.put(out.getString("name"), out.getString("setting"));
+                        dbParameters.put(out.getString("variable"), out.getString("value"));
                     }
                 }
 
