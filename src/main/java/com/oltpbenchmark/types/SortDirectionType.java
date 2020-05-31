@@ -63,14 +63,6 @@ public enum SortDirectionType {
         }
     }
 
-    public static Map<Integer, SortDirectionType> getIndexMap() {
-        return idx_lookup;
-    }
-
-    public static Map<String, SortDirectionType> getNameMap() {
-        return name_lookup;
-    }
-
     public static SortDirectionType get(Integer idx) {
 
         SortDirectionType ret = SortDirectionType.idx_lookup.get(idx);

@@ -35,55 +35,6 @@ public class Utils {
         return ret;
     }
 
-    /**
-     * Generate a random ASCII string of a given length.
-     */
-    public static String ASCIIString(int length) {
-        int interval = '~' - ' ' + 1;
-
-        byte[] buf = new byte[length];
-        random().nextBytes(buf);
-        for (int i = 0; i < length; i++) {
-            if (buf[i] < 0) {
-                buf[i] = (byte) ((-buf[i] % interval) + ' ');
-            } else {
-                buf[i] = (byte) ((buf[i] % interval) + ' ');
-            }
-        }
-        return new String(buf);
-    }
-
-    /**
-     * Hash an integer value.
-     */
-    public static long hash(long val) {
-        return FNVhash64(val);
-    }
-
-    public static final int FNV_offset_basis_32 = 0x811c9dc5;
-    public static final int FNV_prime_32 = 16777619;
-
-    /**
-     * 32 bit FNV hash. Produces more "random" hashes than (say) String.hashCode().
-     *
-     * @param val The value to hash.
-     * @return The hash value
-     */
-    public static int FNVhash32(int val) {
-        //from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-        int hashval = FNV_offset_basis_32;
-
-        for (int i = 0; i < 4; i++) {
-            int octet = val & 0x00ff;
-            val = val >> 8;
-
-            hashval = hashval ^ octet;
-            hashval = hashval * FNV_prime_32;
-            //hashval = hashval ^ octet;
-        }
-        return Math.abs(hashval);
-    }
-
     public static final long FNV_offset_basis_64 = 0xCBF29CE484222325L;
     public static final long FNV_prime_64 = 1099511628211L;
 

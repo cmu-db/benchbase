@@ -60,7 +60,6 @@ public final class SQLStmt {
      * of repeated ?'s
      *
      * @param sql
-     * @param substitutions
      */
     public final void setSQL(String sql) {
         this.orig_sql = sql;
@@ -68,7 +67,7 @@ public final class SQLStmt {
 
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < ctr; i++) {
-                sb.append((i > 0 ? ", " : "") + "?");
+                sb.append(i > 0 ? ", " : "").append("?");
             }
             Matcher m = SUBSTITUTION_PATTERN.matcher(sql);
             String replace = sb.toString();

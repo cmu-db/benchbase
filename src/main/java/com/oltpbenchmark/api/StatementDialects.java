@@ -53,8 +53,7 @@ public class StatementDialects {
     /**
      * Constructor
      *
-     * @param dbType
-     * @param xmlFile
+     * @param workloadConfiguration
      */
     public StatementDialects(WorkloadConfiguration workloadConfiguration) {
         this.workloadConfiguration = workloadConfiguration;
@@ -143,7 +142,7 @@ public class StatementDialects {
         for (DialectType dialect : dialects.getDialect()) {
 
 
-            if (dialect.getType().equalsIgnoreCase(dbType.name()) == false) {
+            if (!dialect.getType().equalsIgnoreCase(dbType.name())) {
                 continue;
             }
 
@@ -212,13 +211,13 @@ public class StatementDialects {
         DialectType dType = factory.createDialectType();
         dType.setType(dbType.name());
         for (Procedure proc : sorted) {
-            if (proc.getStatments().isEmpty()) {
+            if (proc.getStatements().isEmpty()) {
                 continue;
             }
 
             ProcedureType pType = factory.createProcedureType();
             pType.setName(proc.getProcedureName());
-            for (Entry<String, SQLStmt> e : proc.getStatments().entrySet()) {
+            for (Entry<String, SQLStmt> e : proc.getStatements().entrySet()) {
                 StatementType sType = factory.createStatementType();
                 sType.setName(e.getKey());
                 sType.setValue(e.getValue().getOriginalSQL());
@@ -247,15 +246,6 @@ public class StatementDialects {
      */
     public DatabaseType getDatabaseType() {
         return workloadConfiguration.getDBType();
-    }
-
-    /**
-     * Return the list of Procedure names that we have dialect information for
-     *
-     * @return
-     */
-    protected Collection<String> getProcedureNames() {
-        return (this.dialectsMap.keySet());
     }
 
     /**

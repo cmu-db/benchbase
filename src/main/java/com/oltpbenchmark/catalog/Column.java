@@ -28,19 +28,15 @@ public class Column extends AbstractCatalogObject implements Cloneable {
 
     private final Table catalog_tbl;
     private final int type;
-    private final String typename;
     private final Integer size;
 
-    private String defaultValue;
     private boolean nullable = false;
-    private boolean autoincrement = false;
     private Column foreignkey = null;
 
-    public Column(Table catalog_tbl, String name, int type, String typename, Integer size) {
+    public Column(Table catalog_tbl, String name, int type, Integer size) {
         super(name);
         this.catalog_tbl = catalog_tbl;
         this.type = type;
-        this.typename = typename;
         this.size = size;
     }
 
@@ -73,13 +69,6 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     }
 
     /**
-     * @return the typename
-     */
-    public String getTypename() {
-        return typename;
-    }
-
-    /**
      * Return the max size of this column
      *
      * @return the size
@@ -89,24 +78,10 @@ public class Column extends AbstractCatalogObject implements Cloneable {
     }
 
     /**
-     * @return the defaultValue
-     */
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    /**
      * @return the nullable
      */
     public boolean isNullable() {
         return nullable;
-    }
-
-    /**
-     * @return the autoincrement
-     */
-    public boolean isAutoincrement() {
-        return autoincrement;
     }
 
 
@@ -117,12 +92,7 @@ public class Column extends AbstractCatalogObject implements Cloneable {
         return foreignkey;
     }
 
-    /**
-     * @param defaultValue the defaultValue to set
-     */
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
+
 
     /**
      * @param nullable the nullable to set
@@ -131,12 +101,6 @@ public class Column extends AbstractCatalogObject implements Cloneable {
         this.nullable = nullable;
     }
 
-    /**
-     * @param autoincrement the autoincrement to set
-     */
-    public void setAutoincrement(boolean autoincrement) {
-        this.autoincrement = autoincrement;
-    }
 
     /**
      * @param foreignkey the foreign key parent for this column

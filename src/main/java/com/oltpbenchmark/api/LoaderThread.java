@@ -32,7 +32,7 @@ public abstract class LoaderThread implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoaderThread.class);
 
-    private BenchmarkModule benchmarkModule;
+    private final BenchmarkModule benchmarkModule;
 
     public LoaderThread(BenchmarkModule benchmarkModule) {
         this.benchmarkModule = benchmarkModule;

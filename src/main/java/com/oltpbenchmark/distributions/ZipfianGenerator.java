@@ -79,7 +79,6 @@ public class ZipfianGenerator extends IntegerGenerator {
      */
     boolean allowitemcountdecrease = false;
 
-    /******************************* Constructors **************************************/
 
     /**
      * Create a zipfian generator for the specified number of items.
@@ -151,7 +150,6 @@ public class ZipfianGenerator extends IntegerGenerator {
         //System.out.println("XXXX 4 XXXX");
     }
 
-    /**************************************************************************/
 
     /**
      * Compute the zeta constant needed for the distribution. Do this from scratch for a distribution with n items, using the
@@ -213,7 +211,6 @@ public class ZipfianGenerator extends IntegerGenerator {
         return sum;
     }
 
-    /****************************************************************************************/
 
     /**
      * Generate the next item. this distribution will be skewed toward lower integers; e.g. 0 will

@@ -43,19 +43,6 @@ import java.util.*;
 public abstract class BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkModule.class);
 
-    /**
-     * Each benchmark must put their all of the DBMS-specific DDLs
-     * in this directory.
-     */
-    public static final String DDLS_DIR = "ddls";
-
-
-    /**
-     * Each dialect xml file  must put their all of the DBMS-specific DIALECTs
-     * in this directory.
-     */
-    public static final String DIALECTS_DIR = "dialects";
-
 
     /**
      * The workload configuration for this benchmark invocation
@@ -63,7 +50,7 @@ public abstract class BenchmarkModule {
     protected final WorkloadConfiguration workConf;
 
     /**
-     * These are the variations of the Procedure's Statment SQL
+     * These are the variations of the Procedure's Statement SQL
      */
     protected final StatementDialects dialects;
 
@@ -82,7 +69,7 @@ public abstract class BenchmarkModule {
      */
     private final Random rng = new Random();
 
-    private HikariDataSource dataSource = null;
+    private final HikariDataSource dataSource;
 
     public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
 
@@ -101,7 +88,7 @@ public abstract class BenchmarkModule {
     }
 
     // --------------------------------------------------------------------------
-    // DATABASE CONNETION
+    // DATABASE CONNECTION
     // --------------------------------------------------------------------------
 
     /**
@@ -133,10 +120,6 @@ public abstract class BenchmarkModule {
      */
     protected abstract Loader<? extends BenchmarkModule> makeLoaderImpl() throws SQLException;
 
-    /**
-     * @param txns
-     * @return
-     */
     protected abstract Package getProcedurePackageImpl();
 
     // --------------------------------------------------------------------------
@@ -151,17 +134,10 @@ public abstract class BenchmarkModule {
     }
 
     /**
-     * @return
-     */
-    public String getDatabaseDDLPath() {
-        return (this.getDatabaseDDLPath(this.workConf.getDBType()));
-    }
-
-    /**
      * Return the URL handle to the DDL used to load the benchmark's database
      * schema.
      *
-     * @param conn
+     * @param db_type
      * @throws SQLException
      */
     public String getDatabaseDDLPath(DatabaseType db_type) {
@@ -215,7 +191,7 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
+    public final void createDatabase(DatabaseType dbType, Connection conn) {
         try {
             String ddlPath = this.getDatabaseDDLPath(dbType);
 
@@ -270,7 +246,7 @@ public abstract class BenchmarkModule {
                 ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
 
 
-                if (loader.getTableCounts().isEmpty() == false) {
+                if (!loader.getTableCounts().isEmpty()) {
                     LOG.info("Table Counts:\n{}", loader.getTableCounts());
                 }
 
@@ -284,10 +260,6 @@ public abstract class BenchmarkModule {
         }
     }
 
-    /**
-     * @param DB_CONN
-     * @throws SQLException
-     */
     public final void clearDatabase() {
         try (Connection conn = this.getConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
@@ -326,9 +298,8 @@ public abstract class BenchmarkModule {
      * @return
      */
     public Table getTableCatalog(String tableName) {
-        Table catalog_tbl = this.catalog.getTable(tableName.toUpperCase());
 
-        return (catalog_tbl);
+        return (this.catalog.getTable(tableName.toUpperCase()));
     }
 
     /**
@@ -373,9 +344,6 @@ public abstract class BenchmarkModule {
 
     /**
      * Return a mapping from TransactionTypes to Procedure invocations
-     *
-     * @param txns
-     * @param pkg
      * @return
      */
     public Map<TransactionType, Procedure> getProcedures() {

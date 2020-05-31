@@ -28,7 +28,6 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.*;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
@@ -42,11 +41,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
     private int intervalMonitor = 0;
 
-    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs) {
-        this(workers, null, workConfs);
-    }
-
-    public ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, File profileFile, List<WorkloadConfiguration> workConfs) {
+    public ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs) {
         this.workers = workers;
         this.workConfs = workConfs;
         this.workerThreads = new ArrayList<>(workers.size());

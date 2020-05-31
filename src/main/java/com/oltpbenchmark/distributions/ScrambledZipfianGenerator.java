@@ -34,7 +34,6 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
     ZipfianGenerator gen;
     long _min, _max, _itemcount;
 
-    /******************************* Constructors **************************************/
 
     /**
      * Create a zipfian generator for the specified number of items.
@@ -55,19 +54,6 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
         this(_min, _max, ZipfianGenerator.ZIPFIAN_CONSTANT);
     }
 
-    /**
-     * Create a zipfian generator for the specified number of items using the specified zipfian constant.
-     *
-     * @param _items The number of items in the distribution.
-     * @param _zipfianconstant The zipfian constant to use.
-     */
-	/*
-// not supported, as the value of zeta depends on the zipfian constant, and we have only precomputed zeta for one zipfian constant
-	public ScrambledZipfianGenerator(long _items, double _zipfianconstant)
-	{
-		this(0,_items-1,_zipfianconstant);
-	}
-*/
 
     /**
      * Create a zipfian generator for items between min and max (inclusive) for the specified zipfian constant. If you
@@ -88,7 +74,6 @@ public class ScrambledZipfianGenerator extends IntegerGenerator {
         }
     }
 
-    /**************************************************************************************************/
 
     /**
      * Return the next int in the sequence.

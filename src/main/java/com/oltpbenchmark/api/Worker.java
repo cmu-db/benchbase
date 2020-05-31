@@ -46,7 +46,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private Statement currStatement;
 
     // Interval requests used by the monitor
-    private AtomicInteger intervalRequests = new AtomicInteger(0);
+    private final AtomicInteger intervalRequests = new AtomicInteger(0);
 
     private final int id;
     private final T benchmarkModule;
@@ -97,13 +97,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     @Override
     public String toString() {
         return String.format("%s<%03d>", this.getClass().getSimpleName(), this.getId());
-    }
-
-    /**
-     * Get the the total number of workers in this benchmark invocation
-     */
-    public final int getNumWorkers() {
-        return (this.benchmarkModule.getWorkloadConfiguration().getTerminals());
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
@@ -158,10 +151,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
-    }
-
-    synchronized public void setCurrStatement(Statement s) {
-        this.currStatement = s;
     }
 
     /**
@@ -264,7 +253,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             TransactionType type = invalidTT;
             try {
-                type = doWork(preState == State.MEASURE, pieceOfWork);
+                type = doWork(pieceOfWork);
             } catch (IndexOutOfBoundsException e) {
                 if (phase.isThroughputRun()) {
                     LOG.error("Thread tried executing disabled phase!");
@@ -332,9 +321,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param llr
+     * @param pieceOfWork
      */
-    protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
+    protected final TransactionType doWork(SubmittedProcedure pieceOfWork) {
 
         final DatabaseType type = configuration.getDBType();
         final TransactionType transactionType = transactionTypes.getType(pieceOfWork.getType());

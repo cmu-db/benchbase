@@ -21,7 +21,9 @@ import com.oltpbenchmark.types.SortDirectionType;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
-import java.util.*;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Index extends AbstractCatalogObject {
     private static final long serialVersionUID = 1L;
@@ -57,45 +59,9 @@ public class Index extends AbstractCatalogObject {
         return (this.catalog_tbl);
     }
 
-    public String fullName() {
-        return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
-    }
-
     public void addColumn(String colName, SortDirectionType colOrder, int colPosition) {
 
         this.columns.put(colPosition, new IndexColumn(colName, colOrder));
-    }
-
-    /**
-     * Get the number of columns that are part of this index
-     *
-     * @return
-     */
-    public int getColumnCount() {
-        return (this.columns.size());
-    }
-
-    /**
-     * Return an ordered list of all the columns that are part of this index
-     *
-     * @return
-     */
-    public Collection<String> getColumnNames() {
-        List<String> colNames = new ArrayList<>();
-        for (IndexColumn idx_col : this.columns.values()) {
-            colNames.add(idx_col.name);
-        }
-        return (colNames);
-    }
-
-    public String getColumnName(int position) {
-        IndexColumn idx_col = this.columns.get(position);
-        return (idx_col != null ? idx_col.name : null);
-    }
-
-    public SortDirectionType getColumnDirection(int position) {
-        IndexColumn idx_col = this.columns.get(position);
-        return (idx_col != null ? idx_col.dir : null);
     }
 
 

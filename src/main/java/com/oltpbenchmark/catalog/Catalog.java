@@ -31,8 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +58,6 @@ public final class Catalog {
      * extract all of the catalog information that we need
      */
     private static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
-    private static final String DB_JDBC = "org.hsqldb.jdbcDriver";
     private static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
 
     private final BenchmarkModule benchmark;
@@ -88,10 +90,6 @@ public final class Catalog {
         return (this.tables.size());
     }
 
-    public Collection<String> getTableNames() {
-        return (this.tables.keySet());
-    }
-
     public Collection<Table> getTables() {
         return (this.tables.values());
     }
@@ -111,10 +109,8 @@ public final class Catalog {
     /**
      * Construct the set of Table objects from a given Connection handle
      *
-     * @param conn
-     * @return
      * @throws SQLException
-     * @see http://docs.oracle.com/javase/6/docs/api/java/sql/DatabaseMetaData.html
+     * @see "http://docs.oracle.com/javase/6/docs/api/java/sql/DatabaseMetaData.html"
      */
     protected void init() throws SQLException {
 
@@ -163,13 +159,9 @@ public final class Catalog {
                             int col_type = col_rs.getInt("DATA_TYPE");
                             String col_typename = col_rs.getString("TYPE_NAME");
                             Integer col_size = col_rs.getInt("COLUMN_SIZE");
-                            String col_defaultValue = col_rs.getString("COLUMN_DEF");
                             boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
-                            boolean col_autoinc = col_rs.getString("IS_AUTOINCREMENT").equalsIgnoreCase("YES");
 
-                            Column catalog_col = new Column(catalog_tbl, col_name, col_type, col_typename, col_size);
-                            catalog_col.setDefaultValue(col_defaultValue);
-                            catalog_col.setAutoincrement(col_autoinc);
+                            Column catalog_col = new Column(catalog_tbl, col_name, col_type, col_size);
                             catalog_col.setNullable(col_nullable);
 
                             if (LOG.isDebugEnabled()) {
@@ -180,27 +172,6 @@ public final class Catalog {
                         }
                     }
 
-                    // PRIMARY KEYS
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Retrieving PRIMARY KEY information for {}", table_name);
-                    }
-                    SortedMap<Integer, String> pkey_cols = new TreeMap<>();
-                    try (ResultSet pkey_rs = md.getPrimaryKeys(null, null, internal_table_name)) {
-                        while (pkey_rs.next()) {
-                            String col_name = pkey_rs.getString("COLUMN_NAME");
-                            int col_idx = pkey_rs.getShort("KEY_SEQ");
-                            // HACK: SQLite doesn't return the KEY_SEQ, so if we get back
-                            //       a zero for this value, then we'll just length of the pkey_cols map
-                            if (col_idx == 0) {
-                                col_idx = pkey_cols.size();
-                            }
-                            LOG.debug(String.format("PKEY[%02d]: %s.%s", col_idx, table_name, col_name));
-
-                            pkey_cols.put(col_idx, col_name);
-                        }
-                    }
-                    catalog_tbl.setPrimaryKeyColumns(pkey_cols.values());
-
                     // INDEXES
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Retrieving INDEX information for {}", table_name);
@@ -210,7 +181,7 @@ public final class Catalog {
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug(SQLUtil.debug(idx_rs));
                             }
-                            boolean idx_unique = (idx_rs.getBoolean("NON_UNIQUE") == false);
+                            boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
                             String idx_name = idx_rs.getString("INDEX_NAME");
                             int idx_type = idx_rs.getShort("TYPE");
                             int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
@@ -255,7 +226,6 @@ public final class Catalog {
 
                     tables.put(table_name, catalog_tbl);
                 }
-                table_rs.close();
             }
 
 
@@ -290,7 +260,6 @@ public final class Catalog {
 
         }
 
-        return;
     }
 
     protected Map<String, String> getOriginalTableNames() {
@@ -318,10 +287,6 @@ public final class Catalog {
 
     public static void setSeparator(Connection c) throws SQLException {
         Catalog.separator = c.getMetaData().getIdentifierQuoteString();
-    }
-
-    public static void setSeparator(String separator) throws SQLException {
-        Catalog.separator = separator;
     }
 
     public static String getSeparator() {

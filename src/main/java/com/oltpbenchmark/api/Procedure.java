@@ -58,7 +58,7 @@ public abstract class Procedure {
 
     protected final <T extends Procedure> T initialize(DatabaseType dbType) {
         this.dbType = dbType;
-        this.name_stmt_xref = Procedure.getStatments(this);
+        this.name_stmt_xref = Procedure.getStatements(this);
         for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
             this.stmt_name_xref.put(e.getValue(), e.getKey());
         }
@@ -92,7 +92,7 @@ public abstract class Procedure {
      *
      * @param conn
      * @param stmt
-     * @param parameters
+     * @param params
      * @return
      * @throws SQLException
      */
@@ -140,7 +140,7 @@ public abstract class Procedure {
     /**
      * Fetch the SQL from the dialect map
      *
-     * @param dialectMap
+     * @param dialects
      */
     protected final void loadSQLDialect(StatementDialects dialects) {
         Collection<String> stmtNames = dialects.getStatementNames(this.procName);
@@ -165,11 +165,11 @@ public abstract class Procedure {
      *
      * @return
      */
-    protected final Map<String, SQLStmt> getStatments() {
+    protected final Map<String, SQLStmt> getStatements() {
         return (Collections.unmodifiableMap(this.name_stmt_xref));
     }
 
-    protected static Map<String, SQLStmt> getStatments(Procedure proc) {
+    protected static Map<String, SQLStmt> getStatements(Procedure proc) {
         Class<? extends Procedure> c = proc.getClass();
         Map<String, SQLStmt> stmts = new HashMap<>();
         for (Field f : c.getDeclaredFields()) {

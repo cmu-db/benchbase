@@ -144,7 +144,7 @@ public class TraceReader {
         }
 
         ListIterator<TraceElement> iter = tracedProcedures.listIterator();
-        TraceElement curr = tracedProcedures.peek();
+        TraceElement curr;
 
         // Shouldn't have a procedure from a previous phase, or else we
         // wouldn't have switched phases successfully.
