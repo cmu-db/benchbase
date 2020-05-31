@@ -25,13 +25,14 @@ import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
 import com.oltpbenchmark.benchmarks.twitter.util.TraceTransactionGenerator;
-import com.oltpbenchmark.benchmarks.twitter.util.TransactionSelector;
 import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
@@ -50,16 +51,21 @@ public class TwitterBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        TransactionSelector transSel = new TransactionSelector(
-                twitterConf.getTracefile(),
-                twitterConf.getTracefile2(),
-                workConf.getTransTypes());
-        List<TwitterOperation> trace = Collections.unmodifiableList(transSel.readAll());
-        transSel.close();
+        List<String> tweetIds = FileUtils.readLines(new File(twitterConf.getTracefile()), Charset.defaultCharset());
+        List<String> userIds = FileUtils.readLines(new File(twitterConf.getTracefile2()), Charset.defaultCharset());
+
+        if (tweetIds.size() != userIds.size()) {
+            throw new RuntimeException(String.format("there was a problem reading files, sizes don't match.  tweets %d, userids %d", tweetIds.size(), userIds.size()));
+        }
+
+        List<TwitterOperation> trace = new ArrayList<>();
+        for (int i = 0; i < tweetIds.size(); i++) {
+            trace.add(new TwitterOperation(Integer.parseInt(tweetIds.get(i)), Integer.parseInt(userIds.get(i))));
+        }
+
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
-            TransactionGenerator<TwitterOperation> generator =
-                    new TraceTransactionGenerator(trace);
+            TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(trace);
             workers.add(new TwitterWorker(this, i, generator));
         }
         return workers;
