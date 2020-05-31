@@ -138,23 +138,6 @@ public abstract class Procedure {
     }
 
     /**
-     * Initialize all the PreparedStatements needed by this Procedure
-     *
-     * @param conn
-     * @throws SQLException
-     */
-    protected final void generateAllPreparedStatements(Connection conn) {
-        for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
-            SQLStmt stmt = e.getValue();
-            try {
-                this.getPreparedStatement(conn, stmt);
-            } catch (Throwable ex) {
-                throw new RuntimeException(String.format("Failed to generate PreparedStatements for %s.%s", this, e.getKey()), ex);
-            }
-        }
-    }
-
-    /**
      * Fetch the SQL from the dialect map
      *
      * @param dialectMap
@@ -184,16 +167,6 @@ public abstract class Procedure {
      */
     protected final Map<String, SQLStmt> getStatments() {
         return (Collections.unmodifiableMap(this.name_stmt_xref));
-    }
-
-    /**
-     * Hook for testing to retrieve a SQLStmt based on its name
-     *
-     * @param stmtName
-     * @return
-     */
-    protected final SQLStmt getStatment(String stmtName) {
-        return (this.name_stmt_xref.get(stmtName));
     }
 
     protected static Map<String, SQLStmt> getStatments(Procedure proc) {
