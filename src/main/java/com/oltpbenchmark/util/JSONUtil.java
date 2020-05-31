@@ -87,28 +87,6 @@ public abstract class JSONUtil {
         }
     }
 
-    /**
-     * JSON Pretty Print
-     *
-     * @param <T>
-     * @param object
-     * @return
-     */
-    public static <T extends JSONSerializable> String format(T object) {
-        JSONStringer stringer = new JSONStringer();
-        try {
-            if (object instanceof JSONObject) {
-                return ((JSONObject) object).toString(2);
-            }
-            stringer.object();
-            object.toJSON(stringer);
-            stringer.endObject();
-        } catch (JSONException ex) {
-            throw new RuntimeException(ex);
-        }
-        return (JSONUtil.format(stringer.toString()));
-    }
-
     public static String format(JSONObject o) {
         try {
             return o.toString(1);
@@ -197,27 +175,6 @@ public abstract class JSONUtil {
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("The loading of the {} is complete", object.getClass().getSimpleName());
-        }
-    }
-
-    /**
-     * For a given Enum, write out the contents of the corresponding field to the JSONObject
-     * We assume that the given object has matching fields that correspond to the Enum members, except
-     * that their names are lower case.
-     *
-     * @param <E>
-     * @param <T>
-     * @param stringer
-     * @param object
-     * @param base_class
-     * @param members
-     * @throws JSONException
-     */
-    public static <E extends Enum<?>, T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, E[] members) throws JSONException {
-        try {
-            fieldsToJSON(stringer, object, base_class, ClassUtil.getFieldsFromMembersEnum(base_class, members));
-        } catch (NoSuchFieldException ex) {
-            throw new JSONException(ex);
         }
     }
 
@@ -494,42 +451,6 @@ public abstract class JSONUtil {
     }
 
     /**
-     * For the given enum, load in the values from the JSON object into the current object
-     * This will throw errors if a field is missing
-     *
-     * @param <E>
-     * @param json_object
-     * @param catalog_db
-     * @param members
-     * @throws JSONException
-     */
-    public static <E extends Enum<?>, T> void fieldsFromJSON(JSONObject json_object, T object, Class<? extends T> base_class, E... members) throws JSONException {
-        JSONUtil.fieldsFromJSON(json_object, object, base_class, false, members);
-    }
-
-    /**
-     * For the given enum, load in the values from the JSON object into the current object
-     * If ignore_missing is false, then JSONUtil will not throw an error if a field is missing
-     *
-     * @param <E>
-     * @param <T>
-     * @param json_object
-     * @param catalog_db
-     * @param object
-     * @param base_class
-     * @param ignore_missing
-     * @param members
-     * @throws JSONException
-     */
-    public static <E extends Enum<?>, T> void fieldsFromJSON(JSONObject json_object, T object, Class<? extends T> base_class, boolean ignore_missing, E... members) throws JSONException {
-        try {
-            fieldsFromJSON(json_object, object, base_class, ignore_missing, ClassUtil.getFieldsFromMembersEnum(base_class, members));
-        } catch (NoSuchFieldException ex) {
-            throw new JSONException(ex);
-        }
-    }
-
-    /**
      * For the given list of Fields, load in the values from the JSON object into the current object
      * If ignore_missing is false, then JSONUtil will not throw an error if a field is missing
      *
@@ -678,60 +599,4 @@ public abstract class JSONUtil {
         return (value);
     }
 
-    public static Class<?> getPrimitiveType(String json_value) {
-        Object value = null;
-
-
-        try {
-            value = ClassUtil.getClass(json_value);
-            if (value != null) {
-                return (Class.class);
-            }
-        } catch (Throwable ignored) {
-        }
-
-        // Short
-        try {
-            value = Short.parseShort(json_value);
-            return (Short.class);
-        } catch (NumberFormatException ignored) {
-        }
-
-        // Integer
-        try {
-            value = Integer.parseInt(json_value);
-            return (Integer.class);
-        } catch (NumberFormatException ignored) {
-        }
-
-        // Long
-        try {
-            value = Long.parseLong(json_value);
-            return (Long.class);
-        } catch (NumberFormatException ignored) {
-        }
-
-        // Float
-        try {
-            value = Float.parseFloat(json_value);
-            return (Float.class);
-        } catch (NumberFormatException ignored) {
-        }
-
-        // Double
-        try {
-            value = Double.parseDouble(json_value);
-            return (Double.class);
-        } catch (NumberFormatException ignored) {
-        }
-
-
-        // Boolean
-        if (json_value.equalsIgnoreCase("true") || json_value.equalsIgnoreCase("false")) {
-            return (Boolean.class);
-        }
-
-        // Default: String
-        return (String.class);
-    }
 }
