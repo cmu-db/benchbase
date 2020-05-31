@@ -34,8 +34,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -329,15 +331,15 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                             Matcher eurMatcher = eurFmt.matcher(field);
 
-                            java.sql.Date fieldAsDate = null;
+                            Date fieldAsDate = null;
                             if (isoMatcher.find()) {
-                                fieldAsDate = new java.sql.Date(Integer.parseInt(isoMatcher.group(1)) - 1900, Integer.parseInt(isoMatcher.group(2)), Integer.parseInt(isoMatcher.group(3)));
+                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(isoMatcher.group(1)) - 1900, Integer.parseInt(isoMatcher.group(2)), Integer.parseInt(isoMatcher.group(3))));
                             } else if (nondelimMatcher.find()) {
-                                fieldAsDate = new java.sql.Date(Integer.parseInt(nondelimMatcher.group(1)) - 1900, Integer.parseInt(nondelimMatcher.group(2)), Integer.parseInt(nondelimMatcher.group(3)));
+                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(nondelimMatcher.group(1)) - 1900, Integer.parseInt(nondelimMatcher.group(2)), Integer.parseInt(nondelimMatcher.group(3))));
                             } else if (usaMatcher.find()) {
-                                fieldAsDate = new java.sql.Date(Integer.parseInt(usaMatcher.group(3)) - 1900, Integer.parseInt(usaMatcher.group(1)), Integer.parseInt(usaMatcher.group(2)));
+                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(usaMatcher.group(3)) - 1900, Integer.parseInt(usaMatcher.group(1)), Integer.parseInt(usaMatcher.group(2))));
                             } else if (eurMatcher.find()) {
-                                fieldAsDate = new java.sql.Date(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1)));
+                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1))));
                             } else {
                                 throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getAbsolutePath());
                             }
