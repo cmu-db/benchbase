@@ -332,8 +332,8 @@ public class NewOrder extends TPCCProcedure {
                 orderLineAmounts[ol_number - 1] = ol_amount;
                 total_amount += ol_amount;
 
-                if (i_data.contains("GENERIC")
-                        && s_data.contains("GENERIC")) {
+                if (i_data.contains("ORIGINAL")
+                        && s_data.contains("ORIGINAL")) {
                     brandGeneric[ol_number - 1] = 'B';
                 } else {
                     brandGeneric[ol_number - 1] = 'G';
