@@ -17,10 +17,11 @@
 
 package com.oltpbenchmark.util;
 
-import com.oltpbenchmark.util.json.JSONArray;
-import com.oltpbenchmark.util.json.JSONException;
-import com.oltpbenchmark.util.json.JSONObject;
-import com.oltpbenchmark.util.json.JSONStringer;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

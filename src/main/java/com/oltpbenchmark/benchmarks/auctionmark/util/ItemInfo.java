@@ -20,9 +20,9 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.JSONSerializable;
 import com.oltpbenchmark.util.JSONUtil;
-import com.oltpbenchmark.util.json.JSONException;
-import com.oltpbenchmark.util.json.JSONObject;
-import com.oltpbenchmark.util.json.JSONStringer;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.sql.Timestamp;
