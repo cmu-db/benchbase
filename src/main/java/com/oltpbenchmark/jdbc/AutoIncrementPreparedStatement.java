@@ -345,8 +345,9 @@ public class AutoIncrementPreparedStatement implements PreparedStatement {
     }
 
     @Override
+    @Deprecated
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        this.stmt.setUnicodeStream(parameterIndex, x, length);
+        throw new SQLFeatureNotSupportedException();
     }
 
     @Override
@@ -362,8 +363,6 @@ public class AutoIncrementPreparedStatement implements PreparedStatement {
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
         this.stmt.setObject(parameterIndex, x, targetSqlType);
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -538,11 +537,11 @@ public class AutoIncrementPreparedStatement implements PreparedStatement {
 
     // Java7 Fixes
     public void closeOnCompletion() throws SQLException {
-        throw new SQLException();
+        throw new SQLFeatureNotSupportedException();
     }
 
     public boolean isCloseOnCompletion() throws SQLException {
-        throw new SQLException();
+        throw new SQLFeatureNotSupportedException();
     }
 
 
