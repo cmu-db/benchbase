@@ -83,7 +83,7 @@ public abstract class ThreadUtil {
      */
     public static <R extends Runnable> void runNewPool(final Collection<R> threads, int max_concurrent) {
         ExecutorService pool = Executors.newFixedThreadPool(max_concurrent, factory);
-        ThreadUtil.run(threads, pool, true);
+        ThreadUtil.run(threads, pool);
     }
 
     /**
@@ -92,10 +92,10 @@ public abstract class ThreadUtil {
      * then all threads will be fired off at the same time
      *
      * @param runnables
-     * @param max_concurrent
+     * @param pool
      * @throws Exception
      */
-    private static final <R extends Runnable> void run(final Collection<R> runnables, final ExecutorService pool, final boolean stop_pool) {
+    private static <R extends Runnable> void run(final Collection<R> runnables, final ExecutorService pool) {
         final long start = System.currentTimeMillis();
         final int num_threads = runnables.size();
         final CountDownLatch latch = new CountDownLatch(num_threads);
@@ -107,9 +107,9 @@ public abstract class ThreadUtil {
         for (R r : runnables) {
             pool.execute(new LatchRunnable(r, latch, handler));
         }
-        if (stop_pool) {
-            pool.shutdown();
-        }
+
+        pool.shutdown();
+
 
         try {
             latch.await();
@@ -127,7 +127,6 @@ public abstract class ThreadUtil {
             LOG.debug(String.format("Finished executing %d threads [time=%.02fs]",
                     num_threads, (stop - start) / 1000d));
         }
-        return;
     }
 
     private static final ThreadFactory factory = new ThreadFactory() {

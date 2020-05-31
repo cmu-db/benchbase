@@ -44,7 +44,7 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
 
     public final T first;
     public final U second;
-    private transient Integer hash;
+    private final transient Integer hash;
 
     public Pair(T first, U second, boolean precomputeHash) {
         this.first = first;

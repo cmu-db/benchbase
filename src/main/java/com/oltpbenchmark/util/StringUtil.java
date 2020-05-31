@@ -18,13 +18,6 @@
 
 package com.oltpbenchmark.util;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,10 +31,6 @@ import java.util.regex.Pattern;
  */
 public abstract class StringUtil {
 
-    public static final String SPACER = "   ";
-    public static final String DOUBLE_LINE = StringUtil.repeat("=", 64) + "\n";
-    public static final String SINGLE_LINE = StringUtil.repeat("-", 64) + "\n";
-
     private static final Pattern LINE_SPLIT = Pattern.compile("\n");
     private static final Pattern TITLE_SPLIT = Pattern.compile(" ");
 
@@ -52,76 +41,7 @@ public abstract class StringUtil {
     private static Integer CACHE_REPEAT_SIZE = null;
     private static String CACHE_REPEAT_RESULT = null;
 
-    private static final double BASE = 1024, KB = BASE, MB = KB * BASE, GB = MB * BASE;
-    private static final DecimalFormat df = new DecimalFormat("#.##");
 
-    /**
-     * http://ubuntuforums.org/showpost.php?p=10215516&postcount=5
-     *
-     * @param bytes
-     * @return
-     */
-    public static String formatSize(double bytes) {
-        if (bytes >= GB) {
-            return df.format(bytes / GB) + " GB";
-        } else if (bytes >= MB) {
-            return df.format(bytes / MB) + " MB";
-        } else if (bytes >= KB) {
-            return df.format(bytes / KB) + " KB";
-        }
-        return "" + (int) bytes + " bytes";
-    }
-
-    /**
-     * @param str
-     * @return
-     */
-    public static String[] splitLines(String str) {
-        return (str != null ? LINE_SPLIT.split(str) : null);
-    }
-
-    public static String header(String msg) {
-        return StringUtil.header(msg, "-", 100);
-    }
-
-    /**
-     * Create a nicely format header string where the given message is surround
-     * on both sides by the marker.
-     * Example:   "---------- MSG ----------"
-     *
-     * @param msg
-     * @param marker
-     * @param length
-     * @return
-     */
-    public static String header(String msg, String marker, int length) {
-        int msg_length = msg.length();
-        length = Math.max(msg_length, length);
-        int border_len = (length - msg_length - 2) / 2;
-        String border = StringUtil.repeat(marker, border_len);
-        boolean add_extra = (border_len + msg_length + 2 + 1 == length);
-        return String.format("%s %s %s%s", border, msg, border, (add_extra ? marker : ""));
-    }
-
-
-    /**
-     * Return the MD5 checksum of the given string
-     *
-     * @param input
-     * @return
-     */
-    public static String md5sum(String input) {
-        MessageDigest digest = null;
-        try {
-            digest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException("Unable to compute md5sum for string", ex);
-        }
-
-        digest.update(input.getBytes());
-        BigInteger hash = new BigInteger(1, digest.digest());
-        return (hash.toString(16));
-    }
 
     /**
      * Split the multi-lined strings into separate columns
@@ -264,7 +184,7 @@ public abstract class StringUtil {
 
                 if (first && map_titles[map_i]) {
                     blocks[map_i].append(StringUtil.join("\n", key));
-                    if (CollectionUtil.last(key).endsWith("\n") == false) {
+                    if (!CollectionUtil.last(key).endsWith("\n")) {
                         blocks[map_i].append("\n");
                     }
 
@@ -334,14 +254,6 @@ public abstract class StringUtil {
         }
         return (box ? StringUtil.box(sb.toString()) :
                 (border_top ? dividing_line + "\n" : "") + sb.toString() + (border_bottom ? dividing_line : ""));
-    }
-
-    /**
-     * @param maps
-     * @return
-     */
-    public static String formatMapsBoxed(Map<?, ?>... maps) {
-        return (formatMaps(":", false, true, false, false, true, true, maps));
     }
 
     /**
@@ -427,56 +339,6 @@ public abstract class StringUtil {
     }
 
     /**
-     * Append the prefix to the beginning of each line in str
-     *
-     * @param str
-     * @param prefix
-     * @return
-     */
-    public static String prefix(String str, String prefix) {
-        String[] lines = LINE_SPLIT.split(str);
-        if (lines.length == 0) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            sb.append(prefix).append(line).append("\n");
-        }
-        return (sb.toString());
-    }
-
-    /**
-     * Abbreviate the given string. The last three chars will be periods
-     *
-     * @param str
-     * @param max
-     * @return
-     */
-    public static String abbrv(String str, int max) {
-        return (abbrv(str, max, true));
-    }
-
-    /**
-     * Abbreviate the given string. If dots, then the last three chars will be periods
-     *
-     * @param str
-     * @param max
-     * @param dots
-     * @return
-     */
-    public static String abbrv(String str, int max, boolean dots) {
-        int len = str.length();
-        String ret = null;
-        if (len > max) {
-            ret = (dots ? str.substring(0, max - 3) + "..." : str.substring(0, max));
-        } else {
-            ret = str;
-        }
-        return (ret);
-    }
-
-    /**
      * Converts a string to title case (ala Python)
      *
      * @param string
@@ -511,20 +373,6 @@ public abstract class StringUtil {
                 }
             }
             add = " ";
-        }
-        return (sb.toString());
-    }
-
-    /**
-     * Append SPACER to the front of each line in a string
-     *
-     * @param str
-     * @return
-     */
-    public static String addSpacers(String str) {
-        StringBuilder sb = new StringBuilder();
-        for (String line : LINE_SPLIT.split(str)) {
-            sb.append(SPACER).append(line).append("\n");
         }
         return (sb.toString());
     }
@@ -583,7 +431,7 @@ public abstract class StringUtil {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (Object x : items) {
-            if (prefix.isEmpty() == false) {
+            if (!prefix.isEmpty()) {
                 sb.append(prefix);
             }
             sb.append(x != null ? x.toString() : x).append(delimiter);
@@ -597,73 +445,4 @@ public abstract class StringUtil {
         return sb.toString();
     }
 
-    /**
-     * Convert a byte array into a valid mysql string literal, assuming that
-     * it will be inserted into a column with latin-1 encoding.
-     * Based on information at
-     * http://dev.mysql.com/doc/refman/5.1/en/string-literals.html
-     *
-     * @param arr
-     * @return
-     */
-    public static String stringLiteral(byte[] arr) {
-        CharBuffer cb = Charset.forName("ISO-8859-1").decode(ByteBuffer.wrap(arr));
-        StringBuilder sb = new StringBuilder();
-        sb.append('\'');
-        for (int i = 0; i < cb.length(); i++) {
-            char c = cb.get(i);
-            switch (c) {
-                case '\'':
-                    sb.append("\\'");
-                    break;
-                case '\\':
-                    sb.append("\\\\");
-                    break;
-                case '\0':
-                    sb.append("\\0");
-                    break;
-                case '\b':
-                    sb.append("\\b");
-                    break;
-                case '\n':
-                    sb.append("\\n");
-                    break;
-                case '\r':
-                    sb.append("\\r");
-                    break;
-                case '\t':
-                    sb.append("\\t");
-                    break;
-                default:
-                    if (Character.getNumericValue(c) < 0) {
-                        // Fall back on hex string for values not defined in latin-1
-                        return hexStringLiteral(arr);
-                    } else {
-                        sb.append(c);
-                    }
-            }
-        }
-        sb.append('\'');
-        return sb.toString();
-    }
-
-    /**
-     * Create a mysql hex string literal from array:
-     * E.g. [0xf, bc, 4c, 4] converts to x'0fbc4c03'
-     *
-     * @param arr
-     * @return the mysql hex literal including quotes
-     */
-    private static String hexStringLiteral(byte[] arr) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("x'");
-        for (byte b : arr) {
-            int lo = b & 0xf;
-            int hi = (b >> 4) & 0xf;
-            sb.append(Character.forDigit(hi, 16));
-            sb.append(Character.forDigit(lo, 16));
-        }
-        sb.append("'");
-        return sb.toString();
-    }
 }

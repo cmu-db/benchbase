@@ -67,7 +67,7 @@ public class WorkloadConfiguration {
 
     private XMLConfiguration xmlConfig = null;
 
-    private List<Phase> works = new ArrayList<>();
+    private final List<Phase> works = new ArrayList<>();
     private WorkloadState workloadState;
 
     public WorkloadState getWorkloadState() {

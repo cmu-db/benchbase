@@ -37,27 +37,17 @@ public class ScriptRunner {
 
     private static final String DEFAULT_DELIMITER = ";";
 
-    private Connection connection;
-
-    private boolean stopOnError;
-    private boolean autoCommit;
-
-    private String delimiter = DEFAULT_DELIMITER;
-    private boolean fullLineDelimiter = false;
+    private final Connection connection;
+    private final boolean stopOnError;
+    private final boolean autoCommit;
 
     /**
      * Default constructor
      */
-    public ScriptRunner(Connection connection, boolean autoCommit,
-                        boolean stopOnError) {
+    public ScriptRunner(Connection connection, boolean autoCommit, boolean stopOnError) {
         this.connection = connection;
         this.autoCommit = autoCommit;
         this.stopOnError = stopOnError;
-    }
-
-    public void setDelimiter(String delimiter, boolean fullLineDelimiter) {
-        this.delimiter = delimiter;
-        this.fullLineDelimiter = fullLineDelimiter;
     }
 
 
@@ -103,19 +93,12 @@ public class ScriptRunner {
                     command = new StringBuffer();
                 }
                 String trimmedLine = line.trim();
-                if (trimmedLine.startsWith("--")) {
+                if (trimmedLine.startsWith("--") || trimmedLine.startsWith("//")) {
                     LOG.debug(trimmedLine);
-                } else if (trimmedLine.length() < 1
-                        || trimmedLine.startsWith("//")) {
+                } else if (trimmedLine.length() < 1) {
                     // Do nothing
-                } else if (trimmedLine.length() < 1
-                        || trimmedLine.startsWith("--")) {
-                    // Do nothing
-                } else if (!fullLineDelimiter
-                        && trimmedLine.endsWith(getDelimiter())
-                        || fullLineDelimiter
-                        && trimmedLine.equals(getDelimiter())) {
-                    command.append(line.substring(0, line.lastIndexOf(getDelimiter())));
+                } else if (trimmedLine.endsWith(getDelimiter())) {
+                    command.append(line, 0, line.lastIndexOf(getDelimiter()));
                     command.append(" ");
 
                     try (Statement statement = conn.createStatement()) {
@@ -125,21 +108,7 @@ public class ScriptRunner {
                         boolean hasResults = false;
                         final String sql = command.toString().trim();
                         if (stopOnError) {
-                            try {
-                                hasResults = statement.execute(sql);
-                            } catch (SQLException e) {
-                                // Some errors aren't actually errors.
-                                if (e.getErrorCode() == 0 && e.getSQLState() != null
-                                        && e.getSQLState().equals("42S02")) {
-                                    // MonetDB has no "drop table if exists" statement,
-                                    // so we have to just try to drop a table whether
-                                    // it exists or not. This error means that the
-                                    // table didn't exist. But no matter: we can carry
-                                    // on.
-                                } else {
-                                    throw e;
-                                }
-                            }
+                            hasResults = statement.execute(sql);
                         } else {
                             try {
                                 statement.execute(sql);
@@ -153,7 +122,7 @@ public class ScriptRunner {
                         }
 
                         // HACK
-                        if (hasResults && sql.toUpperCase().startsWith("CREATE") == false) {
+                        if (hasResults && !sql.toUpperCase().startsWith("CREATE")) {
                             try (ResultSet rs = statement.getResultSet()) {
                                 if (hasResults && rs != null) {
                                     ResultSetMetaData md = rs.getMetaData();
@@ -195,7 +164,7 @@ public class ScriptRunner {
     }
 
     private String getDelimiter() {
-        return delimiter;
+        return DEFAULT_DELIMITER;
     }
 
 }

@@ -29,7 +29,6 @@ import java.util.Iterator;
  * @author pavlo
  */
 public class TableDataIterable implements Iterable<Object[]> {
-    private final Table catalog_tbl;
     private final File table_file;
     private final CSVReader reader;
     private final boolean auto_generate_first_column;
@@ -48,15 +47,14 @@ public class TableDataIterable implements Iterable<Object[]> {
      * @throws Exception
      */
     public TableDataIterable(Table catalog_tbl, File table_file, boolean has_header, boolean auto_generate_first_column) throws Exception {
-        this.catalog_tbl = catalog_tbl;
         this.table_file = table_file;
         this.auto_generate_first_column = auto_generate_first_column;
 
-        this.types = new int[this.catalog_tbl.getColumnCount()];
-        this.fkeys = new boolean[this.catalog_tbl.getColumnCount()];
-        this.nullable = new boolean[this.catalog_tbl.getColumnCount()];
+        this.types = new int[catalog_tbl.getColumnCount()];
+        this.fkeys = new boolean[catalog_tbl.getColumnCount()];
+        this.nullable = new boolean[catalog_tbl.getColumnCount()];
         for (int i = 0; i < this.types.length; i++) {
-            Column catalog_col = this.catalog_tbl.getColumn(i);
+            Column catalog_col = catalog_tbl.getColumn(i);
             this.types[i] = catalog_col.getType();
             this.fkeys[i] = (catalog_col.getForeignKey() != null);
             this.nullable[i] = catalog_col.isNullable();
@@ -101,7 +99,7 @@ public class TableDataIterable implements Iterable<Object[]> {
             if (next == null) {
                 return (next);
             }
-            String[] row = null;
+            String[] row;
             synchronized (this) {
                 row = this.next;
                 this.next = null;

@@ -23,14 +23,12 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.State;
-import com.oltpbenchmark.util.QueueLimitException;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
@@ -40,8 +38,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
-    private List<WorkloadConfiguration> workConfs;
-    private List<WorkloadState> workStates;
+    private final List<WorkloadConfiguration> workConfs;
     ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
     private int intervalMonitor = 0;
 
@@ -174,7 +171,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             thread.start();
             this.workerThreads.add(thread);
         }
-        return;
     }
 
     private void interruptWorkers() {
@@ -288,16 +284,16 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
      * bench.runRateLimitedFromFile(); }
      */
 
-    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) throws QueueLimitException, IOException {
+    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         ThreadBench bench = new ThreadBench(workers, workConfs);
         bench.intervalMonitor = intervalMonitoring;
         return bench.runRateLimitedMultiPhase();
     }
 
-    public Results runRateLimitedMultiPhase() throws QueueLimitException, IOException {
+    public Results runRateLimitedMultiPhase() {
 
         testState = new BenchmarkState(workers.size() + 1);
-        workStates = new ArrayList<>();
+        List<WorkloadState> workStates = new ArrayList<>();
 
         for (WorkloadConfiguration workState : this.workConfs) {
             workStates.add(workState.initializeState(testState));
@@ -317,7 +313,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         Phase phase = null;
 
-        for (WorkloadState workState : this.workStates) {
+        for (WorkloadState workState : workStates) {
             workState.switchToNextPhase();
             phase = workState.getCurrentPhase();
             LOG.info(phase.currentPhaseString());
@@ -347,7 +343,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // posting new work... and reseting the queue in case we have new
             // portion of the workload...
 
-            for (WorkloadState workState : this.workStates) {
+            for (WorkloadState workState : workStates) {
                 if (workState.getCurrentPhase() != null) {
                     rateFactor = workState.getCurrentPhase().rate / lowestRate;
                 } else {

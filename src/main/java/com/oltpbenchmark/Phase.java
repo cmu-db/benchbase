@@ -44,7 +44,7 @@ public class Phase {
     private final boolean timed;
     private final List<Double> weights;
     private final int num_weights;
-    private int activeTerminals;
+    private final int activeTerminals;
     private int nextSerial;
 
 

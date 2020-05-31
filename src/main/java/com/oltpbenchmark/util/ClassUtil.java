@@ -35,47 +35,8 @@ import java.util.*;
 public abstract class ClassUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ClassUtil.class);
 
-    private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
-
     private static final Map<Class<?>, List<Class<?>>> CACHE_getSuperClasses = new HashMap<>();
     private static final Map<Class<?>, Set<Class<?>>> CACHE_getInterfaceClasses = new HashMap<>();
-
-    /**
-     * Check if the given object is an array (primitve or native).
-     * http://www.java2s.com/Code/Java/Reflection/Checkifthegivenobjectisanarrayprimitveornative.htm
-     *
-     * @param obj Object to test.
-     * @return True of the object is an array.
-     */
-    public static boolean isArray(final Object obj) {
-        return (obj != null ? obj.getClass().isArray() : false);
-    }
-
-    public static boolean[] isArray(final Object[] objs) {
-        boolean[] is_array = new boolean[objs.length];
-        for (int i = 0; i < objs.length; i++) {
-            is_array[i] = ClassUtil.isArray(objs[i]);
-        }
-        return (is_array);
-    }
-
-    /**
-     * Convert a Enum array to a Field array
-     * This assumes that the name of each Enum element corresponds to a data member in the clas
-     *
-     * @param <E>
-     * @param clazz
-     * @param members
-     * @return
-     * @throws NoSuchFieldException
-     */
-    public static <E extends Enum<?>> Field[] getFieldsFromMembersEnum(Class<?> clazz, E[] members) throws NoSuchFieldException {
-        Field[] fields = new Field[members.length];
-        for (int i = 0; i < members.length; i++) {
-            fields[i] = clazz.getDeclaredField(members[i].name().toLowerCase());
-        }
-        return (fields);
-    }
 
     /**
      * Get the generic types for the given field
@@ -106,7 +67,6 @@ public abstract class ClassUtil {
                 getGenericTypesImpl(next, classes);
             }
         }
-        return;
     }
 
     /**
@@ -140,16 +100,6 @@ public abstract class ClassUtil {
     public static Collection<Class<?>> getInterfaces(Class<?> element_class) {
         Set<Class<?>> ret = ClassUtil.CACHE_getInterfaceClasses.get(element_class);
         if (ret == null) {
-//            ret = new HashSet<Class<?>>();
-//            Queue<Class<?>> queue = new LinkedList<Class<?>>();
-//            queue.add(element_class);
-//            while (!queue.isEmpty()) {
-//                Class<?> current = queue.poll();
-//                for (Class<?> i : current.getInterfaces()) {
-//                    ret.add(i);
-//                    queue.add(i);
-//                }
-//            }
             ret = new HashSet<Class<?>>(ClassUtils.getAllInterfaces(element_class));
             if (element_class.isInterface()) {
                 ret.add(element_class);
@@ -167,12 +117,6 @@ public abstract class ClassUtil {
 
 
     public static <T> T newInstance(Class<T> target_class, Object[] params, Class<?>[] classes) {
-//        Class<?> const_params[] = new Class<?>[params.length];
-//        for (int i = 0; i < params.length; i++) {
-//            const_params[i] = params[i].getClass();
-//            System.err.println("[" + i + "] " + params[i] + " " + params[i].getClass());
-//        }
-
         Constructor<T> constructor = ClassUtil.getConstructor(target_class, classes);
         T ret = null;
         try {
@@ -238,35 +182,6 @@ public abstract class ClassUtil {
     }
 
     /**
-     * Create an object for the given class and initialize it from conf
-     *
-     * @param theClass class of which an object is created
-     * @param expected the expected parent class or interface
-     * @return a new object
-     */
-    public static <T> T newInstance(Class<?> theClass, Class<T> expected) {
-        T result;
-        try {
-            if (!expected.isAssignableFrom(theClass)) {
-                throw new Exception("Specified class " + theClass.getName() + "" +
-                        "does not extend/implement " + expected.getName());
-            }
-            Class<? extends T> clazz = (Class<? extends T>) theClass;
-            Constructor<? extends T> meth = clazz.getDeclaredConstructor(EMPTY_ARRAY);
-            meth.setAccessible(true);
-            result = meth.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return result;
-    }
-
-    public static <T> T newInstance(String className, Class<T> expected)
-            throws ClassNotFoundException {
-        return newInstance(getClass(className), expected);
-    }
-
-    /**
      * @param class_name
      * @return
      */
@@ -282,17 +197,4 @@ public abstract class ClassUtil {
 
     }
 
-    /**
-     * Returns true if asserts are enabled. This assumes that
-     * we're always using the default system ClassLoader
-     */
-    public static boolean isAssertsEnabled() {
-        boolean ret = false;
-        try {
-
-        } catch (AssertionError ex) {
-            ret = true;
-        }
-        return (ret);
-    }
 }

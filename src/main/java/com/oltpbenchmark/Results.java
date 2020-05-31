@@ -144,15 +144,6 @@ public final class Results {
         }
     }
 
-    public void writeAllCSV(PrintStream out) {
-        long startNs = latencySamples.get(0).startNs;
-        out.println("transaction type (index in config file), start time (microseconds),latency (microseconds)");
-        for (Sample s : latencySamples) {
-            long startUs = (s.startNs - startNs + 500) / 1000;
-            out.println(s.tranType + "," + startUs + "," + s.latencyUs);
-        }
-    }
-
     public void writeAllCSVAbsoluteTiming(List<TransactionType> activeTXTypes, PrintStream out) {
 
         // This is needed because nanTime does not guarantee offset... we

@@ -39,15 +39,13 @@ public final class BenchmarkState {
     }
 
     private final CountDownLatch startBarrier;
-    private AtomicInteger notDoneCount;
+    private final AtomicInteger notDoneCount;
 
     // Protected by this
 
     /**
      * @param numThreads  number of threads involved in the test: including the
      *                    master thread.
-     * @param rateLimited
-     * @param queueLimit
      */
     public BenchmarkState(int numThreads) {
         startBarrier = new CountDownLatch(numThreads);

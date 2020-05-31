@@ -22,17 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * @author pavlo
  */
 public abstract class FileUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
-
-    private static final Pattern EXT_SPLIT = Pattern.compile("\\.");
 
 
     /**
@@ -61,32 +56,6 @@ public abstract class FileUtil {
         return (new File(path).exists());
     }
 
-    public static String realpath(String path) {
-        File f = new File(path);
-        String ret = null;
-        try {
-            ret = f.getCanonicalPath();
-        } catch (Exception ex) {
-            LOG.warn(ex.getMessage(), ex);
-        }
-        return (ret);
-    }
-
-    public static String basename(String path) {
-        return (new File(path)).getName();
-    }
-
-    public static String getExtension(File f) {
-        if (f != null && f.isFile()) {
-            String[] parts = EXT_SPLIT.split(f.getName());
-            if (parts.length > 1) {
-                return (parts[parts.length - 1]);
-            }
-        }
-        return (null);
-
-    }
-
     /**
      * Create any directory in the list paths if it doesn't exist
      *
@@ -98,120 +67,17 @@ public abstract class FileUtil {
                 continue;
             }
             File f = new File(p);
-            if (f.exists() == false) {
+            if (!f.exists()) {
                 f.mkdirs();
             }
         }
     }
 
-    /**
-     * Return a File handle to a temporary file location
-     *
-     * @param ext          the suffix of the filename
-     * @param deleteOnExit whether to delete this file after the JVM exits
-     * @return
-     */
-    public static File getTempFile(String ext, boolean deleteOnExit) {
-        return getTempFile(null, ext, deleteOnExit);
-    }
-
-    public static File getTempFile(String ext) {
-        return (FileUtil.getTempFile(null, ext, false));
-    }
-
-    public static File getTempFile(String prefix, String suffix, boolean deleteOnExit) {
-        File tempFile;
-        if (suffix != null && suffix.startsWith(".") == false) {
-            suffix = "." + suffix;
-        }
-        if (prefix == null) {
-            prefix = "hstore";
-        }
-
-        try {
-            tempFile = File.createTempFile(prefix, suffix);
-            if (deleteOnExit) {
-                tempFile.deleteOnExit();
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-        return (tempFile);
-    }
-
-    /**
-     * Unsafely create a temporary directory Yes I said that this was unsafe. I
-     * don't care...
-     *
-     * @return
-     */
-    public static File getTempDirectory() {
-        final File temp = FileUtil.getTempFile(null);
-        if (!(temp.delete())) {
-            throw new RuntimeException("Could not delete temp file: " + temp.getAbsolutePath());
-        } else if (!(temp.mkdir())) {
-            throw new RuntimeException("Could not create temp directory: " + temp.getAbsolutePath());
-        }
-        return (temp);
-    }
-
-    public static File writeStringToFile(String file_path, String content) throws IOException {
-        return (FileUtil.writeStringToFile(new File(file_path), content));
-    }
-
-    public static File writeStringToFile(File file, String content) throws IOException {
+    public static void writeStringToFile(File file, String content) throws IOException {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(content);
             writer.flush();
         }
-        return (file);
-    }
-
-    /**
-     * Write the given string to a temporary file Will not delete the file after
-     * the JVM exits
-     *
-     * @param content
-     * @return
-     */
-    public static File writeStringToTempFile(String content) {
-        return (writeStringToTempFile(content, "tmp", false));
-    }
-
-    /**
-     * Write the given string to a temporary file with the given extension as
-     * the suffix Will not delete the file after the JVM exits
-     *
-     * @param content
-     * @param ext
-     * @return
-     */
-    public static File writeStringToTempFile(String content, String ext) {
-        return (writeStringToTempFile(content, ext, false));
-    }
-
-    /**
-     * Write the given string to a temporary file with the given extension as
-     * the suffix If deleteOnExit is true, then the file will be removed when
-     * the JVM exits
-     *
-     * @param content
-     * @param ext
-     * @param deleteOnExit
-     * @return
-     */
-    public static File writeStringToTempFile(String content, String ext, boolean deleteOnExit) {
-        File tempFile = FileUtil.getTempFile(ext, deleteOnExit);
-        try {
-            FileUtil.writeStringToFile(tempFile, content);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return tempFile;
-    }
-
-    public static String readFile(File path) {
-        return (readFile(path.getAbsolutePath()));
     }
 
     public static String readFile(String path) {
@@ -257,32 +123,6 @@ public abstract class FileUtil {
         return (in);
     }
 
-    public static byte[] readBytesFromFile(String path) throws IOException {
-        File file = new File(path);
-
-        long length = file.length();
-        byte[] bytes = new byte[(int) length];
-
-        try (FileInputStream in = new FileInputStream(file)) {
-
-            // Create the byte array to hold the data
-
-
-            LOG.debug("Reading in the contents of '{}'", file.getAbsolutePath());
-
-            // Read in the bytes
-            int offset = 0;
-            int numRead = 0;
-            while ((offset < bytes.length) && ((numRead = in.read(bytes, offset, bytes.length - offset)) >= 0)) {
-                offset += numRead;
-            }
-            if (offset < bytes.length) {
-                throw new IOException("Failed to read the entire contents of '" + file.getName() + "'");
-            }
-        }
-        return (bytes);
-    }
-
     /**
      * Find the path to a directory below our current location in the source
      * tree Throws a RuntimeException if we go beyond our repository checkout
@@ -295,19 +135,7 @@ public abstract class FileUtil {
         return (FileUtil.find(dirName, new File(".").getCanonicalFile(), true).getCanonicalFile());
     }
 
-    /**
-     * Find the path to a directory below our current location in the source
-     * tree Throws a RuntimeException if we go beyond our repository checkout
-     *
-     * @param dirName
-     * @return
-     * @throws IOException
-     */
-    public static File findFile(String fileName) throws IOException {
-        return (FileUtil.find(fileName, new File(".").getCanonicalFile(), false).getCanonicalFile());
-    }
-
-    private static final File find(String name, File current, boolean isdir) throws IOException {
+    private static File find(String name, File current, boolean isdir) throws IOException {
         LOG.debug("Find Current Location = {}", current);
         boolean has_svn = false;
         for (File file : current.listFiles()) {
@@ -326,23 +154,4 @@ public abstract class FileUtil {
         return (FileUtil.find(name, next, isdir));
     }
 
-    /**
-     * Returns a list of all the files in a directory whose name starts with the
-     * provided prefix
-     *
-     * @param dir
-     * @param filePrefix
-     * @return
-     * @throws IOException
-     */
-    public static List<File> getFilesInDirectory(final File dir, final String filePrefix) throws IOException {
-
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return (name.startsWith(filePrefix));
-            }
-        };
-        return (Arrays.asList(dir.listFiles(filter)));
-    }
 }

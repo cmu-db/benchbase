@@ -36,24 +36,16 @@ public enum DatabaseType {
      * (3) Should SQLUtil.getInsertSQL include col names
      * (4) Does this DBMS support "real" transactions?
      */
-    MYSQL("com.mysql.cj.jdbc.Driver", true, false),
-    POSTGRES("org.postgresql.Driver", false, false),
-    HSQLDB("org.hsqldb.jdbcDriver", false, false),
-    COCKROACHDB("org.postgresql.Driver", false, false);
+    MYSQL(true, false),
+    POSTGRES(false, false),
+    HSQLDB(false, false),
+    COCKROACHDB(false, false);
 
-    private DatabaseType(String driver,
-                         boolean escapeNames,
-                         boolean includeColNames) {
-        this.driver = driver;
+    DatabaseType(boolean escapeNames,
+                 boolean includeColNames) {
         this.escapeNames = escapeNames;
         this.includeColNames = includeColNames;
     }
-
-    /**
-     * This is the suggested driver string to use in the configuration xml
-     * This corresponds to the <B>'driver'</b> attribute.
-     */
-    private final String driver;
 
     /**
      * If this flag is set to true, then the framework will escape names in
@@ -71,15 +63,6 @@ public enum DatabaseType {
     // ---------------------------------------------------------------
     // ACCESSORS
     // ----------------------------------------------------------------
-
-    /**
-     * Returns the suggested driver string to use for the given database type
-     *
-     * @return
-     */
-    public String getSuggestedDriver() {
-        return (this.driver);
-    }
 
     /**
      * Returns true if the framework should escape the names of columns/tables when
@@ -117,7 +100,6 @@ public enum DatabaseType {
     }
 
     public static DatabaseType get(String name) {
-        DatabaseType ret = DatabaseType.name_lookup.get(name.toUpperCase());
-        return (ret);
+        return (DatabaseType.name_lookup.get(name.toUpperCase()));
     }
 }

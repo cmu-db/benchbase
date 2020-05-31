@@ -36,7 +36,7 @@ public class TraceReader {
     private static final Logger LOG = LoggerFactory.getLogger(TraceReader.class);
 
     // POD for tracking submitted/read procedures.
-    private class TraceElement {
+    private static class TraceElement {
         int txnId;
         int phaseId;
         long startTimeNs;
@@ -48,8 +48,7 @@ public class TraceReader {
         }
     }
 
-    private LinkedList<TraceElement> tracedProcedures = new LinkedList<>();
-    private String tracefileName;
+    private final LinkedList<TraceElement> tracedProcedures = new LinkedList<>();
     private int currentPhaseId;
     private long phaseStartTime;
     private boolean phaseComplete;
@@ -134,8 +133,6 @@ public class TraceReader {
 
     /**
      * Returns a list of procedures that should be submitted to the work queue.
-     *
-     * @throws IncompletePhaseException
      */
     public LinkedList<SubmittedProcedure> getProcedures(long nowNs) {
         long timeSincePhaseStart = nowNs - phaseStartTime;

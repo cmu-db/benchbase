@@ -18,30 +18,17 @@
 
 package com.oltpbenchmark.util;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
-@SuppressWarnings("serial")
 public class RandomGenerator extends Random {
 
     /**
      * Constructor
      *
-     * @param rand
+     * @param seed
      */
     public RandomGenerator(int seed) {
         super(seed);
-    }
-
-    public Set<Integer> getRandomIntSet(int cnt, int max) {
-
-        Set<Integer> ret = new HashSet<>();
-        do {
-            ret.add(this.nextInt(max));
-        }
-        while (ret.size() < cnt);
-        return (ret);
     }
 
     /**
@@ -82,57 +69,6 @@ public class RandomGenerator extends Random {
 
 
         return val;
-    }
-
-    /**
-     * @param minimum
-     * @param maximum
-     * @param excluding
-     * @returns an int in the range [minimum, maximum], excluding excluding.
-     */
-    public int numberExcluding(int minimum, int maximum, int excluding) {
-
-
-        // Generate 1 less number than the range
-        int num = number(minimum, maximum - 1);
-
-        // Adjust the numbers to remove excluding
-        if (num >= excluding) {
-            num += 1;
-        }
-
-        return num;
-    }
-
-    /**
-     * Returns a random int in a skewed gaussian distribution of the range
-     * Note that the range is inclusive
-     * A skew factor of 0.0 means that it's a uniform distribution
-     * The greater the skew factor the higher the probability the selected random
-     * value will be closer to the mean of the range
-     *
-     * @param minimum    the minimum random number
-     * @param maximum    the maximum random number
-     * @param skewFactor the factor to skew the stddev of the gaussian distribution
-     */
-    public int numberSkewed(int minimum, int maximum, double skewFactor) {
-        // Calling number() when the skewFactor is zero will likely be faster
-        // than using our Gaussian distribution method below 
-        if (skewFactor == 0) {
-            return (this.number(minimum, maximum));
-        }
-
-
-        int range_size = maximum - minimum + 1;
-        int mean = range_size / 2;
-        double stddev = range_size - ((range_size / 1.1) * skewFactor);
-        int value = -1;
-        while (value < 0 || value >= range_size) {
-            value = (int) Math.round(this.nextGaussian() * stddev) + mean;
-        }
-        value += minimum;
-
-        return value;
     }
 
     /**

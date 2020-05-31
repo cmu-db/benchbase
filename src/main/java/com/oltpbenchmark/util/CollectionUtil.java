@@ -57,7 +57,6 @@ public abstract class CollectionUtil {
                 array[i] = t;
             }
         }
-        return;
     }
 
     /**

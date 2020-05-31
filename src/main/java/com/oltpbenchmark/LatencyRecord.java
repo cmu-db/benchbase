@@ -134,12 +134,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
             }
 
 
-            if (subIndex < nextIndex) {
-                return true;
-            }
-
-
-            return false;
+            return subIndex < nextIndex;
         }
 
         @Override

@@ -61,10 +61,6 @@ public class RandomDistribution {
             this.history = new Histogram<>();
         }
 
-        public boolean isHistoryEnabled() {
-            return (this.history != null);
-        }
-
         /**
          * Return the histogram of the values that have been generated
          *
@@ -75,22 +71,8 @@ public class RandomDistribution {
             return (this.history);
         }
 
-        /**
-         * Return the count for the number of values that have been generated
-         * Only works if history tracking is enabled
-         *
-         * @return
-         */
-        public long getSampleCount() {
-            return (this.history.getSampleCount());
-        }
-
         public long getRange() {
             return this.range_size;
-        }
-
-        public double getMean() {
-            return this.mean;
         }
 
         public long getMin() {
@@ -103,34 +85,6 @@ public class RandomDistribution {
 
         public Random getRandom() {
             return (this.random);
-        }
-
-        public Set<Integer> getRandomIntSet(int cnt) {
-
-            Set<Integer> ret = new HashSet<>();
-            do {
-                ret.add(this.nextInt());
-            }
-            while (ret.size() < cnt);
-            return (ret);
-        }
-
-        public Set<Integer> getRandomLongSet(int cnt) {
-
-            Set<Integer> ret = new HashSet<>();
-            do {
-                ret.add(this.nextInt());
-            }
-            while (ret.size() < cnt);
-            return (ret);
-        }
-
-        public double calculateMean(int num_samples) {
-            long total = 0L;
-            for (int i = 0; i < num_samples; i++) {
-                total += this.nextLong();
-            }
-            return (total / (double) num_samples);
         }
 
         /**
@@ -222,7 +176,6 @@ public class RandomDistribution {
     public static class FlatHistogram<T> extends DiscreteRNG {
         private static final long serialVersionUID = 1L;
         private final Flat inner;
-        private final Histogram<T> histogram;
         private final SortedMap<Long, T> value_rle = new TreeMap<>();
         private Histogram<T> history;
 
@@ -231,12 +184,11 @@ public class RandomDistribution {
          */
         public FlatHistogram(Random random, Histogram<T> histogram) {
             super(random, 0, histogram.getSampleCount());
-            this.histogram = histogram;
             this.inner = new Flat(random, 0, histogram.getSampleCount());
 
             long total = 0;
-            for (T k : this.histogram.values()) {
-                long v = this.histogram.get(k);
+            for (T k : histogram.values()) {
+                long v = histogram.get(k);
                 total += v;
                 this.value_rle.put(total, k);
             }
@@ -247,10 +199,6 @@ public class RandomDistribution {
             this.history = new Histogram<>();
         }
 
-        @Override
-        public boolean isHistoryEnabled() {
-            return (this.history != null);
-        }
 
         public Histogram<T> getHistogramHistory() {
             if (this.history != null) {
@@ -400,77 +348,4 @@ public class RandomDistribution {
         }
     }
 
-    /**
-     * Binomial distribution.
-     * <p>
-     * P(k)=select(n, k)*p^k*(1-p)^(n-k) (k = 0, 1, ..., n)
-     * <p>
-     * P(k)=select(max-min-1, k-min)*p^(k-min)*(1-p)^(k-min)*(1-p)^(max-k-1)
-     */
-    public static final class Binomial extends DiscreteRNG {
-        private static final long serialVersionUID = 1L;
-        private final double[] v;
-        private final long n;
-
-        private static double select(long n, long k) {
-            double ret = 1.0;
-            for (long i = k + 1; i <= n; ++i) {
-                ret *= (double) i / (i - k);
-            }
-            return ret;
-        }
-
-        private static double power(double p, long k) {
-            return Math.exp(k * Math.log(p));
-        }
-
-        /**
-         * Generate random integers from min (inclusive) to max (exclusive)
-         * following Binomial distribution.
-         *
-         * @param random The basic random number generator.
-         * @param min    Minimum integer
-         * @param max    maximum integer (exclusive).
-         * @param p      parameter.
-         */
-        public Binomial(Random random, long min, long max, double p) {
-            super(random, min, max);
-            this.n = max - min - 1;
-            if (n > 0) {
-                v = new double[(int) n + 1];
-                double sum = 0.0;
-                for (int i = 0; i <= n; ++i) {
-                    sum += select(n, i) * power(p, i) * power(1 - p, n - i);
-                    v[i] = sum;
-                }
-                for (int i = 0; i <= n; ++i) {
-                    v[i] /= sum;
-                }
-            } else {
-                v = null;
-            }
-        }
-
-        /**
-         * @see DiscreteRNG#nextInt()
-         */
-        @Override
-        protected long nextLongImpl() {
-            if (v == null) {
-                return min;
-            }
-            double d = random.nextDouble();
-            int idx = Arrays.binarySearch(v, d);
-            if (idx > 0) {
-                ++idx;
-            } else {
-                idx = -(idx + 1);
-            }
-
-            if (idx >= v.length) {
-                idx = v.length - 1;
-            }
-            return idx + min;
-        }
-    }
 }

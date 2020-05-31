@@ -18,11 +18,9 @@
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.types.State;
-import com.oltpbenchmark.util.QueueLimitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,22 +36,20 @@ public class WorkloadState {
     private static final int RATE_QUEUE_LIMIT = 10000;
     private static final Logger LOG = LoggerFactory.getLogger(WorkloadState.class);
 
-    private LinkedList<SubmittedProcedure> workQueue = new LinkedList<>();
-    private BenchmarkState benchmarkState;
+    private final BenchmarkState benchmarkState;
+    private final LinkedList<SubmittedProcedure> workQueue = new LinkedList<>();
+    private final int num_terminals;
+    private final Iterator<Phase> phaseIterator;
+    private final TraceReader traceReader;
+
     private int workersWaiting = 0;
     private int workersWorking = 0;
-    private int num_terminals;
     private int workerNeedSleep;
 
-    private List<Phase> works = new ArrayList<>();
-    private Iterator<Phase> phaseIterator;
     private Phase currentPhase = null;
-    private long phaseStartNs = 0;
-    private TraceReader traceReader = null;
 
     public WorkloadState(BenchmarkState benchmarkState, List<Phase> works, int num_terminals, TraceReader traceReader) {
         this.benchmarkState = benchmarkState;
-        this.works = works;
         this.num_terminals = num_terminals;
         this.workerNeedSleep = num_terminals;
         this.traceReader = traceReader;
@@ -64,9 +60,8 @@ public class WorkloadState {
     /**
      * Add a request to do work.
      *
-     * @throws QueueLimitException
      */
-    public void addToQueue(int amount, boolean resetQueues) throws QueueLimitException {
+    public void addToQueue(int amount, boolean resetQueues) {
         synchronized (this) {
             if (resetQueues) {
                 workQueue.clear();
@@ -95,7 +90,7 @@ public class WorkloadState {
             }
 
             // Wake up sleeping workers to deal with the new work.
-            int numToWake = (amount <= workersWaiting ? amount : workersWaiting);
+            int numToWake = Math.min(amount, workersWaiting);
             for (int i = 0; i < numToWake; ++i) {
                 this.notify();
             }

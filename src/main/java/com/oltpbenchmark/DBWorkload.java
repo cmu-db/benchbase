@@ -276,7 +276,6 @@ public class DBWorkload {
                 int rate = 1;
                 boolean rateLimited = true;
                 boolean disabled = false;
-                boolean serial = false;
                 boolean timed;
 
                 // can be "disabled", "unlimited" or a number
@@ -310,15 +309,7 @@ public class DBWorkload {
 
                 // We now have the option to run all queries exactly once in
                 // a serial (rather than random) order.
-                String serial_string = work.getString("serial", "false");
-                if (serial_string.equals("true")) {
-                    serial = true;
-                } else if (serial_string.equals("false")) {
-                    serial = false;
-                } else {
-                    LOG.error("Serial string should be either 'true' or 'false'.");
-                    System.exit(-1);
-                }
+                boolean serial = Boolean.getBoolean(work.getString("serial", Boolean.FALSE.toString()));
 
                 // We're not actually serial if we're running a script, so make
                 // sure to suppress the serial flag in this case.
@@ -596,7 +587,7 @@ public class DBWorkload {
         bench.loadDatabase();
     }
 
-    private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor) throws QueueLimitException, IOException {
+    private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor) throws IOException {
         List<Worker<?>> workers = new ArrayList<>();
         List<WorkloadConfiguration> workConfs = new ArrayList<>();
         for (BenchmarkModule bench : benchList) {

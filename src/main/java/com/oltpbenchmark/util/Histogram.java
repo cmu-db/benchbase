@@ -114,23 +114,6 @@ public class Histogram<X> implements JSONSerializable {
         return (false);
     }
 
-    /**
-     * Helper method used for replacing the object's toString() output with labels
-     *
-     * @param names_map
-     */
-    public Histogram<X> setDebugLabels(Map<?, String> names_map) {
-        if (this.debug_names == null) {
-            synchronized (this) {
-                if (this.debug_names == null) {
-                    this.debug_names = new HashMap<>();
-                }
-            }
-        }
-        this.debug_names.putAll(names_map);
-        return (this);
-    }
-
     public boolean hasDebugLabels() {
         return (this.debug_names != null && this.debug_names.isEmpty() == false);
     }
@@ -163,10 +146,6 @@ public class Histogram<X> implements JSONSerializable {
             }
         }
         this.keep_zero_entries = flag;
-    }
-
-    public boolean isZeroEntriesEnabled() {
-        return this.keep_zero_entries;
     }
 
     /**
@@ -204,7 +183,7 @@ public class Histogram<X> implements JSONSerializable {
      */
 
     private synchronized void calculateInternalValues() {
-        if (this.dirty == false) {
+        if (!this.dirty) {
             return;
         }
 
