@@ -30,10 +30,7 @@ import com.oltpbenchmark.util.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,18 +48,6 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
         this.registerSupplementalProcedure(LoadConfig.class);
         this.registerSupplementalProcedure(CloseAuctions.class);
         this.registerSupplementalProcedure(ResetDatabase.class);
-    }
-
-    public File getDataDir() {
-        URL url = AuctionMarkBenchmark.class.getResource("data");
-        if (url != null) {
-            try {
-                return new File(url.toURI().getPath());
-            } catch (URISyntaxException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
-        return (null);
     }
 
     public RandomGenerator getRandomGenerator() {

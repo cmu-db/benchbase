@@ -227,7 +227,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         /**
          * Constructor
          *
-         * @param weight    The execution frequency weight for this txn
+         * @param procClass
          * @param generator
          */
         private Transaction(Class<? extends Procedure> procClass, AuctionMarkParamGenerator generator) {
@@ -284,7 +284,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     /**
      * Constructor
      *
-     * @param args
+     * @param id
+     * @param benchmark
      */
     public AuctionMarkWorker(int id, AuctionMarkBenchmark benchmark) {
         super(benchmark, id);
@@ -297,10 +298,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } else {
             this.closeAuctions_checker = null;
         }
-    }
-
-    protected AuctionMarkProfile getProfile() {
-        return (this.profile);
     }
 
     @Override
@@ -408,9 +405,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
      * row of that table and update the benchmark profile based on item information
      * stored in that row.
      *
-     * @param vt
+     * @param row
      * @return
-     * @see AuctionMarkConstants.ITEM_COLUMNS
      * @see CloseAuctions
      * @see GetItem
      * @see GetUserInfo
@@ -418,7 +414,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
      * @see NewItem
      * @see NewPurchase
      */
-    @SuppressWarnings("unused")
     public ItemId processItemRecord(Object[] row) {
         int col = 0;
         ItemId i_id = new ItemId(SQLUtil.getLong(row[col++]));  // i_id
