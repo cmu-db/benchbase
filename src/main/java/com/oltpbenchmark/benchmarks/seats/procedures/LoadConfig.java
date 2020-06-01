@@ -20,10 +20,13 @@ package com.oltpbenchmark.benchmarks.seats.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
+import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class LoadConfig extends Procedure {
 
@@ -58,16 +61,50 @@ public class LoadConfig extends Procedure {
                     " LIMIT " + SEATSConstants.CACHE_LIMIT_FLIGHT_IDS
     );
 
-    public ResultSet[] run(Connection conn) throws SQLException {
-        ResultSet[] results = new ResultSet[6];
-        int result_idx = 0;
+    public Config run(Connection conn) throws SQLException {
 
-        results[result_idx++] = this.getPreparedStatement(conn, getConfigProfile).executeQuery();
-        results[result_idx++] = this.getPreparedStatement(conn, getConfigHistogram).executeQuery();
-        results[result_idx++] = this.getPreparedStatement(conn, getCountryCodes).executeQuery();
-        results[result_idx++] = this.getPreparedStatement(conn, getAirportCodes).executeQuery();
-        results[result_idx++] = this.getPreparedStatement(conn, getAirlineCodes).executeQuery();
-        results[result_idx++] = this.getPreparedStatement(conn, getFlights).executeQuery();
-        return (results);
+        List<Object[]> configProfile;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigProfile)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                configProfile = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> histogram;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigHistogram)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                histogram = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> countryCodes;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getCountryCodes)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                countryCodes = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> airportCodes;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getAirportCodes)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                airportCodes = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> airlineCodes;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getAirlineCodes)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                airlineCodes = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> flights;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getFlights)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                flights = SQLUtil.toList(resultSet);
+            }
+        }
+
+        return new Config(configProfile, histogram, countryCodes, airportCodes, airlineCodes, flights);
     }
 }
