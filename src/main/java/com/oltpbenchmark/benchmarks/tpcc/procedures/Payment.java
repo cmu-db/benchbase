@@ -283,7 +283,7 @@ public class Payment extends TPCCProcedure {
             if (LOG.isTraceEnabled()) {
                 StringBuilder terminalMessage = new StringBuilder();
                 terminalMessage.append("\n+---------------------------- PAYMENT ----------------------------+");
-                terminalMessage.append("\n Date: " + TPCCUtil.getCurrentTime());
+                terminalMessage.append("\n Date: ").append(TPCCUtil.getCurrentTime());
                 terminalMessage.append("\n\n Warehouse: ");
                 terminalMessage.append(w_id);
                 terminalMessage.append("\n   Street:  ");
@@ -346,13 +346,13 @@ public class Payment extends TPCCProcedure {
                 terminalMessage.append(c.c_balance);
                 if (c.c_credit.equals("BC")) {
                     if (c_data.length() > 50) {
-                        terminalMessage.append("\n\n Cust-Data: " + c_data.substring(0, 50));
+                        terminalMessage.append("\n\n Cust-Data: ").append(c_data.substring(0, 50));
                         int data_chunks = c_data.length() > 200 ? 4 : c_data.length() / 50;
                         for (int n = 1; n < data_chunks; n++) {
-                            terminalMessage.append("\n            " + c_data.substring(n * 50, (n + 1) * 50));
+                            terminalMessage.append("\n            ").append(c_data.substring(n * 50, (n + 1) * 50));
                         }
                     } else {
-                        terminalMessage.append("\n\n Cust-Data: " + c_data);
+                        terminalMessage.append("\n\n Cust-Data: ").append(c_data);
                     }
                 }
                 terminalMessage.append("\n+-----------------------------------------------------------------+\n\n");
