@@ -19,8 +19,6 @@ package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,21 +27,13 @@ import java.sql.SQLException;
 
 public abstract class GenericQuery extends Procedure {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
-
     protected abstract SQLStmt get_query();
 
-    public ResultSet run(Connection conn) throws SQLException {
-
-
+    public void run(Connection conn) throws SQLException {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, get_query()); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 //do nothing
             }
         }
-
-        return null;
-
-
     }
 }

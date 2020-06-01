@@ -20,7 +20,6 @@ package com.oltpbenchmark.benchmarks.chbenchmark.queries;
 import com.oltpbenchmark.api.SQLStmt;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -61,18 +60,16 @@ public class Q15 extends GenericQuery {
         return query_stmt;
     }
 
-    public ResultSet run(Connection conn) throws SQLException {
+    public void run(Connection conn) throws SQLException {
         // With this query, we have to set up a view before we execute the
         // query, then drop it once we're done.
-        Statement stmt = conn.createStatement();
-        ResultSet ret = null;
-        try {
-            stmt.executeUpdate(createview_stmt.getSQL());
-            ret = super.run(conn);
-        } finally {
-            stmt.executeUpdate(dropview_stmt.getSQL());
+        try (Statement stmt = conn.createStatement()) {
+            try {
+                stmt.executeUpdate(createview_stmt.getSQL());
+                super.run(conn);
+            } finally {
+                stmt.executeUpdate(dropview_stmt.getSQL());
+            }
         }
-
-        return ret;
     }
 }
