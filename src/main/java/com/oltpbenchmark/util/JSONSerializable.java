@@ -25,11 +25,11 @@ import org.json.JSONStringer;
 import java.io.IOException;
 
 public interface JSONSerializable extends JSONString {
-    public void save(String output_path) throws IOException;
+    void save(String output_path) throws IOException;
 
-    public void load(String input_path) throws IOException;
+    void load(String input_path) throws IOException;
 
-    public void toJSON(JSONStringer stringer) throws JSONException;
+    void toJSON(JSONStringer stringer) throws JSONException;
 
-    public void fromJSON(JSONObject json_object) throws JSONException;
+    void fromJSON(JSONObject json_object) throws JSONException;
 }

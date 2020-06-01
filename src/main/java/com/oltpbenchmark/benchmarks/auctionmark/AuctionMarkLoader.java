@@ -66,7 +66,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
     private final Histogram<String> tableSizes = new Histogram<>();
 
-    private boolean fail = false;
+    private final boolean fail = false;
 
     // -----------------------------------------------------------------
     // INITIALIZATION
@@ -653,7 +653,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             return (this.populateRow(t, row, this.currentCounter));
         }
 
-        private final T getNext() {
+        private T getNext() {
             T last = this.current;
             if (this.current == null || this.currentCounter == 0) {
                 while (this.currentCounter == 0) {
@@ -828,7 +828,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      **********************************************************************************************/
     protected class GlobalAttributeValueGenerator extends AbstractTableGenerator {
 
-        private Histogram<GlobalAttributeGroupId> gag_counters = new Histogram<>(true);
+        private final Histogram<GlobalAttributeGroupId> gag_counters = new Histogram<>(true);
         private Iterator<GlobalAttributeGroupId> gag_iterator;
         private GlobalAttributeGroupId gag_current;
         private int gav_counter = -1;

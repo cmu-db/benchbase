@@ -112,7 +112,7 @@ public class FlightId extends CompositeId {
      * @param flight_date
      * @return
      */
-    protected static final int calculateFlightDate(Timestamp benchmark_start, Timestamp flight_date) {
+    protected static int calculateFlightDate(Timestamp benchmark_start, Timestamp flight_date) {
 
 
         return (int) ((flight_date.getTime() - benchmark_start.getTime()) / 3600000); // 60s * 60m * 1000

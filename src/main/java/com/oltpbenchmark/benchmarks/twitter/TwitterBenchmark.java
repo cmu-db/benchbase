@@ -37,7 +37,7 @@ import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
 
-    private TwitterConfiguration twitterConf;
+    private final TwitterConfiguration twitterConf;
 
     public TwitterBenchmark(WorkloadConfiguration workConf) {
         super(workConf, true);

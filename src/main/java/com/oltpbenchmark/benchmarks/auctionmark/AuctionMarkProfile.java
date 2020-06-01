@@ -398,7 +398,7 @@ public class AuctionMarkProfile {
 
     }
 
-    private final void initializeUserIdGenerator(int clientId) {
+    private void initializeUserIdGenerator(int clientId) {
 
 
         this.userIdGenerator = new UserIdGenerator(this.users_per_itemCount,
@@ -406,7 +406,7 @@ public class AuctionMarkProfile {
                 (clientId < 0 ? null : clientId));
     }
 
-    private static final void loadConfigProfile(AuctionMarkProfile profile, List<Object[]> vt) {
+    private static void loadConfigProfile(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
             profile.scale_factor = SQLUtil.getDouble(row[0]);
             profile.loaderStartTime = SQLUtil.getTimestamp(row[1]);
@@ -418,7 +418,7 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadItemCategoryCounts(AuctionMarkProfile profile, List<Object[]> vt) {
+    private static void loadItemCategoryCounts(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
             long i_c_id = SQLUtil.getLong(row[0]);
             int count = SQLUtil.getInteger(row[1]);
@@ -430,7 +430,7 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadItems(AuctionMarkProfile profile, List<Object[]> vt) {
+    private static void loadItems(AuctionMarkProfile profile, List<Object[]> vt) {
         int ctr = 0;
         for (Object[] row : vt) {
             ItemId i_id = new ItemId(SQLUtil.getLong(row[0]));
@@ -451,7 +451,7 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadPendingItemComments(AuctionMarkProfile profile, List<Object[]> vt) {
+    private static void loadPendingItemComments(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
             int col = 1;
             long ic_id = SQLUtil.getLong(row[0]);
@@ -466,7 +466,7 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadGlobalAttributeGroups(AuctionMarkProfile profile, List<Object[]> vt) {
+    private static void loadGlobalAttributeGroups(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
             long gag_id = SQLUtil.getLong(row[0]);
             profile.gag_ids.add(new GlobalAttributeGroupId(gag_id));

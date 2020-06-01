@@ -337,7 +337,7 @@ public class SEATSProfile {
         }
     }
 
-    private final void loadConfigProfile(List<Object[]> vt) {
+    private void loadConfigProfile(List<Object[]> vt) {
         for (Object[] row : vt) {
             this.scale_factor = SQLUtil.getDouble(row[0]);
             JSONUtil.fromJSONString(this.airport_max_customer_id, SQLUtil.getString(row[1]));
@@ -354,7 +354,7 @@ public class SEATSProfile {
         }
     }
 
-    private final void loadConfigHistograms(List<Object[]> vt) {
+    private void loadConfigHistograms(List<Object[]> vt) {
         for (Object[] row : vt) {
             String name = SQLUtil.getString(row[0]);
             Histogram<String> h = JSONUtil.fromJSONString(new Histogram<>(), SQLUtil.getString(row[1]));
@@ -377,7 +377,7 @@ public class SEATSProfile {
         }
     }
 
-    private final void loadCodeXref(List<Object[]> vt, String codeCol, String idCol) throws SQLException {
+    private void loadCodeXref(List<Object[]> vt, String codeCol, String idCol) throws SQLException {
         Map<String, Long> m = this.code_id_xref.get(idCol);
         for (Object[] row : vt) {
             long id = SQLUtil.getLong(row[0]);
@@ -389,7 +389,7 @@ public class SEATSProfile {
         }
     }
 
-    private final void loadCachedFlights(List<Object[]> vt) {
+    private void loadCachedFlights(List<Object[]> vt) {
         int limit = 1;
         Iterator<Object[]> iterator = vt.iterator();
         while (iterator.hasNext() && limit++ < SEATSConstants.CACHE_LIMIT_FLIGHT_IDS) {

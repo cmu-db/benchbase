@@ -34,7 +34,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 
 public class TwitterWorker extends Worker<TwitterBenchmark> {
-    private TransactionGenerator<TwitterOperation> generator;
+    private final TransactionGenerator<TwitterOperation> generator;
 
     private final FlatHistogram<Integer> tweet_len_rng;
     private final int num_users;

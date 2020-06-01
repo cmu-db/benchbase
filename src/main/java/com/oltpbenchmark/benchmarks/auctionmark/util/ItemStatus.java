@@ -30,7 +30,7 @@ public enum ItemStatus {
 
     private final boolean internal;
 
-    private ItemStatus(boolean internal) {
+    ItemStatus(boolean internal) {
         this.internal = internal;
     }
 

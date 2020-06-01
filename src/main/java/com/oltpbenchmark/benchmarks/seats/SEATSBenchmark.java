@@ -90,7 +90,7 @@ public class SEATSBenchmark extends BenchmarkModule {
      * @param catalog_tbl
      * @return
      */
-    public static final File getTableDataFile(File data_dir, Table catalog_tbl) {
+    public static File getTableDataFile(File data_dir, Table catalog_tbl) {
         File f = new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(), File.separator, catalog_tbl.getName().toLowerCase()));
 
         return (f);

@@ -35,7 +35,7 @@ import java.sql.SQLException;
 public class NoOpWorker extends Worker<NoOpBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(NoOpWorker.class);
 
-    private NoOp procNoOp;
+    private final NoOp procNoOp;
 
     public NoOpWorker(NoOpBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);

@@ -64,10 +64,10 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     /**
      * Airline Benchmark Transactions
      */
-    private static enum Transaction {
+    private enum Transaction {
         DeleteReservation(DeleteReservation.class), FindFlights(FindFlights.class), FindOpenSeats(FindOpenSeats.class), NewReservation(NewReservation.class), UpdateCustomer(UpdateCustomer.class), UpdateReservation(UpdateReservation.class);
 
-        private Transaction(Class<? extends Procedure> proc_class) {
+        Transaction(Class<? extends Procedure> proc_class) {
             this.proc_class = proc_class;
             this.execName = proc_class.getSimpleName();
             this.displayName = StringUtil.title(this.name().replace("_", " "));
@@ -113,7 +113,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         PENDING_INSERTS(SEATSConstants.CACHE_LIMIT_PENDING_INSERTS), PENDING_UPDATES(SEATSConstants.CACHE_LIMIT_PENDING_UPDATES), PENDING_DELETES(SEATSConstants.CACHE_LIMIT_PENDING_DELETES),
         ;
 
-        private CacheType(int limit) {
+        CacheType(int limit) {
             this.limit = limit;
         }
 

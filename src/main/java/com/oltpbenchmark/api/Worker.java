@@ -43,7 +43,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     private WorkloadState state;
     private LatencyRecord latencies;
-    private Statement currStatement;
+    private final Statement currStatement;
 
     // Interval requests used by the monitor
     private final AtomicInteger intervalRequests = new AtomicInteger(0);

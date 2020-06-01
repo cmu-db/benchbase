@@ -40,20 +40,20 @@ public class TATPWorker extends Worker<TATPBenchmark> {
      * Each Transaction element provides an TransactionInvoker to create the proper
      * arguments used to invoke the stored procedure
      */
-    private static interface TransactionInvoker<T extends Procedure> {
+    private interface TransactionInvoker<T extends Procedure> {
         /**
          * Generate the proper arguments used to invoke the given stored procedure
          *
          * @param subscriberSize
          * @return
          */
-        public void invoke(Connection conn, Procedure proc, long subscriberSize) throws SQLException;
+        void invoke(Connection conn, Procedure proc, long subscriberSize) throws SQLException;
     }
 
     /**
      * Set of transactions structs with their appropriate parameters
      */
-    public static enum Transaction {
+    public enum Transaction {
         DeleteCallForwarding(new TransactionInvoker<DeleteCallForwarding>() {
             public void invoke(Connection conn, Procedure proc, long subscriberSize) throws SQLException {
                 long s_id = TATPUtil.getSubscriberId(subscriberSize);
@@ -136,7 +136,7 @@ public class TATPWorker extends Worker<TATPBenchmark> {
         /**
          * Constructor
          */
-        private Transaction(TransactionInvoker<? extends Procedure> ag) {
+        Transaction(TransactionInvoker<? extends Procedure> ag) {
             this.generator = ag;
         }
 

@@ -984,7 +984,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         private int customer_idx = 0;
         private CustomerId last_customer_id = null;
-        private Collection<String> customer_airlines = new HashSet<>();
+        private final Collection<String> customer_airlines = new HashSet<>();
 
         public FrequentFlyerIterable(Table catalog_tbl, long num_customers) {
             super(catalog_tbl, num_customers, new int[]{0, 1, 2});
@@ -1196,7 +1196,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private final ListOrderedMap<Timestamp, Integer> flights_per_day = new ListOrderedMap<>();
 
         private int day_idx = 0;
-        private Timestamp today;
+        private final Timestamp today;
         private Timestamp start_date;
 
         private FlightId flight_id;

@@ -48,7 +48,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         super(benchmark);
     }
 
-    private static enum CastTypes {LONG, DOUBLE, STRING, DATE}
+    private enum CastTypes {LONG, DOUBLE, STRING, DATE}
 
     private static final Pattern isoFmt = Pattern.compile("^\\s*(\\d{4})-(\\d{2})-(\\d{2})\\s*$");
     private static final Pattern nondelimFmt = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");

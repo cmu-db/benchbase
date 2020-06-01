@@ -38,7 +38,7 @@ public enum ErrorType {
     private final String errorCode;
     private final static Pattern p = Pattern.compile("^(USER ABORT:[\\s]+)?E([\\d]{4})");
 
-    private ErrorType() {
+    ErrorType() {
         this.errorCode = String.format("E%04d", this.ordinal());
     }
 

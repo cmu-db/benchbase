@@ -117,7 +117,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
          * @param client
          * @return
          */
-        public boolean canGenerateParam(AuctionMarkWorker client);
+        boolean canGenerateParam(AuctionMarkWorker client);
     }
 
     // --------------------------------------------------------------------
@@ -222,7 +222,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
          * @param procClass
          * @param generator
          */
-        private Transaction(Class<? extends Procedure> procClass, AuctionMarkParamGenerator generator) {
+        Transaction(Class<? extends Procedure> procClass, AuctionMarkParamGenerator generator) {
             this.procClass = procClass;
             this.generator = generator;
         }

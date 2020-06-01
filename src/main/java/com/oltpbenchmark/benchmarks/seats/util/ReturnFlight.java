@@ -40,7 +40,7 @@ public class ReturnFlight implements Comparable<ReturnFlight> {
      * @param return_days
      * @return
      */
-    protected static final Timestamp calculateReturnDate(Timestamp flight_date, int return_days) {
+    protected static Timestamp calculateReturnDate(Timestamp flight_date, int return_days) {
 
         // Round this to the start of the day
         Calendar cal = Calendar.getInstance();

@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 
 public final class TPCCConfig {
 
-    public static enum TransactionType {
+    public enum TransactionType {
         INVALID, // Exists so the order is the same as the constants below
         NEW_ORDER, PAYMENT, ORDER_STATUS, DELIVERY, STOCK_LEVEL
     }
