@@ -7,4 +7,4 @@ Each directory has the following layout:
 * `{Prefix}Worker.java` - The Worker for this benchmark. It is provided a random TransactionType from the abstract Worker driver code and then invokes the proper procedure
 * `procedures` - The implementations for all of the transaction types in the benchmark.
 
-Benchmark specific `dialects` and `ddls` following files are stored in the `src/main/resources` directory.
+Benchmark specific `dialects` and `ddls` files are now stored in the `src/main/resources` directory.
