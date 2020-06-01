@@ -59,30 +59,38 @@ public class SendPayment extends Procedure {
 
     public void run(Connection conn, long sendAcct, long destAcct, double amount) throws SQLException {
         // Get Account Information
-        PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, sendAcct);
-        ResultSet r0 = stmt0.executeQuery();
-        if (r0.next() == false) {
-            String msg = "Invalid account '" + sendAcct + "'";
-            throw new UserAbortException(msg);
+        try (PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, sendAcct)) {
+            try (ResultSet r0 = stmt0.executeQuery()) {
+                if (!r0.next()) {
+                    String msg = "Invalid account '" + sendAcct + "'";
+                    throw new UserAbortException(msg);
+                }
+            }
         }
 
-        PreparedStatement stmt1 = this.getPreparedStatement(conn, GetAccount, destAcct);
-        ResultSet r1 = stmt1.executeQuery();
-        if (r1.next() == false) {
-            String msg = "Invalid account '" + destAcct + "'";
-            throw new UserAbortException(msg);
+        try (PreparedStatement stmt1 = this.getPreparedStatement(conn, GetAccount, destAcct)) {
+            try (ResultSet r1 = stmt1.executeQuery()) {
+                if (!r1.next()) {
+                    String msg = "Invalid account '" + destAcct + "'";
+                    throw new UserAbortException(msg);
+                }
+            }
         }
 
         // Get the sender's account balance
-        PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetCheckingBalance, sendAcct);
-        ResultSet balRes0 = balStmt0.executeQuery();
-        if (balRes0.next() == false) {
-            String msg = String.format("No %s for customer #%d",
-                    SmallBankConstants.TABLENAME_CHECKING,
-                    sendAcct);
-            throw new UserAbortException(msg);
+        double balance;
+
+        try (PreparedStatement balStmt0 = this.getPreparedStatement(conn, GetCheckingBalance, sendAcct)) {
+            try (ResultSet balRes0 = balStmt0.executeQuery()) {
+                if (!balRes0.next()) {
+                    String msg = String.format("No %s for customer #%d",
+                            SmallBankConstants.TABLENAME_CHECKING,
+                            sendAcct);
+                    throw new UserAbortException(msg);
+                }
+                balance = balRes0.getDouble(1);
+            }
         }
-        double balance = balRes0.getDouble(1);
 
         // Make sure that they have enough money
         if (balance < amount) {
@@ -92,11 +100,12 @@ public class SendPayment extends Procedure {
         }
 
         // Debt
-        PreparedStatement updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount * -1d, sendAcct);
-        int status = updateStmt.executeUpdate();
+        try (PreparedStatement updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount * -1d, sendAcct)) {
+            updateStmt.executeUpdate();
+        }
         // Credit
-        updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct);
-        status = updateStmt.executeUpdate();
-        return;
+        try (PreparedStatement updateStmt = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, destAcct)) {
+            updateStmt.executeUpdate();
+        }
     }
 }

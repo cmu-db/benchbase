@@ -55,17 +55,22 @@ public class DepositChecking extends Procedure {
 
     public void run(Connection conn, String custName, double amount) throws SQLException {
         // First convert the custName to the custId
-        PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName);
-        ResultSet r0 = stmt0.executeQuery();
-        if (r0.next() == false) {
-            String msg = "Invalid account '" + custName + "'";
-            throw new UserAbortException(msg);
+
+        long custId;
+
+        try (PreparedStatement stmt0 = this.getPreparedStatement(conn, GetAccount, custName)) {
+            try (ResultSet r0 = stmt0.executeQuery()) {
+                if (!r0.next()) {
+                    String msg = "Invalid account '" + custName + "'";
+                    throw new UserAbortException(msg);
+                }
+                custId = r0.getLong(1);
+            }
         }
-        long custId = r0.getLong(1);
 
         // Then update their checking balance
-        PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId);
-        int status = stmt1.executeUpdate();
-        return;
+        try (PreparedStatement stmt1 = this.getPreparedStatement(conn, UpdateCheckingBalance, amount, custId)) {
+            int status = stmt1.executeUpdate();
+        }
     }
 }

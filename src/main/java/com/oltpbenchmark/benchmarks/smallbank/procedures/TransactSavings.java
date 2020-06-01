@@ -60,26 +60,33 @@ public class TransactSavings extends Procedure {
 
     public void run(Connection conn, String custName, double amount) throws SQLException {
         // First convert the custName to the acctId
-        PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName);
-        ResultSet result = stmt.executeQuery();
-        if (result.next() == false) {
-            String msg = "Invalid account '" + custName + "'";
-            throw new UserAbortException(msg);
+        long custId;
+
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, GetAccount, custName)) {
+            try (ResultSet result = stmt.executeQuery()) {
+                if (!result.next()) {
+                    String msg = "Invalid account '" + custName + "'";
+                    throw new UserAbortException(msg);
+                }
+                custId = result.getLong(1);
+            }
         }
-        long custId = result.getLong(1);
-        result.close();
 
         // Get Balance Information
-        stmt = this.getPreparedStatement(conn, GetSavingsBalance, custId);
-        result = stmt.executeQuery();
-        if (result.next() == false) {
-            String msg = String.format("No %s for customer #%d",
-                    SmallBankConstants.TABLENAME_SAVINGS,
-                    custId);
-            throw new UserAbortException(msg);
+
+        double balance;
+
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, GetSavingsBalance, custId)) {
+            try (ResultSet result = stmt.executeQuery()) {
+                if (!result.next()) {
+                    String msg = String.format("No %s for customer #%d",
+                            SmallBankConstants.TABLENAME_SAVINGS,
+                            custId);
+                    throw new UserAbortException(msg);
+                }
+                balance = result.getDouble(1) - amount;
+            }
         }
-        double balance = result.getDouble(1) - amount;
-        result.close();
 
         // Make sure that they have enough
         if (balance < 0) {
@@ -90,8 +97,8 @@ public class TransactSavings extends Procedure {
         }
 
         // Then update their savings balance
-        stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId);
-        int status = stmt.executeUpdate();
-        return;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateSavingsBalance, amount, custId)) {
+            int status = stmt.executeUpdate();
+        }
     }
 }
