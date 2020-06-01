@@ -309,7 +309,7 @@ public class DBWorkload {
 
                 // We now have the option to run all queries exactly once in
                 // a serial (rather than random) order.
-                boolean serial = Boolean.getBoolean(work.getString("serial", Boolean.FALSE.toString()));
+                boolean serial = Boolean.parseBoolean(work.getString("serial", Boolean.FALSE.toString()));
 
                 // We're not actually serial if we're running a script, so make
                 // sure to suppress the serial flag in this case.
