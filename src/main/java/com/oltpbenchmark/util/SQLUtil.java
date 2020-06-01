@@ -67,6 +67,24 @@ public abstract class SQLUtil {
         return (null);
     }
 
+    public static Integer getInteger(Object obj) {
+        if (obj == null) {
+            return (null);
+        }
+
+        if (obj instanceof Integer) {
+            return (Integer) obj;
+        } else if (obj instanceof Long) {
+            return ((Long) obj).intValue();
+        } else if (obj instanceof BigDecimal) {
+            return ((BigDecimal) obj).intValue();
+        }
+
+        LOG.warn("BAD BAD BAD: returning null because getInteger does not support {}", obj.getClass());
+
+        return (null);
+    }
+
     /**
      * Return a double from the given object
      * Handles the different cases from the various DBMSs
@@ -88,6 +106,20 @@ public abstract class SQLUtil {
         }
 
         LOG.warn("BAD BAD BAD: returning null because getDouble does not support {}", obj.getClass());
+
+        return (null);
+    }
+
+    public static String getString(Object obj) {
+        if (obj == null) {
+            return (null);
+        }
+
+        if (obj instanceof String) {
+            return (String) obj;
+        }
+
+        LOG.warn("BAD BAD BAD: returning null because getString does not support {}", obj.getClass());
 
         return (null);
     }

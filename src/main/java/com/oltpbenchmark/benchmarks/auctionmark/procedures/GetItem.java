@@ -61,7 +61,6 @@ public class GetItem extends Procedure {
         try (PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id)) {
             try (ResultSet item_results = item_stmt.executeQuery()) {
                 if (!item_results.next()) {
-                    item_results.close();
                     throw new UserAbortException("Invalid item " + item_id);
                 }
                 item_row = SQLUtil.getRowAsArray(item_results);

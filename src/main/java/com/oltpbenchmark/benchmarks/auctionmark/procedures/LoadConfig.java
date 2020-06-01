@@ -21,12 +21,12 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LoadConfig extends Procedure {
@@ -76,26 +76,61 @@ public class LoadConfig extends Procedure {
     // RUN
     // -----------------------------------------------------------------
 
-    public ResultSet[] run(Connection conn) throws SQLException {
-        PreparedStatement stmt = null;
+    public Config run(Connection conn) throws SQLException {
 
-        List<ResultSet> results = new ArrayList<>();
-        results.add(this.getPreparedStatement(conn, getConfigProfile).executeQuery());
-        results.add(this.getPreparedStatement(conn, getCategoryCounts).executeQuery());
-        results.add(this.getPreparedStatement(conn, getAttributes).executeQuery());
-        results.add(this.getPreparedStatement(conn, getPendingComments).executeQuery());
 
-        for (ItemStatus status : ItemStatus.values()) {
-            if (status.isInternal()) {
-                continue;
+        List<Object[]> configProfile;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getConfigProfile)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                configProfile = SQLUtil.toList(resultSet);
             }
-            // We have to create a new PreparedStatement to make sure that
-            // the ResultSets don't get closed if we reuse the stmt handle
-            stmt = conn.prepareStatement((status == ItemStatus.OPEN ? getFutureItems : getPastItems).getSQL());
-            stmt.setLong(1, status.ordinal());
-            results.add(stmt.executeQuery());
         }
 
-        return (results.toArray(new ResultSet[0]));
+        List<Object[]> categoryCounts;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getCategoryCounts)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                categoryCounts = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> attribtes;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getAttributes)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                attribtes = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> pendingComments;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getPendingComments)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                pendingComments = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> openItems;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getFutureItems)) {
+            preparedStatement.setLong(1, ItemStatus.OPEN.ordinal());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                openItems = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> waiting;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getPastItems)) {
+            preparedStatement.setLong(1, ItemStatus.WAITING_FOR_PURCHASE.ordinal());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                waiting = SQLUtil.toList(resultSet);
+            }
+        }
+
+        List<Object[]> closedItems;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getPastItems)) {
+            preparedStatement.setLong(1, ItemStatus.CLOSED.ordinal());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                closedItems = SQLUtil.toList(resultSet);
+            }
+        }
+
+        return new Config(configProfile, categoryCounts, attribtes, pendingComments, openItems, waiting, closedItems);
     }
 }

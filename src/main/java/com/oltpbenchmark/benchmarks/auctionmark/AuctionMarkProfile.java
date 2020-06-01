@@ -18,6 +18,7 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
+import com.oltpbenchmark.benchmarks.auctionmark.procedures.Config;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase;
 import com.oltpbenchmark.benchmarks.auctionmark.util.*;
@@ -31,7 +32,10 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 
@@ -340,48 +344,46 @@ public class AuctionMarkProfile {
 
                     if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Reseting database from last execution run");
+                            LOG.debug("Resetting database from last execution run");
                         }
                         worker.getProcedure(ResetDatabase.class).run(conn);
                     }
 
-                    // Then invoke LoadConfig to pull down the profile information we need
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Loading AuctionMarkProfile for the first time");
-                    }
-                    ResultSet[] results = worker.getProcedure(LoadConfig.class).run(conn);
-                    int result_idx = 0;
-
-                    // CONFIG_PROFILE
-                    loadConfigProfile(cachedProfile, results[result_idx++]);
-
-                    // IMPORTANT: We need to set these timestamps here. It must be done
-                    // after we have loaded benchmarkStartTime
-                    cachedProfile.setAndGetClientStartTime();
-                    cachedProfile.updateAndGetCurrentTime();
-
-                    // ITEM CATEGORY COUNTS
-                    loadItemCategoryCounts(cachedProfile, results[result_idx++]);
-
-                    // GLOBAL_ATTRIBUTE_GROUPS
-                    loadGlobalAttributeGroups(cachedProfile, results[result_idx++]);
-
-                    // PENDING COMMENTS
-                    loadPendingItemComments(cachedProfile, results[result_idx++]);
-
-                    // ITEMS
-                    while (result_idx < results.length) {
-                        //                assert(results[result_idx].isClosed() == false) :
-                        //                    "Unexpected closed ITEM ResultSet [idx=" + result_idx + "]";
-                        loadItems(cachedProfile, results[result_idx]);
-                        result_idx++;
-                    }
-
-                    for (ResultSet r : results) {
-                        r.close();
-                    }
-
                 }
+
+
+                // Then invoke LoadConfig to pull down the profile information we need
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Loading AuctionMarkProfile for the first time");
+                }
+
+                Config results;
+                try (Connection conn = benchmark.getConnection()) {
+                    results = worker.getProcedure(LoadConfig.class).run(conn);
+                }
+
+                // CONFIG_PROFILE
+                loadConfigProfile(cachedProfile, results.getConfigProfile());
+
+                // IMPORTANT: We need to set these timestamps here. It must be done
+                // after we have loaded benchmarkStartTime
+                cachedProfile.setAndGetClientStartTime();
+                cachedProfile.updateAndGetCurrentTime();
+
+                // ITEM CATEGORY COUNTS
+                loadItemCategoryCounts(cachedProfile, results.getCategoryCounts());
+
+                // GLOBAL_ATTRIBUTE_GROUPS
+                loadGlobalAttributeGroups(cachedProfile, results.getAttributes());
+
+                // PENDING COMMENTS
+                loadPendingItemComments(cachedProfile, results.getPendingComments());
+
+
+                loadItems(cachedProfile, results.getOpenItems());
+                loadItems(cachedProfile, results.getWaitingForPurchaseItems());
+                loadItems(cachedProfile, results.getClosedItems());
+
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Loaded profile:\n{}", cachedProfile.toString());
@@ -404,24 +406,22 @@ public class AuctionMarkProfile {
                 (clientId < 0 ? null : clientId));
     }
 
-    private static final void loadConfigProfile(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
-        boolean adv = vt.next();
-        int col = 1;
-        profile.scale_factor = vt.getDouble(col++);
-        profile.loaderStartTime = vt.getTimestamp(col++);
-        profile.loaderStopTime = vt.getTimestamp(col++);
-        JSONUtil.fromJSONString(profile.users_per_itemCount, vt.getString(col++));
-
+    private static final void loadConfigProfile(AuctionMarkProfile profile, List<Object[]> vt) {
+        for (Object[] row : vt) {
+            profile.scale_factor = SQLUtil.getDouble(row[0]);
+            profile.loaderStartTime = SQLUtil.getTimestamp(row[1]);
+            profile.loaderStopTime = SQLUtil.getTimestamp(row[2]);
+            JSONUtil.fromJSONString(profile.users_per_itemCount, SQLUtil.getString(row[3]));
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %s data", AuctionMarkConstants.TABLENAME_CONFIG_PROFILE));
         }
     }
 
-    private static final void loadItemCategoryCounts(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
-        while (vt.next()) {
-            int col = 1;
-            long i_c_id = vt.getLong(col++);
-            int count = vt.getInt(col++);
+    private static final void loadItemCategoryCounts(AuctionMarkProfile profile, List<Object[]> vt) {
+        for (Object[] row : vt) {
+            long i_c_id = SQLUtil.getLong(row[0]);
+            int count = SQLUtil.getInteger(row[1]);
             profile.items_per_category.put((int) i_c_id, count);
         }
         if (LOG.isDebugEnabled()) {
@@ -430,14 +430,13 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadItems(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
+    private static final void loadItems(AuctionMarkProfile profile, List<Object[]> vt) {
         int ctr = 0;
-        while (vt.next()) {
-            int col = 1;
-            ItemId i_id = new ItemId(vt.getLong(col++));
-            double i_current_price = vt.getDouble(col++);
-            Timestamp i_end_date = vt.getTimestamp(col++);
-            int i_num_bids = (int) vt.getLong(col++);
+        for (Object[] row : vt) {
+            ItemId i_id = new ItemId(SQLUtil.getLong(row[0]));
+            double i_current_price = SQLUtil.getDouble(row[1]);
+            Timestamp i_end_date = SQLUtil.getTimestamp(row[2]);
+            int i_num_bids = SQLUtil.getInteger(row[3]);
 
             // IMPORTANT: Do not set the status here so that we make sure that
             // it is added to the right queue
@@ -452,12 +451,12 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadPendingItemComments(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
-        while (vt.next()) {
+    private static final void loadPendingItemComments(AuctionMarkProfile profile, List<Object[]> vt) {
+        for (Object[] row : vt) {
             int col = 1;
-            long ic_id = vt.getLong(col++);
-            long ic_i_id = vt.getLong(col++);
-            long ic_u_id = vt.getLong(col++);
+            long ic_id = SQLUtil.getLong(row[0]);
+            long ic_i_id = SQLUtil.getLong(row[1]);
+            long ic_u_id = SQLUtil.getLong(row[2]);
             ItemCommentResponse cr = new ItemCommentResponse(ic_id, ic_i_id, ic_u_id);
             profile.pending_commentResponses.add(cr);
         }
@@ -467,10 +466,9 @@ public class AuctionMarkProfile {
         }
     }
 
-    private static final void loadGlobalAttributeGroups(AuctionMarkProfile profile, ResultSet vt) throws SQLException {
-        while (vt.next()) {
-            int col = 1;
-            long gag_id = vt.getLong(col++);
+    private static final void loadGlobalAttributeGroups(AuctionMarkProfile profile, List<Object[]> vt) {
+        for (Object[] row : vt) {
+            long gag_id = SQLUtil.getLong(row[0]);
             profile.gag_ids.add(new GlobalAttributeGroupId(gag_id));
         }
         if (LOG.isDebugEnabled()) {
@@ -792,7 +790,7 @@ public class AuctionMarkProfile {
             if (this.userIdGenerator == null) {
                 this.initializeUserIdGenerator(this.client_id);
             }
-            if (this.userIdGenerator.checkClient(itemInfo.getSellerId()) == false) {
+            if (!this.userIdGenerator.checkClient(itemInfo.getSellerId())) {
                 return (null);
             }
         }
@@ -812,7 +810,7 @@ public class AuctionMarkProfile {
             new_status = ItemStatus.ENDING_SOON;
         }
 
-        if (new_status != itemInfo.status) {
+        if (!new_status.equals(itemInfo.status)) {
             if (itemInfo.status != null) {
                 switch (new_status) {
                     case OPEN:
