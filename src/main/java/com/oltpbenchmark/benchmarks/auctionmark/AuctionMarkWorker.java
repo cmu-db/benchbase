@@ -83,7 +83,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-//                assert(AuctionMarkWorker.this.closeAuctions_flag.get() == false);
 
                 if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD) {
                     if (LOG.isDebugEnabled()) {
@@ -131,13 +130,6 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         CloseAuctions(CloseAuctions.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
-//                if (AuctionMarkConstants.ENABLE_CLOSE_AUCTIONS && client.getId() == 0) {
-//                    // If we've never checked before, then we'll want to do that now
-//                    if (client.profile.hasLastCloseAuctionsTime() == false) return (true);
-//
-//                    // Otherwise 
-//                    return (run);
-//                }
                 return (false); // Use CloseAuctionsChecker
             }
         }),
@@ -345,7 +337,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
             if (!txn.canExecute(this)) {
-                LOG.warn("Unable to execute {} because it is not ready", txn);
+                LOG.trace("Unable to execute {} because it is not ready", txn);
                 return (TransactionStatus.RETRY_DIFFERENT);
             }
         }
@@ -392,7 +384,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             default:
 
         }
-//        assert(ret);
+
         if (ret && LOG.isDebugEnabled()) {
             LOG.debug("Executed a new invocation of {}", txn);
         }

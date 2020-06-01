@@ -54,8 +54,7 @@ public class AddWatchList extends Procedure {
         if (userId > 0) {
             // TODO: find a way to by pass Unique constraints in SQL server (Replace, Merge ..?)
             // Here I am simply catching the right excpetion and move on.
-            try {
-                PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList);
+            try (PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList)) {
                 ps.setInt(1, userId);
                 ps.setInt(2, nameSpace);
                 ps.setString(3, pageTitle);
@@ -67,10 +66,10 @@ public class AddWatchList extends Procedure {
             }
 
             if (nameSpace == 0) {
-                try {
-                    // if regular page, also add a line of
-                    // watchlist for the corresponding talk page
-                    PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList);
+
+                // if regular page, also add a line of
+                // watchlist for the corresponding talk page
+                try (PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList)) {
                     ps.setInt(1, userId);
                     ps.setInt(2, 1);
                     ps.setString(3, pageTitle);
@@ -82,10 +81,11 @@ public class AddWatchList extends Procedure {
                 }
             }
 
-            PreparedStatement ps = this.getPreparedStatement(conn, setUserTouched);
-            ps.setString(1, TimeUtil.getCurrentTimeString14());
-            ps.setInt(2, userId);
-            ps.executeUpdate();
+            try (PreparedStatement ps = this.getPreparedStatement(conn, setUserTouched)) {
+                ps.setString(1, TimeUtil.getCurrentTimeString14());
+                ps.setInt(2, userId);
+                ps.executeUpdate();
+            }
         }
     }
 

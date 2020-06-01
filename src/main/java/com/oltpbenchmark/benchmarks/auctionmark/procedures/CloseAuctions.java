@@ -93,7 +93,6 @@ public class CloseAuctions extends Procedure {
         int closed_ctr = 0;
         int waiting_ctr = 0;
         int round = AuctionMarkConstants.CLOSE_AUCTIONS_ROUNDS;
-        int updated = -1;
         int col = -1;
         int param = -1;
 
@@ -110,7 +109,7 @@ public class CloseAuctions extends Procedure {
                 dueItemsStmt.setInt(param++, ItemStatus.OPEN.ordinal());
                 try (ResultSet dueItemsTable = dueItemsStmt.executeQuery()) {
                     boolean adv = dueItemsTable.next();
-                    if (adv == false) {
+                    if (!adv) {
                         break;
                     }
 
@@ -149,7 +148,9 @@ public class CloseAuctions extends Procedure {
                                 col = 1;
                                 bidId = maxBidResults.getLong(col++);
                                 buyerId = maxBidResults.getLong(col++);
-                                updated = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime).executeUpdate();
+                                try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertUserItem, buyerId, itemId, sellerId, currentTime)) {
+                                    preparedStatement.executeUpdate();
+                                }
 
                                 itemStatus = ItemStatus.WAITING_FOR_PURCHASE;
                             }
@@ -161,7 +162,9 @@ public class CloseAuctions extends Procedure {
                         }
 
                         // Update Status!
-                        updated = this.getPreparedStatement(conn, updateItemStatus, itemStatus.ordinal(), currentTime, itemId, sellerId).executeUpdate();
+                        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItemStatus, itemStatus.ordinal(), currentTime, itemId, sellerId)) {
+                            preparedStatement.executeUpdate();
+                        }
                         if (debug) {
                             LOG.debug(String.format("Updated Status for Item %d => %s", itemId, itemStatus));
                         }
@@ -179,9 +182,6 @@ public class CloseAuctions extends Procedure {
                         };
                         output_rows.add(row);
                     }
-                }
-                if (round > 0) {
-                    //conn.commit();
                 }
             }
 
