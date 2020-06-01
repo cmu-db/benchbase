@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class GetUserInfo extends Procedure {
      * @return
      * @throws SQLException
      */
-    public List<Object[]>[] run(Connection conn, Timestamp[] benchmarkTimes,
+    public UserInfo run(Connection conn, Timestamp[] benchmarkTimes,
                                 long user_id,
                                 boolean get_feedback,
                                 boolean get_comments,
@@ -117,47 +118,60 @@ public class GetUserInfo extends Procedure {
                                 boolean get_watched_items) throws SQLException {
         final boolean debug = LOG.isDebugEnabled();
 
-        ResultSet[] results = new ResultSet[6];
-        int result_idx = 0;
 
         // The first VoltTable in the output will always be the user's information
         if (debug) {
             LOG.debug("Grabbing USER record: {}", user_id);
         }
-        PreparedStatement stmt = this.getPreparedStatement(conn, getUser, user_id);
-        results[result_idx++] = stmt.executeQuery();
+
+        List<Object[]> user = new ArrayList<>();
+
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getUser, user_id);
+             ResultSet rs = stmt.executeQuery()) {
+           user = SQLUtil.toList(rs);
+        }
 
         // They can also get their USER_FEEDBACK records if they want as well
+        List<Object[]> userFeedback = new ArrayList<>();
         if (get_feedback) {
             if (debug) {
                 LOG.debug("Grabbing USER_FEEDBACK records: {}", user_id);
             }
-            stmt = this.getPreparedStatement(conn, getUserFeedback, user_id);
-            results[result_idx] = stmt.executeQuery();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getUserFeedback, user_id);
+                 ResultSet rs = stmt.executeQuery()) {
+                userFeedback = SQLUtil.toList(rs);
+            }
         }
-        result_idx++;
+
 
         // And any pending ITEM_COMMENTS that need a response
+        List<Object[]> itemComments = new ArrayList<>();
         if (get_comments) {
             if (debug) {
                 LOG.debug("Grabbing ITEM_COMMENT records: {}", user_id);
             }
-            stmt = this.getPreparedStatement(conn, getItemComments, user_id, ItemStatus.OPEN.ordinal());
-            results[result_idx] = stmt.executeQuery();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getItemComments, user_id, ItemStatus.OPEN.ordinal());
+                 ResultSet rs = stmt.executeQuery()) {
+                itemComments = SQLUtil.toList(rs);
+            }
         }
-        result_idx++;
+
 
         // The seller's items
+        List<Object[]> sellerItems = new ArrayList<>();
         if (get_seller_items) {
             if (debug) {
                 LOG.debug("Grabbing seller's ITEM records: {}", user_id);
             }
-            stmt = this.getPreparedStatement(conn, getSellerItems, user_id);
-            results[result_idx] = stmt.executeQuery();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getSellerItems, user_id);
+                 ResultSet rs = stmt.executeQuery()) {
+                sellerItems = SQLUtil.toList(rs);
+            }
         }
-        result_idx++;
+
 
         // The buyer's purchased items
+        List<Object[]> buyerItems = new ArrayList<>();
         if (get_buyer_items) {
             // 2010-11-15: The distributed query planner chokes on this one and makes a plan
             // that basically sends the entire user table to all nodes. So for now we'll just execute
@@ -166,40 +180,28 @@ public class GetUserInfo extends Procedure {
             if (debug) {
                 LOG.debug("Grabbing buyer's USER_ITEM records: {}", user_id);
             }
-            stmt = this.getPreparedStatement(conn, getBuyerItems, user_id);
-            results[result_idx] = stmt.executeQuery();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getBuyerItems, user_id);
+                 ResultSet rs = stmt.executeQuery()) {
+                buyerItems = SQLUtil.toList(rs);
+            }
         }
-        result_idx++;
+
 
         // The buyer's watched items
+
+        List<Object[]> watchedItems = new ArrayList<>();
         if (get_watched_items) {
             if (debug) {
                 LOG.debug("Grabbing buyer's USER_WATCH records: {}", user_id);
             }
-            stmt = this.getPreparedStatement(conn, getWatchedItems, user_id);
-            results[result_idx] = stmt.executeQuery();
-        }
-        result_idx++;
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getWatchedItems, user_id);
+                 ResultSet rs = stmt.executeQuery()) {
 
-
-        List<Object[]>[] final_results = new List[results.length];
-        for (result_idx = 0; result_idx < results.length; result_idx++) {
-            List<Object[]> inner = null;
-            if (results[result_idx] != null) {
-                inner = new ArrayList<>();
-                int num_cols = results[result_idx].getMetaData().getColumnCount();
-                while (results[result_idx].next()) {
-                    Object[] row = new Object[num_cols];
-                    for (int i = 0; i < num_cols; i++) {
-                        row[i] = results[result_idx].getObject(i + 1);
-                    }
-                    inner.add(row);
-                }
-                results[result_idx].close();
+                watchedItems = SQLUtil.toList(rs);
             }
-            final_results[result_idx] = inner;
         }
 
-        return (final_results);
+
+        return new UserInfo(user, userFeedback, itemComments, sellerItems, buyerItems, watchedItems);
     }
 }

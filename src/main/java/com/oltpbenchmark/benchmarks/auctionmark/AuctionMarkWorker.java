@@ -515,64 +515,40 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         rand = profile.rng.number(0, 100);
         boolean get_watched_items = (rand <= AuctionMarkConstants.PROB_GETUSERINFO_INCLUDE_WATCHED_ITEMS);
 
-        List<Object[]>[] results = proc.run(conn, benchmarkTimes, userId.encode(),
+        UserInfo results = proc.run(conn, benchmarkTimes, userId.encode(),
                 get_feedback,
                 get_comments,
                 get_seller_items,
                 get_buyer_items,
                 get_watched_items);
 
-        List<Object[]> vt = null;
-        int idx = 0;
-
-        // USER
-        vt = results[idx++];
-
-        // USER_FEEDBACK
-        if (get_feedback) {
-            vt = results[idx];
-
-        }
-        idx++;
 
         // ITEM_COMMENTS
         if (get_comments) {
-            vt = results[idx];
 
-            Long[] vals = new Long[3];
-            int[] cols = {AuctionMarkConstants.ITEM_COLUMNS.length + 1, 1, 2};
-            for (Object[] row : vt) {
-                boolean valid = true;
-                for (int i = 0; i < cols.length; i++) {
-                    if (row[i] == null) {
-                        valid = false;
-                        break;
-                    }
-                    vals[i] = SQLUtil.getLong(row[i]);
-                    if (vals[i] == null) {
-                        valid = false;
-                        break;
-                    }
-                }
-                if (valid) {
-                    ItemCommentResponse cr = new ItemCommentResponse(vals[0], vals[1], vals[2]);
-                    profile.addPendingItemCommentResponse(cr);
-                }
-            }
-        }
-        idx++;
+            for (Object[] row : results.getItemComments()) {
+                long itemId = SQLUtil.getLong(row[0]);
+                long sellerId = SQLUtil.getLong(row[1]);
+                long commentId = SQLUtil.getLong(row[7]);
 
-        // ITEM Result Tables
-        for (; idx < results.length; idx++) {
-            vt = results[idx];
-            if (vt == null) {
-                continue;
-            }
-            for (Object[] row : vt) {
-                ItemId itemId = this.processItemRecord(row);
+                ItemCommentResponse cr = new ItemCommentResponse(commentId, itemId, sellerId);
+                profile.addPendingItemCommentResponse(cr);
 
             }
         }
+
+        for (Object[] row : results.getSellerItems()) {
+            ItemId itemId = this.processItemRecord(row);
+        }
+
+        for (Object[] row : results.getBuyerItems()) {
+            ItemId itemId = this.processItemRecord(row);
+        }
+
+        for (Object[] row : results.getWatchedItems()) {
+            ItemId itemId = this.processItemRecord(row);
+        }
+
 
         return (true);
     }

@@ -21,6 +21,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+import com.oltpbenchmark.util.SQLUtil;
 
 import java.sql.*;
 
@@ -59,27 +60,21 @@ public class GetItem extends Procedure {
         Object[] item_row = null;
         try (PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id)) {
             try (ResultSet item_results = item_stmt.executeQuery()) {
-                if (item_results.next() == false) {
+                if (!item_results.next()) {
                     item_results.close();
                     throw new UserAbortException("Invalid item " + item_id);
                 }
-                item_row = new Object[item_results.getMetaData().getColumnCount()];
-                for (int i = 0; i < item_row.length; i++) {
-                    item_row[i] = item_results.getObject(i + 1);
-                }
+                item_row = SQLUtil.getRowAsArray(item_results);
             }
         }
 
         Object[] user_row = null;
         try (PreparedStatement user_stmt = this.getPreparedStatement(conn, getUser, seller_id)) {
             try (ResultSet user_results = user_stmt.executeQuery()) {
-                if (user_results.next() == false) {
+                if (!user_results.next()) {
                     throw new UserAbortException("Invalid user id " + seller_id);
                 }
-                user_row = new Object[user_results.getMetaData().getColumnCount()];
-                for (int i = 0; i < user_row.length; i++) {
-                    user_row[i] = user_results.getObject(i + 1);
-                }
+                user_row = SQLUtil.getRowAsArray(user_results);
             }
         }
 

@@ -28,7 +28,9 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public abstract class SQLUtil {
@@ -149,6 +151,33 @@ public abstract class SQLUtil {
         }
 
         return (String.format("ROW[%02d] -> [%s]", rs.getRow(), StringUtil.join(",", data)));
+    }
+
+
+    public static Object[] getRowAsArray(ResultSet rs) throws SQLException {
+        ResultSetMetaData rs_md = rs.getMetaData();
+        int num_cols = rs_md.getColumnCount();
+        Object[] data = new Object[num_cols];
+        for (int i = 0; i < num_cols; i++) {
+            data[i] = rs.getObject(i + 1);
+        }
+        return data;
+    }
+
+    public static List<Object[]> toList(ResultSet rs) throws SQLException {
+        ResultSetMetaData rs_md = rs.getMetaData();
+        int num_cols = rs_md.getColumnCount();
+
+        List<Object[]> results = new ArrayList<>();
+        while (rs.next()) {
+            Object[] row = new Object[num_cols];
+            for (int i = 0; i < num_cols; i++) {
+                row[i] = rs.getObject(i + 1);
+            }
+            results.add(row);
+        }
+
+        return results;
     }
 
     /**
