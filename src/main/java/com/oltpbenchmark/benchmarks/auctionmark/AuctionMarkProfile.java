@@ -306,7 +306,7 @@ public class AuctionMarkProfile {
         }
 
         for (ItemCommentResponse cr : other.pending_commentResponses) {
-            UserId sellerId = new UserId(cr.sellerId);
+            UserId sellerId = new UserId(cr.getSellerId());
             if (this.userIdGenerator.checkClient(sellerId)) {
                 this.pending_commentResponses.add(cr);
             }
@@ -693,8 +693,8 @@ public class AuctionMarkProfile {
 
     public void addPendingItemCommentResponse(ItemCommentResponse cr) {
         if (this.client_id != -1) {
-            UserId sellerId = new UserId(cr.sellerId);
-            if (this.userIdGenerator.checkClient(sellerId) == false) {
+            UserId sellerId = new UserId(cr.getSellerId());
+            if (!this.userIdGenerator.checkClient(sellerId)) {
                 return;
             }
         }
@@ -795,11 +795,11 @@ public class AuctionMarkProfile {
             }
         }
 
-        long remaining = itemInfo.endDate.getTime() - baseTime.getTime();
-        ItemStatus new_status = (itemInfo.status != null ? itemInfo.status : ItemStatus.OPEN);
+        long remaining = itemInfo.getEndDate().getTime() - baseTime.getTime();
+        ItemStatus new_status = (itemInfo.getStatus() != null ? itemInfo.getStatus() : ItemStatus.OPEN);
         // Already ended
         if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
-            if (itemInfo.numBids > 0 && itemInfo.status != ItemStatus.CLOSED) {
+            if (itemInfo.getNumBids() > 0 && itemInfo.getStatus() != ItemStatus.CLOSED) {
                 new_status = ItemStatus.WAITING_FOR_PURCHASE;
             } else {
                 new_status = ItemStatus.CLOSED;
@@ -810,8 +810,8 @@ public class AuctionMarkProfile {
             new_status = ItemStatus.ENDING_SOON;
         }
 
-        if (!new_status.equals(itemInfo.status)) {
-            if (itemInfo.status != null) {
+        if (!new_status.equals(itemInfo.getStatus())) {
+            if (itemInfo.getStatus() != null) {
                 switch (new_status) {
                     case OPEN:
                         this.addItem(this.items_available, itemInfo);
@@ -821,13 +821,13 @@ public class AuctionMarkProfile {
                         this.addItem(this.items_endingSoon, itemInfo);
                         break;
                     case WAITING_FOR_PURCHASE:
-                        (itemInfo.status == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
+                        (itemInfo.getStatus() == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
                         this.addItem(this.items_waitingForPurchase, itemInfo);
                         break;
                     case CLOSED:
-                        if (itemInfo.status == ItemStatus.OPEN) {
+                        if (itemInfo.getStatus() == ItemStatus.OPEN) {
                             this.items_available.remove(itemInfo);
-                        } else if (itemInfo.status == ItemStatus.ENDING_SOON) {
+                        } else if (itemInfo.getStatus() == ItemStatus.ENDING_SOON) {
                             this.items_endingSoon.remove(itemInfo);
                         } else {
                             this.items_waitingForPurchase.remove(itemInfo);
@@ -838,11 +838,11 @@ public class AuctionMarkProfile {
 
                 }
             }
-            itemInfo.status = new_status;
+            itemInfo.setStatus(new_status);
         }
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace(String.format("%s - #%d [%s]", new_status, itemInfo.itemId.encode(), itemInfo.getEndDate()));
+            LOG.trace(String.format("%s - #%d [%s]", new_status, itemInfo.getItemId().encode(), itemInfo.getEndDate()));
         }
 
         return (new_status);

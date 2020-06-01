@@ -19,9 +19,9 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 public class ItemCommentResponse {
 
-    public final Long commentId;
-    public final Long itemId;
-    public final Long sellerId;
+    private final Long commentId;
+    private final Long itemId;
+    private final Long sellerId;
 
     public ItemCommentResponse(Long commentId, Long itemId, Long sellerId) {
         this.commentId = commentId;
@@ -29,4 +29,15 @@ public class ItemCommentResponse {
         this.sellerId = sellerId;
     }
 
+    public Long getCommentId() {
+        return commentId;
+    }
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public Long getSellerId() {
+        return sellerId;
+    }
 }

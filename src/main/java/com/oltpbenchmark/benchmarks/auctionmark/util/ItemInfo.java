@@ -26,13 +26,14 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
-    public ItemId itemId;
-    public Float currentPrice;
-    public Timestamp endDate;
-    public long numBids = 0;
-    public ItemStatus status = null;
+    private ItemId itemId;
+    private Float currentPrice;
+    private Timestamp endDate;
+    private long numBids = 0;
+    private ItemStatus status = null;
 
     public ItemInfo(ItemId id, Double currentPrice, Timestamp endDate, int numBids) {
         this.itemId = id;
@@ -41,9 +42,6 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
         this.numBids = numBids;
     }
 
-    public ItemInfo() {
-
-    }
 
     public ItemId getItemId() {
         return (this.itemId);
@@ -69,6 +67,34 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
         return endDate;
     }
 
+    public void setItemId(ItemId itemId) {
+        this.itemId = itemId;
+    }
+
+    public void setCurrentPrice(Float currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    public void setEndDate(Timestamp endDate) {
+        this.endDate = endDate;
+    }
+
+    public long getNumBids() {
+        return numBids;
+    }
+
+    public void setNumBids(long numBids) {
+        this.numBids = numBids;
+    }
+
+    public ItemStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ItemStatus status) {
+        this.status = status;
+    }
+
     @Override
     public int compareTo(ItemInfo o) {
         return this.itemId.compareTo(o.itemId);
@@ -80,21 +106,20 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     }
 
     @Override
-    public int hashCode() {
-        return this.itemId.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ItemInfo itemInfo = (ItemInfo) o;
+        return Objects.equals(itemId, itemInfo.itemId);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ItemInfo) || obj == null) {
-            return false;
-        }
-
-        return (this.itemId == obj || this.itemId.equals(((ItemInfo) obj).itemId));
+    public int hashCode() {
+        return Objects.hash(itemId);
     }
 
     // -----------------------------------------------------------------

@@ -19,11 +19,11 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 public class Category {
-    private int categoryID;
-    private Integer parentCategoryID;
-    private int itemCount;
-    private String name;
-    private boolean isLeaf;
+    private final int categoryID;
+    private final Integer parentCategoryID;
+    private final int itemCount;
+    private final String name;
+    private final boolean isLeaf;
 
     public Category(int categoryID, String name, Integer parentCategoryID, int itemCount, boolean isLeaf) {
         this.categoryID = categoryID;

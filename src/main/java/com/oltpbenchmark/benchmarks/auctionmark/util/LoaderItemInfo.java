@@ -30,17 +30,16 @@ import java.util.List;
 
 public class LoaderItemInfo extends ItemInfo {
     private final List<Bid> bids = new ArrayList<>();
-    private Histogram<UserId> bidderHistogram = new Histogram<>();
+    private final Histogram<UserId> bidderHistogram = new Histogram<>();
 
-    public short numImages;
-    public short numAttributes;
-    public short numComments;
-    public short numWatches;
-    public Timestamp startDate;
-    public Timestamp purchaseDate;
-    public float initialPrice;
-    public UserId sellerId;
-    public UserId lastBidderId; // if null, then no bidder
+    private short numImages;
+    private short numAttributes;
+    private short numComments;
+    private short numWatches;
+    private Timestamp startDate;
+    private Timestamp purchaseDate;
+    private float initialPrice;
+    private UserId lastBidderId; // if null, then no bidder
 
     public LoaderItemInfo(ItemId id, Timestamp endDate, int numBids) {
         super(id, null, endDate, numBids);
@@ -51,8 +50,72 @@ public class LoaderItemInfo extends ItemInfo {
         this.startDate = null;
         this.purchaseDate = null;
         this.initialPrice = 0;
-        this.sellerId = null;
         this.lastBidderId = null;
+    }
+
+
+    public short getNumImages() {
+        return numImages;
+    }
+
+    public void setNumImages(short numImages) {
+        this.numImages = numImages;
+    }
+
+    public short getNumAttributes() {
+        return numAttributes;
+    }
+
+    public void setNumAttributes(short numAttributes) {
+        this.numAttributes = numAttributes;
+    }
+
+    public short getNumComments() {
+        return numComments;
+    }
+
+    public void setNumComments(short numComments) {
+        this.numComments = numComments;
+    }
+
+    public short getNumWatches() {
+        return numWatches;
+    }
+
+    public void setNumWatches(short numWatches) {
+        this.numWatches = numWatches;
+    }
+
+    public Timestamp getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Timestamp startDate) {
+        this.startDate = startDate;
+    }
+
+    public Timestamp getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public void setPurchaseDate(Timestamp purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
+
+    public float getInitialPrice() {
+        return initialPrice;
+    }
+
+    public void setInitialPrice(float initialPrice) {
+        this.initialPrice = initialPrice;
+    }
+
+    public UserId getLastBidderId() {
+        return lastBidderId;
+    }
+
+    public void setLastBidderId(UserId lastBidderId) {
+        this.lastBidderId = lastBidderId;
     }
 
     public int getBidCount() {
@@ -95,13 +158,13 @@ public class LoaderItemInfo extends ItemInfo {
     }
 
     public class Bid {
-        public final long id;
-        public final UserId bidderId;
-        public float maxBid;
-        public Timestamp createDate;
-        public Timestamp updateDate;
-        public boolean buyer_feedback = false;
-        public boolean seller_feedback = false;
+        private final long id;
+        private final UserId bidderId;
+        private float maxBid;
+        private Timestamp createDate;
+        private Timestamp updateDate;
+        private boolean buyer_feedback = false;
+        private boolean seller_feedback = false;
 
         private Bid(long id, UserId bidderId) {
             this.id = id;
@@ -109,6 +172,54 @@ public class LoaderItemInfo extends ItemInfo {
             this.maxBid = 0;
             this.createDate = null;
             this.updateDate = null;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public UserId getBidderId() {
+            return bidderId;
+        }
+
+        public float getMaxBid() {
+            return maxBid;
+        }
+
+        public void setMaxBid(float maxBid) {
+            this.maxBid = maxBid;
+        }
+
+        public Timestamp getCreateDate() {
+            return createDate;
+        }
+
+        public void setCreateDate(Timestamp createDate) {
+            this.createDate = createDate;
+        }
+
+        public Timestamp getUpdateDate() {
+            return updateDate;
+        }
+
+        public void setUpdateDate(Timestamp updateDate) {
+            this.updateDate = updateDate;
+        }
+
+        public boolean isBuyer_feedback() {
+            return buyer_feedback;
+        }
+
+        public void setBuyer_feedback(boolean buyer_feedback) {
+            this.buyer_feedback = buyer_feedback;
+        }
+
+        public boolean isSeller_feedback() {
+            return seller_feedback;
+        }
+
+        public void setSeller_feedback(boolean seller_feedback) {
+            this.seller_feedback = seller_feedback;
         }
 
         public LoaderItemInfo getLoaderItemInfo() {

@@ -30,9 +30,28 @@
  *  OTHER DEALINGS IN THE SOFTWARE.                                        *
  ***************************************************************************/
 
+DROP TABLE IF EXISTS ITEM_ATTRIBUTE CASCADE;
+DROP TABLE IF EXISTS ITEM_IMAGE CASCADE;
+DROP TABLE IF EXISTS ITEM_COMMENT CASCADE;
+DROP TABLE IF EXISTS ITEM_MAX_BID CASCADE;
+DROP TABLE IF EXISTS USERACCT_ITEM CASCADE;
+DROP TABLE IF EXISTS ITEM_PURCHASE CASCADE;
+DROP TABLE IF EXISTS ITEM_BID CASCADE;
+DROP TABLE IF EXISTS GLOBAL_ATTRIBUTE_VALUE CASCADE;
+DROP TABLE IF EXISTS GLOBAL_ATTRIBUTE_GROUP CASCADE;
+DROP TABLE IF EXISTS CONFIG_PROFILE CASCADE;
+DROP TABLE IF EXISTS REGION CASCADE;
+DROP TABLE IF EXISTS USERACCT CASCADE;
+DROP TABLE IF EXISTS USERACCT_ATTRIBUTES CASCADE;
+DROP TABLE IF EXISTS CATEGORY CASCADE;
+DROP TABLE IF EXISTS USERACCT_FEEDBACK CASCADE;
+DROP TABLE IF EXISTS USERACCT_WATCH CASCADE;
+DROP TABLE IF EXISTS ITEM CASCADE;
+
 -- ================================================================
 -- CONFIG_PROFILE
 -- ================================================================
+
 CREATE TABLE CONFIG_PROFILE
 (
     cfp_scale_factor        FLOAT          NOT NULL,
@@ -47,6 +66,7 @@ CREATE TABLE CONFIG_PROFILE
 -- r_id             Region's ID
 -- r_name           Region's name
 -- ================================================================
+
 CREATE TABLE REGION
 (
     r_id   BIGINT NOT NULL,
@@ -67,6 +87,7 @@ CREATE TABLE REGION
 -- u_created        User's create date
 -- u_r_id           User's region ID
 -- ================================================================
+
 CREATE TABLE USERACCT
 (
     u_id       BIGINT NOT NULL,
@@ -100,6 +121,7 @@ CREATE INDEX IDX_USERACCT_REGION ON USERACCT (u_id, u_r_id);
 -- USERACCT_ATTRIBUTES
 -- Represents user's attributes 
 -- ================================================================
+
 CREATE TABLE USERACCT_ATTRIBUTES
 (
     ua_id     BIGINT      NOT NULL,
@@ -117,6 +139,7 @@ CREATE TABLE USERACCT_ATTRIBUTES
 -- c_name            Category's name
 -- c_parent_id        Parent category's ID
 -- ================================================================
+
 CREATE TABLE CATEGORY
 (
     c_id        BIGINT NOT NULL,
@@ -133,6 +156,7 @@ CREATE INDEX IDX_CATEGORY_PARENT ON CATEGORY (c_parent_id);
 -- gag_c_id            Associated Category's ID
 -- gag_name            Global attribute group's name
 -- ================================================================
+
 CREATE TABLE GLOBAL_ATTRIBUTE_GROUP
 (
     gag_id   BIGINT       NOT NULL,
@@ -149,6 +173,7 @@ CREATE TABLE GLOBAL_ATTRIBUTE_GROUP
 -- gav_gag_id        Associated Global attribute group's ID
 -- gav_name            Global attribute value's name
 -- ================================================================
+
 CREATE TABLE GLOBAL_ATTRIBUTE_VALUE
 (
     gav_id     BIGINT       NOT NULL,
@@ -175,6 +200,7 @@ CREATE TABLE GLOBAL_ATTRIBUTE_VALUE
 -- i_end_date          Item's bid end date
 -- i_status            Items' status (0 = open, 1 = wait for purchase, 2 = close)
 -- ================================================================
+
 CREATE TABLE ITEM
 (
     i_id               BIGINT NOT NULL,
@@ -213,6 +239,7 @@ CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
 -- ia_i_id            Item's ID
 -- ia_gav_id        Global attribute value's ID
 -- ================================================================
+
 CREATE TABLE ITEM_ATTRIBUTE
 (
     ia_id     BIGINT NOT NULL,
@@ -233,6 +260,7 @@ CREATE TABLE ITEM_ATTRIBUTE
 -- ii_i_id            Item's ID
 -- ii_path            Image's path
 -- ================================================================
+
 CREATE TABLE ITEM_IMAGE
 (
     ii_id     BIGINT       NOT NULL,
@@ -253,6 +281,7 @@ CREATE TABLE ITEM_IMAGE
 -- ic_question        Comment by buyer
 -- ic_response        Response from seller
 -- ================================================================
+
 CREATE TABLE ITEM_COMMENT
 (
     ic_id       BIGINT       NOT NULL,
@@ -279,6 +308,7 @@ CREATE TABLE ITEM_COMMENT
 -- ib_max_bid        ???
 -- ib_date            Bid's date
 -- ================================================================
+
 CREATE TABLE ITEM_BID
 (
     ib_id       BIGINT NOT NULL,
@@ -297,6 +327,7 @@ CREATE TABLE ITEM_BID
 -- ITEM_MAX_BID
 -- Cross-reference table to the current max bid for an auction
 -- ================================================================
+
 CREATE TABLE ITEM_MAX_BID
 (
     imb_i_id    BIGINT NOT NULL,
@@ -318,6 +349,7 @@ CREATE TABLE ITEM_MAX_BID
 -- ip_ib_id            Bid's ID
 -- ip_date             Purchase's date
 -- ================================================================
+
 CREATE TABLE ITEM_PURCHASE
 (
     ip_id      BIGINT NOT NULL,
@@ -340,6 +372,7 @@ CREATE TABLE ITEM_PURCHASE
 -- uf_date           Feedback's create date
 -- uf_comment        Feedback by other user
 -- ================================================================
+
 CREATE TABLE USERACCT_FEEDBACK
 (
     uf_u_id    BIGINT      NOT NULL REFERENCES USERACCT (u_id),
@@ -358,6 +391,7 @@ CREATE TABLE USERACCT_FEEDBACK
 -- USERACCT_ITEM
 -- The items that a user has recently purchased
 -- ================================================================
+
 CREATE TABLE USERACCT_ITEM
 (
     ui_u_id       BIGINT NOT NULL REFERENCES USERACCT (u_id),
@@ -378,6 +412,7 @@ CREATE TABLE USERACCT_ITEM
 -- USERACCT_WATCH
 -- The items that a user is watching
 -- ================================================================
+
 CREATE TABLE USERACCT_WATCH
 (
     uw_u_id    BIGINT NOT NULL REFERENCES USERACCT (u_id),

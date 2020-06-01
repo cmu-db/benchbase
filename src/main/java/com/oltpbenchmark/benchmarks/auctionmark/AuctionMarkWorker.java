@@ -425,7 +425,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         ItemStatus i_status = ItemStatus.get(temp); // i_status
 
         ItemInfo itemInfo = new ItemInfo(i_id, i_current_price, i_end_date, (int) i_num_bids);
-        itemInfo.status = i_status;
+        itemInfo.setStatus(i_status);
 
         UserId sellerId = new UserId(i_u_id);
 
@@ -475,7 +475,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomAvailableItemId();
 
-        Object[][] results = proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
+        Object[][] results = proc.run(conn, benchmarkTimes, itemInfo.getItemId().encode(),
                 itemInfo.getSellerId().encode());
 
         // The first row will have our item data that we want
@@ -612,11 +612,11 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             maxBid = profile.rng.fixedPoint(2, bid, (bid * (1 + (AuctionMarkConstants.ITEM_BID_PERCENT_STEP / 2))));
         }
 
-        Object[] results = proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
+        Object[] results = proc.run(conn, benchmarkTimes, itemInfo.getItemId().encode(),
                 sellerId.encode(),
                 buyerId.encode(),
                 maxBid,
-                itemInfo.endDate);
+                itemInfo.getEndDate());
 
         ItemId itemId = this.processItemRecord(results);
 
@@ -637,7 +637,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 AuctionMarkConstants.ITEM_COMMENT_LENGTH_MAX);
 
         Object[] results = proc.run(conn, benchmarkTimes,
-                itemInfo.itemId.encode(),
+                itemInfo.getItemId().encode(),
                 sellerId.encode(),
                 buyerId.encode(),
                 question);
@@ -659,8 +659,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         ItemCommentResponse cr = profile.pending_commentResponses.remove(idx);
 
 
-        long commentId = cr.commentId;
-        ItemId itemId = new ItemId(cr.itemId);
+        long commentId = cr.getCommentId();
+        ItemId itemId = new ItemId(cr.getItemId());
         UserId sellerId = itemId.getSellerId();
 
         String response = profile.rng.astring(AuctionMarkConstants.ITEM_COMMENT_LENGTH_MIN,
@@ -697,7 +697,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         }
 
         proc.run(conn, benchmarkTimes, user_id,
-                itemInfo.itemId.encode(),
+                itemInfo.getItemId().encode(),
                 sellerId.encode(),
                 from_id,
                 rating,
@@ -719,7 +719,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         String description = profile.rng.astring(50, 255);
         long categoryId = profile.getRandomCategoryId();
 
-        Double initial_price = (double) profile.randomInitialPrice.nextInt();
+        double initial_price = profile.randomInitialPrice.nextInt();
         String attributes = profile.rng.astring(50, 255);
 
         int numAttributes = profile.randomNumAttributes.nextInt();
@@ -772,7 +772,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
     protected boolean executeNewPurchase(Connection conn, NewPurchase proc) throws SQLException {
         Timestamp[] benchmarkTimes = this.getTimestampParameterArray();
         ItemInfo itemInfo = profile.getRandomWaitForPurchaseItem();
-        long encodedItemId = itemInfo.itemId.encode();
+        long encodedItemId = itemInfo.getItemId().encode();
         UserId sellerId = itemInfo.getSellerId();
         double buyer_credit = 0d;
 
@@ -791,7 +791,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
                 buyer_credit = -1 * itemInfo.getCurrentPrice();
             } else {
                 buyer_credit = itemInfo.getCurrentPrice();
-                itemInfo.status = ItemStatus.CLOSED;
+                itemInfo.setStatus(ItemStatus.CLOSED);
             }
         }
 
@@ -834,7 +834,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             add_attribute[1] = gav_id.encode();
         }
 
-        proc.run(conn, benchmarkTimes, itemInfo.itemId.encode(),
+        proc.run(conn, benchmarkTimes, itemInfo.getItemId().encode(),
                 sellerId.encode(),
                 description,
                 delete_attribute,

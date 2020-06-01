@@ -20,6 +20,8 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Objects;
+
 /**
  * Composite Item Id
  * First 48-bits are the seller's USER.U_ID
@@ -38,18 +40,11 @@ public class ItemId extends CompositeId {
     private UserId seller_id;
     private int item_ctr;
 
-    public ItemId() {
-
-    }
-
     public ItemId(UserId seller_id, int item_ctr) {
         this.seller_id = seller_id;
         this.item_ctr = item_ctr;
     }
 
-    public ItemId(long seller_id, int item_ctr) {
-        this(new UserId(seller_id), item_ctr);
-    }
 
     public ItemId(long composite_id) {
         this.decode(composite_id);
@@ -100,26 +95,20 @@ public class ItemId extends CompositeId {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-
-        if (!(obj instanceof ItemId) || obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        ItemId o = (ItemId) obj;
-        return this.item_ctr == o.item_ctr &&
-                this.seller_id.equals(o.seller_id);
+        ItemId itemId = (ItemId) o;
+        return item_ctr == itemId.item_ctr &&
+                Objects.equals(seller_id, itemId.seller_id);
     }
 
     @Override
     public int hashCode() {
-        int prime = 11;
-        int result = 1;
-        result = prime * result + item_ctr;
-        result = prime * result + seller_id.hashCode();
-        return result;
+        return Objects.hash(super.hashCode(), seller_id, item_ctr);
     }
 }

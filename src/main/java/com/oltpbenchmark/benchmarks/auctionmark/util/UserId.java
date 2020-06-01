@@ -20,6 +20,8 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Objects;
+
 public class UserId extends CompositeId {
 
     private static final int[] COMPOSITE_BITS = {
@@ -39,9 +41,6 @@ public class UserId extends CompositeId {
      */
     private int offset;
 
-    public UserId() {
-
-    }
 
     /**
      * Constructor
@@ -100,26 +99,20 @@ public class UserId extends CompositeId {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-
-        if (!(obj instanceof UserId) || obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        UserId o = (UserId) obj;
-        return (this.itemCount == o.itemCount
-                && this.offset == o.offset);
+        UserId userId = (UserId) o;
+        return itemCount == userId.itemCount &&
+                offset == userId.offset;
     }
 
     @Override
     public int hashCode() {
-        int prime = 11;
-        int result = 1;
-        result = prime * result + itemCount;
-        result = prime * result + offset;
-        return result;
+        return Objects.hash(super.hashCode(), itemCount, offset);
     }
 }
