@@ -79,79 +79,93 @@ public class DeleteReservation extends Procedure {
                     "   AND FF_AL_ID = ?");
 
     public void run(Connection conn, long f_id, Long c_id, String c_id_str, String ff_c_id_str, Long ff_al_id) throws SQLException {
-        final boolean debug = LOG.isDebugEnabled();
-        PreparedStatement stmt = null;
+
 
         // If we weren't given the customer id, then look it up
         if (c_id == null) {
+
+
             boolean has_al_id = false;
+            String parameter;
+            SQLStmt sqlStmt;
 
             // Use the customer's id as a string
             if (c_id_str != null && c_id_str.length() > 0) {
-                stmt = this.getPreparedStatement(conn, GetCustomerByIdStr, c_id_str);
+                sqlStmt = GetCustomerByIdStr;
+                parameter = c_id_str;
             }
             // Otherwise use their FrequentFlyer information
             else {
-
-
-                stmt = this.getPreparedStatement(conn, GetCustomerByFFNumber, ff_c_id_str);
+                sqlStmt = GetCustomerByFFNumber;
+                parameter = ff_c_id_str;
                 has_al_id = true;
             }
-            ResultSet results = stmt.executeQuery();
-            if (results.next()) {
-                c_id = results.getLong(1);
-                if (has_al_id) {
-                    ff_al_id = results.getLong(2);
+
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, sqlStmt, parameter)) {
+
+                try (ResultSet results = stmt.executeQuery()) {
+                    if (results.next()) {
+                        c_id = results.getLong(1);
+                        if (has_al_id) {
+                            ff_al_id = results.getLong(2);
+                        }
+                    } else {
+                        throw new UserAbortException(String.format("No Customer record was found [c_id_str=%s, ff_c_id_str=%s, ff_al_id=%s]",
+                                c_id_str, ff_c_id_str, ff_al_id));
+                    }
                 }
-            } else {
-                results.close();
-                throw new UserAbortException(String.format("No Customer record was found [c_id_str=%s, ff_c_id_str=%s, ff_al_id=%s]",
-                        c_id_str, ff_c_id_str, ff_al_id));
             }
-            results.close();
         }
 
         // Now get the result of the information that we need
         // If there is no valid customer record, then throw an abort
         // This should happen 5% of the time
-        stmt = this.getPreparedStatement(conn, GetCustomerReservation);
-        stmt.setLong(1, c_id);
-        stmt.setLong(2, f_id);
-        ResultSet results = stmt.executeQuery();
-        if (results.next() == false) {
-            results.close();
-            throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
+
+        long c_iattr00;
+        long seats_left;
+        long r_id;
+        double r_price;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, GetCustomerReservation)) {
+            stmt.setLong(1, c_id);
+            stmt.setLong(2, f_id);
+            try (ResultSet results = stmt.executeQuery()) {
+                if (!results.next()) {
+                    throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
+                }
+                c_iattr00 = results.getLong(4) + 1;
+                seats_left = results.getLong(8);
+                r_id = results.getLong(9);
+                r_price = results.getDouble(11);
+            }
         }
-        long c_iattr00 = results.getLong(4) + 1;
-        long seats_left = results.getLong(8);
-        long r_id = results.getLong(9);
-        double r_price = results.getDouble(11);
-        results.close();
-        int updated = 0;
+
 
         // Now delete all of the flights that they have on this flight
-        stmt = this.getPreparedStatement(conn, DeleteReservation, r_id, c_id, f_id);
-        updated = stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, DeleteReservation, r_id, c_id, f_id)) {
+            stmt.executeUpdate();
+        }
 
 
         // Update Available Seats on Flight
-        stmt = this.getPreparedStatement(conn, UpdateFlight, f_id);
-        updated = stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateFlight, f_id)) {
+            stmt.executeUpdate();
+        }
 
         // Update Customer's Balance
-        stmt = this.getPreparedStatement(conn, UpdateCustomer, -1 * r_price, c_iattr00, c_id);
-        updated = stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateCustomer, -1 * r_price, c_iattr00, c_id)) {
+            stmt.executeUpdate();
+        }
 
 
         // Update Customer's Frequent Flyer Information (Optional)
         if (ff_al_id != null) {
-            stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id);
-            updated = stmt.executeUpdate();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateFrequentFlyer, c_id, ff_al_id)) {
+                stmt.executeUpdate();
+            }
         }
 
-        if (debug) {
-            LOG.debug(String.format("Deleted reservation on flight %d for customer %d [seatsLeft=%d]", f_id, c_id, seats_left + 1));
-        }
+        LOG.debug(String.format("Deleted reservation on flight %d for customer %d [seatsLeft=%d]", f_id, c_id, seats_left + 1));
+
     }
 
 }

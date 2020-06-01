@@ -54,12 +54,6 @@ import java.sql.SQLException;
 public class FindOpenSeats extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(FindOpenSeats.class);
 
-//    private final VoltTable.ColumnInfo outputColumns[] = {
-//        new VoltTable.ColumnInfo("F_ID", VoltType.BIGINT),
-//        new VoltTable.ColumnInfo("SEAT", VoltType.INTEGER),
-//        new VoltTable.ColumnInfo("PRICE", VoltType.FLOAT),
-//    };
-
     public final SQLStmt GetFlight = new SQLStmt(
             "SELECT F_STATUS, F_BASE_PRICE, F_SEATS_TOTAL, F_SEATS_LEFT, " +
                     "       (F_BASE_PRICE + (F_BASE_PRICE * (1 - (F_SEATS_LEFT / F_SEATS_TOTAL)))) AS F_PRICE " +
@@ -74,7 +68,6 @@ public class FindOpenSeats extends Procedure {
     );
 
     public Object[][] run(Connection conn, long f_id) throws SQLException {
-        final boolean debug = LOG.isDebugEnabled();
 
         // 150 seats
         final long[] seatmap = new long[]
@@ -90,19 +83,25 @@ public class FindOpenSeats extends Procedure {
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 
+        double base_price;
+        long seats_total;
+        long seats_left;
+        double seat_price;
+
         // First calculate the seat price using the flight's base price
         // and the number of seats that remaining
-        PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight);
-        f_stmt.setLong(1, f_id);
-        ResultSet f_results = f_stmt.executeQuery();
-        boolean adv = f_results.next();
+        try (PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight)) {
+            f_stmt.setLong(1, f_id);
+            try (ResultSet f_results = f_stmt.executeQuery()) {
+                f_results.next();
 
-        // long status = results[0].getLong(0);
-        double base_price = f_results.getDouble(2);
-        long seats_total = f_results.getLong(3);
-        long seats_left = f_results.getLong(4);
-        double seat_price = f_results.getDouble(5);
-        f_results.close();
+                // long status = results[0].getLong(0);
+                base_price = f_results.getDouble(2);
+                seats_total = f_results.getLong(3);
+                seats_left = f_results.getLong(4);
+                seat_price = f_results.getDouble(5);
+            }
+        }
 
         // TODO: Figure out why this doesn't match the SQL
         //   Possible explanation: Floating point numbers are approximations;
@@ -111,25 +110,26 @@ public class FindOpenSeats extends Procedure {
         //                         such as numeric, for intermediate values.  (This is
         //                         more-or-less equivalent to java.math.BigDecimal.)
         double _seat_price = base_price + (base_price * (1.0 - (seats_left / (double) seats_total)));
-        if (debug) {
-            LOG.debug(String.format("Flight %d - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
-                    f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
-        }
+
+        LOG.debug(String.format("Flight %d - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
+                f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
+
 
         // Then build the seat map of the remaining seats
-        PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats);
-        s_stmt.setLong(1, f_id);
-        ResultSet s_results = s_stmt.executeQuery();
-        while (s_results.next()) {
-            long r_id = s_results.getLong(1);
-            int seatnum = s_results.getInt(3);
-            if (debug) {
-                LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
-            }
+        try (PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats)) {
+            s_stmt.setLong(1, f_id);
+            try (ResultSet s_results = s_stmt.executeQuery()) {
+                while (s_results.next()) {
+                    long r_id = s_results.getLong(1);
+                    int seatnum = s_results.getInt(3);
 
-            seatmap[seatnum] = 1;
+                    LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
+
+
+                    seatmap[seatnum] = 1;
+                }
+            }
         }
-        s_results.close();
 
         int ctr = 0;
         Object[][] returnResults = new Object[SEATSConstants.FLIGHTS_NUM_SEATS][];
@@ -144,8 +144,6 @@ public class FindOpenSeats extends Procedure {
                 }
             }
         }
-//        assert(seats_left == returnResults.getRowCount()) :
-//            String.format("Flight %d - Expected[%d] != Actual[%d]", f_id, seats_left, returnResults.getRowCount());
 
         return returnResults;
     }

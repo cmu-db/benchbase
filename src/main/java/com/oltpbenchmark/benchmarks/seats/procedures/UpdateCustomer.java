@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -72,57 +73,67 @@ public class UpdateCustomer extends Procedure {
     );
 
     public void run(Connection conn, Long c_id, String c_id_str, Long update_ff, long attr0, long attr1) throws SQLException {
-        final boolean debug = LOG.isDebugEnabled();
-
         // Use C_ID_STR to get C_ID
         if (c_id == null) {
 
 
-            ResultSet rs = this.getPreparedStatement(conn, GetCustomerIdStr, c_id_str).executeQuery();
-            if (rs.next()) {
-                c_id = rs.getLong(1);
-            } else {
-                rs.close();
-                throw new UserAbortException(String.format("No Customer information record found for string '%s'", c_id_str));
+            try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetCustomerIdStr, c_id_str)) {
+                try (ResultSet rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        c_id = rs.getLong(1);
+                    } else {
+                        throw new UserAbortException(String.format("No Customer information record found for string '%s'", c_id_str));
+                    }
+                }
             }
-            rs.close();
         }
 
+        long base_airport;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetCustomer, c_id)) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (!rs.next()) {
+                    rs.close();
+                    throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
+                }
 
-        ResultSet rs = this.getPreparedStatement(conn, GetCustomer, c_id).executeQuery();
-        if (rs.next() == false) {
-            rs.close();
-            throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
+                base_airport = rs.getLong(3);
+            }
         }
-
-        long base_airport = rs.getLong(3);
-        rs.close();
 
         // Get their airport information
         // TODO: Do something interesting with this data
-        ResultSet airport_results = this.getPreparedStatement(conn, GetBaseAirport, base_airport).executeQuery();
-        boolean adv = airport_results.next();
-        airport_results.close();
-
-
-        if (update_ff != null) {
-            ResultSet ff_results = this.getPreparedStatement(conn, GetFrequentFlyers, c_id).executeQuery();
-            while (ff_results.next()) {
-                long ff_al_id = ff_results.getLong(2);
-                this.getPreparedStatement(conn, UpdatFrequentFlyers, attr0, attr1, c_id, ff_al_id).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetBaseAirport, base_airport)) {
+            try (ResultSet airport_results = preparedStatement.executeQuery()) {
+                airport_results.next();
             }
-            ff_results.close();
         }
 
-        int updated = this.getPreparedStatement(conn, UpdateCustomer, attr0, attr1, c_id).executeUpdate();
+
+        long ff_al_id;
+
+        if (update_ff != null) {
+            try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetFrequentFlyers, c_id)) {
+                try (ResultSet ff_results = preparedStatement.executeQuery()) {
+                    while (ff_results.next()) {
+                        ff_al_id = ff_results.getLong(2);
+                        try (PreparedStatement updateStatement = this.getPreparedStatement(conn, UpdatFrequentFlyers, attr0, attr1, c_id, ff_al_id)) {
+                            updateStatement.executeUpdate();
+                        }
+                    }
+                }
+            }
+        }
+
+
+        int updated;
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, UpdateCustomer, attr0, attr1, c_id)) {
+            updated = preparedStatement.executeUpdate();
+        }
         if (updated != 1) {
             String msg = String.format("Failed to update customer #%d - Updated %d records", c_id, updated);
-            if (debug) {
-                LOG.warn(msg);
-            }
+            LOG.warn(msg);
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
 
-        return;
     }
 }

@@ -83,47 +83,47 @@ public class UpdateReservation extends Procedure {
     };
 
     public void run(Connection conn, long r_id, long f_id, long c_id, long seatnum, long attr_idx, long attr_val) throws SQLException {
-        final boolean debug = LOG.isDebugEnabled();
-
 
         boolean found;
 
-        PreparedStatement stmt = null;
-        ResultSet results = null;
-
         // Check if Seat is Available
-        stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum);
-        results = stmt.executeQuery();
-        found = results.next();
-        results.close();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, CheckSeat, f_id, seatnum)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                found = results.next();
+            }
+        }
+
         if (found) {
             throw new UserAbortException(ErrorType.SEAT_ALREADY_RESERVED +
                     String.format(" Seat %d is already reserved on flight #%d", seatnum, f_id));
         }
+
         // Check if the Customer already has a seat on this flight
-        stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id);
-        results = stmt.executeQuery();
-        found = results.next();
-        results.close();
-        if (found == false) {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, CheckCustomer, f_id, c_id)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                found = results.next();
+            }
+        }
+
+        if (!found) {
             throw new UserAbortException(ErrorType.CUSTOMER_ALREADY_HAS_SEAT +
                     String.format(" Customer %d does not have an existing reservation on flight #%d", c_id, f_id));
         }
 
         // Update the seat reservation for the customer
-        stmt = this.getPreparedStatement(conn, ReserveSeats[(int) attr_idx], seatnum, attr_val, r_id, c_id, f_id);
-        int updated = stmt.executeUpdate();
+        int updated;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, ReserveSeats[(int) attr_idx], seatnum, attr_val, r_id, c_id, f_id)) {
+            updated = stmt.executeUpdate();
+        }
+
         if (updated != 1) {
             String msg = String.format("Failed to update reservation on flight %d for customer #%d - Updated %d records", f_id, c_id, updated);
-            if (debug) {
                 LOG.warn(msg);
-            }
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }
 
-        if (debug) {
+
             LOG.debug(String.format("Updated reservation on flight %d for customer %d", f_id, c_id));
-        }
-        return;
+
     }
 }

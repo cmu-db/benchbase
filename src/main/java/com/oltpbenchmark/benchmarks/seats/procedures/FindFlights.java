@@ -31,25 +31,6 @@ import java.util.List;
 public class FindFlights extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(FindFlights.class);
 
-    // -----------------------------------------------------------------
-    // STATIC MEMBERS
-    // -----------------------------------------------------------------
-
-//    private static final VoltTable.ColumnInfo[] RESULT_COLS = {
-//        new VoltTable.ColumnInfo("F_ID", VoltType.BIGINT),
-//        new VoltTable.ColumnInfo("SEATS_LEFT", VoltType.BIGINT),
-//        new VoltTable.ColumnInfo("AL_NAME", VoltType.STRING),
-//        new VoltTable.ColumnInfo("DEPART_TIME", VoltType.TIMESTAMP),
-//        new VoltTable.ColumnInfo("DEPART_AP_CODE", VoltType.STRING),
-//        new VoltTable.ColumnInfo("DEPART_AP_NAME", VoltType.STRING),
-//        new VoltTable.ColumnInfo("DEPART_AP_CITY", VoltType.STRING),
-//        new VoltTable.ColumnInfo("DEPART_AP_COUNTRY", VoltType.STRING),
-//        new VoltTable.ColumnInfo("ARRIVE_TIME", VoltType.TIMESTAMP),
-//        new VoltTable.ColumnInfo("ARRIVE_AP_CODE", VoltType.STRING),
-//        new VoltTable.ColumnInfo("ARRIVE_AP_NAME", VoltType.STRING),
-//        new VoltTable.ColumnInfo("ARRIVE_AP_CITY", VoltType.STRING),
-//        new VoltTable.ColumnInfo("ARRIVE_AP_COUNTRY", VoltType.STRING),
-//    };
 
     public final SQLStmt GetNearbyAirports = new SQLStmt(
             "SELECT * " +
@@ -84,7 +65,6 @@ public class FindFlights extends Procedure {
 
     public List<Object[]> run(Connection conn, long depart_aid, long arrive_aid, Timestamp start_date, Timestamp end_date, long distance) throws SQLException {
         try {
-            final boolean debug = LOG.isDebugEnabled();
 
 
             final List<Long> arrive_aids = new ArrayList<>();
@@ -94,95 +74,96 @@ public class FindFlights extends Procedure {
 
             if (distance > 0) {
                 // First get the nearby airports for the departure and arrival cities
-                PreparedStatement nearby_stmt = this.getPreparedStatement(conn, GetNearbyAirports, depart_aid, distance);
-                ResultSet nearby_results = nearby_stmt.executeQuery();
-                while (nearby_results.next()) {
-                    long aid = nearby_results.getLong(1);
-                    double aid_distance = nearby_results.getDouble(2);
-                    if (debug) {
-                        LOG.debug("DEPART NEARBY: {} distance={} miles", aid, aid_distance);
+                try (PreparedStatement nearby_stmt = this.getPreparedStatement(conn, GetNearbyAirports, depart_aid, distance)) {
+                    try (ResultSet nearby_results = nearby_stmt.executeQuery()) {
+                        while (nearby_results.next()) {
+                            long aid = nearby_results.getLong(1);
+                            double aid_distance = nearby_results.getDouble(2);
+
+                            LOG.debug("DEPART NEARBY: {} distance={} miles", aid, aid_distance);
+
+                            arrive_aids.add(aid);
+                        }
                     }
-                    arrive_aids.add(aid);
                 }
-                nearby_results.close();
             }
 
             // H-Store doesn't support IN clauses, so we'll only get nearby flights to nearby arrival cities
             int num_nearby = arrive_aids.size();
             if (num_nearby > 0) {
-                PreparedStatement f_stmt = null;
+                SQLStmt sqlStmt;
                 if (num_nearby == 1) {
-                    f_stmt = this.getPreparedStatement(conn, GetFlights1);
+                    sqlStmt = GetFlights1;
                 } else if (num_nearby == 2) {
-                    f_stmt = this.getPreparedStatement(conn, GetFlights2);
+                    sqlStmt = GetFlights2;
                 } else {
-                    f_stmt = this.getPreparedStatement(conn, GetFlights3);
+                    sqlStmt = GetFlights3;
                 }
 
 
-                // Set Parameters
-                f_stmt.setLong(1, depart_aid);
-                f_stmt.setTimestamp(2, start_date);
-                f_stmt.setTimestamp(3, end_date);
-                for (int i = 0, cnt = Math.min(3, num_nearby); i < cnt; i++) {
-                    f_stmt.setLong(4 + i, arrive_aids.get(i));
+                try (PreparedStatement f_stmt = this.getPreparedStatement(conn, sqlStmt)) {
+
+                    // Set Parameters
+                    f_stmt.setLong(1, depart_aid);
+                    f_stmt.setTimestamp(2, start_date);
+                    f_stmt.setTimestamp(3, end_date);
+                    for (int i = 0, cnt = Math.min(3, num_nearby); i < cnt; i++) {
+                        f_stmt.setLong(4 + i, arrive_aids.get(i));
+                    }
+
+
+                    // Process Result
+                    try (ResultSet flightResults = f_stmt.executeQuery()) {
+
+
+                        try (PreparedStatement ai_stmt = this.getPreparedStatement(conn, GetAirportInfo)) {
+                            while (flightResults.next()) {
+                                long f_depart_airport = flightResults.getLong(4);
+                                long f_arrive_airport = flightResults.getLong(6);
+
+                                Object[] row = new Object[13];
+                                int r = 0;
+
+                                row[r++] = flightResults.getLong(1);    // [00] F_ID
+                                row[r++] = flightResults.getLong(3);    // [01] SEATS_LEFT
+                                row[r++] = flightResults.getString(8);  // [02] AL_NAME
+
+                                // DEPARTURE AIRPORT
+                                ai_stmt.setLong(1, f_depart_airport);
+                                try (ResultSet ai_results = ai_stmt.executeQuery()) {
+                                    ai_results.next();
+
+                                    row[r++] = flightResults.getDate(5);    // [03] DEPART_TIME
+                                    row[r++] = ai_results.getString(1);     // [04] DEPART_AP_CODE
+                                    row[r++] = ai_results.getString(2);     // [05] DEPART_AP_NAME
+                                    row[r++] = ai_results.getString(3);     // [06] DEPART_AP_CITY
+                                    row[r++] = ai_results.getString(7);     // [07] DEPART_AP_COUNTRY
+                                    ai_results.close();
+                                }
+
+                                // ARRIVAL AIRPORT
+                                ai_stmt.setLong(1, f_arrive_airport);
+                                try (ResultSet ai_results = ai_stmt.executeQuery()) {
+                                    ai_results.next();
+
+                                    row[r++] = flightResults.getDate(7);    // [08] ARRIVE_TIME
+                                    row[r++] = ai_results.getString(1);     // [09] ARRIVE_AP_CODE
+                                    row[r++] = ai_results.getString(2);     // [10] ARRIVE_AP_NAME
+                                    row[r++] = ai_results.getString(3);     // [11] ARRIVE_AP_CITY
+                                    row[r++] = ai_results.getString(7);     // [12] ARRIVE_AP_COUNTRY
+                                }
+
+                                finalResults.add(row);
+
+                            }
+                        }
+                    }
                 }
 
-
-                // Process Result
-                ResultSet flightResults = f_stmt.executeQuery();
-//            if (debug) LOG.debug(String.format("Found %d flights between %d->%s [start=%s, end=%s]",
-//                                               flightResults.getRowCount(), depart_aid, arrive_aids,
-//                                               start_date, end_date));
-
-
-                PreparedStatement ai_stmt = this.getPreparedStatement(conn, GetAirportInfo);
-                ResultSet ai_results = null;
-                while (flightResults.next()) {
-                    long f_depart_airport = flightResults.getLong(4);
-                    long f_arrive_airport = flightResults.getLong(6);
-
-                    Object[] row = new Object[13];
-                    int r = 0;
-
-                    row[r++] = flightResults.getLong(1);    // [00] F_ID
-                    row[r++] = flightResults.getLong(3);    // [01] SEATS_LEFT
-                    row[r++] = flightResults.getString(8);  // [02] AL_NAME
-
-                    // DEPARTURE AIRPORT
-                    ai_stmt.setLong(1, f_depart_airport);
-                    ai_results = ai_stmt.executeQuery();
-                    boolean adv = ai_results.next();
-
-                    row[r++] = flightResults.getDate(5);    // [03] DEPART_TIME
-                    row[r++] = ai_results.getString(1);     // [04] DEPART_AP_CODE
-                    row[r++] = ai_results.getString(2);     // [05] DEPART_AP_NAME
-                    row[r++] = ai_results.getString(3);     // [06] DEPART_AP_CITY
-                    row[r++] = ai_results.getString(7);     // [07] DEPART_AP_COUNTRY
-                    ai_results.close();
-
-                    // ARRIVAL AIRPORT
-                    ai_stmt.setLong(1, f_arrive_airport);
-                    ai_results = ai_stmt.executeQuery();
-                    adv = ai_results.next();
-
-                    row[r++] = flightResults.getDate(7);    // [08] ARRIVE_TIME
-                    row[r++] = ai_results.getString(1);     // [09] ARRIVE_AP_CODE
-                    row[r++] = ai_results.getString(2);     // [10] ARRIVE_AP_NAME
-                    row[r++] = ai_results.getString(3);     // [11] ARRIVE_AP_CITY
-                    row[r++] = ai_results.getString(7);     // [12] ARRIVE_AP_COUNTRY
-                    ai_results.close();
-
-                    finalResults.add(row);
-
-                }
-                //ai_stmt.close();
-                flightResults.close();
-                //f_stmt.close();
             }
-            if (debug) {
-                LOG.debug("Flight Information:\n{}", finalResults);
-            }
+
+            LOG.debug("Flight Information:\n{}", finalResults);
+
             return (finalResults);
         } catch (SQLException esql) {
             LOG.error("caught SQLException in FindFlights:{}", esql, esql);
