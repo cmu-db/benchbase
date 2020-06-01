@@ -113,54 +113,54 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         // Create a prepared statement
         Table catalog_tbl = benchmark.getTableCatalog(TATPConstants.TABLENAME_SUBSCRIBER);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement pstmt = conn.prepareStatement(sql);
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        long total = 0;
-        int batch = 0;
+            long total = 0;
+            int batch = 0;
 
-        for (long s_id = lo; s_id <= hi; s_id++) {
-            int col = 0;
+            for (long s_id = lo; s_id <= hi; s_id++) {
+                int col = 0;
 
-            pstmt.setLong(++col, s_id);
-            pstmt.setString(++col, TATPUtil.padWithZero(s_id));
+                pstmt.setLong(++col, s_id);
+                pstmt.setString(++col, TATPUtil.padWithZero(s_id));
 
-            // BIT_##
-            for (int j = 0; j < 10; j++) {
-                pstmt.setByte(++col, TATPUtil.number(0, 1).byteValue());
+                // BIT_##
+                for (int j = 0; j < 10; j++) {
+                    pstmt.setByte(++col, TATPUtil.number(0, 1).byteValue());
+                }
+                // HEX_##
+                for (int j = 0; j < 10; j++) {
+                    pstmt.setByte(++col, TATPUtil.number(0, 15).byteValue());
+                }
+                // BYTE2_##
+                for (int j = 0; j < 10; j++) {
+                    pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
+                }
+                // msc_location + vlr_location
+                for (int j = 0; j < 2; j++) {
+                    pstmt.setInt(++col, TATPUtil.number(0, Integer.MAX_VALUE).intValue());
+                }
+                total++;
+                pstmt.addBatch();
+
+                if (++batch >= workConf.getDBBatchSize()) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
+                    }
+                    int[] results = pstmt.executeBatch();
+
+                    batch = 0;
+                }
             }
-            // HEX_##
-            for (int j = 0; j < 10; j++) {
-                pstmt.setByte(++col, TATPUtil.number(0, 15).byteValue());
-            }
-            // BYTE2_##
-            for (int j = 0; j < 10; j++) {
-                pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
-            }
-            // msc_location + vlr_location
-            for (int j = 0; j < 2; j++) {
-                pstmt.setInt(++col, TATPUtil.number(0, Integer.MAX_VALUE).intValue());
-            }
-            total++;
-            pstmt.addBatch();
-
-            if (++batch >= workConf.getDBBatchSize()) {
+            if (batch > 0) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
                 }
                 int[] results = pstmt.executeBatch();
 
-                batch = 0;
             }
-        }
-        if (batch > 0) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
-            }
-            int[] results = pstmt.executeBatch();
 
         }
-
-        pstmt.close();
     }
 
     /**
@@ -170,44 +170,44 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         // Create a prepared statement
         Table catalog_tbl = benchmark.getTableCatalog(TATPConstants.TABLENAME_ACCESS_INFO);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
-        PreparedStatement pstmt = conn.prepareStatement(sql);
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        int s_id = 0;
-        int[] arr = {1, 2, 3, 4};
+            int s_id = 0;
+            int[] arr = {1, 2, 3, 4};
 
-        int[] ai_types = TATPUtil.subArr(arr, 1, 4);
-        long total = 0;
-        int batch = 0;
-        while (s_id++ < subscriberSize) {
-            for (int ai_type : ai_types) {
-                int col = 0;
-                pstmt.setLong(++col, s_id);
-                pstmt.setByte(++col, (byte) ai_type);
-                pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
-                pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
-                pstmt.setString(++col, TATPUtil.astring(3, 3));
-                pstmt.setString(++col, TATPUtil.astring(5, 5));
-                pstmt.addBatch();
-                batch++;
-                total++;
+            int[] ai_types = TATPUtil.subArr(arr, 1, 4);
+            long total = 0;
+            int batch = 0;
+            while (s_id++ < subscriberSize) {
+                for (int ai_type : ai_types) {
+                    int col = 0;
+                    pstmt.setLong(++col, s_id);
+                    pstmt.setByte(++col, (byte) ai_type);
+                    pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
+                    pstmt.setShort(++col, TATPUtil.number(0, 255).shortValue());
+                    pstmt.setString(++col, TATPUtil.astring(3, 3));
+                    pstmt.setString(++col, TATPUtil.astring(5, 5));
+                    pstmt.addBatch();
+                    batch++;
+                    total++;
+                }
+                if (batch >= workConf.getDBBatchSize()) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
+                    }
+                    int[] results = pstmt.executeBatch();
+
+                    batch = 0;
+                }
             }
-            if (batch >= workConf.getDBBatchSize()) {
+            if (batch > 0) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
                 }
                 int[] results = pstmt.executeBatch();
 
-                batch = 0;
             }
         }
-        if (batch > 0) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
-            }
-            int[] results = pstmt.executeBatch();
-
-        }
-        pstmt.close();
     }
 
     /**
@@ -219,12 +219,12 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         Table catalog_spe = benchmark.getTableCatalog(TATPConstants.TABLENAME_SPECIAL_FACILITY);
         Table catalog_cal = benchmark.getTableCatalog(TATPConstants.TABLENAME_CALL_FORWARDING);
         String spe_sql = SQLUtil.getInsertSQL(catalog_spe, this.getDatabaseType());
-        PreparedStatement spe_pstmt = conn.prepareStatement(spe_sql);
+
         int spe_batch = 0;
         long spe_total = 0;
 
         String cal_sql = SQLUtil.getInsertSQL(catalog_cal, this.getDatabaseType());
-        PreparedStatement cal_pstmt = conn.prepareStatement(cal_sql);
+
         long cal_total = 0;
 
         int s_id = 0;
@@ -236,66 +236,68 @@ public class TATPLoader extends Loader<TATPBenchmark> {
         if (LOG.isDebugEnabled()) {
             LOG.debug("batchSize = {}", workConf.getDBBatchSize());
         }
-        while (s_id++ < subscriberSize) {
-            int[] sf_types = TATPUtil.subArr(spe_arr, 1, 4);
-            for (int sf_type : sf_types) {
-                int spe_col = 0;
-                spe_pstmt.setLong(++spe_col, s_id);
-                spe_pstmt.setByte(++spe_col, (byte) sf_type);
-                spe_pstmt.setByte(++spe_col, TATPUtil.isActive());
-                spe_pstmt.setShort(++spe_col, TATPUtil.number(0, 255).shortValue());
-                spe_pstmt.setShort(++spe_col, TATPUtil.number(0, 255).shortValue());
-                spe_pstmt.setString(++spe_col, TATPUtil.astring(5, 5));
-                spe_pstmt.addBatch();
-                spe_batch++;
-                spe_total++;
 
-                // now call_forwarding
-                int[] start_times = TATPUtil.subArr(cal_arr, 0, 3);
-                for (int start_time : start_times) {
-                    int cal_col = 0;
-                    cal_pstmt.setLong(++cal_col, s_id);
-                    cal_pstmt.setByte(++cal_col, (byte) sf_type);
-                    cal_pstmt.setByte(++cal_col, (byte) start_time);
-                    cal_pstmt.setByte(++cal_col, (byte) (start_time + TATPUtil.number(1, 8)));
-                    cal_pstmt.setString(++cal_col, TATPUtil.nstring(15, 15));
-                    cal_pstmt.addBatch();
-                    cal_total++;
+        try (PreparedStatement cal_pstmt = conn.prepareStatement(cal_sql);
+             PreparedStatement spe_pstmt = conn.prepareStatement(spe_sql)) {
+            while (s_id++ < subscriberSize) {
+                int[] sf_types = TATPUtil.subArr(spe_arr, 1, 4);
+                for (int sf_type : sf_types) {
+                    int spe_col = 0;
+                    spe_pstmt.setLong(++spe_col, s_id);
+                    spe_pstmt.setByte(++spe_col, (byte) sf_type);
+                    spe_pstmt.setByte(++spe_col, TATPUtil.isActive());
+                    spe_pstmt.setShort(++spe_col, TATPUtil.number(0, 255).shortValue());
+                    spe_pstmt.setShort(++spe_col, TATPUtil.number(0, 255).shortValue());
+                    spe_pstmt.setString(++spe_col, TATPUtil.astring(5, 5));
+                    spe_pstmt.addBatch();
+                    spe_batch++;
+                    spe_total++;
+
+                    // now call_forwarding
+                    int[] start_times = TATPUtil.subArr(cal_arr, 0, 3);
+                    for (int start_time : start_times) {
+                        int cal_col = 0;
+                        cal_pstmt.setLong(++cal_col, s_id);
+                        cal_pstmt.setByte(++cal_col, (byte) sf_type);
+                        cal_pstmt.setByte(++cal_col, (byte) start_time);
+                        cal_pstmt.setByte(++cal_col, (byte) (start_time + TATPUtil.number(1, 8)));
+                        cal_pstmt.setString(++cal_col, TATPUtil.nstring(15, 15));
+                        cal_pstmt.addBatch();
+                        cal_total++;
+                    }
+                }
+
+                if (spe_batch > workConf.getDBBatchSize()) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    }
+                    int[] results = spe_pstmt.executeBatch();
+
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    }
+                    results = cal_pstmt.executeBatch();
+
+
+                    spe_batch = 0;
                 }
             }
-
-            if (spe_batch > workConf.getDBBatchSize()) {
+            LOG.debug("spe_batch = {}", spe_batch);
+            if (spe_batch > 0) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));
                 }
                 int[] results = spe_pstmt.executeBatch();
 
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
                 }
                 results = cal_pstmt.executeBatch();
 
 
-                spe_batch = 0;
             }
         }
-        LOG.debug("spe_batch = {}", spe_batch);
-        if (spe_batch > 0) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total));
-            }
-            int[] results = spe_pstmt.executeBatch();
-
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
-            }
-            results = cal_pstmt.executeBatch();
-
-
-        }
-        cal_pstmt.close();
-        spe_pstmt.close();
     }
 }
