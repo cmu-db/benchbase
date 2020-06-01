@@ -36,15 +36,15 @@ public class SumRecord6 extends Procedure {
                     + "FROM HTABLE WHERE FIELD1>?");
 
     public void run(Connection conn, int keyname) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, sumStmt);
-        stmt.setInt(1, keyname);
-        int sum = -1;
-        ResultSet r = stmt.executeQuery();
-        if (r.next()) {
-            sum = r.getInt(1);
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, sumStmt)) {
+            stmt.setInt(1, keyname);
+            int sum = -1;
+            try (ResultSet r = stmt.executeQuery()) {
+                if (r.next()) {
+                    sum = r.getInt(1);
+                }
+            }
         }
-
-        r.close();
     }
 
 }

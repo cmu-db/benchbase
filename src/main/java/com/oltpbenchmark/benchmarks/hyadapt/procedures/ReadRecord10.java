@@ -43,15 +43,16 @@ public class ReadRecord10 extends Procedure {
 
     //FIXME: The value in ysqb is a byteiterator
     public void run(Connection conn, int keyname, Map<Integer, Integer> results) throws SQLException {
-        PreparedStatement stmt = this.getPreparedStatement(conn, readStmt);
-        stmt.setInt(1, keyname);
-        ResultSet r = stmt.executeQuery();
-        while (r.next()) {
-            for (int i = 1; i <= ((HYADAPTConstants.FIELD_COUNT / 10) * 10); i++) {
-                results.put(i, r.getInt(i));
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, readStmt)) {
+            stmt.setInt(1, keyname);
+            try (ResultSet r = stmt.executeQuery()) {
+                while (r.next()) {
+                    for (int i = 1; i <= ((HYADAPTConstants.FIELD_COUNT / 10) * 10); i++) {
+                        results.put(i, r.getInt(i));
+                    }
+                }
             }
         }
-        r.close();
     }
 
 
