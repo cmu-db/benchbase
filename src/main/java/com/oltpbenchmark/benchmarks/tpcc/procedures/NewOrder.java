@@ -92,33 +92,12 @@ public class NewOrder extends TPCCProcedure {
                     " VALUES (?,?,?,?,?,?,?,?,?)");
 
 
-    // NewOrder Txn
-    private PreparedStatement stmtGetCust = null;
-    private PreparedStatement stmtGetWhse = null;
-    private PreparedStatement stmtGetDist = null;
-    private PreparedStatement stmtInsertNewOrder = null;
-    private PreparedStatement stmtUpdateDist = null;
-    private PreparedStatement stmtInsertOOrder = null;
-    private PreparedStatement stmtGetItem = null;
-    private PreparedStatement stmtGetStock = null;
-    private PreparedStatement stmtUpdateStock = null;
-    private PreparedStatement stmtInsertOrderLine = null;
 
 
     public void run(Connection conn, Random gen, int terminalWarehouseID, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
 
         //initializing all prepared statements
-        stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL);
-        stmtGetWhse = this.getPreparedStatement(conn, stmtGetWhseSQL);
-        stmtGetDist = this.getPreparedStatement(conn, stmtGetDistSQL);
-        stmtInsertNewOrder = this.getPreparedStatement(conn, stmtInsertNewOrderSQL);
-        stmtUpdateDist = this.getPreparedStatement(conn, stmtUpdateDistSQL);
-        stmtInsertOOrder = this.getPreparedStatement(conn, stmtInsertOOrderSQL);
-        stmtGetItem = this.getPreparedStatement(conn, stmtGetItemSQL);
-        stmtGetStock = this.getPreparedStatement(conn, stmtGetStockSQL);
-        stmtUpdateStock = this.getPreparedStatement(conn, stmtUpdateStockSQL);
-        stmtInsertOrderLine = this.getPreparedStatement(conn, stmtInsertOrderLineSQL);
 
 
         int districtID = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
@@ -176,230 +155,224 @@ public class NewOrder extends TPCCProcedure {
         int s_remote_cnt_increment;
         float ol_amount, total_amount = 0;
 
-        try {
-            stmtGetCust.setInt(1, w_id);
-            stmtGetCust.setInt(2, d_id);
-            stmtGetCust.setInt(3, c_id);
-            ResultSet rs = stmtGetCust.executeQuery();
-            if (!rs.next()) {
-                throw new RuntimeException("C_D_ID=" + d_id
-                        + " C_ID=" + c_id + " not found!");
-            }
-            c_discount = rs.getFloat("C_DISCOUNT");
-            c_last = rs.getString("C_LAST");
-            c_credit = rs.getString("C_CREDIT");
-            rs.close();
-            rs = null;
-
-            stmtGetWhse.setInt(1, w_id);
-            rs = stmtGetWhse.executeQuery();
-            if (!rs.next()) {
-                throw new RuntimeException("W_ID=" + w_id + " not found!");
-            }
-            w_tax = rs.getFloat("W_TAX");
-            rs.close();
-            rs = null;
-
-            stmtGetDist.setInt(1, w_id);
-            stmtGetDist.setInt(2, d_id);
-            rs = stmtGetDist.executeQuery();
-            if (!rs.next()) {
-                throw new RuntimeException("D_ID=" + d_id + " D_W_ID=" + w_id
-                        + " not found!");
-            }
-            d_next_o_id = rs.getInt("D_NEXT_O_ID");
-            d_tax = rs.getFloat("D_TAX");
-            rs.close();
-            rs = null;
-
-            //woonhak, need to change order because of foreign key constraints
-            //update next_order_id first, but it might doesn't matter
-            stmtUpdateDist.setInt(1, w_id);
-            stmtUpdateDist.setInt(2, d_id);
-            int result = stmtUpdateDist.executeUpdate();
-            if (result == 0) {
-                throw new RuntimeException(
-                        "Error!! Cannot update next_order_id on district for D_ID="
-                                + d_id + " D_W_ID=" + w_id);
-            }
-
-            o_id = d_next_o_id;
-
-            // woonhak, need to change order, because of foreign key constraints
-            //[[insert ooder first
-            stmtInsertOOrder.setInt(1, o_id);
-            stmtInsertOOrder.setInt(2, d_id);
-            stmtInsertOOrder.setInt(3, w_id);
-            stmtInsertOOrder.setInt(4, c_id);
-            stmtInsertOOrder.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
-            stmtInsertOOrder.setInt(6, o_ol_cnt);
-            stmtInsertOOrder.setInt(7, o_all_local);
-            stmtInsertOOrder.executeUpdate();
-            //insert ooder first]]
-            /*TODO: add error checking */
-
-            stmtInsertNewOrder.setInt(1, o_id);
-            stmtInsertNewOrder.setInt(2, d_id);
-            stmtInsertNewOrder.setInt(3, w_id);
-            stmtInsertNewOrder.executeUpdate();
-            /*TODO: add error checking */
+       try (PreparedStatement stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL);
+        PreparedStatement  stmtGetWhse = this.getPreparedStatement(conn, stmtGetWhseSQL);
+        PreparedStatement stmtGetDist = this.getPreparedStatement(conn, stmtGetDistSQL);
+        PreparedStatement stmtInsertNewOrder = this.getPreparedStatement(conn, stmtInsertNewOrderSQL);
+        PreparedStatement stmtUpdateDist = this.getPreparedStatement(conn, stmtUpdateDistSQL);
+        PreparedStatement stmtInsertOOrder = this.getPreparedStatement(conn, stmtInsertOOrderSQL);
+        PreparedStatement stmtGetItem = this.getPreparedStatement(conn, stmtGetItemSQL);
+        PreparedStatement stmtGetStock = this.getPreparedStatement(conn, stmtGetStockSQL);
+        PreparedStatement stmtUpdateStock = this.getPreparedStatement(conn, stmtUpdateStockSQL);
+        PreparedStatement stmtInsertOrderLine = this.getPreparedStatement(conn, stmtInsertOrderLineSQL)) {
 
 
-			/* woonhak, [[change order				 
-			stmtInsertOOrder.setInt(1, o_id);
-			stmtInsertOOrder.setInt(2, d_id);
-			stmtInsertOOrder.setInt(3, w_id);
-			stmtInsertOOrder.setInt(4, c_id);
-			stmtInsertOOrder.setTimestamp(5,
-					new Timestamp(System.currentTimeMillis()));
-			stmtInsertOOrder.setInt(6, o_ol_cnt);
-			stmtInsertOOrder.setInt(7, o_all_local);
-			stmtInsertOOrder.executeUpdate();
-			change order]]*/
+           try {
+               stmtGetCust.setInt(1, w_id);
+               stmtGetCust.setInt(2, d_id);
+               stmtGetCust.setInt(3, c_id);
+               try (ResultSet rs = stmtGetCust.executeQuery()) {
+                   if (!rs.next()) {
+                       throw new RuntimeException("C_D_ID=" + d_id
+                               + " C_ID=" + c_id + " not found!");
+                   }
+                   c_discount = rs.getFloat("C_DISCOUNT");
+                   c_last = rs.getString("C_LAST");
+                   c_credit = rs.getString("C_CREDIT");
+               }
 
-            for (int ol_number = 1; ol_number <= o_ol_cnt; ol_number++) {
-                ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
-                ol_i_id = itemIDs[ol_number - 1];
-                ol_quantity = orderQuantities[ol_number - 1];
-                stmtGetItem.setInt(1, ol_i_id);
-                rs = stmtGetItem.executeQuery();
-                if (!rs.next()) {
-                    // This is (hopefully) an expected error: this is an
-                    // expected new order rollback
+               stmtGetWhse.setInt(1, w_id);
+               try (ResultSet rs = stmtGetWhse.executeQuery()) {
+                   if (!rs.next()) {
+                       throw new RuntimeException("W_ID=" + w_id + " not found!");
+                   }
+                   w_tax = rs.getFloat("W_TAX");
+               }
 
+               stmtGetDist.setInt(1, w_id);
+               stmtGetDist.setInt(2, d_id);
+               try (ResultSet rs = stmtGetDist.executeQuery()) {
+                   if (!rs.next()) {
+                       throw new RuntimeException("D_ID=" + d_id + " D_W_ID=" + w_id
+                               + " not found!");
+                   }
+                   d_next_o_id = rs.getInt("D_NEXT_O_ID");
+                   d_tax = rs.getFloat("D_TAX");
+               }
 
-                    rs.close();
-                    throw new UserAbortException(
-                            "EXPECTED new order rollback: I_ID=" + ol_i_id
-                                    + " not found!");
-                }
+               //woonhak, need to change order because of foreign key constraints
+               //update next_order_id first, but it might doesn't matter
+               stmtUpdateDist.setInt(1, w_id);
+               stmtUpdateDist.setInt(2, d_id);
+               int result = stmtUpdateDist.executeUpdate();
+               if (result == 0) {
+                   throw new RuntimeException(
+                           "Error!! Cannot update next_order_id on district for D_ID="
+                                   + d_id + " D_W_ID=" + w_id);
+               }
 
-                i_price = rs.getFloat("I_PRICE");
-                i_name = rs.getString("I_NAME");
-                i_data = rs.getString("I_DATA");
-                rs.close();
-                rs = null;
+               o_id = d_next_o_id;
 
-                itemPrices[ol_number - 1] = i_price;
-                itemNames[ol_number - 1] = i_name;
+               // woonhak, need to change order, because of foreign key constraints
+               //[[insert ooder first
+               stmtInsertOOrder.setInt(1, o_id);
+               stmtInsertOOrder.setInt(2, d_id);
+               stmtInsertOOrder.setInt(3, w_id);
+               stmtInsertOOrder.setInt(4, c_id);
+               stmtInsertOOrder.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+               stmtInsertOOrder.setInt(6, o_ol_cnt);
+               stmtInsertOOrder.setInt(7, o_all_local);
+               stmtInsertOOrder.executeUpdate();
+               //insert ooder first]]
+               /*TODO: add error checking */
 
-
-                stmtGetStock.setInt(1, ol_i_id);
-                stmtGetStock.setInt(2, ol_supply_w_id);
-                rs = stmtGetStock.executeQuery();
-                if (!rs.next()) {
-                    throw new RuntimeException("I_ID=" + ol_i_id
-                            + " not found!");
-                }
-                s_quantity = rs.getInt("S_QUANTITY");
-                s_data = rs.getString("S_DATA");
-                s_dist_01 = rs.getString("S_DIST_01");
-                s_dist_02 = rs.getString("S_DIST_02");
-                s_dist_03 = rs.getString("S_DIST_03");
-                s_dist_04 = rs.getString("S_DIST_04");
-                s_dist_05 = rs.getString("S_DIST_05");
-                s_dist_06 = rs.getString("S_DIST_06");
-                s_dist_07 = rs.getString("S_DIST_07");
-                s_dist_08 = rs.getString("S_DIST_08");
-                s_dist_09 = rs.getString("S_DIST_09");
-                s_dist_10 = rs.getString("S_DIST_10");
-                rs.close();
-                rs = null;
-
-                stockQuantities[ol_number - 1] = s_quantity;
-
-                if (s_quantity - ol_quantity >= 10) {
-                    s_quantity -= ol_quantity;
-                } else {
-                    s_quantity += -ol_quantity + 91;
-                }
-
-                if (ol_supply_w_id == w_id) {
-                    s_remote_cnt_increment = 0;
-                } else {
-                    s_remote_cnt_increment = 1;
-                }
+               stmtInsertNewOrder.setInt(1, o_id);
+               stmtInsertNewOrder.setInt(2, d_id);
+               stmtInsertNewOrder.setInt(3, w_id);
+               stmtInsertNewOrder.executeUpdate();
+               /*TODO: add error checking */
 
 
-                stmtUpdateStock.setInt(1, s_quantity);
-                stmtUpdateStock.setInt(2, ol_quantity);
-                stmtUpdateStock.setInt(3, s_remote_cnt_increment);
-                stmtUpdateStock.setInt(4, ol_i_id);
-                stmtUpdateStock.setInt(5, ol_supply_w_id);
-                stmtUpdateStock.addBatch();
+               for (int ol_number = 1; ol_number <= o_ol_cnt; ol_number++) {
+                   ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
+                   ol_i_id = itemIDs[ol_number - 1];
+                   ol_quantity = orderQuantities[ol_number - 1];
+                   stmtGetItem.setInt(1, ol_i_id);
+                   try (ResultSet rs = stmtGetItem.executeQuery()) {
+                       if (!rs.next()) {
+                           // This is (hopefully) an expected error: this is an
+                           // expected new order rollback
+                           throw new UserAbortException(
+                                   "EXPECTED new order rollback: I_ID=" + ol_i_id
+                                           + " not found!");
+                       }
 
-                ol_amount = ol_quantity * i_price;
-                orderLineAmounts[ol_number - 1] = ol_amount;
-                total_amount += ol_amount;
+                       i_price = rs.getFloat("I_PRICE");
+                       i_name = rs.getString("I_NAME");
+                       i_data = rs.getString("I_DATA");
+                   }
 
-                if (i_data.contains("ORIGINAL")
-                        && s_data.contains("ORIGINAL")) {
-                    brandGeneric[ol_number - 1] = 'B';
-                } else {
-                    brandGeneric[ol_number - 1] = 'G';
-                }
+                   itemPrices[ol_number - 1] = i_price;
+                   itemNames[ol_number - 1] = i_name;
 
-                switch (d_id) {
-                    case 1:
-                        ol_dist_info = s_dist_01;
-                        break;
-                    case 2:
-                        ol_dist_info = s_dist_02;
-                        break;
-                    case 3:
-                        ol_dist_info = s_dist_03;
-                        break;
-                    case 4:
-                        ol_dist_info = s_dist_04;
-                        break;
-                    case 5:
-                        ol_dist_info = s_dist_05;
-                        break;
-                    case 6:
-                        ol_dist_info = s_dist_06;
-                        break;
-                    case 7:
-                        ol_dist_info = s_dist_07;
-                        break;
-                    case 8:
-                        ol_dist_info = s_dist_08;
-                        break;
-                    case 9:
-                        ol_dist_info = s_dist_09;
-                        break;
-                    case 10:
-                        ol_dist_info = s_dist_10;
-                        break;
-                }
 
-                stmtInsertOrderLine.setInt(1, o_id);
-                stmtInsertOrderLine.setInt(2, d_id);
-                stmtInsertOrderLine.setInt(3, w_id);
-                stmtInsertOrderLine.setInt(4, ol_number);
-                stmtInsertOrderLine.setInt(5, ol_i_id);
-                stmtInsertOrderLine.setInt(6, ol_supply_w_id);
-                stmtInsertOrderLine.setInt(7, ol_quantity);
-                stmtInsertOrderLine.setDouble(8, ol_amount);
-                stmtInsertOrderLine.setString(9, ol_dist_info);
-                stmtInsertOrderLine.addBatch();
+                   stmtGetStock.setInt(1, ol_i_id);
+                   stmtGetStock.setInt(2, ol_supply_w_id);
+                   try (ResultSet rs = stmtGetStock.executeQuery()) {
+                       if (!rs.next()) {
+                           throw new RuntimeException("I_ID=" + ol_i_id
+                                   + " not found!");
+                       }
+                       s_quantity = rs.getInt("S_QUANTITY");
+                       s_data = rs.getString("S_DATA");
+                       s_dist_01 = rs.getString("S_DIST_01");
+                       s_dist_02 = rs.getString("S_DIST_02");
+                       s_dist_03 = rs.getString("S_DIST_03");
+                       s_dist_04 = rs.getString("S_DIST_04");
+                       s_dist_05 = rs.getString("S_DIST_05");
+                       s_dist_06 = rs.getString("S_DIST_06");
+                       s_dist_07 = rs.getString("S_DIST_07");
+                       s_dist_08 = rs.getString("S_DIST_08");
+                       s_dist_09 = rs.getString("S_DIST_09");
+                       s_dist_10 = rs.getString("S_DIST_10");
+                   }
 
-            }
+                   stockQuantities[ol_number - 1] = s_quantity;
 
-            stmtInsertOrderLine.executeBatch();
-            stmtUpdateStock.executeBatch();
+                   if (s_quantity - ol_quantity >= 10) {
+                       s_quantity -= ol_quantity;
+                   } else {
+                       s_quantity += -ol_quantity + 91;
+                   }
 
-            total_amount *= (1 + w_tax + d_tax) * (1 - c_discount);
-        } catch (UserAbortException userEx) {
-            LOG.debug("Caught an expected error in New Order");
-            throw userEx;
-        } finally {
-            if (stmtInsertOrderLine != null) {
-                stmtInsertOrderLine.clearBatch();
-            }
-            if (stmtUpdateStock != null) {
-                stmtUpdateStock.clearBatch();
-            }
-        }
+                   if (ol_supply_w_id == w_id) {
+                       s_remote_cnt_increment = 0;
+                   } else {
+                       s_remote_cnt_increment = 1;
+                   }
+
+
+                   stmtUpdateStock.setInt(1, s_quantity);
+                   stmtUpdateStock.setInt(2, ol_quantity);
+                   stmtUpdateStock.setInt(3, s_remote_cnt_increment);
+                   stmtUpdateStock.setInt(4, ol_i_id);
+                   stmtUpdateStock.setInt(5, ol_supply_w_id);
+                   stmtUpdateStock.addBatch();
+
+                   ol_amount = ol_quantity * i_price;
+                   orderLineAmounts[ol_number - 1] = ol_amount;
+                   total_amount += ol_amount;
+
+                   if (i_data.contains("ORIGINAL")
+                           && s_data.contains("ORIGINAL")) {
+                       brandGeneric[ol_number - 1] = 'B';
+                   } else {
+                       brandGeneric[ol_number - 1] = 'G';
+                   }
+
+                   switch (d_id) {
+                       case 1:
+                           ol_dist_info = s_dist_01;
+                           break;
+                       case 2:
+                           ol_dist_info = s_dist_02;
+                           break;
+                       case 3:
+                           ol_dist_info = s_dist_03;
+                           break;
+                       case 4:
+                           ol_dist_info = s_dist_04;
+                           break;
+                       case 5:
+                           ol_dist_info = s_dist_05;
+                           break;
+                       case 6:
+                           ol_dist_info = s_dist_06;
+                           break;
+                       case 7:
+                           ol_dist_info = s_dist_07;
+                           break;
+                       case 8:
+                           ol_dist_info = s_dist_08;
+                           break;
+                       case 9:
+                           ol_dist_info = s_dist_09;
+                           break;
+                       case 10:
+                           ol_dist_info = s_dist_10;
+                           break;
+                   }
+
+                   stmtInsertOrderLine.setInt(1, o_id);
+                   stmtInsertOrderLine.setInt(2, d_id);
+                   stmtInsertOrderLine.setInt(3, w_id);
+                   stmtInsertOrderLine.setInt(4, ol_number);
+                   stmtInsertOrderLine.setInt(5, ol_i_id);
+                   stmtInsertOrderLine.setInt(6, ol_supply_w_id);
+                   stmtInsertOrderLine.setInt(7, ol_quantity);
+                   stmtInsertOrderLine.setDouble(8, ol_amount);
+                   stmtInsertOrderLine.setString(9, ol_dist_info);
+                   stmtInsertOrderLine.addBatch();
+
+               }
+
+               stmtInsertOrderLine.executeBatch();
+               stmtUpdateStock.executeBatch();
+
+               total_amount *= (1 + w_tax + d_tax) * (1 - c_discount);
+           } catch (UserAbortException userEx) {
+               LOG.debug("Caught an expected error in New Order");
+               throw userEx;
+           } finally {
+               if (stmtInsertOrderLine != null) {
+                   stmtInsertOrderLine.clearBatch();
+               }
+               if (stmtUpdateStock != null) {
+                   stmtUpdateStock.clearBatch();
+               }
+           }
+
+       }
 
     }
 

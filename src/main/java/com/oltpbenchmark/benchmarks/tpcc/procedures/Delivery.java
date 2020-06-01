@@ -81,218 +81,208 @@ public class Delivery extends TPCCProcedure {
                     "   AND C_ID = ? ");
 
 
-    // Delivery Txn
-    private PreparedStatement delivGetOrderId = null;
-    private PreparedStatement delivDeleteNewOrder = null;
-    private PreparedStatement delivGetCustId = null;
-    private PreparedStatement delivUpdateCarrierId = null;
-    private PreparedStatement delivUpdateDeliveryDate = null;
-    private PreparedStatement delivSumOrderAmount = null;
-    private PreparedStatement delivUpdateCustBalDelivCnt = null;
-
-
     public void run(Connection conn, Random gen, int w_id, int numWarehouses, int terminalDistrictLowerID, int terminalDistrictUpperID, TPCCWorker w) throws SQLException {
 
         boolean trace = LOG.isDebugEnabled();
         int o_carrier_id = TPCCUtil.randomNumber(1, 10, gen);
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-        delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
-        delivDeleteNewOrder = this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
-        delivGetCustId = this.getPreparedStatement(conn, delivGetCustIdSQL);
-        delivUpdateCarrierId = this.getPreparedStatement(conn, delivUpdateCarrierIdSQL);
-        delivUpdateDeliveryDate = this.getPreparedStatement(conn, delivUpdateDeliveryDateSQL);
-        delivSumOrderAmount = this.getPreparedStatement(conn, delivSumOrderAmountSQL);
-        delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, delivUpdateCustBalDelivCntSQL);
+        // Delivery Txn
+        try (PreparedStatement delivGetOrderId = this.getPreparedStatement(conn, delivGetOrderIdSQL);
+             PreparedStatement delivDeleteNewOrder = this.getPreparedStatement(conn, delivDeleteNewOrderSQL);
+             PreparedStatement delivGetCustId = this.getPreparedStatement(conn, delivGetCustIdSQL);
+             PreparedStatement delivUpdateCarrierId = this.getPreparedStatement(conn, delivUpdateCarrierIdSQL);
+             PreparedStatement delivUpdateDeliveryDate = this.getPreparedStatement(conn, delivUpdateDeliveryDateSQL);
+             PreparedStatement delivSumOrderAmount = this.getPreparedStatement(conn, delivSumOrderAmountSQL);
+             PreparedStatement delivUpdateCustBalDelivCnt = this.getPreparedStatement(conn, delivUpdateCustBalDelivCntSQL)) {
 
-        int d_id, c_id;
-        float ol_total = 0;
-        int[] orderIDs;
+            int d_id, c_id;
+            float ol_total;
+            int[] orderIDs;
 
-        orderIDs = new int[10];
-        for (d_id = 1; d_id <= terminalDistrictUpperID; d_id++) {
-            delivGetOrderId.setInt(1, d_id);
-            delivGetOrderId.setInt(2, w_id);
-            if (trace) {
-                LOG.trace("delivGetOrderId START");
-            }
-            ResultSet rs = delivGetOrderId.executeQuery();
-            if (trace) {
-                LOG.trace("delivGetOrderId END");
-            }
-            if (!rs.next()) {
-                // This district has no new orders
-                // This can happen but should be rare
+            orderIDs = new int[10];
+            for (d_id = 1; d_id <= terminalDistrictUpperID; d_id++) {
+                delivGetOrderId.setInt(1, d_id);
+                delivGetOrderId.setInt(2, w_id);
                 if (trace) {
-                    LOG.warn(String.format("District has no new orders [W_ID=%d, D_ID=%d]", w_id, d_id));
+                    LOG.trace("delivGetOrderId START");
                 }
-                continue;
-            }
 
-            int no_o_id = rs.getInt("NO_O_ID");
-            orderIDs[d_id - 1] = no_o_id;
-            rs.close();
-            rs = null;
+                int no_o_id;
+                try (ResultSet rs = delivGetOrderId.executeQuery()) {
+                    if (trace) {
+                        LOG.trace("delivGetOrderId END");
+                    }
+                    if (!rs.next()) {
+                        // This district has no new orders
+                        // This can happen but should be rare
+                        if (trace) {
+                            LOG.warn(String.format("District has no new orders [W_ID=%d, D_ID=%d]", w_id, d_id));
+                        }
+                        continue;
+                    }
 
-            delivDeleteNewOrder.setInt(1, no_o_id);
-            delivDeleteNewOrder.setInt(2, d_id);
-            delivDeleteNewOrder.setInt(3, w_id);
-            if (trace) {
-                LOG.trace("delivDeleteNewOrder START");
-            }
-            int result = delivDeleteNewOrder.executeUpdate();
-            if (trace) {
-                LOG.trace("delivDeleteNewOrder END");
-            }
-            if (result != 1) {
-                // This code used to run in a loop in an attempt to make this work
-                // with MySQL's default weird consistency level. We just always run
-                // this as SERIALIZABLE instead. I don't *think* that fixing this one
-                // error makes this work with MySQL's default consistency. 
-                // Careful auditing would be required.
-                String msg = String.format("NewOrder delete failed. Not running with SERIALIZABLE isolation? " +
-                        "[w_id=%d, d_id=%d, no_o_id=%d]", w_id, d_id, no_o_id);
-                throw new UserAbortException(msg);
-            }
+                    no_o_id = rs.getInt("NO_O_ID");
+                    orderIDs[d_id - 1] = no_o_id;
+                }
 
-
-            delivGetCustId.setInt(1, no_o_id);
-            delivGetCustId.setInt(2, d_id);
-            delivGetCustId.setInt(3, w_id);
-            if (trace) {
-                LOG.trace("delivGetCustId START");
-            }
-            rs = delivGetCustId.executeQuery();
-            if (trace) {
-                LOG.trace("delivGetCustId END");
-            }
-
-            if (!rs.next()) {
-                String msg = String.format("Failed to retrieve ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
-                        w_id, d_id, no_o_id);
+                delivDeleteNewOrder.setInt(1, no_o_id);
+                delivDeleteNewOrder.setInt(2, d_id);
+                delivDeleteNewOrder.setInt(3, w_id);
                 if (trace) {
-                    LOG.warn(msg);
+                    LOG.trace("delivDeleteNewOrder START");
                 }
-                throw new RuntimeException(msg);
-            }
-            c_id = rs.getInt("O_C_ID");
-            rs.close();
-
-            delivUpdateCarrierId.setInt(1, o_carrier_id);
-            delivUpdateCarrierId.setInt(2, no_o_id);
-            delivUpdateCarrierId.setInt(3, d_id);
-            delivUpdateCarrierId.setInt(4, w_id);
-            if (trace) {
-                LOG.trace("delivUpdateCarrierId START");
-            }
-            result = delivUpdateCarrierId.executeUpdate();
-            if (trace) {
-                LOG.trace("delivUpdateCarrierId END");
-            }
-
-            if (result != 1) {
-                String msg = String.format("Failed to update ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
-                        w_id, d_id, no_o_id);
+                int result = delivDeleteNewOrder.executeUpdate();
                 if (trace) {
-                    LOG.warn(msg);
+                    LOG.trace("delivDeleteNewOrder END");
                 }
-                throw new RuntimeException(msg);
-            }
+                if (result != 1) {
+                    // This code used to run in a loop in an attempt to make this work
+                    // with MySQL's default weird consistency level. We just always run
+                    // this as SERIALIZABLE instead. I don't *think* that fixing this one
+                    // error makes this work with MySQL's default consistency.
+                    // Careful auditing would be required.
+                    String msg = String.format("NewOrder delete failed. Not running with SERIALIZABLE isolation? " +
+                            "[w_id=%d, d_id=%d, no_o_id=%d]", w_id, d_id, no_o_id);
+                    throw new UserAbortException(msg);
+                }
 
-            delivUpdateDeliveryDate.setTimestamp(1, timestamp);
-            delivUpdateDeliveryDate.setInt(2, no_o_id);
-            delivUpdateDeliveryDate.setInt(3, d_id);
-            delivUpdateDeliveryDate.setInt(4, w_id);
-            if (trace) {
-                LOG.trace("delivUpdateDeliveryDate START");
-            }
-            result = delivUpdateDeliveryDate.executeUpdate();
-            if (trace) {
-                LOG.trace("delivUpdateDeliveryDate END");
-            }
 
-            if (result == 0) {
-                String msg = String.format("Failed to update ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
-                        w_id, d_id, no_o_id);
+                delivGetCustId.setInt(1, no_o_id);
+                delivGetCustId.setInt(2, d_id);
+                delivGetCustId.setInt(3, w_id);
                 if (trace) {
-                    LOG.warn(msg);
+                    LOG.trace("delivGetCustId START");
                 }
-                throw new RuntimeException(msg);
-            }
+                try (ResultSet rs = delivGetCustId.executeQuery()) {
+                    if (trace) {
+                        LOG.trace("delivGetCustId END");
+                    }
 
+                    if (!rs.next()) {
+                        String msg = String.format("Failed to retrieve ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
+                                w_id, d_id, no_o_id);
+                        if (trace) {
+                            LOG.warn(msg);
+                        }
+                        throw new RuntimeException(msg);
+                    }
+                    c_id = rs.getInt("O_C_ID");
+                }
 
-            delivSumOrderAmount.setInt(1, no_o_id);
-            delivSumOrderAmount.setInt(2, d_id);
-            delivSumOrderAmount.setInt(3, w_id);
-            if (trace) {
-                LOG.trace("delivSumOrderAmount START");
-            }
-            rs = delivSumOrderAmount.executeQuery();
-            if (trace) {
-                LOG.trace("delivSumOrderAmount END");
-            }
-
-            if (!rs.next()) {
-                String msg = String.format("Failed to retrieve ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
-                        w_id, d_id, no_o_id);
+                delivUpdateCarrierId.setInt(1, o_carrier_id);
+                delivUpdateCarrierId.setInt(2, no_o_id);
+                delivUpdateCarrierId.setInt(3, d_id);
+                delivUpdateCarrierId.setInt(4, w_id);
                 if (trace) {
-                    LOG.warn(msg);
+                    LOG.trace("delivUpdateCarrierId START");
                 }
-                throw new RuntimeException(msg);
-            }
-            ol_total = rs.getFloat("OL_TOTAL");
-            rs.close();
-
-            int idx = 1; // HACK: So that we can debug this query
-            delivUpdateCustBalDelivCnt.setDouble(idx++, ol_total);
-            delivUpdateCustBalDelivCnt.setInt(idx++, w_id);
-            delivUpdateCustBalDelivCnt.setInt(idx++, d_id);
-            delivUpdateCustBalDelivCnt.setInt(idx++, c_id);
-            if (trace) {
-                LOG.trace("delivUpdateCustBalDelivCnt START");
-            }
-            result = delivUpdateCustBalDelivCnt.executeUpdate();
-            if (trace) {
-                LOG.trace("delivUpdateCustBalDelivCnt END");
-            }
-
-            if (result == 0) {
-                String msg = String.format("Failed to update CUSTOMER record [W_ID=%d, D_ID=%d, C_ID=%d]",
-                        w_id, d_id, c_id);
+                result = delivUpdateCarrierId.executeUpdate();
                 if (trace) {
-                    LOG.warn(msg);
+                    LOG.trace("delivUpdateCarrierId END");
                 }
-                throw new RuntimeException(msg);
+
+                if (result != 1) {
+                    String msg = String.format("Failed to update ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
+                            w_id, d_id, no_o_id);
+                    if (trace) {
+                        LOG.warn(msg);
+                    }
+                    throw new RuntimeException(msg);
+                }
+
+                delivUpdateDeliveryDate.setTimestamp(1, timestamp);
+                delivUpdateDeliveryDate.setInt(2, no_o_id);
+                delivUpdateDeliveryDate.setInt(3, d_id);
+                delivUpdateDeliveryDate.setInt(4, w_id);
+                if (trace) {
+                    LOG.trace("delivUpdateDeliveryDate START");
+                }
+                result = delivUpdateDeliveryDate.executeUpdate();
+                if (trace) {
+                    LOG.trace("delivUpdateDeliveryDate END");
+                }
+
+                if (result == 0) {
+                    String msg = String.format("Failed to update ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
+                            w_id, d_id, no_o_id);
+                    if (trace) {
+                        LOG.warn(msg);
+                    }
+                    throw new RuntimeException(msg);
+                }
+
+
+                delivSumOrderAmount.setInt(1, no_o_id);
+                delivSumOrderAmount.setInt(2, d_id);
+                delivSumOrderAmount.setInt(3, w_id);
+                if (trace) {
+                    LOG.trace("delivSumOrderAmount START");
+                }
+                try (ResultSet rs = delivSumOrderAmount.executeQuery()) {
+                    if (trace) {
+                        LOG.trace("delivSumOrderAmount END");
+                    }
+
+                    if (!rs.next()) {
+                        String msg = String.format("Failed to retrieve ORDER_LINE records [W_ID=%d, D_ID=%d, O_ID=%d]",
+                                w_id, d_id, no_o_id);
+                        if (trace) {
+                            LOG.warn(msg);
+                        }
+                        throw new RuntimeException(msg);
+                    }
+                    ol_total = rs.getFloat("OL_TOTAL");
+                }
+
+                int idx = 1; // HACK: So that we can debug this query
+                delivUpdateCustBalDelivCnt.setDouble(idx++, ol_total);
+                delivUpdateCustBalDelivCnt.setInt(idx++, w_id);
+                delivUpdateCustBalDelivCnt.setInt(idx++, d_id);
+                delivUpdateCustBalDelivCnt.setInt(idx++, c_id);
+                if (trace) {
+                    LOG.trace("delivUpdateCustBalDelivCnt START");
+                }
+                result = delivUpdateCustBalDelivCnt.executeUpdate();
+                if (trace) {
+                    LOG.trace("delivUpdateCustBalDelivCnt END");
+                }
+
+                if (result == 0) {
+                    String msg = String.format("Failed to update CUSTOMER record [W_ID=%d, D_ID=%d, C_ID=%d]",
+                            w_id, d_id, c_id);
+                    if (trace) {
+                        LOG.warn(msg);
+                    }
+                    throw new RuntimeException(msg);
+                }
+            }
+
+            if (trace) {
+                StringBuilder terminalMessage = new StringBuilder();
+                terminalMessage
+                        .append("\n+---------------------------- DELIVERY ---------------------------+\n");
+                terminalMessage.append(" Date: ");
+                terminalMessage.append(TPCCUtil.getCurrentTime());
+                terminalMessage.append("\n\n Warehouse: ");
+                terminalMessage.append(w_id);
+                terminalMessage.append("\n Carrier:   ");
+                terminalMessage.append(o_carrier_id);
+                terminalMessage.append("\n\n Delivered Orders\n");
+                for (int i = 1; i <= TPCCConfig.configDistPerWhse; i++) {
+                    if (orderIDs[i - 1] >= 0) {
+                        terminalMessage.append("  District ");
+                        terminalMessage.append(i < 10 ? " " : "");
+                        terminalMessage.append(i);
+                        terminalMessage.append(": Order number ");
+                        terminalMessage.append(orderIDs[i - 1]);
+                        terminalMessage.append(" was delivered.\n");
+                    }
+                }
+                terminalMessage.append("+-----------------------------------------------------------------+\n\n");
+                LOG.trace(terminalMessage.toString());
             }
         }
-
-        //conn.commit();
-
-        if (trace) {
-            StringBuilder terminalMessage = new StringBuilder();
-            terminalMessage
-                    .append("\n+---------------------------- DELIVERY ---------------------------+\n");
-            terminalMessage.append(" Date: ");
-            terminalMessage.append(TPCCUtil.getCurrentTime());
-            terminalMessage.append("\n\n Warehouse: ");
-            terminalMessage.append(w_id);
-            terminalMessage.append("\n Carrier:   ");
-            terminalMessage.append(o_carrier_id);
-            terminalMessage.append("\n\n Delivered Orders\n");
-            for (int i = 1; i <= TPCCConfig.configDistPerWhse; i++) {
-                if (orderIDs[i - 1] >= 0) {
-                    terminalMessage.append("  District ");
-                    terminalMessage.append(i < 10 ? " " : "");
-                    terminalMessage.append(i);
-                    terminalMessage.append(": Order number ");
-                    terminalMessage.append(orderIDs[i - 1]);
-                    terminalMessage.append(" was delivered.\n");
-                }
-            }
-            terminalMessage.append("+-----------------------------------------------------------------+\n\n");
-            LOG.trace(terminalMessage.toString());
-        }
-
     }
 
 }
