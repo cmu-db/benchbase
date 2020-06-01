@@ -138,7 +138,6 @@ public class FindFlights extends Procedure {
                                     row[r++] = ai_results.getString(2);     // [05] DEPART_AP_NAME
                                     row[r++] = ai_results.getString(3);     // [06] DEPART_AP_CITY
                                     row[r++] = ai_results.getString(7);     // [07] DEPART_AP_COUNTRY
-                                    ai_results.close();
                                 }
 
                                 // ARRIVAL AIRPORT
