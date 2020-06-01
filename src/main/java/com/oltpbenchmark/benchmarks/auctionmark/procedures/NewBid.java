@@ -136,65 +136,69 @@ public class NewBid extends Procedure {
     public Object[] run(Connection conn, Timestamp[] benchmarkTimes,
                         long item_id, long seller_id, long buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
-        final boolean debug = LOG.isDebugEnabled();
-        if (debug) {
-            LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]",
-                    item_id, buyer_id, newBid));
-        }
 
-        PreparedStatement stmt = null;
-        ResultSet results = null;
+        LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]",
+                item_id, buyer_id, newBid));
+
+
 
         // Check to make sure that we can even add a new bid to this item
         // If we fail to get back an item, then we know that the auction is closed
-        stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id); // , currentTime);
-        results = stmt.executeQuery();
-        if (results.next() == false) {
-            results.close();
-            throw new UserAbortException("Invalid item " + item_id);
+        double i_initial_price;
+        double i_current_price;
+        long i_num_bids;
+        Timestamp i_end_date;
+        ItemStatus i_status;
+
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                if (!results.next()) {
+                    throw new UserAbortException("Invalid item " + item_id);
+                }
+                int col = 1;
+                i_initial_price = results.getDouble(col++);
+                i_current_price = results.getDouble(col++);
+                i_num_bids = results.getLong(col++);
+                i_end_date = results.getTimestamp(col++);
+                i_status = ItemStatus.get(results.getLong(col++));
+
+            }
         }
-        int col = 1;
-        double i_initial_price = results.getDouble(col++);
-        double i_current_price = results.getDouble(col++);
-        long i_num_bids = results.getLong(col++);
-        Timestamp i_end_date = results.getTimestamp(col++);
-        ItemStatus i_status = ItemStatus.get(results.getLong(col++));
-        results.close();
+
         long newBidId = 0;
         long newBidMaxBuyerId = buyer_id;
 
-//        if (i_end_date.compareTo(currentTime) < 0 || i_status != ItemStatus.OPEN) {
-//            if (debug)
-//                LOG.debug(String.format("The auction for item %d has ended [status=%s]\nCurrentTime:\t%s\nActualEndDate:\t%s\nEstimatedEndDate:\t%s",
-//                                        item_id, i_status, currentTime, i_end_date, estimatedEndDate));
-//            throw new UserAbortException("Unable to bid on item: Auction has ended");
-//        }
+
 
         // If we existing bids, then we need to figure out whether we are the new highest
         // bidder or if the existing one just has their max_bid bumped up
         if (i_num_bids > 0) {
             // Get the next ITEM_BID id for this item
-            if (debug) {
-                LOG.debug("Retrieving ITEM_MAX_BID information for {}", ItemId.toString(item_id));
-            }
-            stmt = this.getPreparedStatement(conn, getMaxBidId, item_id, seller_id);
-            results = stmt.executeQuery();
-            boolean advanceRow = results.next();
+            LOG.debug("Retrieving ITEM_MAX_BID information for {}", ItemId.toString(item_id));
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getMaxBidId, item_id, seller_id)) {
+                try (ResultSet results = stmt.executeQuery()) {
+                    results.next();
 
-            newBidId = results.getLong(1) + 1;
-            results.close();
+                    newBidId = results.getLong(1) + 1;
+                }
+            }
 
             // Get the current max bid record for this item
-            stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
-            results = stmt.executeQuery();
-            advanceRow = results.next();
+            long currentBidId;
+            double currentBidAmount;
+            double currentBidMax;
+            long currentBuyerId;
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id)) {
+                try (ResultSet results = stmt.executeQuery()) {
+                    results.next();
 
-            col = 1;
-            long currentBidId = results.getLong(col++);
-            double currentBidAmount = results.getDouble(col++);
-            double currentBidMax = results.getDouble(col++);
-            long currentBuyerId = results.getLong(col++);
-            results.close();
+                    int col = 1;
+                    currentBidId = results.getLong(col++);
+                    currentBidAmount = results.getDouble(col++);
+                    currentBidMax = results.getDouble(col++);
+                    currentBuyerId = results.getLong(col++);
+                }
+            }
 
             boolean updateMaxBid = false;
             // Check whether this bidder is already the max bidder
@@ -205,21 +209,19 @@ public class NewBid extends Procedure {
                     String msg = String.format("%s is already the highest bidder for Item %d but is trying to " +
                                     "set a new max bid %.2f that is less than current max bid %.2f",
                             buyer_id, item_id, newBid, currentBidMax);
-                    if (debug) {
-                        LOG.debug(msg);
-                    }
+                    LOG.debug(msg);
                     throw new UserAbortException(msg);
                 }
-                this.getPreparedStatement(conn, updateBid, i_current_price,
+                try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateBid, i_current_price,
                         newBid,
                         currentTime,
                         currentBidId,
                         item_id,
-                        seller_id).executeUpdate();
-                if (debug) {
-                    LOG.debug(String.format("Increasing the max bid the highest bidder %s from %.2f to %.2f for Item %d",
-                            buyer_id, currentBidMax, newBid, item_id));
+                        seller_id)) {
+                    preparedStatement.executeUpdate();
                 }
+                LOG.debug(String.format("Increasing the max bid the highest bidder %s from %.2f to %.2f for Item %d",
+                        buyer_id, currentBidMax, newBid, item_id));
             }
             // Otherwise check whether this new bidder's max bid is greater than the current max
             else {
@@ -240,76 +242,84 @@ public class NewBid extends Procedure {
                     newBidMaxBuyerId = currentBuyerId;
                     i_current_price = Math.min(currentBidMax, newBid + (i_initial_price * AuctionMarkConstants.ITEM_BID_PERCENT_STEP));
 
-                    this.getPreparedStatement(conn, updateBid, i_current_price,
+                    try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateBid, i_current_price,
                             i_current_price,
                             currentTime,
                             currentBidId,
                             item_id,
-                            seller_id).executeUpdate();
-                    if (debug) {
-                        LOG.debug(String.format("Keeping the existing highest bidder of Item %d as %s but updating current price from %.2f to %.2f",
-                                item_id, buyer_id, currentBidAmount, i_current_price));
+                            seller_id)) {
+                        preparedStatement.executeUpdate();
                     }
+                    LOG.debug(String.format("Keeping the existing highest bidder of Item %d as %s but updating current price from %.2f to %.2f",
+                            item_id, buyer_id, currentBidAmount, i_current_price));
                 }
 
                 // Always insert an new ITEM_BID record even if BuyerId doesn't become
                 // the new highest bidder. We also want to insert a new record even if
                 // the BuyerId already has ITEM_BID record, because we want to maintain
                 // the history of all the bid attempts
-                this.getPreparedStatement(conn, insertItemBid, newBidId,
+                try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertItemBid, newBidId,
                         item_id,
                         seller_id,
                         buyer_id,
                         i_current_price,
                         newBid,
                         currentTime,
-                        currentTime).executeUpdate();
-                this.getPreparedStatement(conn, updateItem, i_current_price,
+                        currentTime)) {
+                    preparedStatement.executeUpdate();
+                }
+                try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItem, i_current_price,
                         currentTime,
                         item_id,
-                        seller_id).executeUpdate();
+                        seller_id)) {
+                    preparedStatement.executeUpdate();
+                }
 
                 // This has to be done after we insert the ITEM_BID record to make sure
                 // that the HSQLDB test cases work
                 if (updateMaxBid) {
-                    this.getPreparedStatement(conn, updateItemMaxBid, newBidId,
+                    try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItemMaxBid, newBidId,
                             item_id,
                             seller_id,
                             currentTime,
                             item_id,
-                            seller_id).executeUpdate();
-                    if (debug) {
-                        LOG.debug(String.format("Changing new highest bidder of Item %d to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
-                                item_id, UserId.toString(buyer_id), newBid, currentBidMax));
+                            seller_id)) {
+                        preparedStatement.executeUpdate();
                     }
+                    LOG.debug(String.format("Changing new highest bidder of Item %d to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
+                            item_id, UserId.toString(buyer_id), newBid, currentBidMax));
                 }
             }
         }
         // There is no existing max bid record, therefore we can just insert ourselves
         else {
-            this.getPreparedStatement(conn, insertItemBid, newBidId,
+            try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertItemBid, newBidId,
                     item_id,
                     seller_id,
                     buyer_id,
                     i_initial_price,
                     newBid,
                     currentTime,
-                    currentTime).executeUpdate();
-            this.getPreparedStatement(conn, insertItemMaxBid, item_id,
+                    currentTime)) {
+                preparedStatement.executeUpdate();
+            }
+            try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertItemMaxBid, item_id,
                     seller_id,
                     newBidId,
                     item_id,
                     seller_id,
                     currentTime,
-                    currentTime).executeUpdate();
-            this.getPreparedStatement(conn, updateItem, i_current_price,
+                    currentTime)) {
+                preparedStatement.executeUpdate();
+            }
+            try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItem, i_current_price,
                     currentTime,
                     item_id,
-                    seller_id).execute();
-            if (debug) {
-                LOG.debug(String.format("Creating the first bid record for Item %d and setting %s as highest bidder at %.2f",
-                        item_id, buyer_id, i_current_price));
+                    seller_id)) {
+                preparedStatement.execute();
             }
+            LOG.debug(String.format("Creating the first bid record for Item %d and setting %s as highest bidder at %.2f",
+                    item_id, buyer_id, i_current_price));
         }
 
         // Return back information about the current state of the item auction

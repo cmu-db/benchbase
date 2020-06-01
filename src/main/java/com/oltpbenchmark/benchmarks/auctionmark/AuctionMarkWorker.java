@@ -325,7 +325,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // set this on the first call to runOnce(). This will account for start a bunch of
         // clients on multiple nodes but then having to wait until they're all up and running
         // before starting the actual benchmark run.
-        if (profile.hasClientStartTime() == false) {
+        if (!profile.hasClientStartTime()) {
             profile.setAndGetClientStartTime();
         }
 
@@ -336,7 +336,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         // Always check if we need to want to run CLOSE_AUCTIONS
         // We only do this from the first client
-        if (AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD == false &&
+        if (!AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD &&
                 closeAuctions_flag.compareAndSet(true, false)) {
             txn = Transaction.CloseAuctions;
             TransactionTypes txnTypes = this.getWorkloadConfiguration().getTransTypes();
@@ -344,7 +344,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
 
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
-            if (txn.canExecute(this) == false) {
+            if (!txn.canExecute(this)) {
                 LOG.warn("Unable to execute {} because it is not ready", txn);
                 return (TransactionStatus.RETRY_DIFFERENT);
             }

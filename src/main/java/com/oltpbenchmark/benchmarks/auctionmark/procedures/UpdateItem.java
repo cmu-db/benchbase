@@ -80,18 +80,21 @@ public class UpdateItem extends Procedure {
                        boolean delete_attribute, long[] add_attribute) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
-        PreparedStatement stmt = this.getPreparedStatement(conn, updateItem, description, currentTime, item_id, seller_id);
-        int updated = stmt.executeUpdate();
-        if (updated == 0) {
-            throw new UserAbortException("Unable to update closed auction");
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, updateItem, description, currentTime, item_id, seller_id)) {
+            int updated = stmt.executeUpdate();
+            if (updated == 0) {
+                throw new UserAbortException("Unable to update closed auction");
+            }
         }
+
 
         // DELETE ITEM_ATTRIBUTE
         if (delete_attribute) {
             // Only delete the first (if it even exists)
             long ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
-            stmt = this.getPreparedStatement(conn, deleteItemAttribute, ia_id, item_id, seller_id);
-            updated = stmt.executeUpdate();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, deleteItemAttribute, ia_id, item_id, seller_id)) {
+                stmt.executeUpdate();
+            }
         }
         // ADD ITEM_ATTRIBUTE
         if (add_attribute.length > 0 && add_attribute[0] != -1) {
@@ -100,18 +103,20 @@ public class UpdateItem extends Procedure {
             long gav_id = add_attribute[1];
             long ia_id = -1;
 
-            stmt = this.getPreparedStatement(conn, getMaxItemAttributeId, item_id, seller_id);
-            ResultSet results = stmt.executeQuery();
-            if (results.next()) {
-                ia_id = results.getLong(0);
-            } else {
-                ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, getMaxItemAttributeId, item_id, seller_id)) {
+                try (ResultSet results = stmt.executeQuery()) {
+                    if (results.next()) {
+                        ia_id = results.getLong(0);
+                    } else {
+                        ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
+                    }
+                }
             }
-            results.close();
 
 
-            stmt = this.getPreparedStatement(conn, insertItemAttribute, ia_id, item_id, seller_id, gag_id, gav_id);
-            updated = stmt.executeUpdate();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, insertItemAttribute, ia_id, item_id, seller_id, gag_id, gav_id)) {
+                stmt.executeUpdate();
+            }
 
         }
 

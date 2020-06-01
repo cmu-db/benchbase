@@ -77,22 +77,31 @@ public class NewComment extends Procedure {
 
         // Set comment_id
         long ic_id = 0;
-        PreparedStatement stmt = this.getPreparedStatement(conn, getItemComments, item_id, seller_id);
-        ResultSet results = stmt.executeQuery();
-        if (results.next()) {
-            ic_id = results.getLong(1) + 1;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getItemComments, item_id, seller_id)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                if (results.next()) {
+                    ic_id = results.getLong(1) + 1;
+                }
+            }
         }
-        results.close();
 
-        this.getPreparedStatement(conn, insertItemComment, ic_id,
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertItemComment, ic_id,
                 item_id,
                 seller_id,
                 buyer_id,
                 question,
                 currentTime,
-                currentTime).executeUpdate();
-        this.getPreparedStatement(conn, updateItemComments, item_id, seller_id).executeUpdate();
-        this.getPreparedStatement(conn, updateUser, currentTime, seller_id).executeUpdate();
+                currentTime)) {
+            preparedStatement.executeUpdate();
+        }
+
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItemComments, item_id, seller_id)) {
+            preparedStatement.executeUpdate();
+        }
+
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUser, currentTime, seller_id)) {
+            preparedStatement.executeUpdate();
+        }
 
         // Return new ic_id
         return new Object[]{ic_id,

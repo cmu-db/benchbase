@@ -55,31 +55,35 @@ public class ResetDatabase extends Procedure {
     );
 
     public void run(Connection conn) throws SQLException {
-        PreparedStatement stmt = null;
         int updated;
 
         // We have to get the loaderStopTimestamp from the CONFIG_PROFILE
         // We will then reset any changes that were made after this timestamp
-        ResultSet rs = this.getPreparedStatement(conn, getLoaderStop).executeQuery();
-        boolean adv = rs.next();
+        Timestamp loaderStop;
 
-        Timestamp loaderStop = rs.getTimestamp(1);
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getLoaderStop)) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                rs.next();
 
-        rs.close();
+                loaderStop = rs.getTimestamp(1);
+            }
+        }
 
         // Reset ITEM information
-        stmt = this.getPreparedStatement(conn, resetItems, ItemStatus.OPEN.ordinal(),
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, resetItems, ItemStatus.OPEN.ordinal(),
                 loaderStop,
                 ItemStatus.OPEN.ordinal(),
-                loaderStop);
-        updated = stmt.executeUpdate();
+                loaderStop)) {
+            updated = stmt.executeUpdate();
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(AuctionMarkConstants.TABLENAME_ITEM + " Reset: {}", updated);
         }
 
         // Reset ITEM_PURCHASE
-        stmt = this.getPreparedStatement(conn, deleteItemPurchases, loaderStop);
-        updated = stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, deleteItemPurchases, loaderStop)) {
+            updated = stmt.executeUpdate();
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(AuctionMarkConstants.TABLENAME_ITEM_PURCHASE + " Reset: {}", updated);
         }

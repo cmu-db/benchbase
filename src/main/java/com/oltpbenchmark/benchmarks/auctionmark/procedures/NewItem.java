@@ -60,8 +60,6 @@ public class NewItem extends Procedure {
             "1" +  // i_attr0
             ")");
 
-    public final SQLStmt getSellerItemCount = new SQLStmt("SELECT COUNT(*) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " WHERE i_u_id = ?");
-
     public final SQLStmt getCategory = new SQLStmt("SELECT * FROM " + AuctionMarkConstants.TABLENAME_CATEGORY + " WHERE c_id = ? ");
 
     public final SQLStmt getCategoryParent = new SQLStmt("SELECT * FROM " + AuctionMarkConstants.TABLENAME_CATEGORY + " WHERE c_parent_id = ? ");
@@ -111,47 +109,49 @@ public class NewItem extends Procedure {
 
         // Get attribute names and category path and append
         // them to the item description
-        PreparedStatement stmt = null;
-        ResultSet results = null;
-        int updated = -1;
+
 
         // ATTRIBUTES
         description += "\nATTRIBUTES: ";
-        stmt = this.getPreparedStatement(conn, getGlobalAttribute);
-        for (int i = 0; i < gag_ids.length; i++) {
-            int col = 1;
-            stmt.setLong(col++, gav_ids[i]);
-            stmt.setLong(col++, gag_ids[i]);
-            results = stmt.executeQuery();
-            if (results.next()) {
-                col = 1;
-                description += String.format(" * %s -> %s\n", results.getString(col++), results.getString(col++));
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getGlobalAttribute)) {
+            for (int i = 0; i < gag_ids.length; i++) {
+                int col = 1;
+                stmt.setLong(col++, gav_ids[i]);
+                stmt.setLong(col++, gag_ids[i]);
+                try (ResultSet results = stmt.executeQuery()) {
+                    if (results.next()) {
+                        col = 1;
+                        description += String.format(" * %s -> %s\n", results.getString(col++), results.getString(col++));
+                    }
+                }
             }
-            results.close();
         }
 
         // CATEGORY
-        stmt = this.getPreparedStatement(conn, getCategory, category_id);
-        results = stmt.executeQuery();
-        boolean adv = results.next();
+        String category_name;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getCategory, category_id)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                results.next();
 
-        String category_name = String.format("%s[%d]", results.getString(2), results.getInt(1));
-        results.close();
+                category_name = String.format("%s[%d]", results.getString(2), results.getInt(1));
+            }
+        }
 
         // CATEGORY PARENT
-        stmt = this.getPreparedStatement(conn, getCategoryParent, category_id);
-        results = stmt.executeQuery();
-        String category_parent = null;
-        if (results.next()) {
-            category_parent = String.format("%s[%d]", results.getString(2), results.getInt(1));
-        } else {
-            category_parent = "<ROOT>";
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getCategoryParent, category_id)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                String category_parent = null;
+                if (results.next()) {
+                    category_parent = String.format("%s[%d]", results.getString(2), results.getInt(1));
+                } else {
+                    category_parent = "<ROOT>";
+                }
+                description += String.format("\nCATEGORY: %s >> %s", category_parent, category_name);
+            }
         }
-        description += String.format("\nCATEGORY: %s >> %s", category_parent, category_name);
-        results.close();
 
         // Insert new ITEM tuple
-        stmt = this.getPreparedStatement(conn, insertItem, item_id,         // i_id
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, insertItem, item_id,         // i_id
                 seller_id,       // i_u_id
                 category_id,     // i_c_id
                 name,            // i_name
@@ -167,38 +167,43 @@ public class NewItem extends Procedure {
                 ItemStatus.OPEN.ordinal(), // i_status
                 currentTime,     // i_created
                 currentTime      // i_updated
-        );
+        )) {
 
-        updated = stmt.executeUpdate();
+            stmt.executeUpdate();
+        }
 
 
         // Insert ITEM_ATTRIBUTE tuples
-        stmt = this.getPreparedStatement(conn, insertItemAttribute);
-        for (int i = 0; i < gav_ids.length; i++) {
-            int param = 1;
-            stmt.setLong(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
-            stmt.setLong(param++, item_id);
-            stmt.setLong(param++, seller_id);
-            stmt.setLong(param++, gag_ids[i]);
-            stmt.setLong(param++, gag_ids[i]);
-            updated = stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, insertItemAttribute)) {
+            for (int i = 0; i < gav_ids.length; i++) {
+                int param = 1;
+                stmt.setLong(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
+                stmt.setLong(param++, item_id);
+                stmt.setLong(param++, seller_id);
+                stmt.setLong(param++, gag_ids[i]);
+                stmt.setLong(param++, gag_ids[i]);
+                stmt.executeUpdate();
 
+            }
         }
 
         // Insert ITEM_IMAGE tuples
-        stmt = this.getPreparedStatement(conn, insertImage);
-        for (int i = 0; i < images.length; i++) {
-            int param = 1;
-            stmt.setLong(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
-            stmt.setLong(param++, item_id);
-            stmt.setLong(param++, seller_id);
-            stmt.setString(param++, images[i]);
-            updated = stmt.executeUpdate();
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, insertImage)) {
+            for (int i = 0; i < images.length; i++) {
+                int param = 1;
+                stmt.setLong(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
+                stmt.setLong(param++, item_id);
+                stmt.setLong(param++, seller_id);
+                stmt.setString(param++, images[i]);
+                stmt.executeUpdate();
 
+            }
         }
 
         // Update listing fee
-        updated = this.getPreparedStatement(conn, updateUserBalance, currentTime, seller_id).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUserBalance, currentTime, seller_id)) {
+            preparedStatement.executeUpdate();
+        }
 
 
         // Return new item_id and user_id

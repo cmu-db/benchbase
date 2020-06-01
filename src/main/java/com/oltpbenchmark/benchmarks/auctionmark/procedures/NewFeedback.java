@@ -79,23 +79,25 @@ public class NewFeedback extends Procedure {
 
         // Check to make sure they're not trying to add feedback
         // twice for the same ITEM
-        PreparedStatement stmt = this.getPreparedStatement(conn, checkUserFeedback, user_id, i_id, seller_id, from_id);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            rs.close();
-            throw new UserAbortException("Trying to add feedback for item " + i_id + " twice");
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, checkUserFeedback, user_id, i_id, seller_id, from_id)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    throw new UserAbortException("Trying to add feedback for item " + i_id + " twice");
+                }
+            }
         }
-        rs.close();
 
-        stmt = this.getPreparedStatement(conn, insertFeedback, user_id,
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, insertFeedback, user_id,
                 i_id,
                 seller_id,
                 from_id,
                 rating,
                 currentTime,
-                comment);
-        int updated = stmt.executeUpdate();
-        updated = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id).executeUpdate();
-        return;
+                comment)) {
+            stmt.executeUpdate();
+        }
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUser, rating, currentTime, user_id)) {
+            preparedStatement.executeUpdate();
+        }
     }
 }

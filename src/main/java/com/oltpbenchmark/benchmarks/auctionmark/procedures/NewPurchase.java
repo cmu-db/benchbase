@@ -141,49 +141,56 @@ public class NewPurchase extends Procedure {
                         long item_id, long seller_id, long ip_id, double buyer_credit) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
-        PreparedStatement stmt = null;
-        ResultSet results = null;
-        int updated;
-        boolean adv;
-
         // HACK: Check whether we have an ITEM_MAX_BID record. If not, we'll insert one
-        stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
-        results = stmt.executeQuery();
-        if (results.next() == false) {
-            results.close();
-            stmt = this.getPreparedStatement(conn, getMaxBid, item_id, seller_id);
-            results = stmt.executeQuery();
-            adv = results.next();
+        try (PreparedStatement getItemMaxBidStatement = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id);
+             ResultSet results = getItemMaxBidStatement.executeQuery()) {
+            if (!results.next()) {
+                try (PreparedStatement getMaxBidStatement = this.getPreparedStatement(conn, getMaxBid, item_id, seller_id);
+                     ResultSet getMaxBidResults = getMaxBidStatement.executeQuery()) {
+                    getMaxBidResults.next();
 
-            long bid_id = results.getLong(1);
+                    long bid_id = results.getLong(1);
 
-            updated = this.getPreparedStatement(conn, insertItemMaxBid, item_id,
-                    seller_id,
-                    bid_id,
-                    item_id,
-                    seller_id,
-                    currentTime,
-                    currentTime).executeUpdate();
+                    try (PreparedStatement insertItemMaxBidStatement = this.getPreparedStatement(conn, insertItemMaxBid, item_id,
+                            seller_id,
+                            bid_id,
+                            item_id,
+                            seller_id,
+                            currentTime,
+                            currentTime)) {
+                        insertItemMaxBidStatement.executeUpdate();
+                    }
+                }
+            }
         }
-        results.close();
 
         // Get the ITEM_MAX_BID record so that we know what we need to process
         // At this point we should always have an ITEM_MAX_BID record
-        stmt = this.getPreparedStatement(conn, getItemInfo, item_id, seller_id);
-        results = stmt.executeQuery();
-        if (results.next() == false) {
-            String msg = "No ITEM_MAX_BID is available record for item " + item_id;
-            throw new UserAbortException(msg);
+
+        long i_num_bids;
+        double i_current_price;
+        Timestamp i_end_date;
+        ItemStatus i_status;
+        long ib_id;
+        long ib_buyer_id;
+        double u_balance;
+
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getItemInfo, item_id, seller_id)) {
+            try (ResultSet results = stmt.executeQuery()) {
+                if (!results.next()) {
+                    String msg = "No ITEM_MAX_BID is available record for item " + item_id;
+                    throw new UserAbortException(msg);
+                }
+                int col = 1;
+                i_num_bids = results.getLong(col++);
+                i_current_price = results.getDouble(col++);
+                i_end_date = results.getTimestamp(col++);
+                i_status = ItemStatus.CLOSED;
+                ib_id = results.getLong(col++);
+                ib_buyer_id = results.getLong(col++);
+                u_balance = results.getDouble(col++);
+            }
         }
-        int col = 1;
-        long i_num_bids = results.getLong(col++);
-        double i_current_price = results.getDouble(col++);
-        Timestamp i_end_date = results.getTimestamp(col++);
-        ItemStatus i_status = ItemStatus.CLOSED;
-        long ib_id = results.getLong(col++);
-        long ib_buyer_id = results.getLong(col++);
-        double u_balance = results.getDouble(col++);
-        results.close();
 
         // Make sure that the buyer has enough money to cover this charge
         // We can add in a credit for the buyer's account
@@ -195,24 +202,38 @@ public class NewPurchase extends Procedure {
         }
 
         // Set item_purchase_id
-        updated = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, insertPurchase, ip_id, ib_id, item_id, seller_id, currentTime)) {
+            preparedStatement.executeUpdate();
+        }
 
 
         // Update item status to close
-        updated = this.getPreparedStatement(conn, updateItem, currentTime, item_id, seller_id).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateItem, currentTime, item_id, seller_id)) {
+            preparedStatement.executeUpdate();
+        }
+
         // And update this the USERACT_ITEM record to link it to the new ITEM_PURCHASE record
         // If we don't have a record to update, just go ahead and create it
-        updated = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id,
-                ib_buyer_id, item_id, seller_id).executeUpdate();
-        if (updated == 0) {
-            updated = this.getPreparedStatement(conn, insertUserItem, ib_buyer_id, item_id, seller_id,
-                    ip_id, ib_id, item_id, seller_id,
-                    currentTime).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUserItem, ip_id, ib_id, item_id, seller_id,
+                ib_buyer_id, item_id, seller_id)) {
+            int updated = preparedStatement.executeUpdate();
+            if (updated == 0) {
+                try (PreparedStatement preparedStatement2 = this.getPreparedStatement(conn, insertUserItem, ib_buyer_id, item_id, seller_id,
+                        ip_id, ib_id, item_id, seller_id,
+                        currentTime)) {
+                    preparedStatement2.executeUpdate();
+                }
+            }
         }
         // Decrement the buyer's account
-        updated = this.getPreparedStatement(conn, updateUserBalance, -1 * (i_current_price) + buyer_credit, ib_buyer_id).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUserBalance, -1 * (i_current_price) + buyer_credit, ib_buyer_id)) {
+            preparedStatement.executeUpdate();
+        }
+
         // And credit the seller's account
-        this.getPreparedStatement(conn, updateUserBalance, i_current_price, seller_id).executeUpdate();
+        try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateUserBalance, i_current_price, seller_id)) {
+            preparedStatement.executeUpdate();
+        }
         // Return a tuple of the item that we just updated
         return new Object[]{
                 // ITEM ID
