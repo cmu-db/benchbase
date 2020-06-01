@@ -424,14 +424,15 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         // TEXT
         Table textTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
         String textSQL = SQLUtil.getInsertSQL(textTable, this.getDatabaseType());
-        PreparedStatement textInsert = conn.prepareStatement(textSQL);
+
 
         // REVISION
         Table revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
         String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType());
-        PreparedStatement revisionInsert = conn.prepareStatement(revSQL);
+
 
         Random rand = new Random();
+
 
         WikipediaBenchmark b = this.benchmark;
         int batchSize = 1;
@@ -445,85 +446,88 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         final int rev_comment_max = revTable.getColumnByName("rev_comment").getSize();
         int rev_id = 1;
         int lastPercent = -1;
-        for (int page_id = 1; page_id <= this.num_pages; page_id++) {
-            // There must be at least one revision per page
-            int num_revised = h_numRevisions.nextValue();
 
-            // Generate what the new revision is going to be
-            int old_text_length = h_textLength.nextValue();
+        try (PreparedStatement textInsert = conn.prepareStatement(textSQL);
+             PreparedStatement revisionInsert = conn.prepareStatement(revSQL)) {
 
-            char[] old_text = TextGenerator.randomChars(rand, old_text_length);
-
-            for (int i = 0; i < num_revised; i++) {
-                // Generate the User who's doing the revision and the Page
-                // revised
-                // Makes sure that we always update their counter
-                int user_id = h_users.nextInt();
-
-                this.user_revision_ctr[user_id - 1]++;
+            for (int page_id = 1; page_id <= this.num_pages; page_id++) {
+                // There must be at least one revision per page
+                int num_revised = h_numRevisions.nextValue();
 
                 // Generate what the new revision is going to be
-                if (i > 0) {
-                    old_text = b.generateRevisionText(old_text);
-                    old_text_length = old_text.length;
-                }
+                int old_text_length = h_textLength.nextValue();
 
-                int rev_comment_len = Math.min(rev_comment_max, h_commentLength.nextValue() + 1); // HACK
-                String rev_comment = TextGenerator.randomStr(rand, rev_comment_len);
+                char[] old_text = TextGenerator.randomChars(rand, old_text_length);
 
+                for (int i = 0; i < num_revised; i++) {
+                    // Generate the User who's doing the revision and the Page
+                    // revised
+                    // Makes sure that we always update their counter
+                    int user_id = h_users.nextInt();
 
-                // The REV_USER_TEXT field is usually the username, but we'll
-                // just
-                // put in gibberish for now
-                String user_text = TextGenerator.randomStr(rand, h_nameLength.nextValue() + 1);
+                    this.user_revision_ctr[user_id - 1]++;
 
-                // Insert the text
-                int col = 1;
-                textInsert.setInt(col++, rev_id); // old_id
-                textInsert.setString(col++, new String(old_text)); // old_text
-                textInsert.setString(col++, "utf-8"); // old_flags
-                textInsert.setInt(col++, page_id); // old_page
-                textInsert.addBatch();
-
-                // Insert the revision
-                col = 1;
-                revisionInsert.setInt(col++, rev_id); // rev_id
-                revisionInsert.setInt(col++, page_id); // rev_page
-                revisionInsert.setInt(col++, rev_id); // rev_text_id
-                revisionInsert.setString(col++, rev_comment); // rev_comment
-                revisionInsert.setInt(col++, user_id); // rev_user
-                revisionInsert.setString(col++, user_text); // rev_user_text
-                revisionInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // rev_timestamp
-                revisionInsert.setInt(col++, h_minorEdit.nextValue()); // rev_minor_edit
-                revisionInsert.setInt(col++, 0); // rev_deleted
-                revisionInsert.setInt(col++, 0); // rev_len
-                revisionInsert.setInt(col++, 0); // rev_parent_id
-                revisionInsert.addBatch();
-
-                // Update Last Revision Stuff
-                this.page_last_rev_id[page_id - 1] = rev_id;
-                this.page_last_rev_length[page_id - 1] = old_text_length;
-                rev_id++;
-                batchSize++;
-            }
-            if (batchSize > workConf.getDBBatchSize()) {
-                textInsert.executeBatch();
-                revisionInsert.executeBatch();
-                this.addToTableCount(textTable.getName(), batchSize);
-                this.addToTableCount(revTable.getName(), batchSize);
-                batchSize = 0;
-
-                if (LOG.isDebugEnabled()) {
-                    int percent = (int) (((double) page_id / (double) this.num_pages) * 100);
-                    if (percent != lastPercent) {
-                        LOG.debug("REVISIONS ({}%)", percent);
+                    // Generate what the new revision is going to be
+                    if (i > 0) {
+                        old_text = b.generateRevisionText(old_text);
+                        old_text_length = old_text.length;
                     }
-                    lastPercent = percent;
+
+                    int rev_comment_len = Math.min(rev_comment_max, h_commentLength.nextValue() + 1); // HACK
+                    String rev_comment = TextGenerator.randomStr(rand, rev_comment_len);
+
+
+                    // The REV_USER_TEXT field is usually the username, but we'll
+                    // just
+                    // put in gibberish for now
+                    String user_text = TextGenerator.randomStr(rand, h_nameLength.nextValue() + 1);
+
+                    // Insert the text
+                    int col = 1;
+                    textInsert.setInt(col++, rev_id); // old_id
+                    textInsert.setString(col++, new String(old_text)); // old_text
+                    textInsert.setString(col++, "utf-8"); // old_flags
+                    textInsert.setInt(col++, page_id); // old_page
+                    textInsert.addBatch();
+
+                    // Insert the revision
+                    col = 1;
+                    revisionInsert.setInt(col++, rev_id); // rev_id
+                    revisionInsert.setInt(col++, page_id); // rev_page
+                    revisionInsert.setInt(col++, rev_id); // rev_text_id
+                    revisionInsert.setString(col++, rev_comment); // rev_comment
+                    revisionInsert.setInt(col++, user_id); // rev_user
+                    revisionInsert.setString(col++, user_text); // rev_user_text
+                    revisionInsert.setString(col++, TimeUtil.getCurrentTimeString14()); // rev_timestamp
+                    revisionInsert.setInt(col++, h_minorEdit.nextValue()); // rev_minor_edit
+                    revisionInsert.setInt(col++, 0); // rev_deleted
+                    revisionInsert.setInt(col++, 0); // rev_len
+                    revisionInsert.setInt(col++, 0); // rev_parent_id
+                    revisionInsert.addBatch();
+
+                    // Update Last Revision Stuff
+                    this.page_last_rev_id[page_id - 1] = rev_id;
+                    this.page_last_rev_length[page_id - 1] = old_text_length;
+                    rev_id++;
+                    batchSize++;
+                }
+                if (batchSize > workConf.getDBBatchSize()) {
+                    textInsert.executeBatch();
+                    revisionInsert.executeBatch();
+                    this.addToTableCount(textTable.getName(), batchSize);
+                    this.addToTableCount(revTable.getName(), batchSize);
+                    batchSize = 0;
+
+                    if (LOG.isDebugEnabled()) {
+                        int percent = (int) (((double) page_id / (double) this.num_pages) * 100);
+                        if (percent != lastPercent) {
+                            LOG.debug("REVISIONS ({}%)", percent);
+                        }
+                        lastPercent = percent;
+                    }
                 }
             }
         }
-        revisionInsert.close();
-        textInsert.close();
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
             this.updateAutoIncrement(conn, textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(conn, revTable.getColumn(0), rev_id);

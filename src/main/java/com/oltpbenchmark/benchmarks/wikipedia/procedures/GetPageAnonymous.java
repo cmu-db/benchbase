@@ -69,70 +69,81 @@ public class GetPageAnonymous extends Procedure {
                        int pageNamespace, String pageTitle) throws UserAbortException, SQLException {
         int param = 1;
 
-        PreparedStatement st = this.getPreparedStatement(conn, selectPage);
-        st.setInt(param++, pageNamespace);
-        st.setString(param++, pageTitle);
-        ResultSet rs = st.executeQuery();
-        if (!rs.next()) {
-            String msg = String.format("Invalid Page: Namespace:%d / Title:--%s--", pageNamespace, pageTitle);
-            throw new UserAbortException(msg);
+        int pageId;
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectPage)) {
+            st.setInt(param++, pageNamespace);
+            st.setString(param++, pageTitle);
+            try (ResultSet rs = st.executeQuery()) {
+                if (!rs.next()) {
+                    String msg = String.format("Invalid Page: Namespace:%d / Title:--%s--", pageNamespace, pageTitle);
+                    throw new UserAbortException(msg);
+                }
+                pageId = rs.getInt(1);
+            }
         }
-        int pageId = rs.getInt(1);
-        rs.close();
 
-        st = this.getPreparedStatement(conn, selectPageRestriction);
-        st.setInt(1, pageId);
-        rs = st.executeQuery();
-        while (rs.next()) {
-            byte[] pr_type = rs.getBytes(1);
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRestriction)) {
+            st.setInt(1, pageId);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    rs.getBytes(1);
 
+                }
+            }
         }
-        rs.close();
         // check using blocking of a user by either the IP address or the
         // user_name
 
-        st = this.getPreparedStatement(conn, selectIpBlocks);
-        st.setString(1, userIp);
-        rs = st.executeQuery();
-        while (rs.next()) {
-            byte[] ipb_expiry = rs.getBytes(11);
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectIpBlocks)) {
+            st.setString(1, userIp);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    rs.getBytes(11);
 
-        }
-        rs.close();
-
-        st = this.getPreparedStatement(conn, selectPageRevision);
-        st.setInt(1, pageId);
-        st.setInt(2, pageId);
-        rs = st.executeQuery();
-        if (!rs.next()) {
-            String msg = String.format("Invalid Page: Namespace:%d / Title:--%s-- / PageId:%d",
-                    pageNamespace, pageTitle, pageId);
-            throw new UserAbortException(msg);
+                }
+            }
         }
 
-        long revisionId = rs.getLong("rev_id");
-        long textId = rs.getLong("rev_text_id");
+        long revisionId;
+        long textId;
 
-        rs.close();
+
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRevision)) {
+            st.setInt(1, pageId);
+            st.setInt(2, pageId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (!rs.next()) {
+                    String msg = String.format("Invalid Page: Namespace:%d / Title:--%s-- / PageId:%d",
+                            pageNamespace, pageTitle, pageId);
+                    throw new UserAbortException(msg);
+                }
+
+                revisionId = rs.getLong("rev_id");
+                textId = rs.getLong("rev_text_id");
+            }
+        }
 
         // NOTE: the following is our variation of wikipedia... the original did
         // not contain old_page column!
         // sql =
         // "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
 
-        st = this.getPreparedStatement(conn, selectText);
-        st.setLong(1, textId);
-        rs = st.executeQuery();
-        if (!rs.next()) {
-            String msg = "No such text: " + textId + " for page_id:" + pageId + " page_namespace: " + pageNamespace + " page_title:" + pageTitle;
-            throw new UserAbortException(msg);
-        }
         Article a = null;
-        if (!forSelect) {
-            a = new Article(userIp, pageId, rs.getString("old_text"), textId, revisionId);
-        }
 
-        rs.close();
+        try (PreparedStatement st = this.getPreparedStatement(conn, selectText)) {
+            st.setLong(1, textId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (!rs.next()) {
+                    String msg = "No such text: " + textId + " for page_id:" + pageId + " page_namespace: " + pageNamespace + " page_title:" + pageTitle;
+                    throw new UserAbortException(msg);
+                }
+
+                if (!forSelect) {
+                    a = new Article(userIp, pageId, rs.getString("old_text"), textId, revisionId);
+                }
+
+            }
+        }
         return a;
     }
 
