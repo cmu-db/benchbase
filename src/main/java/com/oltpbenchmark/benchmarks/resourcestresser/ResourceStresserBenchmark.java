@@ -26,8 +26,6 @@ import com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +42,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         int numKeys = (int) (workConf.getScaleFactor() * ResourceStresserConstants.RECORD_COUNT);
         int keyRange = numKeys / workConf.getTerminals();
@@ -58,7 +56,7 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<ResourceStresserBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<ResourceStresserBenchmark> makeLoaderImpl() {
         return new ResourceStresserLoader(this);
     }
 }

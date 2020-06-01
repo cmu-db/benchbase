@@ -88,7 +88,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         final int numItems = this.num_pages + this.num_users;

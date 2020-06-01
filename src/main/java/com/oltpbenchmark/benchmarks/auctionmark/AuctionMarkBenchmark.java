@@ -30,8 +30,6 @@ import com.oltpbenchmark.util.RandomGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +58,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new AuctionMarkWorker(i, this));
@@ -69,7 +67,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<AuctionMarkBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<AuctionMarkBenchmark> makeLoaderImpl() {
         return new AuctionMarkLoader(this);
     }
 

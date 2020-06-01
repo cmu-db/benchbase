@@ -26,8 +26,6 @@ import com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +41,7 @@ public class CHBenCHmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         // HACK: Turn off terminal messages
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
@@ -56,7 +54,7 @@ public class CHBenCHmark extends BenchmarkModule {
         return workers;
     }
 
-    protected Loader<CHBenCHmark> makeLoaderImpl() throws SQLException {
+    protected Loader<CHBenCHmark> makeLoaderImpl() {
         return new CHBenCHmarkLoader(this);
     }
 

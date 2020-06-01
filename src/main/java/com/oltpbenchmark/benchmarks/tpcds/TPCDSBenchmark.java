@@ -25,8 +25,6 @@ import com.oltpbenchmark.benchmarks.tpcds.procedures.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +41,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         LOG.debug(String.format("Initializing %d %s", this.workConf.getTerminals(), TPCDSWorker.class.getSimpleName()));
 
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
@@ -59,7 +57,7 @@ public class TPCDSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TPCDSBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<TPCDSBenchmark> makeLoaderImpl() {
         return new TPCDSLoader(this);
     }
 }

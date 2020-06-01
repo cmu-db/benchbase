@@ -47,7 +47,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException {
 
         boolean successful = false;
         while (!successful) {

@@ -55,7 +55,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         final int numToLoad = this.num_items + this.num_users;

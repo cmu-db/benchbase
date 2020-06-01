@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * The actual NoOp implementation
@@ -41,7 +40,7 @@ public class NoOp extends Procedure {
     // That is enough for the DBMS to have to parse it and do something
     public final SQLStmt noopStmt = new SQLStmt(";");
 
-    public void run(Connection conn) throws SQLException {
+    public void run(Connection conn) {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
              ResultSet r = stmt.executeQuery()) {
 

@@ -28,8 +28,6 @@ import com.oltpbenchmark.util.TextGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +101,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         LOG.debug(String.format("Initializing %d %s", this.workConf.getTerminals(), WikipediaWorker.class.getSimpleName()));
 
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
@@ -115,7 +113,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<WikipediaBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<WikipediaBenchmark> makeLoaderImpl() {
         return new WikipediaLoader(this);
     }
 }

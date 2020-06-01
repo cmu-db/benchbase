@@ -31,7 +31,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class TwitterBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TwitterBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<TwitterBenchmark> makeLoaderImpl() {
         return new TwitterLoader(this);
     }
 }

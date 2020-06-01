@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * @author pavlo
@@ -43,7 +42,7 @@ public class NoOpWorker extends Worker<NoOpBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException {
 
         LOG.debug("Executing {}", this.procNoOp);
         try {

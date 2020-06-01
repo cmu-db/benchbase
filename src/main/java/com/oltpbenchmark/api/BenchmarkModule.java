@@ -116,9 +116,8 @@ public abstract class BenchmarkModule {
      * method returns
      *
      * @return TODO
-     * @throws SQLException TODO
      */
-    protected abstract Loader<? extends BenchmarkModule> makeLoaderImpl() throws SQLException;
+    protected abstract Loader<? extends BenchmarkModule> makeLoaderImpl();
 
     protected abstract Package getProcedurePackageImpl();
 

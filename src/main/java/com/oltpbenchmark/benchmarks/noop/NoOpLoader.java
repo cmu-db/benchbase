@@ -20,7 +20,6 @@ package com.oltpbenchmark.benchmarks.noop;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class NoOpLoader extends Loader<NoOpBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         return new ArrayList<>();
     }
 

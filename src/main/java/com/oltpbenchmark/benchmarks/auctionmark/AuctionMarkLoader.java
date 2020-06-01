@@ -165,7 +165,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
 
         final CountDownLatch loadLatch = new CountDownLatch(this.generators.size());
@@ -305,7 +305,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
          * @param tableName
          * @param dependencies
          */
-        public AbstractTableGenerator(String tableName, String... dependencies) throws SQLException {
+        public AbstractTableGenerator(String tableName, String... dependencies) {
             super(benchmark);
             this.tableName = tableName;
             this.catalog_tbl = benchmark.getCatalog().getTable(tableName);
@@ -380,7 +380,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected abstract int populateRow(Object[] row);
 
         @Override
-        public void load(Connection conn) throws SQLException {
+        public void load(Connection conn) {
             // Then invoke the loader generation method
             try {
                 AuctionMarkLoader.this.generateTableData(conn, this.tableName);

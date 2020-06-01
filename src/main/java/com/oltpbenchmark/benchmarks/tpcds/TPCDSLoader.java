@@ -40,7 +40,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         final CountDownLatch custAddrLatch = new CountDownLatch(1);
         final CountDownLatch custDemLatch = new CountDownLatch(1);

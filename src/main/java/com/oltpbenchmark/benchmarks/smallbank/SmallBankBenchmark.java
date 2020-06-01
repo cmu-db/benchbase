@@ -26,8 +26,6 @@ import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +39,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new SmallBankWorker(this, i));
@@ -50,7 +48,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<SmallBankBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<SmallBankBenchmark> makeLoaderImpl() {
         return new SmallBankLoader(this);
     }
 

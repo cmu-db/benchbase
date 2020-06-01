@@ -23,16 +23,14 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.types.TransactionStatus;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 
 public class TPCDSWorker extends Worker<TPCDSBenchmark> {
-    public TPCDSWorker(TPCDSBenchmark benchmarkModule, int id)
-            throws SQLException {
+    public TPCDSWorker(TPCDSBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
     }
 
-    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws Procedure.UserAbortException, SQLException {
+    protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws Procedure.UserAbortException {
         return null;
     }
 }

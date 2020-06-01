@@ -539,9 +539,8 @@ public abstract class JSONUtil {
      * @param json_value
      * @param field_class
      * @return
-     * @throws Exception
      */
-    public static Object getPrimitiveValue(String json_value, Class<?> field_class) throws Exception {
+    public static Object getPrimitiveValue(String json_value, Class<?> field_class) {
         Object value = null;
 
 

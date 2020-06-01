@@ -47,8 +47,7 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
 
     public TPCCWorker(TPCCBenchmark benchmarkModule, int id,
                       int terminalWarehouseID, int terminalDistrictLowerID,
-                      int terminalDistrictUpperID, int numWarehouses)
-            throws SQLException {
+                      int terminalDistrictUpperID, int numWarehouses) {
         super(benchmarkModule, id);
 
         this.terminalWarehouseID = terminalWarehouseID;

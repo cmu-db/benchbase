@@ -90,7 +90,7 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
         PreparedStatement stmtSavings;
         PreparedStatement stmtChecking;
 
-        public Generator(long start, long stop) throws SQLException {
+        public Generator(long start, long stop) {
             super(benchmark);
             this.start = start;
             this.stop = stop;
@@ -100,7 +100,7 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
         }
 
         @Override
-        public void load(Connection conn) throws SQLException {
+        public void load(Connection conn) {
             try {
                 this.stmtAccts = conn.prepareStatement(SmallBankLoader.this.sqlAccts);
                 this.stmtSavings = conn.prepareStatement(SmallBankLoader.this.sqlSavings);

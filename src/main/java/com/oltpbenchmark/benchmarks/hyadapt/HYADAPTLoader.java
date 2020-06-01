@@ -57,7 +57,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
 
         List<LoaderThread> threads = new ArrayList<>();
 

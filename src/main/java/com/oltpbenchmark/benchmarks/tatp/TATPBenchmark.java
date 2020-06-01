@@ -24,8 +24,6 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +39,7 @@ public class TATPBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new TATPWorker(this, i));
@@ -50,7 +48,7 @@ public class TATPBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TATPBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<TATPBenchmark> makeLoaderImpl() {
         return (new TATPLoader(this));
     }
 }

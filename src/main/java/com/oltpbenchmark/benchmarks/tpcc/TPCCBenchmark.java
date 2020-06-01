@@ -26,7 +26,6 @@ import com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +44,7 @@ public class TPCCBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         try {
@@ -59,7 +58,7 @@ public class TPCCBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TPCCBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<TPCCBenchmark> makeLoaderImpl() {
         return new TPCCLoader(this);
     }
 

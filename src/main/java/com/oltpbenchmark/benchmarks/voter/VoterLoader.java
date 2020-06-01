@@ -78,7 +78,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
 
         // CONTESTANTS

@@ -24,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Objects;
 
@@ -127,12 +126,12 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
     // -----------------------------------------------------------------
 
     @Override
-    public void load(String input_path) throws IOException {
+    public void load(String input_path) {
 
     }
 
     @Override
-    public void save(String output_path) throws IOException {
+    public void save(String output_path) {
 
     }
 

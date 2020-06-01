@@ -34,8 +34,6 @@ import com.oltpbenchmark.benchmarks.tpch.procedures.Q1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +50,7 @@ public class TPCHBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         int numTerminals = workConf.getTerminals();
@@ -64,7 +62,7 @@ public class TPCHBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<TPCHBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<TPCHBenchmark> makeLoaderImpl() {
         return new TPCHLoader(this);
     }
 

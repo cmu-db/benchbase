@@ -27,7 +27,6 @@ import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,7 +42,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
 
@@ -80,7 +79,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<HYADAPTBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<HYADAPTBenchmark> makeLoaderImpl() {
         return new HYADAPTLoader(this);
     }
 

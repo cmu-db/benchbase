@@ -28,7 +28,6 @@ import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,7 +49,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         try {
@@ -104,7 +103,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<EpinionsBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<EpinionsBenchmark> makeLoaderImpl() {
         return new EpinionsLoader(this);
     }
 

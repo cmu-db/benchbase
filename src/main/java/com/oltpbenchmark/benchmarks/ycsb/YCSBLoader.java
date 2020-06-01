@@ -41,7 +41,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         int count = 0;
         while (count < this.num_record) {

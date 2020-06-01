@@ -42,7 +42,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         threads.add(new LoaderThread(this.benchmark) {
             @Override

@@ -98,7 +98,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     // -----------------------------------------------------------------
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
 
         // High level locking overview, where step N+1 depends on step N
@@ -138,7 +138,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 1. [histLatch] HISTOGRAMS
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
                 loadHistograms();
             }
 
@@ -154,7 +154,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 2. [countryLatch] COUNTRY
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
                 loadFixedTable(conn, SEATSConstants.TABLENAME_COUNTRY);
             }
 
@@ -177,7 +177,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 2. AIRPORT depends on COUNTRY
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
                 loadFixedTable(conn, SEATSConstants.TABLENAME_AIRPORT);
             }
 
@@ -199,7 +199,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 2. AIRLINE depends on COUNTRY
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
                 loadFixedTable(conn, SEATSConstants.TABLENAME_AIRLINE);
             }
 
@@ -225,7 +225,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // be used from this point onwards instead of individual fixed locks
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
                 // Setup the # of flights per airline
                 flights_per_airline.putAll(SEATSLoader.this.profile.getAirlineCodes(), 0);
             }
@@ -252,7 +252,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 4. [custLatch] CUSTOMER depends on AIRPORT
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
 
                 loadScalingTable(conn, SEATSConstants.TABLENAME_CUSTOMER);
 
@@ -277,7 +277,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 4. AIRPORT_DISTANCE depends on AIRPORT
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
 
 
                 loadScalingTable(conn, SEATSConstants.TABLENAME_AIRPORT_DISTANCE);
@@ -302,7 +302,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 4. [flightLatch] FLIGHT depends on AIRPORT_DISTANCE, AIRLINE, AIRPORT
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
 
 
                 loadScalingTable(conn, SEATSConstants.TABLENAME_FLIGHT);
@@ -329,7 +329,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 5. RESERVATIONS depends on FLIGHT, CUSTOMER
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
 
 
                 loadScalingTable(conn, SEATSConstants.TABLENAME_RESERVATION);
@@ -355,7 +355,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         // 5. FREQUENT_FLYER depends on FLIGHT, CUSTOMER, AIRLINE
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
 
                 loadScalingTable(conn, SEATSConstants.TABLENAME_FREQUENT_FLYER);
 

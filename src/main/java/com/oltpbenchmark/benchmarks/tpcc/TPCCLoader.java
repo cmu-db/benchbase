@@ -46,7 +46,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
     private static final int FIRST_UNPROCESSED_O_ID = 2101;
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         final CountDownLatch itemLatch = new CountDownLatch(1);
 
@@ -54,7 +54,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
         // This will be invoked first and executed in a single thread.
         threads.add(new LoaderThread(this.benchmark) {
             @Override
-            public void load(Connection conn) throws SQLException {
+            public void load(Connection conn) {
                 loadItems(conn, TPCCConfig.configItemCount);
 
             }
@@ -73,7 +73,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
             final int w_id = w;
             LoaderThread t = new LoaderThread(this.benchmark) {
                 @Override
-                public void load(Connection conn) throws SQLException {
+                public void load(Connection conn) {
 
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Starting to load WAREHOUSE {}", w_id);

@@ -23,8 +23,6 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class VoterBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             workers.add(new VoterWorker(this, i));
@@ -47,7 +45,7 @@ public class VoterBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<VoterBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<VoterBenchmark> makeLoaderImpl() {
         return new VoterLoader(this);
     }
 

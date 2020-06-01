@@ -63,7 +63,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
     }
 
     @Override
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
 
         final CountDownLatch regionLatch = new CountDownLatch(1);
@@ -132,11 +132,11 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         return threads;
     }
 
-    public void load() throws SQLException {
+    public void load() {
 
     }
 
-    private void truncateTable(Connection conn, String strTable) throws SQLException {
+    private void truncateTable(Connection conn, String strTable) {
 
         LOG.debug("Truncating '{}' ...", strTable);
         try (Statement statement = conn.createStatement()) {
@@ -211,7 +211,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     }
 
-    private int loadNations(Connection conn, PreparedStatement statement) throws SQLException {
+    private int loadNations(Connection conn, PreparedStatement statement) {
 
         int k = 0;
         int t = 0;
@@ -277,7 +277,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
     }
 
-    private int loadSuppliers(Connection conn, PreparedStatement statement) throws SQLException {
+    private int loadSuppliers(Connection conn, PreparedStatement statement) {
 
         int k = 0;
         int t = 0;

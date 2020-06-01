@@ -28,10 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +67,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < this.workConf.getTerminals(); ++i) {
             workers.add(new SEATSWorker(this, i));
@@ -78,7 +76,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected Loader<SEATSBenchmark> makeLoaderImpl() throws SQLException {
+    protected Loader<SEATSBenchmark> makeLoaderImpl() {
         return new SEATSLoader(this);
     }
 

@@ -377,7 +377,7 @@ public class SEATSProfile {
         }
     }
 
-    private void loadCodeXref(List<Object[]> vt, String codeCol, String idCol) throws SQLException {
+    private void loadCodeXref(List<Object[]> vt, String codeCol, String idCol) {
         Map<String, Long> m = this.code_id_xref.get(idCol);
         for (Object[] row : vt) {
             long id = SQLUtil.getLong(row[0]);
