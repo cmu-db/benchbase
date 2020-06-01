@@ -53,8 +53,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
         int min = 0;
         int max = HYADAPTConstants.RANGE;
 
-        int randomNum = rand.nextInt((max - min) + 1) + min;
-        return randomNum;
+        return rand.nextInt((max - min) + 1) + min;
     }
 
     @Override

@@ -666,8 +666,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      */
     protected Iterable<Object[]> getFixedIterable(Table catalog_tbl) throws Exception {
         File f = SEATSBenchmark.getTableDataFile(this.profile.airline_data_dir, catalog_tbl);
-        TableDataIterable iterable = new FixedDataIterable(catalog_tbl, f);
-        return (iterable);
+        return new FixedDataIterable(catalog_tbl, f);
     }
 
     /**
@@ -847,7 +846,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          */
         @Override
         public Iterator<Object[]> iterator() {
-            Iterator<Object[]> it = new Iterator<Object[]>() {
+            return (new Iterator<Object[]>() {
                 @Override
                 public boolean hasNext() {
                     return (ScalingDataIterable.this.hasNext());
@@ -887,8 +886,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 public void remove() {
                     // Not Implemented
                 }
-            };
-            return (it);
+            });
         }
     }
 

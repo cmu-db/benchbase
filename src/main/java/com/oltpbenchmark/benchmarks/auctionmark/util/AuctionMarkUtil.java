@@ -66,8 +66,7 @@ public abstract class AuctionMarkUtil {
      */
     public static long getUniqueElementId(long item_id, int idx) {
         // The idx cannot be more than 7bits
-        long id = ((long) idx << 56) | (item_id & ITEM_ID_MASK);
-        return (id);
+        return (((long) idx << 56) | (item_id & ITEM_ID_MASK));
     }
 
     /**

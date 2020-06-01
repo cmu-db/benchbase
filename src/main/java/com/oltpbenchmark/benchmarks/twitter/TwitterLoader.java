@@ -57,11 +57,9 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         // first we load USERS
-        final int numItems = this.num_users;
-        final int itemsPerThread = Math.max(numItems / numLoaders, 1);
+        final int itemsPerThread = Math.max(this.num_users / numLoaders, 1);
         final int numUserThreads = (int) Math.ceil((double) this.num_users / itemsPerThread);
         // then we load FOLLOWS and TWEETS
-        final int numFollowThreads = numUserThreads;
         final long tweetsPerThread = Math.max(this.num_tweets / numLoaders, 1);
         final int numTweetThreads = (int) Math.ceil((double) this.num_tweets / tweetsPerThread);
 
@@ -87,7 +85,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         }
 
         // FOLLOW_DATA depends on USERS
-        for (int i = 0; i < numFollowThreads; i++) {
+        for (int i = 0; i < numUserThreads; i++) {
             final int lo = i * itemsPerThread + 1;
             final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
 

@@ -41,9 +41,8 @@ public abstract class SEATSHistogramUtil {
     private static Map<String, Histogram<String>> cached_AirportFlights;
 
     private static File getHistogramFile(File data_dir, String name) {
-        File file = new File(data_dir.getAbsolutePath() + File.separator + "histogram." + name.toLowerCase());
 
-        return (file);
+        return (new File(data_dir.getAbsolutePath() + File.separator + "histogram." + name.toLowerCase()));
     }
 
     public static Histogram<String> collapseAirportFlights(Map<String, Histogram<String>> m) {

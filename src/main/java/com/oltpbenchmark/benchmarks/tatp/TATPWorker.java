@@ -153,8 +153,7 @@ public class TATPWorker extends Worker<TATPBenchmark> {
         }
 
         public static Transaction get(String name) {
-            Transaction ret = Transaction.name_lookup.get(name.toUpperCase());
-            return (ret);
+            return (Transaction.name_lookup.get(name.toUpperCase()));
         }
 
         public void invoke(Connection conn, Procedure proc, long subscriberSize) throws SQLException {

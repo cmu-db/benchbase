@@ -412,10 +412,9 @@ public class SEATSProfile {
     }
 
     private Map<String, Long> getCodeXref(String col_name) {
-        Map<String, Long> m = this.code_id_xref.get(col_name);
 
 
-        return (m);
+        return (this.code_id_xref.get(col_name));
     }
 
     /**
@@ -481,9 +480,8 @@ public class SEATSProfile {
      * @return
      */
     public Histogram<String> getHistogram(String name) {
-        Histogram<String> h = this.histograms.get(name);
 
-        return (h);
+        return (this.histograms.get(name));
     }
 
     /**

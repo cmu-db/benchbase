@@ -1003,8 +1003,7 @@ public class AuctionMarkProfile {
         GlobalAttributeGroupId gag_id = this.gag_ids.get(offset);
 
         int count = rng.nextInt(gag_id.getCount());
-        GlobalAttributeValueId gav_id = new GlobalAttributeValueId(gag_id, count);
-        return gav_id;
+        return new GlobalAttributeValueId(gag_id, count);
     }
 
     public int getRandomCategoryId() {

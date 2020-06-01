@@ -64,9 +64,7 @@ public abstract class TATPUtil {
     // taken from tpcc.RandomGenerator
     public static Long number(long minimum, long maximum) {
 
-        long value = Math.abs(rand.nextLong()) % (maximum - minimum + 1) + minimum;
-
-        return value;
+        return Math.abs(rand.nextLong()) % (maximum - minimum + 1) + minimum;
     }
 
     public static String padWithZero(long n) {

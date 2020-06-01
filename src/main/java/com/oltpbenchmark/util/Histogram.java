@@ -561,8 +561,7 @@ public class Histogram<X> implements JSONSerializable {
      * @return
      */
     public Integer get(X value) {
-        Integer count = histogram.get(value);
-        return (count);
+        return (histogram.get(value));
     }
 
     /**
