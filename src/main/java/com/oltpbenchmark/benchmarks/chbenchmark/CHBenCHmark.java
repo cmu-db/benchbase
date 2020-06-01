@@ -42,9 +42,6 @@ public class CHBenCHmark extends BenchmarkModule {
         return (Q1.class.getPackage());
     }
 
-    /**
-     * @param Bool
-     */
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
         // HACK: Turn off terminal messages

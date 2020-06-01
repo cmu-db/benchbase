@@ -464,7 +464,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * The number of tuples in these tables will not change based on the scale
      * factor.
      *
-     * @param catalog_db
+     * @param conn
+     * @param table_name
      */
     protected void loadFixedTable(Connection conn, String table_name) {
         LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
@@ -482,7 +483,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * The scaling tables are things that we will scale the number of tuples
      * based on the given scaling factor at runtime
      *
-     * @param catalog_db
+     * @param conn
+     * @param table_name
      */
     protected void loadScalingTable(Connection conn, String table_name) {
         try {
@@ -782,7 +784,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          * Constructor
          *
          * @param catalog_tbl
-         * @param table_file
+         * @param total
          * @throws Exception
          */
         public ScalingDataIterable(Table catalog_tbl, long total) {
@@ -819,7 +821,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         /**
          * Generate a special value for this particular column index
          *
-         * @param idx
+         * @param id
+         * @param column_idx
          * @return
          */
         protected abstract Object specialValue(long id, int column_idx);

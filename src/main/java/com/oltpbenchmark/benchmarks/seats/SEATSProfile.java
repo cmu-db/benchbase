@@ -435,7 +435,7 @@ public class SEATSProfile {
     /**
      * Set the number of upcoming reservation offset
      *
-     * @param numReservations
+     * @param offset
      */
     public void setReservationUpcomingOffset(long offset) {
         this.reservation_upcoming_offset = offset;
@@ -731,9 +731,6 @@ public class SEATSProfile {
         return (this.flight_upcoming_date);
     }
 
-    /**
-     * @param startDate
-     */
     public void setFlightUpcomingDate(Timestamp upcoming_date) {
         this.flight_upcoming_date = upcoming_date;
     }
@@ -747,9 +744,6 @@ public class SEATSProfile {
         return (this.flight_past_days);
     }
 
-    /**
-     * @param flight_start_date
-     */
     public void setFlightPastDays(long flight_past_days) {
         this.flight_past_days = flight_past_days;
     }
@@ -763,9 +757,6 @@ public class SEATSProfile {
         return (this.flight_future_days);
     }
 
-    /**
-     * @param flight_start_date
-     */
     public void setFlightFutureDays(long flight_future_days) {
         this.flight_future_days = flight_future_days;
     }

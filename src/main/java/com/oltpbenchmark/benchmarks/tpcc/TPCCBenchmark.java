@@ -44,9 +44,6 @@ public class TPCCBenchmark extends BenchmarkModule {
         return (NewOrder.class.getPackage());
     }
 
-    /**
-     * @param Bool
-     */
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
         ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();

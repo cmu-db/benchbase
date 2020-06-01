@@ -31,7 +31,6 @@ import com.oltpbenchmark.util.TextGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -114,17 +113,6 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     /**
      * Implements wikipedia selection of last version of an article (with and
      * without the user being logged in)
-     *
-     * @param userId    the logged in user's identifer. If negative, it is an
-     *                  anonymous access.
-     * @param nameSpace
-     * @param pageTitle
-     * @return article (return a Class containing the information we extracted,
-     * useful for the updatePage transaction)
-     * @throws SQLException
-     * @throws UnknownHostException
-     * @parama userIp contains the user's IP address in dotted quad form for
-     * IP-based access control
      */
     public Article getPageAnonymous(Connection conn, boolean forSelect, String userIp, int nameSpace, String pageTitle) throws SQLException {
         GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);

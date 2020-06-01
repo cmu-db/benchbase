@@ -47,8 +47,6 @@ public class FlightId extends CompositeId {
     private int arrive_airport_id;
     /**
      * This is the departure time of the flight in minutes since the benchmark start date
-     *
-     * @see SEATSBaseClient.getFlightTimeInMinutes()
      */
     private int depart_date;
 

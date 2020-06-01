@@ -347,7 +347,6 @@ public class Histogram<X> implements JSONSerializable {
     /**
      * Return the set of values from the histogram that have the matching count in the histogram
      *
-     * @param <T>
      * @param count
      * @return
      */
@@ -523,7 +522,6 @@ public class Histogram<X> implements JSONSerializable {
     /**
      * For each value in the given collection, decrement their count by one for each
      *
-     * @param <T>
      * @param values
      */
     public synchronized void removeValues(Collection<X> values) {
@@ -545,8 +543,7 @@ public class Histogram<X> implements JSONSerializable {
     /**
      * Decrement all the entries in the other histogram by their counter
      *
-     * @param <T>
-     * @param values
+     * @param other
      */
     public synchronized void removeHistogram(Histogram<X> other) {
         for (Entry<X, Integer> e : other.histogram.entrySet()) {

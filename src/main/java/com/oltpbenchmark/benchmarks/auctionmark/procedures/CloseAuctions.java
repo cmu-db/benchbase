@@ -80,19 +80,10 @@ public class CloseAuctions extends Procedure {
     // RUN METHOD
     // -----------------------------------------------------------------
 
-    /**
-     * @param item_ids   - Item Ids
-     * @param seller_ids - Seller Ids
-     * @param bid_ids    - ItemBid Ids
-     * @return
-     */
     public List<Object[]> run(Connection conn, Timestamp[] benchmarkTimes,
                               Timestamp startTime, Timestamp endTime) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
-
-//        int orig_isolation = conn.getTransactionIsolation();
-//        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 
         if (debug) {
             LOG.debug(String.format("startTime=%s, endTime=%s, currentTime=%s",

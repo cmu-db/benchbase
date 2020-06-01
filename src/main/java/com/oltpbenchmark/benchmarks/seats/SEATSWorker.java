@@ -443,7 +443,8 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     /**
      * Execute one of the FindFlight transactions
      *
-     * @param txn
+     * @param conn
+     * @param proc
      * @throws SQLException
      */
     private boolean executeFindFlights(Connection conn, FindFlights proc) throws SQLException {
