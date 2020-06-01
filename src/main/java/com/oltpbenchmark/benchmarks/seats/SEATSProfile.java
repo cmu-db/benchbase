@@ -152,7 +152,7 @@ public class SEATSProfile {
         this.catalog = benchmark.getCatalog();
         this.rng = rng;
         this.airline_data_dir = benchmark.getDataDir();
-        if (this.airline_data_dir.exists() == false) {
+        if (!this.airline_data_dir.exists()) {
             throw new RuntimeException("Unable to start benchmark. The data directory '" + this.airline_data_dir.getAbsolutePath() + "' does not exist");
         }
 
@@ -163,7 +163,7 @@ public class SEATSProfile {
             String codeCol = xref[1];
             String idCol = xref[2];
 
-            if (this.code_columns.containsKey(codeCol) == false) {
+            if (!this.code_columns.containsKey(codeCol)) {
                 this.code_columns.put(codeCol, idCol);
                 this.code_id_xref.put(idCol, new HashMap<>());
                 if (LOG.isDebugEnabled()) {

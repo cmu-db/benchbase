@@ -55,10 +55,10 @@ public abstract class JSONUtil {
                     List<Field> fields = new ArrayList<>();
                     for (Field f : clazz.getFields()) {
                         int modifiers = f.getModifiers();
-                        if (Modifier.isTransient(modifiers) == false &&
-                                Modifier.isPublic(modifiers) == true &&
-                                Modifier.isStatic(modifiers) == false &&
-                                exclude.contains(f.getName()) == false) {
+                        if (!Modifier.isTransient(modifiers) &&
+                                Modifier.isPublic(modifiers) &&
+                                !Modifier.isStatic(modifiers) &&
+                                !exclude.contains(f.getName())) {
                             fields.add(f);
                         }
                     }

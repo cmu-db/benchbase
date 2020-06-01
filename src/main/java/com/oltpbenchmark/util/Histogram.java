@@ -115,7 +115,7 @@ public class Histogram<X> implements JSONSerializable {
     }
 
     public boolean hasDebugLabels() {
-        return (this.debug_names != null && this.debug_names.isEmpty() == false);
+        return (this.debug_names != null && !this.debug_names.isEmpty());
     }
 
 

@@ -84,7 +84,7 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
             }
 
             // If we only need one acctId, break out here.
-            if (i == 0 && needsTwoAccts == false) {
+            if (i == 0 && !needsTwoAccts) {
                 break;
             }
             // If we need two acctIds, then we need to go generate the second one

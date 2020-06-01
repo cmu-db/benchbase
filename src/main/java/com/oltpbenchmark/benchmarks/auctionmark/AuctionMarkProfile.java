@@ -876,7 +876,7 @@ public class AuctionMarkProfile {
             tmp_seenItems.add(temp);
 
             // Needs to have an embedded currentPrice
-            if (needCurrentPrice && temp.hasCurrentPrice() == false) {
+            if (needCurrentPrice && !temp.hasCurrentPrice()) {
                 continue;
             }
 
@@ -887,7 +887,7 @@ public class AuctionMarkProfile {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("CurrentTime:{} / EndTime:{} [compareTo={}]", currentTime, temp.getEndDate(), compareTo);
                 }
-                if (temp.hasEndDate() == false || compareTo) {
+                if (!temp.hasEndDate() || compareTo) {
                     continue;
                 }
             }

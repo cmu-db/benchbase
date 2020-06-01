@@ -175,7 +175,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         NewCommentResponse(NewCommentResponse.class, new AuctionMarkParamGenerator() {
             @Override
             public boolean canGenerateParam(AuctionMarkWorker client) {
-                return (client.profile.pending_commentResponses.isEmpty() == false);
+                return (!client.profile.pending_commentResponses.isEmpty());
             }
         }),
         // ====================================================================
@@ -573,7 +573,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         // Some NewBids will be for items that have already ended.
         // This will simulate somebody trying to bid at the very end but failing
         if ((has_waiting || has_completed) &&
-                (profile.rng.number(1, 100) <= AuctionMarkConstants.PROB_NEWBID_CLOSED_ITEM || has_available == false)) {
+                (profile.rng.number(1, 100) <= AuctionMarkConstants.PROB_NEWBID_CLOSED_ITEM || !has_available)) {
             if (has_waiting) {
                 itemInfo = profile.getRandomWaitForPurchaseItem();
 
@@ -594,7 +594,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         else {
 
             // 50% of NewBids will be for items that are ending soon
-            if ((has_ending && profile.rng.number(1, 100) <= AuctionMarkConstants.PROB_NEWBID_CLOSED_ITEM) || has_available == false) {
+            if ((has_ending && profile.rng.number(1, 100) <= AuctionMarkConstants.PROB_NEWBID_CLOSED_ITEM) || !has_available) {
                 itemInfo = profile.getRandomEndingSoonItem(true);
             }
             if (itemInfo == null) {

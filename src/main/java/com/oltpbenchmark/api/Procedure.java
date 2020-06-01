@@ -174,9 +174,9 @@ public abstract class Procedure {
         Map<String, SQLStmt> stmts = new HashMap<>();
         for (Field f : c.getDeclaredFields()) {
             int modifiers = f.getModifiers();
-            if (Modifier.isTransient(modifiers) == false &&
-                    Modifier.isPublic(modifiers) == true &&
-                    Modifier.isStatic(modifiers) == false) {
+            if (!Modifier.isTransient(modifiers) &&
+                    Modifier.isPublic(modifiers) &&
+                    !Modifier.isStatic(modifiers)) {
                 try {
                     Object o = f.get(proc);
                     if (o instanceof SQLStmt) {

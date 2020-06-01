@@ -173,7 +173,7 @@ public abstract class ClassUtil {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("  SUPER[{}] => {}", cTypes[i].getSimpleName(), cSuper);
                 }
-                if (CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty() == false) {
+                if (!CollectionUtils.intersection(paramSuper[i], cSuper).isEmpty()) {
                     return ((Constructor<T>) c);
                 }
             }

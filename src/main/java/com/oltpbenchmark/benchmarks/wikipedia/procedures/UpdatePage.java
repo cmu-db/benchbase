@@ -156,7 +156,7 @@ public class UpdatePage extends Procedure {
         // UPDATING WATCHLIST: txn3 (not always, only if someone is watching the
         // page, might be part of txn2)
         // =====================================================================
-        if (wlUser.isEmpty() == false) {
+        if (!wlUser.isEmpty()) {
 
 
             try (PreparedStatement ps = this.getPreparedStatement(conn, updateWatchList)) {
