@@ -120,7 +120,6 @@
             <statement name="insertImage">INSERT INTO item_image(ii_id,ii_i_id,ii_u_id,ii_sattr0) VALUES(?, ?, ?, ?)
             </statement>
             <statement name="getCategory">SELECT * FROM category WHERE c_id = ?</statement>
-            <statement name="getSellerItemCount">SELECT COUNT(*) FROM item WHERE i_u_id = ?</statement>
             <statement name="insertItemAttribute">INSERT INTO item_attribute(ia_id,ia_i_id,ia_u_id,ia_gav_id,ia_gag_id)
                 VALUES(?, ?, ?, ?, ?)
             </statement>
