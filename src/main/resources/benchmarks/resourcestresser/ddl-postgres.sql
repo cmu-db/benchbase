@@ -1,11 +1,14 @@
-DROP TABLE IF EXISTS cputable;
+DROP TABLE IF EXISTS cputable CASCADE ;
+DROP TABLE IF EXISTS iotable CASCADE;
+DROP TABLE IF EXISTS iotablesmallrow CASCADE;
+DROP TABLE IF EXISTS locktable CASCADE;
+
 CREATE TABLE cputable (
   empid int NOT NULL,
   passwd char(255) NOT NULL,
   PRIMARY KEY (empid)
 );
 
-DROP TABLE IF EXISTS iotable;
 CREATE TABLE iotable (
   empid int NOT NULL,
   data1 char(255) NOT NULL,
@@ -27,14 +30,14 @@ CREATE TABLE iotable (
   PRIMARY KEY (empid)
 );
 
-DROP TABLE IF EXISTS iotablesmallrow;
+
 CREATE TABLE iotablesmallrow (
   empid int NOT NULL,
   flag1 int NOT NULL,
   PRIMARY KEY (empid)
 );
 
-DROP TABLE IF EXISTS locktable;
+
 CREATE TABLE locktable (
   empid int NOT NULL,
   salary int NOT NULL,

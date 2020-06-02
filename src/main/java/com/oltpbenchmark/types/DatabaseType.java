@@ -29,19 +29,11 @@ import java.util.Map;
  */
 public enum DatabaseType {
 
-    /**
-     * Parameters:
-     * (1) JDBC Driver String
-     * (2) Should SQLUtil.getInsertSQL escape table/col names
-     * (3) Should SQLUtil.getInsertSQL include col names
-     * (4) Does this DBMS support "real" transactions?
-     */
     MYSQL(true, false),
     POSTGRES(false, false),
     COCKROACHDB(false, false);
 
-    DatabaseType(boolean escapeNames,
-                 boolean includeColNames) {
+    DatabaseType(boolean escapeNames, boolean includeColNames) {
         this.escapeNames = escapeNames;
         this.includeColNames = includeColNames;
     }
