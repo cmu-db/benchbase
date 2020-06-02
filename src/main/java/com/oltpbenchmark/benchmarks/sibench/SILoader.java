@@ -65,7 +65,7 @@ public class SILoader extends Loader<SIBenchmark> {
 
     private void loadSITest(Connection conn, int lo, int hi) throws SQLException {
         Random rand = this.benchmark.rng();
-        Table catalog_tbl = this.benchmark.getTableCatalog("SITEST");
+        Table catalog_tbl = this.benchmark.getCatalog().getTable("SITEST");
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());

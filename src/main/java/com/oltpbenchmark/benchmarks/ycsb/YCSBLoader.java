@@ -62,7 +62,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
     }
 
     private void loadRecords(Connection conn, int start, int stop) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("USERTABLE");
+        Table catalog_tbl = benchmark.getCatalog().getTable("USERTABLE");
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());

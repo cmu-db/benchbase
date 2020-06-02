@@ -21,7 +21,6 @@ import com.oltpbenchmark.benchmarks.seats.procedures.Config;
 import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
-import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.*;
@@ -106,11 +105,6 @@ public class SEATSProfile {
     protected final SEATSBenchmark benchmark;
 
     /**
-     * TableName -> TableCatalog
-     */
-    protected transient final Catalog catalog;
-
-    /**
      * We want to maintain a small cache of FlightIds so that the SEATSClient
      * has something to work with. We obviously don't want to store the entire
      * set here
@@ -149,7 +143,6 @@ public class SEATSProfile {
 
     public SEATSProfile(SEATSBenchmark benchmark, RandomGenerator rng) {
         this.benchmark = benchmark;
-        this.catalog = benchmark.getCatalog();
         this.rng = rng;
         this.airline_data_dir = benchmark.getDataDir();
         if (!this.airline_data_dir.exists()) {
@@ -182,13 +175,13 @@ public class SEATSProfile {
         // 'USA' in the AP_CO_ID column. We can use mapping to get the id number
 
         // you going to do?
-        for (Table catalog_tbl : this.catalog.getTables()) {
+        for (Table catalog_tbl : benchmark.getCatalog().getTables()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 Column catalog_fkey_col = catalog_col.getForeignKey();
                 if (catalog_fkey_col != null && this.code_id_xref.containsKey(catalog_fkey_col.getName())) {
                     this.fkey_value_xref.put(catalog_col.getName(), catalog_fkey_col.getName());
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.fullName(), catalog_fkey_col.fullName()));
+                        LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.getName(), catalog_fkey_col.getName()));
                     }
                 }
             }
@@ -206,7 +199,7 @@ public class SEATSProfile {
     protected final void saveProfile(Connection conn) throws SQLException {
 
         // CONFIG_PROFILE
-        Table profileTable = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        Table profileTable = benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
         String profileSql = SQLUtil.getInsertSQL(profileTable, this.benchmark.getWorkloadConfiguration().getDBType());
 
         try (PreparedStatement stmt = conn.prepareStatement(profileSql)) {
@@ -229,7 +222,7 @@ public class SEATSProfile {
         }
 
         // CONFIG_HISTOGRAMS
-        Table histogramsTable = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
+        Table histogramsTable = benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
         String histogramSql = SQLUtil.getInsertSQL(histogramsTable, this.benchmark.getWorkloadConfiguration().getDBType());
         try (PreparedStatement stmt = conn.prepareStatement(histogramSql)) {
             for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {

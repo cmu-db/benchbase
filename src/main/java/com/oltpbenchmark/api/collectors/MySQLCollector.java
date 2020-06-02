@@ -17,7 +17,6 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import com.oltpbenchmark.catalog.Catalog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,6 @@ public class MySQLCollector extends DBCollector {
 
     public MySQLCollector(String oriDBUrl, String username, String password) {
         try (Connection conn = DriverManager.getConnection(oriDBUrl, username, password)) {
-            Catalog.setSeparator(conn);
             try (Statement s = conn.createStatement()) {
 
                 // Collect DBMS version

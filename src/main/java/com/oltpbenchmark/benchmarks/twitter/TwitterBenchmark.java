@@ -39,7 +39,7 @@ public class TwitterBenchmark extends BenchmarkModule {
     private final TwitterConfiguration twitterConf;
 
     public TwitterBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
         this.twitterConf = new TwitterConfiguration(workConf);
     }
 

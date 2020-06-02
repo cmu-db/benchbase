@@ -147,7 +147,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * @author Djellel Load num_users users.
      */
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("useracct");
+        Table catalog_tbl = this.benchmark.getCatalog().getTable("useracct");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -188,7 +188,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * @author Djellel Load num_items items.
      */
     private void loadItems(Connection conn, int lo, int hi) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("item");
+        Table catalog_tbl = this.benchmark.getCatalog().getTable("item");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -232,7 +232,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * based on Zipfian distribution.
      */
     private void loadReviews(Connection conn) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("review");
+        Table catalog_tbl = this.benchmark.getCatalog().getTable("review");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -297,7 +297,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * reviewers (drawn using a scrambled distribution)
      */
     public void loadTrust(Connection conn) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog("trust");
+        Table catalog_tbl = this.benchmark.getCatalog().getTable("trust");
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 

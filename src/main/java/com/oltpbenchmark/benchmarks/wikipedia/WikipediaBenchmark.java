@@ -40,7 +40,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 
 
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
 
         this.commentLength = new FlatHistogram<>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
         this.minorEdit = new FlatHistogram<>(this.rng(), RevisionHistograms.MINOR_EDIT);

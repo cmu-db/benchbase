@@ -68,7 +68,7 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
         this.procWriteCheck = this.getProcedure(WriteCheck.class);
 
         this.numAccounts = benchmarkModule.numAccounts;
-        this.custNameLength = SmallBankBenchmark.getCustomerNameLength(benchmarkModule.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS));
+        this.custNameLength = SmallBankBenchmark.getCustomerNameLength(benchmarkModule.getCatalog().getTable(SmallBankConstants.TABLENAME_ACCOUNTS));
         this.custNameFormat = "%0" + this.custNameLength + "d";
         this.rng = new Flat(rng(), 0, this.numAccounts);
     }

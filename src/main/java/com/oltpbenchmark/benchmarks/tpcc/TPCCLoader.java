@@ -127,7 +127,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
     }
 
     private PreparedStatement getInsertStatement(Connection conn, String tableName) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
+        Table catalog_tbl = benchmark.getCatalog().getTable(tableName);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         return conn.prepareStatement(sql);

@@ -39,14 +39,14 @@ public class SIBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(SIBenchmark.class);
 
     public SIBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
-        Table t = this.catalog.getTable("SITEST");
+        Table t = this.getCatalog().getTable("SITEST");
 
         String recordCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "id");
 

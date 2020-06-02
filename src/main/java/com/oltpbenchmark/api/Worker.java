@@ -19,7 +19,6 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.*;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
@@ -103,14 +102,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return (this.benchmarkModule.getWorkloadConfiguration());
     }
 
-    public final Catalog getCatalog() {
-        return (this.benchmarkModule.getCatalog());
-    }
-
     public final Random rng() {
         return (this.benchmarkModule.rng());
     }
-
 
     public final int getRequests() {
         return latencies.size();

@@ -38,7 +38,6 @@ public enum DatabaseType {
      */
     MYSQL(true, false),
     POSTGRES(false, false),
-    HSQLDB(false, false),
     COCKROACHDB(false, false);
 
     DatabaseType(boolean escapeNames,

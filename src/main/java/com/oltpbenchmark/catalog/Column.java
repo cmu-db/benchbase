@@ -23,95 +23,49 @@ package com.oltpbenchmark.catalog;
  *
  * @author pavlo
  */
-public class Column extends AbstractCatalogObject implements Cloneable {
+public class Column extends AbstractCatalogObject {
     private static final long serialVersionUID = 1L;
 
-    private final Table catalog_tbl;
+    private final Table table;
     private final int type;
     private final Integer size;
+    private final boolean nullable;
 
-    private boolean nullable = false;
-    private Column foreignkey = null;
+    private Column foreignKey = null;
 
-    public Column(Table catalog_tbl, String name, int type, Integer size) {
-        super(name);
-        this.catalog_tbl = catalog_tbl;
+    public Column(String name, String separator, Table table, int type, Integer size, boolean nullable) {
+        super(name, separator);
+        this.table = table;
         this.type = type;
         this.size = size;
-    }
-
-    @Override
-    protected Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new RuntimeException(ex);
-        }
+        this.nullable = nullable;
     }
 
     public Table getTable() {
-        return (this.catalog_tbl);
+        return table;
     }
 
-    public int getIndex() {
-        return (this.catalog_tbl.getColumnIndex(this));
-    }
-
-    public String fullName() {
-        return String.format("%s.%s", this.catalog_tbl.getName(), this.name);
-    }
-
-    /**
-     * @return the type
-     */
     public int getType() {
         return type;
     }
 
-    /**
-     * Return the max size of this column
-     *
-     * @return the size
-     */
     public Integer getSize() {
         return size;
     }
 
-    /**
-     * @return the nullable
-     */
     public boolean isNullable() {
         return nullable;
     }
 
-
-    /**
-     * @return the foreign key parent for this column
-     */
     public Column getForeignKey() {
-        return foreignkey;
+        return foreignKey;
     }
 
-
-
-    /**
-     * @param nullable the nullable to set
-     */
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
+    public void setForeignKey(Column foreignKey) {
+        this.foreignKey = foreignKey;
     }
 
-
-    /**
-     * @param foreignkey the foreign key parent for this column
-     */
-    public void setForeignKey(Column foreignkey) {
-        this.foreignkey = foreignkey;
+    public int getIndex() {
+        return this.table.getColumnIndex(this);
     }
-
-    @Override
-    public String toString() {
-        return (this.getName());
-    }
-
 }

@@ -140,7 +140,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      * @author Djellel Load num_users users.
      */
     protected void loadUsers(Connection conn, int lo, int hi) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_USER);
+        Table catalog_tbl = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_USER);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -195,7 +195,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      * tweet
      */
     protected void loadTweets(Connection conn, long lo, long hi) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_TWEETS);
+        Table catalog_tbl = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_TWEETS);
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -251,8 +251,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
         int total = 1;
 
-        Table followsTable = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWS);
-        Table followersTable = this.benchmark.getTableCatalog(TwitterConstants.TABLENAME_FOLLOWERS);
+        Table followsTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWS);
+        Table followersTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWERS);
 
         String followsTableSql = SQLUtil.getInsertSQL(followsTable, this.getDatabaseType());
         String followersTableSql = SQLUtil.getInsertSQL(followersTable, this.getDatabaseType());

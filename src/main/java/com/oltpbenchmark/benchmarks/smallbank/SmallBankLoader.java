@@ -50,11 +50,11 @@ public class SmallBankLoader extends Loader<SmallBankBenchmark> {
     public SmallBankLoader(SmallBankBenchmark benchmark) {
         super(benchmark);
 
-        this.catalogAccts = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_ACCOUNTS);
+        this.catalogAccts = this.benchmark.getCatalog().getTable(SmallBankConstants.TABLENAME_ACCOUNTS);
 
-        this.catalogSavings = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_SAVINGS);
+        this.catalogSavings = this.benchmark.getCatalog().getTable(SmallBankConstants.TABLENAME_SAVINGS);
 
-        this.catalogChecking = this.benchmark.getTableCatalog(SmallBankConstants.TABLENAME_CHECKING);
+        this.catalogChecking = this.benchmark.getCatalog().getTable(SmallBankConstants.TABLENAME_CHECKING);
 
 
         this.sqlAccts = SQLUtil.getInsertSQL(this.catalogAccts, this.getDatabaseType());

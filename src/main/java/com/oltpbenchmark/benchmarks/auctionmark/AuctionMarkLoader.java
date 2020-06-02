@@ -28,6 +28,7 @@ import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.ListOrderedMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -321,7 +322,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             // Initialize dynamic parameters for tables that are not loaded from data files
             if (!data_file && !dynamic_size && !tableName.equalsIgnoreCase(AuctionMarkConstants.TABLENAME_ITEM)) {
-                String field_name = "TABLESIZE_" + catalog_tbl.getName();
+                String field_name = "TABLESIZE_" + StringUtils.upperCase(catalog_tbl.getName());
                 try {
 
                     Field field_handle = AuctionMarkConstants.class.getField(field_name);
@@ -331,7 +332,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         this.tableSize = (long) Math.max(1, (int) Math.round(this.tableSize * profile.getScaleFactor()));
                     }
                 } catch (NoSuchFieldException ex) {
-                    LOG.warn("No table size field for '{}'", tableName, ex);
+                    LOG.warn("No table size constant in AuctionMarkConstants for '{}' using {}", tableName);
                 } catch (Exception ex) {
                     throw new RuntimeException("Missing field '" + field_name + "' needed for '" + tableName + "'", ex);
                 }
@@ -342,13 +343,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
                     this.random_str_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("Random String Column: {}", catalog_col.fullName());
+                        LOG.trace("Random String Column: {}", catalog_col.getName());
                     }
                 } else if (random_int_regex.matcher(catalog_col.getName()).matches()) {
 
                     this.random_int_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("Random Integer Column: {}", catalog_col.fullName());
+                        LOG.trace("Random Integer Column: {}", catalog_col.getName());
                     }
                 }
             }

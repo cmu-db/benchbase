@@ -101,7 +101,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
     }
 
     private void loadContestants(Connection conn) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(VoterConstants.TABLENAME_CONTESTANTS);
+        Table catalog_tbl = benchmark.getCatalog().getTable(VoterConstants.TABLENAME_CONTESTANTS);
         String[] contestants = VoterConstants.CONTESTANT_NAMES_CSV.split(",");
         try (PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
 
@@ -115,7 +115,7 @@ public class VoterLoader extends Loader<VoterBenchmark> {
     }
 
     private void loadLocations(Connection conn) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(VoterConstants.TABLENAME_LOCATIONS);
+        Table catalog_tbl = benchmark.getCatalog().getTable(VoterConstants.TABLENAME_LOCATIONS);
         try (PreparedStatement ps = conn.prepareStatement(SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType()))) {
 
             for (int i = 0; i < areaCodes.length; i++) {

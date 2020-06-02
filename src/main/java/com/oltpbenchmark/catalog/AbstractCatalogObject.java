@@ -28,31 +28,25 @@ public abstract class AbstractCatalogObject implements Serializable {
     static final long serialVersionUID = 0;
 
     protected final String name;
+    protected final String separator;
 
-    public AbstractCatalogObject(String name) {
+    public AbstractCatalogObject(String name, String separator) {
         this.name = name;
+        this.separator = separator;
     }
 
-    /**
-     * Return the name of this catalog object in the database
-     *
-     * @return
-     */
-    public final String getName() {
-        return (this.name);
+    public String getName() {
+        return name;
     }
 
-    /**
-     * Return the name of this catalog object escaped with the
-     * by the CatalogUtil.separator
-     *
-     * @return
-     */
+    public String getSeparator() {
+        return separator;
+    }
+
     public final String getEscapedName() {
-        String s = Catalog.getSeparator();
 
-        if (s != null) {
-            return s + this.name + s;
+        if (separator != null) {
+            return separator + this.name + separator;
         } else {
             return this.name;
         }

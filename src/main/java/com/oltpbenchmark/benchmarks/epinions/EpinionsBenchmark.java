@@ -40,7 +40,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("USERACCT");
+            Table t = this.getCatalog().getTable("USERACCT");
 
 
             ArrayList<String> user_ids = new ArrayList<>();
@@ -76,7 +76,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
                         LOG.debug("Loaded: {} User ids", user_ids.size());
                     }
                     // LIST OF ITEMS AND
-                    t = this.catalog.getTable("ITEM");
+                    t = this.getCatalog().getTable("ITEM");
 
 
                     String itemCount = SQLUtil.selectColValues(t, "i_id");

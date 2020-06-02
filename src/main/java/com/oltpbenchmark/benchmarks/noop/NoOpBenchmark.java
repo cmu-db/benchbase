@@ -36,7 +36,7 @@ import java.util.List;
 public class NoOpBenchmark extends BenchmarkModule {
 
     public NoOpBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     @Override

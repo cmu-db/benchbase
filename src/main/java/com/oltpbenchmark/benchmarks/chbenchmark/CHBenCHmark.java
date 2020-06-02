@@ -33,7 +33,7 @@ public class CHBenCHmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(CHBenCHmark.class);
 
     public CHBenCHmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     protected Package getProcedurePackageImpl() {

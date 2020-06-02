@@ -34,37 +34,19 @@ public class Table extends AbstractCatalogObject {
     private static final long serialVersionUID = 1L;
 
     private final List<Column> columns = new ArrayList<>();
-    private final List<IntegrityConstraint> constraints = new ArrayList<>();
     private final List<Index> indexes = new ArrayList<>();
 
 
-    public Table(String tableName) {
-        super(tableName);
+    public Table(String name, String separator) {
+        super(name, separator);
     }
 
-    public Table(Table srcTable) {
-        this(srcTable.getName());
-
-        for (int i = 0, cnt = srcTable.columns.size(); i < cnt; i++) {
-            Column col = (Column) srcTable.columns.get(i).clone();
-            this.columns.add(col);
-        }
-        for (IntegrityConstraint ic : srcTable.constraints) {
-            this.constraints.add(ic.clone());
-        }
-    }
-
-    @Override
-    public Table clone() {
-        return new Table(this);
-    }
 
     // ----------------------------------------------------------
     // COLUMNS
     // ----------------------------------------------------------
 
     public void addColumn(Column col) {
-
         this.columns.add(col);
     }
 
@@ -80,19 +62,6 @@ public class Table extends AbstractCatalogObject {
         return this.columns.get(index);
     }
 
-    public int getColumnIndex(Column catalog_col) {
-        return (this.getColumnIndex(catalog_col.getName()));
-    }
-
-    public int getColumnIndex(String columnName) {
-        for (int i = 0, cnt = getColumnCount(); i < cnt; i++) {
-            if (this.columns.get(i).getName().equalsIgnoreCase(columnName)) {
-                return (i);
-            }
-        }
-        return -1;
-    }
-
     public int[] getColumnTypes() {
         int[] types = new int[this.getColumnCount()];
         for (Column catalog_col : this.getColumns()) {
@@ -106,26 +75,25 @@ public class Table extends AbstractCatalogObject {
         return (idx >= 0 ? this.columns.get(idx) : null);
     }
 
-    // ----------------------------------------------------------
-    // INDEXES
-    // ----------------------------------------------------------
 
-    /**
-     * Add a new Index for this table
-     *
-     * @param index
-     */
+    public int getColumnIndex(Column catalog_col) {
+        return (this.getColumnIndex(catalog_col.getName()));
+    }
+
+    public int getColumnIndex(String columnName) {
+        for (int i = 0, cnt = getColumnCount(); i < cnt; i++) {
+            if (this.columns.get(i).getName().equalsIgnoreCase(columnName)) {
+                return (i);
+            }
+        }
+        return -1;
+    }
+
+
     public void addIndex(Index index) {
-
         this.indexes.add(index);
     }
 
-    /**
-     * Return a particular index based on its name
-     *
-     * @param indexName
-     * @return
-     */
     public Index getIndex(String indexName) {
         for (Index catalog_idx : this.indexes) {
             if (catalog_idx.getName().equalsIgnoreCase(indexName)) {
@@ -135,34 +103,4 @@ public class Table extends AbstractCatalogObject {
         return (null);
     }
 
-    // ----------------------------------------------------------
-    // PRIMARY KEY INDEX
-    // ----------------------------------------------------------
-
-
-
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof Table)) {
-            return (false);
-        }
-
-        Table table2 = (Table) object;
-        return (this.name.equals(table2.name) &&
-                this.columns.equals(table2.columns) &&
-                this.constraints.equals(table2.constraints));
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(getName()).append(" (\n");
-        for (Column column : this.columns) {
-            sb.append("  ").append(column).append("\n");
-        }
-        sb.append(")");
-
-        return (sb.toString());
-    }
 }

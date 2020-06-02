@@ -31,7 +31,7 @@ public class VoterBenchmark extends BenchmarkModule {
     public final int numContestants;
 
     public VoterBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
         numContestants = VoterUtil.getScaledNumContestants(workConf.getScaleFactor());
     }
 

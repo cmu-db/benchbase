@@ -111,7 +111,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
      */
     void genSubscriber(Connection conn, long lo, long hi) throws SQLException {
         // Create a prepared statement
-        Table catalog_tbl = benchmark.getTableCatalog(TATPConstants.TABLENAME_SUBSCRIBER);
+        Table catalog_tbl = benchmark.getCatalog().getTable(TATPConstants.TABLENAME_SUBSCRIBER);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -168,7 +168,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
      */
     void genAccessInfo(Connection conn) throws SQLException {
         // Create a prepared statement
-        Table catalog_tbl = benchmark.getTableCatalog(TATPConstants.TABLENAME_ACCESS_INFO);
+        Table catalog_tbl = benchmark.getCatalog().getTable(TATPConstants.TABLENAME_ACCESS_INFO);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -216,8 +216,8 @@ public class TATPLoader extends Loader<TATPBenchmark> {
      */
     void genSpeAndCal(Connection conn) throws SQLException {
         // Create a prepared statement
-        Table catalog_spe = benchmark.getTableCatalog(TATPConstants.TABLENAME_SPECIAL_FACILITY);
-        Table catalog_cal = benchmark.getTableCatalog(TATPConstants.TABLENAME_CALL_FORWARDING);
+        Table catalog_spe = benchmark.getCatalog().getTable(TATPConstants.TABLENAME_SPECIAL_FACILITY);
+        Table catalog_cal = benchmark.getCatalog().getTable(TATPConstants.TABLENAME_CALL_FORWARDING);
         String spe_sql = SQLUtil.getInsertSQL(catalog_spe, this.getDatabaseType());
 
         int spe_batch = 0;
