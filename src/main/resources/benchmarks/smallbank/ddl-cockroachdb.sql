@@ -1,24 +1,24 @@
-DROP TABLE IF EXISTS CHECKING;
-DROP TABLE IF EXISTS SAVINGS;
-DROP TABLE IF EXISTS ACCOUNTS;
+DROP TABLE IF EXISTS checking;
+DROP TABLE IF EXISTS savings;
+DROP TABLE IF EXISTS accounts;
 
-CREATE TABLE ACCOUNTS (
-    custid      BIGINT      NOT NULL,
-    name        VARCHAR(64) NOT NULL,
+CREATE TABLE accounts (
+    custid bigint      NOT NULL,
+    name   varchar(64) NOT NULL,
     CONSTRAINT pk_accounts PRIMARY KEY (custid)
 );
-CREATE INDEX IDX_ACCOUNTS_NAME ON ACCOUNTS (name);    
+CREATE INDEX idx_accounts_name ON accounts (name);
 
-CREATE TABLE SAVINGS (
-    custid      BIGINT      NOT NULL,
-    bal         FLOAT       NOT NULL,
+CREATE TABLE savings (
+    custid bigint NOT NULL,
+    bal    float  NOT NULL,
     CONSTRAINT pk_savings PRIMARY KEY (custid),
-    FOREIGN KEY (custid) REFERENCES ACCOUNTS (custid)
+    FOREIGN KEY (custid) REFERENCES accounts (custid)
 );
 
-CREATE TABLE CHECKING (
-    custid      BIGINT      NOT NULL,
-    bal         FLOAT       NOT NULL,
+CREATE TABLE checking (
+    custid bigint NOT NULL,
+    bal    float  NOT NULL,
     CONSTRAINT pk_checking PRIMARY KEY (custid),
-    FOREIGN KEY (custid) REFERENCES ACCOUNTS (custid)
+    FOREIGN KEY (custid) REFERENCES accounts (custid)
 );

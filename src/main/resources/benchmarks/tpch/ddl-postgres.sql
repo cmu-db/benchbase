@@ -7,95 +7,111 @@ DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS customer CASCADE;
 DROP TABLE IF EXISTS lineitem CASCADE;
 
-CREATE TABLE nation  ( n_nationkey  INTEGER NOT NULL,
-                       n_name       CHAR(25) NOT NULL,
-                       n_regionkey  INTEGER NOT NULL,
-                       n_comment    VARCHAR(152));
+CREATE TABLE nation (
+    n_nationkey integer  NOT NULL,
+    n_name      char(25) NOT NULL,
+    n_regionkey integer  NOT NULL,
+    n_comment   varchar(152)
+);
 
-CREATE TABLE region  ( r_regionkey  INTEGER NOT NULL,
-                       r_name       CHAR(25) NOT NULL,
-                       r_comment    VARCHAR(152));
+CREATE TABLE region (
+    r_regionkey integer  NOT NULL,
+    r_name      char(25) NOT NULL,
+    r_comment   varchar(152)
+);
 
-CREATE TABLE part  ( p_partkey     INTEGER NOT NULL,
-                     p_name        VARCHAR(55) NOT NULL,
-                     p_mfgr        CHAR(25) NOT NULL,
-                     p_brand       CHAR(10) NOT NULL,
-                     p_type        VARCHAR(25) NOT NULL,
-                     p_size        INTEGER NOT NULL,
-                     p_container   CHAR(10) NOT NULL,
-                     p_retailprice DECIMAL(15,2) NOT NULL,
-                     p_comment     VARCHAR(23) NOT NULL );
+CREATE TABLE part (
+    p_partkey     integer        NOT NULL,
+    p_name        varchar(55)    NOT NULL,
+    p_mfgr        char(25)       NOT NULL,
+    p_brand       char(10)       NOT NULL,
+    p_type        varchar(25)    NOT NULL,
+    p_size        integer        NOT NULL,
+    p_container   char(10)       NOT NULL,
+    p_retailprice decimal(15, 2) NOT NULL,
+    p_comment     varchar(23)    NOT NULL
+);
 
-CREATE TABLE supplier ( s_suppkey     INTEGER NOT NULL,
-                        s_name        CHAR(25) NOT NULL,
-                        s_address     VARCHAR(40) NOT NULL,
-                        s_nationkey   INTEGER NOT NULL,
-                        s_phone       CHAR(15) NOT NULL,
-                        s_acctbal     DECIMAL(15,2) NOT NULL,
-                        s_comment     VARCHAR(101) NOT NULL);
+CREATE TABLE supplier (
+    s_suppkey   integer        NOT NULL,
+    s_name      char(25)       NOT NULL,
+    s_address   varchar(40)    NOT NULL,
+    s_nationkey integer        NOT NULL,
+    s_phone     char(15)       NOT NULL,
+    s_acctbal   decimal(15, 2) NOT NULL,
+    s_comment   varchar(101)   NOT NULL
+);
 
-CREATE TABLE partsupp ( ps_partkey     INTEGER NOT NULL,
-                        ps_suppkey     INTEGER NOT NULL,
-                        ps_availqty    INTEGER NOT NULL,
-                        ps_supplycost  DECIMAL(15,2)  NOT NULL,
-                        ps_comment     VARCHAR(199) NOT NULL );
+CREATE TABLE partsupp (
+    ps_partkey    integer        NOT NULL,
+    ps_suppkey    integer        NOT NULL,
+    ps_availqty   integer        NOT NULL,
+    ps_supplycost decimal(15, 2) NOT NULL,
+    ps_comment    varchar(199)   NOT NULL
+);
 
-CREATE TABLE customer ( c_custkey     INTEGER NOT NULL,
-                        c_name        VARCHAR(25) NOT NULL,
-                        c_address     VARCHAR(40) NOT NULL,
-                        c_nationkey   INTEGER NOT NULL,
-                        c_phone       CHAR(15) NOT NULL,
-                        c_acctbal     DECIMAL(15,2)   NOT NULL,
-                        c_mktsegment  CHAR(10) NOT NULL,
-                        c_comment     VARCHAR(117) NOT NULL);
+CREATE TABLE customer (
+    c_custkey    integer        NOT NULL,
+    c_name       varchar(25)    NOT NULL,
+    c_address    varchar(40)    NOT NULL,
+    c_nationkey  integer        NOT NULL,
+    c_phone      char(15)       NOT NULL,
+    c_acctbal    decimal(15, 2) NOT NULL,
+    c_mktsegment char(10)       NOT NULL,
+    c_comment    varchar(117)   NOT NULL
+);
 
-CREATE TABLE orders  ( o_orderkey       INTEGER NOT NULL,
-                       o_custkey        INTEGER NOT NULL,
-                       o_orderstatus    CHAR(1) NOT NULL,
-                       o_totalprice     DECIMAL(15,2) NOT NULL,
-                       o_orderdate      DATE NOT NULL,
-                       o_orderpriority  CHAR(15) NOT NULL,  
-                       o_clerk          CHAR(15) NOT NULL, 
-                       o_shippriority   INTEGER NOT NULL,
-                       o_comment        VARCHAR(79) NOT NULL);
+CREATE TABLE orders (
+    o_orderkey      integer        NOT NULL,
+    o_custkey       integer        NOT NULL,
+    o_orderstatus   char(1)        NOT NULL,
+    o_totalprice    decimal(15, 2) NOT NULL,
+    o_orderdate     date           NOT NULL,
+    o_orderpriority char(15)       NOT NULL,
+    o_clerk         char(15)       NOT NULL,
+    o_shippriority  integer        NOT NULL,
+    o_comment       varchar(79)    NOT NULL
+);
 
-CREATE TABLE lineitem ( l_orderkey    INTEGER NOT NULL,
-                        l_partkey     INTEGER NOT NULL,
-                        l_suppkey     INTEGER NOT NULL,
-                        l_linenumber  INTEGER NOT NULL,
-                        l_quantity    DECIMAL(15,2) NOT NULL,
-                        l_extendedprice  DECIMAL(15,2) NOT NULL,
-                        l_discount    DECIMAL(15,2) NOT NULL,
-                        l_tax         DECIMAL(15,2) NOT NULL,
-                        l_returnflag  CHAR(1) NOT NULL,
-                        l_linestatus  CHAR(1) NOT NULL,
-                        l_shipdate    DATE NOT NULL,
-                        l_commitdate  DATE NOT NULL,
-                        l_receiptdate DATE NOT NULL,
-                        l_shipinstruct CHAR(25) NOT NULL,
-                        l_shipmode     CHAR(10) NOT NULL,
-                        l_comment      VARCHAR(44) NOT NULL);
+CREATE TABLE lineitem (
+    l_orderkey      integer        NOT NULL,
+    l_partkey       integer        NOT NULL,
+    l_suppkey       integer        NOT NULL,
+    l_linenumber    integer        NOT NULL,
+    l_quantity      decimal(15, 2) NOT NULL,
+    l_extendedprice decimal(15, 2) NOT NULL,
+    l_discount      decimal(15, 2) NOT NULL,
+    l_tax           decimal(15, 2) NOT NULL,
+    l_returnflag    char(1)        NOT NULL,
+    l_linestatus    char(1)        NOT NULL,
+    l_shipdate      date           NOT NULL,
+    l_commitdate    date           NOT NULL,
+    l_receiptdate   date           NOT NULL,
+    l_shipinstruct  char(25)       NOT NULL,
+    l_shipmode      char(10)       NOT NULL,
+    l_comment       varchar(44)    NOT NULL
+);
 
-create unique index c_ck on customer (c_custkey asc) ;
-create index c_nk on customer (c_nationkey asc) ;
-create unique index p_pk on part (p_partkey asc) ;
-create unique index s_sk on supplier (s_suppkey asc) ;
-create index s_nk on supplier (s_nationkey asc) ;
-create index ps_pk on partsupp (ps_partkey asc) ;
-create index ps_sk on partsupp (ps_suppkey asc) ;
-create unique index ps_pk_sk on partsupp (ps_partkey asc, ps_suppkey asc) ;
-create unique index ps_sk_pk on partsupp (ps_suppkey asc, ps_partkey asc) ;
-create unique index o_ok on orders (o_orderkey asc) ;
-create index o_ck on orders (o_custkey asc) ;
-create index o_od on orders (o_orderdate asc) ;
-create index l_ok on lineitem (l_orderkey asc) ;
-create index l_pk on lineitem (l_partkey asc) ;
-create index l_sk on lineitem (l_suppkey asc) ;
-create index l_sd on lineitem (l_shipdate asc) ;
-create index l_cd on lineitem (l_commitdate asc) ;
-create index l_rd on lineitem (l_receiptdate asc) ;
-create index l_pk_sk on lineitem (l_partkey asc, l_suppkey asc) ;
-create index l_sk_pk on lineitem (l_suppkey asc, l_partkey asc) ;
-create unique index n_nk on nation (n_nationkey asc) ;
-create index n_rk on nation (n_regionkey asc) ;
-create unique index r_rk on region (r_regionkey asc) ;
+CREATE UNIQUE INDEX c_ck ON customer (c_custkey ASC);
+CREATE INDEX c_nk ON customer (c_nationkey ASC);
+CREATE UNIQUE INDEX p_pk ON part (p_partkey ASC);
+CREATE UNIQUE INDEX s_sk ON supplier (s_suppkey ASC);
+CREATE INDEX s_nk ON supplier (s_nationkey ASC);
+CREATE INDEX ps_pk ON partsupp (ps_partkey ASC);
+CREATE INDEX ps_sk ON partsupp (ps_suppkey ASC);
+CREATE UNIQUE INDEX ps_pk_sk ON partsupp (ps_partkey ASC, ps_suppkey ASC);
+CREATE UNIQUE INDEX ps_sk_pk ON partsupp (ps_suppkey ASC, ps_partkey ASC);
+CREATE UNIQUE INDEX o_ok ON orders (o_orderkey ASC);
+CREATE INDEX o_ck ON orders (o_custkey ASC);
+CREATE INDEX o_od ON orders (o_orderdate ASC);
+CREATE INDEX l_ok ON lineitem (l_orderkey ASC);
+CREATE INDEX l_pk ON lineitem (l_partkey ASC);
+CREATE INDEX l_sk ON lineitem (l_suppkey ASC);
+CREATE INDEX l_sd ON lineitem (l_shipdate ASC);
+CREATE INDEX l_cd ON lineitem (l_commitdate ASC);
+CREATE INDEX l_rd ON lineitem (l_receiptdate ASC);
+CREATE INDEX l_pk_sk ON lineitem (l_partkey ASC, l_suppkey ASC);
+CREATE INDEX l_sk_pk ON lineitem (l_suppkey ASC, l_partkey ASC);
+CREATE UNIQUE INDEX n_nk ON nation (n_nationkey ASC);
+CREATE INDEX n_rk ON nation (n_regionkey ASC);
+CREATE UNIQUE INDEX r_rk ON region (r_regionkey ASC);

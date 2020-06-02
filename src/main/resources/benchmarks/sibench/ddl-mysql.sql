@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS sitest CASCADE;
-CREATE TABLE sitest
-(
+CREATE TABLE sitest (
     id    int PRIMARY KEY,
     value int NOT NULL
 );

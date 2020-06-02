@@ -8,8 +8,7 @@ DROP TABLE IF EXISTS district CASCADE;
 DROP TABLE IF EXISTS item CASCADE;
 DROP TABLE IF EXISTS warehouse CASCADE;
 
-CREATE TABLE order_line
-(
+CREATE TABLE order_line (
     ol_w_id        int       NOT NULL,
     ol_d_id        int       NOT NULL,
     ol_o_id        int       NOT NULL,
@@ -24,8 +23,7 @@ CREATE TABLE order_line
 );
 
 
-CREATE TABLE new_order
-(
+CREATE TABLE new_order (
     no_w_id int NOT NULL,
     no_d_id int NOT NULL,
     no_o_id int NOT NULL,
@@ -33,8 +31,7 @@ CREATE TABLE new_order
 );
 
 
-CREATE TABLE stock
-(
+CREATE TABLE stock (
     s_w_id       int         NOT NULL,
     s_i_id       int         NOT NULL,
     s_quantity   int         NOT NULL,
@@ -56,8 +53,7 @@ CREATE TABLE stock
 );
 
 
-CREATE TABLE oorder
-(
+CREATE TABLE oorder (
     o_w_id       int       NOT NULL,
     o_d_id       int       NOT NULL,
     o_id         int       NOT NULL,
@@ -71,8 +67,7 @@ CREATE TABLE oorder
 );
 
 
-CREATE TABLE history
-(
+CREATE TABLE history (
     h_c_id   int         NOT NULL,
     h_c_d_id int         NOT NULL,
     h_c_w_id int         NOT NULL,
@@ -84,8 +79,7 @@ CREATE TABLE history
 );
 
 
-CREATE TABLE customer
-(
+CREATE TABLE customer (
     c_w_id         int          NOT NULL,
     c_d_id         int          NOT NULL,
     c_id           int          NOT NULL,
@@ -111,8 +105,7 @@ CREATE TABLE customer
 );
 
 
-CREATE TABLE district
-(
+CREATE TABLE district (
     d_w_id      int         NOT NULL,
     d_id        int         NOT NULL,
     d_ytd       float       NOT NULL,
@@ -129,8 +122,7 @@ CREATE TABLE district
 
 
 
-CREATE TABLE item
-(
+CREATE TABLE item (
     i_id    int         NOT NULL,
     i_name  varchar(24) NOT NULL,
     i_price float       NOT NULL,
@@ -140,8 +132,7 @@ CREATE TABLE item
 );
 
 
-CREATE TABLE warehouse
-(
+CREATE TABLE warehouse (
     w_id       int         NOT NULL,
     w_ytd      float       NOT NULL,
     w_tax      float       NOT NULL,

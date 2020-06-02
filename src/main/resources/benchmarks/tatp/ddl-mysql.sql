@@ -1,77 +1,77 @@
-DROP TABLE IF EXISTS ACCESS_INFO CASCADE;
-DROP TABLE IF EXISTS CALL_FORWARDING CASCADE;
-DROP TABLE IF EXISTS SPECIAL_FACILITY CASCADE;
-DROP TABLE IF EXISTS SUBSCRIBER CASCADE;
+DROP TABLE IF EXISTS access_info CASCADE;
+DROP TABLE IF EXISTS call_forwarding CASCADE;
+DROP TABLE IF EXISTS special_facility CASCADE;
+DROP TABLE IF EXISTS subscriber CASCADE;
 
-CREATE TABLE SUBSCRIBER (
-   s_id INTEGER NOT NULL PRIMARY KEY,
-   sub_nbr VARCHAR(15) NOT NULL UNIQUE,
-   bit_1 TINYINT,
-   bit_2 TINYINT,
-   bit_3 TINYINT,
-   bit_4 TINYINT,
-   bit_5 TINYINT,
-   bit_6 TINYINT,
-   bit_7 TINYINT,
-   bit_8 TINYINT,
-   bit_9 TINYINT,
-   bit_10 TINYINT,
-   hex_1 TINYINT,
-   hex_2 TINYINT,
-   hex_3 TINYINT,
-   hex_4 TINYINT,
-   hex_5 TINYINT,
-   hex_6 TINYINT,
-   hex_7 TINYINT,
-   hex_8 TINYINT,
-   hex_9 TINYINT,
-   hex_10 TINYINT,
-   byte2_1 SMALLINT,
-   byte2_2 SMALLINT,
-   byte2_3 SMALLINT,
-   byte2_4 SMALLINT,
-   byte2_5 SMALLINT,
-   byte2_6 SMALLINT,
-   byte2_7 SMALLINT,
-   byte2_8 SMALLINT,
-   byte2_9 SMALLINT,
-   byte2_10 SMALLINT,
-   msc_location INTEGER,
-   vlr_location INTEGER
+CREATE TABLE subscriber (
+    s_id         integer     NOT NULL PRIMARY KEY,
+    sub_nbr      varchar(15) NOT NULL UNIQUE,
+    bit_1        tinyint,
+    bit_2        tinyint,
+    bit_3        tinyint,
+    bit_4        tinyint,
+    bit_5        tinyint,
+    bit_6        tinyint,
+    bit_7        tinyint,
+    bit_8        tinyint,
+    bit_9        tinyint,
+    bit_10       tinyint,
+    hex_1        tinyint,
+    hex_2        tinyint,
+    hex_3        tinyint,
+    hex_4        tinyint,
+    hex_5        tinyint,
+    hex_6        tinyint,
+    hex_7        tinyint,
+    hex_8        tinyint,
+    hex_9        tinyint,
+    hex_10       tinyint,
+    byte2_1      smallint,
+    byte2_2      smallint,
+    byte2_3      smallint,
+    byte2_4      smallint,
+    byte2_5      smallint,
+    byte2_6      smallint,
+    byte2_7      smallint,
+    byte2_8      smallint,
+    byte2_9      smallint,
+    byte2_10     smallint,
+    msc_location integer,
+    vlr_location integer
 );
 
-CREATE TABLE ACCESS_INFO (
-   s_id INTEGER NOT NULL,
-   ai_type TINYINT NOT NULL,
-   data1 SMALLINT,
-   data2 SMALLINT,
-   data3 VARCHAR(3),
-   data4 VARCHAR(5),
-   PRIMARY KEY(s_id, ai_type),
-   FOREIGN KEY (s_id) REFERENCES SUBSCRIBER (s_id)
-);
-
-
-CREATE TABLE SPECIAL_FACILITY (
-   s_id INTEGER NOT NULL,
-   sf_type TINYINT NOT NULL,
-   is_active TINYINT NOT NULL,
-   error_cntrl SMALLINT,
-   data_a SMALLINT,
-   data_b VARCHAR(5),
-   PRIMARY KEY (s_id, sf_type),
-   FOREIGN KEY (s_id) REFERENCES SUBSCRIBER (s_id)
+CREATE TABLE access_info (
+    s_id    integer NOT NULL,
+    ai_type tinyint NOT NULL,
+    data1   smallint,
+    data2   smallint,
+    data3   varchar(3),
+    data4   varchar(5),
+    PRIMARY KEY (s_id, ai_type),
+    FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
 
-CREATE TABLE CALL_FORWARDING (
-   s_id INTEGER NOT NULL,
-   sf_type TINYINT NOT NULL,
-   start_time TINYINT NOT NULL,
-   end_time TINYINT,
-   numberx VARCHAR(15),
-   PRIMARY KEY (s_id, sf_type, start_time),
-   FOREIGN KEY (s_id, sf_type) REFERENCES SPECIAL_FACILITY(s_id, sf_type)
+CREATE TABLE special_facility (
+    s_id        integer NOT NULL,
+    sf_type     tinyint NOT NULL,
+    is_active   tinyint NOT NULL,
+    error_cntrl smallint,
+    data_a      smallint,
+    data_b      varchar(5),
+    PRIMARY KEY (s_id, sf_type),
+    FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-CREATE INDEX IDX_CF ON CALL_FORWARDING (S_ID);
+
+CREATE TABLE call_forwarding (
+    s_id       integer NOT NULL,
+    sf_type    tinyint NOT NULL,
+    start_time tinyint NOT NULL,
+    end_time   tinyint,
+    numberx    varchar(15),
+    PRIMARY KEY (s_id, sf_type, start_time),
+    FOREIGN KEY (s_id, sf_type) REFERENCES special_facility (s_id, sf_type)
+);
+
+CREATE INDEX idx_cf ON call_forwarding (s_id);

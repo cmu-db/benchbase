@@ -1,7 +1,14 @@
-DROP TABLE IF EXISTS USERTABLE;
-CREATE TABLE USERTABLE(YCSB_KEY INT PRIMARY KEY,
-  FIELD1 TEXT, FIELD2 TEXT,
-  FIELD3 TEXT, FIELD4 TEXT,
-  FIELD5 TEXT, FIELD6 TEXT,
-  FIELD7 TEXT, FIELD8 TEXT,
-  FIELD9 TEXT, FIELD10 TEXT);
+DROP TABLE IF EXISTS usertable;
+CREATE TABLE usertable (
+    ycsb_key int PRIMARY KEY,
+    field1   text,
+    field2   text,
+    field3   text,
+    field4   text,
+    field5   text,
+    field6   text,
+    field7   text,
+    field8   text,
+    field9   text,
+    field10  text
+);

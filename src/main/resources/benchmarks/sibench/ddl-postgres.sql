@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS SITEST;
-CREATE TABLE SITEST (
-  	id INT PRIMARY KEY,
-    value INT NOT NULL
+DROP TABLE IF EXISTS sitest;
+CREATE TABLE sitest (
+    id    int PRIMARY KEY,
+    value int NOT NULL
 );

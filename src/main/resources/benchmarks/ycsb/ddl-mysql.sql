@@ -1,14 +1,14 @@
-DROP TABLE IF EXISTS USERTABLE;
-CREATE TABLE USERTABLE (
-    YCSB_KEY INT PRIMARY KEY,
-    FIELD1 VARCHAR(100), 
-  	FIELD2 VARCHAR(100),
-  	FIELD3 VARCHAR(100), 
-  	FIELD4 VARCHAR(100),
-  	FIELD5 VARCHAR(100), 
-  	FIELD6 VARCHAR(100),
-  	FIELD7 VARCHAR(100), 
-  	FIELD8 VARCHAR(100),
-  	FIELD9 VARCHAR(100), 
-  	FIELD10 VARCHAR(100)
+DROP TABLE IF EXISTS usertable;
+CREATE TABLE usertable (
+    ycsb_key int PRIMARY KEY,
+    field1   varchar(100),
+    field2   varchar(100),
+    field3   varchar(100),
+    field4   varchar(100),
+    field5   varchar(100),
+    field6   varchar(100),
+    field7   varchar(100),
+    field8   varchar(100),
+    field9   varchar(100),
+    field10  varchar(100)
 );
