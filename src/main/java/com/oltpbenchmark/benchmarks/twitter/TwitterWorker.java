@@ -51,7 +51,8 @@ public class TwitterWorker extends Worker<TwitterBenchmark> {
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
         TwitterOperation t = generator.nextTransaction();
-        t.uid = this.rng().nextInt(this.num_users - 1 ) + 1; // HACK
+        // zero is an invalid id, so fixing random here to be atleast 1
+        t.uid = this.rng().nextInt(this.num_users - 1 ) + 1;
 
         if (nextTrans.getProcedureClass().equals(GetTweet.class)) {
             doSelect1Tweet(conn, t.tweetid);
