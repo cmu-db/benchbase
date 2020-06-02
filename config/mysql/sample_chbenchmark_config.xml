@@ -47,7 +47,7 @@
             <rate bench="chbenchmark">disabled</rate>
 
             <!-- NOTE: TPCC workers won't be distributed evenly between warehouses if not all workers are active -->
-            <active_terminals>2</active_terminals>
+            <active_terminals>1</active_terminals>
             <active_terminals bench="chbenchmark">1</active_terminals>
 
             <!-- Specifies transaction weight for each workload. -->
