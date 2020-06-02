@@ -134,12 +134,12 @@
                 - ps_supplycost * l_quantity
                 AS amount
                 FROM
-                oltpbench.part,
-                oltpbench.supplier,
-                oltpbench.lineitem,
-                oltpbench.partsupp,
-                oltpbench.orders,
-                oltpbench.nation
+                part,
+                supplier,
+                lineitem,
+                partsupp,
+                orders,
+                nation
                 WHERE
                 p_name LIKE ?
                 AND s_suppkey = l_suppkey
