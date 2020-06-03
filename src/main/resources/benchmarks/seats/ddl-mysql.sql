@@ -1,14 +1,14 @@
 -- Drop Tables
 DROP TABLE IF EXISTS config_profile;
 DROP TABLE IF EXISTS config_histograms;
-DROP TABLE IF EXISTS country;
-DROP TABLE IF EXISTS airport;
-DROP TABLE IF EXISTS airport_distance;
-DROP TABLE IF EXISTS airline;
-DROP TABLE IF EXISTS customer;
-DROP TABLE IF EXISTS frequent_flyer;
-DROP TABLE IF EXISTS flight;
 DROP TABLE IF EXISTS reservation;
+DROP TABLE IF EXISTS frequent_flyer;
+DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS flight;
+DROP TABLE IF EXISTS airport_distance;
+DROP TABLE IF EXISTS airport;
+DROP TABLE IF EXISTS airline;
+DROP TABLE IF EXISTS country;
 
 -- 
 -- CONFIG_PROFILE
@@ -56,7 +56,7 @@ CREATE TABLE airport (
     ap_name        varchar(128) NOT NULL,
     ap_city        varchar(64)  NOT NULL,
     ap_postal_code varchar(12),
-    ap_co_id       bigint       NOT NULL REFERENCES country (co_id),
+    ap_co_id       bigint       NOT NULL,
     ap_longitude   float,
     ap_latitude    float,
     ap_gmt_offset  float,
@@ -77,17 +77,20 @@ CREATE TABLE airport (
     ap_iattr13     bigint,
     ap_iattr14     bigint,
     ap_iattr15     bigint,
-    PRIMARY KEY (ap_id)
+    PRIMARY KEY (ap_id),
+    FOREIGN KEY (ap_co_id) REFERENCES country (co_id)
 );
 
 --
 -- AIRPORT_DISTANCE
 --
 CREATE TABLE airport_distance (
-    d_ap_id0   bigint NOT NULL REFERENCES airport (ap_id),
-    d_ap_id1   bigint NOT NULL REFERENCES airport (ap_id),
+    d_ap_id0   bigint NOT NULL,
+    d_ap_id1   bigint NOT NULL,
     d_distance float  NOT NULL,
-    PRIMARY KEY (d_ap_id0, d_ap_id1)
+    PRIMARY KEY (d_ap_id0, d_ap_id1),
+    FOREIGN KEY (d_ap_id0) REFERENCES airport (ap_id),
+    FOREIGN KEY (d_ap_id1) REFERENCES airport (ap_id)
 );
 
 --
@@ -99,7 +102,7 @@ CREATE TABLE airline (
     al_icao_code varchar(3),
     al_call_sign varchar(32),
     al_name      varchar(128) NOT NULL,
-    al_co_id     bigint       NOT NULL REFERENCES country (co_id),
+    al_co_id     bigint       NOT NULL,
     al_iattr00   bigint,
     al_iattr01   bigint,
     al_iattr02   bigint,
@@ -116,7 +119,8 @@ CREATE TABLE airline (
     al_iattr13   bigint,
     al_iattr14   bigint,
     al_iattr15   bigint,
-    PRIMARY KEY (al_id)
+    PRIMARY KEY (al_id),
+    FOREIGN KEY (al_co_id) REFERENCES country (co_id)
 );
 
 --
@@ -125,7 +129,7 @@ CREATE TABLE airline (
 CREATE TABLE customer (
     c_id         bigint             NOT NULL,
     c_id_str     varchar(64) UNIQUE NOT NULL,
-    c_base_ap_id bigint REFERENCES airport (ap_id),
+    c_base_ap_id bigint,
     c_balance    float              NOT NULL,
     c_sattr00    varchar(32),
     c_sattr01    varchar(8),
@@ -167,15 +171,16 @@ CREATE TABLE customer (
     c_iattr17    bigint,
     c_iattr18    bigint,
     c_iattr19    bigint,
-    PRIMARY KEY (c_id)
+    PRIMARY KEY (c_id),
+    FOREIGN KEY (c_base_ap_id) REFERENCES airport (ap_id)
 );
 
 --
 -- FREQUENT_FLYER
 --
 CREATE TABLE frequent_flyer (
-    ff_c_id     bigint      NOT NULL REFERENCES customer (c_id),
-    ff_al_id    bigint      NOT NULL REFERENCES airline (al_id),
+    ff_c_id     bigint      NOT NULL,
+    ff_al_id    bigint      NOT NULL,
     ff_c_id_str varchar(64) NOT NULL,
     ff_sattr00  varchar(32),
     ff_sattr01  varchar(32),
@@ -197,7 +202,9 @@ CREATE TABLE frequent_flyer (
     ff_iattr13  bigint,
     ff_iattr14  bigint,
     ff_iattr15  bigint,
-    PRIMARY KEY (ff_c_id, ff_al_id)
+    PRIMARY KEY (ff_c_id, ff_al_id),
+    FOREIGN KEY (ff_c_id) REFERENCES customer (c_id),
+    FOREIGN KEY (ff_al_id) REFERENCES airline (al_id)
 );
 CREATE INDEX idx_ff_customer_id ON frequent_flyer (ff_c_id_str);
 
@@ -206,10 +213,10 @@ CREATE INDEX idx_ff_customer_id ON frequent_flyer (ff_c_id_str);
 --
 CREATE TABLE flight (
     f_id           bigint                              NOT NULL,
-    f_al_id        bigint                              NOT NULL REFERENCES airline (al_id),
-    f_depart_ap_id bigint                              NOT NULL REFERENCES airport (ap_id),
+    f_al_id        bigint                              NOT NULL,
+    f_depart_ap_id bigint                              NOT NULL,
     f_depart_time  timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    f_arrive_ap_id bigint                              NOT NULL REFERENCES airport (ap_id),
+    f_arrive_ap_id bigint                              NOT NULL,
     f_arrive_time  timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     f_status       bigint                              NOT NULL,
     f_base_price   float                               NOT NULL,
@@ -245,7 +252,10 @@ CREATE TABLE flight (
     f_iattr27      bigint,
     f_iattr28      bigint,
     f_iattr29      bigint,
-    PRIMARY KEY (f_id)
+    PRIMARY KEY (f_id),
+    FOREIGN KEY (f_al_id) REFERENCES airline (al_id),
+    FOREIGN KEY (f_depart_ap_id) REFERENCES airport (ap_id),
+    FOREIGN KEY (f_arrive_ap_id) REFERENCES airport (ap_id)
 );
 CREATE INDEX f_depart_time_idx ON flight (f_depart_time);
 
@@ -254,8 +264,8 @@ CREATE INDEX f_depart_time_idx ON flight (f_depart_time);
 --
 CREATE TABLE reservation (
     r_id      bigint NOT NULL,
-    r_c_id    bigint NOT NULL REFERENCES customer (c_id),
-    r_f_id    bigint NOT NULL REFERENCES flight (f_id),
+    r_c_id    bigint NOT NULL,
+    r_f_id    bigint NOT NULL,
     r_seat    bigint NOT NULL,
     r_price   float  NOT NULL,
     r_iattr00 bigint,
@@ -268,5 +278,7 @@ CREATE TABLE reservation (
     r_iattr07 bigint,
     r_iattr08 bigint,
     UNIQUE (r_f_id, r_seat),
-    PRIMARY KEY (r_id, r_c_id, r_f_id)
+    PRIMARY KEY (r_id, r_c_id, r_f_id),
+    FOREIGN KEY (r_c_id) REFERENCES customer (c_id),
+    FOREIGN KEY (r_f_id) REFERENCES flight (f_id)
 );

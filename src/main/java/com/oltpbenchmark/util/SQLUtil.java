@@ -251,6 +251,7 @@ public abstract class SQLUtil {
                 break;
             }
             case Types.DECIMAL:
+            case Types.REAL:
             case Types.DOUBLE: {
                 ret = Double.parseDouble(value);
                 break;
