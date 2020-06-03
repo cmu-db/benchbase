@@ -21,6 +21,7 @@ package com.oltpbenchmark.catalog;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -40,11 +41,6 @@ public class Table extends AbstractCatalogObject {
     public Table(String name, String separator) {
         super(name, separator);
     }
-
-
-    // ----------------------------------------------------------
-    // COLUMNS
-    // ----------------------------------------------------------
 
     public void addColumn(Column col) {
         this.columns.add(col);
@@ -103,4 +99,24 @@ public class Table extends AbstractCatalogObject {
         return (null);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        Table table = (Table) o;
+        return Objects.equals(columns, table.columns) &&
+                Objects.equals(indexes, table.indexes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), columns, indexes);
+    }
 }

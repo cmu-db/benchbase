@@ -18,6 +18,7 @@
 package com.oltpbenchmark.catalog;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Base Catalog Object Class
@@ -51,5 +52,23 @@ public abstract class AbstractCatalogObject implements Serializable {
             return this.name;
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractCatalogObject that = (AbstractCatalogObject) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(separator, that.separator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, separator);
     }
 }

@@ -18,6 +18,8 @@
 
 package com.oltpbenchmark.catalog;
 
+import java.util.Objects;
+
 /**
  * Column Catalog Object
  *
@@ -67,5 +69,29 @@ public class Column extends AbstractCatalogObject {
 
     public int getIndex() {
         return this.table.getColumnIndex(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        Column column = (Column) o;
+        return type == column.type &&
+                nullable == column.nullable &&
+                Objects.equals(table, column.table) &&
+                Objects.equals(size, column.size) &&
+                Objects.equals(foreignKey, column.foreignKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), table, type, size, nullable, foreignKey);
     }
 }

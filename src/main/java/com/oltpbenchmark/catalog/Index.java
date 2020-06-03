@@ -31,17 +31,20 @@ public class Index extends AbstractCatalogObject {
     private final boolean unique;
 
     private static class IndexColumn {
-        final String name;
-        final SortDirectionType dir;
+        private final String name;
+        private final SortDirectionType dir;
 
         IndexColumn(String name, SortDirectionType dir) {
             this.name = name;
             this.dir = dir;
         }
 
-        @Override
-        public String toString() {
-            return this.name + " / " + this.dir;
+        public String getName() {
+            return name;
+        }
+
+        public SortDirectionType getDir() {
+            return dir;
         }
     }
 
