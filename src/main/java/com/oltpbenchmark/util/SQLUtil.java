@@ -23,7 +23,6 @@ import com.oltpbenchmark.catalog.Index;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -434,12 +433,12 @@ public abstract class SQLUtil {
                     continue;
                 }
 
-                String table_name = StringUtils.upperCase(table_rs.getString("TABLE_NAME"));
+                String table_name = table_rs.getString("TABLE_NAME");
                 Table catalog_tbl = new Table(table_name, separator);
 
                 try (ResultSet col_rs = md.getColumns(null, null, table_name, null)) {
                     while (col_rs.next()) {
-                        String col_name = StringUtils.upperCase(col_rs.getString("COLUMN_NAME"));
+                        String col_name = col_rs.getString("COLUMN_NAME");
                         int col_type = col_rs.getInt("DATA_TYPE");
                         Integer col_size = col_rs.getInt("COLUMN_SIZE");
                         boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
@@ -453,10 +452,10 @@ public abstract class SQLUtil {
                 try (ResultSet idx_rs = md.getIndexInfo(null, null, table_name, false, false)) {
                     while (idx_rs.next()) {
                         boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
-                        String idx_name = StringUtils.upperCase(idx_rs.getString("INDEX_NAME"));
+                        String idx_name = idx_rs.getString("INDEX_NAME");
                         int idx_type = idx_rs.getShort("TYPE");
                         int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
-                        String idx_col_name = StringUtils.upperCase(idx_rs.getString("COLUMN_NAME"));
+                        String idx_col_name = idx_rs.getString("COLUMN_NAME");
                         String sort = idx_rs.getString("ASC_OR_DESC");
                         SortDirectionType idx_direction;
                         if (sort != null) {
@@ -482,10 +481,10 @@ public abstract class SQLUtil {
         for (Table table : tables.values()) {
             try (ResultSet fk_rs = md.getImportedKeys(null, null, table.getName())) {
                 while (fk_rs.next()) {
-                    String colName = StringUtils.upperCase(fk_rs.getString("FKCOLUMN_NAME"));
+                    String colName = fk_rs.getString("FKCOLUMN_NAME");
 
-                    String fk_tableName = StringUtils.upperCase(fk_rs.getString("PKTABLE_NAME"));
-                    String fk_colName = StringUtils.upperCase(fk_rs.getString("PKCOLUMN_NAME"));
+                    String fk_tableName = fk_rs.getString("PKTABLE_NAME");
+                    String fk_colName = fk_rs.getString("PKCOLUMN_NAME");
 
                     Table fk_table = tables.get(fk_tableName);
                     Column fk_col = fk_table.getColumnByName(fk_colName);
