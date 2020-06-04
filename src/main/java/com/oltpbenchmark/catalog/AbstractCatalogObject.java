@@ -29,15 +29,21 @@ public abstract class AbstractCatalogObject implements Serializable {
     static final long serialVersionUID = 0;
 
     protected final String name;
+    protected final String originalName;
     protected final String separator;
 
-    public AbstractCatalogObject(String name, String separator) {
+    public AbstractCatalogObject(String originalName, String name, String separator) {
+        this.originalName = originalName;
         this.name = name;
         this.separator = separator;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getOriginalName() {
+        return originalName;
     }
 
     public String getSeparator() {
@@ -64,11 +70,12 @@ public abstract class AbstractCatalogObject implements Serializable {
         }
         AbstractCatalogObject that = (AbstractCatalogObject) o;
         return Objects.equals(name, that.name) &&
+                Objects.equals(originalName, that.originalName) &&
                 Objects.equals(separator, that.separator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, separator);
+        return Objects.hash(name, originalName, separator);
     }
 }

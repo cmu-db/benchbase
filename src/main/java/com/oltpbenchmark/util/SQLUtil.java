@@ -23,6 +23,7 @@ import com.oltpbenchmark.catalog.Index;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -434,7 +435,7 @@ public abstract class SQLUtil {
                 }
 
                 String table_name = table_rs.getString("TABLE_NAME");
-                Table catalog_tbl = new Table(table_name, separator);
+                Table catalog_tbl = new Table(table_name, StringUtils.upperCase(table_name), separator);
 
                 try (ResultSet col_rs = md.getColumns(null, null, table_name, null)) {
                     while (col_rs.next()) {
@@ -443,7 +444,7 @@ public abstract class SQLUtil {
                         Integer col_size = col_rs.getInt("COLUMN_SIZE");
                         boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
 
-                        Column catalog_col = new Column(col_name, separator, catalog_tbl, col_type, col_size, col_nullable);
+                        Column catalog_col = new Column(col_name, StringUtils.upperCase(col_name), separator, catalog_tbl, col_type, col_size, col_nullable);
 
                         catalog_tbl.addColumn(catalog_col);
                     }
@@ -466,7 +467,7 @@ public abstract class SQLUtil {
 
                         Index catalog_idx = catalog_tbl.getIndex(idx_name);
                         if (catalog_idx == null) {
-                            catalog_idx = new Index(idx_name, separator, catalog_tbl, idx_type, idx_unique);
+                            catalog_idx = new Index(idx_name, StringUtils.upperCase(idx_name), separator, catalog_tbl, idx_type, idx_unique);
                             catalog_tbl.addIndex(catalog_idx);
                         }
 
@@ -479,7 +480,7 @@ public abstract class SQLUtil {
         }
 
         for (Table table : tables.values()) {
-            try (ResultSet fk_rs = md.getImportedKeys(null, null, table.getName())) {
+            try (ResultSet fk_rs = md.getImportedKeys(null, null, table.getOriginalName())) {
                 while (fk_rs.next()) {
                     String colName = fk_rs.getString("FKCOLUMN_NAME");
 

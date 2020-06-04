@@ -19,6 +19,7 @@ package com.oltpbenchmark.catalog;
 
 import com.oltpbenchmark.types.SortDirectionType;
 
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -48,8 +49,8 @@ public class Index extends AbstractCatalogObject {
         }
     }
 
-    public Index(String name, String separator, Table table, int type, boolean unique) {
-        super(name, separator);
+    public Index(String originalName, String name, String separator, Table table, int type, boolean unique) {
+        super(originalName, name, separator);
         this.table = table;
         this.type = type;
         this.unique = unique;
@@ -73,5 +74,28 @@ public class Index extends AbstractCatalogObject {
 
     public boolean isUnique() {
         return unique;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        Index index = (Index) o;
+        return type == index.type &&
+                unique == index.unique &&
+                Objects.equals(table, index.table) &&
+                Objects.equals(columns, index.columns);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), table, columns, type, unique);
     }
 }
