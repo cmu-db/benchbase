@@ -191,7 +191,7 @@ public abstract class BenchmarkModule {
 
             runner.runScript(ddlPath);
 
-            this.catalog = SQLUtil.getCatalog(conn);
+            this.catalog = SQLUtil.getCatalog(dbType, conn);
 
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);

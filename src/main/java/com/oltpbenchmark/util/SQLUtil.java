@@ -401,7 +401,6 @@ public abstract class SQLUtil {
         for (int i = 0; i < batchSize; i++) {
             sb.append("(").append(values.toString()).append(")");
         }
-//    	sb.append(";");
 
         return (sb.toString());
     }
@@ -416,14 +415,20 @@ public abstract class SQLUtil {
                 col, catalog_tbl.getEscapedName());
     }
 
-    public static Catalog getCatalog(Connection connection) throws SQLException {
-
+    public static Catalog getCatalog(DatabaseType databaseType, Connection connection) throws SQLException {
 
         DatabaseMetaData md = connection.getMetaData();
 
         String separator = md.getIdentifierQuoteString();
 
         Map<String, Table> tables = new HashMap<>();
+
+        List<String> excludedColumns = new ArrayList<>();
+
+        if (databaseType.equals(DatabaseType.COCKROACHDB)) {
+            // cockroachdb has a hidden column called "ROWID" that should not be directly used via the catalog
+            excludedColumns.add("ROWID");
+        }
 
 
         try (ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"})) {
@@ -440,6 +445,12 @@ public abstract class SQLUtil {
                 try (ResultSet col_rs = md.getColumns(null, null, table_name, null)) {
                     while (col_rs.next()) {
                         String col_name = col_rs.getString("COLUMN_NAME");
+
+                        if (excludedColumns.contains(col_name.toUpperCase())) {
+                            LOG.debug("found excluded column [{}] for in database type [{}].  Skipping...", col_name, databaseType);
+                            continue;
+                        }
+
                         int col_type = col_rs.getInt("DATA_TYPE");
                         Integer col_size = col_rs.getInt("COLUMN_SIZE");
                         boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");

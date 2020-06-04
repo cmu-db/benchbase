@@ -24,6 +24,7 @@ import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -152,7 +153,10 @@ public class DeleteReservation extends Procedure {
         }
 
         // Update Customer's Balance
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateCustomer, -1 * r_price, c_iattr00, c_id)) {
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, UpdateCustomer)) {
+            stmt.setBigDecimal(1, BigDecimal.valueOf(-1 * r_price));
+            stmt.setLong(2, c_iattr00);
+            stmt.setLong(3, c_id);
             stmt.executeUpdate();
         }
 
