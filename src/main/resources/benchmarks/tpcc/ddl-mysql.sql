@@ -30,11 +30,10 @@ CREATE TABLE item (
     PRIMARY KEY (i_id)
 );
 
-
 CREATE TABLE stock (
     s_w_id       int           NOT NULL,
     s_i_id       int           NOT NULL,
-    s_quantity   decimal(4, 0) NOT NULL,
+    s_quantity   int           NOT NULL,
     s_ytd        decimal(8, 2) NOT NULL,
     s_order_cnt  int           NOT NULL,
     s_remote_cnt int           NOT NULL,
@@ -115,8 +114,8 @@ CREATE TABLE oorder (
     o_id         int           NOT NULL,
     o_c_id       int           NOT NULL,
     o_carrier_id int                    DEFAULT NULL,
-    o_ol_cnt     decimal(2, 0) NOT NULL,
-    o_all_local  decimal(1, 0) NOT NULL,
+    o_ol_cnt     int NOT NULL,
+    o_all_local  int NOT NULL,
     o_entry_d    timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (o_w_id, o_d_id, o_id),
     FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
@@ -140,13 +139,12 @@ CREATE TABLE order_line (
     ol_delivery_d  timestamp     NULL DEFAULT NULL,
     ol_amount      decimal(6, 2) NOT NULL,
     ol_supply_w_id int           NOT NULL,
-    ol_quantity    decimal(2, 0) NOT NULL,
+    ol_quantity    int NOT NULL,
     ol_dist_info   char(24)      NOT NULL,
     FOREIGN KEY (ol_w_id, ol_d_id, ol_o_id) REFERENCES oorder (o_w_id, o_d_id, o_id) ON DELETE CASCADE,
     FOREIGN KEY (ol_supply_w_id, ol_i_id) REFERENCES stock (s_w_id, s_i_id) ON DELETE CASCADE,
     PRIMARY KEY (ol_w_id, ol_d_id, ol_o_id, ol_number)
 );
-
 
 CREATE INDEX idx_customer_name ON customer (c_w_id, c_d_id, c_last, c_first);
 CREATE INDEX idx_order ON oorder (o_w_id, o_d_id, o_c_id, o_id);

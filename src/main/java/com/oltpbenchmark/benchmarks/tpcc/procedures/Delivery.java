@@ -25,6 +25,7 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Random;
 
@@ -236,7 +237,7 @@ public class Delivery extends TPCCProcedure {
                 }
 
                 int idx = 1; // HACK: So that we can debug this query
-                delivUpdateCustBalDelivCnt.setDouble(idx++, ol_total);
+                delivUpdateCustBalDelivCnt.setBigDecimal(idx++, BigDecimal.valueOf(ol_total));
                 delivUpdateCustBalDelivCnt.setInt(idx++, w_id);
                 delivUpdateCustBalDelivCnt.setInt(idx++, d_id);
                 delivUpdateCustBalDelivCnt.setInt(idx++, c_id);
