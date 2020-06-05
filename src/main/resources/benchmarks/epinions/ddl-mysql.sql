@@ -43,7 +43,6 @@ CREATE TABLE review_rating (
 CREATE INDEX idx_review_rating_uid ON review_rating (u_id);
 CREATE INDEX idx_review_rating_aid ON review_rating (a_id);
 
-
 CREATE TABLE trust (
     source_u_id   int NOT NULL,
     target_u_id   int NOT NULL,
