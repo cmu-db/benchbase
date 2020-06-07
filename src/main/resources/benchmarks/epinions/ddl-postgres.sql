@@ -21,7 +21,7 @@ CREATE TABLE review (
     u_id   int NOT NULL,
     i_id   int NOT NULL,
     rating int DEFAULT NULL,
-    rank int DEFAULT NULL,
+    rank   int DEFAULT NULL,
     FOREIGN KEY (u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     FOREIGN KEY (i_id) REFERENCES item (i_id) ON DELETE CASCADE
 );
@@ -36,8 +36,8 @@ CREATE TABLE review_rating (
     status        int NOT NULL,
     creation_date timestamp DEFAULT NULL,
     last_mod_date timestamp DEFAULT NULL,
-    type          int      DEFAULT NULL,
-    vertical_id   int      DEFAULT NULL,
+    type          int       DEFAULT NULL,
+    vertical_id   int       DEFAULT NULL,
     FOREIGN KEY (u_id) REFERENCES useracct (u_id) ON DELETE CASCADE
 );
 CREATE INDEX idx_review_rating_uid ON review_rating (u_id);
