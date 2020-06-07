@@ -30,13 +30,11 @@ CREATE TABLE iotable (
     PRIMARY KEY (empid)
 );
 
-
 CREATE TABLE iotablesmallrow (
     empid int NOT NULL,
     flag1 int NOT NULL,
     PRIMARY KEY (empid)
 );
-
 
 CREATE TABLE locktable (
     empid  int NOT NULL,
