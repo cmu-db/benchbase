@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS "HTABLE";
-CREATE TABLE "HTABLE" (
+DROP TABLE IF EXISTS htable;
+CREATE TABLE htable (
     h_key    int PRIMARY KEY,
     field1   int,
     field2   int,
