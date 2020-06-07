@@ -410,9 +410,10 @@ public abstract class SQLUtil {
         return String.format("SELECT MAX(%s) FROM %s", col, tableName);
     }
 
-    public static String selectColValues(Table catalog_tbl, String col) {
+    public static String selectColValues(DatabaseType databaseType, Table catalog_tbl, String col) {
+        String tableName = (databaseType.shouldEscapeNames() ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
         return String.format("SELECT %s FROM %s",
-                col, catalog_tbl.getEscapedName());
+                col, tableName);
     }
 
     public static Catalog getCatalog(DatabaseType databaseType, Connection connection) throws SQLException {
