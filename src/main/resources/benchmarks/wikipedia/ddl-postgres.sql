@@ -1,4 +1,16 @@
-DROP TABLE IF EXISTS ipblocks;
+DROP TABLE IF EXISTS ipblocks CASCADE;
+DROP TABLE IF EXISTS logging CASCADE;
+DROP TABLE IF EXISTS page CASCADE;
+DROP TABLE IF EXISTS page_backup CASCADE;
+DROP TABLE IF EXISTS page_restrictions CASCADE;
+DROP TABLE IF EXISTS recentchanges CASCADE;
+DROP TABLE IF EXISTS revision CASCADE;
+DROP TABLE IF EXISTS text CASCADE;
+DROP TABLE IF EXISTS useracct CASCADE;
+DROP TABLE IF EXISTS user_groups CASCADE;
+DROP TABLE IF EXISTS watchlist;
+DROP TABLE IF EXISTS value_backup;
+
 CREATE TABLE ipblocks (
     ipb_id               serial,
     ipb_address          varchar     NOT NULL,
@@ -25,29 +37,6 @@ CREATE INDEX idx_ipb_range ON ipblocks (ipb_range_start, ipb_range_end);
 CREATE INDEX idx_ipb_timestamp ON ipblocks (ipb_timestamp);
 CREATE INDEX idx_ipb_expiry ON ipblocks (ipb_expiry);
 
-DROP TABLE IF EXISTS useracct;
-CREATE TABLE useracct (
-    user_id                  serial,
-    user_name                varchar(255) NOT NULL DEFAULT '',
-    user_real_name           varchar(255) NOT NULL DEFAULT '',
-    user_password            varchar(255) NOT NULL,
-    user_newpassword         varchar(255) NOT NULL,
-    user_newpass_time        varchar(14)           DEFAULT NULL,
-    user_email               varchar(255) NOT NULL,
-    user_options             varchar(255) NOT NULL,
-    user_touched             varchar(14)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-    user_token               varchar(32)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-    user_email_authenticated varchar(14)           DEFAULT NULL,
-    user_email_token         varchar(32)           DEFAULT NULL,
-    user_email_token_expires varchar(14)           DEFAULT NULL,
-    user_registration        varchar(14)           DEFAULT NULL,
-    user_editcount           int                   DEFAULT NULL,
-    PRIMARY KEY (user_id),
-    UNIQUE (user_name)
-);
-CREATE INDEX idx_user_email_token ON useracct (user_email_token);
-
-DROP TABLE IF EXISTS logging;
 CREATE TABLE logging (
     log_id        serial,
     log_type      varchar(32)  NOT NULL,
@@ -70,7 +59,6 @@ CREATE INDEX idx_log_times ON logging (log_timestamp);
 CREATE INDEX idx_log_user_type_time ON logging (log_user, log_type, log_timestamp);
 CREATE INDEX idx_log_page_id_time ON logging (log_page, log_timestamp);
 
-DROP TABLE IF EXISTS page;
 CREATE TABLE page (
     page_id           serial,
     page_namespace    int              NOT NULL,
@@ -89,7 +77,6 @@ CREATE TABLE page (
 CREATE INDEX idx_page_random ON page (page_random);
 CREATE INDEX idx_page_len ON page (page_len);
 
-DROP TABLE IF EXISTS page_backup;
 CREATE TABLE page_backup (
     page_id           serial,
     page_namespace    int              NOT NULL,
@@ -108,7 +95,6 @@ CREATE TABLE page_backup (
 CREATE INDEX idx_page_backup_random ON page_backup (page_random);
 CREATE INDEX idx_page_backup_len ON page_backup (page_len);
 
-DROP TABLE IF EXISTS page_restrictions;
 CREATE TABLE page_restrictions (
     pr_page    int         NOT NULL,
     pr_type    varchar(60) NOT NULL,
@@ -124,7 +110,6 @@ CREATE INDEX idx_pr_typelevel ON page_restrictions (pr_type, pr_level);
 CREATE INDEX idx_pr_level ON page_restrictions (pr_level);
 CREATE INDEX idx_pr_cascade ON page_restrictions (pr_cascade);
 
-DROP TABLE IF EXISTS recentchanges;
 CREATE TABLE recentchanges (
     rc_id             serial,
     rc_timestamp      varchar(14)  NOT NULL DEFAULT '',
@@ -162,7 +147,6 @@ CREATE INDEX idx_rc_ip ON recentchanges (rc_ip);
 CREATE INDEX idx_rc_ns_usertext ON recentchanges (rc_namespace, rc_user_text);
 CREATE INDEX idx_rc_user_text ON recentchanges (rc_user_text, rc_timestamp);
 
-DROP TABLE IF EXISTS revision;
 CREATE TABLE revision (
     rev_id         serial,
     rev_page       int          NOT NULL,
@@ -183,7 +167,6 @@ CREATE INDEX idx_page_timestamp ON revision (rev_page, rev_timestamp);
 CREATE INDEX idx_user_timestamp ON revision (rev_user, rev_timestamp);
 CREATE INDEX idx_usertext_timestamp ON revision (rev_user_text, rev_timestamp);
 
-DROP TABLE IF EXISTS text;
 CREATE TABLE text (
     old_id    serial,
     old_text  text         NOT NULL,
@@ -192,8 +175,27 @@ CREATE TABLE text (
     PRIMARY KEY (old_id)
 );
 
+CREATE TABLE useracct (
+    user_id                  serial,
+    user_name                varchar(255) NOT NULL DEFAULT '',
+    user_real_name           varchar(255) NOT NULL DEFAULT '',
+    user_password            varchar(255) NOT NULL,
+    user_newpassword         varchar(255) NOT NULL,
+    user_newpass_time        varchar(14)           DEFAULT NULL,
+    user_email               varchar(255) NOT NULL,
+    user_options             varchar(255) NOT NULL,
+    user_touched             varchar(14)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+    user_token               varchar(32)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+    user_email_authenticated varchar(14)           DEFAULT NULL,
+    user_email_token         varchar(32)           DEFAULT NULL,
+    user_email_token_expires varchar(14)           DEFAULT NULL,
+    user_registration        varchar(14)           DEFAULT NULL,
+    user_editcount           int                   DEFAULT NULL,
+    PRIMARY KEY (user_id),
+    UNIQUE (user_name)
+);
+CREATE INDEX idx_user_email_token ON useracct (user_email_token);
 
-DROP TABLE IF EXISTS user_groups;
 CREATE TABLE user_groups (
     ug_user  int         NOT NULL DEFAULT '0',
     ug_group varchar(16) NOT NULL DEFAULT '',
@@ -201,13 +203,11 @@ CREATE TABLE user_groups (
 );
 CREATE INDEX idx_ug_group ON user_groups (ug_group);
 
-DROP TABLE IF EXISTS value_backup;
 CREATE TABLE value_backup (
     table_name varchar(255) DEFAULT NULL,
     maxid      int          DEFAULT NULL
 );
 
-DROP TABLE IF EXISTS watchlist;
 CREATE TABLE watchlist (
     wl_user                  int          NOT NULL,
     wl_namespace             int          NOT NULL DEFAULT '0',
