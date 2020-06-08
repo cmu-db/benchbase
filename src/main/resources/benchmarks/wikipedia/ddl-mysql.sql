@@ -32,12 +32,10 @@ CREATE TABLE ipblocks (
     PRIMARY KEY (ipb_id),
     UNIQUE (ipb_address(255), ipb_user, ipb_auto, ipb_anon_only)
 );
-
 CREATE INDEX idx_ipb_user ON ipblocks (ipb_user);
 CREATE INDEX idx_ipb_range ON ipblocks (ipb_range_start(8), ipb_range_end(8));
 CREATE INDEX idx_ipb_timestamp ON ipblocks (ipb_timestamp);
 CREATE INDEX idx_ipb_expiry ON ipblocks (ipb_expiry);
-
 
 CREATE TABLE logging (
     log_id        int            NOT NULL AUTO_INCREMENT,
@@ -61,7 +59,6 @@ CREATE INDEX idx_log_times ON logging (log_timestamp);
 CREATE INDEX idx_log_user_type_time ON logging (log_user, log_type, log_timestamp);
 CREATE INDEX idx_log_page_id_time ON logging (log_page, log_timestamp);
 
-
 CREATE TABLE page (
     page_id           int            NOT NULL AUTO_INCREMENT,
     page_namespace    int            NOT NULL,
@@ -79,7 +76,6 @@ CREATE TABLE page (
 );
 CREATE INDEX idx_page_random ON page (page_random);
 CREATE INDEX idx_page_len ON page (page_len);
-
 
 CREATE TABLE page_backup (
     page_id           int            NOT NULL AUTO_INCREMENT,
@@ -99,7 +95,6 @@ CREATE TABLE page_backup (
 CREATE INDEX idx_page_backup_random ON page_backup (page_random);
 CREATE INDEX idx_page_backup_len ON page_backup (page_len);
 
-
 CREATE TABLE page_restrictions (
     pr_page    int           NOT NULL,
     pr_type    varbinary(60) NOT NULL,
@@ -114,7 +109,6 @@ CREATE TABLE page_restrictions (
 CREATE INDEX idx_pr_typelevel ON page_restrictions (pr_type, pr_level);
 CREATE INDEX idx_pr_level ON page_restrictions (pr_level);
 CREATE INDEX idx_pr_cascade ON page_restrictions (pr_cascade);
-
 
 CREATE TABLE recentchanges (
     rc_id             int            NOT NULL AUTO_INCREMENT,
@@ -153,7 +147,6 @@ CREATE INDEX idx_rc_ip ON recentchanges (rc_ip);
 CREATE INDEX idx_rc_ns_usertext ON recentchanges (rc_namespace, rc_user_text);
 CREATE INDEX idx_rc_user_text ON recentchanges (rc_user_text, rc_timestamp);
 
-
 CREATE TABLE revision (
     rev_id         int            NOT NULL AUTO_INCREMENT,
     rev_page       int            NOT NULL,
@@ -174,7 +167,6 @@ CREATE INDEX idx_page_timestamp ON revision (rev_page, rev_timestamp);
 CREATE INDEX idx_user_timestamp ON revision (rev_user, rev_timestamp);
 CREATE INDEX idx_usertext_timestamp ON revision (rev_user_text, rev_timestamp);
 
-
 CREATE TABLE text (
     old_id    int        NOT NULL AUTO_INCREMENT,
     old_text  mediumblob NOT NULL,
@@ -182,7 +174,6 @@ CREATE TABLE text (
     old_page  int DEFAULT NULL,
     PRIMARY KEY (old_id)
 );
-
 
 CREATE TABLE useracct (
     user_id                  int            NOT NULL AUTO_INCREMENT,
@@ -205,7 +196,6 @@ CREATE TABLE useracct (
 );
 CREATE INDEX idx_user_email_token ON useracct (user_email_token);
 
-
 CREATE TABLE user_groups (
     ug_user  int           NOT NULL DEFAULT '0',
     ug_group varbinary(16) NOT NULL DEFAULT '',
@@ -213,12 +203,10 @@ CREATE TABLE user_groups (
 );
 CREATE INDEX idx_ug_group ON user_groups (ug_group);
 
-
 CREATE TABLE value_backup (
     table_name varchar(255) DEFAULT NULL,
     maxid      int          DEFAULT NULL
 );
-
 
 CREATE TABLE watchlist (
     wl_user                  int            NOT NULL,
