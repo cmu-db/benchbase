@@ -1,11 +1,11 @@
-DROP TABLE IF EXISTS nation;
-DROP TABLE IF EXISTS region;
-DROP TABLE IF EXISTS part;
-DROP TABLE IF EXISTS supplier;
-DROP TABLE IF EXISTS partsupp;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS customer;
-DROP TABLE IF EXISTS lineitem;
+DROP TABLE IF EXISTS nation CASCADE;
+DROP TABLE IF EXISTS region CASCADE;
+DROP TABLE IF EXISTS part CASCADE;
+DROP TABLE IF EXISTS supplier CASCADE;
+DROP TABLE IF EXISTS partsupp CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS lineitem CASCADE;
 
 CREATE TABLE nation (
     n_nationkey integer  NOT NULL,
@@ -115,4 +115,3 @@ CREATE INDEX l_sk_pk ON lineitem (l_suppkey ASC, l_partkey ASC);
 CREATE UNIQUE INDEX n_nk ON nation (n_nationkey ASC);
 CREATE INDEX n_rk ON nation (n_regionkey ASC);
 CREATE UNIQUE INDEX r_rk ON region (r_regionkey ASC);
-
