@@ -71,4 +71,5 @@ CREATE TABLE call_forwarding (
     PRIMARY KEY (s_id, sf_type, start_time),
     FOREIGN KEY (s_id, sf_type) REFERENCES special_facility (s_id, sf_type)
 );
+
 CREATE INDEX idx_cf ON call_forwarding (s_id);

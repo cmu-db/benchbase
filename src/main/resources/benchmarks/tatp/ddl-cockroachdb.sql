@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS subscriber CASCADE;
 DROP TABLE IF EXISTS access_info CASCADE;
-DROP TABLE IF EXISTS special_facility CASCADE;
 DROP TABLE IF EXISTS call_forwarding CASCADE;
+DROP TABLE IF EXISTS special_facility CASCADE;
+DROP TABLE IF EXISTS subscriber CASCADE;
 
 CREATE TABLE subscriber (
     s_id         integer     NOT NULL PRIMARY KEY,
@@ -40,7 +40,6 @@ CREATE TABLE subscriber (
     vlr_location integer
 );
 
-
 CREATE TABLE access_info (
     s_id    integer  NOT NULL,
     ai_type smallint NOT NULL,
@@ -51,7 +50,6 @@ CREATE TABLE access_info (
     PRIMARY KEY (s_id, ai_type),
     FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
-
 
 CREATE TABLE special_facility (
     s_id        integer  NOT NULL,
@@ -64,7 +62,6 @@ CREATE TABLE special_facility (
     FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-
 CREATE TABLE call_forwarding (
     s_id       integer  NOT NULL,
     sf_type    smallint NOT NULL,
@@ -74,4 +71,5 @@ CREATE TABLE call_forwarding (
     PRIMARY KEY (s_id, sf_type, start_time),
     FOREIGN KEY (s_id, sf_type) REFERENCES special_facility (s_id, sf_type)
 );
+
 CREATE INDEX idx_cf ON call_forwarding (s_id);

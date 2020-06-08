@@ -51,7 +51,6 @@ CREATE TABLE access_info (
     FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
 
-
 CREATE TABLE special_facility (
     s_id        integer NOT NULL,
     sf_type     tinyint NOT NULL,
@@ -62,7 +61,6 @@ CREATE TABLE special_facility (
     PRIMARY KEY (s_id, sf_type),
     FOREIGN KEY (s_id) REFERENCES subscriber (s_id)
 );
-
 
 CREATE TABLE call_forwarding (
     s_id       integer NOT NULL,
