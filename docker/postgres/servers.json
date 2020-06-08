@@ -5,7 +5,7 @@
       "Group": "OLTPBench",
       "Port": 5432,
       "Username": "admin",
-      "Host": "db",
+      "Host": "postgres",
       "SSLMode": "disable",
       "MaintenanceDB": "postgres"
     }

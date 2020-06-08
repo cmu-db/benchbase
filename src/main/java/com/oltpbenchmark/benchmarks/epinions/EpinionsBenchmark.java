@@ -24,6 +24,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     @Override
@@ -51,6 +52,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+        DatabaseType databaseType = this.getWorkloadConfiguration().getDBType();
 
         try {
 
@@ -58,12 +60,12 @@ public class EpinionsBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("USERACCT");
+            Table t = this.getCatalog().getTable("USERACCT");
 
 
             ArrayList<String> user_ids = new ArrayList<>();
             ArrayList<String> item_ids = new ArrayList<>();
-            String userCount = SQLUtil.selectColValues(t, "u_id");
+            String userCount = SQLUtil.selectColValues(databaseType, t, "u_id");
 
             try (Connection metaConn = this.getConnection()) {
                 try (Statement stmt = metaConn.createStatement()) {
@@ -76,10 +78,10 @@ public class EpinionsBenchmark extends BenchmarkModule {
                         LOG.debug("Loaded: {} User ids", user_ids.size());
                     }
                     // LIST OF ITEMS AND
-                    t = this.catalog.getTable("ITEM");
+                    t = this.getCatalog().getTable("ITEM");
 
 
-                    String itemCount = SQLUtil.selectColValues(t, "i_id");
+                    String itemCount = SQLUtil.selectColValues(databaseType, t, "i_id");
                     try (ResultSet res = stmt.executeQuery(itemCount)) {
                         while (res.next()) {
                             item_ids.add(res.getString(1));

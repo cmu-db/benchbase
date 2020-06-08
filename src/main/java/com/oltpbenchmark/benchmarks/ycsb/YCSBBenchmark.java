@@ -39,7 +39,7 @@ public class YCSBBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class YCSBBenchmark extends BenchmarkModule {
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
 
-            Table t = this.catalog.getTable("USERTABLE");
+            Table t = this.getCatalog().getTable("USERTABLE");
 
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "ycsb_key");
 

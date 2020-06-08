@@ -30,34 +30,33 @@
  *  OTHER DEALINGS IN THE SOFTWARE.                                        *
  ***************************************************************************/
 
-DROP TABLE IF EXISTS ITEM_ATTRIBUTE CASCADE;
-DROP TABLE IF EXISTS ITEM_IMAGE CASCADE;
-DROP TABLE IF EXISTS ITEM_COMMENT CASCADE;
-DROP TABLE IF EXISTS ITEM_MAX_BID CASCADE;
-DROP TABLE IF EXISTS USERACCT_ITEM CASCADE;
-DROP TABLE IF EXISTS ITEM_PURCHASE CASCADE;
-DROP TABLE IF EXISTS ITEM_BID CASCADE;
-DROP TABLE IF EXISTS GLOBAL_ATTRIBUTE_VALUE CASCADE;
-DROP TABLE IF EXISTS GLOBAL_ATTRIBUTE_GROUP CASCADE;
-DROP TABLE IF EXISTS CONFIG_PROFILE CASCADE;
-DROP TABLE IF EXISTS REGION CASCADE;
-DROP TABLE IF EXISTS USERACCT CASCADE;
-DROP TABLE IF EXISTS USERACCT_ATTRIBUTES CASCADE;
-DROP TABLE IF EXISTS CATEGORY CASCADE;
-DROP TABLE IF EXISTS USERACCT_FEEDBACK CASCADE;
-DROP TABLE IF EXISTS USERACCT_WATCH CASCADE;
-DROP TABLE IF EXISTS ITEM CASCADE;
+DROP TABLE IF EXISTS item_attribute CASCADE;
+DROP TABLE IF EXISTS item_image CASCADE;
+DROP TABLE IF EXISTS item_comment CASCADE;
+DROP TABLE IF EXISTS item_max_bid CASCADE;
+DROP TABLE IF EXISTS useracct_item CASCADE;
+DROP TABLE IF EXISTS item_purchase CASCADE;
+DROP TABLE IF EXISTS item_bid CASCADE;
+DROP TABLE IF EXISTS global_attribute_value CASCADE;
+DROP TABLE IF EXISTS global_attribute_group CASCADE;
+DROP TABLE IF EXISTS config_profile CASCADE;
+DROP TABLE IF EXISTS useracct_feedback CASCADE;
+DROP TABLE IF EXISTS useracct_watch CASCADE;
+DROP TABLE IF EXISTS item CASCADE;
+DROP TABLE IF EXISTS useracct_attributes CASCADE;
+DROP TABLE IF EXISTS useracct CASCADE;
+DROP TABLE IF EXISTS region CASCADE;
+DROP TABLE IF EXISTS category CASCADE;
 
 -- ================================================================
 -- CONFIG_PROFILE
 -- ================================================================
 
-CREATE TABLE CONFIG_PROFILE
-(
-    cfp_scale_factor        FLOAT          NOT NULL,
-    cfp_loader_start        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cfp_loader_stop         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cfp_user_item_histogram VARCHAR(12000) NOT NULL
+CREATE TABLE config_profile (
+    cfp_scale_factor        float          NOT NULL,
+    cfp_loader_start        timestamp DEFAULT CURRENT_TIMESTAMP,
+    cfp_loader_stop         timestamp DEFAULT CURRENT_TIMESTAMP,
+    cfp_user_item_histogram varchar(12000) NOT NULL
 );
 
 -- ================================================================
@@ -67,10 +66,9 @@ CREATE TABLE CONFIG_PROFILE
 -- r_name           Region's name
 -- ================================================================
 
-CREATE TABLE REGION
-(
-    r_id   BIGINT NOT NULL,
-    r_name VARCHAR(32),
+CREATE TABLE region (
+    r_id   bigint NOT NULL,
+    r_name varchar(32),
     PRIMARY KEY (r_id)
 );
 
@@ -88,47 +86,47 @@ CREATE TABLE REGION
 -- u_r_id           User's region ID
 -- ================================================================
 
-CREATE TABLE USERACCT
-(
-    u_id       BIGINT NOT NULL,
-    u_rating   BIGINT NOT NULL,
-    u_balance  FLOAT  NOT NULL,
-    u_comments INTEGER   DEFAULT 0,
-    u_r_id     BIGINT NOT NULL REFERENCES REGION (r_id),
-    u_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    u_updated  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    u_sattr0   VARCHAR(64),
-    u_sattr1   VARCHAR(64),
-    u_sattr2   VARCHAR(64),
-    u_sattr3   VARCHAR(64),
-    u_sattr4   VARCHAR(64),
-    u_sattr5   VARCHAR(64),
-    u_sattr6   VARCHAR(64),
-    u_sattr7   VARCHAR(64),
-    u_iattr0   BIGINT    DEFAULT NULL,
-    u_iattr1   BIGINT    DEFAULT NULL,
-    u_iattr2   BIGINT    DEFAULT NULL,
-    u_iattr3   BIGINT    DEFAULT NULL,
-    u_iattr4   BIGINT    DEFAULT NULL,
-    u_iattr5   BIGINT    DEFAULT NULL,
-    u_iattr6   BIGINT    DEFAULT NULL,
-    u_iattr7   BIGINT    DEFAULT NULL,
+CREATE TABLE useracct (
+    u_id       bigint NOT NULL,
+    u_rating   bigint NOT NULL,
+    u_balance  float  NOT NULL,
+    u_comments integer   DEFAULT 0,
+    u_r_id     bigint NOT NULL,
+    u_created  timestamp DEFAULT CURRENT_TIMESTAMP,
+    u_updated  timestamp DEFAULT CURRENT_TIMESTAMP,
+    u_sattr0   varchar(64),
+    u_sattr1   varchar(64),
+    u_sattr2   varchar(64),
+    u_sattr3   varchar(64),
+    u_sattr4   varchar(64),
+    u_sattr5   varchar(64),
+    u_sattr6   varchar(64),
+    u_sattr7   varchar(64),
+    u_iattr0   bigint    DEFAULT NULL,
+    u_iattr1   bigint    DEFAULT NULL,
+    u_iattr2   bigint    DEFAULT NULL,
+    u_iattr3   bigint    DEFAULT NULL,
+    u_iattr4   bigint    DEFAULT NULL,
+    u_iattr5   bigint    DEFAULT NULL,
+    u_iattr6   bigint    DEFAULT NULL,
+    u_iattr7   bigint    DEFAULT NULL,
+    FOREIGN KEY (u_r_id) REFERENCES region (r_id) ON DELETE CASCADE,
     PRIMARY KEY (u_id)
 );
-CREATE INDEX IDX_USERACCT_REGION ON USERACCT (u_id, u_r_id);
+CREATE INDEX idx_useracct_region ON useracct (u_id, u_r_id);
 
 -- ================================================================
 -- USERACCT_ATTRIBUTES
 -- Represents user's attributes 
 -- ================================================================
 
-CREATE TABLE USERACCT_ATTRIBUTES
-(
-    ua_id     BIGINT      NOT NULL,
-    ua_u_id   BIGINT      NOT NULL REFERENCES USERACCT (u_id),
-    ua_name   VARCHAR(32) NOT NULL,
-    ua_value  VARCHAR(32) NOT NULL,
-    u_created TIMESTAMP,
+CREATE TABLE useracct_attributes (
+    ua_id     bigint      NOT NULL,
+    ua_u_id   bigint      NOT NULL,
+    ua_name   varchar(32) NOT NULL,
+    ua_value  varchar(32) NOT NULL,
+    u_created timestamp,
+    FOREIGN KEY (ua_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (ua_id, ua_u_id)
 );
 
@@ -140,14 +138,14 @@ CREATE TABLE USERACCT_ATTRIBUTES
 -- c_parent_id        Parent category's ID
 -- ================================================================
 
-CREATE TABLE CATEGORY
-(
-    c_id        BIGINT NOT NULL,
-    c_name      VARCHAR(50),
-    c_parent_id BIGINT REFERENCES CATEGORY (c_id),
-    PRIMARY KEY (c_id)
+CREATE TABLE category (
+    c_id        bigint NOT NULL,
+    c_name      varchar(50),
+    c_parent_id bigint,
+    PRIMARY KEY (c_id),
+    FOREIGN KEY (c_parent_id) REFERENCES category (c_id) ON DELETE CASCADE
 );
-CREATE INDEX IDX_CATEGORY_PARENT ON CATEGORY (c_parent_id);
+CREATE INDEX idx_category_parent ON category (c_parent_id);
 
 -- ================================================================
 -- GLOBAL_ATTRIBUTE_GROUP
@@ -157,11 +155,11 @@ CREATE INDEX IDX_CATEGORY_PARENT ON CATEGORY (c_parent_id);
 -- gag_name            Global attribute group's name
 -- ================================================================
 
-CREATE TABLE GLOBAL_ATTRIBUTE_GROUP
-(
-    gag_id   BIGINT       NOT NULL,
-    gag_c_id BIGINT       NOT NULL REFERENCES CATEGORY (c_id),
-    gag_name VARCHAR(100) NOT NULL,
+CREATE TABLE global_attribute_group (
+    gag_id   bigint       NOT NULL,
+    gag_c_id bigint       NOT NULL,
+    gag_name varchar(100) NOT NULL,
+    FOREIGN KEY (gag_c_id) REFERENCES category (c_id) ON DELETE CASCADE,
     PRIMARY KEY (gag_id)
 );
 
@@ -174,11 +172,11 @@ CREATE TABLE GLOBAL_ATTRIBUTE_GROUP
 -- gav_name            Global attribute value's name
 -- ================================================================
 
-CREATE TABLE GLOBAL_ATTRIBUTE_VALUE
-(
-    gav_id     BIGINT       NOT NULL,
-    gav_gag_id BIGINT       NOT NULL REFERENCES GLOBAL_ATTRIBUTE_GROUP (gag_id),
-    gav_name   VARCHAR(100) NOT NULL,
+CREATE TABLE global_attribute_value (
+    gav_id     bigint       NOT NULL,
+    gav_gag_id bigint       NOT NULL,
+    gav_name   varchar(100) NOT NULL,
+    FOREIGN KEY (gav_gag_id) REFERENCES global_attribute_group (gag_id) ON DELETE CASCADE,
     PRIMARY KEY (gav_id, gav_gag_id)
 );
 
@@ -201,36 +199,37 @@ CREATE TABLE GLOBAL_ATTRIBUTE_VALUE
 -- i_status            Items' status (0 = open, 1 = wait for purchase, 2 = close)
 -- ================================================================
 
-CREATE TABLE ITEM
-(
-    i_id               BIGINT NOT NULL,
-    i_u_id             BIGINT NOT NULL REFERENCES USERACCT (u_id),
-    i_c_id             BIGINT NOT NULL REFERENCES CATEGORY (c_id),
-    i_name             VARCHAR(100),
-    i_description      VARCHAR(1024),
-    i_user_attributes  VARCHAR(255) DEFAULT NULL,
-    i_initial_price    FLOAT  NOT NULL,
-    i_current_price    FLOAT  NOT NULL,
-    i_num_bids         BIGINT,
-    i_num_images       BIGINT,
-    i_num_global_attrs BIGINT,
-    i_num_comments     BIGINT,
-    i_start_date       TIMESTAMP    DEFAULT '1970-01-01 00:00:01',
-    i_end_date         TIMESTAMP    DEFAULT '1970-01-01 00:00:01',
-    i_status           INT          DEFAULT 0,
-    i_created          TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    i_updated          TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    i_iattr0           BIGINT       DEFAULT NULL,
-    i_iattr1           BIGINT       DEFAULT NULL,
-    i_iattr2           BIGINT       DEFAULT NULL,
-    i_iattr3           BIGINT       DEFAULT NULL,
-    i_iattr4           BIGINT       DEFAULT NULL,
-    i_iattr5           BIGINT       DEFAULT NULL,
-    i_iattr6           BIGINT       DEFAULT NULL,
-    i_iattr7           BIGINT       DEFAULT NULL,
+CREATE TABLE item (
+    i_id               bigint NOT NULL,
+    i_u_id             bigint NOT NULL,
+    i_c_id             bigint NOT NULL,
+    i_name             varchar(100),
+    i_description      varchar(1024),
+    i_user_attributes  varchar(255) DEFAULT NULL,
+    i_initial_price    float  NOT NULL,
+    i_current_price    float  NOT NULL,
+    i_num_bids         bigint,
+    i_num_images       bigint,
+    i_num_global_attrs bigint,
+    i_num_comments     bigint,
+    i_start_date       timestamp    DEFAULT '1970-01-01 00:00:01',
+    i_end_date         timestamp    DEFAULT '1970-01-01 00:00:01',
+    i_status           int          DEFAULT 0,
+    i_created          timestamp    DEFAULT CURRENT_TIMESTAMP,
+    i_updated          timestamp    DEFAULT CURRENT_TIMESTAMP,
+    i_iattr0           bigint       DEFAULT NULL,
+    i_iattr1           bigint       DEFAULT NULL,
+    i_iattr2           bigint       DEFAULT NULL,
+    i_iattr3           bigint       DEFAULT NULL,
+    i_iattr4           bigint       DEFAULT NULL,
+    i_iattr5           bigint       DEFAULT NULL,
+    i_iattr6           bigint       DEFAULT NULL,
+    i_iattr7           bigint       DEFAULT NULL,
+    FOREIGN KEY (i_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
+    FOREIGN KEY (i_c_id) REFERENCES category (c_id) ON DELETE CASCADE,
     PRIMARY KEY (i_id, i_u_id)
 );
-CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
+CREATE INDEX idx_item_seller ON item (i_u_id);
 
 -- ================================================================
 -- ITEM_ATTRIBUTE
@@ -240,16 +239,15 @@ CREATE INDEX IDX_ITEM_SELLER ON ITEM (i_u_id);
 -- ia_gav_id        Global attribute value's ID
 -- ================================================================
 
-CREATE TABLE ITEM_ATTRIBUTE
-(
-    ia_id     BIGINT NOT NULL,
-    ia_i_id   BIGINT NOT NULL,
-    ia_u_id   BIGINT NOT NULL,
-    ia_gav_id BIGINT NOT NULL,
-    ia_gag_id BIGINT NOT NULL,
-    ia_sattr0 VARCHAR(64) DEFAULT NULL,
-    FOREIGN KEY (ia_i_id, ia_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
-    FOREIGN KEY (ia_gav_id, ia_gag_id) REFERENCES GLOBAL_ATTRIBUTE_VALUE (gav_id, gav_gag_id),
+CREATE TABLE item_attribute (
+    ia_id     bigint NOT NULL,
+    ia_i_id   bigint NOT NULL,
+    ia_u_id   bigint NOT NULL,
+    ia_gav_id bigint NOT NULL,
+    ia_gag_id bigint NOT NULL,
+    ia_sattr0 varchar(64) DEFAULT NULL,
+    FOREIGN KEY (ia_i_id, ia_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ia_gav_id, ia_gag_id) REFERENCES global_attribute_value (gav_id, gav_gag_id),
     PRIMARY KEY (ia_id, ia_i_id, ia_u_id)
 );
 
@@ -261,13 +259,12 @@ CREATE TABLE ITEM_ATTRIBUTE
 -- ii_path            Image's path
 -- ================================================================
 
-CREATE TABLE ITEM_IMAGE
-(
-    ii_id     BIGINT       NOT NULL,
-    ii_i_id   BIGINT       NOT NULL,
-    ii_u_id   BIGINT       NOT NULL,
-    ii_sattr0 VARCHAR(128) NOT NULL,
-    FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+CREATE TABLE item_image (
+    ii_id     bigint       NOT NULL,
+    ii_i_id   bigint       NOT NULL,
+    ii_u_id   bigint       NOT NULL,
+    ii_sattr0 varchar(128) NOT NULL,
+    FOREIGN KEY (ii_i_id, ii_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ii_id, ii_i_id, ii_u_id)
 );
 
@@ -282,17 +279,17 @@ CREATE TABLE ITEM_IMAGE
 -- ic_response        Response from seller
 -- ================================================================
 
-CREATE TABLE ITEM_COMMENT
-(
-    ic_id       BIGINT       NOT NULL,
-    ic_i_id     BIGINT       NOT NULL,
-    ic_u_id     BIGINT       NOT NULL,
-    ic_buyer_id BIGINT       NOT NULL REFERENCES USERACCT (u_id),
-    ic_question VARCHAR(128) NOT NULL,
-    ic_response VARCHAR(128) DEFAULT NULL,
-    ic_created  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    ic_updated  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+CREATE TABLE item_comment (
+    ic_id       bigint       NOT NULL,
+    ic_i_id     bigint       NOT NULL,
+    ic_u_id     bigint       NOT NULL,
+    ic_buyer_id bigint       NOT NULL,
+    ic_question varchar(128) NOT NULL,
+    ic_response varchar(128) DEFAULT NULL,
+    ic_created  timestamp    DEFAULT CURRENT_TIMESTAMP,
+    ic_updated  timestamp    DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ic_i_id, ic_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ic_buyer_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (ic_id, ic_i_id, ic_u_id)
 );
 -- CREATE INDEX IDX_ITEM_COMMENT ON ITEM_COMMENT (ic_i_id, ic_u_id);
@@ -309,17 +306,17 @@ CREATE TABLE ITEM_COMMENT
 -- ib_date            Bid's date
 -- ================================================================
 
-CREATE TABLE ITEM_BID
-(
-    ib_id       BIGINT NOT NULL,
-    ib_i_id     BIGINT NOT NULL,
-    ib_u_id     BIGINT NOT NULL,
-    ib_buyer_id BIGINT NOT NULL REFERENCES USERACCT (u_id),
-    ib_bid      FLOAT  NOT NULL,
-    ib_max_bid  FLOAT  NOT NULL,
-    ib_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ib_updated  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ib_i_id, ib_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+CREATE TABLE item_bid (
+    ib_id       bigint NOT NULL,
+    ib_i_id     bigint NOT NULL,
+    ib_u_id     bigint NOT NULL,
+    ib_buyer_id bigint NOT NULL,
+    ib_bid      float  NOT NULL,
+    ib_max_bid  float  NOT NULL,
+    ib_created  timestamp DEFAULT CURRENT_TIMESTAMP,
+    ib_updated  timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ib_i_id, ib_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ib_buyer_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (ib_id, ib_i_id, ib_u_id)
 );
 
@@ -328,17 +325,16 @@ CREATE TABLE ITEM_BID
 -- Cross-reference table to the current max bid for an auction
 -- ================================================================
 
-CREATE TABLE ITEM_MAX_BID
-(
-    imb_i_id    BIGINT NOT NULL,
-    imb_u_id    BIGINT NOT NULL,
-    imb_ib_id   BIGINT NOT NULL,
-    imb_ib_i_id BIGINT NOT NULL,
-    imb_ib_u_id BIGINT NOT NULL,
-    imb_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    imb_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (imb_i_id, imb_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
-    FOREIGN KEY (imb_ib_id, imb_ib_i_id, imb_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
+CREATE TABLE item_max_bid (
+    imb_i_id    bigint NOT NULL,
+    imb_u_id    bigint NOT NULL,
+    imb_ib_id   bigint NOT NULL,
+    imb_ib_i_id bigint NOT NULL,
+    imb_ib_u_id bigint NOT NULL,
+    imb_created timestamp DEFAULT CURRENT_TIMESTAMP,
+    imb_updated timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (imb_i_id, imb_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (imb_ib_id, imb_ib_i_id, imb_ib_u_id) REFERENCES item_bid (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
     PRIMARY KEY (imb_i_id, imb_u_id)
 );
 
@@ -350,14 +346,13 @@ CREATE TABLE ITEM_MAX_BID
 -- ip_date             Purchase's date
 -- ================================================================
 
-CREATE TABLE ITEM_PURCHASE
-(
-    ip_id      BIGINT NOT NULL,
-    ip_ib_id   BIGINT NOT NULL,
-    ip_ib_i_id BIGINT NOT NULL,
-    ip_ib_u_id BIGINT NOT NULL,
-    ip_date    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES ITEM_BID (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
+CREATE TABLE item_purchase (
+    ip_id      bigint NOT NULL,
+    ip_ib_id   bigint NOT NULL,
+    ip_ib_i_id bigint NOT NULL,
+    ip_ib_u_id bigint NOT NULL,
+    ip_date    timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ip_ib_id, ip_ib_i_id, ip_ib_u_id) REFERENCES item_bid (ib_id, ib_i_id, ib_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id)
 );
 
@@ -373,16 +368,17 @@ CREATE TABLE ITEM_PURCHASE
 -- uf_comment        Feedback by other user
 -- ================================================================
 
-CREATE TABLE USERACCT_FEEDBACK
-(
-    uf_u_id    BIGINT      NOT NULL REFERENCES USERACCT (u_id),
-    uf_i_id    BIGINT      NOT NULL,
-    uf_i_u_id  BIGINT      NOT NULL,
-    uf_from_id BIGINT      NOT NULL REFERENCES USERACCT (u_id),
-    uf_rating  TINYINT     NOT NULL,
-    uf_date    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    uf_sattr0  VARCHAR(80) NOT NULL,
-    FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+CREATE TABLE useracct_feedback (
+    uf_u_id    bigint      NOT NULL,
+    uf_i_id    bigint      NOT NULL,
+    uf_i_u_id  bigint      NOT NULL,
+    uf_from_id bigint      NOT NULL,
+    uf_rating  tinyint     NOT NULL,
+    uf_date    timestamp DEFAULT CURRENT_TIMESTAMP,
+    uf_sattr0  varchar(80) NOT NULL,
+    FOREIGN KEY (uf_i_id, uf_i_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (uf_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
+    FOREIGN KEY (uf_from_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (uf_u_id, uf_i_id, uf_i_u_id, uf_from_id),
     CHECK (uf_u_id <> uf_from_id)
 );
@@ -392,18 +388,18 @@ CREATE TABLE USERACCT_FEEDBACK
 -- The items that a user has recently purchased
 -- ================================================================
 
-CREATE TABLE USERACCT_ITEM
-(
-    ui_u_id       BIGINT NOT NULL REFERENCES USERACCT (u_id),
-    ui_i_id       BIGINT NOT NULL,
-    ui_i_u_id     BIGINT NOT NULL,
-    ui_ip_id      BIGINT,
-    ui_ip_ib_id   BIGINT,
-    ui_ip_ib_i_id BIGINT,
-    ui_ip_ib_u_id BIGINT,
-    ui_created    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ui_i_id, ui_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
-    FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES ITEM_PURCHASE (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id) ON DELETE CASCADE,
+CREATE TABLE useracct_item (
+    ui_u_id       bigint NOT NULL,
+    ui_i_id       bigint NOT NULL,
+    ui_i_u_id     bigint NOT NULL,
+    ui_ip_id      bigint,
+    ui_ip_ib_id   bigint,
+    ui_ip_ib_i_id bigint,
+    ui_ip_ib_u_id bigint,
+    ui_created    timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ui_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ui_i_id, ui_i_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (ui_ip_id, ui_ip_ib_id, ui_ip_ib_i_id, ui_ip_ib_u_id) REFERENCES item_purchase (ip_id, ip_ib_id, ip_ib_i_id, ip_ib_u_id) ON DELETE CASCADE,
     PRIMARY KEY (ui_u_id, ui_i_id, ui_i_u_id)
 );
 -- CREATE INDEX IDX_USERACCT_ITEM_ID ON USERACCT_ITEM (ui_i_id);
@@ -413,12 +409,12 @@ CREATE TABLE USERACCT_ITEM
 -- The items that a user is watching
 -- ================================================================
 
-CREATE TABLE USERACCT_WATCH
-(
-    uw_u_id    BIGINT NOT NULL REFERENCES USERACCT (u_id),
-    uw_i_id    BIGINT NOT NULL,
-    uw_i_u_id  BIGINT NOT NULL,
-    uw_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (uw_i_id, uw_i_u_id) REFERENCES ITEM (i_id, i_u_id) ON DELETE CASCADE,
+CREATE TABLE useracct_watch (
+    uw_u_id    bigint NOT NULL,
+    uw_i_id    bigint NOT NULL,
+    uw_i_u_id  bigint NOT NULL,
+    uw_created timestamp DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (uw_i_id, uw_i_u_id) REFERENCES item (i_id, i_u_id) ON DELETE CASCADE,
+    FOREIGN KEY (uw_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (uw_u_id, uw_i_id, uw_i_u_id)
 );

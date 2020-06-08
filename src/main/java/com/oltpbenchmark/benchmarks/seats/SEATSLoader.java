@@ -470,7 +470,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     protected void loadFixedTable(Connection conn, String table_name) {
         LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
         try {
-            Table catalog_tbl = this.benchmark.getTableCatalog(table_name);
+            Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
 
             Iterable<Object[]> iterable = this.getFixedIterable(catalog_tbl);
             this.loadTable(conn, catalog_tbl, iterable, workConf.getDBBatchSize());
@@ -488,7 +488,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      */
     protected void loadScalingTable(Connection conn, String table_name) {
         try {
-            Table catalog_tbl = this.benchmark.getTableCatalog(table_name);
+            Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
 
             Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl);
             this.loadTable(conn, catalog_tbl, iterable, workConf.getDBBatchSize());
@@ -591,7 +591,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                         long id = (Long) tuple[code_2_id.get(col_code_idx)];
                         if (LOG.isTraceEnabled()) {
-                            LOG.trace(String.format("Mapping %s '%s' -> %s '%d'", from_column.fullName(), code, to_column.fullName(), id));
+                            LOG.trace(String.format("Mapping %s '%s' -> %s '%d'", from_column.getName(), code, to_column.getName(), id));
                         }
                         this.profile.code_id_xref.get(to_column.getName()).put(code, id);
                     }
@@ -603,9 +603,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     if (tuple[col_code_idx] != null) {
                         String code = tuple[col_code_idx].toString();
                         tuple[col_code_idx] = mapping_columns.get(col_code_idx).get(code);
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace(String.format("Mapped %s '%s' -> %s '%s'", catalog_col.fullName(), code, catalog_col.getForeignKey().fullName(), tuple[col_code_idx]));
-                        }
                     }
                 }
 
@@ -618,7 +615,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         }
                     } catch (SQLDataException ex) {
                         LOG.error("INVALID {} TUPLE: {}", catalog_tbl.getName(), Arrays.toString(tuple));
-                        throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).fullName(), ex);
+                        throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).getName(), ex);
                     }
                 }
                 insert_stmt.addBatch();
@@ -641,18 +638,13 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             throw new RuntimeException("Failed to load table " + catalog_tbl.getName(), ex);
         }
 
-        if (is_airport) {
-
-        }
-
         // Record the number of tuples that we loaded for this table in the
         // profile
         if (catalog_tbl.getName().equals(SEATSConstants.TABLENAME_RESERVATION)) {
             this.profile.num_reservations = row_idx + 1;
         }
 
-        LOG.info(String.format("Finished loading all %d tuples for %s [%d / %d]", row_idx, catalog_tbl.getName(), this.finished.incrementAndGet(), this.getCatalog().getTableCount()));
-        return;
+        LOG.info(String.format("Finished loading all %d tuples for %s", row_idx, catalog_tbl.getName()));
     }
 
     // ----------------------------------------------------------------

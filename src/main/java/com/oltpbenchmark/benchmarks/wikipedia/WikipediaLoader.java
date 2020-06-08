@@ -185,7 +185,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      * USERACCTS
      */
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
+        Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
@@ -268,7 +268,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      * PAGE
      */
     private void loadPages(Connection conn, int lo, int hi) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
+        Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_PAGE);
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
@@ -335,7 +335,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      * WATCHLIST
      */
     private void loadWatchlist(Connection conn) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_WATCHLIST);
+        Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_WATCHLIST);
 
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
@@ -422,12 +422,12 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     private void loadRevision(Connection conn) throws SQLException {
 
         // TEXT
-        Table textTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_TEXT);
+        Table textTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_TEXT);
         String textSQL = SQLUtil.getInsertSQL(textTable, this.getDatabaseType());
 
 
         // REVISION
-        Table revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_REVISION);
+        Table revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_REVISION);
         String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType());
 
 
@@ -534,7 +534,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
 
         // UPDATE USER
-        revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_USER);
+        revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
         String revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
@@ -560,7 +560,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
 
         // UPDATE PAGES
-        revTable = this.benchmark.getTableCatalog(WikipediaConstants.TABLENAME_PAGE);
+        revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_PAGE);
 
         revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 

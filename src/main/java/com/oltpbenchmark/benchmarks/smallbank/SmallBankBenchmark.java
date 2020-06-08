@@ -34,7 +34,7 @@ public class SmallBankBenchmark extends BenchmarkModule {
     protected final long numAccounts;
 
     public SmallBankBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
         this.numAccounts = (int) Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
     }
 

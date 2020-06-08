@@ -64,7 +64,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                Table catalog_tbl = benchmark.getTableCatalog("HTABLE");
+                Table catalog_tbl = benchmark.getCatalog().getTable("HTABLE");
 
 
                 String sql = SQLUtil.getInsertSQL(catalog_tbl, getDatabaseType());

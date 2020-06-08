@@ -20,9 +20,9 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
-import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
+import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
 import com.zaxxer.hikari.HikariConfig;
@@ -55,11 +55,6 @@ public abstract class BenchmarkModule {
     protected final StatementDialects dialects;
 
     /**
-     * Database Catalog
-     */
-    protected final Catalog catalog;
-
-    /**
      * Supplemental Procedures
      */
     private final Set<Class<? extends Procedure>> supplementalProcedures = new HashSet<>();
@@ -71,11 +66,11 @@ public abstract class BenchmarkModule {
 
     private final HikariDataSource dataSource;
 
-    public BenchmarkModule(WorkloadConfiguration workConf, boolean withCatalog) {
+    private Catalog catalog = null;
 
+    public BenchmarkModule(WorkloadConfiguration workConf) {
 
         this.workConf = workConf;
-        this.catalog = (withCatalog ? new Catalog(this) : null);
         this.dialects = new StatementDialects(workConf);
 
         HikariConfig config = new HikariConfig();
@@ -146,8 +141,6 @@ public abstract class BenchmarkModule {
             names.add("ddl-" + db_type.name().toLowerCase() + ".sql");
         }
 
-        names.add("ddl.sql");
-
         for (String fileName : names) {
 
             final String path = "benchmarks" + File.separator + getBenchmarkName() + File.separator + fileName;
@@ -178,11 +171,7 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        try (Connection conn = this.getConnection()) {
-            this.createDatabase(this.workConf.getDBType(), conn);
-        } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
-        }
+        this.createDatabase(this.workConf.getDBType());
     }
 
     /**
@@ -190,8 +179,8 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase(DatabaseType dbType, Connection conn) {
-        try {
+    public final void createDatabase(DatabaseType dbType) {
+        try (Connection conn = this.getConnection()) {
             String ddlPath = this.getDatabaseDDLPath(dbType);
 
             ScriptRunner runner = new ScriptRunner(conn, true, true);
@@ -201,6 +190,9 @@ public abstract class BenchmarkModule {
             }
 
             runner.runScript(ddlPath);
+
+            this.catalog = SQLUtil.getCatalog(dbType, conn);
+
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
         }
@@ -260,7 +252,8 @@ public abstract class BenchmarkModule {
     }
 
     public final void clearDatabase() {
-        try (Connection conn = this.getConnection()) {
+        throw new UnsupportedOperationException("not properly implemented yet");
+       /* try (Connection conn = this.getConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);
@@ -269,7 +262,7 @@ public abstract class BenchmarkModule {
             }
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", getBenchmarkName()), ex);
-        }
+        }*/
     }
 
     // --------------------------------------------------------------------------
@@ -287,19 +280,14 @@ public abstract class BenchmarkModule {
      * Return the database's catalog
      */
     public final Catalog getCatalog() {
-        return (this.catalog);
+
+        if (catalog == null) {
+            throw new RuntimeException("getCatalog() has been called before create database");
+        }
+
+        return this.catalog;
     }
 
-    /**
-     * Get the catalog object for the given table name
-     *
-     * @param tableName
-     * @return
-     */
-    public Table getTableCatalog(String tableName) {
-
-        return (this.catalog.getTable(tableName.toUpperCase()));
-    }
 
     /**
      * Return the StatementDialects loaded for this benchmark
@@ -343,6 +331,7 @@ public abstract class BenchmarkModule {
 
     /**
      * Return a mapping from TransactionTypes to Procedure invocations
+     *
      * @return
      */
     public Map<TransactionType, Procedure> getProcedures() {

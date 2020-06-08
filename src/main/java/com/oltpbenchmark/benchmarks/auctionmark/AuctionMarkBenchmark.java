@@ -41,7 +41,7 @@ public class AuctionMarkBenchmark extends BenchmarkModule {
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
     public AuctionMarkBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
 
         this.registerSupplementalProcedure(LoadConfig.class);
         this.registerSupplementalProcedure(CloseAuctions.class);

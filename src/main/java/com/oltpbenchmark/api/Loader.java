@@ -21,7 +21,6 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
-import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
@@ -84,25 +83,6 @@ public abstract class Loader<T extends BenchmarkModule> {
     }
 
     /**
-     * Return the database's catalog
-     */
-    public Catalog getCatalog() {
-        return (this.benchmark.getCatalog());
-    }
-
-    /**
-     * Get the catalog object for the given table name
-     *
-     * @param tableName
-     * @return
-     */
-    @Deprecated
-    public Table getTableCatalog(String tableName) {
-
-        return (this.benchmark.getCatalog().getTable(tableName.toUpperCase()));
-    }
-
-    /**
      * Get the pre-seeded Random generator for this Loader invocation
      *
      * @return
@@ -123,7 +103,7 @@ public abstract class Loader<T extends BenchmarkModule> {
      */
     public void unload(Connection conn, Catalog catalog) throws SQLException {
 
-        conn.setTransactionIsolation(workConf.getIsolationMode());
+        /*conn.setTransactionIsolation(workConf.getIsolationMode());
         try (Statement st = conn.createStatement()) {
             for (Table catalog_tbl : catalog.getTables()) {
                 LOG.debug(String.format("Deleting data from table %s", catalog_tbl.getName()));
@@ -131,7 +111,7 @@ public abstract class Loader<T extends BenchmarkModule> {
                 st.execute(sql);
             }
             conn.commit();
-        }
+        }*/
     }
 
     protected void updateAutoIncrement(Connection conn, Column catalog_col, int value) throws SQLException {
@@ -147,7 +127,7 @@ public abstract class Loader<T extends BenchmarkModule> {
         }
         if (sql != null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Updating %s auto-increment counter with value '%d'", catalog_col.fullName(), value));
+                LOG.debug(String.format("Updating %s auto-increment counter with value '%d'", catalog_col.getName(), value));
             }
             try (Statement stmt = conn.createStatement()) {
                 boolean result = stmt.execute(sql);

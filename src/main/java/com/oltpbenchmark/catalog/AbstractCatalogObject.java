@@ -18,6 +18,7 @@
 package com.oltpbenchmark.catalog;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Base Catalog Object Class
@@ -28,34 +29,53 @@ public abstract class AbstractCatalogObject implements Serializable {
     static final long serialVersionUID = 0;
 
     protected final String name;
+    protected final String originalName;
+    protected final String separator;
 
-    public AbstractCatalogObject(String name) {
+    public AbstractCatalogObject(String originalName, String name, String separator) {
+        this.originalName = originalName;
         this.name = name;
+        this.separator = separator;
     }
 
-    /**
-     * Return the name of this catalog object in the database
-     *
-     * @return
-     */
-    public final String getName() {
-        return (this.name);
+    public String getName() {
+        return name;
     }
 
-    /**
-     * Return the name of this catalog object escaped with the
-     * by the CatalogUtil.separator
-     *
-     * @return
-     */
+    public String getOriginalName() {
+        return originalName;
+    }
+
+    public String getSeparator() {
+        return separator;
+    }
+
     public final String getEscapedName() {
-        String s = Catalog.getSeparator();
 
-        if (s != null) {
-            return s + this.name + s;
+        if (separator != null) {
+            return separator + this.name + separator;
         } else {
             return this.name;
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractCatalogObject that = (AbstractCatalogObject) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(originalName, that.originalName) &&
+                Objects.equals(separator, that.separator);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, originalName, separator);
     }
 }

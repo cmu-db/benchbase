@@ -17,21 +17,23 @@
 
 package com.oltpbenchmark.util;
 
+import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Index;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.types.SortDirectionType;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class SQLUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SQLUtil.class);
@@ -249,6 +251,7 @@ public abstract class SQLUtil {
                 break;
             }
             case Types.DECIMAL:
+            case Types.REAL:
             case Types.DOUBLE: {
                 ret = Double.parseDouble(value);
                 break;
@@ -398,7 +401,6 @@ public abstract class SQLUtil {
         for (int i = 0; i < batchSize; i++) {
             sb.append("(").append(values.toString()).append(")");
         }
-//    	sb.append(";");
 
         return (sb.toString());
     }
@@ -408,8 +410,109 @@ public abstract class SQLUtil {
         return String.format("SELECT MAX(%s) FROM %s", col, tableName);
     }
 
-    public static String selectColValues(Table catalog_tbl, String col) {
+    public static String selectColValues(DatabaseType databaseType, Table catalog_tbl, String col) {
+        String tableName = (databaseType.shouldEscapeNames() ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
         return String.format("SELECT %s FROM %s",
-                col, catalog_tbl.getEscapedName());
+                col, tableName);
+    }
+
+    public static Catalog getCatalog(DatabaseType databaseType, Connection connection) throws SQLException {
+
+        DatabaseMetaData md = connection.getMetaData();
+
+        String separator = md.getIdentifierQuoteString();
+        String catalog = connection.getCatalog();
+        String schema = connection.getSchema();
+
+        Map<String, Table> tables = new HashMap<>();
+
+        List<String> excludedColumns = new ArrayList<>();
+
+        if (databaseType.equals(DatabaseType.COCKROACHDB)) {
+            // cockroachdb has a hidden column called "ROWID" that should not be directly used via the catalog
+            excludedColumns.add("ROWID");
+        }
+
+
+        try (ResultSet table_rs = md.getTables(catalog, schema, null, new String[]{"TABLE"})) {
+            while (table_rs.next()) {
+
+                String table_type = table_rs.getString("TABLE_TYPE");
+                if (!table_type.equalsIgnoreCase("TABLE")) {
+                    continue;
+                }
+
+                String table_name = table_rs.getString("TABLE_NAME");
+                Table catalog_tbl = new Table(table_name, StringUtils.upperCase(table_name), separator);
+
+                try (ResultSet col_rs = md.getColumns(catalog, schema, table_name, null)) {
+                    while (col_rs.next()) {
+                        String col_name = col_rs.getString("COLUMN_NAME");
+
+                        if (excludedColumns.contains(col_name.toUpperCase())) {
+                            LOG.debug("found excluded column [{}] for in database type [{}].  Skipping...", col_name, databaseType);
+                            continue;
+                        }
+
+                        int col_type = col_rs.getInt("DATA_TYPE");
+                        Integer col_size = col_rs.getInt("COLUMN_SIZE");
+                        boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
+
+                        Column catalog_col = new Column(col_name, StringUtils.upperCase(col_name), separator, catalog_tbl, col_type, col_size, col_nullable);
+
+                        catalog_tbl.addColumn(catalog_col);
+                    }
+                }
+
+                try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
+                    while (idx_rs.next()) {
+                        boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
+                        String idx_name = idx_rs.getString("INDEX_NAME");
+                        int idx_type = idx_rs.getShort("TYPE");
+                        int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
+                        String idx_col_name = idx_rs.getString("COLUMN_NAME");
+                        String sort = idx_rs.getString("ASC_OR_DESC");
+                        SortDirectionType idx_direction;
+                        if (sort != null) {
+                            idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
+                        } else {
+                            idx_direction = null;
+                        }
+
+                        Index catalog_idx = catalog_tbl.getIndex(idx_name);
+                        if (catalog_idx == null) {
+                            catalog_idx = new Index(idx_name, StringUtils.upperCase(idx_name), separator, catalog_tbl, idx_type, idx_unique);
+                            catalog_tbl.addIndex(catalog_idx);
+                        }
+
+                        catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
+                    }
+                }
+
+                tables.put(table_name, catalog_tbl);
+            }
+        }
+
+        for (Table table : tables.values()) {
+            try (ResultSet fk_rs = md.getImportedKeys(catalog, schema, table.getOriginalName())) {
+                while (fk_rs.next()) {
+                    String colName = fk_rs.getString("FKCOLUMN_NAME");
+
+                    String fk_tableName = fk_rs.getString("PKTABLE_NAME");
+                    String fk_colName = fk_rs.getString("PKCOLUMN_NAME");
+
+                    Table fk_table = tables.get(fk_tableName);
+                    Column fk_col = fk_table.getColumnByName(fk_colName);
+
+                    Column catalog_col = table.getColumnByName(colName);
+                    catalog_col.setForeignKey(fk_col);
+                }
+            }
+        }
+
+
+        return new Catalog(tables);
+
+
     }
 }

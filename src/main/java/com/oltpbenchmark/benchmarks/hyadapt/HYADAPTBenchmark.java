@@ -38,7 +38,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(HYADAPTBenchmark.class);
 
     public HYADAPTBenchmark(WorkloadConfiguration workConf) {
-        super(workConf, true);
+        super(workConf);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
         // LOADING FROM THE DATABASE IMPORTANT INFORMATION
         // LIST OF USERS
 
-        Table t = this.catalog.getTable("HTABLE");
+        Table t = this.getCatalog().getTable("HTABLE");
 
         String userCount = SQLUtil.getCountSQL(this.workConf.getDBType(), t);
         int init_record_count = 0;

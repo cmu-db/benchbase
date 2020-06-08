@@ -72,7 +72,7 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
     }
 
     private void loadTable(Connection conn, String tableName) throws SQLException {
-        Table catalog_tbl = this.benchmark.getTableCatalog(tableName);
+        Table catalog_tbl = this.benchmark.getCatalog().getTable(tableName);
 
 
         if (LOG.isDebugEnabled()) {
