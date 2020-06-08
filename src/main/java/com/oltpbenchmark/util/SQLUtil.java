@@ -421,6 +421,8 @@ public abstract class SQLUtil {
         DatabaseMetaData md = connection.getMetaData();
 
         String separator = md.getIdentifierQuoteString();
+        String catalog = connection.getCatalog();
+        String schema = connection.getSchema();
 
         Map<String, Table> tables = new HashMap<>();
 
@@ -432,7 +434,7 @@ public abstract class SQLUtil {
         }
 
 
-        try (ResultSet table_rs = md.getTables(null, null, null, new String[]{"TABLE"})) {
+        try (ResultSet table_rs = md.getTables(catalog, schema, null, new String[]{"TABLE"})) {
             while (table_rs.next()) {
 
                 String table_type = table_rs.getString("TABLE_TYPE");
@@ -443,7 +445,7 @@ public abstract class SQLUtil {
                 String table_name = table_rs.getString("TABLE_NAME");
                 Table catalog_tbl = new Table(table_name, StringUtils.upperCase(table_name), separator);
 
-                try (ResultSet col_rs = md.getColumns(null, null, table_name, null)) {
+                try (ResultSet col_rs = md.getColumns(catalog, schema, table_name, null)) {
                     while (col_rs.next()) {
                         String col_name = col_rs.getString("COLUMN_NAME");
 
@@ -462,7 +464,7 @@ public abstract class SQLUtil {
                     }
                 }
 
-                try (ResultSet idx_rs = md.getIndexInfo(null, null, table_name, false, false)) {
+                try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
                     while (idx_rs.next()) {
                         boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
                         String idx_name = idx_rs.getString("INDEX_NAME");
@@ -492,7 +494,7 @@ public abstract class SQLUtil {
         }
 
         for (Table table : tables.values()) {
-            try (ResultSet fk_rs = md.getImportedKeys(null, null, table.getOriginalName())) {
+            try (ResultSet fk_rs = md.getImportedKeys(catalog, schema, table.getOriginalName())) {
                 while (fk_rs.next()) {
                     String colName = fk_rs.getString("FKCOLUMN_NAME");
 
