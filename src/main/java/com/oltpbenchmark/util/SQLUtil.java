@@ -158,7 +158,6 @@ public abstract class SQLUtil {
     public static String getSequenceName(DatabaseType dbType, Column catalog_col) {
         Table catalog_tbl = catalog_col.getTable();
 
-
         if (dbType == DatabaseType.POSTGRES) {
             return String.format("pg_get_serial_sequence('%s', '%s')",
                     catalog_tbl.getName(), catalog_col.getName());

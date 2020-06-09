@@ -21,6 +21,7 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
+import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
@@ -103,27 +104,26 @@ public abstract class Loader<T extends BenchmarkModule> {
      */
     public void unload(Connection conn, Catalog catalog) throws SQLException {
 
-        /*conn.setTransactionIsolation(workConf.getIsolationMode());
+        boolean shouldEscapeNames = this.getDatabaseType().shouldEscapeNames();
+
         try (Statement st = conn.createStatement()) {
             for (Table catalog_tbl : catalog.getTables()) {
-                LOG.debug(String.format("Deleting data from table %s", catalog_tbl.getName()));
-                String sql = "DELETE FROM " + catalog_tbl.getEscapedName();
+                String tableName = shouldEscapeNames ? catalog_tbl.getEscapedName() : catalog_tbl.getName();
+                LOG.debug(String.format("Deleting data from table [%s]", tableName));
+
+                String sql = "DELETE FROM " + tableName;
                 st.execute(sql);
             }
-            conn.commit();
-        }*/
+        }
     }
 
     protected void updateAutoIncrement(Connection conn, Column catalog_col, int value) throws SQLException {
         String sql = null;
-        switch (getDatabaseType()) {
-            case POSTGRES:
-                String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
+        // Nothing!
+        if (getDatabaseType() == DatabaseType.POSTGRES) {
+            String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
 
-                sql = String.format("SELECT setval(%s, %d)", seqName.toLowerCase(), value);
-                break;
-            default:
-                // Nothing!
+            sql = String.format("SELECT setval(%s, %d)", seqName.toLowerCase(), value);
         }
         if (sql != null) {
             if (LOG.isDebugEnabled()) {

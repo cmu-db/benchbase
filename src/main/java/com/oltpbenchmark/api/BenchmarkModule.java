@@ -252,8 +252,10 @@ public abstract class BenchmarkModule {
     }
 
     public final void clearDatabase() {
-        throw new UnsupportedOperationException("not properly implemented yet");
-       /* try (Connection conn = this.getConnection()) {
+
+        try (Connection conn = this.getConnection()) {
+            this.catalog = SQLUtil.getCatalog(this.getWorkloadConfiguration().getDBType(), conn);
+
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);
@@ -262,7 +264,7 @@ public abstract class BenchmarkModule {
             }
         } catch (SQLException ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", getBenchmarkName()), ex);
-        }*/
+        }
     }
 
     // --------------------------------------------------------------------------
