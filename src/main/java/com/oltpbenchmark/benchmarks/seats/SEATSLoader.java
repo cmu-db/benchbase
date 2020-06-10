@@ -1318,7 +1318,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             this.status = 0; // TODO
 
             this.flights_per_day.put(date, this.flights_per_day.get(date) - 1);
-            return;
         }
 
         /**

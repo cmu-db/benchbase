@@ -25,6 +25,5 @@ import java.sql.Connection;
 public class Test extends Procedure {
 
     public void run(Connection conn, long incomeID) {
-        return;
     }
 }

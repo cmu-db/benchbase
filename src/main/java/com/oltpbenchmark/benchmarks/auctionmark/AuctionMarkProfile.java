@@ -272,7 +272,6 @@ public class AuctionMarkProfile {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Saving profile information into {}", catalog_tbl);
         }
-        return;
     }
 
     private AuctionMarkProfile copyProfile(AuctionMarkWorker worker, AuctionMarkProfile other) {

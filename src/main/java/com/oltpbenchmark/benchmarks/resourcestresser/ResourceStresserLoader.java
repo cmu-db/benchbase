@@ -114,7 +114,6 @@ public class ResourceStresserLoader extends Loader<ResourceStresserBenchmark> {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Finished loading {}", tableName);
         }
-        return;
     }
 
 }

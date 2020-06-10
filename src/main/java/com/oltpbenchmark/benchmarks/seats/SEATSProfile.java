@@ -251,7 +251,6 @@ public class SEATSProfile {
             }
         }
 
-        return;
     }
 
     protected static void clearCachedProfile() {
