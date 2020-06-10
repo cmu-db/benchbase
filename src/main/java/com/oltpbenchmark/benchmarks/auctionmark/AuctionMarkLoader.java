@@ -332,7 +332,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         this.tableSize = (long) Math.max(1, (int) Math.round(this.tableSize * profile.getScaleFactor()));
                     }
                 } catch (NoSuchFieldException ex) {
-                    LOG.warn("No table size constant in AuctionMarkConstants for '{}' using {}", tableName);
+                    LOG.warn("No table size constant in AuctionMarkConstants for [{}]", field_name);
                 } catch (Exception ex) {
                     throw new RuntimeException("Missing field '" + field_name + "' needed for '" + tableName + "'", ex);
                 }
