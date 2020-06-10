@@ -197,3 +197,4 @@ This fork contains a number of significant **structural** modifications to the o
 * Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed (default `poolsize` is 25)
 * Introduced [Dependabot](https://dependabot.com/) to keep Maven dependencies up to date
 * Removed `upload`, `output`, `output-raw`, `output-samples` `timestamp`, `tracescript`, `histograms` and `verbose` options.  Those related to "output" were simply enabled by default.
+* Refactored `Catalog` to be populated directly from the configured Benchmark database instead of proxied via `HSQLDB`.  This eliminates the dependency on this project.

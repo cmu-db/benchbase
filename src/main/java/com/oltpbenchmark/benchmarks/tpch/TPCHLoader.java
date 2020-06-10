@@ -40,6 +40,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -140,6 +141,14 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
 
+        final CountDownLatch regionLatch = new CountDownLatch(1);
+        final CountDownLatch nationLatch = new CountDownLatch(1);
+        final CountDownLatch ordersLatch = new CountDownLatch(1);
+        final CountDownLatch customerLatch = new CountDownLatch(1);
+        final CountDownLatch partsLatch = new CountDownLatch(1);
+        final CountDownLatch supplierLatch = new CountDownLatch(1);
+        final CountDownLatch partsSuppLatch = new CountDownLatch(1);
+
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -147,6 +156,20 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                     loadTable(conn, statement, "Customer", customerTypes);
                 }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    nationLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                customerLatch.countDown();
             }
         });
 
@@ -157,6 +180,16 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
                     loadTable(conn, statement, "LineItem", lineitemTypes);
+                }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    ordersLatch.await();
+                    partsSuppLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -170,6 +203,20 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     loadTable(conn, statement, "Nation", nationTypes);
                 }
             }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    regionLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                nationLatch.countDown();
+            }
         });
 
 
@@ -180,6 +227,20 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                     loadTable(conn, statement, "orders", ordersTypes);
                 }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    customerLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                ordersLatch.countDown();
             }
         });
 
@@ -193,17 +254,36 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 }
 
             }
+
+            @Override
+            public void afterLoad() {
+                partsLatch.countDown();
+            }
         });
 
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO partsupp " + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost," + " ps_comment) " + "VALUES (?, ?, ?, ?, ?)")) {
 
                     loadTable(conn, statement, "partsupp", partsuppTypes);
                 }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    partsLatch.await();
+                    supplierLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                partsSuppLatch.countDown();
             }
         });
 
@@ -216,6 +296,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     loadTable(conn, statement, "Region", regionTypes);
                 }
             }
+
+            @Override
+            public void afterLoad() {
+                regionLatch.countDown();
+            }
         });
 
 
@@ -226,6 +311,20 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
                     loadTable(conn, statement, "Supplier", supplierTypes);
                 }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    nationLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                supplierLatch.countDown();
             }
         });
 

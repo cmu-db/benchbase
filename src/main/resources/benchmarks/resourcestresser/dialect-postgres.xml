@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <dialects>
-    <dialect type="Postgres">
+    <dialect type="POSTGRES">
         <procedure name="Contention1">
             <statement name="lockSleep">
                 SELECT PG_SLEEP(?)
