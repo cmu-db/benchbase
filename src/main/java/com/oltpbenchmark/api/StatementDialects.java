@@ -146,7 +146,7 @@ public class StatementDialects {
                 continue;
             }
 
-
+            // For each Procedure in the XML file, go through its list of Statements
             // and populate our dialects map with the mapped SQL
             for (ProcedureType procedure : dialect.getProcedure()) {
                 String procName = procedure.getName();
