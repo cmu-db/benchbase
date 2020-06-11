@@ -795,47 +795,49 @@ public class AuctionMarkProfile {
         }
 
         long remaining = itemInfo.getEndDate().getTime() - baseTime.getTime();
-        ItemStatus new_status = (itemInfo.getStatus() != null ? itemInfo.getStatus() : ItemStatus.OPEN);
-        // Already ended
-        if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
-            if (itemInfo.getNumBids() > 0 && itemInfo.getStatus() != ItemStatus.CLOSED) {
+
+
+        ItemStatus existingStatus = itemInfo.getStatus();
+        ItemStatus new_status = (existingStatus != null ? existingStatus : ItemStatus.OPEN);
+
+        if (remaining < AuctionMarkConstants.ITEM_ENDING_SOON) {
+            // About to end soon
+            new_status = ItemStatus.ENDING_SOON;
+        } else if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
+            // Already ended
+            if (itemInfo.getNumBids() > 0 && existingStatus != ItemStatus.CLOSED) {
                 new_status = ItemStatus.WAITING_FOR_PURCHASE;
             } else {
                 new_status = ItemStatus.CLOSED;
             }
         }
-        // About to end soon
-        else if (remaining < AuctionMarkConstants.ITEM_ENDING_SOON) {
-            new_status = ItemStatus.ENDING_SOON;
-        }
 
-        if (!new_status.equals(itemInfo.getStatus())) {
-            if (itemInfo.getStatus() != null) {
-                switch (new_status) {
-                    case OPEN:
-                        this.addItem(this.items_available, itemInfo);
-                        break;
-                    case ENDING_SOON:
+
+        if (!new_status.equals(existingStatus)) {
+            switch (new_status) {
+                case OPEN:
+                    this.addItem(this.items_available, itemInfo);
+                    break;
+                case ENDING_SOON:
+                    this.items_available.remove(itemInfo);
+                    this.addItem(this.items_endingSoon, itemInfo);
+                    break;
+                case WAITING_FOR_PURCHASE:
+                    (existingStatus == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
+                    this.addItem(this.items_waitingForPurchase, itemInfo);
+                    break;
+                case CLOSED:
+                    if (existingStatus == ItemStatus.OPEN) {
                         this.items_available.remove(itemInfo);
-                        this.addItem(this.items_endingSoon, itemInfo);
-                        break;
-                    case WAITING_FOR_PURCHASE:
-                        (itemInfo.getStatus() == ItemStatus.OPEN ? this.items_available : this.items_endingSoon).remove(itemInfo);
-                        this.addItem(this.items_waitingForPurchase, itemInfo);
-                        break;
-                    case CLOSED:
-                        if (itemInfo.getStatus() == ItemStatus.OPEN) {
-                            this.items_available.remove(itemInfo);
-                        } else if (itemInfo.getStatus() == ItemStatus.ENDING_SOON) {
-                            this.items_endingSoon.remove(itemInfo);
-                        } else {
-                            this.items_waitingForPurchase.remove(itemInfo);
-                        }
-                        this.addItem(this.items_completed, itemInfo);
-                        break;
-                    default:
+                    } else if (existingStatus == ItemStatus.ENDING_SOON) {
+                        this.items_endingSoon.remove(itemInfo);
+                    } else {
+                        this.items_waitingForPurchase.remove(itemInfo);
+                    }
+                    this.addItem(this.items_completed, itemInfo);
+                    break;
+                default:
 
-                }
             }
             itemInfo.setStatus(new_status);
         }
