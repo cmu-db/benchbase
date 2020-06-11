@@ -20,7 +20,6 @@ package com.oltpbenchmark;
 import com.oltpbenchmark.util.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -48,18 +47,13 @@ public class Phase {
     private int nextSerial;
 
 
-    Phase(String benchmarkName, int id, int t, int wt, int r, List<String> o, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
-        ArrayList<Double> w = new ArrayList<>();
-        for (String s : o) {
-            w.add(Double.parseDouble(s));
-        }
-
+    Phase(String benchmarkName, int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
         this.benchmarkName = benchmarkName;
         this.id = id;
         this.time = t;
         this.warmupTime = wt;
         this.rate = r;
-        this.weights = Collections.unmodifiableList(w);
+        this.weights = weights;
         this.num_weights = this.weights.size();
         this.rateLimited = rateLimited;
         this.disabled = disabled;

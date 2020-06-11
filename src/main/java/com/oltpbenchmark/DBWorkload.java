@@ -348,7 +348,24 @@ public class DBWorkload {
                     System.exit(-1);
                 }
 
-                wrkld.addWork(time, warmup, rate, weight_strings, rateLimited, disabled, serial, timed, activeTerminals, arrival);
+                ArrayList<Double> weights = new ArrayList<>();
+
+                double totalWeight = 0;
+
+                for (String weightString : weight_strings) {
+                    double weight = Double.parseDouble(weightString);
+                    totalWeight += weight;
+                    weights.add(weight);
+                }
+
+                long roundedWeight = Math.round(totalWeight);
+
+                if (roundedWeight != 100) {
+                    LOG.warn("rounded weight [{}] does not equal 100.  Original weight is [{}]", roundedWeight, totalWeight);
+                }
+
+
+                wrkld.addWork(time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
             }
 
             // CHECKING INPUT PHASES
