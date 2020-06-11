@@ -800,16 +800,12 @@ public class AuctionMarkProfile {
         ItemStatus existingStatus = itemInfo.getStatus();
         ItemStatus new_status = (existingStatus != null ? existingStatus : ItemStatus.OPEN);
 
-        if (remaining < AuctionMarkConstants.ITEM_ENDING_SOON) {
-            // About to end soon
+        if (remaining <= 0) {
+            new_status = ItemStatus.CLOSED;
+        } else if (remaining < AuctionMarkConstants.ITEM_ENDING_SOON) {
             new_status = ItemStatus.ENDING_SOON;
-        } else if (remaining <= AuctionMarkConstants.ITEM_ALREADY_ENDED) {
-            // Already ended
-            if (itemInfo.getNumBids() > 0 && existingStatus != ItemStatus.CLOSED) {
-                new_status = ItemStatus.WAITING_FOR_PURCHASE;
-            } else {
-                new_status = ItemStatus.CLOSED;
-            }
+        } else if (itemInfo.getNumBids() > 0 && existingStatus != ItemStatus.CLOSED) {
+            new_status = ItemStatus.WAITING_FOR_PURCHASE;
         }
 
 

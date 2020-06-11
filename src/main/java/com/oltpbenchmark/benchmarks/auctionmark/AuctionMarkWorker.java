@@ -337,7 +337,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         } else {
             txn = Transaction.get(txnType.getProcedureClass());
             if (!txn.canExecute(this)) {
-                LOG.trace("Unable to execute {} because it is not ready", txn);
+                LOG.trace("Unable to execute {} because it is not ready.  Will RETRY_DIFFERENT.", txn);
                 return (TransactionStatus.RETRY_DIFFERENT);
             }
         }

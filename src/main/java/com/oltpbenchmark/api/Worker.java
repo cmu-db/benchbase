@@ -59,6 +59,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private final Histogram<TransactionType> txnAbort = new Histogram<>();
     private final Histogram<TransactionType> txnRetry = new Histogram<>();
     private final Histogram<TransactionType> txnErrors = new Histogram<>();
+    private final Histogram<TransactionType> txtRetryDifffernt = new Histogram<>();
 
     private boolean seenDone = false;
 
@@ -145,6 +146,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
+    }
+    public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
+        return (this.txtRetryDifffernt);
     }
 
     /**
@@ -405,7 +409,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             this.txnRetry.put(transactionType);
                             break;
                         case RETRY_DIFFERENT:
-                            LOG.debug(String.format("Transaction returned RETRY_DIFFERENT by design [%s]", transactionType));
+                            this.txtRetryDifffernt.put(transactionType);
                             break;
                         case ERROR:
                             this.txnErrors.put(transactionType);

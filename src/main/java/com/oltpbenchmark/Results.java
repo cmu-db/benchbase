@@ -34,9 +34,10 @@ public final class Results {
     public final int measuredRequests;
     public final DistributionStatistics latencyDistribution;
     final Histogram<TransactionType> txnSuccess = new Histogram<>(true);
-    final Histogram<TransactionType> txnAbort = new Histogram<>(true);
-    final Histogram<TransactionType> txnRetry = new Histogram<>(true);
-    final Histogram<TransactionType> txnErrors = new Histogram<>(true);
+    final Histogram<TransactionType> txnAbort = new Histogram<>(false);
+    final Histogram<TransactionType> txnRetry = new Histogram<>(false);
+    final Histogram<TransactionType> txnErrors = new Histogram<>(false);
+    final Histogram<TransactionType> txnRetryDifferent = new Histogram<>(false);
     final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<>();
 
     public final List<LatencyRecord.Sample> latencySamples;
@@ -73,6 +74,9 @@ public final class Results {
 
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
+    }
+    public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
+        return (this.txnRetryDifferent);
     }
 
     public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {

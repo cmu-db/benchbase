@@ -498,6 +498,8 @@ public class DBWorkload {
 
         sb.append(StringUtil.bold("Rejected Transactions (Server Retry):")).append("\n").append(r.getTransactionRetryHistogram()).append("\n\n");
 
+        sb.append(StringUtil.bold("Rejected Transactions (Retry Different):")).append("\n").append(r.getTransactionRetryDifferentHistogram()).append("\n\n");
+
         sb.append(StringUtil.bold("Unexpected Errors:")).append("\n").append(r.getTransactionErrorHistogram());
 
         if (!r.getTransactionAbortMessageHistogram().isEmpty()) {
