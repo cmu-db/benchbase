@@ -33,6 +33,7 @@ import com.oltpbenchmark.util.TextGenerator;
 import com.oltpbenchmark.util.TimeUtil;
 
 import java.sql.Connection;
+import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -98,6 +99,45 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         final CountDownLatch userPageLatch = new CountDownLatch(numUserThreads + numPageThreads);
 
+        final CountDownLatch anonUserLatch = new CountDownLatch(1);
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
+
+                String sql = SQLUtil.getInsertSQL(catalog_tbl, benchmark.getWorkloadConfiguration().getDBType());
+
+                // load anonymous user
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    int param = 1;
+                    stmt.setInt(param++, WikipediaConstants.ANONYMOUS_USER_ID); // user_id
+                    stmt.setString(param++, "Anonymous"); // user_name
+                    stmt.setString(param++, ""); // user_real_name
+                    stmt.setString(param++, ""); // user_password
+                    stmt.setString(param++, ""); // user_newpassword
+                    stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_newpass_time
+                    stmt.setString(param++, ""); // user_email
+                    stmt.setString(param++, ""); // user_options
+                    stmt.setString(param++, ""); // user_touched
+                    stmt.setString(param++, ""); // user_token
+                    stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_authenticated
+                    stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_token
+                    stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_email_token_expires
+                    stmt.setNull(param++, JDBCType.VARCHAR.getVendorTypeNumber()); // user_registration
+                    stmt.setInt(param, 0); // user_editcount
+
+                    stmt.executeUpdate();
+                }
+
+            }
+
+            @Override
+            public void afterLoad() {
+                anonUserLatch.countDown();
+            }
+        });
+
+
         // USERS
         for (int i = 0; i < numUserThreads; i++) {
             // load USERS[lo, hi]
@@ -115,6 +155,16 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 public void afterLoad() {
                     userPageLatch.countDown();
                 }
+
+                @Override
+                public void beforeLoad() {
+                    try {
+                        anonUserLatch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
             });
         }
 
@@ -128,12 +178,21 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadPages(conn, lo, hi);
-
                 }
 
                 @Override
                 public void afterLoad() {
                     userPageLatch.countDown();
+                }
+
+                @Override
+                public void beforeLoad() {
+                    try {
+                        anonUserLatch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             });
         }
@@ -144,7 +203,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-
                 loadWatchlist(conn);
             }
 
@@ -163,7 +221,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-
                 loadRevision(conn);
             }
 
@@ -187,8 +244,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
 
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
 
             Random rand = new Random();
