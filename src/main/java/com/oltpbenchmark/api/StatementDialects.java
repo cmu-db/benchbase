@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.dialects.*;
 import com.oltpbenchmark.types.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
@@ -58,7 +59,11 @@ public class StatementDialects {
     public StatementDialects(WorkloadConfiguration workloadConfiguration) {
         this.workloadConfiguration = workloadConfiguration;
 
-        this.load();
+        try {
+            this.load();
+        } catch (JAXBException | SAXException e) {
+            throw new RuntimeException(String.format("Error loading dialect: %s", e.getMessage()), e);
+        }
     }
 
 
@@ -102,7 +107,7 @@ public class StatementDialects {
      *
      * @return
      */
-    protected boolean load() {
+    protected boolean load() throws JAXBException, SAXException {
         final DatabaseType dbType = workloadConfiguration.getDBType();
 
         final String sqlDialectPath = getSQLDialectPath(dbType);
@@ -116,23 +121,17 @@ public class StatementDialects {
 
 
         // COPIED FROM VoltDB's VoltCompiler.java
-        DialectsType dialects = null;
+        JAXBContext jc = JAXBContext.newInstance(xmlContext);
+        // This schema shot the sheriff.
+        SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = sf.newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("dialect.xsd")));
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        // But did not shoot unmarshaller!
+        unmarshaller.setSchema(schema);
 
-        try (InputStream dialectStream = this.getClass().getClassLoader().getResourceAsStream(sqlDialectPath)) {
-
-            JAXBContext jc = JAXBContext.newInstance(xmlContext);
-            // This schema shot the sheriff.
-            SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = sf.newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("dialect.xsd")));
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            // But did not shoot unmarshaller!
-            unmarshaller.setSchema(schema);
-            JAXBElement<DialectsType> result = (JAXBElement<DialectsType>) unmarshaller.unmarshal(dialectStream);
-            dialects = result.getValue();
-
-        } catch (Exception ex) {
-            throw new RuntimeException(String.format("Error loading dialectg %s - %s", sqlDialectPath, ex.getMessage()), ex);
-        }
+        StreamSource streamSource = new StreamSource(this.getClass().getClassLoader().getResourceAsStream(sqlDialectPath));
+        JAXBElement<DialectsType> result = unmarshaller.unmarshal(streamSource, DialectsType.class);
+        DialectsType dialects = result.getValue();
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Loading the SQL dialect file for path {}", sqlDialectPath);
