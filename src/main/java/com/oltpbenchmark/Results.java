@@ -33,14 +33,13 @@ public final class Results {
     public final long nanoSeconds;
     public final int measuredRequests;
     public final DistributionStatistics latencyDistribution;
+    public final List<LatencyRecord.Sample> latencySamples;
     final Histogram<TransactionType> txnSuccess = new Histogram<>(true);
     final Histogram<TransactionType> txnAbort = new Histogram<>(false);
     final Histogram<TransactionType> txnRetry = new Histogram<>(false);
     final Histogram<TransactionType> txnErrors = new Histogram<>(false);
     final Histogram<TransactionType> txnRetryDifferent = new Histogram<>(false);
     final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<>();
-
-    public final List<LatencyRecord.Sample> latencySamples;
 
     public Results(long nanoSeconds, int measuredRequests, DistributionStatistics latencyDistribution, final List<LatencyRecord.Sample> latencySamples) {
         this.nanoSeconds = nanoSeconds;
@@ -75,6 +74,7 @@ public final class Results {
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
     }
+
     public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
         return (this.txnRetryDifferent);
     }
