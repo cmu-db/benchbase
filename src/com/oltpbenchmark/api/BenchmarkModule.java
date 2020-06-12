@@ -53,14 +53,14 @@ public abstract class BenchmarkModule {
      * in this directory.
      */
     public static final String DDLS_DIR = "ddls";
-   
+
 
     /**
      * Each dialect xml file  must put their all of the DBMS-specific DIALECTs
      * in this directory.
      */
     public static final String DIALECTS_DIR = "dialects";
-   
+
     /**
      * The identifier for this benchmark
      */
@@ -106,7 +106,7 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
-     * 
+     *
      * @return
      * @throws SQLException
      */
@@ -135,7 +135,7 @@ public abstract class BenchmarkModule {
      * dataset into the database. The Connection handle will already be
      * configured for you, and the base class will commit+close it once this
      * method returns
-     * 
+     *
      * @return TODO
      * @throws SQLException
      */
@@ -159,7 +159,7 @@ public abstract class BenchmarkModule {
     }
 
     /**
-     * 
+     *
      * @return
      */
     public URL getDatabaseDDL() {
@@ -169,8 +169,8 @@ public abstract class BenchmarkModule {
     /**
      * Return the URL handle to the DDL used to load the benchmark's database
      * schema.
-     * @param conn 
-     * @throws SQLException 
+     * @param conn
+     * @throws SQLException
      */
     public URL getDatabaseDDL(DatabaseType db_type) {
         String ddlNames[] = {
@@ -203,20 +203,20 @@ public abstract class BenchmarkModule {
 
     /**
      * Return the File handle to the SQL Dialect XML file
-     * used for this benchmark 
+     * used for this benchmark
      * @return
      */
     public File getSQLDialect(DatabaseType db_type) {
-       
+
         // String xmlName = this.benchmarkName + "-dialects.xml";
         // URL ddlURL = this.getClass().getResource(xmlName);
         String xmlNames[] = {
             (db_type != null ? db_type.name().toLowerCase() : "") + "-dialects.xml",
-            
+
             // TODO: We need to remove this!
             this.benchmarkName + "-dialects.xml",
         };
-        for(String xmlName : xmlNames) { 
+        for(String xmlName : xmlNames) {
             URL ddlURL = this.getClass().getResource( DIALECTS_DIR + File.separator + xmlName);
             if (ddlURL != null) {
                 try {
@@ -237,8 +237,8 @@ public abstract class BenchmarkModule {
 
     /**
      * Create the Benchmark Database
-     * This is the main method used to create all the database 
-     * objects (e.g., table, indexes, etc) needed for this benchmark 
+     * This is the main method used to create all the database
+     * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
         try {
@@ -252,8 +252,8 @@ public abstract class BenchmarkModule {
 
     /**
      * Create the Benchmark Database
-     * This is the main method used to create all the database 
-     * objects (e.g., table, indexes, etc) needed for this benchmark 
+     * This is the main method used to create all the database
+     * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException {
         try {
@@ -298,17 +298,27 @@ public abstract class BenchmarkModule {
             if (loader != null) {
                 List<? extends LoaderThread> loaderThreads = loader.createLoaderThreads();
                 if (loaderThreads != null) {
-                    int maxConcurrent = workConf.getLoaderThreads();
-                    assert (maxConcurrent > 0);
-                    if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]",
-                                loaderThreads.size(),
-                                loader.getClass().getSimpleName(),
-                                maxConcurrent));
-                    ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
+                    try{
+                        int maxConcurrent = workConf.getLoaderThreads();
+                        assert (maxConcurrent > 0);
+                        if (LOG.isDebugEnabled())
+                            LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]",
+                                    loaderThreads.size(),
+                                    loader.getClass().getSimpleName(),
+                                    maxConcurrent));
+                        ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
 
-                    if (loader.getTableCounts().isEmpty() == false) {
-                        LOG.info("Table Counts:\n" + loader.getTableCounts());
+                        if (loader.getTableCounts().isEmpty() == false) {
+                            LOG.info("Table Counts:\n" + loader.getTableCounts());
+                        }
+                    } catch (Exception ex){
+                        String msg = String.format("Unexpected error when trying to load the %s database",
+                                this.benchmarkName.toUpperCase());
+                        throw new RuntimeException(msg, ex);
+                    } finally {
+                        for (LoaderThread t : loaderThreads) {
+                            t.getConnection().close();
+                        }
                     }
                 }
             }
@@ -358,7 +368,7 @@ public abstract class BenchmarkModule {
     }
     /**
      * Get the catalog object for the given table name
-     * 
+     *
      * @param tableName
      * @return
      */
@@ -367,7 +377,7 @@ public abstract class BenchmarkModule {
         assert (catalog_tbl != null) : "Invalid table name '" + tableName + "'";
         return (catalog_tbl);
     }
-    
+
     /**
      * Return the StatementDialects loaded for this benchmark
      */
@@ -379,7 +389,7 @@ public abstract class BenchmarkModule {
         return benchmarkName.toUpperCase();
     }
 
-    
+
     /**
      * Initialize a TransactionType handle for the get procedure name and id
      * This should only be invoked a start-up time
@@ -443,7 +453,7 @@ public abstract class BenchmarkModule {
     }
 
     /**
-     * 
+     *
      * @param procClass
      */
     public final void registerSupplementalProcedure(Class<? extends Procedure> procClass) {
