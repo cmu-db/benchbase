@@ -7,25 +7,25 @@ See also: [OLTP-Bench: An extensible testbed for benchmarking relational databas
 ## Benchmarks
 
 ### From Original Paper
-* [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
-* [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en) - a mixed workload based on `TPC-C` and `TPC-H`
-* Epinions.com
-* Synthetic Resource Stresser 
-* [SEATS](http://hstore.cs.brown.edu/projects/seats)
-* [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf)
-* [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
-* [TATP](http://tatpbenchmark.sourceforge.net/)
-* [TPC-C](http://www.tpc.org/tpcc/)
-* Twitter
-* [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
-* Wikipedia
-* [YCSB](https://github.com/brianfrankcooper/YCSB)
+* [AuctionMark](https://github.com/timveil-cockroach/oltpbench/wiki/AuctionMark)
+* [CH-benCHmark](https://github.com/timveil-cockroach/oltpbench/wiki/CH-benCHmark)
+* [Epinions.com](https://github.com/timveil-cockroach/oltpbench/wiki/epinions)
+* [Resource Stresser](https://github.com/timveil-cockroach/oltpbench/wiki/Resource-Stresser)
+* [SEATS](https://github.com/timveil-cockroach/oltpbench/wiki/Seats)
+* [SIBench](https://github.com/timveil-cockroach/oltpbench/wiki/SIBench)
+* [SmallBank](https://github.com/timveil-cockroach/oltpbench/wiki/SmallBank)
+* [TATP](https://github.com/timveil-cockroach/oltpbench/wiki/TATP)
+* [TPC-C](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-C)
+* [Twitter](https://github.com/timveil-cockroach/oltpbench/wiki/Twitter)
+* [Voter](https://github.com/timveil-cockroach/oltpbench/wiki/Voter)
+* [Wikipedia](https://github.com/timveil-cockroach/oltpbench/wiki/Wikipedia)
+* [YCSB](https://github.com/timveil-cockroach/oltpbench/wiki/YCSB)
 
 ### Added Later
-* [TPC-H](http://www.tpc.org/tpch)
-* [TPC-DS](http://www.tpc.org/tpcds)
-* hyadapt
-* NoOp
+* [TPC-H](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-H)
+* TPC-DS - no configuration
+* hyadapt - no configuration
+* [NoOp](https://github.com/timveil-cockroach/oltpbench/wiki/NoOp)
 
 ### Removed
 * JPAB - this project appears abandoned and hasn't seen an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
