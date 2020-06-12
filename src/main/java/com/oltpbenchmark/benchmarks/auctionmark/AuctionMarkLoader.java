@@ -58,7 +58,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      */
     private final Map<String, AbstractTableGenerator> generators = Collections.synchronizedMap(new ListOrderedMap<>());
 
-    private final Collection<String> sub_generators = new HashSet<>();
 
     /**
      * The set of tables that we have finished loading
@@ -200,7 +199,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         this.generators.put(generator.getTableName(), generator);
         for (AbstractTableGenerator sub_generator : generator.getSubTableGenerators()) {
             this.registerGenerator(sub_generator);
-            this.sub_generators.add(sub_generator.getTableName());
         }
     }
 
@@ -1308,8 +1306,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             if (remaining == 0) {
                 this.bid.setMaxBid(itemInfo.getCurrentPrice());
-                if (itemInfo.getPurchaseDate() != null) {
-                }
             } else {
                 this.bid.setMaxBid(last_bid + this.currentBidPriceAdvanceStep);
             }

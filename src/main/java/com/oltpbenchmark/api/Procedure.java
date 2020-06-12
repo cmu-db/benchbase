@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
@@ -39,7 +38,6 @@ public abstract class Procedure {
     private final String procName;
     private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
-    private final Map<SQLStmt, String> stmt_name_xref = new HashMap<>();
 
     /**
      * Constructor
@@ -59,9 +57,7 @@ public abstract class Procedure {
     protected final <T extends Procedure> T initialize(DatabaseType dbType) {
         this.dbType = dbType;
         this.name_stmt_xref = Procedure.getStatements(this);
-        for (Entry<String, SQLStmt> e : this.name_stmt_xref.entrySet()) {
-            this.stmt_name_xref.put(e.getValue(), e.getKey());
-        }
+
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Initialized %s with %d SQLStmts: %s",
                     this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));

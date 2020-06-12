@@ -95,16 +95,6 @@ public class Histogram<X> implements JSONSerializable {
         this.keep_zero_entries = keepZeroEntries;
     }
 
-    /**
-     * Copy Constructor
-     *
-     * @param other
-     */
-    public Histogram(Histogram<X> other) {
-
-        this.putHistogram(other);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Histogram<?>) {

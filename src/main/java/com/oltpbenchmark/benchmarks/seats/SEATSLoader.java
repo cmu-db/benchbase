@@ -751,8 +751,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         else if (name.equals(SEATSConstants.TABLENAME_RESERVATION)) {
             long total = Math.round((SEATSConstants.FLIGHTS_PER_DAY_MIN + SEATSConstants.FLIGHTS_PER_DAY_MAX) / 2d * scaleFactor);
             it = new ReservationIterable(catalog_tbl, total);
-        } else {
-
         }
 
         return (it);

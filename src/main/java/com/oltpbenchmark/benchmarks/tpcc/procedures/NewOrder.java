@@ -132,30 +132,38 @@ public class NewOrder extends TPCCProcedure {
 
         newOrderTransaction(terminalWarehouseID, districtID,
                 customerID, numItems, allLocal, itemIDs,
-                supplierWarehouseIDs, orderQuantities, conn, w);
+                supplierWarehouseIDs, orderQuantities, conn);
 
     }
 
 
     private void newOrderTransaction(int w_id, int d_id, int c_id,
                                      int o_ol_cnt, int o_all_local, int[] itemIDs,
-                                     int[] supplierWarehouseIDs, int[] orderQuantities, Connection conn, TPCCWorker w)
+                                     int[] supplierWarehouseIDs, int[] orderQuantities, Connection conn)
             throws SQLException {
-        float c_discount, w_tax, d_tax = 0, i_price;
-        int d_next_o_id, o_id = -1, s_quantity;
-        String c_last = null, c_credit = null, i_name, i_data, s_data;
-        String s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05;
-        String s_dist_06, s_dist_07, s_dist_08, s_dist_09, s_dist_10, ol_dist_info = null;
-        float[] itemPrices = new float[o_ol_cnt];
-        float[] orderLineAmounts = new float[o_ol_cnt];
-        String[] itemNames = new String[o_ol_cnt];
-        int[] stockQuantities = new int[o_ol_cnt];
-        char[] brandGeneric = new char[o_ol_cnt];
-        int ol_supply_w_id, ol_i_id, ol_quantity;
-        int s_remote_cnt_increment;
-        float ol_amount, total_amount = 0;
+        float i_price;
+        int d_next_o_id;
+        int o_id;
+        int s_quantity;
+        String s_dist_01;
+        String s_dist_02;
+        String s_dist_03;
+        String s_dist_04;
+        String s_dist_05;
+        String s_dist_06;
+        String s_dist_07;
+        String s_dist_08;
+        String s_dist_09;
+        String s_dist_10;
+        String ol_dist_info = null;
 
-       try (PreparedStatement stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL);
+        int ol_supply_w_id;
+        int ol_i_id;
+        int ol_quantity;
+        int s_remote_cnt_increment;
+        float ol_amount;
+
+        try (PreparedStatement stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL);
         PreparedStatement  stmtGetWhse = this.getPreparedStatement(conn, stmtGetWhseSQL);
         PreparedStatement stmtGetDist = this.getPreparedStatement(conn, stmtGetDistSQL);
         PreparedStatement stmtInsertNewOrder = this.getPreparedStatement(conn, stmtInsertNewOrderSQL);
@@ -176,9 +184,6 @@ public class NewOrder extends TPCCProcedure {
                        throw new RuntimeException("C_D_ID=" + d_id
                                + " C_ID=" + c_id + " not found!");
                    }
-                   c_discount = rs.getFloat("C_DISCOUNT");
-                   c_last = rs.getString("C_LAST");
-                   c_credit = rs.getString("C_CREDIT");
                }
 
                stmtGetWhse.setInt(1, w_id);
@@ -186,7 +191,6 @@ public class NewOrder extends TPCCProcedure {
                    if (!rs.next()) {
                        throw new RuntimeException("W_ID=" + w_id + " not found!");
                    }
-                   w_tax = rs.getFloat("W_TAX");
                }
 
                stmtGetDist.setInt(1, w_id);
@@ -197,7 +201,6 @@ public class NewOrder extends TPCCProcedure {
                                + " not found!");
                    }
                    d_next_o_id = rs.getInt("D_NEXT_O_ID");
-                   d_tax = rs.getFloat("D_TAX");
                }
 
                //woonhak, need to change order because of foreign key constraints
@@ -248,12 +251,8 @@ public class NewOrder extends TPCCProcedure {
                        }
 
                        i_price = rs.getFloat("I_PRICE");
-                       i_name = rs.getString("I_NAME");
-                       i_data = rs.getString("I_DATA");
                    }
 
-                   itemPrices[ol_number - 1] = i_price;
-                   itemNames[ol_number - 1] = i_name;
 
 
                    stmtGetStock.setInt(1, ol_i_id);
@@ -264,7 +263,6 @@ public class NewOrder extends TPCCProcedure {
                                    + " not found!");
                        }
                        s_quantity = rs.getInt("S_QUANTITY");
-                       s_data = rs.getString("S_DATA");
                        s_dist_01 = rs.getString("S_DIST_01");
                        s_dist_02 = rs.getString("S_DIST_02");
                        s_dist_03 = rs.getString("S_DIST_03");
@@ -276,8 +274,6 @@ public class NewOrder extends TPCCProcedure {
                        s_dist_09 = rs.getString("S_DIST_09");
                        s_dist_10 = rs.getString("S_DIST_10");
                    }
-
-                   stockQuantities[ol_number - 1] = s_quantity;
 
                    if (s_quantity - ol_quantity >= 10) {
                        s_quantity -= ol_quantity;
@@ -300,15 +296,7 @@ public class NewOrder extends TPCCProcedure {
                    stmtUpdateStock.addBatch();
 
                    ol_amount = ol_quantity * i_price;
-                   orderLineAmounts[ol_number - 1] = ol_amount;
-                   total_amount += ol_amount;
 
-                   if (i_data.contains("ORIGINAL")
-                           && s_data.contains("ORIGINAL")) {
-                       brandGeneric[ol_number - 1] = 'B';
-                   } else {
-                       brandGeneric[ol_number - 1] = 'G';
-                   }
 
                    switch (d_id) {
                        case 1:
@@ -359,7 +347,6 @@ public class NewOrder extends TPCCProcedure {
                stmtInsertOrderLine.executeBatch();
                stmtUpdateStock.executeBatch();
 
-               total_amount *= (1 + w_tax + d_tax) * (1 - c_discount);
            } catch (UserAbortException userEx) {
                LOG.debug("Caught an expected error in New Order");
                throw userEx;

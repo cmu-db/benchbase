@@ -78,7 +78,7 @@ public class OrderStatus extends TPCCProcedure {
              PreparedStatement ordStatGetOrderLines = this.getPreparedStatement(conn, ordStatGetOrderLinesSQL)) {
 
             int d_id = TPCCUtil.randomNumber(terminalDistrictLowerID, terminalDistrictUpperID, gen);
-            boolean c_by_name = false;
+            boolean c_by_name;
             int y = TPCCUtil.randomNumber(1, 100, gen);
             String c_last = null;
             int c_id = -1;
@@ -90,7 +90,8 @@ public class OrderStatus extends TPCCProcedure {
                 c_id = TPCCUtil.getCustomerID(gen);
             }
 
-            int o_id = -1, o_carrier_id = -1;
+            int o_id;
+            int o_carrier_id;
             Timestamp o_entry_d;
             ArrayList<String> orderLines = new ArrayList<>();
 

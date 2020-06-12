@@ -240,7 +240,7 @@ public class Delivery extends TPCCProcedure {
                 delivUpdateCustBalDelivCnt.setBigDecimal(idx++, BigDecimal.valueOf(ol_total));
                 delivUpdateCustBalDelivCnt.setInt(idx++, w_id);
                 delivUpdateCustBalDelivCnt.setInt(idx++, d_id);
-                delivUpdateCustBalDelivCnt.setInt(idx++, c_id);
+                delivUpdateCustBalDelivCnt.setInt(idx, c_id);
                 if (trace) {
                     LOG.trace("delivUpdateCustBalDelivCnt START");
                 }

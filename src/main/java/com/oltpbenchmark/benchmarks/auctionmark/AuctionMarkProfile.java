@@ -905,13 +905,7 @@ public class AuctionMarkProfile {
         // This is so that we can maintain MRU->LRU ordering
         itemSet.remove(idx);
         itemSet.addFirst(itemInfo);
-        if (needCurrentPrice) {
 
-
-        }
-        if (needFutureEndDate) {
-
-        }
         return itemInfo;
     }
 
