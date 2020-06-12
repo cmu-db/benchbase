@@ -90,7 +90,7 @@ public class StatementDialects {
                 LOG.error(e.getMessage(), e);
             }
 
-            LOG.warn("Failed to find dialect file for {}", path);
+            LOG.debug("No dialect file in {}", path);
         }
 
 
@@ -108,7 +108,7 @@ public class StatementDialects {
         final String sqlDialectPath = getSQLDialectPath(dbType);
 
         if (sqlDialectPath == null) {
-            LOG.warn("SKIP - No SQL dialect file was given.");
+            LOG.info("SKIP - No SQL dialect file was given.");
             return (false);
         }
 
