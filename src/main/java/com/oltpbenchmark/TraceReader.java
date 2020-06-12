@@ -34,29 +34,10 @@ import java.util.ListIterator;
  */
 public class TraceReader {
     private static final Logger LOG = LoggerFactory.getLogger(TraceReader.class);
-
-    // POD for tracking submitted/read procedures.
-    private static class TraceElement {
-        int txnId;
-        int phaseId;
-        long startTimeNs;
-
-        public TraceElement(int txnId, int phaseId, long startTimeNs) {
-            this.txnId = txnId;
-            this.phaseId = phaseId;
-            this.startTimeNs = startTimeNs;
-        }
-    }
-
     private final LinkedList<TraceElement> tracedProcedures = new LinkedList<>();
     private int currentPhaseId;
     private long phaseStartTime;
     private boolean phaseComplete;
-
-    public boolean getPhaseComplete() {
-        return phaseComplete;
-    }
-
     /**
      * Takes as input a trace file (.raw file from a previous run), and stores
      * the transaction id, phase id, and transaction start time for each one.
@@ -131,6 +112,10 @@ public class TraceReader {
         }
     }
 
+    public boolean getPhaseComplete() {
+        return phaseComplete;
+    }
+
     /**
      * Returns a list of procedures that should be submitted to the work queue.
      */
@@ -179,7 +164,7 @@ public class TraceReader {
         // Should only change the phase if our list indicates that there are no
         // remaining procedures from earlier phases.
         TraceElement head = tracedProcedures.peek();
-        if (head.phaseId < newPhaseId) {
+        if (head != null && head.phaseId < newPhaseId) {
             LOG.error("Changing to phase {} but head procedure is from phase{}.", newPhaseId, head.phaseId);
             System.exit(1);
         }
@@ -206,5 +191,18 @@ public class TraceReader {
         }
 
         return sb.toString();
+    }
+
+    // POD for tracking submitted/read procedures.
+    private static class TraceElement {
+        int txnId;
+        int phaseId;
+        long startTimeNs;
+
+        public TraceElement(int txnId, int phaseId, long startTimeNs) {
+            this.txnId = txnId;
+            this.phaseId = phaseId;
+            this.startTimeNs = startTimeNs;
+        }
     }
 }

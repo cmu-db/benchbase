@@ -20,30 +20,18 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.util.StringUtil;
 import com.oltpbenchmark.util.ThreadUtil;
-import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.configuration2.XMLConfiguration;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class WorkloadConfiguration {
 
+    private final List<Phase> works = new ArrayList<>();
     private DatabaseType db_type;
     private String benchmarkName;
-
-    public String getBenchmarkName() {
-        return benchmarkName;
-    }
-
-    public void setBenchmarkName(String benchmarkName) {
-        this.benchmarkName = benchmarkName;
-    }
-
     private String db_connection;
     private String db_username;
     private String db_password;
@@ -56,6 +44,20 @@ public class WorkloadConfiguration {
     private int loaderThreads = ThreadUtil.availableProcessors();
     private int numTxnTypes;
     private TraceReader traceReader = null;
+    private XMLConfiguration xmlConfig = null;
+    private WorkloadState workloadState;
+    private int numberOfPhases = 0;
+    private TransactionTypes transTypes = null;
+    private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
+    private String dataDir = null;
+
+    public String getBenchmarkName() {
+        return benchmarkName;
+    }
+
+    public void setBenchmarkName(String benchmarkName) {
+        this.benchmarkName = benchmarkName;
+    }
 
     public TraceReader getTraceReader() {
         return traceReader;
@@ -64,11 +66,6 @@ public class WorkloadConfiguration {
     public void setTraceReader(TraceReader traceReader) {
         this.traceReader = traceReader;
     }
-
-    private XMLConfiguration xmlConfig = null;
-
-    private final List<Phase> works = new ArrayList<>();
-    private WorkloadState workloadState;
 
     public WorkloadState getWorkloadState() {
         return workloadState;
@@ -83,43 +80,33 @@ public class WorkloadConfiguration {
         return workloadState;
     }
 
-    private int numberOfPhases = 0;
-    private TransactionTypes transTypes = null;
-    private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
-    private String dataDir = null;
-
-
     public void addWork(int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
         works.add(new Phase(benchmarkName, numberOfPhases, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
         numberOfPhases++;
-    }
-
-    public void setDBType(DatabaseType dbType) {
-        db_type = dbType;
-    }
-
-    public void setDBBatchSize(int db_batch_size) {
-        this.db_batch_size = db_batch_size;
     }
 
     public int getDBBatchSize() {
         return db_batch_size;
     }
 
+    public void setDBBatchSize(int db_batch_size) {
+        this.db_batch_size = db_batch_size;
+    }
+
     public DatabaseType getDBType() {
         return db_type;
     }
 
-    public void setDBConnection(String database) {
-        this.db_connection = database;
+    public void setDBType(DatabaseType dbType) {
+        db_type = dbType;
     }
 
     public String getDBConnection() {
         return db_connection;
     }
 
-    public void setLoaderThreads(int loaderThreads) {
-        this.loaderThreads = loaderThreads;
+    public void setDBConnection(String database) {
+        this.db_connection = database;
     }
 
     /**
@@ -131,6 +118,10 @@ public class WorkloadConfiguration {
         return this.loaderThreads;
     }
 
+    public void setLoaderThreads(int loaderThreads) {
+        this.loaderThreads = loaderThreads;
+    }
+
     public int getNumTxnTypes() {
         return numTxnTypes;
     }
@@ -139,44 +130,53 @@ public class WorkloadConfiguration {
         this.numTxnTypes = numTxnTypes;
     }
 
-    public void setDBUsername(String username) {
-        this.db_username = username;
-    }
-
     public String getDBUsername() {
         return db_username;
     }
 
-    public void setDBPassword(String password) {
-        this.db_password = password;
+    public void setDBUsername(String username) {
+        this.db_username = username;
     }
 
     public String getDBPassword() {
         return this.db_password;
     }
 
-    public void setSelectivity(double selectivity) {
-        this.selectivity = selectivity;
+    public void setDBPassword(String password) {
+        this.db_password = password;
     }
 
     public double getSelectivity() {
         return this.selectivity;
     }
 
-    public void setDBDriver(String driver) {
-        this.db_driver = driver;
+    public void setSelectivity(double selectivity) {
+        this.selectivity = selectivity;
     }
 
     public String getDBDriver() {
         return this.db_driver;
     }
 
-    public void setDBPoolSize(int poolSize) {
-        this.db_pool_size = poolSize;
+    public void setDBDriver(String driver) {
+        this.db_driver = driver;
     }
 
     public int getDBPoolSize() {
         return this.db_pool_size;
+    }
+
+    public void setDBPoolSize(int poolSize) {
+        this.db_pool_size = poolSize;
+    }
+
+    /**
+     * Return the scale factor of the database size
+     *
+     * @return
+     */
+    public double getScaleFactor() {
+        return this.scaleFactor;
     }
 
     /**
@@ -192,15 +192,6 @@ public class WorkloadConfiguration {
     }
 
     /**
-     * Return the scale factor of the database size
-     *
-     * @return
-     */
-    public double getScaleFactor() {
-        return this.scaleFactor;
-    }
-
-    /**
      * Return the number of phases specified in the config file
      *
      * @return
@@ -210,19 +201,19 @@ public class WorkloadConfiguration {
     }
 
     /**
-     * Set the directory in which we can find the data files (for example, CSV
-     * files) for loading the database.
-     */
-    public void setDataDir(String dir) {
-        this.dataDir = dir;
-    }
-
-    /**
      * Return the directory in which we can find the data files (for example, CSV
      * files) for loading the database.
      */
     public String getDataDir() {
         return this.dataDir;
+    }
+
+    /**
+     * Set the directory in which we can find the data files (for example, CSV
+     * files) for loading the database.
+     */
+    public void setDataDir(String dir) {
+        this.dataDir = dir;
     }
 
     /**
@@ -236,12 +227,12 @@ public class WorkloadConfiguration {
         }
     }
 
-    public void setTerminals(int terminals) {
-        this.terminals = terminals;
-    }
-
     public int getTerminals() {
         return terminals;
+    }
+
+    public void setTerminals(int terminals) {
+        this.terminals = terminals;
     }
 
     public TransactionTypes getTransTypes() {
@@ -256,16 +247,33 @@ public class WorkloadConfiguration {
         return works;
     }
 
-    public void setXmlConfig(XMLConfiguration xmlConfig) {
-        this.xmlConfig = xmlConfig;
-    }
-
     public XMLConfiguration getXmlConfig() {
         return xmlConfig;
     }
 
+    public void setXmlConfig(XMLConfiguration xmlConfig) {
+        this.xmlConfig = xmlConfig;
+    }
+
     public int getIsolationMode() {
         return isolationMode;
+    }
+
+    public void setIsolationMode(String mode) {
+        switch (mode) {
+            case "TRANSACTION_SERIALIZABLE":
+                this.isolationMode = Connection.TRANSACTION_SERIALIZABLE;
+                break;
+            case "TRANSACTION_READ_COMMITTED":
+                this.isolationMode = Connection.TRANSACTION_READ_COMMITTED;
+                break;
+            case "TRANSACTION_REPEATABLE_READ":
+                this.isolationMode = Connection.TRANSACTION_REPEATABLE_READ;
+                break;
+            case "TRANSACTION_READ_UNCOMMITTED":
+                this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
+                break;
+        }
     }
 
     public String getIsolationString() {
@@ -282,31 +290,30 @@ public class WorkloadConfiguration {
         }
     }
 
-    public void setIsolationMode(String mode) {
-        if (mode.equals("TRANSACTION_SERIALIZABLE")) {
-            this.isolationMode = Connection.TRANSACTION_SERIALIZABLE;
-        } else if (mode.equals("TRANSACTION_READ_COMMITTED")) {
-            this.isolationMode = Connection.TRANSACTION_READ_COMMITTED;
-        } else if (mode.equals("TRANSACTION_REPEATABLE_READ")) {
-            this.isolationMode = Connection.TRANSACTION_REPEATABLE_READ;
-        } else if (mode.equals("TRANSACTION_READ_UNCOMMITTED")) {
-            this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
-        }
-    }
-
     @Override
     public String toString() {
-        Class<?> confClass = this.getClass();
-        Map<String, Object> m = new ListOrderedMap<>();
-        for (Field f : confClass.getDeclaredFields()) {
-            Object obj = null;
-            try {
-                obj = f.get(this);
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException(ex);
-            }
-            m.put(f.getName().toUpperCase(), obj);
-        }
-        return StringUtil.formatMaps(m);
+        return "WorkloadConfiguration{" +
+                "works=" + works +
+                ", db_type=" + db_type +
+                ", benchmarkName='" + benchmarkName + '\'' +
+                ", db_connection='" + db_connection + '\'' +
+                ", db_username='" + db_username + '\'' +
+                ", db_password='" + db_password + '\'' +
+                ", db_driver='" + db_driver + '\'' +
+                ", db_pool_size=" + db_pool_size +
+                ", db_batch_size=" + db_batch_size +
+                ", scaleFactor=" + scaleFactor +
+                ", selectivity=" + selectivity +
+                ", terminals=" + terminals +
+                ", loaderThreads=" + loaderThreads +
+                ", numTxnTypes=" + numTxnTypes +
+                ", traceReader=" + traceReader +
+                ", xmlConfig=" + xmlConfig +
+                ", workloadState=" + workloadState +
+                ", numberOfPhases=" + numberOfPhases +
+                ", transTypes=" + transTypes +
+                ", isolationMode=" + isolationMode +
+                ", dataDir='" + dataDir + '\'' +
+                '}';
     }
 }

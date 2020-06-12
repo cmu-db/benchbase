@@ -47,114 +47,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         this.workerThreads = new ArrayList<>(workers.size());
     }
 
-    public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {
-        private final Iterable<Sample> samples;
-        private final int windowSizeSeconds;
-        private final TransactionType txType;
-
-        /**
-         * @param samples
-         * @param windowSizeSeconds
-         * @param txType            Allows to filter transactions by type
-         */
-        public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType txType) {
-            this.samples = samples;
-            this.windowSizeSeconds = windowSizeSeconds;
-            this.txType = txType;
-        }
-
-        @Override
-        public Iterator<DistributionStatistics> iterator() {
-            return new TimeBucketIterator(samples.iterator(), windowSizeSeconds, txType);
-        }
-    }
-
-    public static final class TimeBucketIterator implements Iterator<DistributionStatistics> {
-        private final Iterator<Sample> samples;
-        private final int windowSizeSeconds;
-        private final TransactionType txType;
-
-        private Sample sample;
-        private long nextStartNs;
-
-        private DistributionStatistics next;
-
-        /**
-         * @param samples
-         * @param windowSizeSeconds
-         * @param txType            Allows to filter transactions by type
-         */
-        public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds, TransactionType txType) {
-            this.samples = samples;
-            this.windowSizeSeconds = windowSizeSeconds;
-            this.txType = txType;
-
-            if (samples.hasNext()) {
-                sample = samples.next();
-                // TODO: To be totally correct, we would want this to be the
-                // timestamp of the start
-                // of the measurement interval. In most cases this won't matter.
-                nextStartNs = sample.startNs;
-                calculateNext();
-            }
-        }
-
-        private void calculateNext() {
-
-
-            // Collect all samples in the time window
-            ArrayList<Integer> latencies = new ArrayList<>();
-            long endNs = nextStartNs + windowSizeSeconds * 1000000000L;
-            while (sample != null && sample.startNs < endNs) {
-
-                // Check if a TX Type filter is set, in the default case,
-                // INVALID TXType means all should be reported, if a filter is
-                // set, only this specific transaction
-                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.tranType) {
-                    latencies.add(sample.latencyUs);
-                }
-
-                if (samples.hasNext()) {
-                    sample = samples.next();
-                } else {
-                    sample = null;
-                }
-            }
-
-            // Set up the next time window
-
-            nextStartNs = endNs;
-
-            int[] l = new int[latencies.size()];
-            for (int i = 0; i < l.length; ++i) {
-                l[i] = latencies.get(i);
-            }
-
-            next = DistributionStatistics.computeStatistics(l);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return next != null;
-        }
-
-        @Override
-        public DistributionStatistics next() {
-            if (next == null) {
-                throw new NoSuchElementException();
-            }
-            DistributionStatistics out = next;
-            next = null;
-            if (sample != null) {
-                calculateNext();
-            }
-            return out;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("unsupported");
-        }
+    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
+        ThreadBench bench = new ThreadBench(workers, workConfs);
+        bench.intervalMonitor = intervalMonitoring;
+        return bench.runRateLimitedMultiPhase();
     }
 
     private void createWorkerThreads() {
@@ -203,86 +99,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
         testState = null;
         return requests;
-    }
-
-    private class WatchDogThread extends Thread {
-        {
-            this.setDaemon(true);
-        }
-
-        @Override
-        public void run() {
-            Map<String, Object> m = new ListOrderedMap<>();
-            LOG.info("Starting WatchDogThread");
-            while (true) {
-                try {
-                    Thread.sleep(20000);
-                } catch (InterruptedException ex) {
-                    return;
-                }
-                if (testState == null) {
-                    return;
-                }
-                m.clear();
-                for (Thread t : workerThreads) {
-                    m.put(t.getName(), t.isAlive());
-                }
-                LOG.info("Worker Thread Status:\n{}", StringUtil.formatMaps(m));
-            }
-        }
-    }
-
-    private class MonitorThread extends Thread {
-        private final int intervalMonitor;
-
-        {
-            this.setDaemon(true);
-        }
-
-        /**
-         * @param interval How long to wait between polling in milliseconds
-         */
-        MonitorThread(int interval) {
-            this.intervalMonitor = interval;
-        }
-
-        @Override
-        public void run() {
-            LOG.info("Starting MonitorThread Interval [{}ms]", this.intervalMonitor);
-            while (true) {
-                try {
-                    Thread.sleep(this.intervalMonitor);
-                } catch (InterruptedException ex) {
-                    return;
-                }
-                if (testState == null) {
-                    return;
-                }
-                // Compute the last throughput
-                long measuredRequests = 0;
-                synchronized (testState) {
-                    for (Worker<?> w : workers) {
-                        measuredRequests += w.getAndResetIntervalRequests();
-                    }
-                }
-                double seconds = this.intervalMonitor / 1000d;
-                double tps = (double) measuredRequests / seconds;
-                LOG.info("Throughput: {} txn/sec", tps);
-            }
-        }
-    }
-
-    /*
-     * public static Results runRateLimitedBenchmark(List<Worker> workers, File
-     * profileFile) throws QueueLimitException, IOException { ThreadBench bench
-     * = new ThreadBench(workers, profileFile); return
-     * bench.runRateLimitedFromFile(); }
-     */
-
-    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
-        ThreadBench bench = new ThreadBench(workers, workConfs);
-        bench.intervalMonitor = intervalMonitoring;
-        return bench.runRateLimitedMultiPhase();
     }
 
     public Results runRateLimitedMultiPhase() {
@@ -373,7 +189,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 TraceReader tr = workConfs.get(0).getTraceReader();
                 if (tr != null) {
                     // If a trace script is present, the phase complete iff the
-                    // trace reader has no more 
+                    // trace reader has no more
                     for (WorkloadConfiguration workConf : workConfs) {
                         phaseComplete = false;
                         tr = workConf.getTraceReader();
@@ -537,7 +353,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-
     @Override
     public void uncaughtException(Thread t, Throwable e) {
 
@@ -554,6 +369,190 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
          * wait for)
          */
 
+    }
+
+    /*
+     * public static Results runRateLimitedBenchmark(List<Worker> workers, File
+     * profileFile) throws QueueLimitException, IOException { ThreadBench bench
+     * = new ThreadBench(workers, profileFile); return
+     * bench.runRateLimitedFromFile(); }
+     */
+
+    public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {
+        private final Iterable<Sample> samples;
+        private final int windowSizeSeconds;
+        private final TransactionType txType;
+
+        /**
+         * @param samples
+         * @param windowSizeSeconds
+         * @param txType            Allows to filter transactions by type
+         */
+        public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType txType) {
+            this.samples = samples;
+            this.windowSizeSeconds = windowSizeSeconds;
+            this.txType = txType;
+        }
+
+        @Override
+        public Iterator<DistributionStatistics> iterator() {
+            return new TimeBucketIterator(samples.iterator(), windowSizeSeconds, txType);
+        }
+    }
+
+    public static final class TimeBucketIterator implements Iterator<DistributionStatistics> {
+        private final Iterator<Sample> samples;
+        private final int windowSizeSeconds;
+        private final TransactionType txType;
+
+        private Sample sample;
+        private long nextStartNs;
+
+        private DistributionStatistics next;
+
+        /**
+         * @param samples
+         * @param windowSizeSeconds
+         * @param txType            Allows to filter transactions by type
+         */
+        public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds, TransactionType txType) {
+            this.samples = samples;
+            this.windowSizeSeconds = windowSizeSeconds;
+            this.txType = txType;
+
+            if (samples.hasNext()) {
+                sample = samples.next();
+                // TODO: To be totally correct, we would want this to be the
+                // timestamp of the start
+                // of the measurement interval. In most cases this won't matter.
+                nextStartNs = sample.startNs;
+                calculateNext();
+            }
+        }
+
+        private void calculateNext() {
+
+
+            // Collect all samples in the time window
+            ArrayList<Integer> latencies = new ArrayList<>();
+            long endNs = nextStartNs + windowSizeSeconds * 1000000000L;
+            while (sample != null && sample.startNs < endNs) {
+
+                // Check if a TX Type filter is set, in the default case,
+                // INVALID TXType means all should be reported, if a filter is
+                // set, only this specific transaction
+                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.tranType) {
+                    latencies.add(sample.latencyUs);
+                }
+
+                if (samples.hasNext()) {
+                    sample = samples.next();
+                } else {
+                    sample = null;
+                }
+            }
+
+            // Set up the next time window
+
+            nextStartNs = endNs;
+
+            int[] l = new int[latencies.size()];
+            for (int i = 0; i < l.length; ++i) {
+                l[i] = latencies.get(i);
+            }
+
+            next = DistributionStatistics.computeStatistics(l);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override
+        public DistributionStatistics next() {
+            if (next == null) {
+                throw new NoSuchElementException();
+            }
+            DistributionStatistics out = next;
+            next = null;
+            if (sample != null) {
+                calculateNext();
+            }
+            return out;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("unsupported");
+        }
+    }
+
+    private class WatchDogThread extends Thread {
+        {
+            this.setDaemon(true);
+        }
+
+        @Override
+        public void run() {
+            Map<String, Object> m = new ListOrderedMap<>();
+            LOG.info("Starting WatchDogThread");
+            while (true) {
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException ex) {
+                    return;
+                }
+                if (testState == null) {
+                    return;
+                }
+                m.clear();
+                for (Thread t : workerThreads) {
+                    m.put(t.getName(), t.isAlive());
+                }
+                LOG.info("Worker Thread Status:\n{}", StringUtil.formatMaps(m));
+            }
+        }
+    }
+
+    private class MonitorThread extends Thread {
+        private final int intervalMonitor;
+
+        {
+            this.setDaemon(true);
+        }
+
+        /**
+         * @param interval How long to wait between polling in milliseconds
+         */
+        MonitorThread(int interval) {
+            this.intervalMonitor = interval;
+        }
+
+        @Override
+        public void run() {
+            LOG.info("Starting MonitorThread Interval [{}ms]", this.intervalMonitor);
+            while (true) {
+                try {
+                    Thread.sleep(this.intervalMonitor);
+                } catch (InterruptedException ex) {
+                    return;
+                }
+                if (testState == null) {
+                    return;
+                }
+                // Compute the last throughput
+                long measuredRequests = 0;
+                synchronized (testState) {
+                    for (Worker<?> w : workers) {
+                        measuredRequests += w.getAndResetIntervalRequests();
+                    }
+                }
+                double seconds = this.intervalMonitor / 1000d;
+                double tps = (double) measuredRequests / seconds;
+                LOG.info("Throughput: {} txn/sec", tps);
+            }
+        }
     }
 
 }
