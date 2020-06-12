@@ -34,22 +34,23 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadBench.class);
 
 
-    private static BenchmarkState testState;
+    private final BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
     private final List<WorkloadConfiguration> workConfs;
-    ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
-    private int intervalMonitor = 0;
+    private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
+    private final int intervalMonitor;
 
-    public ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs) {
+    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         this.workers = workers;
         this.workConfs = workConfs;
         this.workerThreads = new ArrayList<>(workers.size());
+        this.intervalMonitor = intervalMonitoring;
+        this.testState = new BenchmarkState(workers.size() + 1);
     }
 
     public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
-        ThreadBench bench = new ThreadBench(workers, workConfs);
-        bench.intervalMonitor = intervalMonitoring;
+        ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
         return bench.runRateLimitedMultiPhase();
     }
 
@@ -97,13 +98,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             workers.get(i).tearDown(false);
         }
-        testState = null;
+
         return requests;
     }
 
-    public Results runRateLimitedMultiPhase() {
-
-        testState = new BenchmarkState(workers.size() + 1);
+    private Results runRateLimitedMultiPhase() {
         List<WorkloadState> workStates = new ArrayList<>();
 
         for (WorkloadConfiguration workState : this.workConfs) {
@@ -400,7 +399,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    public static final class TimeBucketIterator implements Iterator<DistributionStatistics> {
+    private static final class TimeBucketIterator implements Iterator<DistributionStatistics> {
         private final Iterator<Sample> samples;
         private final int windowSizeSeconds;
         private final TransactionType txType;
@@ -503,9 +502,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 } catch (InterruptedException ex) {
                     return;
                 }
-                if (testState == null) {
-                    return;
-                }
+
                 m.clear();
                 for (Thread t : workerThreads) {
                     m.put(t.getName(), t.isAlive());
@@ -538,9 +535,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 } catch (InterruptedException ex) {
                     return;
                 }
-                if (testState == null) {
-                    return;
-                }
+
                 // Compute the last throughput
                 long measuredRequests = 0;
                 synchronized (testState) {
