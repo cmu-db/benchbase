@@ -45,16 +45,14 @@ public class IO1 extends Procedure {
     public void run(Connection conn, int myId, int howManyColsPerRow, int howManyUpdatesPerTransaction, int howManyRowsPerUpdate, int keyRange) throws SQLException {
 
 
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {
+        //int keyRange = 20; //1024000 / 200; // FIXME
+        int startingKey = myId * keyRange;
 
-            //int keyRange = 20; //1024000 / 200; // FIXME
-            int startingKey = myId * keyRange;
-            int lastKey = (myId + 1) * keyRange - 1;
+        for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
+            int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
+            int rightKey = leftKey + howManyRowsPerUpdate;
 
-            for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
-                int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
-                int rightKey = leftKey + howManyRowsPerUpdate;
-
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {
 
                 for (int col = 1; col <= howManyColsPerRow; ++col) {
                     double value = ResourceStresserWorker.gen.nextDouble() + ResourceStresserWorker.gen.nextDouble();

@@ -41,16 +41,14 @@ public class IO2 extends Procedure {
     public void run(Connection conn, int myId, int howManyUpdatesPerTransaction, boolean makeSureWorkerSetFitsInMemory, int keyRange) throws SQLException {
 
 
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {
+        //int keyRange = (makeSureWorkerSetFitsInMemory ? 16777216 / 160 : 167772160 / 160); // FIXME
+        int startingKey = myId * keyRange;
+        int lastKey = (myId + 1) * keyRange - 1;
 
-            //int keyRange = (makeSureWorkerSetFitsInMemory ? 16777216 / 160 : 167772160 / 160); // FIXME
-            int startingKey = myId * keyRange;
-            int lastKey = (myId + 1) * keyRange - 1;
-
-            for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
-                int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;
-                int value = ResourceStresserWorker.gen.nextInt();
-
+        for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
+            int key = ResourceStresserWorker.gen.nextInt(keyRange) + startingKey;
+            int value = ResourceStresserWorker.gen.nextInt();
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {
                 stmt.setInt(1, value);
                 stmt.setInt(2, key);
 

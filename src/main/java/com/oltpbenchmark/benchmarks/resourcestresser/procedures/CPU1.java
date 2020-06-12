@@ -40,10 +40,12 @@ public class CPU1 extends Procedure {
     }
 
     public void run(Connection conn, int howManyPerTransaction, int sleepLength, int nestedLevel) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect)) {
 
-            for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
-                double randNoise = ResourceStresserWorker.gen.nextDouble();
+
+        for (int tranIdx = 0; tranIdx < howManyPerTransaction; ++tranIdx) {
+            double randNoise = ResourceStresserWorker.gen.nextDouble();
+
+            try (PreparedStatement stmt = this.getPreparedStatement(conn, cpuSelect)) {
 
                 for (int i = 1; i <= nestedLevel; ++i) {
                     stmt.setString(i, Double.toString(randNoise));

@@ -41,27 +41,27 @@ public class Contention2 extends Procedure {
     public void run(Connection conn, int howManyKeys, int howManyUpdates, int sleepLength, int numKeys) throws SQLException {
 
 
-        try (PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate)) {
-            try (PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep)) {
+        for (int sel = 0; sel < howManyUpdates; ++sel) {
+            int leftKey = ResourceStresserWorker.gen.nextInt(numKeys - howManyKeys);
+            int rightKey = leftKey + howManyKeys;
+            int salary = ResourceStresserWorker.gen.nextInt();
 
-                for (int sel = 0; sel < howManyUpdates; ++sel) {
-                    int leftKey = ResourceStresserWorker.gen.nextInt(numKeys - howManyKeys);
-                    int rightKey = leftKey + howManyKeys;
-                    int salary = ResourceStresserWorker.gen.nextInt();
-
-                    stmtUpdate.setInt(1, salary);
-                    stmtUpdate.setInt(2, leftKey + 1);
-                    stmtUpdate.setInt(3, rightKey + 1);
-                    int result = stmtUpdate.executeUpdate();
-                    if (result != howManyKeys) {
-                        LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
-                    }
-
-                    stmtSleep.setInt(1, sleepLength);
-                    stmtSleep.execute();
+            try (PreparedStatement stmtUpdate = this.getPreparedStatement(conn, lockUpdate)) {
+                stmtUpdate.setInt(1, salary);
+                stmtUpdate.setInt(2, leftKey + 1);
+                stmtUpdate.setInt(3, rightKey + 1);
+                int result = stmtUpdate.executeUpdate();
+                if (result != howManyKeys) {
+                    LOG.warn("LOCK1UPDATE: supposedtochange={} but only changed {}", howManyKeys, result);
                 }
+            }
+
+            try (PreparedStatement stmtSleep = this.getPreparedStatement(conn, lockSleep)) {
+                stmtSleep.setInt(1, sleepLength);
+                stmtSleep.execute();
             }
         }
     }
+
 
 }
