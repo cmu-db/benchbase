@@ -4,7 +4,7 @@
 
 
     <groupId>com.oltpbenchmark</groupId>
-    <artifactId>oltpbench</artifactId>
+    <artifactId>oltpbench2</artifactId>
     <version>20.1.1-SNAPSHOT</version>
     <name>OLTP-Bench II</name>
     <description>OLTP-Bench II is a database benchmarking framework inspired by http://oltpbenchmark.com/
@@ -38,42 +38,6 @@
             <url>https://maven.pkg.github.com/timveil-cockroach/oltpbench</url>
         </repository>
     </distributionManagement>
-
-    <profiles>
-        <profile>
-            <id>postgresql</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <version>42.2.14</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>mysql</id>
-            <dependencies>
-                <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.20</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>cockroachdb</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <version>42.2.14</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 
     <dependencies>
         <dependency>
@@ -152,6 +116,18 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>2.3.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.14</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.20</version>
         </dependency>
 
         <dependency>
