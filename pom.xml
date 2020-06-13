@@ -32,6 +32,14 @@
         <tag>HEAD</tag>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub timveil-cockroach/oltpbench Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/timveil-cockroach/oltpbench</url>
+        </repository>
+    </distributionManagement>
+
     <profiles>
         <profile>
             <id>postgresql</id>

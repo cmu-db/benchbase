@@ -137,9 +137,10 @@ To enable logging for the PostgreSQL JDBC driver, add the following JVM property
 ```
 To modify the logging level you can update `logging.properties`
 
-## Hot to Release
+## How to Release
 ```
 ./mvnw -B release:prepare
+./mvnw -B release:perform
 ```
 
 ## How to Add Support for a New Database
