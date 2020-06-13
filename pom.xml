@@ -5,7 +5,7 @@
 
     <groupId>com.oltpbenchmark</groupId>
     <artifactId>oltpbench</artifactId>
-    <version>20.1.0</version>
+    <version>20.1.1-SNAPSHOT</version>
     <name>OLTP-Bench II</name>
     <description>OLTP-Bench II is a database benchmarking framework inspired by http://oltpbenchmark.com/
     </description>
@@ -28,7 +28,7 @@
         <connection>scm:git:git@github.com:timveil-cockroach/oltpbench.git</connection>
         <url>https://github.com/timveil-cockroach/oltpbench</url>
         <developerConnection>scm:git:git@github.com:timveil-cockroach/oltpbench.git</developerConnection>
-        <tag>v20.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
