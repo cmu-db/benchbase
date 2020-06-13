@@ -24,9 +24,9 @@ jobs:
       run: mvn -B package --file pom.xml
     - uses: actions/upload-artifact@v2
       with:
-        name: zip
+        name: oltpbench.zip
         path: target/*.zip
     - uses: actions/upload-artifact@v2
       with:
-        name: tgz
+        name: oltpbench.tgz
         path: target/*.tgz
