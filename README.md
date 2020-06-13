@@ -1,5 +1,7 @@
 # OLTP-Bench II
 
+![Java CI with Maven](https://github.com/timveil-cockroach/oltpbench/workflows/Java%20CI%20with%20Maven/badge.svg?branch=maven)
+
 Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Given the volume and scope of these changes, I have elected not to submit pull requests to the original project as it is unlikely they would or could be accepted.  Please see [Modifications to Original](#modifications-to-original) for changes in this fork.
 
 See also: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
