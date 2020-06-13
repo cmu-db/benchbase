@@ -19,6 +19,7 @@
         <file>
             <source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
             <outputDirectory></outputDirectory>
+            <destName>${project.artifactId}.jar</destName>
         </file>
         <file>
             <source>${project.basedir}/LICENSE</source>
