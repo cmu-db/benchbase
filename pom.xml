@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
 
     <groupId>com.oltpbenchmark</groupId>
     <artifactId>oltpbench</artifactId>
-    <version>20.1.0-SNAPSHOT</version>
+    <version>20.1.0</version>
     <name>OLTP-Bench II</name>
     <description>OLTP-Bench II is a database benchmarking framework inspired by http://oltpbenchmark.com/
     </description>
@@ -29,7 +28,7 @@
         <connection>scm:git:git@github.com:timveil-cockroach/oltpbench.git</connection>
         <url>https://github.com/timveil-cockroach/oltpbench</url>
         <developerConnection>scm:git:git@github.com:timveil-cockroach/oltpbench.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v20.1.0</tag>
     </scm>
 
     <distributionManagement>
