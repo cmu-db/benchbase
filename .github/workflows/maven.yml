@@ -22,3 +22,11 @@ jobs:
         java-version: 11
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - uses: actions/upload-artifact@v2
+      with:
+        name: zip
+        path: target/*.zip
+    - uses: actions/upload-artifact@v2
+      with:
+        name: tgz
+        path: target/*.tgz
