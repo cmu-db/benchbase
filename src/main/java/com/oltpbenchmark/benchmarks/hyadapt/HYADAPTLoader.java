@@ -80,7 +80,7 @@ public class HYADAPTLoader extends Loader<HYADAPTBenchmark> {
                         }
                         stmt.addBatch();
                         total++;
-                        if (++batch >= workConf.getDBBatchSize()) {
+                        if (++batch >= workConf.getBatchSize()) {
                             int[] result = stmt.executeBatch();
 
                             batch = 0;

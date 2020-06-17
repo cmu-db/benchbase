@@ -38,8 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
-    private static final int MAX_RETRY_COUNT = 3;
-
     private WorkloadState state;
     private LatencyRecord latencies;
     private final Statement currStatement;
@@ -323,7 +321,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      */
     protected final TransactionType doWork(SubmittedProcedure pieceOfWork) {
 
-        final DatabaseType type = configuration.getDBType();
+        final DatabaseType type = configuration.getDatabaseType();
         final TransactionType transactionType = transactionTypes.getType(pieceOfWork.getType());
 
         final int isolationMode = this.configuration.getIsolationMode();
@@ -343,8 +341,9 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             int retryCount = 0;
 
+            int maxRetryCount = configuration.getMaxRetries();
 
-            while (retryCount < MAX_RETRY_COUNT && this.state.getGlobalState() != State.DONE) {
+            while (retryCount < maxRetryCount && this.state.getGlobalState() != State.DONE) {
 
                 TransactionStatus status = TransactionStatus.UNKNOWN;
 
@@ -381,7 +380,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     conn.rollback();
 
                     if (isRetryable(ex)) {
-                        LOG.warn(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, MAX_RETRY_COUNT, ex.getSQLState(), ex.getErrorCode()), ex);
+                        LOG.warn(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
 
                         status = TransactionStatus.RETRY;
 

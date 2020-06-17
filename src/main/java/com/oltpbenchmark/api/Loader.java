@@ -80,7 +80,7 @@ public abstract class Loader<T extends BenchmarkModule> {
     }
 
     public DatabaseType getDatabaseType() {
-        return (this.workConf.getDBType());
+        return (this.workConf.getDatabaseType());
     }
 
     /**

@@ -76,7 +76,7 @@ public class SILoader extends Loader<SIBenchmark> {
                 stmt.setInt(2, rand.nextInt(Integer.MAX_VALUE));
                 stmt.addBatch();
 
-                if (++batch >= workConf.getDBBatchSize()) {
+                if (++batch >= workConf.getBatchSize()) {
                     int[] result = stmt.executeBatch();
 
                     batch = 0;

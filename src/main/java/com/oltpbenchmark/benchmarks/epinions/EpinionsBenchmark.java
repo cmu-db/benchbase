@@ -52,7 +52,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
-        DatabaseType databaseType = this.getWorkloadConfiguration().getDBType();
+        DatabaseType databaseType = this.getWorkloadConfiguration().getDatabaseType();
 
         try {
 

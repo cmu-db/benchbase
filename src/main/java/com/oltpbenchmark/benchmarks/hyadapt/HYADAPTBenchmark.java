@@ -51,7 +51,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
 
         Table t = this.getCatalog().getTable("HTABLE");
 
-        String userCount = SQLUtil.getCountSQL(this.workConf.getDBType(), t);
+        String userCount = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), t);
         int init_record_count = 0;
         try (Connection metaConn = this.getConnection()) {
 

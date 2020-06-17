@@ -128,13 +128,14 @@ public class DBWorkload {
             }
 
             // Pull in database configuration
-            wrkld.setDBType(DatabaseType.get(xmlConfig.getString("type")));
-            wrkld.setDBDriver(xmlConfig.getString("driver"));
-            wrkld.setDBConnection(xmlConfig.getString("url"));
-            wrkld.setDBUsername(xmlConfig.getString("username"));
-            wrkld.setDBPassword(xmlConfig.getString("password"));
-            wrkld.setDBBatchSize(xmlConfig.getInt("batchsize", 128));
-            wrkld.setDBPoolSize(xmlConfig.getInt("poolsize", 12));
+            wrkld.setDatabaseType(DatabaseType.get(xmlConfig.getString("type")));
+            wrkld.setDriverClass(xmlConfig.getString("driver"));
+            wrkld.setUrl(xmlConfig.getString("url"));
+            wrkld.setUsername(xmlConfig.getString("username"));
+            wrkld.setPassword(xmlConfig.getString("password"));
+            wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
+            wrkld.setPoolSize(xmlConfig.getInt("poolsize", 12));
+            wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
             terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
@@ -172,10 +173,10 @@ public class DBWorkload {
             Map<String, Object> initDebug = new ListOrderedMap<>();
             initDebug.put("Benchmark", String.format("%s {%s}", plugin.toUpperCase(), classname));
             initDebug.put("Configuration", configFile);
-            initDebug.put("Type", wrkld.getDBType());
-            initDebug.put("Driver", wrkld.getDBDriver());
-            initDebug.put("URL", wrkld.getDBConnection());
-            initDebug.put("Pool Size", wrkld.getDBPoolSize());
+            initDebug.put("Type", wrkld.getDatabaseType());
+            initDebug.put("Driver", wrkld.getDriverClass());
+            initDebug.put("URL", wrkld.getUrl());
+            initDebug.put("Pool Size", wrkld.getPoolSize());
             initDebug.put("Isolation", wrkld.getIsolationString());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
 
@@ -365,7 +366,7 @@ public class DBWorkload {
                 }
 
 
-                wrkld.addWork(time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
+                wrkld.addPhase(time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
             }
 
             // CHECKING INPUT PHASES
@@ -393,7 +394,7 @@ public class DBWorkload {
             BenchmarkModule bench = benchList.get(0);
             if (bench.getStatementDialects() != null) {
                 LOG.info("Exporting StatementDialects for {}", bench);
-                String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDBType(), bench.getProcedures().values());
+                String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDatabaseType(), bench.getProcedures().values());
                 LOG.debug(xml);
                 System.exit(0);
             }

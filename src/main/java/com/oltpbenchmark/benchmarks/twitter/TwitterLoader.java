@@ -168,7 +168,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
                 batchSize++;
                 total++;
-                if ((batchSize % workConf.getDBBatchSize()) == 0) {
+                if ((batchSize % workConf.getBatchSize()) == 0) {
                     int[] result = userInsert.executeBatch();
 
                     userInsert.clearBatch();
@@ -220,7 +220,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                 batchSize++;
                 total++;
 
-                if ((batchSize % workConf.getDBBatchSize()) == 0) {
+                if ((batchSize % workConf.getBatchSize()) == 0) {
                     tweetInsert.executeBatch();
                     tweetInsert.clearBatch();
                     batchSize = 0;
@@ -289,7 +289,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                         batchSize++;
                         f++;
 
-                        if ((batchSize % workConf.getDBBatchSize()) == 0) {
+                        if ((batchSize % workConf.getBatchSize()) == 0) {
                             followsInsert.executeBatch();
                             followersInsert.executeBatch();
                             followsInsert.clearBatch();

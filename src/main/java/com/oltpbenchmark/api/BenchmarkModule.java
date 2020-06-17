@@ -74,10 +74,10 @@ public abstract class BenchmarkModule {
         this.dialects = new StatementDialects(workConf);
 
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(workConf.getDBConnection());
-        config.setUsername(workConf.getDBUsername());
-        config.setPassword(workConf.getDBPassword());
-        config.setMaximumPoolSize(workConf.getDBPoolSize());
+        config.setJdbcUrl(workConf.getUrl());
+        config.setUsername(workConf.getUsername());
+        config.setPassword(workConf.getPassword());
+        config.setMaximumPoolSize(workConf.getPoolSize());
 
         dataSource = new HikariDataSource(config);
     }
@@ -171,7 +171,7 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        this.createDatabase(this.workConf.getDBType());
+        this.createDatabase(this.workConf.getDatabaseType());
     }
 
     /**
@@ -254,7 +254,7 @@ public abstract class BenchmarkModule {
     public final void clearDatabase() {
 
         try (Connection conn = this.getConnection()) {
-            this.catalog = SQLUtil.getCatalog(this.getWorkloadConfiguration().getDBType(), conn);
+            this.catalog = SQLUtil.getCatalog(this.getWorkloadConfiguration().getDatabaseType(), conn);
 
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
@@ -351,7 +351,7 @@ public abstract class BenchmarkModule {
 
             for (TransactionType txn : txns) {
                 Procedure proc = ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
-                proc.initialize(this.workConf.getDBType());
+                proc.initialize(this.workConf.getDatabaseType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
             }

@@ -453,7 +453,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                 prepStmt.addBatch();
                 ++recordsRead;
 
-                if ((recordsRead % workConf.getDBBatchSize()) == 0) {
+                if ((recordsRead % workConf.getBatchSize()) == 0) {
 
                     LOG.debug("writing batch {} for table {}", recordsRead, tableName);
 

@@ -53,7 +53,7 @@ public class YCSBBenchmark extends BenchmarkModule {
 
             Table t = this.getCatalog().getTable("USERTABLE");
 
-            String userCount = SQLUtil.getMaxColSQL(this.workConf.getDBType(), t, "ycsb_key");
+            String userCount = SQLUtil.getMaxColSQL(this.workConf.getDatabaseType(), t, "ycsb_key");
 
             try (Connection metaConn = this.getConnection();
                  Statement stmt = metaConn.createStatement();

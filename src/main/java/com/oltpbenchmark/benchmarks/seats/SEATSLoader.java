@@ -473,7 +473,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
 
             Iterable<Object[]> iterable = this.getFixedIterable(catalog_tbl);
-            this.loadTable(conn, catalog_tbl, iterable, workConf.getDBBatchSize());
+            this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
         } catch (Throwable ex) {
             throw new RuntimeException("Failed to load data files for fixed-sized table '" + table_name + "'", ex);
         }
@@ -491,7 +491,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
 
             Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl);
-            this.loadTable(conn, catalog_tbl, iterable, workConf.getDBBatchSize());
+            this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
         } catch (Throwable ex) {
             throw new RuntimeException("Failed to load data files for scaling-sized table '" + table_name + "'", ex);
         }

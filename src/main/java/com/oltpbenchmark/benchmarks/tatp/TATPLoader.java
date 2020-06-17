@@ -143,7 +143,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 total++;
                 pstmt.addBatch();
 
-                if (++batch >= workConf.getDBBatchSize()) {
+                if (++batch >= workConf.getBatchSize()) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s: %6d / %d", catalog_tbl.getName(), total, subscriberSize));
                     }
@@ -191,7 +191,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                     batch++;
                     total++;
                 }
-                if (batch >= workConf.getDBBatchSize()) {
+                if (batch >= workConf.getBatchSize()) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s: %6d / %d", TATPConstants.TABLENAME_ACCESS_INFO, total, ai_types.length * subscriberSize));
                     }
@@ -234,7 +234,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
             LOG.debug("subscriberSize = {}", subscriberSize);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("batchSize = {}", workConf.getDBBatchSize());
+            LOG.debug("batchSize = {}", workConf.getBatchSize());
         }
 
         try (PreparedStatement cal_pstmt = conn.prepareStatement(cal_sql);
@@ -267,7 +267,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                     }
                 }
 
-                if (spe_batch > workConf.getDBBatchSize()) {
+                if (spe_batch > workConf.getBatchSize()) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_SPECIAL_FACILITY, spe_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
                     }

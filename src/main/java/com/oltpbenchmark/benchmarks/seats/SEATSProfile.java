@@ -200,7 +200,7 @@ public class SEATSProfile {
 
         // CONFIG_PROFILE
         Table profileTable = benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
-        String profileSql = SQLUtil.getInsertSQL(profileTable, this.benchmark.getWorkloadConfiguration().getDBType());
+        String profileSql = SQLUtil.getInsertSQL(profileTable, this.benchmark.getWorkloadConfiguration().getDatabaseType());
 
         try (PreparedStatement stmt = conn.prepareStatement(profileSql)) {
             int param_idx = 1;
@@ -223,7 +223,7 @@ public class SEATSProfile {
 
         // CONFIG_HISTOGRAMS
         Table histogramsTable = benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-        String histogramSql = SQLUtil.getInsertSQL(histogramsTable, this.benchmark.getWorkloadConfiguration().getDBType());
+        String histogramSql = SQLUtil.getInsertSQL(histogramsTable, this.benchmark.getWorkloadConfiguration().getDatabaseType());
         try (PreparedStatement stmt = conn.prepareStatement(histogramSql)) {
             for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
                 int param_idx = 1;

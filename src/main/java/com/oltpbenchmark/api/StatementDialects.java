@@ -108,7 +108,7 @@ public class StatementDialects {
      * @return
      */
     protected boolean load() throws JAXBException, SAXException {
-        final DatabaseType dbType = workloadConfiguration.getDBType();
+        final DatabaseType dbType = workloadConfiguration.getDatabaseType();
 
         final String sqlDialectPath = getSQLDialectPath(dbType);
 
@@ -244,7 +244,7 @@ public class StatementDialects {
      * @return
      */
     public DatabaseType getDatabaseType() {
-        return workloadConfiguration.getDBType();
+        return workloadConfiguration.getDatabaseType();
     }
 
     /**

@@ -190,7 +190,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 statement.setString(3, region.r_comment);
                 statement.addBatch();
 
-                if ((k % workConf.getDBBatchSize()) == 0) {
+                if ((k % workConf.getBatchSize()) == 0) {
 
                     statement.executeBatch();
                     statement.clearBatch();
@@ -254,7 +254,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 statement.setString(4, nation.n_comment);
                 statement.addBatch();
 
-                if ((k % workConf.getDBBatchSize()) == 0) {
+                if ((k % workConf.getBatchSize()) == 0) {
 
                     statement.executeBatch();
                     statement.clearBatch();
@@ -306,7 +306,7 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
                 statement.setString(7, supplier.su_comment);
                 statement.addBatch();
 
-                if ((k % workConf.getDBBatchSize()) == 0) {
+                if ((k % workConf.getBatchSize()) == 0) {
 
                     statement.executeBatch();
                     statement.clearBatch();

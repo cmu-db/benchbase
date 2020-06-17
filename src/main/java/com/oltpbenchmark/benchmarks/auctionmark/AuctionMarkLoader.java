@@ -308,7 +308,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             super(benchmark);
             this.tableName = tableName;
             this.catalog_tbl = benchmark.getCatalog().getTable(tableName);
-            this.batchSize = workConf.getDBBatchSize();
+            this.batchSize = workConf.getBatchSize();
 
 
             boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getName());

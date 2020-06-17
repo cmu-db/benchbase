@@ -29,15 +29,16 @@ import java.util.List;
 
 public class WorkloadConfiguration {
 
-    private final List<Phase> works = new ArrayList<>();
-    private DatabaseType db_type;
+    private final List<Phase> phases = new ArrayList<>();
+    private DatabaseType databaseType;
     private String benchmarkName;
-    private String db_connection;
-    private String db_username;
-    private String db_password;
-    private String db_driver;
-    private int db_pool_size;
-    private int db_batch_size;
+    private String url;
+    private String username;
+    private String password;
+    private String driverClass;
+    private int poolSize;
+    private int batchSize;
+    private int maxRetries;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
     private int terminals;
@@ -71,43 +72,83 @@ public class WorkloadConfiguration {
         return workloadState;
     }
 
+    public DatabaseType getDatabaseType() {
+        return databaseType;
+    }
+
+    public void setDatabaseType(DatabaseType databaseType) {
+        this.databaseType = databaseType;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getDriverClass() {
+        return driverClass;
+    }
+
+    public void setDriverClass(String driverClass) {
+        this.driverClass = driverClass;
+    }
+
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
     /**
      * Initiate a new benchmark and workload state
      */
     public WorkloadState initializeState(BenchmarkState benchmarkState) {
-
-        workloadState = new WorkloadState(benchmarkState, works, terminals, traceReader);
-        return workloadState;
+        return new WorkloadState(benchmarkState, phases, terminals, traceReader);
     }
 
-    public void addWork(int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
-        works.add(new Phase(benchmarkName, numberOfPhases, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
+    public void addPhase(int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
+        phases.add(new Phase(benchmarkName, numberOfPhases, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
         numberOfPhases++;
     }
 
-    public int getDBBatchSize() {
-        return db_batch_size;
-    }
 
-    public void setDBBatchSize(int db_batch_size) {
-        this.db_batch_size = db_batch_size;
-    }
-
-    public DatabaseType getDBType() {
-        return db_type;
-    }
-
-    public void setDBType(DatabaseType dbType) {
-        db_type = dbType;
-    }
-
-    public String getDBConnection() {
-        return db_connection;
-    }
-
-    public void setDBConnection(String database) {
-        this.db_connection = database;
-    }
 
     /**
      * The number of loader threads that the framework is allowed to use.
@@ -130,22 +171,6 @@ public class WorkloadConfiguration {
         this.numTxnTypes = numTxnTypes;
     }
 
-    public String getDBUsername() {
-        return db_username;
-    }
-
-    public void setDBUsername(String username) {
-        this.db_username = username;
-    }
-
-    public String getDBPassword() {
-        return this.db_password;
-    }
-
-    public void setDBPassword(String password) {
-        this.db_password = password;
-    }
-
     public double getSelectivity() {
         return this.selectivity;
     }
@@ -154,21 +179,6 @@ public class WorkloadConfiguration {
         this.selectivity = selectivity;
     }
 
-    public String getDBDriver() {
-        return this.db_driver;
-    }
-
-    public void setDBDriver(String driver) {
-        this.db_driver = driver;
-    }
-
-    public int getDBPoolSize() {
-        return this.db_pool_size;
-    }
-
-    public void setDBPoolSize(int poolSize) {
-        this.db_pool_size = poolSize;
-    }
 
     /**
      * Return the scale factor of the database size
@@ -221,9 +231,9 @@ public class WorkloadConfiguration {
      */
     public void init() {
         try {
-            Class.forName(this.db_driver);
+            Class.forName(this.driverClass);
         } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("Failed to initialize JDBC driver '" + this.db_driver + "'", ex);
+            throw new RuntimeException("Failed to initialize JDBC driver '" + this.driverClass + "'", ex);
         }
     }
 
@@ -244,7 +254,7 @@ public class WorkloadConfiguration {
     }
 
     public List<Phase> getAllPhases() {
-        return works;
+        return phases;
     }
 
     public XMLConfiguration getXmlConfig() {
@@ -293,22 +303,21 @@ public class WorkloadConfiguration {
     @Override
     public String toString() {
         return "WorkloadConfiguration{" +
-                "works=" + works +
-                ", db_type=" + db_type +
+                "phases=" + phases +
+                ", databaseType=" + databaseType +
                 ", benchmarkName='" + benchmarkName + '\'' +
-                ", db_connection='" + db_connection + '\'' +
-                ", db_username='" + db_username + '\'' +
-                ", db_password='" + db_password + '\'' +
-                ", db_driver='" + db_driver + '\'' +
-                ", db_pool_size=" + db_pool_size +
-                ", db_batch_size=" + db_batch_size +
+                ", url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", driverClass='" + driverClass + '\'' +
+                ", poolSize=" + poolSize +
+                ", batchSize=" + batchSize +
+                ", maxRetries=" + maxRetries +
                 ", scaleFactor=" + scaleFactor +
                 ", selectivity=" + selectivity +
                 ", terminals=" + terminals +
                 ", loaderThreads=" + loaderThreads +
                 ", numTxnTypes=" + numTxnTypes +
-                ", traceReader=" + traceReader +
-                ", xmlConfig=" + xmlConfig +
                 ", workloadState=" + workloadState +
                 ", numberOfPhases=" + numberOfPhases +
                 ", transTypes=" + transTypes +
