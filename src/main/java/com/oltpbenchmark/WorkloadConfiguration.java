@@ -43,7 +43,6 @@ public class WorkloadConfiguration {
     private double selectivity = -1.0;
     private int terminals;
     private int loaderThreads = ThreadUtil.availableProcessors();
-    private TraceReader traceReader = null;
     private XMLConfiguration xmlConfig = null;
     private WorkloadState workloadState;
     private TransactionTypes transTypes = null;
@@ -58,13 +57,6 @@ public class WorkloadConfiguration {
         this.benchmarkName = benchmarkName;
     }
 
-    public TraceReader getTraceReader() {
-        return traceReader;
-    }
-
-    public void setTraceReader(TraceReader traceReader) {
-        this.traceReader = traceReader;
-    }
 
     public WorkloadState getWorkloadState() {
         return workloadState;
@@ -139,7 +131,7 @@ public class WorkloadConfiguration {
      * Initiate a new benchmark and workload state
      */
     public void initializeState(BenchmarkState benchmarkState) {
-        this.workloadState = new WorkloadState(benchmarkState, phases, terminals, traceReader);
+        this.workloadState = new WorkloadState(benchmarkState, phases, terminals);
     }
 
     public void addPhase(int id, int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {

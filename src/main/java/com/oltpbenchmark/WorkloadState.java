@@ -40,7 +40,6 @@ public class WorkloadState {
     private final LinkedList<SubmittedProcedure> workQueue = new LinkedList<>();
     private final int num_terminals;
     private final Iterator<Phase> phaseIterator;
-    private final TraceReader traceReader;
 
     private int workersWaiting = 0;
     private int workersWorking = 0;
@@ -48,18 +47,16 @@ public class WorkloadState {
 
     private Phase currentPhase = null;
 
-    public WorkloadState(BenchmarkState benchmarkState, List<Phase> works, int num_terminals, TraceReader traceReader) {
+    public WorkloadState(BenchmarkState benchmarkState, List<Phase> works, int num_terminals) {
         this.benchmarkState = benchmarkState;
         this.num_terminals = num_terminals;
         this.workerNeedSleep = num_terminals;
-        this.traceReader = traceReader;
 
         phaseIterator = works.iterator();
     }
 
     /**
      * Add a request to do work.
-     *
      */
     public void addToQueue(int amount, boolean resetQueues) {
         synchronized (this) {
@@ -69,11 +66,7 @@ public class WorkloadState {
 
 
             // Only use the work queue if the phase is enabled and rate limited.
-            if (traceReader != null && currentPhase != null) {
-                if (benchmarkState.getState() != State.WARMUP) {
-                    workQueue.addAll(traceReader.getProcedures(System.nanoTime()));
-                }
-            } else if (currentPhase == null || currentPhase.isDisabled()
+            if (currentPhase == null || currentPhase.isDisabled()
                     || !currentPhase.isRateLimited() || currentPhase.isSerial()) {
                 return;
             } else {
@@ -94,13 +87,6 @@ public class WorkloadState {
             for (int i = 0; i < numToWake; ++i) {
                 this.notify();
             }
-        }
-    }
-
-    public boolean getScriptPhaseComplete() {
-
-        synchronized (this) {
-            return traceReader.getPhaseComplete() && workQueue.size() == 0 && workersWorking == 0;
         }
     }
 
@@ -141,8 +127,7 @@ public class WorkloadState {
         }
 
         // Unlimited-rate phases don't use the work queue.
-        if (currentPhase != null && traceReader == null
-                && !currentPhase.isRateLimited()) {
+        if (currentPhase != null && !currentPhase.isRateLimited()) {
             synchronized (this) {
                 ++workersWorking;
             }
@@ -171,11 +156,6 @@ public class WorkloadState {
 
             ++workersWorking;
 
-            // Return and remove the topmost piece of work, unless we're in the
-            // warmup stage of a script, in which case we shouldn't remove it.
-            if (traceReader != null && this.benchmarkState.getState() == State.WARMUP) {
-                return workQueue.peek();
-            }
             return workQueue.remove();
         }
     }
@@ -242,9 +222,6 @@ public class WorkloadState {
                             - this.currentPhase.getActiveTerminals();
                 }
 
-                if (traceReader != null) {
-                    traceReader.changePhase(this.currentPhase.id, System.nanoTime());
-                }
             }
 
 
@@ -258,16 +235,6 @@ public class WorkloadState {
 
     public void blockForStart() {
         benchmarkState.blockForStart();
-
-
-        // benchmark to skip the warmup phase.
-        if (traceReader != null) {
-            synchronized (benchmarkState) {
-                if (benchmarkState.getState() == State.WARMUP) {
-                    benchmarkState.startMeasure();
-                }
-            }
-        }
     }
 
     /**

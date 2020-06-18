@@ -198,19 +198,6 @@ public abstract class BenchmarkModule {
         }
     }
 
-    /**
-     * Run a scriptPath on a Database
-     */
-    public final void runScript(String scriptPath) {
-        try (Connection conn = this.getConnection()) {
-            ScriptRunner runner = new ScriptRunner(conn, true, true);
-            runner.runScript(scriptPath);
-        } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to run: %s", scriptPath), ex);
-        } catch (IOException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to open: %s", scriptPath), ex);
-        }
-    }
 
     /**
      * Invoke this benchmark's database loader

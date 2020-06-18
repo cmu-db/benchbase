@@ -117,16 +117,6 @@ public class DBWorkload {
             wrkld.setBenchmarkName(plugin);
             wrkld.setXmlConfig(xmlConfig);
 
-            boolean scriptRun = false;
-            if (argsLine.hasOption("t")) {
-                scriptRun = true;
-                String traceFile = argsLine.getOptionValue("t");
-                wrkld.setTraceReader(new TraceReader(traceFile));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(wrkld.getTraceReader().toString());
-                }
-            }
-
             // Pull in database configuration
             wrkld.setDatabaseType(DatabaseType.get(xmlConfig.getString("type")));
             wrkld.setDriverClass(xmlConfig.getString("driver"));
@@ -312,9 +302,6 @@ public class DBWorkload {
                 // a serial (rather than random) order.
                 boolean serial = Boolean.parseBoolean(work.getString("serial", Boolean.FALSE.toString()));
 
-                // We're not actually serial if we're running a script, so make
-                // sure to suppress the serial flag in this case.
-                serial = serial && (wrkld.getTraceReader() == null);
 
                 int activeTerminals;
                 activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
@@ -332,9 +319,7 @@ public class DBWorkload {
                 int time = work.getInt("/time", 0);
                 int warmup = work.getInt("/warmup", 0);
                 timed = (time > 0);
-                if (scriptRun) {
-                    LOG.info("Running a script; ignoring timer, serial, and weight settings.");
-                } else if (!timed) {
+                if (!timed) {
                     if (serial) {
                         LOG.info("Timer disabled for serial run; will execute" + " all queries exactly once.");
                     } else {
@@ -434,16 +419,6 @@ public class DBWorkload {
             LOG.debug("Skipping loading benchmark database records");
         }
 
-        // Execute a Script
-        if (argsLine.hasOption("run-script")) {
-            for (BenchmarkModule benchmark : benchList) {
-                String script = argsLine.getOptionValue("run-script");
-                LOG.info("Running a SQL script: {}", script);
-                runScript(benchmark, script);
-                LOG.info("Finished running a SQL script: {}", script);
-            }
-        }
-
         // Execute Workload
         if (isBooleanOptionSet(argsLine, "execute")) {
             // Bombs away!
@@ -469,7 +444,6 @@ public class DBWorkload {
         options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
         options.addOption(null, "execute", true, "Execute the benchmark workload");
-        options.addOption(null, "run-script", true, "Run an SQL script");
         options.addOption("h", "help", false, "Print this help");
         options.addOption("s", "sample", true, "Sampling window");
         options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
@@ -589,12 +563,6 @@ public class DBWorkload {
             }
         }
 
-    }
-
-
-    private static void runScript(BenchmarkModule bench, String script) {
-        LOG.debug(String.format("Running %s", script));
-        bench.runScript(script);
     }
 
     private static void runCreator(BenchmarkModule bench) {

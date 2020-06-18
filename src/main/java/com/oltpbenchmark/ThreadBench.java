@@ -186,20 +186,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             boolean phaseComplete = false;
             if (phase != null) {
-                TraceReader tr = workConfs.get(0).getTraceReader();
-                if (tr != null) {
-                    // If a trace script is present, the phase complete iff the
-                    // trace reader has no more
-                    for (WorkloadConfiguration workConf : workConfs) {
-                        phaseComplete = false;
-                        tr = workConf.getTraceReader();
-
-                        if (!workConf.getWorkloadState().getScriptPhaseComplete()) {
-                            break;
-                        }
-                        phaseComplete = true;
-                    }
-                } else if (phase.isLatencyRun())
+                if (phase.isLatencyRun())
                 // Latency runs (serial run through each query) have their own
                 // state to mark completion
                 {
