@@ -467,18 +467,18 @@ public class DBWorkload {
     private static void writeHistograms(Results r) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(StringUtil.bold("Completed Transactions:")).append("\n").append(r.getTransactionSuccessHistogram()).append("\n\n");
+        sb.append(StringUtil.bold("Completed Transactions:")).append("\n").append(r.getSuccess()).append("\n\n");
 
-        sb.append(StringUtil.bold("Aborted Transactions:")).append("\n").append(r.getTransactionAbortHistogram()).append("\n\n");
+        sb.append(StringUtil.bold("Aborted Transactions:")).append("\n").append(r.getAbort()).append("\n\n");
 
-        sb.append(StringUtil.bold("Rejected Transactions (Server Retry):")).append("\n").append(r.getTransactionRetryHistogram()).append("\n\n");
+        sb.append(StringUtil.bold("Rejected Transactions (Server Retry):")).append("\n").append(r.getRetry()).append("\n\n");
 
-        sb.append(StringUtil.bold("Rejected Transactions (Retry Different):")).append("\n").append(r.getTransactionRetryDifferentHistogram()).append("\n\n");
+        sb.append(StringUtil.bold("Rejected Transactions (Retry Different):")).append("\n").append(r.getRetryDifferent()).append("\n\n");
 
-        sb.append(StringUtil.bold("Unexpected Errors:")).append("\n").append(r.getTransactionErrorHistogram());
+        sb.append(StringUtil.bold("Unexpected Errors:")).append("\n").append(r.getError());
 
-        if (!r.getTransactionAbortMessageHistogram().isEmpty()) {
-            sb.append("\n\n").append(StringUtil.bold("User Aborts:")).append("\n").append(r.getTransactionAbortMessageHistogram());
+        if (!r.getAbortMessages().isEmpty()) {
+            sb.append("\n\n").append(StringUtil.bold("User Aborts:")).append("\n").append(r.getAbortMessages());
         }
 
         LOG.info(SINGLE_LINE);

@@ -30,23 +30,23 @@ import java.util.List;
 import java.util.Map;
 
 public final class Results {
-    public final long nanoSeconds;
-    public final int measuredRequests;
-    public final DistributionStatistics latencyDistribution;
-    public final List<LatencyRecord.Sample> latencySamples;
-    final Histogram<TransactionType> txnSuccess = new Histogram<>(true);
-    final Histogram<TransactionType> txnAbort = new Histogram<>(false);
-    final Histogram<TransactionType> txnRetry = new Histogram<>(false);
-    final Histogram<TransactionType> txnErrors = new Histogram<>(false);
-    final Histogram<TransactionType> txnRetryDifferent = new Histogram<>(false);
-    final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<>();
+    private final long nanoseconds;
+    private final int measuredRequests;
+    private final DistributionStatistics distributionStatistics;
+    private final List<LatencyRecord.Sample> latencySamples;
+    private final Histogram<TransactionType> success = new Histogram<>(true);
+    private final Histogram<TransactionType> abort = new Histogram<>(false);
+    private final Histogram<TransactionType> retry = new Histogram<>(false);
+    private final Histogram<TransactionType> error = new Histogram<>(false);
+    private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
+    private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
 
-    public Results(long nanoSeconds, int measuredRequests, DistributionStatistics latencyDistribution, final List<LatencyRecord.Sample> latencySamples) {
-        this.nanoSeconds = nanoSeconds;
+    public Results(long nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
+        this.nanoseconds = nanoseconds;
         this.measuredRequests = measuredRequests;
-        this.latencyDistribution = latencyDistribution;
+        this.distributionStatistics = distributionStatistics;
 
-        if (latencyDistribution == null) {
+        if (distributionStatistics == null) {
 
             this.latencySamples = null;
         } else {
@@ -56,40 +56,41 @@ public final class Results {
         }
     }
 
-    /**
-     * Get a histogram of how often each transaction was executed
-     */
-    public final Histogram<TransactionType> getTransactionSuccessHistogram() {
-        return (this.txnSuccess);
+    public DistributionStatistics getDistributionStatistics() {
+        return distributionStatistics;
     }
 
-    public final Histogram<TransactionType> getTransactionRetryHistogram() {
-        return (this.txnRetry);
+    public Histogram<TransactionType> getSuccess() {
+        return success;
     }
 
-    public final Histogram<TransactionType> getTransactionAbortHistogram() {
-        return (this.txnAbort);
+    public Histogram<TransactionType> getAbort() {
+        return abort;
     }
 
-    public final Histogram<TransactionType> getTransactionErrorHistogram() {
-        return (this.txnErrors);
+    public Histogram<TransactionType> getRetry() {
+        return retry;
     }
 
-    public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
-        return (this.txnRetryDifferent);
+    public Histogram<TransactionType> getError() {
+        return error;
     }
 
-    public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
-        return (this.txnAbortMessages);
+    public Histogram<TransactionType> getRetryDifferent() {
+        return retryDifferent;
     }
 
-    public double getRequestsPerSecond() {
-        return (double) measuredRequests / (double) nanoSeconds * 1e9;
+    public Map<TransactionType, Histogram<String>> getAbortMessages() {
+        return abortMessages;
+    }
+
+    public double requestsPerSecond() {
+        return (double) measuredRequests / (double) nanoseconds * 1e9;
     }
 
     @Override
     public String toString() {
-        return "Results(nanoSeconds=" + nanoSeconds + ", measuredRequests=" + measuredRequests + ") = " + getRequestsPerSecond() + " requests/sec";
+        return "Results(nanoSeconds=" + nanoseconds + ", measuredRequests=" + measuredRequests + ") = " + requestsPerSecond() + " requests/sec";
     }
 
     public void writeCSV(int windowSizeSeconds, PrintStream out) {

@@ -98,8 +98,8 @@ public class ResultUploader {
         summaryMap.put("DBMS Type", dbType);
         summaryMap.put("DBMS Version", collector.collectVersion());
         summaryMap.put("Benchmark Type", benchType);
-        summaryMap.put("Latency Distribution", results.latencyDistribution.toMap());
-        summaryMap.put("Throughput (requests/second)", results.getRequestsPerSecond());
+        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
+        summaryMap.put("Throughput (requests/second)", results.requestsPerSecond());
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }

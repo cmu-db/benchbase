@@ -312,17 +312,18 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
             txnTypes.remove(TransactionType.INVALID);
 
-            results.txnSuccess.putAll(txnTypes, 0);
-            results.txnRetry.putAll(txnTypes, 0);
-            results.txnAbort.putAll(txnTypes, 0);
-            results.txnErrors.putAll(txnTypes, 0);
+            results.getSuccess().putAll(txnTypes, 0);
+            results.getRetry().putAll(txnTypes, 0);
+            results.getAbort().putAll(txnTypes, 0);
+            results.getError().putAll(txnTypes, 0);
+            results.getRetryDifferent().putAll(txnTypes, 0);
 
             for (Worker<?> w : workers) {
-                results.txnSuccess.putHistogram(w.getTransactionSuccessHistogram());
-                results.txnRetry.putHistogram(w.getTransactionRetryHistogram());
-                results.txnAbort.putHistogram(w.getTransactionAbortHistogram());
-                results.txnErrors.putHistogram(w.getTransactionErrorHistogram());
-                results.txnRetryDifferent.putHistogram(w.getTransactionRetryDifferentHistogram());
+                results.getSuccess().putHistogram(w.getTransactionSuccessHistogram());
+                results.getRetry().putHistogram(w.getTransactionRetryHistogram());
+                results.getAbort().putHistogram(w.getTransactionAbortHistogram());
+                results.getError().putHistogram(w.getTransactionErrorHistogram());
+                results.getRetryDifferent().putHistogram(w.getTransactionRetryDifferentHistogram());
             }
 
             return (results);
