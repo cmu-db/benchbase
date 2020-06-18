@@ -167,25 +167,6 @@ public abstract class SQLUtil {
         return (null);
     }
 
-    /**
-     * Simple pretty-print debug method for the current row
-     * in the given ResultSet
-     *
-     * @param rs
-     * @return
-     * @throws SQLException
-     */
-    public static String debug(ResultSet rs) throws SQLException {
-        ResultSetMetaData rs_md = rs.getMetaData();
-        int num_cols = rs_md.getColumnCount();
-        Object[] data = new Object[num_cols];
-        for (int i = 0; i < num_cols; i++) {
-            data[i] = rs.getObject(i + 1);
-        }
-
-        return (String.format("ROW[%02d] -> [%s]", rs.getRow(), StringUtil.join(",", data)));
-    }
-
 
     public static Object[] getRowAsArray(ResultSet rs) throws SQLException {
         ResultSetMetaData rs_md = rs.getMetaData();

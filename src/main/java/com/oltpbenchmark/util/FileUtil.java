@@ -52,10 +52,6 @@ public abstract class FileUtil {
     }
 
 
-    public static boolean exists(String path) {
-        return (new File(path).exists());
-    }
-
     /**
      * Create any directory in the list paths if it doesn't exist
      *

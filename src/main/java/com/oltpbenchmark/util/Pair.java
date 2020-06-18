@@ -77,32 +77,6 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
         return (other.hash - this.hash);
     }
 
-    public Object get(int idx) {
-        if (idx == 0) {
-            return first;
-        } else if (idx == 1) {
-            return second;
-        }
-        return null;
-    }
-
-    /**
-     * @param o Object to compare to.
-     * @return Is the object equal to a value in the pair.
-     */
-    public boolean contains(Object o) {
-        if ((first != null) && (first.equals(o))) {
-            return true;
-        }
-        if ((second != null) && (second.equals(o))) {
-            return true;
-        }
-        if (o != null) {
-            return false;
-        }
-        return ((first == null) || (second == null));
-    }
-
     public boolean equals(Object o) {
         if (this == o) {
             return true;

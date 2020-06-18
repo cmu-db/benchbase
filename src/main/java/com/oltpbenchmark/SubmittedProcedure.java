@@ -32,11 +32,6 @@ public class SubmittedProcedure {
         this.startTime = System.nanoTime();
     }
 
-    SubmittedProcedure(int type, long startTime) {
-        this.type = type;
-        this.startTime = startTime;
-    }
-
     public int getType() {
         return type;
     }

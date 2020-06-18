@@ -20,7 +20,6 @@ package com.oltpbenchmark.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -42,41 +41,6 @@ public abstract class StringUtil {
     private static String CACHE_REPEAT_RESULT = null;
 
 
-
-    /**
-     * Split the multi-lined strings into separate columns
-     *
-     * @param strs
-     * @return
-     */
-    public static String columns(String... strs) {
-        String[][] lines = new String[strs.length][];
-        String[] prefixes = new String[strs.length];
-        int max_length = 0;
-        int max_lines = 0;
-
-        for (int i = 0; i < strs.length; i++) {
-            lines[i] = LINE_SPLIT.split(strs[i]);
-            prefixes[i] = (i == 0 ? "" : " \u2503 ");
-            for (String line : lines[i]) {
-                max_length = Math.max(max_length, line.length());
-            }
-            max_lines = Math.max(max_lines, lines[i].length);
-        }
-
-        String f = "%-" + max_length + "s";
-        StringBuilder sb = new StringBuilder();
-        for (int ii = 0; ii < max_lines; ii++) {
-            for (int i = 0; i < strs.length; i++) {
-                String line = (ii >= lines[i].length ? "" : lines[i][ii]);
-                sb.append(prefixes[i]).append(String.format(f, line));
-            }
-            sb.append("\n");
-        }
-
-        return (sb.toString());
-    }
-
     /**
      * Return key/value maps into a nicely formatted table
      * Delimiter ":", No UpperCase Keys, No Boxing
@@ -86,18 +50,6 @@ public abstract class StringUtil {
      */
     public static String formatMaps(Map<?, ?>... maps) {
         return (formatMaps(":", false, false, false, false, true, true, maps));
-    }
-
-    /**
-     * Return key/value maps into a nicely formatted table using the given delimiter
-     * No Uppercase Keys, No Boxing
-     *
-     * @param delimiter
-     * @param maps
-     * @return
-     */
-    public static String formatMaps(String delimiter, Map<?, ?>... maps) {
-        return (formatMaps(delimiter, false, false, false, false, true, true, maps));
     }
 
     /**
@@ -293,17 +245,6 @@ public abstract class StringUtil {
     }
 
     /**
-     * Make a box around some text using the given marker character.
-     *
-     * @param str
-     * @param mark
-     * @return
-     */
-    public static String box(String str, String mark) {
-        return (StringUtil.box(str, mark, null));
-    }
-
-    /**
      * Create a box around some text
      *
      * @param str
@@ -387,10 +328,6 @@ public abstract class StringUtil {
      */
     public static <T> String join(String delimiter, T... items) {
         return (join(delimiter, Arrays.asList(items)));
-    }
-
-    public static <T> String join(String delimiter, final Iterator<T> items) {
-        return (join("", delimiter, CollectionUtil.iterable(items)));
     }
 
     /**
