@@ -28,24 +28,14 @@ public final class BenchmarkState {
 
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkState.class);
 
-    private volatile State state = State.WARMUP;
-
-    // Assigned a value when starting the test. Used for offsets in the
-    // latency record.
     private final long testStartNs;
-
-    public long getTestStartNs() {
-        return testStartNs;
-    }
-
     private final CountDownLatch startBarrier;
     private final AtomicInteger notDoneCount;
-
-    // Protected by this
+    private volatile State state = State.WARMUP;
 
     /**
-     * @param numThreads  number of threads involved in the test: including the
-     *                    master thread.
+     * @param numThreads number of threads involved in the test: including the
+     *                   master thread.
      */
     public BenchmarkState(int numThreads) {
         startBarrier = new CountDownLatch(numThreads);
@@ -53,6 +43,12 @@ public final class BenchmarkState {
 
 
         testStartNs = System.nanoTime();
+    }
+
+    // Protected by this
+
+    public long getTestStartNs() {
+        return testStartNs;
     }
 
     public State getState() {
@@ -77,33 +73,26 @@ public final class BenchmarkState {
     }
 
     public void startMeasure() {
-
-
         state = State.MEASURE;
     }
 
     public void startColdQuery() {
-
         state = State.COLD_QUERY;
     }
 
     public void startHotQuery() {
-
         state = State.MEASURE;
     }
 
     public void signalLatencyComplete() {
-
         state = State.LATENCY_COMPLETE;
     }
 
     public void ackLatencyComplete() {
-
         state = State.MEASURE;
     }
 
     public void startCoolDown() {
-
         state = State.DONE;
 
         // The master thread must also signal that it is done

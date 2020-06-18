@@ -255,7 +255,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     LOG.error("Thread tried executing disabled phase!");
                     throw e;
                 }
-                if (phase.id == this.state.getCurrentPhase().id) {
+                if (phase.getId() == this.state.getCurrentPhase().getId()) {
                     switch (preState) {
                         case WARMUP:
                             // Don't quit yet: we haven't even begun!
@@ -285,8 +285,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // changed, otherwise we're recording results for a query
                     // that either started during the warmup phase or ended
                     // after the timer went off.
-                    if (preState == State.MEASURE && type != null && this.state.getCurrentPhase().id == phase.id) {
-                        latencies.addLatency(type.getId(), start, end, this.id, phase.id);
+                    if (preState == State.MEASURE && type != null && this.state.getCurrentPhase().getId() == phase.getId()) {
+                        latencies.addLatency(type.getId(), start, end, this.id, phase.getId());
                         intervalRequests.incrementAndGet();
                     }
                     if (phase.isLatencyRun()) {

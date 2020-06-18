@@ -128,12 +128,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             workState.switchToNextPhase();
             phase = workState.getCurrentPhase();
             LOG.info(phase.currentPhaseString());
-            if (phase.rate < lowestRate) {
-                lowestRate = phase.rate;
+            if (phase.getRate() < lowestRate) {
+                lowestRate = phase.getRate();
             }
         }
 
-        long intervalNs = getInterval(lowestRate, phase.arrival);
+        long intervalNs = getInterval(lowestRate, phase.getArrival());
 
         long nextInterval = start + intervalNs;
         int nextToAdd = 1;
@@ -141,7 +141,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         boolean resetQueues = true;
 
-        long delta = phase.time * 1000000000L;
+        long delta = phase.getTime() * 1000000000L;
         boolean lastEntry = false;
 
         // Initialize the Monitor
@@ -156,7 +156,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             for (WorkloadState workState : workStates) {
                 if (workState.getCurrentPhase() != null) {
-                    rateFactor = workState.getCurrentPhase().rate / lowestRate;
+                    rateFactor = workState.getCurrentPhase().getRate() / lowestRate;
                 } else {
                     rateFactor = 1;
                 }
@@ -167,7 +167,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Wait until the interval expires, which may be "don't wait"
             long now = System.nanoTime();
             if (phase != null) {
-                warmup = warmupStart + phase.warmupTime * 1000000000L;
+                warmup = warmupStart + phase.getWarmupTime() * 1000000000L;
             }
             long diff = nextInterval - now;
             while (diff > 0) { // this can wake early: sleep multiple times to
@@ -225,8 +225,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                             } else if (phase != null) {
                                 phase.resetSerial();
                                 LOG.info(phase.currentPhaseString());
-                                if (phase.rate < lowestRate) {
-                                    lowestRate = phase.rate;
+                                if (phase.getRate() < lowestRate) {
+                                    lowestRate = phase.getRate();
                                 }
                             }
                         }
@@ -237,7 +237,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                         // speed
                         // intervalNs = (long) (1000000000. / (double)
                         // lowestRate + 0.5);
-                        delta += phase.time * 1000000000L;
+                        delta += phase.getTime() * 1000000000L;
                     }
                 }
             }
@@ -248,7 +248,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 intervalNs = 0;
                 nextToAdd = 0;
                 do {
-                    intervalNs += getInterval(lowestRate, phase.arrival);
+                    intervalNs += getInterval(lowestRate, phase.getArrival());
                     nextToAdd++;
                 }
                 while ((-diff) > intervalNs && !lastEntry);

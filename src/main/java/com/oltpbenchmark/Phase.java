@@ -29,12 +29,12 @@ public class Phase {
     }
 
     private final Random gen = new Random();
-    public final String benchmarkName;
-    public final int id;
-    public final int time;
-    public final int warmupTime;
-    public final int rate;
-    public final Arrival arrival;
+    private final String benchmarkName;
+    private final int id;
+    private final int time;
+    private final int warmupTime;
+    private final int rate;
+    private final Arrival arrival;
 
 
     private final boolean rateLimited;
@@ -42,7 +42,7 @@ public class Phase {
     private final boolean serial;
     private final boolean timed;
     private final List<Double> weights;
-    private final int num_weights;
+    private final int weightCount;
     private final int activeTerminals;
     private int nextSerial;
 
@@ -54,7 +54,7 @@ public class Phase {
         this.warmupTime = wt;
         this.rate = r;
         this.weights = weights;
-        this.num_weights = this.weights.size();
+        this.weightCount = this.weights.size();
         this.rateLimited = rateLimited;
         this.disabled = disabled;
         this.serial = serial;
@@ -63,6 +63,8 @@ public class Phase {
         this.activeTerminals = activeTerminals;
         this.arrival = a;
     }
+
+
 
     public boolean isRateLimited() {
         return rateLimited;
@@ -97,7 +99,27 @@ public class Phase {
     }
 
     public int getWeightCount() {
-        return (this.num_weights);
+        return (this.weightCount);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public int getWarmupTime() {
+        return warmupTime;
+    }
+
+    public int getRate() {
+        return rate;
+    }
+
+    public Arrival getArrival() {
+        return arrival;
     }
 
     public List<Double> getWeights() {
@@ -139,7 +161,7 @@ public class Phase {
 
                 // Serial runs should not execute queries with non-positive
                 // weights.
-                while (ret <= this.num_weights && weights.get(ret - 1) <= 0.0) {
+                while (ret <= this.weightCount && weights.get(ret - 1) <= 0.0) {
                     ret = ++this.nextSerial;
                 }
 
@@ -152,7 +174,7 @@ public class Phase {
                     // so that we end up in the range [1,num_weights]
                     if (isTimed()) {
 
-                        this.nextSerial %= this.num_weights;
+                        this.nextSerial %= this.weightCount;
                     }
 
                     ++this.nextSerial;
@@ -162,7 +184,7 @@ public class Phase {
         } else {
             int randomPercentage = gen.nextInt((int) totalWeight()) + 1;
             double weight = 0.0;
-            for (int i = 0; i < this.num_weights; i++) {
+            for (int i = 0; i < this.weightCount; i++) {
                 weight += weights.get(i);
                 if (randomPercentage <= weight) {
                     return i + 1;
