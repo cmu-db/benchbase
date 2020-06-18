@@ -201,7 +201,7 @@ This fork contains a number of significant **structural** modifications to the o
     * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
 * Removed calls to `commit()` during `Loader` operations
 * Refactored `Worker` and `Loader` usage of `Connection` objects and cleaned up transaction handling
-* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed (default `poolsize` is 25)
+* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed (default `poolsize` is ~~25~~ 12)
 * Introduced [Dependabot](https://dependabot.com/) to keep Maven dependencies up to date
 * Removed `upload`, `output`, `output-raw`, `output-samples` `timestamp`, `tracescript`, `histograms`, `run-script` and `verbose` options.  Those related to "output" were simply enabled by default.
 * Refactored `Catalog` to be populated directly from the configured Benchmark database instead of proxied via `HSQLDB`.  This eliminates the dependency on this project.
