@@ -43,11 +43,9 @@ public class WorkloadConfiguration {
     private double selectivity = -1.0;
     private int terminals;
     private int loaderThreads = ThreadUtil.availableProcessors();
-    private int numTxnTypes;
     private TraceReader traceReader = null;
     private XMLConfiguration xmlConfig = null;
     private WorkloadState workloadState;
-    private int numberOfPhases = 0;
     private TransactionTypes transTypes = null;
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
@@ -71,6 +69,7 @@ public class WorkloadConfiguration {
     public WorkloadState getWorkloadState() {
         return workloadState;
     }
+
 
     public DatabaseType getDatabaseType() {
         return databaseType;
@@ -139,14 +138,14 @@ public class WorkloadConfiguration {
     /**
      * Initiate a new benchmark and workload state
      */
-    public WorkloadState initializeState(BenchmarkState benchmarkState) {
-        return new WorkloadState(benchmarkState, phases, terminals, traceReader);
+    public void initializeState(BenchmarkState benchmarkState) {
+        this.workloadState = new WorkloadState(benchmarkState, phases, terminals, traceReader);
     }
 
-    public void addPhase(int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
-        phases.add(new Phase(benchmarkName, numberOfPhases, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
-        numberOfPhases++;
+    public void addPhase(int id, int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
+        phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
     }
+
 
 
 
@@ -161,14 +160,6 @@ public class WorkloadConfiguration {
 
     public void setLoaderThreads(int loaderThreads) {
         this.loaderThreads = loaderThreads;
-    }
-
-    public int getNumTxnTypes() {
-        return numTxnTypes;
-    }
-
-    public void setNumTxnTypes(int numTxnTypes) {
-        this.numTxnTypes = numTxnTypes;
     }
 
     public double getSelectivity() {
@@ -207,7 +198,7 @@ public class WorkloadConfiguration {
      * @return
      */
     public int getNumberOfPhases() {
-        return this.numberOfPhases;
+        return phases.size();
     }
 
     /**
@@ -253,7 +244,7 @@ public class WorkloadConfiguration {
         this.transTypes = transTypes;
     }
 
-    public List<Phase> getAllPhases() {
+    public List<Phase> getPhases() {
         return phases;
     }
 
@@ -317,9 +308,7 @@ public class WorkloadConfiguration {
                 ", selectivity=" + selectivity +
                 ", terminals=" + terminals +
                 ", loaderThreads=" + loaderThreads +
-                ", numTxnTypes=" + numTxnTypes +
                 ", workloadState=" + workloadState +
-                ", numberOfPhases=" + numberOfPhases +
                 ", transTypes=" + transTypes +
                 ", isolationMode=" + isolationMode +
                 ", dataDir='" + dataDir + '\'' +

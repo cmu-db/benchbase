@@ -196,12 +196,12 @@ public class DBWorkload {
                 pluginTest = "[not(@bench)]";
                 numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
             }
-            wrkld.setNumTxnTypes(numTxnTypes);
+
 
             List<TransactionType> ttypes = new ArrayList<>();
             ttypes.add(TransactionType.INVALID);
             int txnIdOffset = lastTxnId;
-            for (int i = 1; i <= wrkld.getNumTxnTypes(); i++) {
+            for (int i = 1; i <= numTxnTypes; i++) {
                 String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
                 String txnName = xmlConfig.getString(key + "/name");
 
@@ -366,15 +366,15 @@ public class DBWorkload {
                 }
 
 
-                wrkld.addPhase(time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
+                wrkld.addPhase(i, time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
             }
 
             // CHECKING INPUT PHASES
             int j = 0;
-            for (Phase p : wrkld.getAllPhases()) {
+            for (Phase p : wrkld.getPhases()) {
                 j++;
-                if (p.getWeightCount() != wrkld.getNumTxnTypes()) {
-                    LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(), wrkld.getNumTxnTypes()));
+                if (p.getWeightCount() != numTxnTypes) {
+                    LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(),numTxnTypes));
                     if (p.isSerial()) {
                         LOG.error("However, note that since this a serial phase, the weights are irrelevant (but still must be included---sorry).");
                     }

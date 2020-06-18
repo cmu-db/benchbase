@@ -106,7 +106,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         List<WorkloadState> workStates = new ArrayList<>();
 
         for (WorkloadConfiguration workState : this.workConfs) {
-            workStates.add(workState.initializeState(testState));
+            workState.initializeState(testState);
+            workStates.add(workState.getWorkloadState());
         }
 
         this.createWorkerThreads();
