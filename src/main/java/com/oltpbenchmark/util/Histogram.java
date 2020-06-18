@@ -315,42 +315,6 @@ public class Histogram<X> implements JSONSerializable {
     }
 
     /**
-     * Returns the list of values sorted in descending order by cardinality
-     *
-     * @return
-     */
-    public SortedSet<X> sortedValues() {
-        SortedSet<X> sorted = new TreeSet<>(new Comparator<X>() {
-            public int compare(final X item0, final X item1) {
-                final Integer v0 = Histogram.this.get(item0);
-                final Integer v1 = Histogram.this.get(item1);
-                if (v0.equals(v1)) {
-                    return (-1);
-                }
-                return (v1.compareTo(v0));
-            }
-        });
-        sorted.addAll(this.histogram.keySet());
-        return (sorted);
-    }
-
-    /**
-     * Return the set of values from the histogram that have the matching count in the histogram
-     *
-     * @param count
-     * @return
-     */
-    public Set<X> getValuesForCount(int count) {
-        Set<X> ret = new HashSet<>();
-        for (Entry<X, Integer> e : this.histogram.entrySet()) {
-            if (e.getValue() == count) {
-                ret.add(e.getKey());
-            }
-        }
-        return (ret);
-    }
-
-    /**
      * Reset the histogram's internal data
      */
     public synchronized void clear() {
@@ -367,32 +331,6 @@ public class Histogram<X> implements JSONSerializable {
         }
         this.max_value = null;
 
-        this.dirty = true;
-    }
-
-    /**
-     * Clear all the values stored in the histogram. The keys are only kept if
-     * KeepZeroEntries is enabled, otherwise it does the same thing as clear()
-     */
-    public synchronized void clearValues() {
-        if (this.keep_zero_entries) {
-            for (Entry<X, Integer> e : this.histogram.entrySet()) {
-                this.histogram.put(e.getKey(), 0);
-            }
-            this.num_samples = 0;
-            this.min_count = 0;
-            if (this.min_count_values != null) {
-                this.min_count_values.clear();
-            }
-            this.min_value = null;
-            this.max_count = 0;
-            if (this.max_count_values != null) {
-                this.max_count_values.clear();
-            }
-            this.max_value = null;
-        } else {
-            this.clear();
-        }
         this.dirty = true;
     }
 
@@ -476,28 +414,6 @@ public class Histogram<X> implements JSONSerializable {
     }
 
     /**
-     * Remove the given count from the total of the value
-     *
-     * @param value
-     * @param count
-     */
-    public synchronized void remove(X value, int count) {
-
-        this._put(value, count * -1);
-//        this.calculateInternalValues();
-    }
-
-    /**
-     * Decrement the count for the given value by one in the histogram
-     *
-     * @param value
-     */
-    public synchronized void remove(X value) {
-        this._put(value, -1);
-        this.calculateInternalValues();
-    }
-
-    /**
      * Remove the entire count for the given value
      *
      * @param value
@@ -506,40 +422,6 @@ public class Histogram<X> implements JSONSerializable {
         Integer cnt = this.histogram.get(value);
         if (cnt != null && cnt > 0) {
             this._put(value, cnt * -1);
-        }
-    }
-
-    /**
-     * For each value in the given collection, decrement their count by one for each
-     *
-     * @param values
-     */
-    public synchronized void removeValues(Collection<X> values) {
-        this.removeValues(values, 1);
-    }
-
-    /**
-     * For each value in the given collection, decrement their count by the given delta
-     *
-     * @param values
-     * @param delta
-     */
-    public synchronized void removeValues(Collection<X> values, int delta) {
-        for (X v : values) {
-            this._put(v, -1 * delta);
-        }
-    }
-
-    /**
-     * Decrement all the entries in the other histogram by their counter
-     *
-     * @param other
-     */
-    public synchronized void removeHistogram(Histogram<X> other) {
-        for (Entry<X, Integer> e : other.histogram.entrySet()) {
-            if (e.getValue() > 0) {
-                this._put(e.getKey(), -1 * e.getValue());
-            }
         }
     }
 
@@ -586,16 +468,6 @@ public class Histogram<X> implements JSONSerializable {
      */
     public String toString() {
         return (this.toString(MAX_CHARS, MAX_VALUE_LENGTH));
-    }
-
-    /**
-     * Histogram Pretty Print
-     *
-     * @param max_chars size of the bars
-     * @return
-     */
-    public String toString(Integer max_chars) {
-        return (this.toString(max_chars, MAX_VALUE_LENGTH));
     }
 
     /**
