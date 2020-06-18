@@ -52,8 +52,7 @@ public class AddWatchList extends Procedure {
 
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
         if (userId > 0) {
-            // TODO: find a way to by pass Unique constraints in SQL server (Replace, Merge ..?)
-            // Here I am simply catching the right excpetion and move on.
+
             try (PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList)) {
                 ps.setInt(1, userId);
                 ps.setInt(2, nameSpace);
