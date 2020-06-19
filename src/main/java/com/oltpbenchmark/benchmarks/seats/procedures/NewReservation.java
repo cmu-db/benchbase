@@ -125,7 +125,6 @@ public class NewReservation extends Procedure {
             try (ResultSet results = stmt.executeQuery()) {
                 found = results.next();
                 if (!found) {
-                    results.close();
                     throw new UserAbortException(ErrorType.INVALID_FLIGHT_ID +
                             String.format(" Invalid flight #%d", f_id));
                 }

@@ -92,7 +92,6 @@ public class UpdateCustomer extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetCustomer, c_id)) {
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (!rs.next()) {
-                    rs.close();
                     throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
                 }
 

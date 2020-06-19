@@ -110,7 +110,6 @@ public class GetPageAuthenticated extends Procedure {
             try (ResultSet rs = st.executeQuery()) {
 
                 if (!rs.next()) {
-                    rs.close();
                     throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
                 }
                 pageId = rs.getInt("page_id");
@@ -148,7 +147,6 @@ public class GetPageAuthenticated extends Procedure {
             st.setInt(2, pageId);
             try (ResultSet rs = st.executeQuery()) {
                 if (!rs.next()) {
-                    rs.close();
                     throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
                 }
 

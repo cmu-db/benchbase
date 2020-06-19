@@ -382,7 +382,6 @@ public class Payment extends TPCCProcedure {
                 Customer c = TPCCUtil.newCustomerFromResults(rs);
                 c.c_id = c_id;
                 c.c_last = rs.getString("C_LAST");
-                rs.close();
                 return c;
             }
         }
