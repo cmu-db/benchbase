@@ -77,29 +77,6 @@ public class TPCHUtil {
     }
 
     /**
-     * Returns the region key given the region
-     *
-     * @param region R_NAME
-     * @return region key
-     */
-    public static int getRegionKeyFromRegion(String region) {
-        switch (region) {
-            case "AFRICA":
-                return 0;
-            case "AMERICA":
-                return 1;
-            case "ASIA":
-                return 2;
-            case "EUROPE":
-                return 3;
-            case "MIDDLE EAST":
-                return 4;
-            default:
-                throw new IllegalArgumentException(String.format("Invalid region %s", region));
-        }
-    }
-
-    /**
      * Returns the region given the region key
      *
      * @param regionKey region key

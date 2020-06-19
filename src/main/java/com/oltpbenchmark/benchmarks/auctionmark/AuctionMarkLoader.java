@@ -432,10 +432,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.subGenerator_hold.add(obj);
         }
 
-        public boolean hasSubTableGenerators() {
-            return (!this.sub_generators.isEmpty());
-        }
-
         public Collection<SubTableGenerator<?>> getSubTableGenerators() {
             return (this.sub_generators);
         }

@@ -318,10 +318,6 @@ public class AuctionMarkProfile {
         return (this);
     }
 
-    protected static void clearCachedProfile() {
-        cachedProfile = null;
-    }
-
     /**
      * Load the profile information stored in the database
      *
@@ -534,10 +530,6 @@ public class AuctionMarkProfile {
         return this.lastCloseAuctionsTime;
     }
 
-    public boolean hasLastCloseAuctionsTime() {
-        return (this.lastCloseAuctionsTime.getTime() != 0);
-    }
-
 
     // -----------------------------------------------------------------
     // GENERAL METHODS
@@ -645,16 +637,6 @@ public class AuctionMarkProfile {
     public UserId getRandomBuyerId(UserId... exclude) {
         // We don't care about skewing the buyerIds at this point, so just get one from getRandomUserId
         return (this.getRandomUserId(0, -1, exclude));
-    }
-
-    /**
-     * Gets a random buyer ID for the given client
-     *
-     * @return
-     */
-    public UserId getRandomBuyerId(int client, UserId... exclude) {
-        // We don't care about skewing the buyerIds at this point, so just get one from getRandomUserId
-        return (this.getRandomUserId(0, client, exclude));
     }
 
     /**

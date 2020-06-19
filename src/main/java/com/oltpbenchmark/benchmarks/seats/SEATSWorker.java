@@ -87,11 +87,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             }
         }
 
-        public static Transaction get(Integer idx) {
-
-            return (Transaction.idx_lookup.get(idx));
-        }
-
         public static Transaction get(String name) {
             return (Transaction.name_lookup.get(name));
         }
@@ -175,18 +170,6 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
     protected boolean isCustomerBookedOnFlight(CustomerId customer_id, FlightId flight_id) {
         Set<FlightId> flights = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
         return (flights != null && flights.contains(flight_id));
-    }
-
-    protected Set<FlightId> getCustomerBookedFlights(CustomerId customer_id) {
-        Set<FlightId> f_ids = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
-        if (f_ids == null) {
-            f_ids = CACHE_CUSTOMER_BOOKED_FLIGHTS.get(customer_id);
-            if (f_ids == null) {
-                f_ids = new HashSet<>();
-                CACHE_CUSTOMER_BOOKED_FLIGHTS.put(customer_id, f_ids);
-            }
-        }
-        return (f_ids);
     }
 
     // -----------------------------------------------------------------

@@ -40,10 +40,6 @@ public class GlobalAttributeValueId extends CompositeId {
         this(group_attribute_id.encode(), id);
     }
 
-    public GlobalAttributeValueId(long composite_id) {
-        this.decode(composite_id);
-    }
-
     @Override
     public long encode() {
         return (super.encode(COMPOSITE_BITS, COMPOSITE_POWS));

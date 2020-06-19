@@ -770,17 +770,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private long last_id = 0;
 
         /**
-         * Constructor
-         *
-         * @param catalog_tbl
-         * @param total
-         * @throws Exception
-         */
-        public ScalingDataIterable(Table catalog_tbl, long total) {
-            this(catalog_tbl, total, new int[0]);
-        }
-
-        /**
          * @param catalog_tbl
          * @param total
          * @param special_columns The offsets of the columns that we will invoke
@@ -1759,18 +1748,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      */
     public long getFlightIdStartingOffset() {
         return (this.profile.flight_upcoming_offset);
-    }
-
-    /**
-     * Return flight
-     *
-     * @param index
-     * @return
-     */
-    public FlightId getFlightId(int index) {
-
-
-        return (this.seats_remaining.get(index));
     }
 
     /**

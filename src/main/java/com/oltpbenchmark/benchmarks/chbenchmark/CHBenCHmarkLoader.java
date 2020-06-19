@@ -132,10 +132,6 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
         return threads;
     }
 
-    public void load() {
-
-    }
-
     private void truncateTable(Connection conn, String strTable) {
 
         LOG.debug("Truncating '{}' ...", strTable);

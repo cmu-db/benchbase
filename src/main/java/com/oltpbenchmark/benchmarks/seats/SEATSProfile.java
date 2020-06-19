@@ -253,10 +253,6 @@ public class SEATSProfile {
 
     }
 
-    protected static void clearCachedProfile() {
-        cachedProfile = null;
-    }
-
     private SEATSProfile copy(SEATSProfile other) {
         this.scale_factor = other.scale_factor;
         this.airport_max_customer_id.putHistogram(other.airport_max_customer_id);

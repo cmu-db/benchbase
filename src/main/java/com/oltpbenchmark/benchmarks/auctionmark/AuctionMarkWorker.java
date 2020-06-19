@@ -242,17 +242,8 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
             }
         }
 
-        public static Transaction get(Integer idx) {
-
-            return (Transaction.idx_lookup.get(idx));
-        }
-
         public static Transaction get(Class<? extends Procedure> clazz) {
             return (Transaction.class_lookup.get(clazz));
-        }
-
-        public static Transaction get(String name) {
-            return (Transaction.name_lookup.get(name));
         }
 
         /**

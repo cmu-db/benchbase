@@ -21,7 +21,6 @@ package com.oltpbenchmark.benchmarks.seats.util;
 import com.oltpbenchmark.util.Histogram;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 public class CustomerIdIterable implements Iterable<CustomerId> {
@@ -31,21 +30,9 @@ public class CustomerIdIterable implements Iterable<CustomerId> {
     private int last_id = -1;
     private long last_max_id = -1;
 
-    public CustomerIdIterable(Histogram<Long> airport_max_customer_id, long... airport_ids) {
-        this.airport_max_customer_id = airport_max_customer_id;
-        for (long id : airport_ids) {
-            this.airport_ids.add(id);
-        }
-    }
-
     public CustomerIdIterable(Histogram<Long> airport_max_customer_id) {
         this.airport_max_customer_id = airport_max_customer_id;
         this.airport_ids.addAll(airport_max_customer_id.values());
-    }
-
-    public CustomerIdIterable(Histogram<Long> airport_max_customer_id, Collection<Long> airport_ids) {
-        this.airport_max_customer_id = airport_max_customer_id;
-        this.airport_ids.addAll(airport_ids);
     }
 
     @Override

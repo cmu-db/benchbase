@@ -18,7 +18,6 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -40,15 +39,6 @@ public enum ErrorType {
 
     ErrorType() {
         this.errorCode = String.format("E%04d", this.ordinal());
-    }
-
-    public static ErrorType getErrorType(String msg) {
-        Matcher m = p.matcher(msg);
-        if (m.find()) {
-            int idx = Integer.parseInt(m.group(2));
-            return ErrorType.values()[idx];
-        }
-        return (ErrorType.UNKNOWN);
     }
 
     @Override
