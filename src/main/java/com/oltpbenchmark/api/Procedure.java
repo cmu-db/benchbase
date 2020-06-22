@@ -73,14 +73,6 @@ public abstract class Procedure {
     }
 
     /**
-     * Return the runtime DatabaseType for this Procedure
-     * Users should avoid invoking this directly
-     */
-    protected final DatabaseType getDatabaseType() {
-        return (this.dbType);
-    }
-
-    /**
      * Return a PreparedStatement for the given SQLStmt handle
      * The underlying Procedure API will make sure that the proper SQL
      * for the target DBMS is used for this SQLStmt.

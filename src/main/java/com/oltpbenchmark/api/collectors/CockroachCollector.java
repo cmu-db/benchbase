@@ -17,13 +17,9 @@
 
 package com.oltpbenchmark.api.collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.*;
 
 public class CockroachCollector extends DBCollector {
-    private static final Logger LOG = LoggerFactory.getLogger(CockroachCollector.class);
 
     private static final String VERSION_SQL = "SELECT version();";
 
@@ -36,7 +32,7 @@ public class CockroachCollector extends DBCollector {
                 // Collect DBMS version
                 try (ResultSet out = s.executeQuery(VERSION_SQL)) {
                     if (out.next()) {
-                        this.version.append(out.getString(1));
+                        this.version = out.getString(1);
                     }
                 }
 

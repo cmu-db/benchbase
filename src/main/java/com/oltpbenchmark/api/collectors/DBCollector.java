@@ -26,13 +26,13 @@ import java.util.TreeMap;
 
 public class DBCollector implements DBParameterCollector {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DBCollector.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DBCollector.class);
 
     protected final Map<String, String> dbParameters = new TreeMap<>();
 
     protected final Map<String, String> dbMetrics = new TreeMap<>();
 
-    protected final StringBuilder version = new StringBuilder();
+    protected String version = null;
 
     @Override
     public boolean hasParameters() {
@@ -56,7 +56,7 @@ public class DBCollector implements DBParameterCollector {
 
     @Override
     public String collectVersion() {
-        return version.toString();
+        return version;
     }
 
 

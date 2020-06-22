@@ -18,14 +18,11 @@
 package com.oltpbenchmark.api.collectors;
 
 import com.oltpbenchmark.util.JSONUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.*;
 
 public class PostgresCollector extends DBCollector {
-    private static final Logger LOG = LoggerFactory.getLogger(PostgresCollector.class);
 
     private static final String VERSION_SQL = "SELECT version();";
 
@@ -47,7 +44,7 @@ public class PostgresCollector extends DBCollector {
                 // Collect DBMS version
                 try (ResultSet out = s.executeQuery(VERSION_SQL)) {
                     if (out.next()) {
-                        this.version.append(out.getString(1));
+                        this.version = out.getString(1);
                     }
                 }
 
