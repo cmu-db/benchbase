@@ -34,6 +34,7 @@ import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -505,13 +506,14 @@ public class DBWorkload {
             outputDirectory = argsLine.getOptionValue("d");
         }
 
+
         FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
-
-        String filePrefix = TimeUtil.getCurrentTimeString() + "_";
-
         ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
 
-        String baseFileName = filePrefix + "oltpbench";
+        String name = StringUtils.join(StringUtils.split(argsLine.getOptionValue("b"), ','), '-');
+
+        String baseFileName = name + "_" + TimeUtil.getCurrentTimeString();
+
         int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
 
         String rawFileName = baseFileName + ".raw.csv";
