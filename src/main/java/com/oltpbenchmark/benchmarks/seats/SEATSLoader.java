@@ -502,7 +502,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      */
     public void loadTable(Connection conn, Table catalog_tbl, Iterable<Object[]> iterable, int batch_size) {
         // Special Case: Airport Locations
-        final boolean is_airport = catalog_tbl.getName().equals(SEATSConstants.TABLENAME_AIRPORT);
+        final boolean is_airport = catalog_tbl.getName().equalsIgnoreCase(SEATSConstants.TABLENAME_AIRPORT);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Generating new records for table %s [batchSize=%d]", catalog_tbl.getName(), batch_size));
@@ -640,7 +640,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         // Record the number of tuples that we loaded for this table in the
         // profile
-        if (catalog_tbl.getName().equals(SEATSConstants.TABLENAME_RESERVATION)) {
+        if (catalog_tbl.getName().equalsIgnoreCase(SEATSConstants.TABLENAME_RESERVATION)) {
             this.profile.num_reservations = row_idx + 1;
         }
 
@@ -676,13 +676,12 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
             // Figure out which columns are random integers and strings
             for (Column catalog_col : catalog_tbl.getColumns()) {
-                String col_name = catalog_col.getName();
                 int col_idx = catalog_col.getIndex();
-                if (col_name.contains("_SATTR")) {
+                if (catalog_col.getUppercaseName().contains("_SATTR")) {
                     this.rnd_string.add(col_idx);
                     this.rnd_string_min.put(col_idx, SEATSLoader.this.rng.nextInt(catalog_col.getSize() - 1));
                     this.rnd_string_max.put(col_idx, catalog_col.getSize());
-                } else if (col_name.contains("_IATTR")) {
+                } else if (catalog_col.getUppercaseName().contains("_IATTR")) {
                     this.rnd_integer.add(catalog_col.getIndex());
                 }
             }
@@ -724,31 +723,31 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * @param catalog_tbl the target table that we need an iterable for
      */
     protected Iterable<Object[]> getScalingIterable(Table catalog_tbl) {
-        String name = catalog_tbl.getName().toUpperCase();
+        String name = catalog_tbl.getName();
         ScalingDataIterable it = null;
         double scaleFactor = this.workConf.getScaleFactor();
         long num_customers = Math.round(SEATSConstants.CUSTOMERS_COUNT * scaleFactor);
 
         // Customers
-        if (name.equals(SEATSConstants.TABLENAME_CUSTOMER)) {
+        if (name.equalsIgnoreCase(SEATSConstants.TABLENAME_CUSTOMER)) {
             it = new CustomerIterable(catalog_tbl, num_customers);
         }
         // FrequentFlyer
-        else if (name.equals(SEATSConstants.TABLENAME_FREQUENT_FLYER)) {
+        else if (name.equalsIgnoreCase(SEATSConstants.TABLENAME_FREQUENT_FLYER)) {
             it = new FrequentFlyerIterable(catalog_tbl, num_customers);
         }
         // Airport Distance
-        else if (name.equals(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {
+        else if (name.equalsIgnoreCase(SEATSConstants.TABLENAME_AIRPORT_DISTANCE)) {
             int max_distance = Integer.MAX_VALUE; // SEATSConstants.DISTANCES[SEATSConstants.DISTANCES.length
             // - 1];
             it = new AirportDistanceIterable(catalog_tbl, max_distance);
         }
         // Flights
-        else if (name.equals(SEATSConstants.TABLENAME_FLIGHT)) {
+        else if (name.equalsIgnoreCase(SEATSConstants.TABLENAME_FLIGHT)) {
             it = new FlightIterable(catalog_tbl, (int) Math.round(SEATSConstants.FLIGHTS_DAYS_PAST * scaleFactor), (int) Math.round(SEATSConstants.FLIGHTS_DAYS_FUTURE * scaleFactor));
         }
         // Reservations
-        else if (name.equals(SEATSConstants.TABLENAME_RESERVATION)) {
+        else if (name.equalsIgnoreCase(SEATSConstants.TABLENAME_RESERVATION)) {
             long total = Math.round((SEATSConstants.FLIGHTS_PER_DAY_MIN + SEATSConstants.FLIGHTS_PER_DAY_MAX) / 2d * scaleFactor);
             it = new ReservationIterable(catalog_tbl, total);
         }

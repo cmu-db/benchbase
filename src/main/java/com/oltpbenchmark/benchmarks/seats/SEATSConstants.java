@@ -210,17 +210,17 @@ public abstract class SEATSConstants {
     /**
      * Table Names
      */
-    public static final String TABLENAME_COUNTRY = "COUNTRY";
-    public static final String TABLENAME_AIRLINE = "AIRLINE";
-    public static final String TABLENAME_CUSTOMER = "CUSTOMER";
-    public static final String TABLENAME_FREQUENT_FLYER = "FREQUENT_FLYER";
-    public static final String TABLENAME_AIRPORT = "AIRPORT";
-    public static final String TABLENAME_AIRPORT_DISTANCE = "AIRPORT_DISTANCE";
-    public static final String TABLENAME_FLIGHT = "FLIGHT";
-    public static final String TABLENAME_RESERVATION = "RESERVATION";
+    public static final String TABLENAME_COUNTRY = "country";
+    public static final String TABLENAME_AIRLINE = "airline";
+    public static final String TABLENAME_CUSTOMER = "customer";
+    public static final String TABLENAME_FREQUENT_FLYER = "frequent_flyer";
+    public static final String TABLENAME_AIRPORT = "airport";
+    public static final String TABLENAME_AIRPORT_DISTANCE = "airport_distance";
+    public static final String TABLENAME_FLIGHT = "flight";
+    public static final String TABLENAME_RESERVATION = "reservation";
 
-    public static final String TABLENAME_CONFIG_PROFILE = "CONFIG_PROFILE";
-    public static final String TABLENAME_CONFIG_HISTOGRAMS = "CONFIG_HISTOGRAMS";
+    public static final String TABLENAME_CONFIG_PROFILE = "config_profile";
+    public static final String TABLENAME_CONFIG_HISTOGRAMS = "config_histograms";
 
     /**
      * Histogram Data Set Names
@@ -272,9 +272,18 @@ public abstract class SEATSConstants {
      * will use the unique code in the input data tables instead of the id. Thus, we need
      * to keep a table of how to map these codes to the ids when loading.
      */
+
+    public static final String AIRPORT_ID = "ap_id";
+    public static final String AIRLINE_ID = "al_id";
+    public static final String COUNTRY_ID = "co_id";
+    public static final String AIRLINE_IATA_CODE = "al_iata_code";
+    public static final String AIRPORT_CODE = "ap_code";
+    public static final String COUNTRY_CODE = "co_code_3";
+
     public static final String[][] CODE_TO_ID_COLUMNS = {
-            {TABLENAME_COUNTRY, "CO_CODE_3", "CO_ID"},
-            {TABLENAME_AIRPORT, "AP_CODE", "AP_ID"},
-            {TABLENAME_AIRLINE, "AL_IATA_CODE", "AL_ID"},
+            {TABLENAME_COUNTRY, COUNTRY_CODE, COUNTRY_ID},
+            {TABLENAME_AIRPORT, AIRPORT_CODE, AIRPORT_ID},
+            {TABLENAME_AIRLINE, AIRLINE_IATA_CODE, AIRLINE_ID},
     };
+
 }

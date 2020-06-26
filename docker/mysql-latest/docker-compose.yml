@@ -6,7 +6,7 @@ services:
     container_name: mysql
     hostname: mysql
     image: mysql:latest
-    command: mysqld --max-connections=500 --lower_case_table_names=1
+    command: mysqld --max-connections=500
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_ROOT_HOST: "%"

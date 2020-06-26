@@ -228,23 +228,23 @@ public abstract class AuctionMarkConstants {
     // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
-    public static final String TABLENAME_CONFIG_PROFILE = "CONFIG_PROFILE";
-    public static final String TABLENAME_REGION = "REGION";
-    public static final String TABLENAME_USERACCT = "USERACCT";
-    public static final String TABLENAME_USERACCT_ATTRIBUTES = "USERACCT_ATTRIBUTES";
-    public static final String TABLENAME_USERACCT_ITEM = "USERACCT_ITEM";
-    public static final String TABLENAME_USERACCT_WATCH = "USERACCT_WATCH";
-    public static final String TABLENAME_USERACCT_FEEDBACK = "USERACCT_FEEDBACK";
-    public static final String TABLENAME_CATEGORY = "CATEGORY";
-    public static final String TABLENAME_GLOBAL_ATTRIBUTE_GROUP = "GLOBAL_ATTRIBUTE_GROUP";
-    public static final String TABLENAME_GLOBAL_ATTRIBUTE_VALUE = "GLOBAL_ATTRIBUTE_VALUE";
-    public static final String TABLENAME_ITEM = "ITEM";
-    public static final String TABLENAME_ITEM_ATTRIBUTE = "ITEM_ATTRIBUTE";
-    public static final String TABLENAME_ITEM_IMAGE = "ITEM_IMAGE";
-    public static final String TABLENAME_ITEM_COMMENT = "ITEM_COMMENT";
-    public static final String TABLENAME_ITEM_BID = "ITEM_BID";
-    public static final String TABLENAME_ITEM_MAX_BID = "ITEM_MAX_BID";
-    public static final String TABLENAME_ITEM_PURCHASE = "ITEM_PURCHASE";
+    public static final String TABLENAME_CONFIG_PROFILE = "config_profile";
+    public static final String TABLENAME_REGION = "region";
+    public static final String TABLENAME_USERACCT = "useracct";
+    public static final String TABLENAME_USERACCT_ATTRIBUTES = "useracct_attributes";
+    public static final String TABLENAME_USERACCT_ITEM = "useracct_item";
+    public static final String TABLENAME_USERACCT_WATCH = "useracct_watch";
+    public static final String TABLENAME_USERACCT_FEEDBACK = "useracct_feedback";
+    public static final String TABLENAME_CATEGORY = "category";
+    public static final String TABLENAME_GLOBAL_ATTRIBUTE_GROUP = "global_attribute_group";
+    public static final String TABLENAME_GLOBAL_ATTRIBUTE_VALUE = "global_attribute_value";
+    public static final String TABLENAME_ITEM = "item";
+    public static final String TABLENAME_ITEM_ATTRIBUTE = "item_attribute";
+    public static final String TABLENAME_ITEM_IMAGE = "item_image";
+    public static final String TABLENAME_ITEM_COMMENT = "item_comment";
+    public static final String TABLENAME_ITEM_BID = "item_bid";
+    public static final String TABLENAME_ITEM_MAX_BID = "item_max_bid";
+    public static final String TABLENAME_ITEM_PURCHASE = "item_purchase";
 
     public static final String[] TABLENAMES = {
             AuctionMarkConstants.TABLENAME_REGION,

@@ -26,12 +26,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 public class ReadModifyWriteRecord extends Procedure {
     public final SQLStmt selectStmt = new SQLStmt(
-            "SELECT * FROM USERTABLE where YCSB_KEY=? FOR UPDATE"
+            "SELECT * FROM " + TABLE_NAME + " where YCSB_KEY=? FOR UPDATE"
     );
     public final SQLStmt updateAllStmt = new SQLStmt(
-            "UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
+            "UPDATE " + TABLE_NAME + " SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?," +
                     "FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?"
     );
 

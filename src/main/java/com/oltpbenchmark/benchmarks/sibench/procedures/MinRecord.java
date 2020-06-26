@@ -25,8 +25,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.oltpbenchmark.benchmarks.sibench.SIConstants.TABLE_NAME;
+
 public class MinRecord extends Procedure {
-    public final SQLStmt minStmt = new SQLStmt("SELECT id FROM SITEST ORDER BY value ASC LIMIT 1");
+    public final SQLStmt minStmt = new SQLStmt("SELECT id FROM " + TABLE_NAME + " ORDER BY value ASC LIMIT 1");
 
     public int run(Connection conn) throws SQLException {
         int minId = 0;

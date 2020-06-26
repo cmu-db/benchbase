@@ -37,8 +37,8 @@ public class Table extends AbstractCatalogObject {
     private final List<Column> columns = new ArrayList<>();
     private final List<Index> indexes = new ArrayList<>();
 
-    public Table(String originalName, String name, String separator) {
-        super(originalName, name, separator);
+    public Table(String name, String uppercaseName, String separator) {
+        super(name, uppercaseName, separator);
     }
 
     public void addColumn(Column col) {

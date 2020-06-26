@@ -24,9 +24,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 public class InsertRecord extends Procedure {
     public final SQLStmt insertStmt = new SQLStmt(
-            "INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+            "INSERT INTO " + TABLE_NAME + " VALUES (?,?,?,?,?,?,?,?,?,?,?)"
     );
 
     // FIXME: The value in ysqb is a byteiterator

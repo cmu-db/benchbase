@@ -474,7 +474,7 @@ public abstract class SQLUtil {
         }
 
         for (Table table : tables.values()) {
-            try (ResultSet fk_rs = md.getImportedKeys(catalog, schema, table.getOriginalName())) {
+            try (ResultSet fk_rs = md.getImportedKeys(catalog, schema, table.getName())) {
                 while (fk_rs.next()) {
                     String colName = fk_rs.getString("FKCOLUMN_NAME");
 

@@ -31,9 +31,9 @@ public abstract class SmallBankConstants {
     // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
-    public static final String TABLENAME_ACCOUNTS = "ACCOUNTS";
-    public static final String TABLENAME_SAVINGS = "SAVINGS";
-    public static final String TABLENAME_CHECKING = "CHECKING";
+    public static final String TABLENAME_ACCOUNTS = "accounts";
+    public static final String TABLENAME_SAVINGS = "savings";
+    public static final String TABLENAME_CHECKING = "checking";
 
     // ----------------------------------------------------------------
     // ACCOUNT INFORMATION

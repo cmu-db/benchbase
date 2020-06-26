@@ -39,10 +39,10 @@ public abstract class TATPConstants {
     // ----------------------------------------------------------------
     // TABLE NAMES
     // ----------------------------------------------------------------
-    public static final String TABLENAME_SUBSCRIBER = "SUBSCRIBER";
-    public static final String TABLENAME_ACCESS_INFO = "ACCESS_INFO";
-    public static final String TABLENAME_SPECIAL_FACILITY = "SPECIAL_FACILITY";
-    public static final String TABLENAME_CALL_FORWARDING = "CALL_FORWARDING";
+    public static final String TABLENAME_SUBSCRIBER = "subscriber";
+    public static final String TABLENAME_ACCESS_INFO = "access_info";
+    public static final String TABLENAME_SPECIAL_FACILITY = "special_facility";
+    public static final String TABLENAME_CALL_FORWARDING = "call_forwarding";
 
     public static final String[] TABLENAMES = {
             TABLENAME_SUBSCRIBER,

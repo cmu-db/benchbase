@@ -49,8 +49,8 @@ public class Index extends AbstractCatalogObject {
         }
     }
 
-    public Index(String originalName, String name, String separator, Table table, int type, boolean unique) {
-        super(originalName, name, separator);
+    public Index(String name, String uppercaseName, String separator, Table table, int type, boolean unique) {
+        super(name, uppercaseName, separator);
         this.table = table;
         this.type = type;
         this.unique = unique;

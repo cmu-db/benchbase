@@ -33,4 +33,6 @@ public abstract class YCSBConstants {
 
     public static final int MAX_SCAN = 1000;
 
+    public static final String TABLE_NAME = "usertable";
+
 }

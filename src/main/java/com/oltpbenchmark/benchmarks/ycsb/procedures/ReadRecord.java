@@ -26,9 +26,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 public class ReadRecord extends Procedure {
     public final SQLStmt readStmt = new SQLStmt(
-            "SELECT * FROM USERTABLE WHERE YCSB_KEY=?"
+            "SELECT * FROM " + TABLE_NAME + " WHERE YCSB_KEY=?"
     );
 
     //FIXME: The value in ysqb is a byteiterator

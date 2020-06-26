@@ -35,8 +35,8 @@ public class Column extends AbstractCatalogObject {
 
     private Column foreignKey = null;
 
-    public Column(String originalName, String name, String separator, Table table, int type, Integer size, boolean nullable) {
-        super(originalName, name, separator);
+    public Column(String name, String uppercaseName, String separator, Table table, int type, Integer size, boolean nullable) {
+        super(name, uppercaseName, separator);
         this.table = table;
         this.type = type;
         this.size = size;

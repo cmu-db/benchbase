@@ -2,7 +2,7 @@
   <configuration default="false" name="ycsb - postgres" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
     <module name="oltpbench" />
-    <option name="PROGRAM_PARAMETERS" value="-b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=false --execute=false" />
+    <option name="PROGRAM_PARAMETERS" value="-b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.oltpbenchmark.*" />

@@ -305,9 +305,9 @@ public class SEATSProfile {
                 this.loadConfigHistograms(results.getConfigHistogram());
 
 
-                this.loadCodeXref(results.getCountryCodes(), "CO_CODE_3", "CO_ID");
-                this.loadCodeXref(results.getAirportCodes(), "AP_CODE", "AP_ID");
-                this.loadCodeXref(results.getAirlineCodes(), "AL_IATA_CODE", "AL_ID");
+                this.loadCodeXref(results.getCountryCodes(), SEATSConstants.COUNTRY_CODE, SEATSConstants.COUNTRY_ID);
+                this.loadCodeXref(results.getAirportCodes(), SEATSConstants.AIRPORT_CODE, SEATSConstants.AIRPORT_ID);
+                this.loadCodeXref(results.getAirlineCodes(), SEATSConstants.AIRLINE_IATA_CODE, SEATSConstants.AIRLINE_ID);
 
                 // CACHED FLIGHT IDS
                 this.loadCachedFlights(results.getFlights());
@@ -588,17 +588,17 @@ public class SEATSProfile {
     // ----------------------------------------------------------------
 
     public Collection<Long> getAirlineIds() {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRLINE_ID);
         return (m.values());
     }
 
     public Collection<String> getAirlineCodes() {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRLINE_ID);
         return (m.keySet());
     }
 
     public Long getAirlineId(String airline_code) {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRLINE_ID);
         return (m.get(airline_code));
     }
 
@@ -626,17 +626,17 @@ public class SEATSProfile {
      * @return
      */
     public Collection<Long> getAirportIds() {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRPORT_ID);
         return (m.values());
     }
 
     public Long getAirportId(String airport_code) {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRPORT_ID);
         return (m.get(airport_code));
     }
 
     public String getAirportCode(long airport_id) {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRPORT_ID);
         for (Entry<String, Long> e : m.entrySet()) {
             if (e.getValue() == airport_id) {
                 return (e.getKey());
@@ -646,7 +646,7 @@ public class SEATSProfile {
     }
 
     public Collection<String> getAirportCodes() {
-        return (this.getCodeXref("AP_ID").keySet());
+        return (this.getCodeXref(SEATSConstants.AIRPORT_ID).keySet());
     }
 
     /**

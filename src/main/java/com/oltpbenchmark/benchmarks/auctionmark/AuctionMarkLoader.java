@@ -311,16 +311,16 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.batchSize = workConf.getBatchSize();
 
 
-            boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getName());
-            boolean dynamic_size = AuctionMarkConstants.DYNAMIC_TABLES.contains(catalog_tbl.getName());
-            boolean data_file = AuctionMarkConstants.DATAFILE_TABLES.contains(catalog_tbl.getName());
+            boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getUppercaseName());
+            boolean dynamic_size = AuctionMarkConstants.DYNAMIC_TABLES.contains(catalog_tbl.getUppercaseName());
+            boolean data_file = AuctionMarkConstants.DATAFILE_TABLES.contains(catalog_tbl.getUppercaseName());
 
             // Add the dependencies so that we know what we need to block on
             CollectionUtil.addAll(this.dependencyTables, dependencies);
 
             // Initialize dynamic parameters for tables that are not loaded from data files
             if (!data_file && !dynamic_size && !tableName.equalsIgnoreCase(AuctionMarkConstants.TABLENAME_ITEM)) {
-                String field_name = "TABLESIZE_" + StringUtils.upperCase(catalog_tbl.getName());
+                String field_name = "TABLESIZE_" + StringUtils.upperCase(catalog_tbl.getUppercaseName());
                 try {
 
                     Field field_handle = AuctionMarkConstants.class.getField(field_name);

@@ -24,9 +24,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static com.oltpbenchmark.benchmarks.ycsb.YCSBConstants.TABLE_NAME;
+
 public class DeleteRecord extends Procedure {
     public final SQLStmt deleteStmt = new SQLStmt(
-            "DELETE FROM USERTABLE where YCSB_KEY=?"
+            "DELETE FROM " + TABLE_NAME + " where YCSB_KEY=?"
     );
 
     //FIXME: The value in ysqb is a byteiterator
