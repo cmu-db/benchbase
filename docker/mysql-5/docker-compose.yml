@@ -1,0 +1,30 @@
+version: '3.5'
+
+services:
+
+  mysql:
+    container_name: mysql
+    hostname: mysql
+    image: mysql:5
+    command: mysqld --max-connections=500 --lower_case_table_names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: oltpbench
+    ports:
+      - "3306:3306"
+
+
+  mysql-ui:
+    container_name: mysql-ui
+    hostname: mysql-ui
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+    links:
+      - mysql
+    ports:
+      - "8080:80"
