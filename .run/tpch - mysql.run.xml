@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="tpch - mysql" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
-    <module name="oltpbench" />
+    <module name="oltpbench2" />
     <option name="PROGRAM_PARAMETERS" value="-b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true" />
     <extension name="coverage">
       <pattern>

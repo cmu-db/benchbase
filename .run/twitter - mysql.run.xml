@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="twitter - mysql" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
-    <module name="oltpbench" />
+    <module name="oltpbench2" />
     <option name="PROGRAM_PARAMETERS" value="-b twitter -c config/mysql/sample_twitter_config.xml --create=true --load=true --execute=true" />
     <extension name="coverage">
       <pattern>
