@@ -144,7 +144,7 @@ public abstract class FileUtil {
         }
         // If we didn't see an .svn directory, then we went too far down
         if (!has_svn) {
-            throw new RuntimeException("Unable to find directory '" + name + "' [last_dir=" + current.getAbsolutePath() + "]");
+            throw new RuntimeException("Unable to find directory '" + name + "' [last_dir=" + current.getPath() + "]");
         }
         File next = new File(current.getCanonicalPath() + File.separator + "..");
         return (FileUtil.find(name, next, isdir));

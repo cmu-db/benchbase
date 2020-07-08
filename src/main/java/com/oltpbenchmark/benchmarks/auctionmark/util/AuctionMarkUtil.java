@@ -19,43 +19,13 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkProfile;
-import com.oltpbenchmark.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 
 public abstract class AuctionMarkUtil {
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkUtil.class);
-
-    public static File getDataDirectory() {
-        File dataDir = null;
-
-        // If we weren't given a path, then we need to look for the tests directory and
-        // then walk our way up the tree to get to our benchmark's directory
-        try {
-            File tests_dir = FileUtil.findDirectory("tests");
-
-
-            dataDir = new File(tests_dir.getAbsolutePath() + File.separator + "frontend" + File.separator +
-                    AuctionMarkProfile.class.getPackage().getName().replace('.', File.separatorChar) +
-                    File.separator + "data").getCanonicalFile();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Default data directory path = {}", dataDir);
-            }
-            if (!dataDir.exists()) {
-                throw new RuntimeException("The default data directory " + dataDir + " does not exist");
-            } else if (!dataDir.isDirectory()) {
-                throw new RuntimeException("The default data path " + dataDir + " is not a directory");
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException("Unexpected error", ex);
-        }
-        return (dataDir);
-    }
 
     private static final long ITEM_ID_MASK = 0xFFFFFFFFFFFFFFL; // 56 bits (ITEM_ID)
 

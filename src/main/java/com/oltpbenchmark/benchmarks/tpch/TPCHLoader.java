@@ -440,7 +440,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             } else if (eurMatcher.find()) {
                                 fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1))));
                             } else {
-                                throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getAbsolutePath());
+                                throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getPath());
                             }
                             prepStmt.setDate(i + 1, fieldAsDate, null);
                             break;

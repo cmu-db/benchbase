@@ -542,7 +542,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
                                 } else if (!"".equals(field)) {
                                     throw new RuntimeException("Unrecognized date \""
                                             + field + "\" in file: "
-                                            + file.getAbsolutePath());
+                                            + file.getPath());
                                 }
                                 fieldAsDate = "".equals(field) ? null : java.sql.Date.valueOf(isoFmtDate);
                                 ps.setDate(i + 1, fieldAsDate, null);
@@ -563,7 +563,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
 
                 } catch (IllegalStateException e) {
                     // This happens if there wasn't a match against the regex.
-                    LOG.error("Invalid file: {}", file.getAbsolutePath());
+                    LOG.error("Invalid file: {}", file.getPath());
                 }
             }
 
