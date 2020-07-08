@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ public class SEATSBenchmark extends BenchmarkModule {
             if (url != null) {
                 return new File(url.toURI().getPath());
             }
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
         return (null);
