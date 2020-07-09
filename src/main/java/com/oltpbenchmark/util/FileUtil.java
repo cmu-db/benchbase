@@ -18,17 +18,14 @@
 
 package com.oltpbenchmark.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * @author pavlo
  */
 public abstract class FileUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
-
 
     /**
      * Join path components
@@ -74,80 +71,6 @@ public abstract class FileUtil {
             writer.write(content);
             writer.flush();
         }
-    }
-
-    public static String readFile(String path) {
-        StringBuilder buffer = new StringBuilder();
-        try (BufferedReader in = FileUtil.getReader(path)) {
-            while (in.ready()) {
-                buffer.append(in.readLine()).append("\n");
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to read file contents from '" + path + "'", ex);
-        }
-        return (buffer.toString());
-    }
-
-    /**
-     * Creates a BufferedReader for the given input path Can handle both gzip
-     * and plain text files
-     *
-     * @param path
-     * @return
-     * @throws IOException
-     */
-    public static BufferedReader getReader(String path) throws IOException {
-        return (FileUtil.getReader(new File(path)));
-    }
-
-    /**
-     * Creates a BufferedReader for the given input path Can handle both gzip
-     * and plain text files
-     *
-     * @param file
-     * @return
-     * @throws IOException
-     */
-    public static BufferedReader getReader(File file) throws IOException {
-        if (!file.exists()) {
-            throw new IOException("The file '" + file + "' does not exist");
-        }
-
-        BufferedReader in = new BufferedReader(new FileReader(file));
-        LOG.debug("Reading in the contents of '{}'", file.getName());
-
-        return (in);
-    }
-
-    /**
-     * Find the path to a directory below our current location in the source
-     * tree Throws a RuntimeException if we go beyond our repository checkout
-     *
-     * @param dirName
-     * @return
-     * @throws IOException
-     */
-    public static File findDirectory(String dirName) throws IOException {
-        return (FileUtil.find(dirName, new File(".").getCanonicalFile(), true).getCanonicalFile());
-    }
-
-    private static File find(String name, File current, boolean isdir) throws IOException {
-        LOG.debug("Find Current Location = {}", current);
-        boolean has_svn = false;
-        for (File file : current.listFiles()) {
-            if (file.getCanonicalPath().endsWith(File.separator + name) && file.isDirectory() == isdir) {
-                return (file);
-                // Make sure that we don't go to far down...
-            } else if (file.getCanonicalPath().endsWith(File.separator + ".svn")) {
-                has_svn = true;
-            }
-        }
-        // If we didn't see an .svn directory, then we went too far down
-        if (!has_svn) {
-            throw new RuntimeException("Unable to find directory '" + name + "' [last_dir=" + current.getPath() + "]");
-        }
-        File next = new File(current.getCanonicalPath() + File.separator + "..");
-        return (FileUtil.find(name, next, isdir));
     }
 
 }

@@ -22,14 +22,15 @@ import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.opencsv.CSVReader;
 
-import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 
 /**
  * @author pavlo
  */
-public class TableDataIterable implements Iterable<Object[]> {
-    private final File table_file;
+public class TableDataIterable implements Iterable<Object[]>, AutoCloseable {
+    private final String filePath;
     private final CSVReader reader;
     private final boolean auto_generate_first_column;
 
@@ -38,16 +39,18 @@ public class TableDataIterable implements Iterable<Object[]> {
     private final boolean[] nullable;
     private int line_ctr = 0;
 
+    private InputStream in = null;
+
     /**
      * Constructor
      *
-     * @param table_file
+     * @param filePath
      * @param has_header                 whether we expect the data file to include a header in the first row
      * @param auto_generate_first_column TODO
      * @throws Exception
      */
-    public TableDataIterable(Table catalog_tbl, File table_file, boolean has_header, boolean auto_generate_first_column) throws Exception {
-        this.table_file = table_file;
+    public TableDataIterable(Table catalog_tbl, String filePath, boolean has_header, boolean auto_generate_first_column) throws Exception {
+        this.filePath = filePath;
         this.auto_generate_first_column = auto_generate_first_column;
 
         this.types = new int[catalog_tbl.getColumnCount()];
@@ -60,7 +63,9 @@ public class TableDataIterable implements Iterable<Object[]> {
             this.nullable[i] = catalog_col.isNullable();
         }
 
-        this.reader = new CSVReader(FileUtil.getReader(this.table_file));
+        in = this.getClass().getClassLoader().getResourceAsStream(filePath);
+        this.reader = new CSVReader(new InputStreamReader(in));
+
 
         // Throw away the first row if there is a header
         if (has_header) {
@@ -74,6 +79,17 @@ public class TableDataIterable implements Iterable<Object[]> {
         return (new TableIterator());
     }
 
+    @Override
+    public void close() throws Exception {
+        if (this.in != null) {
+            in.close();
+        }
+
+        if (this.reader != null) {
+            reader.close();
+        }
+    }
+
     public class TableIterator implements Iterator<Object[]> {
         String[] next = null;
 
@@ -82,7 +98,7 @@ public class TableDataIterable implements Iterable<Object[]> {
                 try {
                     next = reader.readNext();
                 } catch (Exception ex) {
-                    throw new RuntimeException("Unable to retrieve tuples from '" + table_file + "'", ex);
+                    throw new RuntimeException("Unable to retrieve tuples from '" + filePath + "'", ex);
                 }
             }
         }

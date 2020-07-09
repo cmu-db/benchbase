@@ -18,6 +18,7 @@
 package com.oltpbenchmark.util;
 
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,8 +28,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -161,16 +164,20 @@ public abstract class JSONUtil {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Loading in serialized {} from '{}'", object.getClass().getSimpleName(), input_path);
         }
-        String contents = FileUtil.readFile(input_path);
-        if (contents.isEmpty()) {
-            throw new IOException("The " + object.getClass().getSimpleName() + " file '" + input_path + "' is empty");
+
+        String contents;
+
+        try (InputStream in = JSONUtil.class.getClassLoader().getResourceAsStream(input_path)) {
+            contents = IOUtils.toString(in, Charset.defaultCharset());
         }
+
         try {
             object.fromJSON(new JSONObject(contents));
         } catch (Exception ex) {
             LOG.error("Failed to deserialize the {} from file '{}'", object.getClass().getSimpleName(), input_path, ex);
             throw new IOException(ex);
         }
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("The loading of the {} is complete", object.getClass().getSimpleName());
         }

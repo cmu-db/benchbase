@@ -29,7 +29,6 @@ import org.apache.commons.collections4.map.ListOrderedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -124,7 +123,7 @@ public class SEATSProfile {
     /**
      * Data Directory
      */
-    protected transient final File airline_data_dir;
+    protected transient final String airline_data_dir;
 
     /**
      * Specialized random number generator
@@ -145,9 +144,6 @@ public class SEATSProfile {
         this.benchmark = benchmark;
         this.rng = rng;
         this.airline_data_dir = benchmark.getDataDir();
-        if (!this.airline_data_dir.exists()) {
-            throw new RuntimeException("Unable to start benchmark. The data directory '" + this.airline_data_dir.getAbsolutePath() + "' does not exist");
-        }
 
         // Tuple Code to Tuple Id Mapping
         for (String[] xref : SEATSConstants.CODE_TO_ID_COLUMNS) {
@@ -295,7 +291,6 @@ public class SEATSProfile {
 
             Config results;
             try (Connection conn = benchmark.getConnection()) {
-
                 results = proc.run(conn);
             }
                 // CONFIG_PROFILE
@@ -394,10 +389,6 @@ public class SEATSProfile {
     // ----------------------------------------------------------------
     // DATA ACCESS METHODS
     // ----------------------------------------------------------------
-
-    public File getSEATSDataDir() {
-        return this.airline_data_dir;
-    }
 
     private Map<String, Long> getCodeXref(String col_name) {
 

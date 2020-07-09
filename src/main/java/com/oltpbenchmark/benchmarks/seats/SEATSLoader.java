@@ -30,7 +30,6 @@ import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
-import java.io.File;
 import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -472,8 +471,10 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         try {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
 
-            Iterable<Object[]> iterable = this.getFixedIterable(catalog_tbl);
-            this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
+            try (FixedDataIterable iterable = this.getFixedIterable(catalog_tbl)) {
+                this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
+            }
+
         } catch (Throwable ex) {
             throw new RuntimeException("Failed to load data files for fixed-sized table '" + table_name + "'", ex);
         }
@@ -656,9 +657,9 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * @return
      * @throws Exception
      */
-    protected Iterable<Object[]> getFixedIterable(Table catalog_tbl) throws Exception {
-        File f = SEATSBenchmark.getTableDataFile(this.profile.airline_data_dir, catalog_tbl);
-        return new FixedDataIterable(catalog_tbl, f);
+    protected FixedDataIterable getFixedIterable(Table catalog_tbl) throws Exception {
+        String path = SEATSBenchmark.getTableDataFilePath(this.profile.airline_data_dir, catalog_tbl);
+        return new FixedDataIterable(catalog_tbl, path);
     }
 
     /**
@@ -671,8 +672,8 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         private final Map<Integer, Integer> rnd_string_max = new HashMap<>();
         private final Set<Integer> rnd_integer = new HashSet<>();
 
-        public FixedDataIterable(Table catalog_tbl, File filename) throws Exception {
-            super(catalog_tbl, filename, true, true);
+        public FixedDataIterable(Table catalog_tbl, String filePath) throws Exception {
+            super(catalog_tbl, filePath, true, true);
 
             // Figure out which columns are random integers and strings
             for (Column catalog_col : catalog_tbl.getColumns()) {

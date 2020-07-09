@@ -24,18 +24,12 @@ import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.RandomGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SEATSBenchmark extends BenchmarkModule {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SEATSBenchmark.class);
-
 
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
@@ -44,17 +38,8 @@ public class SEATSBenchmark extends BenchmarkModule {
         this.registerSupplementalProcedure(LoadConfig.class);
     }
 
-    public File getDataDir() {
-
-        URL url = SEATSBenchmark.class.getClassLoader().getResource("benchmarks" + File.separator + getBenchmarkName());
-        try {
-            if (url != null) {
-                return new File(url.toURI().getPath());
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return (null);
+    public String getDataDir() {
+        return "benchmarks" + File.separator + getBenchmarkName();
     }
 
     public RandomGenerator getRandomGenerator() {
@@ -88,8 +73,7 @@ public class SEATSBenchmark extends BenchmarkModule {
      * @param catalog_tbl
      * @return
      */
-    public static File getTableDataFile(File data_dir, Table catalog_tbl) {
-
-        return (new File(String.format("%s%stable.%s.csv", data_dir.getAbsolutePath(), File.separator, catalog_tbl.getName().toLowerCase())));
+    public static String getTableDataFilePath(String data_dir, Table catalog_tbl) {
+        return String.format("%s%stable.%s.csv", data_dir, File.separator, catalog_tbl.getName().toLowerCase());
     }
 }
