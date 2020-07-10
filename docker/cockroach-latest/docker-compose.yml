@@ -6,13 +6,13 @@ services:
     container_name: crdb-0
     hostname: crdb-0
     image: cockroachdb/cockroach:latest
-    command: start --cluster-name=oltpbench --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB
+    command: start --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB
 
   crdb-1:
     container_name: crdb-1
     hostname: crdb-1
     image: cockroachdb/cockroach:latest
-    command: start --cluster-name=oltpbench --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB --join=crdb-0
+    command: start --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB --join=crdb-0
     depends_on:
       - crdb-0
 
@@ -20,7 +20,7 @@ services:
     container_name: crdb-2
     hostname: crdb-2
     image: cockroachdb/cockroach:latest
-    command: start --cluster-name=oltpbench --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB --join=crdb-0
+    command: start --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB --join=crdb-0
     depends_on:
       - crdb-0
 
