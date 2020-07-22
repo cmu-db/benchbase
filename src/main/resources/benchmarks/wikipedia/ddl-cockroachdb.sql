@@ -1,15 +1,43 @@
 DROP TABLE IF EXISTS ipblocks CASCADE;
 DROP TABLE IF EXISTS logging CASCADE;
-DROP TABLE IF EXISTS page CASCADE;
-DROP TABLE IF EXISTS page_backup CASCADE;
-DROP TABLE IF EXISTS page_restrictions CASCADE;
 DROP TABLE IF EXISTS recentchanges CASCADE;
 DROP TABLE IF EXISTS revision CASCADE;
+DROP TABLE IF EXISTS page_restrictions CASCADE;
+DROP TABLE IF EXISTS page CASCADE;
 DROP TABLE IF EXISTS text CASCADE;
-DROP TABLE IF EXISTS useracct CASCADE;
+DROP TABLE IF EXISTS watchlist CASCADE;
 DROP TABLE IF EXISTS user_groups CASCADE;
-DROP TABLE IF EXISTS watchlist;
-DROP TABLE IF EXISTS value_backup;
+DROP TABLE IF EXISTS useracct CASCADE;
+
+CREATE TABLE useracct (
+    user_id                  serial,
+    user_name                varchar(255) NOT NULL DEFAULT '',
+    user_real_name           varchar(255) NOT NULL DEFAULT '',
+    user_password            varchar(255) NOT NULL,
+    user_newpassword         varchar(255) NOT NULL,
+    user_newpass_time        varchar(14)           DEFAULT NULL,
+    user_email               varchar(255) NOT NULL,
+    user_options             varchar(255) NOT NULL,
+    user_touched             varchar(14)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+    user_token               varchar(32)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+    user_email_authenticated varchar(14)           DEFAULT NULL,
+    user_email_token         varchar(32)           DEFAULT NULL,
+    user_email_token_expires varchar(14)           DEFAULT NULL,
+    user_registration        varchar(14)           DEFAULT NULL,
+    user_editcount           int                   DEFAULT NULL,
+    PRIMARY KEY (user_id),
+    UNIQUE (user_name)
+);
+CREATE INDEX idx_user_email_token ON useracct (user_email_token);
+
+CREATE TABLE user_groups (
+    ug_user  int         NOT NULL DEFAULT '0',
+    ug_group varchar(16) NOT NULL DEFAULT '',
+    FOREIGN KEY (ug_user) REFERENCES useracct (user_id) ON DELETE CASCADE,
+    UNIQUE (ug_user, ug_group)
+);
+CREATE INDEX idx_ug_group ON user_groups (ug_group);
+
 
 CREATE TABLE ipblocks (
     ipb_id               serial,
@@ -30,6 +58,8 @@ CREATE TABLE ipblocks (
     ipb_block_email      smallint    NOT NULL DEFAULT '0',
     ipb_allow_usertalk   smallint    NOT NULL DEFAULT '0',
     PRIMARY KEY (ipb_id),
+    FOREIGN KEY (ipb_user) REFERENCES useracct (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (ipb_by) REFERENCES useracct (user_id) ON DELETE CASCADE,
     UNIQUE (ipb_address, ipb_user, ipb_auto, ipb_anon_only)
 );
 CREATE INDEX idx_ipb_user ON ipblocks (ipb_user);
@@ -50,6 +80,7 @@ CREATE TABLE logging (
     log_deleted   smallint     NOT NULL DEFAULT '0',
     log_user_text varchar(255) NOT NULL DEFAULT '',
     log_page      int                   DEFAULT NULL,
+    FOREIGN KEY (log_user) REFERENCES useracct (user_id) ON DELETE CASCADE,
     PRIMARY KEY (log_id)
 );
 CREATE INDEX idx_log_type_time ON logging (log_type, log_timestamp);
@@ -77,33 +108,16 @@ CREATE TABLE page (
 CREATE INDEX idx_page_random ON page (page_random);
 CREATE INDEX idx_page_len ON page (page_len);
 
-CREATE TABLE page_backup (
-    page_id           serial,
-    page_namespace    int              NOT NULL,
-    page_title        varchar          NOT NULL,
-    page_restrictions varchar(255)     NOT NULL,
-    page_counter      bigint           NOT NULL DEFAULT '0',
-    page_is_redirect  smallint         NOT NULL DEFAULT '0',
-    page_is_new       smallint         NOT NULL DEFAULT '0',
-    page_random       double precision NOT NULL,
-    page_touched      varchar(14)      NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-    page_latest       int              NOT NULL,
-    page_len          int              NOT NULL,
-    PRIMARY KEY (page_id),
-    UNIQUE (page_namespace, page_title)
-);
-CREATE INDEX idx_page_backup_random ON page_backup (page_random);
-CREATE INDEX idx_page_backup_len ON page_backup (page_len);
-
 CREATE TABLE page_restrictions (
+    pr_id      int         NOT NULL,
     pr_page    int         NOT NULL,
     pr_type    varchar(60) NOT NULL,
     pr_level   varchar(60) NOT NULL,
     pr_cascade smallint    NOT NULL,
     pr_user    int         DEFAULT NULL,
     pr_expiry  varchar(14) DEFAULT NULL,
-    pr_id      int         NOT NULL,
     PRIMARY KEY (pr_id),
+    FOREIGN KEY (pr_page) REFERENCES page (page_id) ON DELETE CASCADE,
     UNIQUE (pr_page, pr_type)
 );
 CREATE INDEX idx_pr_typelevel ON page_restrictions (pr_type, pr_level);
@@ -137,6 +151,8 @@ CREATE TABLE recentchanges (
     rc_log_type       varchar(255)          DEFAULT NULL,
     rc_log_action     varchar(255)          DEFAULT NULL,
     rc_params         varchar(255),
+    FOREIGN KEY (rc_user) REFERENCES useracct (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (rc_cur_id) REFERENCES page (page_id) ON DELETE CASCADE,
     PRIMARY KEY (rc_id)
 );
 CREATE INDEX idx_rc_timestamp ON recentchanges (rc_timestamp);
@@ -160,7 +176,9 @@ CREATE TABLE revision (
     rev_len        int                   DEFAULT NULL,
     rev_parent_id  int                   DEFAULT NULL,
     PRIMARY KEY (rev_id),
-    UNIQUE (rev_page, rev_id)
+    UNIQUE (rev_page, rev_id),
+    FOREIGN KEY (rev_user) REFERENCES useracct (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (rev_page) REFERENCES page (page_id) ON DELETE CASCADE
 );
 CREATE INDEX idx_rev_timestamp ON revision (rev_timestamp);
 CREATE INDEX idx_page_timestamp ON revision (rev_page, rev_timestamp);
@@ -175,44 +193,12 @@ CREATE TABLE text (
     PRIMARY KEY (old_id)
 );
 
-CREATE TABLE useracct (
-    user_id                  serial,
-    user_name                varchar(255) NOT NULL DEFAULT '',
-    user_real_name           varchar(255) NOT NULL DEFAULT '',
-    user_password            varchar(255) NOT NULL,
-    user_newpassword         varchar(255) NOT NULL,
-    user_newpass_time        varchar(14)           DEFAULT NULL,
-    user_email               varchar(255) NOT NULL,
-    user_options             varchar(255) NOT NULL,
-    user_touched             varchar(14)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-    user_token               varchar(32)  NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
-    user_email_authenticated varchar(14)           DEFAULT NULL,
-    user_email_token         varchar(32)           DEFAULT NULL,
-    user_email_token_expires varchar(14)           DEFAULT NULL,
-    user_registration        varchar(14)           DEFAULT NULL,
-    user_editcount           int                   DEFAULT NULL,
-    PRIMARY KEY (user_id),
-    UNIQUE (user_name)
-);
-CREATE INDEX idx_user_email_token ON useracct (user_email_token);
-
-CREATE TABLE user_groups (
-    ug_user  int         NOT NULL DEFAULT '0',
-    ug_group varchar(16) NOT NULL DEFAULT '',
-    UNIQUE (ug_user, ug_group)
-);
-CREATE INDEX idx_ug_group ON user_groups (ug_group);
-
-CREATE TABLE value_backup (
-    table_name varchar(255) DEFAULT NULL,
-    maxid      int          DEFAULT NULL
-);
-
 CREATE TABLE watchlist (
     wl_user                  int          NOT NULL,
     wl_namespace             int          NOT NULL DEFAULT '0',
     wl_title                 varchar(255) NOT NULL DEFAULT '',
     wl_notificationtimestamp varchar(14)           DEFAULT NULL,
+    FOREIGN KEY (wl_user) REFERENCES useracct (user_id) ON DELETE CASCADE,
     UNIQUE (wl_user, wl_namespace, wl_title)
 );
 CREATE INDEX idx_wl_namespace_title ON watchlist (wl_namespace, wl_title);
