@@ -347,9 +347,6 @@ public class NewOrder extends TPCCProcedure {
                stmtInsertOrderLine.executeBatch();
                stmtUpdateStock.executeBatch();
 
-           } catch (UserAbortException userEx) {
-               LOG.debug("Caught an expected error in New Order");
-               throw userEx;
            } finally {
                if (stmtInsertOrderLine != null) {
                    stmtInsertOrderLine.clearBatch();
