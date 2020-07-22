@@ -34,6 +34,7 @@ public final class Results {
     private final int measuredRequests;
     private final DistributionStatistics distributionStatistics;
     private final List<LatencyRecord.Sample> latencySamples;
+    private final Histogram<TransactionType> unknown = new Histogram<>(false);
     private final Histogram<TransactionType> success = new Histogram<>(true);
     private final Histogram<TransactionType> abort = new Histogram<>(false);
     private final Histogram<TransactionType> retry = new Histogram<>(false);
@@ -62,6 +63,10 @@ public final class Results {
 
     public Histogram<TransactionType> getSuccess() {
         return success;
+    }
+
+    public Histogram<TransactionType> getUnknown() {
+        return unknown;
     }
 
     public Histogram<TransactionType> getAbort() {

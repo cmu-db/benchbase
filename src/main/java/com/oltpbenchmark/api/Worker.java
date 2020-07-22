@@ -54,6 +54,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     protected final Map<String, Procedure> name_procedures = new HashMap<>();
     protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<>();
 
+    private final Histogram<TransactionType> txnUnknown = new Histogram<>();
     private final Histogram<TransactionType> txnSuccess = new Histogram<>();
     private final Histogram<TransactionType> txnAbort = new Histogram<>();
     private final Histogram<TransactionType> txnRetry = new Histogram<>();
@@ -133,6 +134,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     public final Histogram<TransactionType> getTransactionSuccessHistogram() {
         return (this.txnSuccess);
+    }
+
+    public final Histogram<TransactionType> getTransactionUnknownHistogram() {
+        return (this.txnUnknown);
     }
 
     public final Histogram<TransactionType> getTransactionRetryHistogram() {
@@ -397,7 +402,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     switch (status) {
 
                         case UNKNOWN:
-                            LOG.warn(String.format("Transaction left in an UNKNOWN state [%s]", transactionType));
+                            this.txnUnknown.put(transactionType);
                             break;
                         case SUCCESS:
                             this.txnSuccess.put(transactionType);

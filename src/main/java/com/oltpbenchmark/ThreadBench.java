@@ -312,6 +312,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
             txnTypes.remove(TransactionType.INVALID);
 
+            results.getUnknown().putAll(txnTypes, 0);
             results.getSuccess().putAll(txnTypes, 0);
             results.getRetry().putAll(txnTypes, 0);
             results.getAbort().putAll(txnTypes, 0);
@@ -319,6 +320,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             results.getRetryDifferent().putAll(txnTypes, 0);
 
             for (Worker<?> w : workers) {
+                results.getUnknown().putHistogram(w.getTransactionUnknownHistogram());
                 results.getSuccess().putHistogram(w.getTransactionSuccessHistogram());
                 results.getRetry().putHistogram(w.getTransactionRetryHistogram());
                 results.getAbort().putHistogram(w.getTransactionAbortHistogram());
