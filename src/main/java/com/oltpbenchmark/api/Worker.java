@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
+    private static final Logger ABORT_LOG = LoggerFactory.getLogger("com.oltpbenchmark.api.ABORT_LOG");
 
     private WorkloadState state;
     private LatencyRecord latencies;
@@ -370,7 +371,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 } catch (UserAbortException ex) {
                     conn.rollback();
 
-                    LOG.trace("{} Aborted", transactionType, ex);
+                    ABORT_LOG.debug(String.format("%s Aborted", transactionType), ex);
 
                     status = TransactionStatus.USER_ABORTED;
 
