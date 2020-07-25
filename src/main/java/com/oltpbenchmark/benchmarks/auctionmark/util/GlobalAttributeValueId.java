@@ -20,7 +20,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
-public class GlobalAttributeValueId extends CompositeId {
+public class GlobalAttributeValueId extends CompositeId implements Comparable<GlobalAttributeValueId> {
 
     private static final int[] COMPOSITE_BITS = {
             32, // GROUP_ATTRIBUTE_ID
@@ -63,5 +63,10 @@ public class GlobalAttributeValueId extends CompositeId {
 
     protected int getId() {
         return (this.id);
+    }
+
+    @Override
+    public int compareTo(GlobalAttributeValueId o) {
+        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
     }
 }

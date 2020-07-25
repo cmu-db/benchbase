@@ -23,7 +23,7 @@ import com.oltpbenchmark.util.CompositeId;
 
 import java.sql.Timestamp;
 
-public class FlightId extends CompositeId {
+public class FlightId extends CompositeId implements Comparable<FlightId> {
 
     private static final int[] COMPOSITE_BITS = {
             14, // AIRLINE_ID
@@ -179,5 +179,10 @@ public class FlightId extends CompositeId {
                 this.depart_airport_id == o.depart_airport_id &&
                 this.arrive_airport_id == o.arrive_airport_id &&
                 this.depart_date == o.depart_date);
+    }
+
+    @Override
+    public int compareTo(FlightId o) {
+        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
     }
 }

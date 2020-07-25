@@ -29,7 +29,7 @@ import java.util.Objects;
  *
  * @author pavlo
  */
-public class ItemId extends CompositeId {
+public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
             40, // SELLER_ID
@@ -110,5 +110,10 @@ public class ItemId extends CompositeId {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), seller_id, item_ctr);
+    }
+
+    @Override
+    public int compareTo(ItemId o) {
+        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
     }
 }

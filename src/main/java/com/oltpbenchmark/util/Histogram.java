@@ -35,7 +35,7 @@ import java.util.Map.Entry;
  * @author svelagap
  * @author pavlo
  */
-public class Histogram<X> implements JSONSerializable {
+public class Histogram<X extends Comparable<X>> implements JSONSerializable {
     private static final Logger LOG = LoggerFactory.getLogger(Histogram.class);
 
     private static final String MARKER = "*";
@@ -199,9 +199,9 @@ public class Histogram<X> implements JSONSerializable {
 
             // Is this value the new min/max values?
             if (this.min_value == null || this.min_value.compareTo(value) > 0) {
-                this.min_value = (Comparable<X>) value;
+                this.min_value = value;
             } else if (this.max_value == null || this.max_value.compareTo(value) < 0) {
-                this.max_value = (Comparable<X>) value;
+                this.max_value = value;
             }
 
             if (cnt <= this.min_count) {

@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author pavlo
  */
-public abstract class CompositeId implements Comparable<CompositeId>, JSONSerializable {
+public abstract class CompositeId implements JSONSerializable {
 
     private transient int hashCode = -1;
 
@@ -76,11 +76,6 @@ public abstract class CompositeId implements Comparable<CompositeId>, JSONSerial
     public abstract void decode(long composite_id);
 
     public abstract long[] toArray();
-
-    @Override
-    public int compareTo(CompositeId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
-    }
 
     @Override
     public int hashCode() {

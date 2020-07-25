@@ -22,7 +22,7 @@ import com.oltpbenchmark.util.CompositeId;
 
 import java.util.Objects;
 
-public class UserId extends CompositeId {
+public class UserId extends CompositeId implements Comparable<UserId> {
 
     private static final int[] COMPOSITE_BITS = {
             16, // ITEM_COUNT
@@ -114,5 +114,10 @@ public class UserId extends CompositeId {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), itemCount, offset);
+    }
+
+    @Override
+    public int compareTo(UserId o) {
+        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
     }
 }

@@ -20,7 +20,7 @@ package com.oltpbenchmark.benchmarks.seats.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
-public class CustomerId extends CompositeId {
+public class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     private static final int[] COMPOSITE_BITS = {
             48, // ID
@@ -76,4 +76,8 @@ public class CustomerId extends CompositeId {
         return String.format("CustomerId{airport=%d,id=%d}", this.depart_airport_id, this.id);
     }
 
+    @Override
+    public int compareTo(CustomerId o) {
+        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+    }
 }
