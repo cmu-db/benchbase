@@ -176,7 +176,7 @@ public class Delivery extends TPCCProcedure {
             result = delivUpdateCarrierId.executeUpdate();
             if (trace) LOG.trace("delivUpdateCarrierId END");
 
-            if (result != 1) {
+            if (result == 0) {
                 String msg = String.format("Failed to update ORDER record [W_ID=%d, D_ID=%d, O_ID=%d]",
                                            w_id, d_id, no_o_id);
                 if (trace) LOG.warn(msg);
