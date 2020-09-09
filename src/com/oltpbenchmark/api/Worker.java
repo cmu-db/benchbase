@@ -419,8 +419,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                                                ex.getClass().getSimpleName(), next, this.toString(),
                                                ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
 
-                    this.txnErrors.put(next);
-
 		    if (this.wrkld.getDBType().shouldUseTransactions()) {
 			if (savepoint != null) {
 			    this.conn.rollback(savepoint);
@@ -436,9 +434,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // ------------------
                     } else if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
                         // MySQLTransactionRollbackException
+                        status = TransactionStatus.RETRY;
                         continue;
                     } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("41000")) {
                         // MySQL Lock timeout
+                        status = TransactionStatus.RETRY;
                         continue;
                         
                     // ------------------
@@ -446,6 +446,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // ------------------
                     } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
                         // SQLServerException Deadlock
+                        status = TransactionStatus.RETRY;
                         continue;
                     
                     // ------------------
@@ -453,6 +454,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // ------------------
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
                         // Postgres serialization
+                        status = TransactionStatus.RETRY;
                         continue;
                     } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("53200")) {
                         // Postgres OOM error
@@ -466,6 +468,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // ------------------
                     } else if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
                         // ORA-08177: Oracle Serialization
+                        status = TransactionStatus.RETRY;
                         continue;
                         
                     // ------------------
@@ -473,6 +476,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // ------------------
                     } else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
                         // DB2Exception Deadlock
+                        status = TransactionStatus.RETRY;
                         continue;
                     } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) ||
                                (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
@@ -502,7 +506,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     LOG.error("Fatal error when invoking " + next, ex);
                     throw ex;
                  // Random Error
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOG.error("Fatal error when invoking " + next, ex);
                     throw new RuntimeException(ex);
                     
@@ -515,13 +519,15 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             this.txnSuccess.put(next);
                             break;
                         case RETRY_DIFFERENT:
+                        case RETRY:
                             this.txnRetry.put(next);
                             break;
                         case USER_ABORTED:
                             this.txnAbort.put(next);
                             break;
-                        case RETRY:
-                            continue;
+                        case UNKNOWN:
+                            this.txnErrors.put(next);
+                            break;
                         default:
                             assert (false) : String.format("Unexpected status '%s' for %s", status, next);
                     } // SWITCH
