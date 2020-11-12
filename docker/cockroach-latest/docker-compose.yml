@@ -6,7 +6,7 @@ services:
     container_name: crdb-0
     hostname: crdb-0
     image: cockroachdb/cockroach:latest
-    command: start --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB
+    command: start-single-node --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB
 
   crdb-1:
     container_name: crdb-1
