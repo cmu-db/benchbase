@@ -87,7 +87,7 @@ The resulting `.zip` or `.tgz` file will have the following contents:
 ```
 
 ## How to Run
-Once you build and unpack the distribution, you can run `oltpbench2` just like any other executable jar.
+Once you build and unpack the distribution, you can run `oltpbench2` just like any other executable jar.  The following examples assume you are running from the root of the expanded `.zip` or `.tgz` distribution.  If you attempt to run `oltpbench` outside of the distribution structure you may encounter a variety of errors including `java.lang.NoClassDefFoundError`.
 
 To bring up help contents:
 ```bash
