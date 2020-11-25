@@ -27,11 +27,13 @@ services:
   lb:
     container_name: lb
     hostname: lb
-    build: haproxy
+    image: timveil/dynamic-haproxy:latest
     ports:
-      - "5432:5432"
+      - "26257:26257"
       - "8080:8080"
       - "8081:8081"
+    environment:
+      - NODES=crdb-0 crdb-1 crdb-2
     links:
       - crdb-0
       - crdb-1
@@ -42,7 +44,7 @@ services:
     hostname: crdb-init
     image: timveil/cockroachdb-remote-client:latest
     environment:
-      - COCKROACH_HOST=lb:5432
+      - COCKROACH_HOST=lb:26257
       - COCKROACH_INSECURE=true
       - DATABASE_NAME=oltpbench
     depends_on:
