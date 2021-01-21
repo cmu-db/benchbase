@@ -39,6 +39,24 @@ benchmark, leveraging all the system features (logging, controlled speed, contro
 
 See the [on-line documentation](https://github.com/oltpbenchmark/oltpbench/wiki) on how to use OLTP-Bench.
 
+## Docker
+
+A Dockerfile has been provided for running OLTPBench interactively without having to build the dependencies. To build the Docker image, run:
+
+```bash
+docker build -t oltpbench .
+```
+
+This command builds the OLTPBench image with the tag `oltpbench`. 
+
+The Docker container will read the configuration file from STDIN. All other parameters must still be passed in through the container. For example, to use the [example](https://github.com/oltpbenchmark/oltpbench/wiki) from the docs, 
+
+```bash
+cat ./config/sample_tpcc_config.xml | docker run -i oltpbench -b tpcc --create=true --load=true --execute=true -s 5 -o outputfile
+```
+
+This will run the image created above using the tag we provided, passing in the configuration file `sample_tpcc_config.xml` found in the `config` directory.
+
 ## Publications
 
 If you are using this framework for your papers or for your work, please cite the paper:
