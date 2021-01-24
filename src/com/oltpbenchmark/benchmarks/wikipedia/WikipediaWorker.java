@@ -44,6 +44,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private final int num_users;
     private final int num_pages;
 
+    Random myRand = new Random();
+
     public WikipediaWorker(WikipediaBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.num_users = (int) Math.round(WikipediaConstants.USERS * this.getWorkloadConfiguration().getScaleFactor());
@@ -51,13 +53,14 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     }
 
     private String generateUserIP() {
-        return String.format("%d.%d.%d.%d", this.rng().nextInt(255) + 1, this.rng().nextInt(256), this.rng().nextInt(256), this.rng().nextInt(256));
+        return String.format("%d.%d.%d.%d", myRand.nextInt(255) + 1, myRand.nextInt(256), myRand.nextInt(256), myRand.nextInt(256));
     }
 
     @Override
     protected TransactionStatus executeWork(TransactionType nextTransaction) throws UserAbortException, SQLException {
-        Flat z_users = new Flat(this.rng(), 1, this.num_users);
-        Zipf z_pages = new Zipf(this.rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
+        Flat z_users = new Flat(myRand, 1, this.num_users);
+        Zipf z_pages = new Zipf(myRand, 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
+        // Flat z_pages = new Flat(myRand, 1, this.num_pages);
 
         Class<? extends Procedure> procClass = nextTransaction.getProcedureClass();
         boolean needUser = (procClass.equals(AddWatchList.class) || procClass.equals(RemoveWatchList.class) || procClass.equals(GetPageAuthenticated.class));
@@ -79,8 +82,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         // Figure out what page they're going to update
         int page_id = z_pages.nextInt();
 
-        String pageTitle = WikipediaUtil.generatePageTitle(this.rng(), page_id);
-        int nameSpace = WikipediaUtil.generatePageNamespace(this.rng(), page_id);
+        String pageTitle = WikipediaUtil.generatePageTitle(myRand, page_id);
+        int nameSpace = WikipediaUtil.generatePageNamespace(myRand, page_id);
 
         // AddWatchList
         try {
@@ -166,7 +169,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
         WikipediaBenchmark b = this.getBenchmarkModule();
         int revCommentLen = b.commentLength.nextValue().intValue();
-        String revComment = TextGenerator.randomStr(this.rng(), revCommentLen + 1);
+        revCommentLen = revCommentLen > 127 ? 127 : revCommentLen;
+        String revComment = TextGenerator.randomStr(myRand, revCommentLen + 1);
         int revMinorEdit = b.minorEdit.nextValue().intValue();
 
         // Permute the original text of the article
