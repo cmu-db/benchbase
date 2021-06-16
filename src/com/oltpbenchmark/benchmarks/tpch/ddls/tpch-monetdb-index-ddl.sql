@@ -1,2 +1,0 @@
--- This file intentionally left blank (MonetDB doesn't have indexes, so we
--- don't want to use the default set.

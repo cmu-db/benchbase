@@ -1,0 +1,30 @@
+version: '3.5'
+
+services:
+
+  postgres:
+    container_name: postgres
+    hostname: postgres
+    image: postgres:alpine
+    command: postgres -N 500
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: oltpbench
+    ports:
+      - "5432:5432"
+
+  postgres-ui:
+    container_name: postgres-ui
+    hostname: postgres-ui
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 8080
+    links:
+      - postgres
+    ports:
+      - "8888:8080"
+    volumes:
+      - ${PWD}/servers.json:/pgadmin4/servers.json

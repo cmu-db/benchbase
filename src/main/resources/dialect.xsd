@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This schema describes the dialects XML file for a benchmark
+
+    If you modify this schema, you must regenerate the jaxb
+    bindings. It's easy to do:
+
+    cd src/
+    xjc -p com.oltpbenchmark.api.dialects com/oltpbenchmark/api/dialects.xsd
+
+    You can check that changes to this file produce a valid schema using
+    the public tool at http://www.w3.org/2001/03/webdata/xsv.
+
+    For more information about jaxb, see:
+    http://java.sun.com/developer/technicalArticles/WebServices/jaxb/
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="unqualified">
+
+    <!-- <dialects> -->
+    <xsd:element name="dialects" type="dialectsType"/>
+    <xsd:complexType name="dialectsType">
+        <xsd:sequence>
+            <xsd:element name="dialect" type="dialectType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!-- <dialect> -->
+    <xsd:complexType name="dialectType">
+        <xsd:sequence>
+            <xsd:element name="procedure" type="procedureType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="type" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <!-- <procedure> -->
+    <xsd:complexType name="procedureType">
+        <xsd:sequence>
+            <xsd:element name="statement" type="statementType" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <!-- <statement> -->
+    <xsd:complexType name="statementType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+</xsd:schema>

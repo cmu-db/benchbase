@@ -1,8 +1,0 @@
-# Dependencies
-
-A new checkout of the repository should only contain 'ant-contrib.jar'.
-
-Use `ant resolve` to automatically download all of the dependencies.
-
-You can then put any DBMS-specific jar files in this directory as needed.
-

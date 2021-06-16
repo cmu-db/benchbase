@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Docker PostgeSQL",
+      "Group": "OLTPBench",
+      "Port": 5432,
+      "Username": "admin",
+      "Host": "postgres",
+      "SSLMode": "disable",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}

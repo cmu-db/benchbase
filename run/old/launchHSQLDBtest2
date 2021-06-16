@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-set -o errexit -o nounset
-./runSQL.sh hsqldb2.properties sql/sqlTableCreates
-./loadData.sh hsqldb2.properties numWarehouses= 1
-./runSQL.sh hsqldb2.properties sql/sqlIndexCreates
-./runBenchmark.sh hsqldb2.properties numWarehouses= 1
-

@@ -1,0 +1,51 @@
+version: '3.5'
+
+services:
+
+  crdb-0:
+    container_name: crdb-0
+    hostname: crdb-0
+    image: cockroachdb/cockroach:latest
+    command: start-single-node --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB
+
+  crdb-1:
+    container_name: crdb-1
+    hostname: crdb-1
+    image: cockroachdb/cockroach:latest
+    command: start --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB --join=crdb-0
+    depends_on:
+      - crdb-0
+
+  crdb-2:
+    container_name: crdb-2
+    hostname: crdb-2
+    image: cockroachdb/cockroach:latest
+    command: start --cluster-name=oltpbench2 --logtostderr=WARNING --log-file-verbosity=WARNING --insecure --max-sql-memory=4GB --join=crdb-0
+    depends_on:
+      - crdb-0
+
+  lb:
+    container_name: lb
+    hostname: lb
+    image: timveil/dynamic-haproxy:latest
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - NODES=crdb-0 crdb-1 crdb-2
+    links:
+      - crdb-0
+      - crdb-1
+      - crdb-2
+
+  crdb-init:
+    container_name: crdb-init
+    hostname: crdb-init
+    image: timveil/cockroachdb-remote-client:latest
+    environment:
+      - COCKROACH_HOST=lb:26257
+      - COCKROACH_INSECURE=true
+      - DATABASE_NAME=oltpbench
+    depends_on:
+      - lb

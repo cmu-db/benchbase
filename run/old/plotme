@@ -1,7 +1,0 @@
-set key bottom right; set autoscale; set yrange [0:110]; 
-plot "20w_nobarrier_logfile_details.csv" using 3:4 lt 1 with dots notitle,\
- "20w_nobarrier_logfile_aggregated.csv" using 3:4 ps 2 lt 1 with points title 'disk 20w,nobarrier,O_DIRECT,iocap=200',\
- "20w_barriers_det.csv" using 3:4 lt 2 with dots notitle,\
- "20w_barriers_agg.csv" using 3:4 ps 2 lt 2 with points title 'disk 20w,barrier,O_DIRECT,iocap=200';
-
-

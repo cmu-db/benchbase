@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MYSQL</type>
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://localhost:3306/oltpbench?rewriteBatchedStatements=true</url>
+    <username>root</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>300</time>
+            <rate>unlimited</rate>
+            <weights>50,50</weights>
+        </work>
+    </works>
+
+    <!-- SIBENCH Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>MinRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
