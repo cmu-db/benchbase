@@ -10,4 +10,4 @@ updates:
     schedule:
       interval: "daily"
     assignees:
-      - "timveil"
+      - "apavlo"
