@@ -80,8 +80,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         for (int i = 0; i < workerThreads.size(); ++i) {
 
             // FIXME not sure this is the best solution... ensure we don't hang
-
-            // problems
+            // forever, however we might ignore problems
             workerThreads.get(i).join(60000); // wait for 60second for threads
             // to terminate... hands otherwise
 
