@@ -269,7 +269,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 LOG.info("{} :: Warmup complete, starting measurements.", StringUtil.bold("MEASURE"));
                 // measureEnd = measureStart + measureSeconds * 1000000000L;
 
-
+                // For serial executions, we want to do every query exactly
                 // once, so we need to restart in case some of the queries
                 // began during the warmup phase.
                 // If we're not doing serial executions, this function has no
