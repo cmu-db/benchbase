@@ -342,7 +342,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 String title = WikipediaUtil.generatePageTitle(rand, i);
                 int namespace = WikipediaUtil.generatePageNamespace(rand, i);
                 String restrictions = h_restrictions.nextValue();
-                // Check for Oracle
                 double pageRandom = rand.nextDouble();
                 String pageTouched = TimeUtil.getCurrentTimeString14();
 
