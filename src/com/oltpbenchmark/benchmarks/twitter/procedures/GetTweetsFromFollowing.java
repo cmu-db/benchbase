@@ -39,13 +39,13 @@ public class GetTweetsFromFollowing extends Procedure {
     public void run(Connection conn, int uid) throws SQLException {
         try (PreparedStatement getFollowingStatement = this.getPreparedStatement(conn, getFollowing)) {
             getFollowingStatement.setLong(1, uid);
-            try (ResultSet folloingResult = getFollowingStatement.executeQuery()) {
+            try (ResultSet followingResult = getFollowingStatement.executeQuery()) {
 
                 try (PreparedStatement stmt = this.getPreparedStatement(conn, getTweets)) {
                     int ctr = 0;
                     long last = -1;
-                    while (folloingResult.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
-                        last = folloingResult.getLong(1);
+                    while (followingResult.next() && ctr++ < TwitterConstants.LIMIT_FOLLOWERS) {
+                        last = followingResult.getLong(1);
                         stmt.setLong(ctr, last);
 
                     }
