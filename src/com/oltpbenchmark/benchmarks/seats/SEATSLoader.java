@@ -1513,7 +1513,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 Timestamp arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
                 flight_customer_ids.clear();
 
-
+                // For each flight figure out which customers are returning
                 this.getReturningCustomers(returning_customers, flight_id);
                 int booked_seats = SEATSConstants.FLIGHTS_NUM_SEATS - SEATSLoader.this.getFlightRemainingSeats(flight_id);
 
