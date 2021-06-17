@@ -119,7 +119,6 @@ public abstract class Loader<T extends BenchmarkModule> {
 
     protected void updateAutoIncrement(Connection conn, Column catalog_col, int value) throws SQLException {
         String sql = null;
-        // Nothing!
         if (getDatabaseType() == DatabaseType.POSTGRES) {
             String seqName = SQLUtil.getSequenceName(getDatabaseType(), catalog_col);
 
