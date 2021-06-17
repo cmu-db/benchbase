@@ -169,7 +169,7 @@ public class SEATSProfile {
         // child table AIRPORT has a column with a foreign key reference to
         // COUNTRY.CO_ID, then the data file for AIRPORT will have a value
         // 'USA' in the AP_CO_ID column. We can use mapping to get the id number
-
+        // for 'USA'. Long winded and kind of screwy, but hey what else are
         // you going to do?
         for (Table catalog_tbl : benchmark.getCatalog().getTables()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
