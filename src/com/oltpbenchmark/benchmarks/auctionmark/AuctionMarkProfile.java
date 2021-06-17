@@ -387,7 +387,7 @@ public class AuctionMarkProfile {
         }
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Using cached SEATSProfile");
+            LOG.trace("Using cached AuctionMarkProfile");
         }
         this.copyProfile(worker, cachedProfile);
 
