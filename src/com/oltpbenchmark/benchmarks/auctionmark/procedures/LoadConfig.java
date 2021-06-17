@@ -93,10 +93,10 @@ public class LoadConfig extends Procedure {
             }
         }
 
-        List<Object[]> attribtes;
+        List<Object[]> attributes;
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, getAttributes)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                attribtes = SQLUtil.toList(resultSet);
+                attributes = SQLUtil.toList(resultSet);
             }
         }
 
@@ -131,6 +131,6 @@ public class LoadConfig extends Procedure {
             }
         }
 
-        return new Config(configProfile, categoryCounts, attribtes, pendingComments, openItems, waiting, closedItems);
+        return new Config(configProfile, categoryCounts, attributes, pendingComments, openItems, waiting, closedItems);
     }
 }
