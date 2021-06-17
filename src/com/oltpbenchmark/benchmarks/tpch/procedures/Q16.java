@@ -78,6 +78,7 @@ public class Q16 extends GenericQuery {
         String type = String.format("%s %s", syllable1, syllable2) + "%";
 
         // SIZE_n is randomly selected as a set of eight different values within [1 .. 50]
+        // for n in [1,8]
 
         int[] sizes = new int[8];
         Set<Integer> seen = new HashSet<>(8);
