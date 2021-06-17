@@ -169,8 +169,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 warmup = warmupStart + phase.getWarmupTime() * 1000000000L;
             }
             long diff = nextInterval - now;
-            while (diff > 0) { // this can wake early: sleep multiple times to
-                // avoid that
+            while (diff > 0) { // this can wake early: sleep multiple times to avoid that
                 long ms = diff / 1000000;
                 diff = diff % 1000000;
                 try {
