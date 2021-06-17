@@ -52,8 +52,7 @@ public class ResourceStresserWorker extends Worker<ResourceStresserBenchmark> {
     public static final int CPU2_sleep = 2;
     public static final int CPU2_nestedLevel = 5;
 
-    public static final Random gen = new Random(1); // I change the random seed
-    // every time!
+    public static final Random gen = new Random(1); // I change the random seed every time!
 
     private final int keyRange;
     private final int numKeys;
