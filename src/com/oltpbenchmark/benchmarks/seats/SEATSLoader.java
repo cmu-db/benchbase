@@ -969,7 +969,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             this.customer_id_iterator = new CustomerIdIterable(SEATSLoader.this.profile.airport_max_customer_id).iterator();
             this.last_customer_id = this.customer_id_iterator.next();
 
-            // A customer is more likely to have a FREQUENTY_FLYER account with
+            // A customer is more likely to have a FREQUENT_FLYER account with
             // an airline that has more flights.
             // IMPORTANT: Add one to all of the airlines so that we don't get
             // trapped
