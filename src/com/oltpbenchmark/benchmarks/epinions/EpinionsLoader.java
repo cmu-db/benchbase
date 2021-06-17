@@ -155,8 +155,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         int batch = 0;
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
 
-            //
-
             for (int i = lo; i < hi; i++) {
                 String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
                 userInsert.setInt(1, i);
