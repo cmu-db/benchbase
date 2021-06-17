@@ -266,9 +266,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                             batch = 0;
                             reviewInsert.clearBatch();
                             if (LOG.isDebugEnabled()) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Reviewed items  % {}", (int) (((double) i / (double) this.num_items) * 100));
-                                }
+                                LOG.debug("Reviewed items  % {}", (int) (((double) i / (double) this.num_items) * 100));
                             }
                         }
                     }
