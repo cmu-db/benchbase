@@ -239,7 +239,6 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
 
         try (PreparedStatement reviewInsert = conn.prepareStatement(sql)) {
 
-            //
             ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
             ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
 
