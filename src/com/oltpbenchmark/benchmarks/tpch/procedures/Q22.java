@@ -1,18 +1,19 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package com.oltpbenchmark.benchmarks.tpch.procedures;
 
@@ -28,49 +29,49 @@ import java.util.Set;
 public class Q22 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt(
-              "select "
-            +     "cntrycode, "
-            +     "count(*) as numcust, "
-            +     "sum(c_acctbal) as totacctbal "
-            + "from "
-            +     "( "
-            +         "select "
-            +             "substring(c_phone from 1 for 2) as cntrycode, "
-            +             "c_acctbal "
-            +         "from "
-            +             "customer "
-            +         "where "
-            +             "substring(c_phone from 1 for 2) in "
-            +                 "(?, ?, ?, ?, ?, ?, ?) "
-            +             "and c_acctbal > ( "
-            +                 "select "
-            +                     "avg(c_acctbal) "
-            +                 "from "
-            +                     "customer "
-            +                 "where "
-            +                     "c_acctbal > 0.00 "
-            +                     "and substring(c_phone from 1 for 2) in "
-            +                         "(?, ?, ?, ?, ?, ?, ?) "
-            +             ") "
-            +             "and not exists ( "
-            +                 "select "
-            +                     "* "
-            +                 "from "
-            +                     "orders "
-            +                 "where "
-            +                     "o_custkey = c_custkey "
-            +             ") "
-            +     ") as custsale "
-            + "group by "
-            +     "cntrycode "
-            + "order by "
-            +     "cntrycode"
-        );
+            "select "
+                    + "cntrycode, "
+                    + "count(*) as numcust, "
+                    + "sum(c_acctbal) as totacctbal "
+                    + "from "
+                    + "( "
+                    + "select "
+                    + "substring(c_phone from 1 for 2) as cntrycode, "
+                    + "c_acctbal "
+                    + "from "
+                    + "customer "
+                    + "where "
+                    + "substring(c_phone from 1 for 2) in "
+                    + "(?, ?, ?, ?, ?, ?, ?) "
+                    + "and c_acctbal > ( "
+                    + "select "
+                    + "avg(c_acctbal) "
+                    + "from "
+                    + "customer "
+                    + "where "
+                    + "c_acctbal > 0.00 "
+                    + "and substring(c_phone from 1 for 2) in "
+                    + "(?, ?, ?, ?, ?, ?, ?) "
+                    + ") "
+                    + "and not exists ( "
+                    + "select "
+                    + "* "
+                    + "from "
+                    + "orders "
+                    + "where "
+                    + "o_custkey = c_custkey "
+                    + ") "
+                    + ") as custsale "
+                    + "group by "
+                    + "cntrycode "
+                    + "order by "
+                    + "cntrycode"
+    );
 
     @Override
     protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
-        // I1 ... I7 are randomly selected without repetition from the possible values
-        // for Country code as defined in Clause 4.2.2.9
+        // I1 - I7 are randomly selected without repetition from the possible values
+
 
         // We are given
         //      Let i be an index into the list of strings Nations
@@ -93,10 +94,10 @@ public class Q22 extends GenericQuery {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         for (int i = 0; i < 7; i++) {
-            stmt.setString(1 + i, String.valueOf(codes[i]));
+            stmt.setInt(1 + i, codes[i]);
         }
         for (int i = 0; i < 7; i++) {
-            stmt.setString(8 + i, String.valueOf(codes[i]));
+            stmt.setInt(8 + i, codes[i]);
         }
         return stmt;
     }

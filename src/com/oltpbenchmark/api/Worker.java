@@ -1,106 +1,83 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.*;
+import com.oltpbenchmark.api.Procedure.UserAbortException;
+import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.types.TransactionStatus;
+import com.oltpbenchmark.util.Histogram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.SQLException;
-import java.sql.Savepoint;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.LatencyRecord;
-import com.oltpbenchmark.Phase;
-import com.oltpbenchmark.SubmittedProcedure;
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.WorkloadState;
-import com.oltpbenchmark.api.Procedure.UserAbortException;
-import com.oltpbenchmark.catalog.Catalog;
-import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.types.State;
-import com.oltpbenchmark.types.TransactionStatus;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.StringUtil;
-
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
-    private static final Logger LOG = Logger.getLogger(Worker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
+    private static final Logger ABORT_LOG = LoggerFactory.getLogger("com.oltpbenchmark.api.ABORT_LOG");
 
-    private WorkloadState wrkldState;
+    private WorkloadState state;
     private LatencyRecord latencies;
-    private Statement currStatement;
+    private final Statement currStatement;
 
     // Interval requests used by the monitor
-    private AtomicInteger intervalRequests = new AtomicInteger(0);
+    private final AtomicInteger intervalRequests = new AtomicInteger(0);
 
     private final int id;
     private final T benchmarkModule;
-    protected final Connection conn;
-    protected final WorkloadConfiguration wrkld;
+    protected final WorkloadConfiguration configuration;
     protected final TransactionTypes transactionTypes;
-    protected final Map<TransactionType, Procedure> procedures = new HashMap<TransactionType, Procedure>();
-    protected final Map<String, Procedure> name_procedures = new HashMap<String, Procedure>();
-    protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<Class<? extends Procedure>, Procedure>();
+    protected final Map<TransactionType, Procedure> procedures = new HashMap<>();
+    protected final Map<String, Procedure> name_procedures = new HashMap<>();
+    protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<>();
 
-    private final Histogram<TransactionType> txnSuccess = new Histogram<TransactionType>();
-    private final Histogram<TransactionType> txnAbort = new Histogram<TransactionType>();
-    private final Histogram<TransactionType> txnRetry = new Histogram<TransactionType>();
-    private final Histogram<TransactionType> txnErrors = new Histogram<TransactionType>();
-    private final Map<TransactionType, Histogram<String>> txnAbortMessages = new HashMap<TransactionType, Histogram<String>>();
+    private final Histogram<TransactionType> txnUnknown = new Histogram<>();
+    private final Histogram<TransactionType> txnSuccess = new Histogram<>();
+    private final Histogram<TransactionType> txnAbort = new Histogram<>();
+    private final Histogram<TransactionType> txnRetry = new Histogram<>();
+    private final Histogram<TransactionType> txnErrors = new Histogram<>();
+    private final Histogram<TransactionType> txtRetryDifffernt = new Histogram<>();
 
     private boolean seenDone = false;
 
     public Worker(T benchmarkModule, int id) {
         this.id = id;
         this.benchmarkModule = benchmarkModule;
-        this.wrkld = this.benchmarkModule.getWorkloadConfiguration();
-        this.wrkldState = this.wrkld.getWorkloadState();
+        this.configuration = this.benchmarkModule.getWorkloadConfiguration();
+        this.state = this.configuration.getWorkloadState();
         this.currStatement = null;
-        this.transactionTypes = this.wrkld.getTransTypes();
-        assert (this.transactionTypes != null) : "The TransactionTypes from the WorkloadConfiguration is null!";
-
-        try {
-            this.conn = this.benchmarkModule.makeConnection();
-            this.conn.setAutoCommit(false);
-            
-            // 2018-01-11: Since we want to support NoSQL systems 
-            // that do not support txns, we will not invoke certain JDBC functions
-            // that may cause an error in them.
-            if (this.wrkld.getDBType().shouldUseTransactions()) {
-                this.conn.setTransactionIsolation(this.wrkld.getIsolationMode());
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to connect to database", ex);
-        }
+        this.transactionTypes = this.configuration.getTransTypes();
 
         // Generate all the Procedures that we're going to need
         this.procedures.putAll(this.benchmarkModule.getProcedures());
-        assert (this.procedures.size() == this.transactionTypes.size()) : String.format("Failed to get all of the Procedures for %s [expected=%d, actual=%d]", this.benchmarkModule.getBenchmarkName(),
-                this.transactionTypes.size(), this.procedures.size());
         for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
             this.name_procedures.put(e.getKey().getName(), proc);
             this.class_procedures.put(proc.getClass(), proc);
-            // e.getValue().generateAllPreparedStatements(this.conn);
-        } // FOR
+        }
     }
 
     /**
@@ -119,31 +96,15 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     @Override
     public String toString() {
-        return String.format("%s<%03d>",
-                             this.getClass().getSimpleName(), this.getId());
-    }
-    
-    /**
-     * Get the the total number of workers in this benchmark invocation
-     */
-    public final int getNumWorkers() {
-        return (this.benchmarkModule.getWorkloadConfiguration().getTerminals());
+        return String.format("%s<%03d>", this.getClass().getSimpleName(), this.getId());
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.benchmarkModule.getWorkloadConfiguration());
     }
 
-    public final Catalog getCatalog() {
-        return (this.benchmarkModule.getCatalog());
-    }
-
     public final Random rng() {
         return (this.benchmarkModule.rng());
-    }
-
-    public final Connection getConnection() {
-        return (this.conn);
     }
 
     public final int getRequests() {
@@ -167,13 +128,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return (this.name_procedures.get(name));
     }
 
-    @SuppressWarnings("unchecked")
     public final <P extends Procedure> P getProcedure(Class<P> procClass) {
         return (P) (this.class_procedures.get(procClass));
     }
 
     public final Histogram<TransactionType> getTransactionSuccessHistogram() {
         return (this.txnSuccess);
+    }
+
+    public final Histogram<TransactionType> getTransactionUnknownHistogram() {
+        return (this.txnUnknown);
     }
 
     public final Histogram<TransactionType> getTransactionRetryHistogram() {
@@ -187,13 +151,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
     }
-
-    public final Map<TransactionType, Histogram<String>> getTransactionAbortMessageHistogram() {
-        return (this.txnAbortMessages);
-    }
-
-    synchronized public void setCurrStatement(Statement s) {
-        this.currStatement = s;
+    public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
+        return (this.txtRetryDifffernt);
     }
 
     /**
@@ -201,10 +160,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      */
     synchronized public void cancelStatement() {
         try {
-            if (this.currStatement != null)
+            if (this.currStatement != null) {
                 this.currStatement.cancel();
+            }
         } catch (SQLException e) {
-            LOG.error("Failed to cancel statement: " + e.getMessage());
+            LOG.error("Failed to cancel statement: {}", e.getMessage());
         }
     }
 
@@ -215,7 +175,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         t.setName(this.toString());
 
         // In case of reuse reset the measurements
-        latencies = new LatencyRecord(wrkldState.getTestStartNs());
+        latencies = new LatencyRecord(state.getTestStartNs());
 
         // Invoke the initialize callback
         try {
@@ -225,19 +185,19 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
 
         // wait for start
-        wrkldState.blockForStart();
+        state.blockForStart();
         State preState, postState;
-        Phase phase, postPhase;
+        Phase phase;
 
         TransactionType invalidTT = TransactionType.INVALID;
-        assert (invalidTT != null);
 
-        work: while (true) {
+        work:
+        while (true) {
 
             // PART 1: Init and check if done
 
-            preState = wrkldState.getGlobalState();
-            phase = this.wrkldState.getCurrentPhase();
+            preState = state.getGlobalState();
+            phase = this.state.getCurrentPhase();
 
             switch (preState) {
                 case DONE:
@@ -246,7 +206,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         // test is done notify the global test state, then
                         // continue applying load
                         seenDone = true;
-                        wrkldState.signalDone();
+                        state.signalDone();
                         break work;
                     }
                     break;
@@ -257,19 +217,21 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // PART 2: Wait for work
 
             // Sleep if there's nothing to do.
-            wrkldState.stayAwake();
-            phase = this.wrkldState.getCurrentPhase();
-            if (phase == null)
+            state.stayAwake();
+            phase = this.state.getCurrentPhase();
+            if (phase == null) {
                 continue work;
+            }
 
             // Grab some work and update the state, in case it changed while we
             // waited.
-            pieceOfWork = wrkldState.fetchWork(this.id);
-            preState = wrkldState.getGlobalState();
+            pieceOfWork = state.fetchWork();
+            preState = state.getGlobalState();
 
-            phase = this.wrkldState.getCurrentPhase();
-            if (phase == null)
+            phase = this.state.getCurrentPhase();
+            if (phase == null) {
                 continue work;
+            }
 
             switch (preState) {
                 case DONE:
@@ -293,13 +255,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             TransactionType type = invalidTT;
             try {
-                type = doWork(preState == State.MEASURE, pieceOfWork);
+                type = doWork(pieceOfWork);
             } catch (IndexOutOfBoundsException e) {
                 if (phase.isThroughputRun()) {
                     LOG.error("Thread tried executing disabled phase!");
                     throw e;
                 }
-                if (phase.id == this.wrkldState.getCurrentPhase().id) {
+                if (phase.getId() == this.state.getCurrentPhase().getId()) {
                     switch (preState) {
                         case WARMUP:
                             // Don't quit yet: we haven't even begun!
@@ -308,7 +270,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         case COLD_QUERY:
                         case MEASURE:
                             // The serial phase is over. Finish the run early.
-                            wrkldState.signalLatencyComplete();
+                            state.signalLatencyComplete();
                             LOG.info("[Serial] Serial execution of all" + " transactions complete.");
                             break;
                         default:
@@ -320,8 +282,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // PART 4: Record results
 
             long end = System.nanoTime();
-            postState = wrkldState.getGlobalState();
-            postPhase = wrkldState.getCurrentPhase();
+            postState = state.getGlobalState();
 
             switch (postState) {
                 case MEASURE:
@@ -330,26 +291,29 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // changed, otherwise we're recording results for a query
                     // that either started during the warmup phase or ended
                     // after the timer went off.
-                    if (preState == State.MEASURE && type != null &&
-                        postPhase != null && postPhase.id == phase.id) {
-                        latencies.addLatency(type.getId(), start, end, this.id, phase.id);
+                    if (preState == State.MEASURE && type != null && this.state.getCurrentPhase().getId() == phase.getId()) {
+                        latencies.addLatency(type.getId(), start, end, this.id, phase.getId());
                         intervalRequests.incrementAndGet();
                     }
-                    if (phase.isLatencyRun())
-                        this.wrkldState.startColdQuery();
+                    if (phase.isLatencyRun()) {
+                        this.state.startColdQuery();
+                    }
                     break;
                 case COLD_QUERY:
                     // No recording for cold runs, but next time we will since
                     // it'll be a hot run.
-                    if (preState == State.COLD_QUERY)
-                        this.wrkldState.startHotQuery();
+                    if (preState == State.COLD_QUERY) {
+                        this.state.startHotQuery();
+                    }
                     break;
                 default:
                     // Do nothing
             }
 
-            wrkldState.finishedWork();
+            state.finishedWork();
         }
+
+        LOG.debug("worker calling teardown");
 
         tearDown(false);
     }
@@ -358,204 +322,155 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * Called in a loop in the thread to exercise the system under test. Each
      * implementing worker should return the TransactionType handle that was
      * executed.
-     * 
-     * @param llr
+     *
+     * @param pieceOfWork
      */
-    protected final TransactionType doWork(boolean measure, SubmittedProcedure pieceOfWork) {
-        TransactionType next = null;
-        TransactionStatus status = TransactionStatus.RETRY;
-        Savepoint savepoint = null;
-        final DatabaseType dbType = wrkld.getDBType();
-        final boolean recordAbortMessages = wrkld.getRecordAbortMessages();
+    protected final TransactionType doWork(SubmittedProcedure pieceOfWork) {
 
-        try {
-            while (status == TransactionStatus.RETRY && this.wrkldState.getGlobalState() != State.DONE) {
-                if (next == null) {
-                    next = transactionTypes.getType(pieceOfWork.getType());
-                }
-                assert (next.isSupplemental() == false) : "Trying to select a supplemental transaction " + next;
+        final DatabaseType type = configuration.getDatabaseType();
+        final TransactionType transactionType = transactionTypes.getType(pieceOfWork.getType());
+
+        final int isolationMode = this.configuration.getIsolationMode();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("desired transaction isolation mode = {}", isolationMode);
+        }
+        try (Connection conn = benchmarkModule.getConnection()) {
+
+
+            if (!conn.getAutoCommit()) {
+                LOG.warn("autocommit is already false at beginning of work.  this is a problem");
+            }
+
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(isolationMode);
+
+            int retryCount = 0;
+
+            int maxRetryCount = configuration.getMaxRetries();
+
+            while (retryCount < maxRetryCount && this.state.getGlobalState() != State.DONE) {
+
+                TransactionStatus status = TransactionStatus.UNKNOWN;
 
                 try {
-                    // For Postgres, we have to create a savepoint in order
-                    // to rollback a user aborted transaction
-                    // if (dbType == DatabaseType.POSTGRES) {
-                    // savepoint = this.conn.setSavepoint();
-                    // // if (LOG.isDebugEnabled())
-                    // LOG.info("Created SavePoint: " + savepoint);
-                    // }
 
-                    status = TransactionStatus.UNKNOWN;
-                    status = this.executeWork(next);
-
-                // User Abort Handling
-                // These are not errors
-                } catch (UserAbortException ex) {
-                    if (LOG.isDebugEnabled())
-                        LOG.trace(next + " Aborted", ex);
-
-                    /* PAVLO */
-                    if (recordAbortMessages) {
-                        Histogram<String> error_h = this.txnAbortMessages.get(next);
-                        if (error_h == null) {
-                            error_h = new Histogram<String>();
-                            this.txnAbortMessages.put(next, error_h);
-                        }
-                        error_h.put(StringUtil.abbrv(ex.getMessage(), 20));
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s %s attempting...", this, transactionType));
                     }
 
-                    if (savepoint != null) {
-                        this.conn.rollback(savepoint);
-                    } else {
-                        this.conn.rollback();
+                    status = this.executeWork(conn, transactionType);
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s %s completed with status [%s]...", this, transactionType, status.name()));
                     }
-                    
-                    status = TransactionStatus.USER_ABORTED;
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s %s committing...", this, transactionType));
+                    }
+
+                    conn.commit();
+
                     break;
 
-                // Database System Specific Exception Handling
+                } catch (UserAbortException ex) {
+                    conn.rollback();
+
+                    ABORT_LOG.debug(String.format("%s Aborted", transactionType), ex);
+
+                    status = TransactionStatus.USER_ABORTED;
+
+                    break;
+
                 } catch (SQLException ex) {
-                    // TODO: Handle acceptable error codes for every DBMS
-                     if (LOG.isDebugEnabled())
-                        LOG.warn(String.format("%s thrown when executing '%s' on '%s' " +
-                                               "[Message='%s', ErrorCode='%d', SQLState='%s']", 
-                                               ex.getClass().getSimpleName(), next, this.toString(),
-                                               ex.getMessage(), ex.getErrorCode(), ex.getSQLState()), ex);
+                    conn.rollback();
 
-		    if (this.wrkld.getDBType().shouldUseTransactions()) {
-			if (savepoint != null) {
-			    this.conn.rollback(savepoint);
-			} else {
-			    this.conn.rollback();
-			}
-		    }
+                    if (isRetryable(ex)) {
+                        LOG.warn(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
 
-                    if (ex.getSQLState() == null) {
-                        continue;
-                    // ------------------
-                    // MYSQL
-                    // ------------------
-                    } else if (ex.getErrorCode() == 1213 && ex.getSQLState().equals("40001")) {
-                        // MySQLTransactionRollbackException
                         status = TransactionStatus.RETRY;
-                        continue;
-                    } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("41000")) {
-                        // MySQL Lock timeout
-                        status = TransactionStatus.RETRY;
-                        continue;
-                        
-                    // ------------------
-                    // SQL SERVER
-                    // ------------------
-                    } else if (ex.getErrorCode() == 1205 && ex.getSQLState().equals("40001")) {
-                        // SQLServerException Deadlock
-                        status = TransactionStatus.RETRY;
-                        continue;
-                    
-                    // ------------------
-                    // POSTGRES
-                    // ------------------
-                    } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("40001")) {
-                        // Postgres serialization
-                        status = TransactionStatus.RETRY;
-                        continue;
-                    } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("53200")) {
-                        // Postgres OOM error
-                        throw ex;
-                    } else if (ex.getErrorCode() == 0 && ex.getSQLState() != null && ex.getSQLState().equals("XX000")) {
-                        // Postgres no pinned buffers available
-                        throw ex;
-                        
-                    // ------------------
-                    // ORACLE
-                    // ------------------
-                    } else if (ex.getErrorCode() == 8177 && ex.getSQLState().equals("72000")) {
-                        // ORA-08177: Oracle Serialization
-                        status = TransactionStatus.RETRY;
-                        continue;
-                        
-                    // ------------------
-                    // DB2
-                    // ------------------
-                    } else if (ex.getErrorCode() == -911 && ex.getSQLState().equals("40001")) {
-                        // DB2Exception Deadlock
-                        status = TransactionStatus.RETRY;
-                        continue;
-                    } else if ((ex.getErrorCode() == 0 && ex.getSQLState().equals("57014")) ||
-                               (ex.getErrorCode() == -952 && ex.getSQLState().equals("57014"))) {
-                        // Query cancelled by benchmark because we changed
-                        // state. That's fine! We expected/caused this.
-                        status = TransactionStatus.RETRY_DIFFERENT;
-                        continue;
-                    } else if (ex.getErrorCode() == 0 && ex.getSQLState().equals("02000")) {
-                        // No results returned. That's okay, we can proceed to
-                        // a different query. But we should send out a warning,
-                        // too, since this is unusual.
-                        status = TransactionStatus.RETRY_DIFFERENT;
-                        continue;
 
-                    // ------------------
-                    // UNKNOWN!
-                    // ------------------
+                        retryCount++;
                     } else {
-                        // UNKNOWN: In this case .. Retry as well!
-                        LOG.warn("The DBMS rejected the transaction without an error code", ex);
-                        continue;
-                        // FIXME Disable this for now
-                        // throw ex;
+                        LOG.warn(String.format("SQLException occurred during [%s] and will not be retried... sql state [%s], error code [%d].", transactionType, ex.getSQLState(), ex.getErrorCode()), ex);
+
+                        status = TransactionStatus.ERROR;
                     }
-                // Assertion Error
-                } catch (Error ex) {
-                    LOG.error("Fatal error when invoking " + next, ex);
-                    throw ex;
-                 // Random Error
-                } catch (Throwable ex) {
-                    LOG.error("Fatal error when invoking " + next, ex);
-                    throw new RuntimeException(ex);
-                    
+
                 } finally {
-                     if (LOG.isDebugEnabled())
-                        LOG.debug(String.format("%s %s Result: %s", this, next, status));
-                    
+
                     switch (status) {
-                        case SUCCESS:
-                            this.txnSuccess.put(next);
+
+                        case UNKNOWN:
+                            this.txnUnknown.put(transactionType);
                             break;
-                        case RETRY_DIFFERENT:
-                        case RETRY:
-                            this.txnRetry.put(next);
+                        case SUCCESS:
+                            this.txnSuccess.put(transactionType);
                             break;
                         case USER_ABORTED:
-                            this.txnAbort.put(next);
+                            this.txnAbort.put(transactionType);
                             break;
-                        case UNKNOWN:
-                            this.txnErrors.put(next);
+                        case RETRY:
+                            this.txnRetry.put(transactionType);
                             break;
-                        default:
-                            assert (false) : String.format("Unexpected status '%s' for %s", status, next);
-                    } // SWITCH
+                        case RETRY_DIFFERENT:
+                            this.txtRetryDifffernt.put(transactionType);
+                            break;
+                        case ERROR:
+                            this.txnErrors.put(transactionType);
+                            break;
+                    }
+
                 }
 
-            } // WHILE
+            }
+
+            if (conn.getAutoCommit()) {
+                LOG.warn("autocommit is already true at end of work.  this is a problem");
+            }
+
+            conn.setAutoCommit(true);
+
         } catch (SQLException ex) {
-            String msg = String.format("Unexpected fatal, error in '%s' when executing '%s' [%s]",
-                                       this, next, dbType);
-	    throw new RuntimeException(msg, ex);
-            
-	    // FIXME: PAVLO 2016-12-29
-            // Right now our DBMS throws an exception when the txn gets aborted
-            // due to a conflict, so for now we have to not kill ourselves.
-            // This *does not* incorrectly inflate our performance numbers.
-            // It's more of a workaround for now until I can figure out how to do
-            // this correctly in JDBC.
-//             if (dbType == DatabaseType.NOISEPAGE) {
-//                 msg += "\nBut we are not stopping because " + dbType + " cannot handle this correctly";
-//                 LOG.warn(msg);
-//             } else {
-//                 throw new RuntimeException(msg, ex);
-//             }
+            String msg = String.format("Unexpected SQLException in '%s' when executing '%s' on [%s]", this, transactionType, type.name());
+
+            throw new RuntimeException(msg, ex);
         }
 
-        return (next);
+        return (transactionType);
+    }
+
+    private boolean isRetryable(SQLException ex) {
+
+        String sqlState = ex.getSQLState();
+        int errorCode = ex.getErrorCode();
+
+        LOG.debug("sql state [{}] and error code [{}]", sqlState, errorCode);
+
+        if (sqlState == null) {
+            return true;
+        }
+
+        // ------------------
+        // MYSQL: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-error-sqlstates.html
+        // ------------------
+        if (errorCode == 1213 && sqlState.equals("40001")) {
+            // MySQL ER_LOCK_DEADLOCK
+            return true;
+        } else if (errorCode == 1205 && sqlState.equals("41000")) {
+            // MySQL ER_LOCK_WAIT_TIMEOUT
+            return true;
+        }
+
+        // ------------------
+        // POSTGRES: https://www.postgresql.org/docs/current/errcodes-appendix.html
+        // ------------------
+        if (errorCode == 0 && sqlState.equals("40001")) {
+            // Postgres serialization_failure
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -568,32 +483,25 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     /**
      * Invoke a single transaction for the given TransactionType
-     * 
+     *
+     * @param conn
      * @param txnType
      * @return TODO
-     * @throws UserAbortException
-     *             TODO
-     * @throws SQLException
-     *             TODO
+     * @throws UserAbortException TODO
+     * @throws SQLException       TODO
      */
-    protected abstract TransactionStatus executeWork(TransactionType txnType) throws UserAbortException, SQLException;
+    protected abstract TransactionStatus executeWork(Connection conn, TransactionType txnType) throws UserAbortException, SQLException;
 
     /**
      * Called at the end of the test to do any clean up that may be required.
-     * 
-     * @param error
-     *            TODO
+     *
+     * @param error TODO
      */
     public void tearDown(boolean error) {
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            LOG.warn("No connection to close");
-        }
+
     }
 
     public void initializeState() {
-        assert (this.wrkldState == null);
-        this.wrkldState = this.wrkld.getWorkloadState();
+        this.state = this.configuration.getWorkloadState();
     }
 }

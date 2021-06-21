@@ -1,66 +1,207 @@
-# OLTPBench
+# OLTP-Bench II
 
-[![Build Status](https://travis-ci.org/oltpbenchmark/oltpbench.png)](https://travis-ci.org/oltpbenchmark/oltpbench)
+![Java CI with Maven](https://github.com/timveil-cockroach/oltpbench/workflows/Java%20CI%20with%20Maven/badge.svg?branch=maven)
 
-Benchmarking is incredibly useful, yet endlessly painful. This benchmark suite is the result of a group of
-Phd/post-docs/professors getting together and combining their workloads/frameworks/experiences/efforts. We hope this
-will save other people's time, and will provide an extensible platform, that can be grown in an open-source fashion. 
+Forked from https://github.com/oltpbenchmark/oltpbench with a focus on cleanup and modernization.  Given the volume and scope of these changes, I have elected not to submit pull requests to the original project as it is unlikely they would or could be accepted.  Please see [Modifications to Original](#modifications-to-original) for changes in this fork.
 
-OLTPBenchmark is a multi-threaded load generator. The framework is designed to be able to produce variable rate,
-variable mixture load against any JDBC-enabled relational database. The framework also provides data collection
-features, e.g., per-transaction-type latency and throughput logs.
+See also: [OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
 
-Together with the framework we provide the following OLTP/Web benchmarks:
-  * [TPC-C](http://www.tpc.org/tpcc/)
-  * Wikipedia
-  * Synthetic Resource Stresser 
-  * Twitter
-  * Epinions.com
-  * [TATP](http://tatpbenchmark.sourceforge.net/)
-  * [AuctionMark](http://hstore.cs.brown.edu/projects/auctionmark/)
-  * SEATS ("Stonebraker Electronic Airline Ticketing System")
-  * [YCSB](https://github.com/brianfrankcooper/YCSB)
-  * [JPAB](http://www.jpab.org) (Hibernate)
-  * [CH-benCHmark](http://www-db.in.tum.de/research/projects/CHbenCHmark/?lang=en)
-  * [Voter](https://github.com/VoltDB/voltdb/tree/master/examples/voter) (Japanese "American Idol")
-  * [SIBench](http://sydney.edu.au/engineering/it/~fekete/teaching/serializableSI-Fekete.pdf) (Snapshot Isolation)
-  * [SmallBank](http://ses.library.usyd.edu.au/bitstream/2123/5353/1/michael-cahill-2009-thesis.pdf)
-  * [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf)
+## Benchmarks
 
-This framework is design to allow easy extension, we provide stub code that a contributor can use to include a new
-benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
+### From Original Paper
+* [AuctionMark](https://github.com/timveil-cockroach/oltpbench/wiki/AuctionMark)
+* [CH-benCHmark](https://github.com/timveil-cockroach/oltpbench/wiki/CH-benCHmark)
+* [Epinions.com](https://github.com/timveil-cockroach/oltpbench/wiki/epinions)
+* [Resource Stresser](https://github.com/timveil-cockroach/oltpbench/wiki/Resource-Stresser)
+* [SEATS](https://github.com/timveil-cockroach/oltpbench/wiki/Seats)
+* [SIBench](https://github.com/timveil-cockroach/oltpbench/wiki/SIBench)
+* [SmallBank](https://github.com/timveil-cockroach/oltpbench/wiki/SmallBank)
+* [TATP](https://github.com/timveil-cockroach/oltpbench/wiki/TATP)
+* [TPC-C](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-C)
+* [Twitter](https://github.com/timveil-cockroach/oltpbench/wiki/Twitter)
+* [Voter](https://github.com/timveil-cockroach/oltpbench/wiki/Voter)
+* [Wikipedia](https://github.com/timveil-cockroach/oltpbench/wiki/Wikipedia)
+* [YCSB](https://github.com/timveil-cockroach/oltpbench/wiki/YCSB)
 
-## Dependencies
+### Added Later
+* [TPC-H](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-H)
+* TPC-DS - no configuration
+* hyadapt - no configuration
+* [NoOp](https://github.com/timveil-cockroach/oltpbench/wiki/NoOp)
 
-+ Java (+1.7)
-+ Apache Ant
+### Removed
+* JPAB - this project appears abandoned and hasn't seen an update since 2012.  I don't have a great deal of faith in a Hibernate benchmark that hasn't kept pace with Hibernate.
+* [LinkBench](http://people.cs.uchicago.edu/~tga/pubs/sigmod-linkbench-2013.pdf) - no implementation
 
-## Quick Start
-
-See the [on-line documentation](https://github.com/oltpbenchmark/oltpbench/wiki) on how to use OLTP-Bench.
-
-## Docker
-
-A Dockerfile has been provided for running OLTPBench interactively without having to build the dependencies. To build the Docker image, run:
-
+## How to Build
+Run the following command to build the distribution:
 ```bash
-docker build -t oltpbench .
+./mvnw clean package
 ```
 
-This command builds the OLTPBench image with the tag `oltpbench`. 
+The following files will be placed in the `./target` folder, `oltpbench2-x.y.z.tgz` and `oltpbench2-x.y.z.zip`.  Pick your poison.
 
-The Docker container will read the configuration file from STDIN. All other parameters must still be passed in through the container. For example, to use the [example](https://github.com/oltpbenchmark/oltpbench/wiki) from the docs, 
+The resulting `.zip` or `.tgz` file will have the following contents: 
 
-```bash
-cat ./config/sample_tpcc_config.xml | docker run -i oltpbench -b tpcc --create=true --load=true --execute=true -s 5 -o outputfile
+```text
+├── CONTRIBUTORS.md
+├── LICENSE
+├── README.md
+├── config
+│   ├── cockroachdb
+│   │   ├── sample_auctionmark_config.xml
+│   │   ├── sample_chbenchmark_config.xml
+│   │   ├── sample_epinions_config.xml
+│   │   ├── sample_noop_config.xml
+│   │   ├── sample_resourcestresser_config.xml
+│   │   ├── sample_seats_config.xml
+│   │   ├── sample_sibench_config.xml
+│   │   ├── sample_smallbank_config.xml
+│   │   ├── sample_tatp_config.xml
+│   │   ├── sample_tpcc_config.xml
+│   │   ├── sample_tpcds_config.xml
+│   │   ├── sample_tpch_config.xml
+│   │   ├── sample_twitter_config.xml
+│   │   ├── sample_voter_config.xml
+│   │   ├── sample_wikipedia_config.xml
+│   │   └── sample_ycsb_config.xml
+│   ├── plugin.xml
+│   └── postgres
+│       └── ...
+├── data
+│   ├── tpch
+│   │   ├── customer.tbl
+│   │   ├── lineitem.tbl
+│   │   ├── nation.tbl
+│   │   ├── orders.tbl
+│   │   ├── part.tbl
+│   │   ├── partsupp.tbl
+│   │   ├── region.tbl
+│   │   └── supplier.tbl
+│   └── twitter
+│       ├── twitter_tweetids.txt
+│       └── twitter_user_ids.txt
+├── lib
+│   └── ...
+└── oltpbench2.jar
 ```
 
-This will run the image created above using the tag we provided, passing in the configuration file `sample_tpcc_config.xml` found in the `config` directory.
+## How to Run
+Once you build and unpack the distribution, you can run `oltpbench2` just like any other executable jar.  The following examples assume you are running from the root of the expanded `.zip` or `.tgz` distribution.  If you attempt to run `oltpbench2` outside of the distribution structure you may encounter a variety of errors including `java.lang.NoClassDefFoundError`.
 
-## Publications
+To bring up help contents:
+```bash
+java -jar oltpbench2.jar -h
+```
 
-If you are using this framework for your papers or for your work, please cite the paper:
+To execute the `tpcc` benchmark:
+```bash
+java -jar oltpbench2.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=true -s 5
+```
 
-[OLTP-Bench: An extensible testbed for benchmarking relational databases](http://www.vldb.org/pvldb/vol7/p277-difallah.pdf) D. E. Difallah, A. Pavlo, C. Curino, and P. Cudre-Mauroux. In VLDB 2014.
+For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list: `
+```bash
+java -jar oltpbench2.jar -b tpcc,chbenchmark -c config/cockroachdb/sample_chbenchmark_config.xml --create=true --load=true --execute=true -s 5
+```
 
-Also, let us know so we can add you to our [list of publications](http://oltpbenchmark.com/wiki/index.php?title=Publications_Using_OLTPBenchmark).
+The following options are provided:
+
+```text
+usage: oltpbenchmark
+ -b,--bench <arg>               [required] Benchmark class. Currently
+                                supported: [tpcc, tpch, tatp, wikipedia,
+                                resourcestresser, twitter, epinions, ycsb,
+                                seats, auctionmark, chbenchmark, voter,
+                                sibench, noop, smallbank, hyadapt]
+ -c,--config <arg>              [required] Workload configuration file
+    --clear <arg>               Clear all records in the database for this
+                                benchmark
+    --create <arg>              Initialize the database for this benchmark
+ -d,--directory <arg>           Base directory for the result files,
+                                default is current directory
+    --dialects-export <arg>     Export benchmark SQL to a dialects file
+    --execute <arg>             Execute the benchmark workload
+ -h,--help                      Print this help
+ -im,--interval-monitor <arg>   Throughput Monitoring Interval in
+                                milliseconds
+    --load <arg>                Load data using the benchmark's data
+                                loader
+ -s,--sample <arg>              Sampling window
+```
+
+## How to see Postgres Driver logging
+To enable logging for the PostgreSQL JDBC driver, add the following JVM property when starting...
+```
+-Djava.util.logging.config.file=src/main/resources/logging.properties
+```
+To modify the logging level you can update `logging.properties`
+
+## How to Release
+```
+./mvnw -B release:prepare
+./mvnw -B release:perform
+```
+
+## How to Add Support for a New Database
+coming soon
+
+
+## Known Issues
+
+### Cockroach DB
+
+My first priority is simply getting this code working against CockroachDB.  No work has been put in to optimizing either the Database or the configurations for performance.
+
+| Benchmark | Config | Load | Run | Notes |
+| -------------| ------------- | ------------- | ------------- | ------------- |
+| `auctionmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #4~~](https://github.com/timveil-cockroach/oltpbench/issues/4), [~~issue #40~~](https://github.com/timveil-cockroach/oltpbench/issues/40) |
+| `chbenchmark` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #5~~](https://github.com/timveil-cockroach/oltpbench/issues/5), [~~issue #6~~](https://github.com/timveil-cockroach/oltpbench/issues/6) |
+| `epinions` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #7~~](https://github.com/timveil-cockroach/oltpbench/issues/7) |
+| `hyadapt` | :x: |  |  | no config - [issue #8](https://github.com/timveil-cockroach/oltpbench/issues/8) |
+| `noop` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `resourcestresser` | :heavy_check_mark: | :heavy_check_mark: | :wavy_dash: | [issue #41](https://github.com/timveil-cockroach/oltpbench/issues/41) |
+| `seats` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #10~~](https://github.com/timveil-cockroach/oltpbench/issues/10) |
+| `sibench` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `smallbank` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `tatp` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpcc` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `tpcds` | :x: |  |  | no config - [issue #11](https://github.com/timveil-cockroach/oltpbench/issues/11) |
+| `tpch` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #12~~](https://github.com/timveil-cockroach/oltpbench/issues/12) |
+| `twitter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | [~~issue #13~~](https://github.com/timveil-cockroach/oltpbench/issues/13) |
+| `voter` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `wikipedia` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+| `ycsb` | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
+
+## Modifications to Original
+This fork contains a number of significant **structural** modifications to the original project.  This was done in an effort to clean up and modernize the code base, not to alter the spirit or function of the project.  To this end, I did my best to leave the actual benchmark code **functionally** unchanged while improving where possible.  My modifications are summarized below:
+
+* Moved from Ant to Maven
+    * Reorganized project to fit Maven structure
+    * Removed static `lib` directory and dependencies
+    * Updated required dependencies and removed unused or unwanted dependencies
+    * Moved all non `.java` files to standard Maven `resources` directory
+    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper)
+* Improved packaging and versioning
+    * Moved to Calendar Versioning (https://calver.org/)
+    * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`
+    * All code updated to read `resources` from inside `.jar` instead of directory
+* Built with and for Java ~~1.8~~ 11
+* Moved from direct dependence on Log4J to SLF4J
+* Reorganized and renamed many files (mostly `resources`) for clarity and consistency
+* Applied countless fixes based on "Static Analysis"
+    * JDK migrations (boxing, un-boxing, etc.)
+    * Implemented `try-with-resources` for all `java.lang.AutoCloseable` instances
+    * Removed calls to `printStackTrace()` or `System.out.println` in favor of proper logging
+* Reformatted code and cleaned up imports based on my preferences and using IntelliJ
+* Removed all calls to `assert`... `assert` is disabled by default thus providing little real value while making the code incredibly hard to read and unnecessarily verbose
+* Removed considerable amount of dead code, configurations, detritus and other nasty accumulations that didn't appear directly related to executing benchmarks
+    * Removed IDE specific settings
+    * Removed references to personal setups or cloud instances
+    * Removed directories such as `run`, `tools`, `nbproject`, `matlab`, `traces`
+    * Removed all references to `JPAB` benchmark, this project has not been updated since 2012
+* Removed calls to `commit()` during `Loader` operations
+* Refactored `Worker` and `Loader` usage of `Connection` objects and cleaned up transaction handling
+* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed (default `poolsize` is ~~25~~ 12)
+* Introduced [Dependabot](https://dependabot.com/) to keep Maven dependencies up to date
+* Removed `upload`, `output`, `output-raw`, `output-samples` `timestamp`, `tracescript`, `histograms`, `run-script` and `verbose` options.  Those related to "output" were simply enabled by default.
+* Refactored `Catalog` to be populated directly from the configured Benchmark database instead of proxied via `HSQLDB`.  This eliminates the dependency on this project.

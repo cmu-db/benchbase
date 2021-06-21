@@ -1,28 +1,21 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package com.oltpbenchmark.benchmarks.wikipedia;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
@@ -32,24 +25,29 @@ import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WikipediaBenchmark extends BenchmarkModule {
-    private static final Logger LOG = Logger.getLogger(WikipediaBenchmark.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WikipediaBenchmark.class);
 
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;
-    private final FlatHistogram<Integer> revisionDeltas[];
+    private final FlatHistogram<Integer>[] revisionDeltas;
 
-    @SuppressWarnings("unchecked")
+
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
-        super("wikipedia", workConf, true);
+        super(workConf);
 
-        this.commentLength = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
-        this.minorEdit = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.MINOR_EDIT);
+        this.commentLength = new FlatHistogram<>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
+        this.minorEdit = new FlatHistogram<>(this.rng(), RevisionHistograms.MINOR_EDIT);
         this.revisionDeltas = new FlatHistogram[RevisionHistograms.REVISION_DELTA_SIZES.length];
         for (int i = 0; i < this.revisionDeltas.length; i++) {
-            this.revisionDeltas[i] = new FlatHistogram<Integer>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
-        } // FOR
+            this.revisionDeltas[i] = new FlatHistogram<>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
+        }
     }
 
     /**
@@ -61,7 +59,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
      * @param orig_text
      * @return
      */
-    protected char[] generateRevisionText(char orig_text[]) {
+    protected char[] generateRevisionText(char[] orig_text) {
         // Figure out how much we are going to change
         // If the delta is greater than the length of the original
         // text, then we will just cut our length in half.
@@ -73,13 +71,13 @@ public class WikipediaBenchmark extends BenchmarkModule {
             if (orig_text.length <= RevisionHistograms.REVISION_DELTA_SIZES[i]) {
                 h = this.revisionDeltas[i];
             }
-        } // FOR
+        }
         if (h == null) {
             h = this.revisionDeltas[this.revisionDeltas.length - 1];
         }
-        assert (h != null);
 
-        int delta = h.nextValue().intValue();
+
+        int delta = h.nextValue();
         if (orig_text.length + delta <= 0) {
             delta = -1 * (int) Math.round(orig_text.length / 1.5);
             if (Math.abs(delta) == orig_text.length && delta < 0) {
@@ -103,19 +101,19 @@ public class WikipediaBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(boolean verbose) throws IOException {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         LOG.debug(String.format("Initializing %d %s", this.workConf.getTerminals(), WikipediaWorker.class.getSimpleName()));
 
-        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<Worker<? extends BenchmarkModule>>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < this.workConf.getTerminals(); ++i) {
             WikipediaWorker worker = new WikipediaWorker(this, i);
             workers.add(worker);
-        } // FOR
+        }
         return workers;
     }
 
-	@Override
-	protected Loader<WikipediaBenchmark> makeLoaderImpl() throws SQLException {
-		return new WikipediaLoader(this);
-	}
+    @Override
+    protected Loader<WikipediaBenchmark> makeLoaderImpl() {
+        return new WikipediaLoader(this);
+    }
 }

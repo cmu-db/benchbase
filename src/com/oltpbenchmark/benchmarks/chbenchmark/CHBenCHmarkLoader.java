@@ -1,367 +1,328 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package com.oltpbenchmark.benchmarks.chbenchmark;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
-
 import com.oltpbenchmark.api.Loader;
+import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Nation;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Region;
 import com.oltpbenchmark.benchmarks.chbenchmark.pojo.Supplier;
 import com.oltpbenchmark.util.RandomGenerator;
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.concurrent.CountDownLatch;
 
 public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
-	private static final Logger LOG = Logger.getLogger(CHBenCHmarkLoader.class);
-	
-	private final static int configCommitCount = 1000; // commit every n records
-	private static final RandomGenerator ran = new RandomGenerator(0);
-	private static PreparedStatement regionPrepStmt;
-	private static PreparedStatement nationPrepStmt;
-	private static PreparedStatement supplierPrepStmt;
-	
-	private static Date now;
-	private static long lastTimeMS;
+    private static final RandomGenerator ran = new RandomGenerator(0);
 
-	//create possible keys for n_nationkey ([a-zA-Z0-9])
-	private static final int[] nationkeys = new int[62];
-	static {
-	    for (char i = 0; i < 10; i++) {
-	        nationkeys[i] = (char)('0') + i;
-	    }
-	    for (char i = 0; i < 26; i++) {
-	        nationkeys[i + 10] = (char)('A') + i;
-	    }
-	    for (char i = 0; i < 26; i++) {
-            nationkeys[i + 36] = (char)('a') + i;
+
+    //create possible keys for n_nationkey ([a-zA-Z0-9])
+    private static final int[] nationkeys = new int[62];
+
+    static {
+        for (char i = 0; i < 10; i++) {
+            nationkeys[i] = '0' + i;
         }
-	}
-	
-	public CHBenCHmarkLoader(CHBenCHmark benchmark) {
-		super(benchmark);
-	}
-	
-	@Override
-	public List<LoaderThread> createLoaderThreads() throws SQLException {
-		List<LoaderThread> threads = new ArrayList<LoaderThread>();
-
-		threads.add(new LoaderThread() {
-			@Override
-			public void load(Connection conn) throws SQLException {
-				regionPrepStmt = conn.prepareStatement("INSERT INTO region "
-						+ " (r_regionkey, r_name, r_comment) "
-						+ "VALUES (?, ?, ?)");
-
-				nationPrepStmt = conn.prepareStatement("INSERT INTO nation "
-						+ " (n_nationkey, n_name, n_regionkey, n_comment) "
-						+ "VALUES (?, ?, ?, ?)");
-
-				supplierPrepStmt = conn.prepareStatement("INSERT INTO supplier "
-						+ " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?)");
-
-				loadHelper(conn);
-				conn.commit();
-			}
-		});
-		return (threads);
-	}
-	
-   static void truncateTable(Connection conn, String strTable) throws SQLException {
-
-        LOG.debug("Truncating '" + strTable + "' ...");
-        try {
-            conn.createStatement().execute("DELETE FROM " + strTable);
-            conn.commit();
-        } catch (SQLException se) {
-            LOG.debug(se.getMessage());
-            conn.rollback();
+        for (char i = 0; i < 26; i++) {
+            nationkeys[i + 10] = 'A' + i;
         }
-   }
-	
-	static int loadRegions(Connection conn) throws SQLException {
-		
-		int k = 0;
-		int t = 0;
-		BufferedReader br = null;
-		
-		try {
-		    
-		    truncateTable(conn,"region");
-		    truncateTable(conn,"nation");
-		    truncateTable(conn,"supplier");
+        for (char i = 0; i < 26; i++) {
+            nationkeys[i + 36] = 'a' + i;
+        }
+    }
 
-			now = new java.util.Date();
-			LOG.debug("\nStart Region Load @ " + now
-					+ " ...");
+    public CHBenCHmarkLoader(CHBenCHmark benchmark) {
+        super(benchmark);
+    }
 
-			Region region = new Region();
-			
-			File file = new File("src", "com/oltpbenchmark/benchmarks/chbenchmark/region_gen.tbl");
-			br = new BufferedReader(new FileReader(file));
-			String line = br.readLine();
-			while (line != null) {
-				StringTokenizer st = new StringTokenizer(line, "|");
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				region.r_regionkey = Integer.parseInt(st.nextToken());
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				region.r_name = st.nextToken();
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				region.r_comment = st.nextToken();
-				if (st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
+    @Override
+    public List<LoaderThread> createLoaderThreads() {
+        List<LoaderThread> threads = new ArrayList<>();
 
-				k++;
+        final CountDownLatch regionLatch = new CountDownLatch(1);
 
-				regionPrepStmt.setLong(1, region.r_regionkey);
-				regionPrepStmt.setString(2, region.r_name);
-				regionPrepStmt.setString(3, region.r_comment);
-				regionPrepStmt.addBatch();
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
 
-				long tmpTime = new java.util.Date().getTime();
-				String etStr = "  Elasped Time(ms): "
-						+ ((tmpTime - lastTimeMS) / 1000.000)
-						+ "                    ";
-				LOG.debug(etStr.substring(0, 30)
-						+ "  Writing record " + k + " of " + t);
-				lastTimeMS = tmpTime;
-				regionPrepStmt.executeBatch();
-				regionPrepStmt.clearBatch();
-				conn.commit();
-				line = br.readLine();
-			}
-
-			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-					+ " of " + t);
-			lastTimeMS = tmpTime;
-
-			regionPrepStmt.executeBatch();
-
-			conn.commit();
-			now = new java.util.Date();
-			LOG.debug("End Region Load @  " + now);
-
-		} catch (SQLException se) {
-			LOG.debug(se.getMessage());
-			conn.rollback();
-		
-		} catch (FileNotFoundException e) {
-		    e.printStackTrace();
-		}  catch (Exception e) {
-            e.printStackTrace();
-            conn.rollback();
-		} finally {
-		    if (br != null){
-		        try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-		    }
-		}
-
-		return (k);
-
-	} // end loadRegions()
-	
-	static int loadNations(Connection conn) throws SQLException {
-		
-		int k = 0;
-		int t = 0;
-		BufferedReader br = null;
-		
-		try {
-
-			now = new java.util.Date();
-			LOG.debug("\nStart Nation Load @ " + now
-					+ " ...");
-
-			Nation nation = new Nation();
-			
-			File file = new File("src", "com/oltpbenchmark/benchmarks/chbenchmark/nation_gen.tbl");
-			br = new BufferedReader(new FileReader(file));
-			String line = br.readLine();
-			while (line != null) {
-				StringTokenizer st = new StringTokenizer(line, "|");
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				nation.n_nationkey = Integer.parseInt(st.nextToken());
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				nation.n_name = st.nextToken();
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				nation.n_regionkey = Integer.parseInt(st.nextToken());
-				if (!st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-				nation.n_comment = st.nextToken();
-				if (st.hasMoreTokens()) { LOG.error("invalid input file: " + file.getAbsolutePath()); }
-
-				k++;
-
-				nationPrepStmt.setLong(1, nation.n_nationkey);
-				nationPrepStmt.setString(2, nation.n_name);
-				nationPrepStmt.setLong(3, nation.n_regionkey);
-				nationPrepStmt.setString(4, nation.n_comment);
-				nationPrepStmt.addBatch();
-
-				long tmpTime = new java.util.Date().getTime();
-				String etStr = "  Elasped Time(ms): "
-						+ ((tmpTime - lastTimeMS) / 1000.000)
-						+ "                    ";
-				LOG.debug(etStr.substring(0, 30)
-						+ "  Writing record " + k + " of " + t);
-				lastTimeMS = tmpTime;
-				nationPrepStmt.executeBatch();
-				nationPrepStmt.clearBatch();
-				conn.commit();
-				line = br.readLine();
-			}
-
-			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-					+ " of " + t);
-			lastTimeMS = tmpTime;
-
-			conn.commit();
-			now = new java.util.Date();
-			LOG.debug("End Region Load @  " + now);
-
-		} catch (SQLException se) {
-			LOG.debug(se.getMessage());
-			conn.rollback();
-		} catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }  catch (Exception e) {
-            e.printStackTrace();
-            conn.rollback();
-        } finally {
-            if (br != null){
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    loadRegions(conn, statement);
                 }
             }
+
+            @Override
+            public void afterLoad() {
+                regionLatch.countDown();
+            }
+        });
+
+        final CountDownLatch nationLatch = new CountDownLatch(1);
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + " (n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
+
+                    loadNations(conn, statement);
+                }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    regionLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                nationLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + " (su_suppkey, su_name, su_address, su_nationkey, su_phone, su_acctbal, su_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+
+                    loadSuppliers(conn, statement);
+                }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    nationLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        return threads;
+    }
+
+    private void truncateTable(Connection conn, String strTable) {
+
+        LOG.debug("Truncating '{}' ...", strTable);
+        try (Statement statement = conn.createStatement()) {
+            statement.execute("DELETE FROM " + strTable);
+        } catch (SQLException se) {
+            LOG.debug(se.getMessage());
+        }
+    }
+
+    private int loadRegions(Connection conn, PreparedStatement statement) throws SQLException {
+
+        int k = 0;
+        int t = 0;
+        BufferedReader br = null;
+
+
+        truncateTable(conn, "region");
+        truncateTable(conn, "nation");
+        truncateTable(conn, "supplier");
+
+        Region region = new Region();
+
+        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "region_gen.tbl";
+
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+
+            List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
+
+            for (String line : lines) {
+                StringTokenizer st = new StringTokenizer(line, "|");
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                region.r_regionkey = Integer.parseInt(st.nextToken());
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                region.r_name = st.nextToken();
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                region.r_comment = st.nextToken();
+                if (st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+
+                k++;
+
+                statement.setLong(1, region.r_regionkey);
+                statement.setString(2, region.r_name);
+                statement.setString(3, region.r_comment);
+                statement.addBatch();
+
+                if ((k % workConf.getBatchSize()) == 0) {
+
+                    statement.executeBatch();
+                    statement.clearBatch();
+                }
+
+            }
+
+            statement.executeBatch();
+            statement.clearBatch();
+
+        } catch (SQLException se) {
+            LOG.debug(se.getMessage());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
-		return (k);
+        return (k);
 
-	} // end loadNations()
-	
-	static int loadSuppliers(Connection conn) throws SQLException {
-		
-		int k = 0;
-		int t = 0;
-		
-		try {
+    }
 
-			now = new java.util.Date();
-			LOG.debug("\nStart Supplier Load @ " + now
-					+ " ...");
+    private int loadNations(Connection conn, PreparedStatement statement) {
 
-			Supplier supplier = new Supplier();
-			
-			for (int index = 1; index <= 10000; index++) {
-				supplier.su_suppkey = index;
-				supplier.su_name = ran.astring(25, 25);
-				supplier.su_address = ran.astring(20, 40);
-				supplier.su_nationkey = nationkeys[ran.number(0, 61)];
-				supplier.su_phone = ran.nstring(15, 15);
-				supplier.su_acctbal = (float) ran.fixedPoint(2, 10000., 1000000000.);
-				supplier.su_comment = ran.astring(51, 101);
+        int k = 0;
+        int t = 0;
 
-				k++;
-				
-				supplierPrepStmt.setLong(1, supplier.su_suppkey);
-				supplierPrepStmt.setString(2, supplier.su_name);
-				supplierPrepStmt.setString(3, supplier.su_address);
-				supplierPrepStmt.setLong(4, supplier.su_nationkey);
-				supplierPrepStmt.setString(5, supplier.su_phone);
-				supplierPrepStmt.setDouble(6, supplier.su_acctbal);
-				supplierPrepStmt.setString(7, supplier.su_comment);
-				supplierPrepStmt.addBatch();
+        Nation nation = new Nation();
 
-				if ((k % configCommitCount) == 0) {
-					long tmpTime = new java.util.Date().getTime();
-					String etStr = "  Elasped Time(ms): "
-							+ ((tmpTime - lastTimeMS) / 1000.000)
-							+ "                    ";
-					LOG.debug(etStr.substring(0, 30)
-							+ "  Writing record " + k + " of " + t);
-					lastTimeMS = tmpTime;
-					supplierPrepStmt.executeBatch();
-					supplierPrepStmt.clearBatch();
-					conn.commit();
-				}
-			}
+        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "nation_gen.tbl";
 
-			long tmpTime = new java.util.Date().getTime();
-			String etStr = "  Elasped Time(ms): "
-					+ ((tmpTime - lastTimeMS) / 1000.000)
-					+ "                    ";
-			LOG.debug(etStr.substring(0, 30) + "  Writing record " + k
-					+ " of " + t);
-			lastTimeMS = tmpTime;
+        try (final InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
 
-			supplierPrepStmt.executeBatch();
+            List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
 
-			conn.commit();
-			now = new java.util.Date();
-			LOG.debug("End Region Load @  " + now);
+            for (String line : lines) {
+                StringTokenizer st = new StringTokenizer(line, "|");
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                nation.n_nationkey = Integer.parseInt(st.nextToken());
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                nation.n_name = st.nextToken();
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                nation.n_regionkey = Integer.parseInt(st.nextToken());
+                if (!st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
+                nation.n_comment = st.nextToken();
+                if (st.hasMoreTokens()) {
+                    LOG.error("invalid input file: {}", path);
+                }
 
-		} catch (SQLException se) {
-			LOG.debug(se.getMessage());
-			conn.rollback();
-		} catch (Exception e) {
-			e.printStackTrace();
-			conn.rollback();
-		}
+                k++;
 
-		return (k);
+                statement.setLong(1, nation.n_nationkey);
+                statement.setString(2, nation.n_name);
+                statement.setLong(3, nation.n_regionkey);
+                statement.setString(4, nation.n_comment);
+                statement.addBatch();
 
-	} // end loadSuppliers()
+                if ((k % workConf.getBatchSize()) == 0) {
 
-	protected long loadHelper(Connection conn) {
-		long totalRows = 0;
-		try {
-			totalRows += loadRegions(conn);
-			totalRows += loadNations(conn);
-			totalRows += loadSuppliers(conn);
-		}
-		catch (SQLException e) {
-			LOG.debug(e.getMessage());
-		}
-		return totalRows;
-	}	
-	
+                    statement.executeBatch();
+                    statement.clearBatch();
+                }
+
+            }
+
+
+            statement.executeBatch();
+            statement.clearBatch();
+
+
+        } catch (SQLException se) {
+            LOG.debug(se.getMessage());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return (k);
+
+    }
+
+    private int loadSuppliers(Connection conn, PreparedStatement statement) {
+
+        int k = 0;
+        int t = 0;
+
+        try {
+
+            Supplier supplier = new Supplier();
+
+            for (int index = 1; index <= 10000; index++) {
+                supplier.su_suppkey = index;
+                supplier.su_name = ran.astring(25, 25);
+                supplier.su_address = ran.astring(20, 40);
+                supplier.su_nationkey = nationkeys[ran.number(0, 61)];
+                supplier.su_phone = ran.nstring(15, 15);
+                supplier.su_acctbal = (float) ran.fixedPoint(2, 10000., 1000000000.);
+                supplier.su_comment = ran.astring(51, 101);
+
+                k++;
+
+                statement.setLong(1, supplier.su_suppkey);
+                statement.setString(2, supplier.su_name);
+                statement.setString(3, supplier.su_address);
+                statement.setLong(4, supplier.su_nationkey);
+                statement.setString(5, supplier.su_phone);
+                statement.setDouble(6, supplier.su_acctbal);
+                statement.setString(7, supplier.su_comment);
+                statement.addBatch();
+
+                if ((k % workConf.getBatchSize()) == 0) {
+
+                    statement.executeBatch();
+                    statement.clearBatch();
+                }
+            }
+
+
+            statement.executeBatch();
+            statement.clearBatch();
+
+
+        } catch (SQLException se) {
+            LOG.debug(se.getMessage());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+
+        return (k);
+
+    }
+
+
 }

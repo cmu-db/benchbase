@@ -1,18 +1,19 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package com.oltpbenchmark.benchmarks.wikipedia.data;
 
@@ -136,7 +137,7 @@ public abstract class PageHistograms {
             this.put(141, 1);
         }
     };
-    
+
     /**
      * Revisions per page
      * This seems way off because I think our sample data set is incomplete
@@ -334,7 +335,7 @@ public abstract class PageHistograms {
             this.put(1000, 1);
         }
     };
-    
+
     /**
      * The histogram of the PAGE_NAMESPACE column
      */
@@ -360,7 +361,7 @@ public abstract class PageHistograms {
             this.put(101, 29);
         }
     };
-    
+
     /**
      * The histogram of the PAGE_RESTRICTIONS column
      */
@@ -379,5 +380,5 @@ public abstract class PageHistograms {
             this.put("sysop", 2);
         }
     };
-    
+
 }

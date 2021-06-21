@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="COCKROACHDB">
+        <procedure name="UpdatePage">
+            <statement name="insertText">INSERT INTO text (old_page,old_text,old_flags) VALUES (?,?,?) RETURNING old_id</statement>
+            <statement name="insertRevision">INSERT INTO revision (rev_page, rev_text_id, rev_comment, rev_minor_edit, rev_user, rev_user_text, rev_timestamp, rev_deleted, rev_len, rev_parent_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING rev_id</statement>
+        </procedure>
+    </dialect>
+</dialects>

@@ -1,52 +1,43 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 package com.oltpbenchmark.benchmarks.seats;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import com.oltpbenchmark.types.DatabaseType;
-import org.apache.commons.collections15.map.ListOrderedMap;
-import org.apache.log4j.Logger;
-
+import com.oltpbenchmark.benchmarks.seats.procedures.Config;
 import com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig;
 import com.oltpbenchmark.benchmarks.seats.util.CustomerId;
 import com.oltpbenchmark.benchmarks.seats.util.FlightId;
-import com.oltpbenchmark.catalog.Catalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.JSONUtil;
+import com.oltpbenchmark.util.*;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
-import com.oltpbenchmark.util.RandomGenerator;
-import com.oltpbenchmark.util.SQLUtil;
-import com.oltpbenchmark.util.StringUtil;
+import org.apache.commons.collections4.map.ListOrderedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SEATSProfile {
-    private static final Logger LOG = Logger.getLogger(SEATSProfile.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SEATSProfile.class);
 
     // ----------------------------------------------------------------
     // PERSISTENT DATA MEMBERS
@@ -61,7 +52,7 @@ public class SEATSProfile {
      * airport as their local airport. The customer ids will be stored as
      * follows in the dbms: <16-bit AirportId><48-bit CustomerId>
      */
-    protected final Histogram<Long> airport_max_customer_id = new Histogram<Long>();
+    protected final Histogram<Long> airport_max_customer_id = new Histogram<>();
     /**
      * The date when flights total data set begins
      */
@@ -91,20 +82,20 @@ public class SEATSProfile {
     /**
      * The number of reservations initially created.
      */
-    protected long num_reservations = 0l;
+    protected long num_reservations = 0L;
 
     /**
      * TODO
      **/
-    protected final Map<String, Histogram<String>> histograms = new HashMap<String, Histogram<String>>();
+    protected final Map<String, Histogram<String>> histograms = new HashMap<>();
 
     /**
      * Each AirportCode will have a histogram of the number of flights that
      * depart from that airport to all the other airports
      */
-    protected final Map<String, Histogram<String>> airport_histograms = new HashMap<String, Histogram<String>>();
+    protected final Map<String, Histogram<String>> airport_histograms = new HashMap<>();
 
-    protected final Map<String, Map<String, Long>> code_id_xref = new HashMap<String, Map<String, Long>>();
+    protected final Map<String, Map<String, Long>> code_id_xref = new HashMap<>();
 
     // ----------------------------------------------------------------
     // TRANSIENT DATA MEMBERS
@@ -113,31 +104,26 @@ public class SEATSProfile {
     protected final SEATSBenchmark benchmark;
 
     /**
-     * TableName -> TableCatalog
-     */
-    protected transient final Catalog catalog;
-
-    /**
      * We want to maintain a small cache of FlightIds so that the SEATSClient
      * has something to work with. We obviously don't want to store the entire
      * set here
      */
-    protected transient final LinkedList<FlightId> cached_flight_ids = new LinkedList<FlightId>();
+    protected transient final LinkedList<FlightId> cached_flight_ids = new LinkedList<>();
 
     /**
      * Key -> Id Mappings
      */
-    protected transient final Map<String, String> code_columns = new HashMap<String, String>();
+    protected transient final Map<String, String> code_columns = new HashMap<>();
 
     /**
      * Foreign Key Mappings Column Name -> Xref Mapper
      */
-    protected transient final Map<String, String> fkey_value_xref = new HashMap<String, String>();
+    protected transient final Map<String, String> fkey_value_xref = new HashMap<>();
 
     /**
      * Data Directory
      */
-    protected transient final File airline_data_dir;
+    protected transient final String airline_data_dir;
 
     /**
      * Specialized random number generator
@@ -148,7 +134,7 @@ public class SEATSProfile {
      * Depart Airport Code -> Arrive Airport Code Random number generators based
      * on the flight distributions
      */
-    private final Map<String, FlatHistogram<String>> airport_distributions = new HashMap<String, FlatHistogram<String>>();
+    private final Map<String, FlatHistogram<String>> airport_distributions = new HashMap<>();
 
     // ----------------------------------------------------------------
     // CONSTRUCTOR
@@ -156,30 +142,26 @@ public class SEATSProfile {
 
     public SEATSProfile(SEATSBenchmark benchmark, RandomGenerator rng) {
         this.benchmark = benchmark;
-        this.catalog = benchmark.getCatalog();
         this.rng = rng;
         this.airline_data_dir = benchmark.getDataDir();
-        if (this.airline_data_dir.exists() == false) {
-            throw new RuntimeException("Unable to start benchmark. The data directory '" + this.airline_data_dir.getAbsolutePath() + "' does not exist");
-        }
 
         // Tuple Code to Tuple Id Mapping
-        for (String xref[] : SEATSConstants.CODE_TO_ID_COLUMNS) {
-            assert (xref.length == 3);
+        for (String[] xref : SEATSConstants.CODE_TO_ID_COLUMNS) {
+
             String tableName = xref[0];
             String codeCol = xref[1];
             String idCol = xref[2];
 
-            if (this.code_columns.containsKey(codeCol) == false) {
+            if (!this.code_columns.containsKey(codeCol)) {
                 this.code_columns.put(codeCol, idCol);
-                this.code_id_xref.put(idCol, new HashMap<String, Long>());
+                this.code_id_xref.put(idCol, new HashMap<>());
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Added %s mapping from Code Column '%s' to Id Column '%s'", tableName, codeCol, idCol));
                 }
             }
-        } // FOR
+        }
 
-        // Foreign Key Code to Ids Mapping
+
         // In this data structure, the key will be the name of the dependent
         // column and the value will be the name of the foreign key parent
         // column. We then use this in conjunction with the Key->Id mapping
@@ -189,17 +171,17 @@ public class SEATSProfile {
         // 'USA' in the AP_CO_ID column. We can use mapping to get the id number
         // for 'USA'. Long winded and kind of screwy, but hey what else are
         // you going to do?
-        for (Table catalog_tbl : this.catalog.getTables()) {
+        for (Table catalog_tbl : benchmark.getCatalog().getTables()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 Column catalog_fkey_col = catalog_col.getForeignKey();
                 if (catalog_fkey_col != null && this.code_id_xref.containsKey(catalog_fkey_col.getName())) {
                     this.fkey_value_xref.put(catalog_col.getName(), catalog_fkey_col.getName());
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.fullName(), catalog_fkey_col.fullName()));
+                        LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.getName(), catalog_fkey_col.getName()));
                     }
                 }
-            } // FOR
-        } // FOR
+            }
+        }
 
     }
 
@@ -211,70 +193,60 @@ public class SEATSProfile {
      * Save the profile information into the database
      */
     protected final void saveProfile(Connection conn) throws SQLException {
-        DatabaseType dbType = this.benchmark.getWorkloadConfiguration().getDBType();
-        PreparedStatement stmt = null;
-        String sql;
 
         // CONFIG_PROFILE
-        Table catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
-        assert (catalog_tbl != null);
-        sql = SQLUtil.getInsertSQL(catalog_tbl, dbType);
-        stmt = conn.prepareStatement(sql);
+        Table profileTable = benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_CONFIG_PROFILE);
+        String profileSql = SQLUtil.getInsertSQL(profileTable, this.benchmark.getWorkloadConfiguration().getDatabaseType());
 
-        int param_idx = 1;
-        stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
-        stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
-        stmt.setObject(param_idx++, this.flight_start_date); // CFP_FLIGHT_START
-        stmt.setObject(param_idx++, this.flight_upcoming_date); // CFP_FLIGHT_UPCOMING
-        stmt.setObject(param_idx++, this.flight_past_days); // CFP_FLIGHT_PAST_DAYS
-        stmt.setObject(param_idx++, this.flight_future_days); // CFP_FLIGHT_FUTURE_DAYS
-        stmt.setObject(param_idx++, this.flight_upcoming_offset); // CFP_FLIGHT_OFFSET
-        stmt.setObject(param_idx++, this.reservation_upcoming_offset); // CFP_RESERVATION_OFFSET
-        stmt.setObject(param_idx++, this.num_reservations); // CFP_NUM_RESERVATIONS
-        stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
-        int result = stmt.executeUpdate();
-        conn.commit();
-        stmt.close();
-        assert (result == 1);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved profile information into " + catalog_tbl.getName());
+        try (PreparedStatement stmt = conn.prepareStatement(profileSql)) {
+            int param_idx = 1;
+            stmt.setObject(param_idx++, this.scale_factor); // CFP_SCALE_FACTOR
+            stmt.setObject(param_idx++, this.airport_max_customer_id.toJSONString()); // CFP_AIPORT_MAX_CUSTOMER
+            stmt.setObject(param_idx++, this.flight_start_date); // CFP_FLIGHT_START
+            stmt.setObject(param_idx++, this.flight_upcoming_date); // CFP_FLIGHT_UPCOMING
+            stmt.setObject(param_idx++, this.flight_past_days); // CFP_FLIGHT_PAST_DAYS
+            stmt.setObject(param_idx++, this.flight_future_days); // CFP_FLIGHT_FUTURE_DAYS
+            stmt.setObject(param_idx++, this.flight_upcoming_offset); // CFP_FLIGHT_OFFSET
+            stmt.setObject(param_idx++, this.reservation_upcoming_offset); // CFP_RESERVATION_OFFSET
+            stmt.setObject(param_idx++, this.num_reservations); // CFP_NUM_RESERVATIONS
+            stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
+            int result = stmt.executeUpdate();
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saved profile information into {}", profileTable.getName());
+            }
         }
 
         // CONFIG_HISTOGRAMS
-        catalog_tbl = this.catalog.getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
-        sql = SQLUtil.getInsertSQL(catalog_tbl, dbType);
-        stmt = conn.prepareStatement(sql);
-        for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
-            param_idx = 1;
-            stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
-            stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
-            stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
-            result = stmt.executeUpdate();
-            assert (result == 1);
-        } // FOR
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved airport histogram information into " + catalog_tbl.getName());
+        Table histogramsTable = benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS);
+        String histogramSql = SQLUtil.getInsertSQL(histogramsTable, this.benchmark.getWorkloadConfiguration().getDatabaseType());
+        try (PreparedStatement stmt = conn.prepareStatement(histogramSql)) {
+            for (Entry<String, Histogram<String>> e : this.airport_histograms.entrySet()) {
+                int param_idx = 1;
+                stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
+                stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
+                stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
+                int result = stmt.executeUpdate();
+
+            }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saved airport histogram information into {}", histogramsTable.getName());
+            }
+
+            for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
+                int param_idx = 1;
+                stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
+                stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
+                stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
+                int result = stmt.executeUpdate();
+
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saved benchmark histogram information into {}", histogramsTable.getName());
+            }
         }
 
-        for (Entry<String, Histogram<String>> e : this.histograms.entrySet()) {
-            param_idx = 1;
-            stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
-            stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
-            stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
-            result = stmt.executeUpdate();
-            assert (result == 1);
-        } // FOR
-        conn.commit();
-        stmt.close();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Saved benchmark histogram information into " + catalog_tbl.getName());
-        }
-
-        return;
-    }
-
-    protected static void clearCachedProfile() {
-        cachedProfile = null;
     }
 
     private SEATSProfile copy(SEATSProfile other) {
@@ -316,64 +288,60 @@ public class SEATSProfile {
 
             // Otherwise we have to go fetch everything again
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
-            ResultSet results[] = proc.run(worker.getConnection());
-            int result_idx = 0;
 
-            // CONFIG_PROFILE
-            this.loadConfigProfile(results[result_idx++]);
-
-            // CONFIG_HISTOGRAMS
-            this.loadConfigHistograms(results[result_idx++]);
-
-            // CODE XREFS
-            for (int i = 0; i < SEATSConstants.CODE_TO_ID_COLUMNS.length; i++) {
-                String codeCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][1];
-                String idCol = SEATSConstants.CODE_TO_ID_COLUMNS[i][2];
-                this.loadCodeXref(results[result_idx++], codeCol, idCol);
-            } // FOR
-
-            // CACHED FLIGHT IDS
-            this.loadCachedFlights(results[result_idx++]);
-
-            for (ResultSet rs : results) {
-                rs.close();
+            Config results;
+            try (Connection conn = benchmark.getConnection()) {
+                results = proc.run(conn);
             }
+                // CONFIG_PROFILE
+                this.loadConfigProfile(results.getConfigProfile());
+
+                // CONFIG_HISTOGRAMS
+                this.loadConfigHistograms(results.getConfigHistogram());
+
+
+                this.loadCodeXref(results.getCountryCodes(), SEATSConstants.COUNTRY_CODE, SEATSConstants.COUNTRY_ID);
+                this.loadCodeXref(results.getAirportCodes(), SEATSConstants.AIRPORT_CODE, SEATSConstants.AIRPORT_ID);
+                this.loadCodeXref(results.getAirlineCodes(), SEATSConstants.AIRLINE_IATA_CODE, SEATSConstants.AIRLINE_ID);
+
+                // CACHED FLIGHT IDS
+                this.loadCachedFlights(results.getFlights());
+
+
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded profile:\n" + this.toString());
+                LOG.debug("Loaded profile:\n{}", this.toString());
             }
             if (LOG.isTraceEnabled()) {
-                LOG.trace("Airport Max Customer Id:\n" + this.airport_max_customer_id);
+                LOG.trace("Airport Max Customer Id:\n{}", this.airport_max_customer_id);
             }
 
             cachedProfile = new SEATSProfile(this.benchmark, this.rng).copy(this);
-        } // SYNCH
+        }
     }
 
-    private final void loadConfigProfile(ResultSet vt) throws SQLException {
-        boolean adv = vt.next();
-        assert (adv);
-        int col = 1;
-        this.scale_factor = vt.getDouble(col++);
-        JSONUtil.fromJSONString(this.airport_max_customer_id, vt.getString(col++));
-        this.flight_start_date.setTime(vt.getTimestamp(col++).getTime());
-        this.flight_upcoming_date = vt.getTimestamp(col++);
-        this.flight_past_days = vt.getLong(col++);
-        this.flight_future_days = vt.getLong(col++);
-        this.flight_upcoming_offset = vt.getLong(col++);
-        this.reservation_upcoming_offset = vt.getLong(col++);
-        this.num_reservations = vt.getLong(col++);
+    private void loadConfigProfile(List<Object[]> vt) {
+        for (Object[] row : vt) {
+            this.scale_factor = SQLUtil.getDouble(row[0]);
+            JSONUtil.fromJSONString(this.airport_max_customer_id, SQLUtil.getString(row[1]));
+            this.flight_start_date.setTime(SQLUtil.getTimestamp(row[2]).getTime());
+            this.flight_upcoming_date = SQLUtil.getTimestamp(row[3]);
+            this.flight_past_days = SQLUtil.getLong(row[4]);
+            this.flight_future_days = SQLUtil.getLong(row[5]);
+            this.flight_upcoming_offset = SQLUtil.getLong(row[6]);
+            this.reservation_upcoming_offset = SQLUtil.getLong(row[7]);
+            this.num_reservations = SQLUtil.getLong(row[8]);
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_PROFILE));
         }
     }
 
-    private final void loadConfigHistograms(ResultSet vt) throws SQLException {
-        while (vt.next()) {
-            int col = 1;
-            String name = vt.getString(col++);
-            Histogram<String> h = JSONUtil.fromJSONString(new Histogram<String>(), vt.getString(col++));
-            boolean is_airline = (vt.getLong(col++) == 1);
+    private void loadConfigHistograms(List<Object[]> vt) {
+        for (Object[] row : vt) {
+            String name = SQLUtil.getString(row[0]);
+            Histogram<String> h = JSONUtil.fromJSONString(new Histogram<>(), SQLUtil.getString(row[1]));
+            boolean is_airline = (SQLUtil.getLong(row[2]) == 1);
 
             if (is_airline) {
                 this.airport_histograms.put(name, h);
@@ -386,33 +354,33 @@ public class SEATSProfile {
                     LOG.trace(String.format("Loaded %d records for %s histogram", h.getValueCount(), name));
                 }
             }
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %s data", SEATSConstants.TABLENAME_CONFIG_HISTOGRAMS));
         }
     }
 
-    private final void loadCodeXref(ResultSet vt, String codeCol, String idCol) throws SQLException {
+    private void loadCodeXref(List<Object[]> vt, String codeCol, String idCol) {
         Map<String, Long> m = this.code_id_xref.get(idCol);
-        while (vt.next()) {
-            int col = 1;
-            long id = vt.getLong(col++);
-            String code = vt.getString(col++);
+        for (Object[] row : vt) {
+            long id = SQLUtil.getLong(row[0]);
+            String code = SQLUtil.getString(row[1]);
             m.put(code, id);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d xrefs for %s -> %s", m.size(), codeCol, idCol));
         }
     }
 
-    private final void loadCachedFlights(ResultSet vt) throws SQLException {
+    private void loadCachedFlights(List<Object[]> vt) {
         int limit = 1;
-        while (vt.next() && limit++ < SEATSConstants.CACHE_LIMIT_FLIGHT_IDS) {
-            int col = 1;
-            long f_id = vt.getLong(col++);
+        Iterator<Object[]> iterator = vt.iterator();
+        while (iterator.hasNext() && limit++ < SEATSConstants.CACHE_LIMIT_FLIGHT_IDS) {
+            Object[] row = iterator.next();
+            long f_id = SQLUtil.getLong(row[0]);
             FlightId flight_id = new FlightId(f_id);
             this.cached_flight_ids.add(flight_id);
-        } // WHILE
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Loaded %d cached FlightIds", this.cached_flight_ids.size()));
         }
@@ -422,15 +390,10 @@ public class SEATSProfile {
     // DATA ACCESS METHODS
     // ----------------------------------------------------------------
 
-    public File getSEATSDataDir() {
-        return this.airline_data_dir;
-    }
-
     private Map<String, Long> getCodeXref(String col_name) {
-        Map<String, Long> m = this.code_id_xref.get(col_name);
-        assert (m != null) : "Invalid code xref mapping column '" + col_name + "'";
-        assert (m.isEmpty() == false) : "Empty code xref mapping for column '" + col_name + "'\n" + StringUtil.formatMaps(this.code_id_xref);
-        return (m);
+
+
+        return (this.code_id_xref.get(col_name));
     }
 
     /**
@@ -445,7 +408,7 @@ public class SEATSProfile {
     /**
      * Set the number of upcoming reservation offset
      *
-     * @param numReservations
+     * @param offset
      */
     public void setReservationUpcomingOffset(long offset) {
         this.reservation_upcoming_offset = offset;
@@ -477,7 +440,7 @@ public class SEATSProfile {
                 this.cached_flight_ids.addLast(flight_id);
                 added = true;
             }
-        } // SYNCH
+        }
         return (added);
     }
 
@@ -496,9 +459,8 @@ public class SEATSProfile {
      * @return
      */
     public Histogram<String> getHistogram(String name) {
-        Histogram<String> h = this.histograms.get(name);
-        assert (h != null) : "Invalid histogram '" + name + "'";
-        return (h);
+
+        return (this.histograms.get(name));
     }
 
     /**
@@ -540,13 +502,13 @@ public class SEATSProfile {
                 f = this.airport_distributions.get(code);
                 if (f == null) {
                     Histogram<String> h = this.airport_histograms.get(code);
-                    assert (h != null);
-                    f = new FlatHistogram<String>(this.rng, h);
+
+                    f = new FlatHistogram<>(this.rng, h);
                     this.airport_distributions.put(code, f);
                 }
-            } // SYCH
+            }
         }
-        assert (f != null);
+
         String other = f.nextValue();
         return this.getAirportId(other);
     }
@@ -560,7 +522,7 @@ public class SEATSProfile {
     public CustomerId getRandomCustomerId(Long airport_id) {
         Integer cnt = this.getCustomerIdCount(airport_id);
         if (cnt != null) {
-            int base_id = this.rng.nextInt(cnt.intValue());
+            int base_id = this.rng.nextInt(cnt);
             return (new CustomerId(base_id, airport_id));
         }
         return (null);
@@ -580,7 +542,7 @@ public class SEATSProfile {
         while (c_id == null) {
             Long airport_id = (long) this.rng.number(1, num_airports);
             c_id = this.getRandomCustomerId(airport_id);
-        } // WHILE
+        }
         return (c_id);
     }
 
@@ -601,14 +563,14 @@ public class SEATSProfile {
      * @return
      */
     public FlightId getRandomFlightId() {
-        assert (this.cached_flight_ids.isEmpty() == false);
+
         if (LOG.isTraceEnabled()) {
             LOG.trace("Attempting to get a random FlightId");
         }
         int idx = this.rng.nextInt(this.cached_flight_ids.size());
         FlightId flight_id = this.cached_flight_ids.get(idx);
         if (LOG.isTraceEnabled()) {
-            LOG.trace("Got random " + flight_id);
+            LOG.trace("Got random {}", flight_id);
         }
         return (flight_id);
     }
@@ -617,17 +579,17 @@ public class SEATSProfile {
     // ----------------------------------------------------------------
 
     public Collection<Long> getAirlineIds() {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRLINE_ID);
         return (m.values());
     }
 
     public Collection<String> getAirlineCodes() {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRLINE_ID);
         return (m.keySet());
     }
 
     public Long getAirlineId(String airline_code) {
-        Map<String, Long> m = this.getCodeXref("AL_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRLINE_ID);
         return (m.get(airline_code));
     }
 
@@ -655,17 +617,17 @@ public class SEATSProfile {
      * @return
      */
     public Collection<Long> getAirportIds() {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRPORT_ID);
         return (m.values());
     }
 
     public Long getAirportId(String airport_code) {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRPORT_ID);
         return (m.get(airport_code));
     }
 
     public String getAirportCode(long airport_id) {
-        Map<String, Long> m = this.getCodeXref("AP_ID");
+        Map<String, Long> m = this.getCodeXref(SEATSConstants.AIRPORT_ID);
         for (Entry<String, Long> e : m.entrySet()) {
             if (e.getValue() == airport_id) {
                 return (e.getKey());
@@ -675,7 +637,7 @@ public class SEATSProfile {
     }
 
     public Collection<String> getAirportCodes() {
-        return (this.getCodeXref("AP_ID").keySet());
+        return (this.getCodeXref(SEATSConstants.AIRPORT_ID).keySet());
     }
 
     /**
@@ -688,15 +650,15 @@ public class SEATSProfile {
     }
 
     public Histogram<String> getAirportCustomerHistogram() {
-        Histogram<String> h = new Histogram<String>();
+        Histogram<String> h = new Histogram<>();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Generating Airport-CustomerCount histogram [numAirports=" + this.getAirportCount() + "]");
+            LOG.debug("Generating Airport-CustomerCount histogram [numAirports={}]", this.getAirportCount());
         }
         for (Long airport_id : this.airport_max_customer_id.values()) {
             String airport_code = this.getAirportCode(airport_id);
             int count = this.airport_max_customer_id.get(airport_id);
             h.put(airport_code, count);
-        } // FOR
+        }
         return (h);
     }
 
@@ -741,9 +703,6 @@ public class SEATSProfile {
         return (this.flight_upcoming_date);
     }
 
-    /**
-     * @param startDate
-     */
     public void setFlightUpcomingDate(Timestamp upcoming_date) {
         this.flight_upcoming_date = upcoming_date;
     }
@@ -757,9 +716,6 @@ public class SEATSProfile {
         return (this.flight_past_days);
     }
 
-    /**
-     * @param flight_start_date
-     */
     public void setFlightPastDays(long flight_past_days) {
         this.flight_past_days = flight_past_days;
     }
@@ -773,9 +729,6 @@ public class SEATSProfile {
         return (this.flight_future_days);
     }
 
-    /**
-     * @param flight_start_date
-     */
     public void setFlightFutureDays(long flight_future_days) {
         this.flight_future_days = flight_future_days;
     }
@@ -787,7 +740,7 @@ public class SEATSProfile {
 
     @Override
     public String toString() {
-        Map<String, Object> m = new ListOrderedMap<String, Object>();
+        Map<String, Object> m = new ListOrderedMap<>();
         m.put("Scale Factor", this.scale_factor);
         m.put("Data Directory", this.airline_data_dir);
         m.put("# of Reservations", this.num_reservations);

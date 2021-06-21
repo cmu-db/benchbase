@@ -1,18 +1,19 @@
-/******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
- *                                                                            *
- *  Licensed under the Apache License, Version 2.0 (the "License");           *
- *  you may not use this file except in compliance with the License.          *
- *  You may obtain a copy of the License at                                   *
- *                                                                            *
- *    http://www.apache.org/licenses/LICENSE-2.0                              *
- *                                                                            *
- *  Unless required by applicable law or agreed to in writing, software       *
- *  distributed under the License is distributed on an "AS IS" BASIS,         *
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  *
- *  See the License for the specific language governing permissions and       *
- *  limitations under the License.                                            *
- ******************************************************************************/
+/*
+ * Copyright 2020 by OLTPBenchmark Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 /* This file is part of VoltDB.
  * Copyright (C) 2008-2010 VoltDB L.L.C.
@@ -33,29 +34,28 @@
 
 package com.oltpbenchmark.types;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  */
 public enum SortDirectionType {
-    INVALID      (0),
-    ASC          (1),
-    DESC         (2);
+    INVALID(0),
+    ASC(1),
+    DESC(2);
 
     SortDirectionType(int val) {
-        assert (this.ordinal() == val) :
-            "Enum element " + this.name() +
-            " in position " + this.ordinal() +
-            " instead of position " + val;
     }
 
     public int getValue() {
         return this.ordinal();
     }
 
-    protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<Integer, SortDirectionType>();
-    protected static final Map<String, SortDirectionType> name_lookup = new HashMap<String, SortDirectionType>();
+    protected static final Map<Integer, SortDirectionType> idx_lookup = new HashMap<>();
+    protected static final Map<String, SortDirectionType> name_lookup = new HashMap<>();
+
     static {
         for (SortDirectionType vt : EnumSet.allOf(SortDirectionType.class)) {
             SortDirectionType.idx_lookup.put(vt.ordinal(), vt);
@@ -63,16 +63,8 @@ public enum SortDirectionType {
         }
     }
 
-    public static Map<Integer, SortDirectionType> getIndexMap() {
-        return idx_lookup;
-    }
-
-    public static Map<String, SortDirectionType> getNameMap() {
-        return name_lookup;
-    }
-
     public static SortDirectionType get(Integer idx) {
-        assert(idx >= 0);
+
         SortDirectionType ret = SortDirectionType.idx_lookup.get(idx);
         return (ret == null ? SortDirectionType.INVALID : ret);
     }

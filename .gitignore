@@ -1,23 +1,45 @@
-bin/
-/build/
-output.raw
-output.res
-.classpath
-.settings
-.idea
+.project
+
+docker/**/*.zip
+docker/**/output
 results
 
-## -------------------------------
-## Kate Swap Files
-## -------------------------------
-*.kate-swp
-.#kate-*
+HELP.md
+PRIVATE.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
 
-## -------------------------------
-## Backup artifacts
-## -------------------------------
-~*
-*~
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# maven output
-target
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
