@@ -87,7 +87,7 @@ public class TestStatementDialects extends AbstractTestCase<EpinionsBenchmark> {
      */
     public void testLoadXMLFile() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
-            this.workConf.setDBType(dbType);
+            this.workConf.setDatabaseType(dbType);
             File xmlFile = this.benchmark.getSQLDialect();
             if (xmlFile == null) continue;
             

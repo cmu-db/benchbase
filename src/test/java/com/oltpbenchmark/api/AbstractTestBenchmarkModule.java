@@ -106,7 +106,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         if (xmlFile == null) return;
         
         for (DatabaseType dbType : DatabaseType.values()) {
-            this.workConf.setDBType(dbType);
+            this.workConf.setDatabaseType(dbType);
             
             // Just make sure that we can load it
             StatementDialects dialects = new StatementDialects(dbType, xmlFile);
