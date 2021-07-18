@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>NOISEPAGE</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://localhost:15721/noisepage?sslmode=disable&amp;ApplicationName=noop&amp;reWriteBatchedInserts=true</url>
+    <username>noisepage</username>
+    <password></password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- This parameter has no affect on this benchmark-->
+    <!-- There is no data to load -->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>300</time>
+            <rate>1000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- NoOp Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>NoOp</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
