@@ -19,7 +19,7 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
@@ -102,7 +102,7 @@ public abstract class Loader<T extends BenchmarkModule> {
      * @param catalog The catalog containing all loaded tables
      * @throws SQLException
      */
-    public void unload(Connection conn, Catalog catalog) throws SQLException {
+    public void unload(Connection conn, AbstractCatalog catalog) throws SQLException {
 
         boolean shouldEscapeNames = this.getDatabaseType().shouldEscapeNames();
 

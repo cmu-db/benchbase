@@ -17,10 +17,8 @@
 
 package com.oltpbenchmark.util;
 
-import com.oltpbenchmark.catalog.Catalog;
-import com.oltpbenchmark.catalog.Column;
-import com.oltpbenchmark.catalog.Index;
-import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.api.BenchmarkModule;
+import com.oltpbenchmark.catalog.*;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.SortDirectionType;
 import org.apache.commons.lang3.StringUtils;
@@ -396,8 +394,35 @@ public abstract class SQLUtil {
                 col, tableName);
     }
 
-    public static Catalog getCatalog(DatabaseType databaseType, Connection connection) throws SQLException {
+    /**
+     * Extract the catalog from the database.
+     */
+    public static AbstractCatalog getCatalog(BenchmarkModule benchmarkModule, DatabaseType databaseType, Connection connection) throws SQLException {
+        switch (databaseType) {
+            case NOISEPAGE: // fall-through
+            case HSQLDB:
+                return getCatalogHSQLDB(benchmarkModule);
+            default:
+                return getCatalogDirect(databaseType, connection);
+        }
+    }
 
+    /**
+     * Create an in-memory instance of HSQLDB to extract all of the catalog information.
+     * <p>
+     * This supports databases that may not support all of the SQL standard just yet.
+     *
+     * @return
+     * @throws SQLException
+     */
+    private static AbstractCatalog getCatalogHSQLDB(BenchmarkModule benchmarkModule) throws SQLException {
+        return new HSQLDBCatalog(benchmarkModule);
+    }
+
+    /**
+     * Extract catalog information from the database directly.
+     */
+    private static AbstractCatalog getCatalogDirect(DatabaseType databaseType, Connection connection) throws SQLException {
         DatabaseMetaData md = connection.getMetaData();
 
         String separator = md.getIdentifierQuoteString();

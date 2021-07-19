@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * @author pavlo
  */
-public final class Catalog {
+public final class Catalog implements AbstractCatalog {
 
     private final Map<String, Table> tables;
 
@@ -32,10 +32,12 @@ public final class Catalog {
         this.tables = tables;
     }
 
+    @Override
     public Collection<Table> getTables() {
         return (this.tables.values());
     }
 
+    @Override
     public Table getTable(String tableName) {
         for (Table table : tables.values()) {
             if (table.getName().equalsIgnoreCase(tableName)) {
