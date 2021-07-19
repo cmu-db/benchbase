@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public enum DatabaseType {
 
+    HSQLDB(false, false),
     NOISEPAGE(false, false),
     MYSQL(true, false),
     POSTGRES(false, false),

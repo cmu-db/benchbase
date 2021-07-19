@@ -19,7 +19,7 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.SQLUtil;
@@ -66,7 +66,7 @@ public abstract class BenchmarkModule {
 
     private final HikariDataSource dataSource;
 
-    private Catalog catalog = null;
+    private AbstractCatalog catalog = null;
 
     public BenchmarkModule(WorkloadConfiguration workConf) {
 
@@ -80,6 +80,12 @@ public abstract class BenchmarkModule {
         config.setMaximumPoolSize(workConf.getPoolSize());
 
         dataSource = new HikariDataSource(config);
+
+        try {
+            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), dataSource.getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -132,14 +138,15 @@ public abstract class BenchmarkModule {
      * schema.
      *
      * @param db_type
-     * @throws SQLException
      */
     public String getDatabaseDDLPath(DatabaseType db_type) {
 
+        // The order matters!
         List<String> names = new ArrayList<>();
         if (db_type != null) {
             names.add("ddl-" + db_type.name().toLowerCase() + ".sql");
         }
+        names.add("ddl-generic.sql");
 
         for (String fileName : names) {
 
@@ -171,7 +178,11 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        this.createDatabase(this.workConf.getDatabaseType());
+        try {
+            this.createDatabase(this.workConf.getDatabaseType(), this.getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -179,10 +190,9 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase(DatabaseType dbType) {
-        try (Connection conn = this.getConnection()) {
+    public final void createDatabase(DatabaseType dbType, Connection conn) {
+        try {
             String ddlPath = this.getDatabaseDDLPath(dbType);
-
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
             if (LOG.isDebugEnabled()) {
@@ -190,9 +200,6 @@ public abstract class BenchmarkModule {
             }
 
             runner.runScript(ddlPath);
-
-            this.catalog = SQLUtil.getCatalog(dbType, conn);
-
         } catch (Exception ex) {
             throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
         }
@@ -241,8 +248,6 @@ public abstract class BenchmarkModule {
     public final void clearDatabase() {
 
         try (Connection conn = this.getConnection()) {
-            this.catalog = SQLUtil.getCatalog(this.getWorkloadConfiguration().getDatabaseType(), conn);
-
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);
@@ -268,7 +273,7 @@ public abstract class BenchmarkModule {
     /**
      * Return the database's catalog
      */
-    public final Catalog getCatalog() {
+    public final AbstractCatalog getCatalog() {
 
         if (catalog == null) {
             throw new RuntimeException("getCatalog() has been called before create database");
