@@ -29,6 +29,7 @@ import java.util.Map;
  */
 public enum DatabaseType {
 
+    NOISEPAGE(false, false),
     MYSQL(true, false),
     POSTGRES(false, false),
     COCKROACHDB(false, false);
@@ -56,20 +57,16 @@ public enum DatabaseType {
     // ----------------------------------------------------------------
 
     /**
-     * Returns true if the framework should escape the names of columns/tables when
-     * generating SQL to load in data for the target database type.
-     *
-     * @return
+     * @return  True if the framework should escape the names of columns/tables when
+     *          generating SQL to load in data for the target database type.
      */
     public boolean shouldEscapeNames() {
         return (this.escapeNames);
     }
 
     /**
-     * Returns true if the framework should include the names of columns when
-     * generating SQL to load in data for the target database type.
-     *
-     * @return
+     * @return  True if the framework should include the names of columns when
+     *          generating SQL to load in data for the target database type.
      */
     public boolean shouldIncludeColumnNames() {
         return (this.includeColNames);
