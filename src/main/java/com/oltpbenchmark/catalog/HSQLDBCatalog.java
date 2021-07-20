@@ -206,7 +206,6 @@ public class HSQLDBCatalog implements AbstractCatalog {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(ddlContents);
         // Extract and map the original table names to their uppercase versions.
         Map<String, String> originalTableNames = new HashMap<>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
