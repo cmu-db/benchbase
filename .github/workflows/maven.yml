@@ -73,7 +73,9 @@ jobs:
         run: java -jar oltpbench2.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
       - name: CH-benCHmark
         working-directory: target/oltpbench2-extracted
-        run: java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+        run: |
+          java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
+          java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Epinions.com
         working-directory: target/oltpbench2-extracted
         run: java -jar oltpbench2.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
@@ -101,9 +103,10 @@ jobs:
       - name: TPC-C
         working-directory: target/oltpbench2-extracted
         run: java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
-      - name: TPC-DS
-        working-directory: target/oltpbench2-extracted
-        run: java -jar oltpbench2.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
+      # TPC-DS does not have a sample configuration available right now.
+      # - name: TPC-DS
+      #   working-directory: target/oltpbench2-extracted
+      #   run: java -jar oltpbench2.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
       - name: TPC-H
         working-directory: target/oltpbench2-extracted
         run: java -jar oltpbench2.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
