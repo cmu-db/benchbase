@@ -63,10 +63,9 @@ jobs:
         run: mvn -B package --file pom.xml
       - name: Extract TGZ artifact in target/.
         working-directory: target
-        run: tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
-      - name: echo
-        working-directory: target
-        run: echo "target/oltpbench2-$OLTPBENCH_POM_VERSION"
+        run: |
+          tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
+          mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
       - name: TPCC
-        working-directory: target/oltpbench2-$OLTPBENCH_POM_VERSION
+        working-directory: target/oltpbench2-extracted
         run: java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
