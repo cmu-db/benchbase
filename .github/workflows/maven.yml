@@ -64,6 +64,9 @@ jobs:
       - name: Extract TGZ artifact in target/.
         working-directory: target
         run: tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
+      - name: ls
+        working-directory: target
+        run: ls
       - name: TPCC
         working-directory: target/oltpbench2-$OLTPBENCH_POM_VERSION
         run: java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
