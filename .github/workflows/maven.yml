@@ -1,10 +1,14 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+# Template: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+#
+# Useful links
+# - GitHub Actions: https://docs.github.com/en/actions/learn-github-actions/introduction-to-github-actions
+# - Service containers: https://docs.github.com/en/actions/guides/creating-postgresql-service-containers
+#
+# The CI jobs are set up as follows:
+# - One job to build, (TODO: run tests), and upload artifacts.
+# - One job per DBMS test suite.
 
-# DBMSes
-# PostgreSQL: https://docs.github.com/en/actions/guides/creating-postgresql-service-containers
-
-name: Java CI with Maven
+name: OLTPBench (Java with Maven)
 
 on:
   push:
@@ -45,7 +49,7 @@ jobs:
   mysql:
     runs-on: ubuntu-latest
     services:
-      mysql:
+      mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: rootyMcRooty
@@ -131,7 +135,7 @@ jobs:
   postgresql:
     runs-on: ubuntu-latest
     services:
-      postgres:
+      postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
         env:
           POSTGRES_DB: oltpbench
