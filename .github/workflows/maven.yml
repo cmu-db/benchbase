@@ -81,7 +81,7 @@ jobs:
         run: java -jar oltpbench2.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
       - name: hyadapt
         working-directory: target/oltpbench2-extracted
-        run: java -jar oltpbench2.jar -b hyadapt -c config/postgres/sample_hyadpt_config.xml --create=true --load=true --execute=true
+        run: java -jar oltpbench2.jar -b hyadapt -c config/postgres/sample_hyadapt_config.xml --create=true --load=true --execute=true
       - name: noop
         working-directory: target/oltpbench2-extracted
         run: java -jar oltpbench2.jar -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
