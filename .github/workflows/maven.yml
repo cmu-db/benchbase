@@ -68,6 +68,54 @@ jobs:
         run: |
           tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
           mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
-      - name: TPCC
+      - name: AuctionMark
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
+      - name: CH-benCHmark
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+      - name: Epinions.com
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
+      - name: hyadapt
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b hyadapt -c config/postgres/sample_hyadpt_config.xml --create=true --load=true --execute=true
+      - name: noop
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
+      - name: Resource Stresser
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b resourcestresser -c config/postgres/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+      - name: SEATS
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b seats -c config/postgres/sample_seats_config.xml --create=true --load=true --execute=true
+      - name: SIBench
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b sibench -c config/postgres/sample_sibench_config.xml --create=true --load=true --execute=true
+      - name: SmallBank
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b smallbank -c config/postgres/sample_smallbank_config.xml --create=true --load=true --execute=true
+      - name: TATP
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b tatp -c config/postgres/sample_tatp_config.xml --create=true --load=true --execute=true
+      - name: TPC-C
         working-directory: target/oltpbench2-extracted
         run: java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+      - name: TPC-DS
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
+      - name: TPC-H
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
+      - name: Twitter
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b twitter -c config/postgres/sample_twitter_config.xml --create=true --load=true --execute=true
+      - name: Voter
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b voter -c config/postgres/sample_voter_config.xml --create=true --load=true --execute=true
+      - name: Wikipedia
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b wikipedia -c config/postgres/sample_wikipedia_config.xml --create=true --load=true --execute=true
+      - name: YCSB
+        working-directory: target/oltpbench2-extracted
+        run: java -jar oltpbench2.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
