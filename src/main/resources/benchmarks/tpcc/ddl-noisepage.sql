@@ -17,8 +17,8 @@ CREATE TABLE warehouse (
     w_street_2 varchar(20)    NOT NULL,
     w_city     varchar(20)    NOT NULL,
     w_state    char(2)        NOT NULL,
-    w_zip      char(9)        NOT NULL /* ,
-    PRIMARY KEY (w_id) */
+    w_zip      char(9)        NOT NULL,
+    PRIMARY KEY (w_id)
 );
 
 CREATE TABLE item (
@@ -26,8 +26,8 @@ CREATE TABLE item (
     i_name  varchar(24)   NOT NULL,
     i_price decimal(5, 2) NOT NULL,
     i_data  varchar(50)   NOT NULL,
-    i_im_id int           NOT NULL /* ,
-    PRIMARY KEY (i_id) */
+    i_im_id int           NOT NULL,
+    PRIMARY KEY (i_id)
 );
 
 CREATE TABLE stock (
@@ -47,10 +47,10 @@ CREATE TABLE stock (
     s_dist_07    char(24)      NOT NULL,
     s_dist_08    char(24)      NOT NULL,
     s_dist_09    char(24)      NOT NULL,
-    s_dist_10    char(24)      NOT NULL /* ,
-    FOREIGN KEY (s_w_id) REFERENCES warehouse (w_id) ON DELETE CASCADE,
-    FOREIGN KEY (s_i_id) REFERENCES item (i_id) ON DELETE CASCADE,
-    PRIMARY KEY (s_w_id, s_i_id) */
+    s_dist_10    char(24)      NOT NULL,
+    /* FOREIGN KEY (s_w_id) REFERENCES warehouse (w_id) ON DELETE CASCADE,
+    FOREIGN KEY (s_i_id) REFERENCES item (i_id) ON DELETE CASCADE, */
+    PRIMARY KEY (s_w_id, s_i_id)
 );
 
 CREATE TABLE district (
@@ -64,9 +64,9 @@ CREATE TABLE district (
     d_street_2  varchar(20)    NOT NULL,
     d_city      varchar(20)    NOT NULL,
     d_state     char(2)        NOT NULL,
-    d_zip       char(9)        NOT NULL /* ,
-    FOREIGN KEY (d_w_id) REFERENCES warehouse (w_id) ON DELETE CASCADE,
-    PRIMARY KEY (d_w_id, d_id) */
+    d_zip       char(9)        NOT NULL,
+    /* FOREIGN KEY (d_w_id) REFERENCES warehouse (w_id) ON DELETE CASCADE, */
+    PRIMARY KEY (d_w_id, d_id)
 );
 
 CREATE TABLE customer (
@@ -90,9 +90,9 @@ CREATE TABLE customer (
     c_phone        char(16)       NOT NULL,
     c_since        timestamp      NOT NULL, /* DEFAULT CURRENT_TIMESTAMP, */
     c_middle       char(2)        NOT NULL,
-    c_data         varchar(500)   NOT NULL /* ,
-    FOREIGN KEY (c_w_id, c_d_id) REFERENCES district (d_w_id, d_id) ON DELETE CASCADE,
-    PRIMARY KEY (c_w_id, c_d_id, c_id) */
+    c_data         varchar(500)   NOT NULL,
+    /* FOREIGN KEY (c_w_id, c_d_id) REFERENCES district (d_w_id, d_id) ON DELETE CASCADE, */
+    PRIMARY KEY (c_w_id, c_d_id, c_id)
 );
 
 CREATE TABLE history (
@@ -116,18 +116,18 @@ CREATE TABLE oorder (
     o_carrier_id int                DEFAULT NULL,
     o_ol_cnt     int       NOT NULL,
     o_all_local  int       NOT NULL,
-    o_entry_d    timestamp NOT NULL /* DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (o_w_id, o_d_id, o_id),
-    FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
+    o_entry_d    timestamp NOT NULL, /* DEFAULT CURRENT_TIMESTAMP, */
+    PRIMARY KEY (o_w_id, o_d_id, o_id)
+    /* FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
     UNIQUE (o_w_id, o_d_id, o_c_id, o_id) */
 );
 
 CREATE TABLE new_order (
     no_w_id int NOT NULL,
     no_d_id int NOT NULL,
-    no_o_id int NOT NULL /* ,
-    FOREIGN KEY (no_w_id, no_d_id, no_o_id) REFERENCES oorder (o_w_id, o_d_id, o_id) ON DELETE CASCADE,
-    PRIMARY KEY (no_w_id, no_d_id, no_o_id) */
+    no_o_id int NOT NULL,
+    /* FOREIGN KEY (no_w_id, no_d_id, no_o_id) REFERENCES oorder (o_w_id, o_d_id, o_id) ON DELETE CASCADE, */
+    PRIMARY KEY (no_w_id, no_d_id, no_o_id)
 );
 
 CREATE TABLE order_line (
@@ -139,12 +139,12 @@ CREATE TABLE order_line (
     ol_delivery_d  timestamp     DEFAULT NULL, /* NULL DEFAULT NULL, */
     ol_amount      decimal(6, 2) NOT NULL,
     ol_supply_w_id int           NOT NULL,
-    ol_quantity    int           NOT NULL,
-    ol_dist_info   char(24)      NOT NULL /* ,
-    FOREIGN KEY (ol_w_id, ol_d_id, ol_o_id) REFERENCES oorder (o_w_id, o_d_id, o_id) ON DELETE CASCADE,
-    FOREIGN KEY (ol_supply_w_id, ol_i_id) REFERENCES stock (s_w_id, s_i_id) ON DELETE CASCADE,
-    PRIMARY KEY (ol_w_id, ol_d_id, ol_o_id, ol_number) */
+    ol_quantity    decimal(6,2)  NOT NULL,
+    ol_dist_info   char(24)      NOT NULL,
+    /* FOREIGN KEY (ol_w_id, ol_d_id, ol_o_id) REFERENCES oorder (o_w_id, o_d_id, o_id) ON DELETE CASCADE,
+    FOREIGN KEY (ol_supply_w_id, ol_i_id) REFERENCES stock (s_w_id, s_i_id) ON DELETE CASCADE, */
+    PRIMARY KEY (ol_w_id, ol_d_id, ol_o_id, ol_number)
 );
 
-CREATE INDEX idx_customer_name ON customer (c_w_id, c_d_id, c_last, c_first);
+CREATE INDEX idx_customer_name ON customer (c_w_id, c_d_id, c_last);
 CREATE INDEX idx_order ON oorder (o_w_id, o_d_id, o_c_id, o_id);
