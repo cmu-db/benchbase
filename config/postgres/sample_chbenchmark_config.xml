@@ -29,7 +29,7 @@
 
         <!-- A Basic WorkPhase for Mixed Workloads -->
         <work>
-            <time>10</time>
+            <time>60</time>
 
             <!-- Note: The rate can be set to UNLIMITED or DISABLED -->
             <rate>200</rate>
@@ -41,7 +41,7 @@
 
         <!-- Extra features showcase -->
         <work>
-            <time>10</time>
+            <time>60</time>
 
             <rate>200</rate>
             <rate bench="chbenchmark">disabled</rate>
@@ -57,7 +57,7 @@
 
         <!-- Extra features -->
         <work>
-            <time>10</time>
+            <time>60</time>
 
             <rate>100</rate>
             <rate bench="chbenchmark">unlimited</rate>
