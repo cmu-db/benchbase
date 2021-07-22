@@ -16,7 +16,7 @@ env:
   OLTPBENCH_POM_VERSION: 20.1.3-SNAPSHOT
 
 jobs:
-  build:
+  build-and-upload:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo.
