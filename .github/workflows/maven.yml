@@ -64,8 +64,6 @@ jobs:
         ports:
           - 3306:3306
     steps:
-      - env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
       - name: Checkout repo.
         uses: actions/checkout@v2
       - name: Setup JDK 11.
@@ -81,88 +79,122 @@ jobs:
           mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
       - name: AuctionMark
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b auctionmark -c config/mysql/sample_auctionmark_config.xml --create=true --load=true --execute=true
       - name: CH-benCHmark
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
           java -jar oltpbench2.jar -b chbenchmark -c config/mysql/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Epinions.com
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b epinions -c config/mysql/sample_epinions_config.xml --create=true --load=true --execute=true
       - name: hyadapt
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b hyadapt -c config/mysql/sample_hyadapt_config.xml --create=true --load=true --execute=true
       - name: noop
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b noop -c config/mysql/sample_noop_config.xml --create=true --load=true --execute=true
       - name: Resource Stresser
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b resourcestresser -c config/mysql/sample_resourcestresser_config.xml --create=true --load=true --execute=true
       - name: SEATS
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b seats -c config/mysql/sample_seats_config.xml --create=true --load=true --execute=true
       - name: SIBench
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b sibench -c config/mysql/sample_sibench_config.xml --create=true --load=true --execute=true
       - name: SmallBank
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b smallbank -c config/mysql/sample_smallbank_config.xml --create=true --load=true --execute=true
       - name: TATP
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b tatp -c config/mysql/sample_tatp_config.xml --create=true --load=true --execute=true
       - name: TPC-C
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=true
       # TPC-DS does not have a sample configuration available right now.
       # - name: TPC-DS
       #   working-directory: target/oltpbench2-extracted
+      #   env:
+      #     MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
       #   run: |
       #     mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
       #     java -jar oltpbench2.jar -b tpcds -c config/mysql/sample_tpcds_config.xml --create=true --load=true --execute=true
       - name: TPC-H
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: Twitter
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b twitter -c config/mysql/sample_twitter_config.xml --create=true --load=true --execute=true
       - name: Voter
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b voter -c config/mysql/sample_voter_config.xml --create=true --load=true --execute=true
       - name: Wikipedia
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b wikipedia -c config/mysql/sample_wikipedia_config.xml --create=true --load=true --execute=true
       - name: YCSB
         working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -hlocalhost -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
