@@ -1,3 +1,6 @@
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+
 DROP VIEW IF EXISTS v_votes_by_phone_number CASCADE;
 DROP VIEW IF EXISTS v_votes_by_contestant_number_state CASCADE;
 DROP TABLE IF EXISTS votes CASCADE;
@@ -35,3 +38,6 @@ CREATE VIEW v_votes_by_contestant_number_state (contestant_number, state, num_vo
 SELECT contestant_number, state, COUNT(*)
 FROM votes
 GROUP BY contestant_number, state;
+
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
