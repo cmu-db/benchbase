@@ -80,7 +80,7 @@ jobs:
       - name: AuctionMark
         working-directory: target/oltpbench2-extracted
         run: |
-          mysql -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
+          mysql -hlocalhost -P3306 -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b auctionmark -c config/mysql/sample_auctionmark_config.xml --create=true --load=true --execute=true
       - name: CH-benCHmark
         working-directory: target/oltpbench2-extracted
