@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="COCKROACHDB">
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+                SELECT PG_SLEEP(?)
+            </statement>
+        </procedure>
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+                SELECT PG_SLEEP(?)
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

@@ -1,7 +1,0 @@
-set xlabel "throughput (tps)"; set ylabel "disk and cpu utilization (%)"; set key bottom right; set autoscale; set yrange [0:110]; 
-plot "20w_cpu_details.csv" using 3:4 lt 1 ps 0.5 with points  notitle, "20w_cpu_aggregated.csv" using 3:4 lt 1 ps 2 with points title "disk 20w",\
- "20w_cpu_details.csv" using 3:5 lt 2 ps 0.5 with points notitle, "20w_cpu_aggregated.csv" using 3:5 lt 2 ps 2 with points title "cpu 20w",\
- "2w_cpu_details.csv" using 3:4 lt 3 ps 0.5 with points  notitle, "2w_cpu_aggregated.csv" using 3:4 lt 3 ps 2 with points title "disk 2w",\
- "2w_cpu_details.csv" using 3:5 lt 4 ps 0.5 with points notitle, "2w_cpu_aggregated.csv" using 3:5 lt 4 ps 2 with points title "cpu 2w";
-
-
