@@ -49,7 +49,7 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ROOT_PASSWORD: rootyMcRooty
-          MYSQL_DB: oltpbench
+          MYSQL_DATABASE: oltpbench
           MYSQL_USER: admin
           MYSQL_PASSWORD: password
         options: >-
