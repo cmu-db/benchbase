@@ -27,16 +27,20 @@ jobs:
         java-version: 11
     - name: Build with Maven.
       run: mvn -B package --file pom.xml
+    - name: Rename artifacts.
+      run: |
+        mv target/oltpbench2-$OLTPBENCH_POM_VERSION.zip target/oltpbench2.zip
+        mv target/oltpbench2-$OLTPBENCH_POM_VERSION.tgz target/oltpbench2.tgz
     - name: Upload ZIP artifact.
       uses: actions/upload-artifact@v2
       with:
         name: oltpbench2.zip
-        path: target/oltpbench2-$OLTPBENCH_POM_VERSION.zip
+        path: target/oltpbench2.zip
     - name: Upload TGZ artifact.
       uses: actions/upload-artifact@v2
       with:
         name: oltpbench2.tgz
-        path: target/oltpbench2-$OLTPBENCH_POM_VERSION.tgz
+        path: target/oltpbench2.tgz
 
   mysql:
     runs-on: ubuntu-latest
