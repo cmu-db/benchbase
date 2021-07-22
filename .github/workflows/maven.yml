@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ maven ]
+    branches: [ oltpbench_tim ]
   pull_request:
-    branches: [ maven ]
+    branches: [ oltpbench_tim ]
 
 jobs:
   build:
