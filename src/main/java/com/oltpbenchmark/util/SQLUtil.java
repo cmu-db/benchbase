@@ -515,9 +515,6 @@ public abstract class SQLUtil {
             }
         }
 
-
         return new Catalog(tables);
-
-
     }
 }
