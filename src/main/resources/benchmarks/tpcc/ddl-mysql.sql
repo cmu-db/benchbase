@@ -1,4 +1,6 @@
-SET FOREIGN_KEY_CHECKS = 0;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+
 DROP TABLE IF EXISTS history;
 DROP TABLE IF EXISTS new_order;
 DROP TABLE IF EXISTS order_line;
@@ -8,7 +10,6 @@ DROP TABLE IF EXISTS district;
 DROP TABLE IF EXISTS stock;
 DROP TABLE IF EXISTS item;
 DROP TABLE IF EXISTS warehouse;
-SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE warehouse (
     w_id       int            NOT NULL,
@@ -150,3 +151,6 @@ CREATE TABLE order_line (
 
 CREATE INDEX idx_customer_name ON customer (c_w_id, c_d_id, c_last, c_first);
 CREATE INDEX idx_order ON oorder (o_w_id, o_d_id, o_c_id, o_id);
+
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
