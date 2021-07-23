@@ -244,11 +244,11 @@ jobs:
           java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
           java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Set comment message
+        working-directory: target/oltpbench2-extracted
         run: |
-          SUMMARIES=$(jq '. | {dbms: .["DBMS Version"], benchmark: .["Benchmark Type"], throughput: .["Throughput (requests/second)"]}' target/oltpbench2-extracted/results/*.summary.json)
-          SUMMARIES_NEWLINE="$(echo $SUMMARIES | perl -p -e 's/\n/<br>/')"
+          SUMMARIES=$(python3 scripts/results_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo $SUMMARIES_NEWLINE >> $GITHUB_ENV
+          echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Post comment
         uses: actions/github-script@v4
