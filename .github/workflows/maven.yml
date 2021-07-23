@@ -238,7 +238,7 @@ jobs:
           java -jar oltpbench2.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
       - name: Set comment message
         run: |
-          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo 'COMMENT_MESSAGE=<<EOF' >> $GITHUB_ENV
           jq '. | {dbms: .["DBMS Version"], benchmark: .["Benchmark Type"], throughput: .["Throughput (requests/second)"]}' target/oltpbench2-extracted/results/*.summary.json >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Post comment
