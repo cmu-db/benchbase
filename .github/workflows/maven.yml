@@ -249,7 +249,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "${{ env.COMMENT_MESSAGE }}"
+              body: '${{ env.COMMENT_MESSAGE }}'
             })
       - name: CH-benCHmark
         working-directory: target/oltpbench2-extracted
