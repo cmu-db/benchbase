@@ -230,6 +230,16 @@ jobs:
         run: |
           tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
           mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
+      - name: Post comment 2
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'test'
+            })
       - name: AuctionMark
         working-directory: target/oltpbench2-extracted
         run: |
