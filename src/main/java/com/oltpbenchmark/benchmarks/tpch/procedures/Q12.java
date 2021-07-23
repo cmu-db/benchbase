@@ -23,6 +23,7 @@ import com.oltpbenchmark.benchmarks.tpch.util.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -78,8 +79,8 @@ public class Q12 extends GenericQuery {
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, shipMode1);
         stmt.setString(2, shipMode2);
-        stmt.setString(3, date);
-        stmt.setString(4, date);
+        stmt.setDate(3, Date.valueOf(date));
+        stmt.setDate(4, Date.valueOf(date));
         return stmt;
     }
 }
