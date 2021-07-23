@@ -61,7 +61,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-          --local-infile 1
         ports:
           - 3306:3306
     steps:
@@ -169,6 +168,7 @@ jobs:
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
+          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "SET GLOBAL local_infile=1"
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: Twitter
