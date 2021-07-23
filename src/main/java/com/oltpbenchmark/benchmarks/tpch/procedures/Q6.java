@@ -21,6 +21,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -51,8 +52,8 @@ public class Q6 extends GenericQuery {
         int quantity = rand.number(24, 25);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, date);
-        stmt.setString(2, date);
+        stmt.setDate(1, Date.valueOf(date));
+        stmt.setDate(2, Date.valueOf(date));
         stmt.setString(3, discount);
         stmt.setString(4, discount);
         stmt.setInt(5, quantity);
