@@ -28,15 +28,14 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
+import com.oltpbenchmark.benchmarks.tpch.util.CopyUtil;
+import com.oltpbenchmark.types.DatabaseType;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,9 +136,29 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     };
 
 
+    /**
+     * Try to load the TPC-H data from .tbl files using the COPY command.
+     *
+     * @return True if the COPY operation was successful. False otherwise.
+     */
+    private boolean loadCopy(Connection conn) {
+        DatabaseType dbType = this.workConf.getDatabaseType();
+        switch (dbType) {
+            case POSTGRES:
+                return CopyUtil.copyPOSTGRES(workConf, conn, LOG);
+            case MYSQL:
+                return CopyUtil.copyMYSQL(workConf, conn, LOG);
+            default:
+                return false;
+        }
+    }
+
     @Override
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
+
+        final CountDownLatch copyLatch = new CountDownLatch(1);
+        final boolean[] copySuccess = {false};
 
         final CountDownLatch regionLatch = new CountDownLatch(1);
         final CountDownLatch nationLatch = new CountDownLatch(1);
@@ -152,16 +171,33 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO customer " + "(c_custkey, c_name, c_address, c_nationkey," + " c_phone, c_acctbal, c_mktsegment, c_comment ) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                if (loadCopy(conn)) {
+                    copySuccess[0] = true;
+                }
+            }
 
-                    loadTable(conn, statement, "Customer", customerTypes);
+            @Override
+            public void afterLoad() {
+                copyLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of Region because COPY has been done.");
+                    return;
+                }
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
+                    loadTable(conn, statement, "Region", regionTypes);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    nationLatch.await();
+                    copyLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -169,37 +205,45 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
             @Override
             public void afterLoad() {
-                customerLatch.countDown();
+                regionLatch.countDown();
             }
         });
-
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-
-                    loadTable(conn, statement, "LineItem", lineitemTypes);
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of Part because COPY has been done.");
+                    return;
+                }
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    loadTable(conn, statement, "part", partTypes);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    ordersLatch.await();
-                    partsSuppLatch.await();
+                    copyLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
-        });
 
+            @Override
+            public void afterLoad() {
+                partsLatch.countDown();
+            }
+        });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of Nation because COPY has been done.");
+                    return;
+                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + "(n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
-
                     loadTable(conn, statement, "Nation", nationTypes);
                 }
             }
@@ -207,6 +251,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
+                    copyLatch.await();
                     regionLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -219,12 +264,70 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             }
         });
 
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of Supplier because COPY has been done.");
+                    return;
+                }
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                    loadTable(conn, statement, "Supplier", supplierTypes);
+                }
+            }
+
+            @Override
+            public void beforeLoad() {
+                try {
+                    copyLatch.await();
+                    nationLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                supplierLatch.countDown();
+            }
+        });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO orders " + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice," + " o_orderdate, o_orderpriority, o_clerk, o_shippriority," + " o_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of Customer because COPY has been done.");
+                    return;
+                }
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO customer " + "(c_custkey, c_name, c_address, c_nationkey," + " c_phone, c_acctbal, c_mktsegment, c_comment ) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    loadTable(conn, statement, "Customer", customerTypes);
+                }
+            }
 
+            @Override
+            public void beforeLoad() {
+                try {
+                    copyLatch.await();
+                    nationLatch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void afterLoad() {
+                customerLatch.countDown();
+            }
+        });
+
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of Orders because COPY has been done.");
+                    return;
+                }
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO orders " + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice," + " o_orderdate, o_orderpriority, o_clerk, o_shippriority," + " o_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                     loadTable(conn, statement, "orders", ordersTypes);
                 }
             }
@@ -232,6 +335,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
+                    copyLatch.await();
                     customerLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -244,29 +348,14 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             }
         });
 
-
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-
-                    loadTable(conn, statement, "part", partTypes);
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of PartSupp because COPY has been done.");
+                    return;
                 }
-
-            }
-
-            @Override
-            public void afterLoad() {
-                partsLatch.countDown();
-            }
-        });
-
-
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO partsupp " + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost," + " ps_comment) " + "VALUES (?, ?, ?, ?, ?)")) {
-
                     loadTable(conn, statement, "partsupp", partsuppTypes);
                 }
             }
@@ -274,6 +363,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
+                    copyLatch.await();
                     partsLatch.await();
                     supplierLatch.await();
                 } catch (InterruptedException e) {
@@ -287,47 +377,29 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             }
         });
 
-
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
-
-                    loadTable(conn, statement, "Region", regionTypes);
+                if (copySuccess[0]) {
+                    LOG.info("Skipping LOAD of LineItem because COPY has been done.");
+                    return;
                 }
-            }
-
-            @Override
-            public void afterLoad() {
-                regionLatch.countDown();
-            }
-        });
-
-
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-
-                    loadTable(conn, statement, "Supplier", supplierTypes);
+                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    loadTable(conn, statement, "LineItem", lineitemTypes);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    nationLatch.await();
+                    copyLatch.await();
+                    ordersLatch.await();
+                    partsSuppLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             }
-
-            @Override
-            public void afterLoad() {
-                supplierLatch.countDown();
-            }
         });
-
 
         return threads;
     }
@@ -344,7 +416,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         }
 
         if ((!"csv".equals(format) && !"tbl".equals(format))) {
-            throw new IllegalArgumentException("Configuration doesent have a valid fileFormat");
+            throw new IllegalArgumentException("Configuration doesn't have a valid fileFormat");
         }
         return format;
     }
