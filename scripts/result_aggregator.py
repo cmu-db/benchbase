@@ -14,7 +14,7 @@ if __name__ == '__main__':
   os.chdir(sys.argv[1])
   dbms_version = ''
   output = []
-  for summary_json_file in glob.glob("*.summary.json"):
+  for summary_json_file in sorted(glob.glob("*.summary.json")):
     with open(summary_json_file) as summary_json:
       data = json.load(summary_json)
       dbms = str(data['DBMS Version']).strip()

@@ -199,6 +199,23 @@ jobs:
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
+      - name: Aggregate result summaries.
+        working-directory: target/oltpbench2-extracted
+        run: |
+          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo $SUMMARIES >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Post aggregated result summaries as a comment.
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ env.COMMENT_MESSAGE }}'
+            })
 
   postgresql:
     runs-on: ubuntu-latest
@@ -243,23 +260,6 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
           java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
           java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
-      - name: Set comment message
-        working-directory: target/oltpbench2-extracted
-        run: |
-          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
-          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo $SUMMARIES >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-      - name: Post comment
-        uses: actions/github-script@v4
-        with:
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '${{ env.COMMENT_MESSAGE }}'
-            })
       - name: Epinions.com
         working-directory: target/oltpbench2-extracted
         run: |
@@ -351,3 +351,20 @@ jobs:
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
           java -jar oltpbench2.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
+      - name: Aggregate result summaries.
+        working-directory: target/oltpbench2-extracted
+        run: |
+          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo $SUMMARIES >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Post aggregated result summaries as a comment.
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ env.COMMENT_MESSAGE }}'
+            })
