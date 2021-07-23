@@ -246,7 +246,7 @@ jobs:
       - name: Set comment message
         run: |
           SUMMARIES=$(jq '. | {dbms: .["DBMS Version"], benchmark: .["Benchmark Type"], throughput: .["Throughput (requests/second)"]}' target/oltpbench2-extracted/results/*.summary.json)
-          SUMMARIES_NEWLINE="$(echo $SUMMARIES | perl -p -e 's/\n/<\/br>/')"
+          SUMMARIES_NEWLINE="$(echo $SUMMARIES | perl -p -e 's/\n/\r\n/')"
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
           echo $SUMMARIES_NEWLINE >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
