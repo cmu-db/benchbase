@@ -77,14 +77,6 @@ jobs:
         run: |
           tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
           mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
-      - name: TPC-H
-        working-directory: target/oltpbench2-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uroot -prootyMcRooty -e "SET GLOBAL local_infile=1"
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: AuctionMark
         working-directory: target/oltpbench2-extracted
         env:
@@ -171,6 +163,14 @@ jobs:
       #   run: |
       #     mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
       #     java -jar oltpbench2.jar -b tpcds -c config/mysql/sample_tpcds_config.xml --create=true --load=true --execute=true
+      - name: TPC-H
+        working-directory: target/oltpbench2-extracted
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MYSQL_PORT -uroot -prootyMcRooty -e "SET GLOBAL local_infile=1"
+          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
+          java -jar oltpbench2.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: Twitter
         working-directory: target/oltpbench2-extracted
         env:
@@ -230,12 +230,6 @@ jobs:
         run: |
           tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
           mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
-      - name: TPC-H
-        working-directory: target/oltpbench2-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: AuctionMark
         working-directory: target/oltpbench2-extracted
         run: |
@@ -310,6 +304,12 @@ jobs:
       #     PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
       #     PGPASSWORD=password createdb -h localhost -U admin oltpbench
       #     java -jar oltpbench2.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
+      - name: TPC-H
+        working-directory: target/oltpbench2-extracted
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin oltpbench
+          java -jar oltpbench2.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: Twitter
         working-directory: target/oltpbench2-extracted
         run: |
