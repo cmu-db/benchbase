@@ -80,7 +80,7 @@ public class CopyUtil {
                 return true;
             }
         } catch (Exception e) {
-            log.info("Exception while copying, will fall-back to insert. Exception: " + e);
+            log.info("Exception while trying to COPY, will fall-back to INSERT. Error: " + e);
         }
         return false;
     }
