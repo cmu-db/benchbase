@@ -236,6 +236,8 @@ jobs:
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
           java -jar oltpbench2.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
+      - name: Set comment message
+        run: echo "COMMENT_MESSAGE=$(jq '. | {dbms: ."DBMS Version", benchmark: ."Benchmark Type", throughput: ."Throughput (requests/second)"}' target/oltpbench2-extracted/results/*.summary.json)" >> $GITHUB_ENV
       - name: Post comment
         uses: actions/github-script@v4
         with:
@@ -244,7 +246,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: $(jq '. | {dbms: ."DBMS Version", benchmark: ."Benchmark Type", throughput: ."Throughput (requests/second)"}' target/oltpbench2-extracted/results/*.summary.json)
+              body: $COMMENT_MESSAGE
             })
       - name: CH-benCHmark
         working-directory: target/oltpbench2-extracted
