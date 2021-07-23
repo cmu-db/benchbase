@@ -236,6 +236,13 @@ jobs:
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
           java -jar oltpbench2.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
+      - name: CH-benCHmark
+        working-directory: target/oltpbench2-extracted
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin oltpbench
+          java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
+          java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Set comment message
         run: |
           SUMMARIES=$(jq '. | {dbms: .["DBMS Version"], benchmark: .["Benchmark Type"], throughput: .["Throughput (requests/second)"]}' target/oltpbench2-extracted/results/*.summary.json)
@@ -253,13 +260,6 @@ jobs:
               repo: context.repo.repo,
               body: '${{ env.COMMENT_MESSAGE }}'
             })
-      - name: CH-benCHmark
-        working-directory: target/oltpbench2-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
-          java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Epinions.com
         working-directory: target/oltpbench2-extracted
         run: |
