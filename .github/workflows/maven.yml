@@ -246,7 +246,7 @@ jobs:
       - name: Set comment message
         working-directory: target/oltpbench2-extracted
         run: |
-          SUMMARIES=$(python3 scripts/results_aggregator.py results/)
+          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
