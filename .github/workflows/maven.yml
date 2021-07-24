@@ -206,10 +206,6 @@ jobs:
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
-          COMMIT_HASH=$(git --no-pager log --pretty=format:'%h' -n 1)
-          echo 'COMMIT_HASH<<EOF' >> $GITHUB_ENV
-          echo $COMMIT_HASH >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
       - name: Post aggregated result summaries as a comment.
         uses: actions/github-script@v4
         with:
@@ -218,7 +214,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Commit Hash: ${{ env.COMMIT_HASH }}<br>${{ env.COMMENT_MESSAGE }}'
+              body: 'Commit Hash: ${GITHUB_SHA}<br>${{ env.COMMENT_MESSAGE }}'
             })
 
   postgresql:
@@ -362,10 +358,6 @@ jobs:
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
-          COMMIT_HASH=$(git --no-pager log --pretty=format:'%h' -n 1)
-          echo 'COMMIT_HASH<<EOF' >> $GITHUB_ENV
-          echo $COMMIT_HASH >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
       - name: Post aggregated result summaries as a comment.
         uses: actions/github-script@v4
         with:
@@ -374,5 +366,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Commit Hash: ${{ env.COMMIT_HASH }}<br>${{ env.COMMENT_MESSAGE }}'
+              body: 'Commit Hash: ${GITHUB_SHA}<br>${{ env.COMMENT_MESSAGE }}'
             })
