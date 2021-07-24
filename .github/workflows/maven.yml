@@ -203,8 +203,9 @@ jobs:
         working-directory: target/oltpbench2-extracted
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+          SHA=$(echo $GITHUB_SHA | tr -d '\n')
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo "Commit Hash: $GITHUB_SHA" >> $GITHUB_ENV
+          echo "Commit Hash: $SHA" >> $GITHUB_ENV
           echo '<br>' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
@@ -357,8 +358,9 @@ jobs:
         working-directory: target/oltpbench2-extracted
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+          SHA=$(echo $GITHUB_SHA | tr -d '\n')
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo "Commit Hash: $GITHUB_SHA" >> $GITHUB_ENV
+          echo "Commit Hash: $SHA" >> $GITHUB_ENV
           echo '<br>' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
