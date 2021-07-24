@@ -1,5 +1,5 @@
 """
-python3 result_aggregator.py path_to_results_with_summary_json dbms
+python3 result_aggregator.py path_to_results_with_summary_json
 
 Produces a nicely formatted message for GitHub Actions.
 """
