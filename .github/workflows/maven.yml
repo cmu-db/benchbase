@@ -204,6 +204,8 @@ jobs:
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo "Commit Hash: $GITHUB_SHA" >> $GITHUB_ENV
+          echo '<br>' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Post aggregated result summaries as a comment.
@@ -214,7 +216,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Commit Hash: ${GITHUB_SHA}<br>${{ env.COMMENT_MESSAGE }}'
+              body: '${{ env.COMMENT_MESSAGE }}'
             })
 
   postgresql:
@@ -356,6 +358,8 @@ jobs:
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo "Commit Hash: $GITHUB_SHA" >> $GITHUB_ENV
+          echo '<br>' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Post aggregated result summaries as a comment.
@@ -366,5 +370,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Commit Hash: ${GITHUB_SHA}<br>${{ env.COMMENT_MESSAGE }}'
+              body: '${{ env.COMMENT_MESSAGE }}'
             })
