@@ -55,9 +55,9 @@
             <weights bench="chbenchmark">3, 2, 3, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
 
-        <!-- Extra features -->
+        <!--
         <work>
-            <time>10</time>
+            <time>60</time>
 
             <rate>100</rate>
             <rate bench="chbenchmark">unlimited</rate>
@@ -65,6 +65,7 @@
             <weights bench="tpcc">45,43,4,4,4</weights>
             <weights bench="chbenchmark">3, 2, 3, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weights>
         </work>
+        -->
     </works>
 
 
