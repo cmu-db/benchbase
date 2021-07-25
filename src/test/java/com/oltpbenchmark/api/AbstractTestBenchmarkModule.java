@@ -108,29 +108,30 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testLoadSQLDialect
      */
-//    public void testLoadSQLDialect() throws Exception {
-//        File xmlFile = this.benchmark.getSQLDialect();
-//        if (xmlFile == null) return;
-//
-//        for (DatabaseType dbType : DatabaseType.values()) {
-//            this.workConf.setDatabaseType(dbType);
-//
-//            // Just make sure that we can load it
-//            StatementDialects dialects = new StatementDialects(dbType, xmlFile);
-//            dialects.load();
-//
-//            for (String procName : dialects.getProcedureNames()) {
-//                for (String stmtName : dialects.getStatementNames(procName)) {
-//                    String sql = dialects.getSQL(procName, stmtName);
-//                    assertNotNull(sql);
-//                    assertFalse(sql.isEmpty());
-//                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
-//                } // FOR
-//            } // FOR
-//
-//            // TODO: We should XSD to validate the SQL
-//        } // FOR (dbtype)
-//    }
+    public void testLoadSQLDialect() throws Exception {
+        String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(DB_TYPE);
+        if (xmlFilePath == null) return;
+
+        File xmlFile = new File(xmlFilePath);
+        for (DatabaseType dbType : DatabaseType.values()) {
+            this.workConf.setDatabaseType(dbType);
+
+            // Just make sure that we can load it
+            StatementDialects dialects = new StatementDialects(this.workConf);
+            dialects.load();
+
+            for (String procName : dialects.getProcedureNames()) {
+                for (String stmtName : dialects.getStatementNames(procName)) {
+                    String sql = dialects.getSQL(procName, stmtName);
+                    assertNotNull(sql);
+                    assertFalse(sql.isEmpty());
+                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
+                } // FOR
+            } // FOR
+
+            // TODO: We should XSD to validate the SQL
+        } // FOR (dbtype)
+    }
 
     /**
      * testMakeWorkers
