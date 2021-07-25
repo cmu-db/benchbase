@@ -19,6 +19,23 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark;
+import com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark;
+import com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark;
+import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark;
+import com.oltpbenchmark.benchmarks.noop.NoOpBenchmark;
+import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark;
+import com.oltpbenchmark.benchmarks.seats.SEATSBenchmark;
+import com.oltpbenchmark.benchmarks.sibench.SIBenchmark;
+import com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark;
+import com.oltpbenchmark.benchmarks.tatp.TATPBenchmark;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
+import com.oltpbenchmark.benchmarks.tpcds.TPCDSBenchmark;
+import com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark;
+import com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark;
+import com.oltpbenchmark.benchmarks.voter.VoterBenchmark;
+import com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark;
+import com.oltpbenchmark.benchmarks.ycsb.YCSBBenchmark;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
@@ -127,6 +144,47 @@ public abstract class BenchmarkModule {
         return (this.rng);
     }
 
+    private String convertBenchmarkClassToBenchmarkName() {
+        Object benchmarkClass = this;
+        if (benchmarkClass instanceof AuctionMarkBenchmark) {
+            return "auctionmark";
+        } else if (benchmarkClass instanceof CHBenCHmark) {
+            return "chbenchmark";
+        } else if (benchmarkClass instanceof EpinionsBenchmark) {
+            return "epinions";
+        } else if (benchmarkClass instanceof HYADAPTBenchmark) {
+            return "hyadapt";
+        } else if (benchmarkClass instanceof NoOpBenchmark) {
+            return "noop";
+        } else if (benchmarkClass instanceof ResourceStresserBenchmark) {
+            return "resourcestresser";
+        } else if (benchmarkClass instanceof SEATSBenchmark) {
+            return "seats";
+        } else if (benchmarkClass instanceof SIBenchmark) {
+            return "sibench";
+        } else if (benchmarkClass instanceof SmallBankBenchmark) {
+            return "smallbank";
+        } else if (benchmarkClass instanceof TATPBenchmark) {
+            return "tatp";
+        } else if (benchmarkClass instanceof TPCCBenchmark) {
+            return "tpcc";
+        } else if (benchmarkClass instanceof TPCDSBenchmark) {
+            return "tpcds";
+        } else if (benchmarkClass instanceof TPCHBenchmark) {
+            return "tpch";
+        } else if (benchmarkClass instanceof TwitterBenchmark) {
+            return "twitter";
+        } else if (benchmarkClass instanceof VoterBenchmark) {
+            return "voter";
+        } else if (benchmarkClass instanceof WikipediaBenchmark) {
+            return "wikipedia";
+        } else if (benchmarkClass instanceof YCSBBenchmark) {
+            return "ycsb";
+        }
+
+        throw new RuntimeException("Sorry, this is a hack. You need to add your new benchmark class here.");
+    }
+
     /**
      * Return the URL handle to the DDL used to load the benchmark's database
      * schema.
@@ -143,8 +201,8 @@ public abstract class BenchmarkModule {
         names.add("ddl-generic.sql");
 
         for (String fileName : names) {
-
-            final String path = "benchmarks" + File.separator + getBenchmarkName() + File.separator + fileName;
+            final String benchmarkName = getBenchmarkName();
+            final String path = "benchmarks" + File.separator + benchmarkName + File.separator + fileName;
 
             try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(path)) {
 
@@ -269,7 +327,8 @@ public abstract class BenchmarkModule {
      * Return the unique identifier for this benchmark
      */
     public final String getBenchmarkName() {
-        return this.workConf.getBenchmarkName();
+        String workConfName = this.workConf.getBenchmarkName();
+        return workConfName != null ? workConfName : convertBenchmarkClassToBenchmarkName();
     }
 
     /**
@@ -278,7 +337,7 @@ public abstract class BenchmarkModule {
     public final AbstractCatalog getCatalog() {
 
         if (catalog == null) {
-            throw new RuntimeException("getCatalog() has been called before create database");
+            throw new RuntimeException("getCatalog() has been called before refreshCatalog()");
         }
 
         return this.catalog;
