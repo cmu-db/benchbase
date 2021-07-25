@@ -205,7 +205,7 @@ jobs:
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo -n "Commit Hash: $${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
           echo -n '<br>' >> $GITHUB_ENV
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
