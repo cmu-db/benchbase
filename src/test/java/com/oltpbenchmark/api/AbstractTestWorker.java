@@ -47,7 +47,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         this.workConf.setTransTypes(txnTypes);
         
         this.workConf.setTerminals(NUM_TERMINALS);
-        this.workers = this.benchmark.makeWorkers(false);
+        this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
         assertEquals(NUM_TERMINALS, this.workers.size());
     }
@@ -80,11 +80,11 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         w.initialize();
         assertFalse(this.conn.isReadOnly());
         for (TransactionType txnType : this.workConf.getTransTypes()) {
-            if (txnType.isSupplemental()) continue;
+//            if (txnType.isSupplemental()) continue;
             try {
                 // Bombs away!
                 System.err.println("Executing " + txnType);
-                w.executeWork(txnType);
+                w.executeWork(this.conn, txnType);
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored
                 // Anything else is a serious error

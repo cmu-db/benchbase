@@ -33,29 +33,29 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testGetDatabaseDDL
      */
-    public void testGetDatabaseDDL() throws Exception {
-        URL ddl = this.benchmark.getDatabaseDDL();
-        assertNotNull(ddl);
-        assertNotNull (IOUtils.toString(ddl));
-    }
+//    public void testGetDatabaseDDL() throws Exception {
+//        URL ddl = this.benchmark.getDatabaseDDL();
+//        assertNotNull(ddl);
+//        assertNotNull (IOUtils.toString(ddl));
+//    }
 
     /**
      * testCreateDatabase
      */
-    public void testCreateDatabase() throws Exception {
-        this.benchmark.createDatabase();
-
-        // Make sure that we get back some tables
-        Catalog catalog = this.benchmark.getCatalog();
-        assertNotNull(catalog);
-        assertFalse(catalog.getTables().isEmpty());
-
-        // Just make sure that there are no empty tables
-        for (Table catalog_tbl : catalog.getTables()) {
-            assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
-            System.err.println(catalog_tbl);
-        } // FOR
-    }
+//    public void testCreateDatabase() throws Exception {
+//        this.benchmark.createDatabase();
+//
+//        // Make sure that we get back some tables
+//        Catalog catalog = this.benchmark.getCatalog();
+//        assertNotNull(catalog);
+//        assertFalse(catalog.getTables().isEmpty());
+//
+//        // Just make sure that there are no empty tables
+//        for (Table catalog_tbl : catalog.getTables()) {
+//            assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
+//            System.err.println(catalog_tbl);
+//        } // FOR
+//    }
     
     /**
      * testGetTransactionType
@@ -91,39 +91,39 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testGetSQLDialect
      */
-    public void testGetSQLDialect() throws Exception {
-        File xmlFile = this.benchmark.getSQLDialect();
-        if (xmlFile != null) {
-            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
-        }
-    }
+//    public void testGetSQLDialect() throws Exception {
+//        File xmlFile = this.benchmark.getSQLDialect();
+//        if (xmlFile != null) {
+//            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+//        }
+//    }
     
     /**
      * testLoadSQLDialect
      */
-    public void testLoadSQLDialect() throws Exception {
-        File xmlFile = this.benchmark.getSQLDialect();
-        if (xmlFile == null) return;
-        
-        for (DatabaseType dbType : DatabaseType.values()) {
-            this.workConf.setDatabaseType(dbType);
-            
-            // Just make sure that we can load it
-            StatementDialects dialects = new StatementDialects(dbType, xmlFile);
-            dialects.load();
-            
-            for (String procName : dialects.getProcedureNames()) {
-                for (String stmtName : dialects.getStatementNames(procName)) {
-                    String sql = dialects.getSQL(procName, stmtName);
-                    assertNotNull(sql);
-                    assertFalse(sql.isEmpty());
-                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
-                } // FOR
-            } // FOR
-            
-            // TODO: We should XSD to validate the SQL
-        } // FOR (dbtype)
-    }
+//    public void testLoadSQLDialect() throws Exception {
+//        File xmlFile = this.benchmark.getSQLDialect();
+//        if (xmlFile == null) return;
+//
+//        for (DatabaseType dbType : DatabaseType.values()) {
+//            this.workConf.setDatabaseType(dbType);
+//
+//            // Just make sure that we can load it
+//            StatementDialects dialects = new StatementDialects(dbType, xmlFile);
+//            dialects.load();
+//
+//            for (String procName : dialects.getProcedureNames()) {
+//                for (String stmtName : dialects.getStatementNames(procName)) {
+//                    String sql = dialects.getSQL(procName, stmtName);
+//                    assertNotNull(sql);
+//                    assertFalse(sql.isEmpty());
+//                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
+//                } // FOR
+//            } // FOR
+//
+//            // TODO: We should XSD to validate the SQL
+//        } // FOR (dbtype)
+//    }
     
     /**
      * testMakeWorkers
