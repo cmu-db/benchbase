@@ -69,6 +69,26 @@ public abstract class CollectionUtil {
     }
 
     /**
+     * @param <T>
+     * @param <U>
+     * @param map
+     * @return
+     */
+    public static <T, U extends Comparable<U>> T getGreatest(Map<T, U> map) {
+        T max_key = null;
+        U max_value = null;
+        for (Map.Entry<T, U> e : map.entrySet()) {
+            T key = e.getKey();
+            U value = e.getValue();
+            if (max_value == null || value.compareTo(max_value) > 0) {
+                max_value = value;
+                max_key = key;
+            }
+        } // FOR
+        return (max_key);
+    }
+
+    /**
      * Return the first item in a Iterable
      *
      * @param <T>
