@@ -18,6 +18,8 @@
 package com.oltpbenchmark.api;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
@@ -29,15 +31,19 @@ import com.oltpbenchmark.types.DatabaseType;
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
     protected static final int NUM_TERMINALS = 10;
-    
+
     /**
-     * testGetDatabaseDDL
+     * testGetDatabaseDDLPath
      */
-//    public void testGetDatabaseDDL() throws Exception {
-//        URL ddl = this.benchmark.getDatabaseDDL();
-//        assertNotNull(ddl);
-//        assertNotNull (IOUtils.toString(ddl));
-//    }
+    public void testGetDatabaseDDLPath() throws Exception {
+        String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
+        assertNotNull(ddlPath);
+        try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(ddlPath)) {
+            assertNotNull(stream);
+        } catch (IOException e) {
+            assertTrue(false);
+        }
+    }
 
     /**
      * testCreateDatabase
@@ -56,7 +62,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
 //            System.err.println(catalog_tbl);
 //        } // FOR
 //    }
-    
+
     /**
      * testGetTransactionType
      */
@@ -71,7 +77,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             System.err.println(procClass + " -> " + txnType);
         } // FOR
     }
-    
+
     /**
      * testGetTransactionTypeInvalidId
      */
@@ -87,7 +93,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         }
         assertNull(txnType);
     }
-    
+
     /**
      * testGetSQLDialect
      */
@@ -97,7 +103,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
 //            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
 //        }
 //    }
-    
+
     /**
      * testLoadSQLDialect
      */
@@ -124,7 +130,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
 //            // TODO: We should XSD to validate the SQL
 //        } // FOR (dbtype)
 //    }
-    
+
     /**
      * testMakeWorkers
      */
