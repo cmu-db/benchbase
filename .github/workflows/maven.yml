@@ -13,7 +13,7 @@ name: OLTPBench (Java with Maven)
 on:
   push:
     branches: [ oltpbench_tim ]
-  pull_request:
+  pull_request_target:
     branches: [ oltpbench_tim ]
 
 env:
