@@ -24,6 +24,7 @@ import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 
+import com.oltpbenchmark.api.AbstractTestCase;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
@@ -40,8 +41,6 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         assertNotNull(ddlPath);
         try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(ddlPath)) {
             assertNotNull(stream);
-        } catch (IOException e) {
-            assertTrue(false);
         }
     }
 
@@ -96,14 +95,15 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     }
 
     /**
-     * testGetSQLDialect
+     * testGetSQLDialectPath
      */
-//    public void testGetSQLDialect() throws Exception {
-//        File xmlFile = this.benchmark.getSQLDialect();
-//        if (xmlFile != null) {
-//            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
-//        }
-//    }
+    public void testGetSQLDialectPath() throws Exception {
+        String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(DB_TYPE);
+        if (xmlFilePath != null) {
+            File xmlFile = new File(xmlFilePath);
+            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+        }
+    }
 
     /**
      * testLoadSQLDialect
