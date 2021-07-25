@@ -33,10 +33,13 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaWorker.class);
 
+    private Set<Integer> addedWatchlistPages = new HashSet<>();
     private final int num_users;
     private final int num_pages;
 
@@ -75,6 +78,12 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
         // Figure out what page they're going to update
         int page_id = z_pages.nextInt();
+        if (procClass.equals(AddWatchList.class)) {
+            while (addedWatchlistPages.contains(page_id)) {
+                page_id = z_pages.nextInt();
+            }
+            addedWatchlistPages.add(page_id);
+        }
 
         String pageTitle = WikipediaUtil.generatePageTitle(this.rng(), page_id);
         int nameSpace = WikipediaUtil.generatePageNamespace(this.rng(), page_id);

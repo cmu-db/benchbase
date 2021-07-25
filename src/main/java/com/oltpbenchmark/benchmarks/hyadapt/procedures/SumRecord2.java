@@ -29,7 +29,7 @@ public class SumRecord2 extends Procedure {
     public final SQLStmt sumStmt = new SQLStmt(
             "SELECT FIELD198  + FIELD206 + FIELD169 + FIELD119 + FIELD9 + FIELD220 + FIELD2 + FIELD230 + FIELD212 + FIELD164 + FIELD111 + FIELD136 + FIELD106 + FIELD8 + FIELD112 + FIELD4 + FIELD234 + FIELD147 + FIELD35 + FIELD114 + FIELD89 + FIELD127 + FIELD144 + FIELD71 + FIELD186 + "
                     + "FIELD34 + FIELD145 + FIELD124 + FIELD146 + FIELD7 + FIELD40 + FIELD227 + FIELD59 + FIELD190 + FIELD249 + FIELD157 + FIELD38 + FIELD64 + FIELD134 + FIELD167 + FIELD63 + FIELD178 + FIELD156 + FIELD94 + FIELD84 + FIELD187 + FIELD153 + FIELD158 + FIELD42 + FIELD236 "
-                    + "FROM HTABLE WHERE FIELD1>?");
+                    + "FROM htable WHERE FIELD1>?");
 
     public void run(Connection conn, int keyname) throws SQLException {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, sumStmt)) {

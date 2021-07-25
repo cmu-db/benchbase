@@ -21,6 +21,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -57,7 +58,8 @@ public class Q10 extends GenericQuery {
                     + "c_address, "
                     + "c_comment "
                     + "order by "
-                    + "revenue desc"
+                    + "revenue desc "
+                    + "limit 20"
     );
 
     @Override
@@ -68,8 +70,8 @@ public class Q10 extends GenericQuery {
         String date = String.format("%d-%02d-01", year, month);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, date);
-        stmt.setString(2, date);
+        stmt.setDate(1, Date.valueOf(date));
+        stmt.setDate(2, Date.valueOf(date));
         return stmt;
     }
 }

@@ -30,6 +30,9 @@
  *  OTHER DEALINGS IN THE SOFTWARE.                                        *
  ***************************************************************************/
 
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+
 DROP TABLE IF EXISTS item_attribute CASCADE;
 DROP TABLE IF EXISTS item_image CASCADE;
 DROP TABLE IF EXISTS item_comment CASCADE;
@@ -418,3 +421,6 @@ CREATE TABLE useracct_watch (
     FOREIGN KEY (uw_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     PRIMARY KEY (uw_u_id, uw_i_id, uw_i_u_id)
 );
+
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -5,7 +5,7 @@
     <type>MYSQL</type>
     <driver>com.mysql.cj.jdbc.Driver</driver>
     <url>jdbc:mysql://localhost:3306/oltpbench?rewriteBatchedStatements=true</url>
-    <username>root</username>
+    <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
@@ -16,7 +16,7 @@
     <terminals>1</terminals>
     <works>
         <work>
-            <time>20</time>
+            <time>60</time>
             <rate>100</rate>
             <weights>15,15,15,25,15,15</weights>
         </work>

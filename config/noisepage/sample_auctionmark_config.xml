@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>NOISEPAGE</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://localhost:15721/noisepage?sslmode=disable&amp;ApplicationName=auctionmark&amp;reWriteBatchedInserts=true</url>
+    <username>noisepage</username>
+    <password></password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>45, 10, 20, 2, 1, 4, 10, 5, 3</weights>
+        </work>
+    </works>
+
+    <!-- AuctionMark Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetUserInfo</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewBid</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewComment</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewCommentResponse</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewFeedback</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewItem</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewPurchase</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateItem</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

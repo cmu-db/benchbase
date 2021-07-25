@@ -139,7 +139,7 @@ CREATE TABLE order_line (
     ol_delivery_d  timestamp     NULL DEFAULT NULL,
     ol_amount      decimal(6, 2) NOT NULL,
     ol_supply_w_id int           NOT NULL,
-    ol_quantity    int           NOT NULL,
+    ol_quantity    decimal(6, 2) NOT NULL,
     ol_dist_info   char(24)      NOT NULL,
     FOREIGN KEY (ol_w_id, ol_d_id, ol_o_id) REFERENCES oorder (o_w_id, o_d_id, o_id) ON DELETE CASCADE,
     FOREIGN KEY (ol_supply_w_id, ol_i_id) REFERENCES stock (s_w_id, s_i_id) ON DELETE CASCADE,
