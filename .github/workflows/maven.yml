@@ -200,7 +200,7 @@ jobs:
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
           java -jar oltpbench2.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
       - name: Aggregate result summaries.
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request_target' }}
         working-directory: target/oltpbench2-extracted
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
@@ -210,7 +210,7 @@ jobs:
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Post aggregated result summaries as a comment.
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request_target' }}
         uses: actions/github-script@v4
         with:
           script: |
@@ -356,7 +356,7 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
           java -jar oltpbench2.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
       - name: Aggregate result summaries.
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request_target' }}
         working-directory: target/oltpbench2-extracted
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
@@ -366,7 +366,7 @@ jobs:
           echo $SUMMARIES >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       - name: Post aggregated result summaries as a comment.
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request_target' }}
         uses: actions/github-script@v4
         with:
           script: |
