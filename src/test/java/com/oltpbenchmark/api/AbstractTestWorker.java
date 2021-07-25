@@ -80,7 +80,6 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         w.initialize();
         assertFalse(this.conn.isReadOnly());
         for (TransactionType txnType : this.workConf.getTransTypes()) {
-//            if (txnType.isSupplemental()) continue;
             try {
                 // Bombs away!
                 System.err.println("Executing " + txnType);
