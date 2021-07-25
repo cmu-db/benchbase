@@ -88,6 +88,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.workConf.setDatabaseType(DB_TYPE);
         this.workConf.setUrl(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
+        // TODO(WAN): 12 is arbitrary.
         this.workConf.setPoolSize(12);
 
         this.benchmark = (T) ClassUtil.newInstance(clazz,
