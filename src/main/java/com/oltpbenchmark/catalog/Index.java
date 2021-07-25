@@ -96,6 +96,6 @@ public class Index extends AbstractCatalogObject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), table, columns, type, unique);
+        return Objects.hash(super.hashCode(), table.name, columns, type, unique);
     }
 }

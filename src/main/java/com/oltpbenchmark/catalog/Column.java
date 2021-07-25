@@ -92,6 +92,6 @@ public class Column extends AbstractCatalogObject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), table, type, size, nullable, foreignKey);
+        return Objects.hash(super.hashCode(), table.name, type, size, nullable, foreignKey);
     }
 }
