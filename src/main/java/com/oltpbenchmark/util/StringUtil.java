@@ -217,7 +217,7 @@ public abstract class StringUtil {
      */
     public static String repeat(String str, int size) {
         // We cache the last call in case they are making repeated calls for the same thing
-        if (CACHE_REPEAT_STR != null &&
+        if (CACHE_REPEAT_STR != null && CACHE_REPEAT_SIZE != null &&
                 CACHE_REPEAT_STR.equals(str) &&
                 CACHE_REPEAT_SIZE.equals(size)) {
             return (CACHE_REPEAT_RESULT);
