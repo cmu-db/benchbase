@@ -24,7 +24,6 @@ public class TestTPCCLoader extends AbstractTestLoader<TPCCBenchmark> {
     protected void setUp() throws Exception {
         super.setUp(TPCCBenchmark.class, null, TestTPCCBenchmark.PROC_CLASSES);
         this.workConf.setScaleFactor(0.1);
-        this.workConf.setBatchSize(128);
     }
 
 }
