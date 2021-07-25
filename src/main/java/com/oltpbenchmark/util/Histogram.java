@@ -138,6 +138,10 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         this.keep_zero_entries = flag;
     }
 
+    public boolean isZeroEntriesEnabled() {
+        return this.keep_zero_entries;
+    }
+
     /**
      * The main method that updates a value in the histogram with a given sample count
      * This should be called by one of the public interface methods that are synchronized
@@ -331,6 +335,28 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         }
         this.max_value = null;
 
+        this.dirty = true;
+    }
+
+    /**
+     * Clear all the values stored in the histogram. The keys are only kept if
+     * KeepZeroEntries is enabled, otherwise it does the same thing as clear()
+     */
+    public synchronized void clearValues() {
+        if (this.keep_zero_entries) {
+            for (Entry<X, Integer> e : this.histogram.entrySet()) {
+                this.histogram.put(e.getKey(), 0);
+            } // FOR
+            this.num_samples = 0;
+            this.min_count = 0;
+            if (this.min_count_values != null) this.min_count_values.clear();
+            this.min_value = null;
+            this.max_count = 0;
+            if (this.max_count_values != null) this.max_count_values.clear();
+            this.max_value = null;
+        } else {
+            this.clear();
+        }
         this.dirty = true;
     }
 
