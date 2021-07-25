@@ -95,7 +95,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
                                                    new Object[] { this.workConf },
                                                    new Class<?>[] { WorkloadConfiguration.class });
         assertNotNull(this.benchmark);
-        LOG.info(DB_TYPE + "::" + this.benchmark + " -> " + this.dbName);
+        LOG.debug(DB_TYPE + "::" + this.benchmark + " -> " + this.dbName);
 
         this.benchmark.refreshCatalog();
         this.catalog = this.benchmark.getCatalog();

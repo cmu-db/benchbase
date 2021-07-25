@@ -247,7 +247,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      *
      * @return
      */
-
+    @SuppressWarnings("unchecked")
     public X getMinValue() {
         this.calculateInternalValues();
         return ((X) this.min_value);
@@ -259,7 +259,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      *
      * @return
      */
-
+    @SuppressWarnings("unchecked")
     public X getMaxValue() {
         this.calculateInternalValues();
         return ((X) this.max_value);
@@ -580,6 +580,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void fromJSON(JSONObject object) throws JSONException {
         if (object.has(Members.KEEP_ZERO_ENTRIES.name())) {
             this.setKeepZeroEntries(object.getBoolean(Members.KEEP_ZERO_ENTRIES.name()));

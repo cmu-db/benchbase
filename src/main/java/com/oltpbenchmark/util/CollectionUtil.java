@@ -48,6 +48,7 @@ public abstract class CollectionUtil {
      * @param data
      * @param items
      */
+    @SuppressWarnings("unchecked")
     public static <T> Collection<T> addAll(Collection<T> data, T... items) {
         data.addAll(Arrays.asList(items));
         return (data);
@@ -128,6 +129,7 @@ public abstract class CollectionUtil {
      * @param items
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static <T> T last(T... items) {
         if (items != null && items.length > 0) {
             return (items[items.length - 1]);

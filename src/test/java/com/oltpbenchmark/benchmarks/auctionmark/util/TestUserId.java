@@ -84,13 +84,13 @@ public class TestUserId extends TestCase {
                 continue;
             }
             
-            System.err.println(String.format("[%02d] %-50s => %d / %d %s%s%s%s",
-                    h.getValueCount(), user_id, user_id.hashCode(), user_id.encode(),
-                    (seen_hash.contains(user_id.hashCode()) ? "!!! HASH" : ""),
-                    (seen_encode.contains(user_id.encode()) ? "!!! ENCODE" : ""),
-                    (seen_array.contains(user_id.toArray()) ? "!!! ARRAY" : ""),
-                    (seen_map.containsKey(user_id) ? "!!! MAP" : "")
-            ));
+//            System.err.println(String.format("[%02d] %-50s => %d / %d %s%s%s%s",
+//                    h.getValueCount(), user_id, user_id.hashCode(), user_id.encode(),
+//                    (seen_hash.contains(user_id.hashCode()) ? "!!! HASH" : ""),
+//                    (seen_encode.contains(user_id.encode()) ? "!!! ENCODE" : ""),
+//                    (seen_array.contains(user_id.toArray()) ? "!!! ARRAY" : ""),
+//                    (seen_map.containsKey(user_id) ? "!!! MAP" : "")
+//            ));
             
             h.put(user_id, i+1);
             assertTrue(user_id.toString(), h.contains(user_id));

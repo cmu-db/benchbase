@@ -292,7 +292,7 @@ public abstract class BenchmarkModule {
 
 
                 if (!loader.getTableCounts().isEmpty()) {
-                    LOG.info("Table Counts:\n{}", loader.getTableCounts());
+                    LOG.debug("Table Counts:\n{}", loader.getTableCounts());
                 }
 
             }
@@ -365,11 +365,10 @@ public abstract class BenchmarkModule {
      * @param id
      * @return
      */
-
+    @SuppressWarnings("unchecked")
     public final TransactionType initTransactionType(String procName, int id) {
         if (id == TransactionType.INVALID_ID) {
-            LOG.error(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
-            return null;
+            throw new RuntimeException(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
         }
 
         Package pkg = this.getProcedurePackageImpl();

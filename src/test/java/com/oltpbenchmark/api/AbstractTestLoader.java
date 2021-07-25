@@ -87,7 +87,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             LOG.debug(sql + " => " + count);
             tableSizes.put(tableName, count);
         } // FOR
-        LOG.info("=== TABLE SIZES ===\n" + tableSizes);
+        LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
         assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
                 tableSizes.isEmpty());
 

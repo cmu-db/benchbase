@@ -114,7 +114,7 @@ public class StatementDialects {
         final String sqlDialectPath = getSQLDialectPath(dbType);
 
         if (sqlDialectPath == null) {
-            LOG.info("SKIP - No SQL dialect file was given.");
+            LOG.debug("SKIP - No SQL dialect file was given.");
             return (false);
         }
 

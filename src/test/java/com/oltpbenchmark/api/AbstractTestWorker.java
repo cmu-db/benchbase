@@ -82,7 +82,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         for (TransactionType txnType : this.workConf.getTransTypes()) {
             try {
                 // Bombs away!
-                System.err.println("Executing " + txnType);
+//                System.err.println("Executing " + txnType);
                 w.executeWork(this.conn, txnType);
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored

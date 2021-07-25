@@ -54,7 +54,7 @@ public class TestTextGenerator extends TestCase {
         } // FOR
         long stop = System.nanoTime();
         assertEquals(NUM_ROUNDS, previous.size());
-        System.err.println("Chars Time: " + ((stop - start) / 1000000d) + " ms");
+//        System.err.println("Chars Time: " + ((stop - start) / 1000000d) + " ms");
     }
 
     /**
@@ -79,7 +79,7 @@ public class TestTextGenerator extends TestCase {
         } // FOR
         long stop = System.nanoTime();
         assertEquals(NUM_ROUNDS, previous.size());
-        System.err.println("Pre-allocated Time: " + ((stop - start) / 1000000d) + " ms");
+//        System.err.println("Pre-allocated Time: " + ((stop - start) / 1000000d) + " ms");
     }
 
     /**
@@ -106,7 +106,7 @@ public class TestTextGenerator extends TestCase {
         } // FOR
         long stop = System.nanoTime();
         assertEquals(NUM_ROUNDS, previous.size());
-        System.err.println("Fast Time: " + ((stop - start) / 1000000d) + " ms");
+//        System.err.println("Fast Time: " + ((stop - start) / 1000000d) + " ms");
     }
 
     /**

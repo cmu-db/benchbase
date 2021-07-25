@@ -122,7 +122,7 @@ public class AuctionMarkProfile {
     private transient final LinkedList<ItemInfo> items_waitingForPurchase = new LinkedList<>();
     private transient final LinkedList<ItemInfo> items_completed = new LinkedList<>();
 
-
+    @SuppressWarnings("unchecked")
     protected transient final LinkedList<ItemInfo>[] allItemSets = new LinkedList[]{
             this.items_available,
             this.items_endingSoon,
