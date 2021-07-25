@@ -24,7 +24,7 @@ import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 
-import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 
@@ -48,20 +48,21 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     /**
      * testCreateDatabase
      */
-//    public void testCreateDatabase() throws Exception {
-//        this.benchmark.createDatabase();
-//
-//        // Make sure that we get back some tables
-//        Catalog catalog = this.benchmark.getCatalog();
-//        assertNotNull(catalog);
-//        assertFalse(catalog.getTables().isEmpty());
-//
-//        // Just make sure that there are no empty tables
-//        for (Table catalog_tbl : catalog.getTables()) {
-//            assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
-//            System.err.println(catalog_tbl);
-//        } // FOR
-//    }
+    public void testCreateDatabase() throws Exception {
+        this.benchmark.createDatabase();
+
+        // Make sure that we get back some tables
+        this.benchmark.refreshCatalog();
+        AbstractCatalog catalog = this.benchmark.getCatalog();
+        assertNotNull(catalog);
+        assertFalse(catalog.getTables().isEmpty());
+
+        // Just make sure that there are no empty tables
+        for (Table catalog_tbl : catalog.getTables()) {
+            assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
+            System.err.println(catalog_tbl);
+        } // FOR
+    }
 
     /**
      * testGetTransactionType
