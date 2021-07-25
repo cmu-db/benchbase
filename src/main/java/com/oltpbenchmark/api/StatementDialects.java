@@ -73,7 +73,7 @@ public class StatementDialects {
      *
      * @return
      */
-    private String getSQLDialectPath(DatabaseType databaseType) {
+    public String getSQLDialectPath(DatabaseType databaseType) {
         String fileName = null;
 
         if (databaseType != null) {
