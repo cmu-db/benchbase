@@ -36,14 +36,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     private static final Logger LOG = Logger.getLogger(AbstractTestCase.class);
 
-    // HACK
-//    static {
-//        String propFile = "/home/pavlo/Documents/OLTPBenchmark/oltpbench/log4j.properties";
-//        if (FileUtil.exists(propFile)) {
-//            org.apache.log4j.PropertyConfigurator.configure(propFile);
-//        }
-//    }
-
     // -----------------------------------------------------------------
 
     /**
