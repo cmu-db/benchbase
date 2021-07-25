@@ -23,7 +23,7 @@
     <terminals>1</terminals>
     <works>
         <work>
-            <time>300</time>
+            <time>60</time>
             <rate>10000</rate>
             <weights>1,1,7,90,1</weights>
         </work>

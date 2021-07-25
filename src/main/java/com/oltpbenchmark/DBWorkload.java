@@ -392,6 +392,7 @@ public class DBWorkload {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runCreator(benchmark);
+                benchmark.refreshCatalog();
                 LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
         } else {
@@ -402,7 +403,9 @@ public class DBWorkload {
         if (isBooleanOptionSet(argsLine, "clear")) {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
+                benchmark.refreshCatalog();
                 benchmark.clearDatabase();
+                benchmark.refreshCatalog();
                 LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
         } else {

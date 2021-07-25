@@ -80,12 +80,6 @@ public abstract class BenchmarkModule {
         config.setMaximumPoolSize(workConf.getPoolSize());
 
         dataSource = new HikariDataSource(config);
-
-        try {
-            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), dataSource.getConnection());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     // --------------------------------------------------------------------------
@@ -170,6 +164,14 @@ public abstract class BenchmarkModule {
 
     public final List<Worker<? extends BenchmarkModule>> makeWorkers() throws IOException {
         return (this.makeWorkersImpl());
+    }
+
+    public final void refreshCatalog() {
+        try {
+            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), dataSource.getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

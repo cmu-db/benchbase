@@ -45,7 +45,6 @@ public class HSQLDBCatalog implements AbstractCatalog {
         this.conn = conn;
 
         this.originalTableNames = this.getOriginalTableNames();
-        System.out.println(this.originalTableNames);
         try {
             this.init();
         } catch (SQLException e) {
