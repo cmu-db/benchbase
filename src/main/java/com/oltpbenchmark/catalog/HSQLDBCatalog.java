@@ -172,6 +172,9 @@ public class HSQLDBCatalog implements AbstractCatalog {
 
         for (Table catalogTable : this.tables.values()) {
             Map<String, Pair<String, String>> fk = foreignKeys.get(catalogTable.getName());
+            if (fk == null) {
+                continue;
+            }
             fk.forEach((colName, fkey) -> {
                 Column catalogCol = catalogTable.getColumnByName(colName);
 
