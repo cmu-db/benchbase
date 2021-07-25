@@ -318,6 +318,10 @@ public class AuctionMarkProfile {
         return (this);
     }
 
+    protected static void clearCachedProfile() {
+        cachedProfile = null;
+    }
+
     /**
      * Load the profile information stored in the database
      *
