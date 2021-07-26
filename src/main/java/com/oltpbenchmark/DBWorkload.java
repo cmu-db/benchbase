@@ -41,10 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
@@ -430,6 +427,13 @@ public class DBWorkload {
                 Results r = runWorkload(benchList, intervalMonitor);
                 writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
                 writeHistograms(r);
+
+                if (argsLine.hasOption("json-histograms")) {
+                    String histogram_json = writeJSONHistograms(r);
+                    String fileName = argsLine.getOptionValue("json-histograms");
+                    FileUtil.writeStringToFile(new File(fileName), histogram_json);
+                    LOG.info("Histograms JSON Data: " + fileName);
+                }
             } catch (Throwable ex) {
                 LOG.error("Unexpected error when running benchmarks.", ex);
                 System.exit(1);
@@ -453,6 +457,7 @@ public class DBWorkload {
         options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
         options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
+        options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
         return options;
     }
 
@@ -493,6 +498,14 @@ public class DBWorkload {
         LOG.info(SINGLE_LINE);
     }
 
+    private static String writeJSONHistograms(Results r) {
+        Map<String, JSONSerializable> map = new HashMap<>();
+        map.put("completed", r.getSuccess());
+        map.put("aborted", r.getAbort());
+        map.put("rejected", r.getRetry());
+        map.put("unexpected", r.getError());
+        return JSONUtil.toJSONString(map);
+    }
 
     /**
      * Write out the results for a benchmark run to a bunch of files

@@ -27,10 +27,7 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.PrintStream;
-import java.util.Date;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ResultUploader {
 
@@ -58,7 +55,7 @@ public class ResultUploader {
     public ResultUploader(Results r, XMLConfiguration conf, CommandLine argsLine) {
         this.expConf = conf;
         this.results = r;
-        this.dbType = DatabaseType.valueOf(expConf.getString("type"));
+        this.dbType = DatabaseType.valueOf(expConf.getString("type").toUpperCase());
         this.benchType = argsLine.getOptionValue("b");
 
         String dbUrl = expConf.getString("url");
