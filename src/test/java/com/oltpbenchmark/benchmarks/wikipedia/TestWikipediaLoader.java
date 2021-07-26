@@ -17,20 +17,19 @@
 package com.oltpbenchmark.benchmarks.wikipedia;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
-import com.oltpbenchmark.catalog.Catalog;
 
 public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> {
 
-    private static final String IGNORE[] = {
-        WikipediaConstants.TABLENAME_IPBLOCKS,
-        WikipediaConstants.TABLENAME_LOGGING,
-        WikipediaConstants.TABLENAME_PAGE_BACKUP,
-        WikipediaConstants.TABLENAME_PAGE_RESTRICTIONS,
-        WikipediaConstants.TABLENAME_RECENTCHANGES,
-        WikipediaConstants.TABLENAME_REVISION,
-        WikipediaConstants.TABLENAME_TEXT,
-        WikipediaConstants.TABLENAME_USER_GROUPS,
-        WikipediaConstants.TABLENAME_VALUE_BACKUP,
+    private static final String[] IGNORE = {
+            WikipediaConstants.TABLENAME_IPBLOCKS,
+            WikipediaConstants.TABLENAME_LOGGING,
+            WikipediaConstants.TABLENAME_PAGE_BACKUP,
+            WikipediaConstants.TABLENAME_PAGE_RESTRICTIONS,
+            WikipediaConstants.TABLENAME_RECENTCHANGES,
+            WikipediaConstants.TABLENAME_REVISION,
+            WikipediaConstants.TABLENAME_TEXT,
+            WikipediaConstants.TABLENAME_USER_GROUPS,
+            WikipediaConstants.TABLENAME_VALUE_BACKUP,
     };
 
     @Override

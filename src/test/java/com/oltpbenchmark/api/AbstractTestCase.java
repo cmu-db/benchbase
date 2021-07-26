@@ -16,21 +16,18 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.catalog.AbstractCatalog;
+import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.ClassUtil;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import org.apache.log4j.Logger;
-
-import junit.framework.TestCase;
-
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.catalog.AbstractCatalog;
-import com.oltpbenchmark.types.DatabaseType;
-import com.oltpbenchmark.util.ClassUtil;
-import com.oltpbenchmark.util.FileUtil;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
 
@@ -44,6 +41,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
      */
     public static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
     public static final String DB_CONNECTION;
+
     static {
         switch (DB_TYPE) {
             case HSQLDB: {
@@ -69,15 +67,15 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected Connection conn;
     protected List<Class<? extends Procedure>> procClasses = new ArrayList<Class<? extends Procedure>>();
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
         super.setUp();
 
         this.workConf = new WorkloadConfiguration();
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
         for (int i = 0; i < procClasses.length; i++) {
             assertFalse("Duplicate Procedure '" + procClasses[i] + "'",
-                        this.procClasses.contains(procClasses[i]));
+                    this.procClasses.contains(procClasses[i]));
             this.procClasses.add(procClasses[i]);
             TransactionType tt = new TransactionType(procClasses[i], i);
             txnTypes.add(tt);
@@ -91,9 +89,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         // TODO(WAN): 12 is arbitrary.
         this.workConf.setPoolSize(12);
 
-        this.benchmark = (T) ClassUtil.newInstance(clazz,
-                                                   new Object[] { this.workConf },
-                                                   new Class<?>[] { WorkloadConfiguration.class });
+        this.benchmark = ClassUtil.newInstance(clazz,
+                new Object[]{this.workConf},
+                new Class<?>[]{WorkloadConfiguration.class});
         assertNotNull(this.benchmark);
         LOG.debug(DB_TYPE + "::" + this.benchmark + " -> " + this.dbName);
 

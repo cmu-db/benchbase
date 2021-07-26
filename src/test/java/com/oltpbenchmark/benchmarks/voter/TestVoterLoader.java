@@ -20,10 +20,10 @@ import com.oltpbenchmark.api.AbstractTestLoader;
 
 public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
 
-    private static final String IGNORE[] = {
+    private static final String[] IGNORE = {
             VoterConstants.TABLENAME_VOTES
     };
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp(VoterBenchmark.class, IGNORE, TestVoterBenchmark.PROC_CLASSES);
