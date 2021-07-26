@@ -19,7 +19,7 @@ package com.oltpbenchmark.benchmarks.smallbank;
 import com.oltpbenchmark.api.AbstractTestWorker;
 
 public class TestSmallBankWorker extends AbstractTestWorker<SmallBankBenchmark> {
-   
+
     @Override
     protected void setUp() throws Exception {
         super.setUp(SmallBankBenchmark.class, TestSmallBankBenchmark.PROC_CLASSES);

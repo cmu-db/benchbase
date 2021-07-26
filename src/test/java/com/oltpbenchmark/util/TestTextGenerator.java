@@ -16,14 +16,12 @@
 
 package com.oltpbenchmark.util;
 
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-
-import com.oltpbenchmark.util.TextGenerator;
-
-import junit.framework.TestCase;
 
 public class TestTextGenerator extends TestCase {
 
@@ -41,7 +39,7 @@ public class TestTextGenerator extends TestCase {
         long start = System.nanoTime();
         int strLen = rng.nextInt(MAX_SIZE) + 10;
         for (int i = 0; i < NUM_ROUNDS; i++) {
-            char text[] = TextGenerator.randomChars(rng, strLen);
+            char[] text = TextGenerator.randomChars(rng, strLen);
             if (SPEED_TEST == false) {
                 assertNotNull(text);
                 assertEquals(strLen, text.length);
@@ -64,7 +62,7 @@ public class TestTextGenerator extends TestCase {
         Set<String> previous = new HashSet<String>();
         long start = System.nanoTime();
         int strLen = rng.nextInt(MAX_SIZE);
-        char text[] = new char[strLen];
+        char[] text = new char[strLen];
         for (int i = 0; i < NUM_ROUNDS; i++) {
             TextGenerator.randomChars(rng, text);
             if (SPEED_TEST == false) {
@@ -90,7 +88,7 @@ public class TestTextGenerator extends TestCase {
         long start = System.nanoTime();
         for (int i = 0; i < NUM_ROUNDS; i++) {
             int strLen = rng.nextInt(MAX_SIZE) + 10;
-            char text[] = new char[strLen];
+            char[] text = new char[strLen];
             TextGenerator.randomFastChars(rng, text);
 //            System.err.println("FAST: " + String.valueOf(text));
             if (SPEED_TEST == false) {
@@ -101,7 +99,7 @@ public class TestTextGenerator extends TestCase {
                 } // FOR
             }
             assertFalse("Duplicate: " + String.valueOf(text),
-                        previous.contains(String.valueOf(text)));
+                    previous.contains(String.valueOf(text)));
             previous.add(String.valueOf(text));
         } // FOR
         long stop = System.nanoTime();
@@ -114,11 +112,11 @@ public class TestTextGenerator extends TestCase {
      */
     public void testIncreaseText() throws Exception {
         int strLen = rng.nextInt(2048);
-        char text[] = TextGenerator.randomChars(rng, strLen);
+        char[] text = TextGenerator.randomChars(rng, strLen);
         assertNotNull(text);
 
         int delta = rng.nextInt(2048);
-        char newText[] = TextGenerator.resizeText(rng, text, delta);
+        char[] newText = TextGenerator.resizeText(rng, text, delta);
         assertEquals(text.length + delta, newText.length);
 
         // Make sure the first portion is the same
@@ -133,11 +131,11 @@ public class TestTextGenerator extends TestCase {
     public void testDecreaseText() throws Exception {
         // Make sure that the original length is always greater than the delta size
         int strLen = rng.nextInt(2048) + 200;
-        char text[] = TextGenerator.randomChars(rng, strLen);
+        char[] text = TextGenerator.randomChars(rng, strLen);
         assertNotNull(text);
 
         int delta = -1 * rng.nextInt(100);
-        char newText[] = TextGenerator.resizeText(rng, text, delta);
+        char[] newText = TextGenerator.resizeText(rng, text, delta);
         assertEquals(text.length + delta, newText.length);
     }
 
@@ -146,11 +144,11 @@ public class TestTextGenerator extends TestCase {
      */
     public void testPermuteText() throws Exception {
         int strLen = 64; // rng.nextInt(64);
-        char orig[] = TextGenerator.randomChars(rng, strLen);
+        char[] orig = TextGenerator.randomChars(rng, strLen);
         assertNotNull(orig);
 
         // Permute it and make sure at least one block is changed
-        char newText[] = TextGenerator.permuteText(rng, Arrays.copyOf(orig, strLen));
+        char[] newText = TextGenerator.permuteText(rng, Arrays.copyOf(orig, strLen));
         assertEquals(orig.length, newText.length);
 
         boolean valid = false;

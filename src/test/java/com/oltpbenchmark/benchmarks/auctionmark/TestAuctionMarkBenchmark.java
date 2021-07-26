@@ -17,13 +17,13 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark;
 
-import java.util.Map;
-
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
+
+import java.util.Map;
 
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 
@@ -54,13 +54,13 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
         assertTrue(categoryParser.getCategoryMap().size() > 0);
     }
 
-	/**
-	 * testSupplementalClasses
-	 */
-	public void testSupplementalClasses() throws Exception {
-	    // Check to make sure that we have something...
-	    Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();
-	    assertNotNull(procs);
-	}
+    /**
+     * testSupplementalClasses
+     */
+    public void testSupplementalClasses() throws Exception {
+        // Check to make sure that we have something...
+        Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();
+        assertNotNull(procs);
+    }
 
 }

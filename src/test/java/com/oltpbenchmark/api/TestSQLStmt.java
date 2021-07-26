@@ -27,14 +27,14 @@ public class TestSQLStmt extends TestCase {
     public void testSubstitution() throws Exception {
         int ctr = 25;
         SQLStmt stmt = new SQLStmt(
-            "SELECT * FROM tweets WHERE uid IN (??)", ctr
+                "SELECT * FROM tweets WHERE uid IN (??)", ctr
         );
-        
+
         String sql = stmt.getSQL();
         assertFalse(sql.isEmpty());
         assertFalse(sql.contains("\\?\\?"));
     }
-    
+
     /**
      * testSetSQL
      */
@@ -42,11 +42,11 @@ public class TestSQLStmt extends TestCase {
         int expected = 99;
         SQLStmt stmt = new SQLStmt("SELECT * FROM tweets", expected);
         stmt.setSQL("SELECT * FROM tweets WHERE uid IN (??)");
-        
+
         String sql = stmt.getSQL();
         assertFalse(sql.isEmpty());
         assertFalse(sql.contains("\\?\\?"));
-        
+
         // Count the number of times '?' appears
         int actual = 0;
         for (int i = 0; i < sql.length(); i++) {
@@ -54,5 +54,5 @@ public class TestSQLStmt extends TestCase {
         } // FOR
         assertEquals(expected, actual);
     }
-    
+
 }

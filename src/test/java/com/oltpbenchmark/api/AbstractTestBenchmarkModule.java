@@ -17,17 +17,12 @@
 
 package com.oltpbenchmark.api;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import org.apache.commons.io.IOUtils;
-
-import com.oltpbenchmark.api.AbstractTestCase;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+
+import java.io.File;
+import java.io.InputStream;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -68,7 +63,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      */
     public void testGetTransactionType() throws Exception {
         int id = 1;
-        for (Class<? extends Procedure> procClass: this.procClasses) {
+        for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
             TransactionType txnType = this.benchmark.initTransactionType(procName, id++);

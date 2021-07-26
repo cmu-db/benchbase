@@ -17,12 +17,11 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
-import com.oltpbenchmark.catalog.Catalog;
 
 public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
 
-    private final String IGNORED_TABLES[] = {
-        TwitterConstants.TABLENAME_ADDED_TWEETS
+    private final String[] IGNORED_TABLES = {
+            TwitterConstants.TABLENAME_ADDED_TWEETS
     };
 
     @Override

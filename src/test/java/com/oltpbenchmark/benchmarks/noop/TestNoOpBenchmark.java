@@ -17,17 +17,17 @@
 package com.oltpbenchmark.benchmarks.noop;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
-import com.oltpbenchmark.benchmarks.noop.procedures.*;
+import com.oltpbenchmark.benchmarks.noop.procedures.NoOp;
 
 public class TestNoOpBenchmark extends AbstractTestBenchmarkModule<NoOpBenchmark> {
-	
-    public static final Class<?> PROC_CLASSES[] = {
-        NoOp.class,
+
+    public static final Class<?>[] PROC_CLASSES = {
+            NoOp.class,
     };
-    
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp(NoOpBenchmark.class, PROC_CLASSES);
-	}
-	
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp(NoOpBenchmark.class, PROC_CLASSES);
+    }
+
 }

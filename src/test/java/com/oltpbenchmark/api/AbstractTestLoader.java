@@ -17,17 +17,15 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.util.Histogram;
+import com.oltpbenchmark.util.SQLUtil;
+import org.apache.log4j.Logger;
+
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.log4j.Logger;
-
-import com.oltpbenchmark.api.AbstractTestCase;
-import com.oltpbenchmark.catalog.Table;
-import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.SQLUtil;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -37,10 +35,10 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
      * These are tables that are not pre-loaded by the benchmark loader
      * So we want to ignore them if their count is zero
      */
-    private Set<String> ignoreTables = new HashSet<String>();
+    private final Set<String> ignoreTables = new HashSet<String>();
 
     @SuppressWarnings("rawtypes")
-    protected void setUp(Class<T> clazz, String ignoreTables[], Class... procClasses) throws Exception {
+    protected void setUp(Class<T> clazz, String[] ignoreTables, Class... procClasses) throws Exception {
         super.setUp(clazz, procClasses);
 
         if (ignoreTables != null) {

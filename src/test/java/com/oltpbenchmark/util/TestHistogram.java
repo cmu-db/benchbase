@@ -17,17 +17,14 @@
 
 package com.oltpbenchmark.util;
 
-import org.junit.Test;
-
+import junit.framework.TestCase;
 import org.json.JSONObject;
+import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
-import junit.framework.TestCase;
-
 /**
- *
  * @author pavlo
  */
 public class TestHistogram extends TestCase {
@@ -37,8 +34,8 @@ public class TestHistogram extends TestCase {
     public static final int RANGE = 20;
     public static final double SKEW_FACTOR = 4.0;
 
-    private Histogram<Integer> h = new Histogram<Integer>();
-    private Random rand = new Random(1);
+    private final Histogram<Integer> h = new Histogram<Integer>();
+    private final Random rand = new Random(1);
 
     protected void setUp() throws Exception {
         // Cluster a bunch in the center
@@ -73,7 +70,7 @@ public class TestHistogram extends TestCase {
         min_count = h.getMinCount();
         assertEquals(expected, min_count);
         max_count = h.getMaxCount();
-        assertEquals(expected*2, max_count);
+        assertEquals(expected * 2, max_count);
     }
 
     /**
@@ -84,7 +81,7 @@ public class TestHistogram extends TestCase {
         long expected = -1981;
         h.put(expected);
         for (int i = 0; i < 1000; i++) {
-            h.put((long)99999);
+            h.put((long) 99999);
         } // FOR
         Collection<Long> min_values = h.getMinCountValues();
         assertNotNull(min_values);
@@ -101,8 +98,8 @@ public class TestHistogram extends TestCase {
         min_values = h.getMinCountValues();
         assertNotNull(min_values);
         assertEquals(2, min_values.size());
-        assert(min_values.contains(expected));
-        assert(min_values.contains(expected2));
+        assert (min_values.contains(expected));
+        assert (min_values.contains(expected2));
     }
 
     /**
@@ -131,8 +128,8 @@ public class TestHistogram extends TestCase {
         max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(2, max_values.size());
-        assert(max_values.contains(expected));
-        assert(max_values.contains(expected2));
+        assert (max_values.contains(expected));
+        assert (max_values.contains(expected2));
     }
 
     /**
@@ -149,7 +146,7 @@ public class TestHistogram extends TestCase {
         assertEquals(keys.size(), h.values().size());
         assertEquals(0, h.getSampleCount());
         for (Object o : keys) {
-            Integer k = (Integer)o;
+            Integer k = (Integer) o;
             assertEquals(0, h.get(k).intValue());
         } // FOR
 
@@ -160,7 +157,7 @@ public class TestHistogram extends TestCase {
         assertEquals(0, h.values().size());
         assertEquals(0, h.getSampleCount());
         for (Object o : keys) {
-            Integer k = (Integer)o;
+            Integer k = (Integer) o;
             assertNull(h.get(k));
         } // FOR
     }
@@ -191,10 +188,10 @@ public class TestHistogram extends TestCase {
 
         // Now enable zero entries and make sure that our entries make it in there
         h.setKeepZeroEntries(true);
-        assert(h.isZeroEntriesEnabled());
+        assert (h.isZeroEntriesEnabled());
         for (Integer key : attempted) {
             h.put(key, 0);
-            assert(h.contains(key));
+            assert (h.contains(key));
             assertEquals(0, h.get(key).longValue());
         } // FOR
 

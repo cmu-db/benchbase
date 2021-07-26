@@ -17,25 +17,25 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.api.Procedure.UserAbortException;
+
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.oltpbenchmark.api.Procedure.UserAbortException;
-
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
-    
+
     protected static final int NUM_TERMINALS = 1;
-    
+
     protected List<Worker<? extends BenchmarkModule>> workers;
-    
+
     @SuppressWarnings("rawtypes")
-    protected void setUp(Class<T> clazz, Class...procClasses) throws Exception {
+    protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
         super.setUp(clazz, procClasses);
-        
+
         List<TransactionType> txnList = new ArrayList<TransactionType>();
         int id = 1;
-        for (Class<? extends Procedure> procClass: this.procClasses) {
+        for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
             TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
@@ -45,13 +45,13 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         } // FOR
         TransactionTypes txnTypes = new TransactionTypes(txnList);
         this.workConf.setTransTypes(txnTypes);
-        
+
         this.workConf.setTerminals(NUM_TERMINALS);
         this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
         assertEquals(NUM_TERMINALS, this.workers.size());
     }
-    
+
     /**
      * testGetProcedure
      */
@@ -59,14 +59,14 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         // Make sure that we can get a Procedure handle for each TransactionType
         Worker<?> w = workers.get(0);
         assertNotNull(w);
-        for (Class<? extends Procedure> procClass: this.procClasses) {
+        for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
             Procedure proc = w.getProcedure(procClass);
             assertNotNull("Failed to get procedure " + procClass.getSimpleName(), proc);
             assertEquals(procClass, proc.getClass());
         } // FOR
     }
-    
+
     /**
      * testExecuteWork
      */
@@ -89,7 +89,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
                 // Anything else is a serious error
             } catch (Throwable ex) {
 //                ex.printStackTrace();
-                 throw new RuntimeException("Failed to execute " + txnType, ex);
+                throw new RuntimeException("Failed to execute " + txnType, ex);
             }
             conn.commit();
         } // FOR

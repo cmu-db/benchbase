@@ -16,20 +16,18 @@
 
 package com.oltpbenchmark.util;
 
-import java.io.File;
-import java.util.Arrays;
-
-import com.oltpbenchmark.catalog.AbstractCatalog;
-import com.oltpbenchmark.catalog.HSQLDBCatalog;
-import org.junit.Test;
-
 import com.oltpbenchmark.api.AbstractTestCase;
 import com.oltpbenchmark.benchmarks.seats.SEATSBenchmark;
-import com.oltpbenchmark.catalog.Catalog;
+import com.oltpbenchmark.catalog.AbstractCatalog;
+import com.oltpbenchmark.catalog.HSQLDBCatalog;
 import com.oltpbenchmark.catalog.Table;
+import org.junit.Test;
+
+import java.util.Arrays;
 
 /**
  * TestTableDataIterable
+ *
  * @author pavlo
  */
 public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
@@ -57,18 +55,18 @@ public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
         TableDataIterable iterable = new TableDataIterable(this.catalog_tbl, catalogTablePath, true, true);
         int num_cols = -1;
         int num_rows = 0;
-        for (Object row[] : iterable) {
+        for (Object[] row : iterable) {
             if (num_cols != -1) {
-                assertEquals(num_cols , row.length);
-            }
-            else {
+                assertEquals(num_cols, row.length);
+            } else {
 //                System.err.println("NUM OF COLS: " + row.length);
             }
 
             assertEquals(this.catalog_tbl.getColumnCount(), row.length);
             for (int i = 0; i < num_cols; i++) {
                 // The first two columns cannot be null
-                if (i < 2) assertNotNull(String.format("Row:%d, Col:%d\n%s", num_rows, i, Arrays.toString(row)), row[i]);
+                if (i < 2)
+                    assertNotNull(String.format("Row:%d, Col:%d\n%s", num_rows, i, Arrays.toString(row)), row[i]);
             } // FOR
 
             num_cols = row.length;
