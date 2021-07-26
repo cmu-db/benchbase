@@ -87,6 +87,14 @@ public class RandomDistribution {
             return (this.random);
         }
 
+        public double calculateMean(int num_samples) {
+            long total = 0l;
+            for (int i = 0; i < num_samples; i++) {
+                total += this.nextLong();
+            } // FOR
+            return (total / (double)num_samples);
+        }
+
         /**
          * Get the next random number as an int
          *

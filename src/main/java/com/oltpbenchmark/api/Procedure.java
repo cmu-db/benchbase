@@ -53,7 +53,7 @@ public abstract class Procedure {
      * @param <T>
      * @return
      */
-
+    @SuppressWarnings("unchecked")
     protected final <T extends Procedure> T initialize(DatabaseType dbType) {
         this.dbType = dbType;
         this.name_stmt_xref = Procedure.getStatements(this);

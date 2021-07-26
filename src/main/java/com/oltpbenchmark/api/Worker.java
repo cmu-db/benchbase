@@ -128,6 +128,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         return (this.name_procedures.get(name));
     }
 
+    @SuppressWarnings("unchecked")
     public final <P extends Procedure> P getProcedure(Class<P> procClass) {
         return (P) (this.class_procedures.get(procClass));
     }

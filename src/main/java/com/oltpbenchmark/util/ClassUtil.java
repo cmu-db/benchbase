@@ -110,7 +110,7 @@ public abstract class ClassUtil {
         return (ret);
     }
 
-
+    @SuppressWarnings("unchecked")
     public static <T> T newInstance(String class_name, Object[] params, Class<?>[] classes) {
         return ((T) ClassUtil.newInstance(ClassUtil.getClass(class_name), params, classes));
     }
@@ -133,7 +133,7 @@ public abstract class ClassUtil {
      * @param params
      * @return
      */
-
+    @SuppressWarnings("unchecked")
     public static <T> Constructor<T> getConstructor(Class<T> target_class, Class<?>... params) {
         NoSuchMethodException error = null;
         try {

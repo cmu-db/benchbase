@@ -68,12 +68,14 @@ public abstract class WikipediaConstants {
     public static final String TABLENAME_IPBLOCKS = "ipblocks";
     public static final String TABLENAME_LOGGING = "logging";
     public static final String TABLENAME_PAGE = "page";
+    public static final String TABLENAME_PAGE_BACKUP       = "page_backup";
     public static final String TABLENAME_PAGE_RESTRICTIONS = "page_restrictions";
     public static final String TABLENAME_RECENTCHANGES = "recentchanges";
     public static final String TABLENAME_REVISION = "revision";
     public static final String TABLENAME_TEXT = "text";
     public static final String TABLENAME_USER = "useracct";
     public static final String TABLENAME_USER_GROUPS = "user_groups";
+    public static final String TABLENAME_VALUE_BACKUP      = "value_backup";
     public static final String TABLENAME_WATCHLIST = "watchlist";
 
 

@@ -77,6 +77,7 @@ public class Pair<T, U> implements Comparable<Pair<T, U>> {
         return (other.hash - this.hash);
     }
 
+    @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
         if (this == o) {
             return true;

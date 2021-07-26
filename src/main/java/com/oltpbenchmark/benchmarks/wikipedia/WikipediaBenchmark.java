@@ -38,7 +38,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
     protected final FlatHistogram<Integer> minorEdit;
     private final FlatHistogram<Integer>[] revisionDeltas;
 
-
+    @SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
 

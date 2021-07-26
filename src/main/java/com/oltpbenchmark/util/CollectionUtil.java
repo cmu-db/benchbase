@@ -48,6 +48,7 @@ public abstract class CollectionUtil {
      * @param data
      * @param items
      */
+    @SuppressWarnings("unchecked")
     public static <T> Collection<T> addAll(Collection<T> data, T... items) {
         data.addAll(Arrays.asList(items));
         return (data);
@@ -65,6 +66,26 @@ public abstract class CollectionUtil {
             data.add(items.next());
         }
         return (data);
+    }
+
+    /**
+     * @param <T>
+     * @param <U>
+     * @param map
+     * @return
+     */
+    public static <T, U extends Comparable<U>> T getGreatest(Map<T, U> map) {
+        T max_key = null;
+        U max_value = null;
+        for (Map.Entry<T, U> e : map.entrySet()) {
+            T key = e.getKey();
+            U value = e.getValue();
+            if (max_value == null || value.compareTo(max_value) > 0) {
+                max_value = value;
+                max_key = key;
+            }
+        } // FOR
+        return (max_key);
     }
 
     /**
@@ -128,6 +149,7 @@ public abstract class CollectionUtil {
      * @param items
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static <T> T last(T... items) {
         if (items != null && items.length > 0) {
             return (items[items.length - 1]);

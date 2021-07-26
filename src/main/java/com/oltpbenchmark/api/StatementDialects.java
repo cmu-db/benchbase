@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import jakarta.xml.bind.*;
+
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -73,7 +74,7 @@ public class StatementDialects {
      *
      * @return
      */
-    private String getSQLDialectPath(DatabaseType databaseType) {
+    public String getSQLDialectPath(DatabaseType databaseType) {
         String fileName = null;
 
         if (databaseType != null) {
@@ -113,7 +114,7 @@ public class StatementDialects {
         final String sqlDialectPath = getSQLDialectPath(dbType);
 
         if (sqlDialectPath == null) {
-            LOG.info("SKIP - No SQL dialect file was given.");
+            LOG.debug("SKIP - No SQL dialect file was given.");
             return (false);
         }
 
@@ -273,6 +274,13 @@ public class StatementDialects {
             return (procDialects.get(stmtName));
         }
         return (null);
+    }
+
+    /**
+     * @return The list of Procedure names that we have dialect information for.
+     */
+    protected Collection<String> getProcedureNames() {
+        return (this.dialectsMap.keySet());
     }
 
 }

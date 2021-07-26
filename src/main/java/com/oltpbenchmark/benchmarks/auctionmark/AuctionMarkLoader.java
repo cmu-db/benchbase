@@ -408,12 +408,13 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.prepare();
         }
 
+        @SuppressWarnings("unchecked")
         public <T extends AbstractTableGenerator> T addSubTableGenerator(SubTableGenerator<?> sub_item) {
             this.sub_generators.add(sub_item);
             return ((T) this);
         }
 
-
+        @SuppressWarnings("unchecked")
         public void releaseHoldsToSubTableGenerators() {
             if (!this.subGenerator_hold.isEmpty()) {
                 LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
