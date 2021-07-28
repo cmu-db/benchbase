@@ -526,7 +526,7 @@ public class DBWorkload {
         }
 
 
-        FileUtil.makeDirIfNotExists(outputDirectory.split("/"));
+        FileUtil.makeDirIfNotExists(outputDirectory);
         ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
 
         String name = StringUtils.join(StringUtils.split(argsLine.getOptionValue("b"), ','), '-');
