@@ -448,7 +448,7 @@ public abstract class SQLUtil {
                 }
 
                 String table_name = table_rs.getString("TABLE_NAME");
-                Table catalog_tbl = new Table(table_name, StringUtils.upperCase(table_name), separator);
+                Table catalog_tbl = new Table(table_name, separator);
 
                 try (ResultSet col_rs = md.getColumns(catalog, schema, table_name, null)) {
                     while (col_rs.next()) {
@@ -463,7 +463,7 @@ public abstract class SQLUtil {
                         Integer col_size = col_rs.getInt("COLUMN_SIZE");
                         boolean col_nullable = col_rs.getString("IS_NULLABLE").equalsIgnoreCase("YES");
 
-                        Column catalog_col = new Column(col_name, StringUtils.upperCase(col_name), separator, catalog_tbl, col_type, col_size, col_nullable);
+                        Column catalog_col = new Column(col_name, separator, catalog_tbl, col_type, col_size, col_nullable);
 
                         catalog_tbl.addColumn(catalog_col);
                     }
@@ -486,7 +486,7 @@ public abstract class SQLUtil {
 
                         Index catalog_idx = catalog_tbl.getIndex(idx_name);
                         if (catalog_idx == null) {
-                            catalog_idx = new Index(idx_name, StringUtils.upperCase(idx_name), separator, catalog_tbl, idx_type, idx_unique);
+                            catalog_idx = new Index(idx_name, separator, catalog_tbl, idx_type, idx_unique);
                             catalog_tbl.addIndex(catalog_idx);
                         }
 

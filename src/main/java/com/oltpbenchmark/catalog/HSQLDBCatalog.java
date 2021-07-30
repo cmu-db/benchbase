@@ -79,7 +79,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
             String tableType = tableRS.getString(4);
             if (!tableType.equalsIgnoreCase("TABLE")) continue;
 
-            Table catalogTable = new Table(internalTableName, upperTableName, "");
+            Table catalogTable = new Table(originalTableName, "");
 
             // COLUMNS
             try (ResultSet colRS = md.getColumns(null, null, internalTableName, null)) {
@@ -90,7 +90,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
                     Integer colSize = colRS.getInt(7);
                     boolean colNullable = colRS.getString(18).equalsIgnoreCase("YES");
 
-                    Column catalogCol = new Column(colName, colName.toUpperCase(), "", catalogTable, colType, colSize, colNullable);
+                    Column catalogCol = new Column(colName, "", catalogTable, colType, colSize, colNullable);
                     // TODO(WAN): The following block of code was relevant for programmatic CreateDialect support.
                     //            i.e., using the HSQLDB catalog instance to automatically create dialects for other DBMSs.
                     //            Since we don't add new database support often, and can hand-write most of that,
@@ -148,7 +148,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
 
                     Index catalogIdx = catalogTable.getIndex(idxName);
                     if (catalogIdx == null) {
-                        catalogIdx = new Index(idxName, idxName.toUpperCase(), "", catalogTable, idxType, idxUnique);
+                        catalogIdx = new Index(idxName, "", catalogTable, idxType, idxUnique);
                         catalogTable.addIndex(catalogIdx);
                     }
                     catalogIdx.addColumn(idxColName, idxDirection, idxColPos);
@@ -172,9 +172,6 @@ public class HSQLDBCatalog implements AbstractCatalog {
 
         for (Table catalogTable : this.tables.values()) {
             Map<String, Pair<String, String>> fk = foreignKeys.get(catalogTable.getName());
-            if (fk == null) {
-                continue;
-            }
             fk.forEach((colName, fkey) -> {
                 Column catalogCol = catalogTable.getColumnByName(colName);
 

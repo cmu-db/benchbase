@@ -120,18 +120,17 @@ public class TableDataIterable implements Iterable<Object[]>, AutoCloseable {
                 row = this.next;
                 this.next = null;
             }
-
             Object[] tuple = new Object[types.length];
             int row_idx = 0;
             for (int col_idx = 0; col_idx < types.length; col_idx++) {
                 // Auto-generate first column
                 if (col_idx == 0 && auto_generate_first_column) {
                     tuple[col_idx] = (long) line_ctr;
-                }
-                // Null Values
-                else if (row_idx >= row.length) {
+                } else if (row_idx >= row.length) {
+                    // Null values.
                     tuple[col_idx] = null;
                 } else if (fkeys[col_idx]) {
+                    // Foreign keys.
                     tuple[col_idx] = row[row_idx++];
                 }
                 // Default: Cast the string into the proper type

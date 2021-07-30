@@ -26,14 +26,16 @@ public class TransactionType implements Comparable<TransactionType> {
     }
 
     public static final int INVALID_ID = 0;
-    public static final TransactionType INVALID = new TransactionType(Invalid.class, INVALID_ID);
+    public static final TransactionType INVALID = new TransactionType(Invalid.class, INVALID_ID, false);
 
     private final Class<? extends Procedure> procClass;
     private final int id;
+    private final boolean supplemental;
 
-    protected TransactionType(Class<? extends Procedure> procClass, int id) {
+    protected TransactionType(Class<? extends Procedure> procClass, int id, boolean supplemental) {
         this.procClass = procClass;
         this.id = id;
+        this.supplemental = supplemental;
     }
 
     public Class<? extends Procedure> getProcedureClass() {
@@ -46,6 +48,10 @@ public class TransactionType implements Comparable<TransactionType> {
 
     public int getId() {
         return this.id;
+    }
+
+    public boolean isSupplemental() {
+        return this.supplemental;
     }
 
     @Override

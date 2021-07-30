@@ -269,10 +269,10 @@ public abstract class BenchmarkModule {
     /**
      * Invoke this benchmark's database loader
      */
-    public final void loadDatabase() {
-
+    public final Loader<? extends BenchmarkModule> loadDatabase() {
+        Loader<? extends BenchmarkModule> loader;
         try {
-            Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
+            loader = this.makeLoaderImpl();
             if (loader != null) {
 
 
@@ -303,6 +303,7 @@ public abstract class BenchmarkModule {
         if (LOG.isDebugEnabled()) {
             LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
         }
+        return loader;
     }
 
     public final void clearDatabase() {
@@ -376,7 +377,7 @@ public abstract class BenchmarkModule {
         String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
 
-        return new TransactionType(procClass, id);
+        return new TransactionType(procClass, id, false);
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
@@ -396,7 +397,7 @@ public abstract class BenchmarkModule {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode());
+                    txn = new TransactionType(procClass, procClass.hashCode(), true);
                     txns.add(txn);
                 }
             }
