@@ -174,10 +174,10 @@ public class SEATSProfile {
         for (Table catalog_tbl : benchmark.getCatalog().getTables()) {
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 Column catalog_fkey_col = catalog_col.getForeignKey();
-                if (catalog_fkey_col != null && this.code_id_xref.containsKey(catalog_fkey_col.getName())) {
-                    this.fkey_value_xref.put(catalog_col.getName(), catalog_fkey_col.getName());
+                if (catalog_fkey_col != null && this.code_id_xref.containsKey(catalog_fkey_col.getName().toLowerCase())) {
+                    this.fkey_value_xref.put(catalog_col.getName().toLowerCase(), catalog_fkey_col.getName().toLowerCase());
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.getName(), catalog_fkey_col.getName()));
+                        LOG.debug(String.format("Added ForeignKey mapping from %s to %s", catalog_col.getName().toLowerCase(), catalog_fkey_col.getName().toLowerCase()));
                     }
                 }
             }
@@ -297,20 +297,19 @@ public class SEATSProfile {
             try (Connection conn = benchmark.getConnection()) {
                 results = proc.run(conn);
             }
-                // CONFIG_PROFILE
-                this.loadConfigProfile(results.getConfigProfile());
+            // CONFIG_PROFILE
+            this.loadConfigProfile(results.getConfigProfile());
 
-                // CONFIG_HISTOGRAMS
-                this.loadConfigHistograms(results.getConfigHistogram());
+            // CONFIG_HISTOGRAMS
+            this.loadConfigHistograms(results.getConfigHistogram());
 
 
-                this.loadCodeXref(results.getCountryCodes(), SEATSConstants.COUNTRY_CODE, SEATSConstants.COUNTRY_ID);
-                this.loadCodeXref(results.getAirportCodes(), SEATSConstants.AIRPORT_CODE, SEATSConstants.AIRPORT_ID);
-                this.loadCodeXref(results.getAirlineCodes(), SEATSConstants.AIRLINE_IATA_CODE, SEATSConstants.AIRLINE_ID);
+            this.loadCodeXref(results.getCountryCodes(), SEATSConstants.COUNTRY_CODE, SEATSConstants.COUNTRY_ID);
+            this.loadCodeXref(results.getAirportCodes(), SEATSConstants.AIRPORT_CODE, SEATSConstants.AIRPORT_ID);
+            this.loadCodeXref(results.getAirlineCodes(), SEATSConstants.AIRLINE_IATA_CODE, SEATSConstants.AIRLINE_ID);
 
-                // CACHED FLIGHT IDS
-                this.loadCachedFlights(results.getFlights());
-
+            // CACHED FLIGHT IDS
+            this.loadCachedFlights(results.getFlights());
 
 
             if (LOG.isDebugEnabled()) {

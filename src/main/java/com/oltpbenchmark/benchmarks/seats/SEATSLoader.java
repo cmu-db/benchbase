@@ -506,7 +506,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         final boolean is_airport = catalog_tbl.getName().equalsIgnoreCase(SEATSConstants.TABLENAME_AIRPORT);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Generating new records for table %s [batchSize=%d]", catalog_tbl.getName(), batch_size));
+            LOG.debug(String.format("Generating new records for table %s [batchSize=%d]", catalog_tbl.getName().toLowerCase(), batch_size));
         }
         final List<Column> columns = catalog_tbl.getColumns();
 
@@ -515,7 +515,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         Map<Integer, Map<String, Long>> mapping_columns = new HashMap<>();
         for (int col_code_idx = 0, cnt = columns.size(); col_code_idx < cnt; col_code_idx++) {
             Column catalog_col = columns.get(col_code_idx);
-            String col_name = catalog_col.getName();
+            String col_name = catalog_col.getName().toLowerCase();
 
             // Code Column -> Id Column Mapping
             // Check to see whether this table has columns that we need to map
@@ -529,7 +529,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 code_2_id.put(col_code_idx, col_id_idx);
             }
 
-
+            // Foreign Key Column to Code->Id Mapping
             // If this columns references a foreign key that is used in the
             // Code->Id mapping that we generating above,
             // then we need to know when we should change the
@@ -592,15 +592,14 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                         long id = (Long) tuple[code_2_id.get(col_code_idx)];
                         if (LOG.isTraceEnabled()) {
-                            LOG.trace(String.format("Mapping %s '%s' -> %s '%d'", from_column.getName(), code, to_column.getName(), id));
+                            LOG.trace(String.format("Mapping %s '%s' -> %s '%d'", from_column.getName().toLowerCase(), code, to_column.getName().toLowerCase(), id));
                         }
-                        this.profile.code_id_xref.get(to_column.getName()).put(code, id);
+                        this.profile.code_id_xref.get(to_column.getName().toLowerCase()).put(code, id);
                     }
                 }
 
-
+                // Foreign Key Code -> Foreign Key Id
                 for (int col_code_idx : mapping_columns.keySet()) {
-                    Column catalog_col = columns.get(col_code_idx);
                     if (tuple[col_code_idx] != null) {
                         String code = tuple[col_code_idx].toString();
                         tuple[col_code_idx] = mapping_columns.get(col_code_idx).get(code);
@@ -615,15 +614,15 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                             insert_stmt.setNull(i + 1, sqlTypes[i]);
                         }
                     } catch (SQLDataException ex) {
-                        LOG.error("INVALID {} TUPLE: {}", catalog_tbl.getName(), Arrays.toString(tuple));
-                        throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).getName(), ex);
+                        LOG.error("INVALID {} TUPLE: {}", catalog_tbl.getName().toLowerCase(), Arrays.toString(tuple));
+                        throw new RuntimeException("Failed to set value for " + catalog_tbl.getColumn(i).getName().toLowerCase(), ex);
                     }
                 }
                 insert_stmt.addBatch();
                 row_idx++;
 
                 if (++row_batch >= batch_size) {
-                    LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName(), row_idx));
+                    LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName().toLowerCase(), row_idx));
                     insert_stmt.executeBatch();
                     insert_stmt.clearBatch();
                     row_batch = 0;
@@ -636,7 +635,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             }
 
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to load table " + catalog_tbl.getName(), ex);
+            throw new RuntimeException("Failed to load table " + catalog_tbl.getName().toLowerCase(), ex);
         }
 
         // Record the number of tuples that we loaded for this table in the
@@ -645,7 +644,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             this.profile.num_reservations = row_idx + 1;
         }
 
-        LOG.info(String.format("Finished loading all %d tuples for %s", row_idx, catalog_tbl.getName()));
+        LOG.debug(String.format("Finished loading all %d tuples for %s", row_idx, catalog_tbl.getName().toLowerCase()));
     }
 
     // ----------------------------------------------------------------
@@ -678,11 +677,11 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             // Figure out which columns are random integers and strings
             for (Column catalog_col : catalog_tbl.getColumns()) {
                 int col_idx = catalog_col.getIndex();
-                if (catalog_col.getUppercaseName().contains("_SATTR")) {
+                if (catalog_col.getName().toUpperCase().contains("_SATTR")) {
                     this.rnd_string.add(col_idx);
                     this.rnd_string_min.put(col_idx, SEATSLoader.this.rng.nextInt(catalog_col.getSize() - 1));
                     this.rnd_string_max.put(col_idx, catalog_col.getSize());
-                } else if (catalog_col.getUppercaseName().contains("_IATTR")) {
+                } else if (catalog_col.getName().toUpperCase().contains("_IATTR")) {
                     this.rnd_integer.add(catalog_col.getIndex());
                 }
             }
@@ -724,7 +723,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
      * @param catalog_tbl the target table that we need an iterable for
      */
     protected Iterable<Object[]> getScalingIterable(Table catalog_tbl) {
-        String name = catalog_tbl.getName();
+        String name = catalog_tbl.getName().toLowerCase();
         ScalingDataIterable it = null;
         double scaleFactor = this.workConf.getScaleFactor();
         long num_customers = Math.round(SEATSConstants.CUSTOMERS_COUNT * scaleFactor);

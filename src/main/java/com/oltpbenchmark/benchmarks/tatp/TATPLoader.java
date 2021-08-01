@@ -239,6 +239,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
 
         try (PreparedStatement cal_pstmt = conn.prepareStatement(cal_sql);
              PreparedStatement spe_pstmt = conn.prepareStatement(spe_sql)) {
+            boolean cal_added = false;
             while (s_id++ < subscriberSize) {
                 int[] sf_types = TATPUtil.subArr(spe_arr, 1, 4);
                 for (int sf_type : sf_types) {
@@ -263,6 +264,7 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                         cal_pstmt.setByte(++cal_col, (byte) (start_time + TATPUtil.number(1, 8)));
                         cal_pstmt.setString(++cal_col, TATPUtil.nstring(15, 15));
                         cal_pstmt.addBatch();
+                        cal_added = true;
                         cal_total++;
                     }
                 }
@@ -273,12 +275,13 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                     }
                     int[] results = spe_pstmt.executeBatch();
 
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                    if (cal_added) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(String.format("%s: %d (%s %d / %d)", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total, TATPConstants.TABLENAME_SUBSCRIBER, s_id, subscriberSize));
+                        }
+                        results = cal_pstmt.executeBatch();
+                        cal_added = false;
                     }
-                    results = cal_pstmt.executeBatch();
-
 
                     spe_batch = 0;
                 }

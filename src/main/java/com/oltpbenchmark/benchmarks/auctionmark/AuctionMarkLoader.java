@@ -212,7 +212,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      * @param tableName
      */
     protected void generateTableData(Connection conn, String tableName) throws SQLException {
-        LOG.info("*** START {}", tableName);
+        LOG.debug("*** START {}", tableName);
         final AbstractTableGenerator generator = this.generators.get(tableName);
 
 
@@ -256,7 +256,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             generator.markAsFinished();
             synchronized (this) {
                 this.finished.add(tableName);
-                LOG.info(String.format("*** FINISH %s - %d tuples - [%d / %d]", tableName, this.tableSizes.get(tableName), this.finished.size(), this.generators.size()));
+                LOG.debug(String.format("*** FINISH %s - %d tuples - [%d / %d]", tableName, this.tableSizes.get(tableName), this.finished.size(), this.generators.size()));
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Remaining Tables: {}", CollectionUtils.subtract(this.generators.keySet(), this.finished));
                 }
@@ -311,16 +311,16 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.batchSize = workConf.getBatchSize();
 
 
-            boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getUppercaseName());
-            boolean dynamic_size = AuctionMarkConstants.DYNAMIC_TABLES.contains(catalog_tbl.getUppercaseName());
-            boolean data_file = AuctionMarkConstants.DATAFILE_TABLES.contains(catalog_tbl.getUppercaseName());
+            boolean fixed_size = AuctionMarkConstants.FIXED_TABLES.contains(catalog_tbl.getName().toLowerCase());
+            boolean dynamic_size = AuctionMarkConstants.DYNAMIC_TABLES.contains(catalog_tbl.getName().toLowerCase());
+            boolean data_file = AuctionMarkConstants.DATAFILE_TABLES.contains(catalog_tbl.getName().toLowerCase());
 
             // Add the dependencies so that we know what we need to block on
             CollectionUtil.addAll(this.dependencyTables, dependencies);
 
             // Initialize dynamic parameters for tables that are not loaded from data files
             if (!data_file && !dynamic_size && !tableName.equalsIgnoreCase(AuctionMarkConstants.TABLENAME_ITEM)) {
-                String field_name = "TABLESIZE_" + StringUtils.upperCase(catalog_tbl.getUppercaseName());
+                String field_name = "TABLESIZE_" + catalog_tbl.getName().toUpperCase();
                 try {
 
                     Field field_handle = AuctionMarkConstants.class.getField(field_name);
@@ -337,17 +337,17 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             }
 
             for (Column catalog_col : this.catalog_tbl.getColumns()) {
-                if (random_str_regex.matcher(catalog_col.getName()).matches()) {
+                if (random_str_regex.matcher(catalog_col.getName().toUpperCase()).matches()) {
 
                     this.random_str_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("Random String Column: {}", catalog_col.getName());
+                        LOG.trace("Random String Column: {}", catalog_col.getName().toLowerCase());
                     }
-                } else if (random_int_regex.matcher(catalog_col.getName()).matches()) {
+                } else if (random_int_regex.matcher(catalog_col.getName().toUpperCase()).matches()) {
 
                     this.random_int_cols.add(catalog_col);
                     if (LOG.isTraceEnabled()) {
-                        LOG.trace("Random Integer Column: {}", catalog_col.getName());
+                        LOG.trace("Random Integer Column: {}", catalog_col.getName().toLowerCase());
                     }
                 }
             }
@@ -440,7 +440,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         public Collection<String> getSubGeneratorTableNames() {
             List<String> names = new ArrayList<>();
             for (AbstractTableGenerator gen : this.sub_generators) {
-                names.add(gen.catalog_tbl.getName());
+                names.add(gen.catalog_tbl.getName().toLowerCase());
             }
             return (names);
         }
@@ -759,7 +759,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             // C_ID
             row[col++] = category.getCategoryID();
             // C_NAME
-            row[col++] = category.getName();
+            row[col++] = category.getName().toLowerCase();
             // C_PARENT_ID
             row[col++] = category.getParentCategoryID();
 
