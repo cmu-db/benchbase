@@ -106,6 +106,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        this.conn.close();
         File f = new File(this.dbName);
         if (f.exists()) {
             f.delete();
