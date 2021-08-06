@@ -283,6 +283,10 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         }
     }
 
+    protected AuctionMarkProfile getProfile() {
+        return (this.profile);
+    }
+
     @Override
     protected void initialize() {
         // Load BenchmarkProfile

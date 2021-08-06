@@ -45,7 +45,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         } // FOR
         TransactionTypes txnTypes = new TransactionTypes(txnList);
         this.workConf.setTransTypes(txnTypes);
-
+        this.workConf.setBatchSize(128);
         this.workConf.setTerminals(NUM_TERMINALS);
         this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
