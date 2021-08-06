@@ -412,6 +412,10 @@ public class DBWorkload {
         // Execute Loader
         if (isBooleanOptionSet(argsLine, "load")) {
             for (BenchmarkModule benchmark : benchList) {
+                if (!isBooleanOptionSet(argsLine, "create")) {
+                    benchmark.refreshCatalog();
+                }
+
                 LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runLoader(benchmark);
                 LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
