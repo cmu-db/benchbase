@@ -127,7 +127,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
             // depends on ITEM_PURCHASE
             this.registerGenerator(new UserFeedbackGenerator());
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -160,6 +160,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         @Override
         public void afterLoad() {
+            this.generator.afterLoad();
             this.latch.countDown();
         }
     }
@@ -221,6 +222,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         final List<Object[]> volt_table = generator.getVoltTable();
         final String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        boolean shouldExecuteBatch = false;
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             final int[] types = catalog_tbl.getColumnTypes();
 
@@ -236,10 +238,14 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                         }
                     }
                     stmt.addBatch();
+                    shouldExecuteBatch = true;
                 }
 
-                stmt.executeBatch();
-                stmt.clearBatch();
+                if (shouldExecuteBatch) {
+                    stmt.executeBatch();
+                    stmt.clearBatch();
+                    shouldExecuteBatch = false;
+                }
 
 
                 this.tableSizes.put(tableName, volt_table.size());
@@ -684,7 +690,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         protected void newElementCallback(T t) {
-            // Nothing... 
+            // Nothing...
         }
     }
 
@@ -1032,7 +1038,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             short numBids = (short) p.first.nextInt();
             short numWatches = (short) p.second.nextInt();
 
-            // Create the ItemInfo object that we will use to cache the local data 
+            // Create the ItemInfo object that we will use to cache the local data
 
             // tables are done with it.
             LoaderItemInfo itemInfo = new LoaderItemInfo(itemId, endDate, numBids);
@@ -1317,7 +1323,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             row[col++] = this.bid.getBidderId();
             // IB_BID
             row[col++] = this.bid.getMaxBid() - (remaining > 0 ? (this.currentBidPriceAdvanceStep / 2.0f) : 0);
-//            row[col++] = this.currentPrice;   
+//            row[col++] = this.currentPrice;
             // IB_MAX_BID
             row[col++] = this.bid.getMaxBid();
             // IB_CREATED

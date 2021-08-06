@@ -95,4 +95,43 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         } // FOR
 
     }
+
+    public Loader<? extends BenchmarkModule> testLoadWithReturn() throws Exception {
+        Loader<? extends BenchmarkModule> loader;
+        Statement stmt = conn.createStatement();
+        ResultSet result = null;
+
+        // All we really can do here is just invoke the loader
+        // and then check to make sure that our tables aren't empty
+        loader = this.benchmark.loadDatabase();
+        assertFalse("Failed to get table names for " + benchmark.getBenchmarkName().toUpperCase(),
+                this.catalog.getTables().isEmpty());
+
+        LOG.debug("Computing the size of the tables");
+        Histogram<String> tableSizes = new Histogram<String>(true);
+        for (Table table : this.catalog.getTables()) {
+            String tableName = table.getName();
+            if (this.ignoreTables.contains(tableName.toUpperCase())) continue;
+            Table catalog_tbl = this.catalog.getTable(tableName);
+
+            String sql = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), catalog_tbl);
+            result = stmt.executeQuery(sql);
+            assertNotNull(result);
+            boolean adv = result.next();
+            assertTrue(sql, adv);
+            int count = result.getInt(1);
+            result.close();
+            LOG.debug(sql + " => " + count);
+            tableSizes.put(tableName, count);
+        } // FOR
+        LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
+        assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
+                tableSizes.isEmpty());
+
+        for (String tableName : tableSizes.values()) {
+            long count = tableSizes.get(tableName);
+            assert (count > 0) : "No tuples were inserted for table " + tableName;
+        } // FOR
+        return loader;
+    }
 }
