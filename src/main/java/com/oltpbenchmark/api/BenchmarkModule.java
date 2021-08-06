@@ -225,6 +225,13 @@ public abstract class BenchmarkModule {
     }
 
     public final void refreshCatalog() {
+        if (this.catalog != null) {
+            try {
+                this.catalog.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
         try {
             this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), dataSource.getConnection());
         } catch (SQLException e) {
@@ -238,8 +245,8 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        try {
-            this.createDatabase(this.workConf.getDatabaseType(), this.getConnection());
+        try (Connection conn = this.getConnection()) {
+            this.createDatabase(this.workConf.getDatabaseType(), conn);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

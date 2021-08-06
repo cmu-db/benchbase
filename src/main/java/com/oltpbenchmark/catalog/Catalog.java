@@ -18,6 +18,7 @@
 
 package com.oltpbenchmark.catalog;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -47,6 +48,9 @@ public final class Catalog implements AbstractCatalog {
         throw new IllegalArgumentException(String.format("no table found with name [%s]", tableName));
     }
 
-
+    @Override
+    public void close() throws SQLException {
+        // No-op.
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.oltpbenchmark.catalog;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
 /**
@@ -12,4 +13,5 @@ import java.util.Collection;
 public interface AbstractCatalog {
     Collection<Table> getTables();
     Table getTable(String tableName);
+    void close() throws SQLException;
 }

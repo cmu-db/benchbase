@@ -53,6 +53,11 @@ public class HSQLDBCatalog implements AbstractCatalog {
     }
 
     @Override
+    public void close() throws SQLException {
+        this.conn.close();
+    }
+
+    @Override
     public Collection<Table> getTables() {
         return tables.values();
     }
