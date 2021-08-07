@@ -357,7 +357,7 @@ public class DBWorkload {
             for (Phase p : wrkld.getPhases()) {
                 j++;
                 if (p.getWeightCount() != numTxnTypes) {
-                    LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(),numTxnTypes));
+                    LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(), numTxnTypes));
                     if (p.isSerial()) {
                         LOG.error("However, note that since this a serial phase, the weights are irrelevant (but still must be included---sorry).");
                     }
@@ -389,11 +389,15 @@ public class DBWorkload {
             for (BenchmarkModule benchmark : benchList) {
                 LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runCreator(benchmark);
-                benchmark.refreshCatalog();
                 LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
             }
         } else {
             LOG.debug("Skipping creating benchmark database tables");
+        }
+
+        // Refresh the catalog.
+        for (BenchmarkModule benchmark : benchList) {
+            benchmark.refreshCatalog();
         }
 
         // Clear the Benchmark's Database
@@ -412,10 +416,6 @@ public class DBWorkload {
         // Execute Loader
         if (isBooleanOptionSet(argsLine, "load")) {
             for (BenchmarkModule benchmark : benchList) {
-                if (!isBooleanOptionSet(argsLine, "create")) {
-                    benchmark.refreshCatalog();
-                }
-
                 LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
                 runLoader(benchmark);
                 LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
