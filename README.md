@@ -2,7 +2,7 @@
 
 [![BenchBase (Java with Maven)](https://github.com/oltpbenchmark/oltpbench/actions/workflows/maven.yml/badge.svg?branch=oltpbench_tim)](https://github.com/oltpbenchmark/oltpbench/actions/workflows/maven.yml)
 
-BenchBase (formerly OLTPBench) is a multi-threaded load generator for JDBC-enabled relational databases.
+BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is a multi-threaded load generator for JDBC-enabled relational databases.
 
 **Table of Contents**
 
@@ -18,7 +18,7 @@ BenchBase (formerly OLTPBench) is a multi-threaded load generator for JDBC-enabl
 
 ## Quickstart
 
-(TODO(WAN): new name new URL)
+(TODO(WAN): new name new URL and also set to main)
 
 To clone and build BenchBase,
 
