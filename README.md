@@ -156,7 +156,7 @@ To modify the logging level you can update [`logging.properties`](https://github
 
 ### How to Add Support for a New Database
 
-TODO(WAN): sqlite PR
+Please see the existing MySQL and PostgreSQL code for an example.
 
 ---
 
