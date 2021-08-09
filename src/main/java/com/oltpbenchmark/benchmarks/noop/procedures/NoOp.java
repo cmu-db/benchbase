@@ -41,9 +41,7 @@ public class NoOp extends Procedure {
     public final SQLStmt noopStmt = new SQLStmt(";");
 
     public void run(Connection conn) {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt);
-             ResultSet r = stmt.executeQuery()) {
-
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt)) {
             // IMPORTANT:
             // Some DBMSs will throw an exception here when you execute
             // a query that does not return a result. So we are just
@@ -52,9 +50,12 @@ public class NoOp extends Procedure {
             // exception here and check whether it is actually working
             // correctly.
 
-
-            while (r.next()) {
-                // Do nothing
+            if (stmt.execute()) {
+                ResultSet r = stmt.getResultSet();
+                while (r.next()) {
+                    // Do nothing
+                }
+                r.close();
             }
 
         } catch (Exception ex) {
