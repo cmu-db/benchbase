@@ -5,19 +5,19 @@
 # - Service containers: https://docs.github.com/en/actions/guides/creating-postgresql-service-containers
 #
 # The CI jobs are set up as follows:
-# - One job to build, (TODO: run tests), and upload artifacts.
+# - One job to build and upload artifacts.
 # - One job per DBMS test suite.
 
-name: OLTPBench (Java with Maven)
+name: BenchBase (Java with Maven)
 
 on:
   push:
-    branches: [ oltpbench_tim ]
+    branches: [ main ]
   pull_request_target:
-    branches: [ oltpbench_tim ]
+    branches: [ main ]
 
 env:
-  OLTPBENCH_POM_VERSION: 20.1.3-SNAPSHOT
+  POM_VERSION: 2021
 
 jobs:
   build-and-upload:
@@ -33,18 +33,18 @@ jobs:
       run: mvn -B package --file pom.xml
     - name: Rename artifacts.
       run: |
-        mv target/oltpbench2-$OLTPBENCH_POM_VERSION.zip target/oltpbench2.zip
-        mv target/oltpbench2-$OLTPBENCH_POM_VERSION.tgz target/oltpbench2.tgz
+        mv target/benchbase-$POM_VERSION.zip target/benchbase.zip
+        mv target/benchbase-$POM_VERSION.tgz target/benchbase.tgz
     - name: Upload ZIP artifact.
       uses: actions/upload-artifact@v2
       with:
-        name: oltpbench2.zip
-        path: target/oltpbench2.zip
+        name: benchbase.zip
+        path: target/benchbase.zip
     - name: Upload TGZ artifact.
       uses: actions/upload-artifact@v2
       with:
-        name: oltpbench2.tgz
-        path: target/oltpbench2.tgz
+        name: benchbase.tgz
+        path: target/benchbase.tgz
 
   mysql:
     runs-on: ubuntu-latest
@@ -75,133 +75,133 @@ jobs:
       - name: Extract TGZ artifact in target/.
         working-directory: target
         run: |
-          tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
-          mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
+          tar xvzf benchbase-$POM_VERSION.tgz
+          mv benchbase-$POM_VERSION benchbase-extracted
       - name: AuctionMark
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b auctionmark -c config/mysql/sample_auctionmark_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b auctionmark -c config/mysql/sample_auctionmark_config.xml --create=true --load=true --execute=true
       - name: CH-benCHmark
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
-          java -jar oltpbench2.jar -b chbenchmark -c config/mysql/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
+          java -jar benchbase.jar -b chbenchmark -c config/mysql/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Epinions.com
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b epinions -c config/mysql/sample_epinions_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b epinions -c config/mysql/sample_epinions_config.xml --create=true --load=true --execute=true
       - name: hyadapt
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b hyadapt -c config/mysql/sample_hyadapt_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b hyadapt -c config/mysql/sample_hyadapt_config.xml --create=true --load=true --execute=true
       - name: noop
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b noop -c config/mysql/sample_noop_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b noop -c config/mysql/sample_noop_config.xml --create=true --load=true --execute=true
       - name: Resource Stresser
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b resourcestresser -c config/mysql/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b resourcestresser -c config/mysql/sample_resourcestresser_config.xml --create=true --load=true --execute=true
       - name: SEATS
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b seats -c config/mysql/sample_seats_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b seats -c config/mysql/sample_seats_config.xml --create=true --load=true --execute=true
       - name: SIBench
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b sibench -c config/mysql/sample_sibench_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b sibench -c config/mysql/sample_sibench_config.xml --create=true --load=true --execute=true
       - name: SmallBank
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b smallbank -c config/mysql/sample_smallbank_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b smallbank -c config/mysql/sample_smallbank_config.xml --create=true --load=true --execute=true
       - name: TATP
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b tatp -c config/mysql/sample_tatp_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tatp -c config/mysql/sample_tatp_config.xml --create=true --load=true --execute=true
       - name: TPC-C
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=true
       # TPC-DS does not have a sample configuration available right now.
       # - name: TPC-DS
-      #   working-directory: target/oltpbench2-extracted
+      #   working-directory: target/benchbase-extracted
       #   env:
       #     MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
       #   run: |
       #     mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-      #     java -jar oltpbench2.jar -b tpcds -c config/mysql/sample_tpcds_config.xml --create=true --load=true --execute=true
+      #     java -jar benchbase.jar -b tpcds -c config/mysql/sample_tpcds_config.xml --create=true --load=true --execute=true
       - name: TPC-H
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uroot -prootyMcRooty -e "SET GLOBAL local_infile=1"
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: Twitter
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b twitter -c config/mysql/sample_twitter_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b twitter -c config/mysql/sample_twitter_config.xml --create=true --load=true --execute=true
       - name: Voter
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b voter -c config/mysql/sample_voter_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b voter -c config/mysql/sample_voter_config.xml --create=true --load=true --execute=true
       - name: Wikipedia
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b wikipedia -c config/mysql/sample_wikipedia_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b wikipedia -c config/mysql/sample_wikipedia_config.xml --create=true --load=true --execute=true
       - name: YCSB
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS oltpbench; CREATE DATABASE oltpbench"
-          java -jar oltpbench2.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
       - name: Aggregate result summaries.
         if: ${{ github.event_name == 'pull_request_target' }}
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
@@ -249,115 +249,115 @@ jobs:
       - name: Extract TGZ artifact in target/.
         working-directory: target
         run: |
-          tar xvzf oltpbench2-$OLTPBENCH_POM_VERSION.tgz
-          mv oltpbench2-$OLTPBENCH_POM_VERSION oltpbench2-extracted
+          tar xvzf benchbase-$POM_VERSION.tgz
+          mv benchbase-$POM_VERSION benchbase-extracted
       - name: AuctionMark
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
       - name: CH-benCHmark
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
-          java -jar oltpbench2.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
+          java -jar benchbase.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
       - name: Epinions.com
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
       - name: hyadapt
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b hyadapt -c config/postgres/sample_hyadapt_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b hyadapt -c config/postgres/sample_hyadapt_config.xml --create=true --load=true --execute=true
       - name: noop
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
       - name: Resource Stresser
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b resourcestresser -c config/postgres/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b resourcestresser -c config/postgres/sample_resourcestresser_config.xml --create=true --load=true --execute=true
       - name: SEATS
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b seats -c config/postgres/sample_seats_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b seats -c config/postgres/sample_seats_config.xml --create=true --load=true --execute=true
       - name: SIBench
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b sibench -c config/postgres/sample_sibench_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b sibench -c config/postgres/sample_sibench_config.xml --create=true --load=true --execute=true
       - name: SmallBank
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b smallbank -c config/postgres/sample_smallbank_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b smallbank -c config/postgres/sample_smallbank_config.xml --create=true --load=true --execute=true
       - name: TATP
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b tatp -c config/postgres/sample_tatp_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tatp -c config/postgres/sample_tatp_config.xml --create=true --load=true --execute=true
       - name: TPC-C
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
       # TPC-DS does not have a sample configuration available right now.
       # - name: TPC-DS
-      #   working-directory: target/oltpbench2-extracted
+      #   working-directory: target/benchbase-extracted
       #   run: |
       #     PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
       #     PGPASSWORD=password createdb -h localhost -U admin oltpbench
-      #     java -jar oltpbench2.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
+      #     java -jar benchbase.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
       - name: TPC-H
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
       - name: Twitter
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b twitter -c config/postgres/sample_twitter_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b twitter -c config/postgres/sample_twitter_config.xml --create=true --load=true --execute=true
       - name: Voter
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b voter -c config/postgres/sample_voter_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b voter -c config/postgres/sample_voter_config.xml --create=true --load=true --execute=true
       - name: Wikipedia
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b wikipedia -c config/postgres/sample_wikipedia_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b wikipedia -c config/postgres/sample_wikipedia_config.xml --create=true --load=true --execute=true
       - name: YCSB
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin oltpbench --if-exists
           PGPASSWORD=password createdb -h localhost -U admin oltpbench
-          java -jar oltpbench2.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
+          java -jar benchbase.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
       - name: Aggregate result summaries.
         if: ${{ github.event_name == 'pull_request_target' }}
-        working-directory: target/oltpbench2-extracted
+        working-directory: target/benchbase-extracted
         run: |
           SUMMARIES=$(python3 scripts/result_aggregator.py results/)
           echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV

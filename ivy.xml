@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="1.0">
 	<info organisation="com.oltpbenchmark"
-		module="oltpbench"
+		module="benchbase"
 		revision="1.0"
 		status="integration"
 		publication="20190513211538"
@@ -16,7 +16,7 @@
 		<conf name="system" visibility="public" description="this scope is similar to provided except that you have to provide the JAR which contains it explicitly. The artifact is always available and is not looked up in a repository."/>
 	</configurations>
 	<publications>
-		<artifact name="oltpbench" type="jar" ext="jar" conf="master"/>
+		<artifact name="benchbase" type="jar" ext="jar" conf="master"/>
 	</publications>
 	<dependencies>
       <!-- JDBC Drivers -->
