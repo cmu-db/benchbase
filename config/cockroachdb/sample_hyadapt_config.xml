@@ -3,7 +3,7 @@
 
     <type>COCKROACHDB</type>
     <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:26257/oltpbench?sslmode=disable&amp;ApplicationName=hyadapt&amp;reWriteBatchedInserts=true</url>
+    <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=hyadapt&amp;reWriteBatchedInserts=true</url>
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
