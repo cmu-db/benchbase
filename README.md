@@ -22,7 +22,7 @@ To clone and build BenchBase,
 
 ```bash
 git clone --depth 1 https://github.com/cmu-db/benchbase.git
-cd oltpbench
+cd benchbase
 ./mvnw clean package
 ```
 
