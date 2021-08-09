@@ -1,8 +1,8 @@
 # BenchBase
 
-[![BenchBase (Java with Maven)](https://github.com/oltpbenchmark/oltpbench/actions/workflows/maven.yml/badge.svg?branch=oltpbench_tim)](https://github.com/oltpbenchmark/oltpbench/actions/workflows/maven.yml)
+[![BenchBase (Java with Maven)](https://github.com/cmu-db/benchbase/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/cmu-db/benchbase/actions/workflows/maven.yml)
 
-BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is a multi-threaded load generator for JDBC-enabled relational databases.
+BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is a Multi-DBMS SQL Benchmarking Framework via JDBC.
 
 **Table of Contents**
 
@@ -18,13 +18,11 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 
 ## Quickstart
 
-(TODO(WAN): new name new URL and also set to main)
-
 To clone and build BenchBase,
 
 ```bash
-git clone --single-branch --branch oltpbench_tim https://github.com/oltpbenchmark/oltpbench.git
-cd oltpbench
+git clone --depth 1 https://github.com/cmu-db/benchbase.git
+cd benchbase
 ./mvnw clean package
 ```
 
@@ -32,20 +30,20 @@ This produces artifacts in the `target` folder, which can be extracted,
 
 ```bash
 cd target
-tar xvzf oltpbench2-x-y-z.tgz # Change x-y-z appropriately.
-cd oltpbench2-x-y-z           # Change x-y-z appropriately.
+tar xvzf benchbase-x-y-z.tgz # Change x-y-z appropriately.
+cd benchbase-x-y-z           # Change x-y-z appropriately.
 ```
 
 Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark,
 
 ```bash
-java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
 ```
 
 A full list of options can be displayed,
 
 ```bash
-java -jar oltpbench2.jar -h
+java -jar benchbase.jar -h
 ```
 
 ---
@@ -61,6 +59,7 @@ variable mixture load against any JDBC-enabled relational database. The framewor
 features, e.g., per-transaction-type latency and throughput logs.
 
 The BenchBase framework has the following benchmarks:
+
 (TODO(WAN): Get permission to migrate/copy Tim's wiki for benchmark descriptions)
 
 * [AuctionMark](https://github.com/timveil-cockroach/oltpbench/wiki/AuctionMark)
@@ -96,25 +95,25 @@ Run the following command to build the distribution:
 
 The following files will be placed in the `./target` folder:
 
-* `oltpbench2-x.y.z.tgz`
-* `oltpbench2-x.y.z.zip`
+* `benchbase-x.y.z.tgz`
+* `benchbase-x.y.z.zip`
 
 ### How to Run
-Once you build and unpack the distribution, you can run `oltpbench2` just like any other executable jar.  The following examples assume you are running from the root of the expanded `.zip` or `.tgz` distribution.  If you attempt to run `oltpbench2` outside of the distribution structure you may encounter a variety of errors including `java.lang.NoClassDefFoundError`.
+Once you build and unpack the distribution, you can run `benchbase` just like any other executable jar.  The following examples assume you are running from the root of the expanded `.zip` or `.tgz` distribution.  If you attempt to run `benchbase` outside of the distribution structure you may encounter a variety of errors including `java.lang.NoClassDefFoundError`.
 
 To bring up help contents:
 ```bash
-java -jar oltpbench2.jar -h
+java -jar benchbase.jar -h
 ```
 
 To execute the `tpcc` benchmark:
 ```bash
-java -jar oltpbench2.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
 ```
 
 For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list: `
 ```bash
-java -jar oltpbench2.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
 ```
 
 The following options are provided:
@@ -157,7 +156,7 @@ To modify the logging level you can update [`logging.properties`](https://github
 
 ### How to Add Support for a New Database
 
-TODO(WAN): sqlite PR
+Please see the existing MySQL and PostgreSQL code for an example.
 
 ---
 
