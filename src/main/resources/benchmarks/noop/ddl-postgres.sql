@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS fake;
+CREATE TABLE fake (
+    id int PRIMARY KEY
+);
