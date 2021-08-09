@@ -97,7 +97,7 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.4</version>
+            <version>5.5.1</version>
         </dependency>
 
         <dependency>
