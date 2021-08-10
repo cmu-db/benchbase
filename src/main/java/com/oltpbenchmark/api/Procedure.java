@@ -144,6 +144,9 @@ public abstract class Procedure {
                 LOG.debug(String.format("Setting %s SQL dialect for %s.%s",
                         dialects.getDatabaseType(), this.procName, stmtName));
             }
+            if (stmt == null) {
+                throw new RuntimeException(String.format("Dialect file contains an unknown statement: Procedure %s, Statement %s", this.procName, stmtName));
+            }
             stmt.setSQL(sql);
         }
     }
