@@ -40,7 +40,6 @@ import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import com.oltpbenchmark.util.RandomGenerator;
 
 /**
- *
  * @author pavlo
  */
 public class TestUserIdGenerator extends TestCase {
@@ -57,13 +56,13 @@ public class TestUserIdGenerator extends TestCase {
     private final Histogram<Long> users_per_item_count = new Histogram<Long>();
 
 
-	@Before
-	public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         for (long i = 0; i < NUM_USERS; i++) {
-            this.users_per_item_count.put((long)randomNumItems.nextInt());
+            this.users_per_item_count.put((long) randomNumItems.nextInt());
         } // FOR
         assertEquals(NUM_USERS, this.users_per_item_count.getSampleCount());
-	}
+    }
 
     /**
      * testCheckClient
@@ -102,18 +101,18 @@ public class TestUserIdGenerator extends TestCase {
         } // FOR
     }
 
-	/**
-	 * testSeekToPosition
-	 */
-	public void testSeekToPosition() throws Exception {
-	    UserIdGenerator generator = new UserIdGenerator(users_per_item_count, 1);
-	    final int num_users = (int)(generator.getTotalUsers()-1);
+    /**
+     * testSeekToPosition
+     */
+    public void testSeekToPosition() throws Exception {
+        UserIdGenerator generator = new UserIdGenerator(users_per_item_count, 1);
+        final int num_users = (int) (generator.getTotalUsers() - 1);
 
-	    int itemCount = rand.nextInt(users_per_item_count.getMaxValue().intValue()-1);
-	    generator.setCurrentItemCount(itemCount);
+        int itemCount = rand.nextInt(users_per_item_count.getMaxValue().intValue() - 1);
+        generator.setCurrentItemCount(itemCount);
 //	    System.err.println("itemCount = " + itemCount);
 
-	    int cur_position = generator.getCurrentPosition();
+        int cur_position = generator.getCurrentPosition();
         int new_position = rand.number(cur_position, num_users);
 //        System.err.println(users_per_item_count);
 //        System.err.println("cur_position = " + cur_position);
@@ -131,7 +130,7 @@ public class TestUserIdGenerator extends TestCase {
         assertNotNull(user_id);
 //        System.err.println(user_id);
         assertEquals(expected, user_id);
-	}
+    }
 
     /**
      * testSeekToPositionSameUserId
@@ -139,7 +138,7 @@ public class TestUserIdGenerator extends TestCase {
     public void testSeekToPositionClientId() throws Exception {
         int num_clients = 10;
         UserIdGenerator generator = new UserIdGenerator(users_per_item_count, num_clients);
-        final int num_users = (int)(generator.getTotalUsers()-1);
+        final int num_users = (int) (generator.getTotalUsers() - 1);
 
         Map<Integer, UserId> expectedIds = new TreeMap<Integer, UserId>();
         while (generator.hasNext()) {
@@ -173,67 +172,67 @@ public class TestUserIdGenerator extends TestCase {
 
     }
 
-	/**
-	 * testAllUsers
-	 */
-	public void testAllUsers() throws Exception {
-	    UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS);
-	    Set<UserId> seen = new HashSet<UserId>();
-	    assert(generator.hasNext());
-	    for (UserId u_id : CollectionUtil.iterable(generator)) {
-	        assertNotNull(u_id);
-	        assert(seen.contains(u_id) == false) : "Duplicate " + u_id;
-	        seen.add(u_id);
+    /**
+     * testAllUsers
+     */
+    public void testAllUsers() throws Exception {
+        UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS);
+        Set<UserId> seen = new HashSet<UserId>();
+        assert (generator.hasNext());
+        for (UserId u_id : CollectionUtil.iterable(generator)) {
+            assertNotNull(u_id);
+            assert (seen.contains(u_id) == false) : "Duplicate " + u_id;
+            seen.add(u_id);
 //	        System.err.println(u_id);
-	    } // FOR
-	    assertEquals(NUM_USERS, seen.size());
-	}
+        } // FOR
+        assertEquals(NUM_USERS, seen.size());
+    }
 
-	/**
-	 * testPerClient
-	 */
-	public void testPerClient() throws Exception {
-	    Histogram<Integer> clients_h = new Histogram<Integer>();
-	    Set<UserId> all_seen = new HashSet<UserId>();
-	    for (int client = 0; client < NUM_CLIENTS; client++) {
-    	    UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS, client);
+    /**
+     * testPerClient
+     */
+    public void testPerClient() throws Exception {
+        Histogram<Integer> clients_h = new Histogram<Integer>();
+        Set<UserId> all_seen = new HashSet<UserId>();
+        for (int client = 0; client < NUM_CLIENTS; client++) {
+            UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS, client);
             Set<UserId> seen = new HashSet<UserId>();
-            assert(generator.hasNext());
+            assert (generator.hasNext());
             for (UserId u_id : CollectionUtil.iterable(generator)) {
                 assertNotNull(u_id);
-                assert(seen.contains(u_id) == false) : "Duplicate " + u_id;
-                assert(all_seen.contains(u_id) == false) : "Duplicate " + u_id;
+                assert (seen.contains(u_id) == false) : "Duplicate " + u_id;
+                assert (all_seen.contains(u_id) == false) : "Duplicate " + u_id;
                 seen.add(u_id);
                 all_seen.add(u_id);
             } // FOR
-            assertThat(Integer.toString(client), NUM_USERS, not(equalTo(seen.size())));
+            assertNotSame(Integer.toString(client), NUM_USERS, seen.size());
             assertFalse(Integer.toString(client), seen.isEmpty());
             clients_h.put(client, seen.size());
-	    } // FOR
-	    assertEquals(NUM_USERS, all_seen.size());
+        } // FOR
+        assertEquals(NUM_USERS, all_seen.size());
 
-	    // Make sure that they all have the same number of UserIds
-	    Integer last_cnt = null;
-	    for (Integer client : clients_h.values()) {
-	        if (last_cnt != null) {
-	            assertEquals(client.toString(), last_cnt, clients_h.get(client));
-	        }
-	        last_cnt = clients_h.get(client);
-	    } // FOR
+        // Make sure that they all have the same number of UserIds
+        Integer last_cnt = null;
+        for (Integer client : clients_h.values()) {
+            if (last_cnt != null) {
+                assertEquals(client.toString(), last_cnt, clients_h.get(client));
+            }
+            last_cnt = clients_h.get(client);
+        } // FOR
 //	    System.err.println(clients_h);
-	}
+    }
 
     /**
      * testSingleClient
      */
-	public void testSingleClient() throws Exception {
+    public void testSingleClient() throws Exception {
         // First create a UserIdGenerator for all clients and get
         // the set of all the UserIds that we expect
         UserIdGenerator generator = new UserIdGenerator(users_per_item_count, 1);
         Set<UserId> expected = new HashSet<UserId>();
         for (UserId u_id : CollectionUtil.iterable(generator)) {
             assertNotNull(u_id);
-            assert(expected.contains(u_id) == false) : "Duplicate " + u_id;
+            assert (expected.contains(u_id) == false) : "Duplicate " + u_id;
             expected.add(u_id);
         } // FOR
 
@@ -243,38 +242,38 @@ public class TestUserIdGenerator extends TestCase {
         generator = new UserIdGenerator(users_per_item_count, 1, 0);
         for (UserId u_id : CollectionUtil.iterable(generator)) {
             assertNotNull(u_id);
-            assert(actual.contains(u_id) == false) : "Duplicate " + u_id;
-            assert(expected.contains(u_id)) : "Unexpected " + u_id;
+            assert (actual.contains(u_id) == false) : "Duplicate " + u_id;
+            assert (expected.contains(u_id)) : "Unexpected " + u_id;
             actual.add(u_id);
         } // FOR
         assertEquals(expected.size(), actual.size());
     }
 
-	/**
-	 * testSetCurrentSize
-	 */
-	public void testSetCurrentSize() throws Exception {
-	    // First create a UserIdGenerator for a random ClientId and populate
-	    // the set of all the UserIds that we expect for this client
-	    Random rand = new Random();
-	    int client = rand.nextInt(NUM_CLIENTS);
-	    UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS, client);
-	    Set<UserId> seen = new HashSet<UserId>();
-	    for (UserId u_id : CollectionUtil.iterable(generator)) {
+    /**
+     * testSetCurrentSize
+     */
+    public void testSetCurrentSize() throws Exception {
+        // First create a UserIdGenerator for a random ClientId and populate
+        // the set of all the UserIds that we expect for this client
+        Random rand = new Random();
+        int client = rand.nextInt(NUM_CLIENTS);
+        UserIdGenerator generator = new UserIdGenerator(users_per_item_count, NUM_CLIENTS, client);
+        Set<UserId> seen = new HashSet<UserId>();
+        for (UserId u_id : CollectionUtil.iterable(generator)) {
             assertNotNull(u_id);
-            assert(seen.contains(u_id) == false) : "Duplicate " + u_id;
+            assert (seen.contains(u_id) == false) : "Duplicate " + u_id;
             seen.add(u_id);
         } // FOR
 
-	    // Now make sure that we always get back the same UserIds regardless of where
+        // Now make sure that we always get back the same UserIds regardless of where
         // we jump around with using setCurrentSize()
-	    for (int i = 0; i < 10; i++) {
-	        int size = rand.nextInt((int)(users_per_item_count.getMaxValue()+1));
-	        generator.setCurrentItemCount(size);
-	        for (UserId u_id : CollectionUtil.iterable(generator)) {
-	            assertNotNull(u_id);
-	            assert(seen.contains(u_id)) : "Unexpected " + u_id;
-	        } // FOR
-	    } // FOR
-	}
+        for (int i = 0; i < 10; i++) {
+            int size = rand.nextInt((int) (users_per_item_count.getMaxValue() + 1));
+            generator.setCurrentItemCount(size);
+            for (UserId u_id : CollectionUtil.iterable(generator)) {
+                assertNotNull(u_id);
+                assert (seen.contains(u_id)) : "Unexpected " + u_id;
+            } // FOR
+        } // FOR
+    }
 }

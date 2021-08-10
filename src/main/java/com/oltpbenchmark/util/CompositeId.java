@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Pack multiple values into a single long using bit-shifting
@@ -50,9 +51,16 @@ public abstract class CompositeId implements JSONSerializable {
         for (int i = 0; i < values.length; i++) {
             long max_value = offset_pows[i];
 
-            assert (values[i] < max_value) :
-                    String.format("%s value at position %d is %d. Max value is %d\n%s",
-                            this.getClass().getSimpleName(), i, values[i], max_value, this);
+            if (values[i] < 0) {
+                throw new IllegalArgumentException(String.format("%s value at position %d is %d %s",
+                        this.getClass().getSimpleName(), i,
+                        values[i], Arrays.toString(values)));
+            }
+            if (values[i] >= max_value) {
+                throw new IllegalArgumentException(String.format("%s value at position %d is %d. Max value is %d\n",
+                        this.getClass().getSimpleName(), i,
+                        values[i], max_value));
+            }
 
             id = (i == 0 ? values[i] : id | values[i] << offset);
             offset += offset_bits[i];

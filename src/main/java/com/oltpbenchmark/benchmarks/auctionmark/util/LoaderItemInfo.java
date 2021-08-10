@@ -35,7 +35,7 @@ public class LoaderItemInfo extends ItemInfo {
     private short numImages;
     private short numAttributes;
     private short numComments;
-    private short numWatches;
+    private int numWatches;
     private Timestamp startDate;
     private Timestamp purchaseDate;
     private float initialPrice;
@@ -78,11 +78,11 @@ public class LoaderItemInfo extends ItemInfo {
         this.numComments = numComments;
     }
 
-    public short getNumWatches() {
+    public int getNumWatches() {
         return numWatches;
     }
 
-    public void setNumWatches(short numWatches) {
+    public void setNumWatches(int numWatches) {
         this.numWatches = numWatches;
     }
 
