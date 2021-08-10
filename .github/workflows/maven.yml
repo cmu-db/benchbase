@@ -17,7 +17,7 @@ on:
     branches: [ main ]
 
 env:
-  POM_VERSION: 2021
+  POM_VERSION: 2021-SNAPSHOT
 
 jobs:
   build-and-upload:
