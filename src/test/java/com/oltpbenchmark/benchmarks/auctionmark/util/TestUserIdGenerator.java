@@ -206,7 +206,7 @@ public class TestUserIdGenerator extends TestCase {
                 seen.add(u_id);
                 all_seen.add(u_id);
             } // FOR
-            assertThat(Integer.toString(client), NUM_USERS, not(equalTo(seen.size())));
+            assertNotSame(Integer.toString(client), NUM_USERS, seen.size());
             assertFalse(Integer.toString(client), seen.isEmpty());
             clients_h.put(client, seen.size());
 	    } // FOR
