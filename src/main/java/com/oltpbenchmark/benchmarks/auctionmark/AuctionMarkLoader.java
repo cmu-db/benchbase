@@ -606,7 +606,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
         private final LinkedBlockingDeque<T> queue = new LinkedBlockingDeque<>();
         private T current;
-        private short currentCounter;
+        private int currentCounter;
         private boolean stop = false;
         private final String sourceTableName;
 
@@ -615,9 +615,9 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.sourceTableName = sourceTableName;
         }
 
-        protected abstract short getElementCounter(T t);
+        protected abstract int getElementCounter(T t);
 
-        protected abstract int populateRow(T t, Object[] row, short remaining);
+        protected abstract int populateRow(T t, Object[] row, int remaining);
 
         public void stopWhenEmpty() {
             if (LOG.isDebugEnabled()) {
@@ -962,12 +962,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        protected short getElementCounter(UserId user_id) {
-            return (short) (randomNumUserAttributes.nextInt());
+        protected int getElementCounter(UserId user_id) {
+            return randomNumUserAttributes.nextInt();
         }
 
         @Override
-        protected int populateRow(UserId user_id, Object[] row, short remaining) {
+        protected int populateRow(UserId user_id, Object[] row, int remaining) {
             int col = 0;
 
             // UA_ID
@@ -1000,8 +1000,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        protected short getElementCounter(UserId user_id) {
-            return (short) (user_id.getItemCount());
+        protected int getElementCounter(UserId user_id) {
+            return user_id.getItemCount();
         }
 
         @Override
@@ -1014,7 +1014,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        protected int populateRow(UserId seller_id, Object[] row, short remaining) {
+        protected int populateRow(UserId seller_id, Object[] row, int remaining) {
             int col = 0;
 
             ItemId itemId = new ItemId(seller_id, remaining);
@@ -1035,8 +1035,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
 
             // Calculate the number of bids and watches for this item
-            short numBids = (short) p.first.nextInt();
-            short numWatches = (short) p.second.nextInt();
+            int numBids = p.first.nextInt();
+            int numWatches = p.second.nextInt();
 
             // Create the ItemInfo object that we will use to cache the local data
 
@@ -1139,12 +1139,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
+        public int getElementCounter(LoaderItemInfo itemInfo) {
             return itemInfo.getNumImages();
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
 
             // II_ID
@@ -1168,12 +1168,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
+        public int getElementCounter(LoaderItemInfo itemInfo) {
             return itemInfo.getNumAttributes();
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
             GlobalAttributeValueId gav_id = profile.getRandomGlobalAttributeValue();
 
@@ -1203,12 +1203,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
-            return (itemInfo.getPurchaseDate() != null ? itemInfo.getNumComments() : 0);
+        public int getElementCounter(LoaderItemInfo itemInfo) {
+            return itemInfo.getPurchaseDate() != null ? itemInfo.getNumComments() : 0;
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
 
             // IC_ID
@@ -1254,12 +1254,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
-            return ((short) itemInfo.getNumBids());
+        public int getElementCounter(LoaderItemInfo itemInfo) {
+            return ((int) itemInfo.getNumBids());
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
 
 
@@ -1354,12 +1354,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
-            return (short) (itemInfo.getBidCount() > 0 ? 1 : 0);
+        public int getElementCounter(LoaderItemInfo itemInfo) {
+            return itemInfo.getBidCount() > 0 ? 1 : 0;
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
             LoaderItemInfo.Bid bid = itemInfo.getLastBid();
 
@@ -1393,12 +1393,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
-            return (short) (itemInfo.getBidCount() > 0 && itemInfo.getPurchaseDate() != null ? 1 : 0);
+        public int getElementCounter(LoaderItemInfo itemInfo) {
+            return itemInfo.getBidCount() > 0 && itemInfo.getPurchaseDate() != null ? 1 : 0;
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
             LoaderItemInfo.Bid bid = itemInfo.getLastBid();
 
@@ -1438,12 +1438,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        protected short getElementCounter(LoaderItemInfo.Bid bid) {
-            return (short) ((bid.isBuyer_feedback() ? 1 : 0) + (bid.isSeller_feedback() ? 1 : 0));
+        protected int getElementCounter(LoaderItemInfo.Bid bid) {
+            return (bid.isBuyer_feedback() ? 1 : 0) + (bid.isSeller_feedback() ? 1 : 0);
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo.Bid bid, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo.Bid bid, Object[] row, int remaining) {
             int col = 0;
 
             boolean is_buyer = false;
@@ -1482,12 +1482,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
-            return (short) (itemInfo.getBidCount() > 0 && itemInfo.getPurchaseDate() != null ? 1 : 0);
+        public int getElementCounter(LoaderItemInfo itemInfo) {
+            return itemInfo.getBidCount() > 0 && itemInfo.getPurchaseDate() != null ? 1 : 0;
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
             LoaderItemInfo.Bid bid = itemInfo.getLastBid();
 
@@ -1525,12 +1525,12 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         }
 
         @Override
-        public short getElementCounter(LoaderItemInfo itemInfo) {
-            return (itemInfo.getNumWatches());
+        public int getElementCounter(LoaderItemInfo itemInfo) {
+            return itemInfo.getNumWatches();
         }
 
         @Override
-        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, short remaining) {
+        protected int populateRow(LoaderItemInfo itemInfo, Object[] row, int remaining) {
             int col = 0;
 
             // Make it more likely that a user that has bid on an item is watching it

@@ -32,7 +32,7 @@ import java.util.Objects;
 public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
-            40, // SELLER_ID
+            44, // SELLER_ID
             16, // ITEM_CTR
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
