@@ -5,7 +5,7 @@
 
     <groupId>com.oltpbenchmark</groupId>
     <artifactId>benchbase</artifactId>
-    <version>2021-SNAPSHOT</version>
+    <version>2021</version>
     <name>BenchBase</name>
     <description>BenchBase is a Multi-DBMS SQL Benchmarking Framework via JDBC https://github.com/cmu-db/benchbase</description>
     <url>https://github.com/cmu-db/benchbase</url>
@@ -21,7 +21,7 @@
         <connection>scm:git:git@github.com:cmu-db/benchbase.git</connection>
         <url>https://github.com/cmu-db/benchbase</url>
         <developerConnection>scm:git:git@github.com:cmu-db/benchbase.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v2021</tag>
     </scm>
 
     <distributionManagement>
