@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="GetReviewsByUser">
+            <statement name="getReviewUser">
+                SELECT * FROM review r, useracct u WHERE u.u_id = r.u_id AND r.u_id=?
+                ORDER BY rating LIMIT 10
+            </statement>
+        </procedure>
+        <procedure name="UpdateUserName">
+            <statement name="updateUser">
+                UPDATE useracct SET name = ? WHERE u_id=?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

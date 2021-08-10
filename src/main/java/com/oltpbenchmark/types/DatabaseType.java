@@ -29,11 +29,24 @@ import java.util.Map;
  */
 public enum DatabaseType {
 
+    AMAZONRDS(true, false),
+    CASSANDRA(true, true),
+    COCKROACHDB(false, false),
+    DB2(true, false),
+    H2(true, false),
     HSQLDB(false, false),
-    NOISEPAGE(false, false),
-    MYSQL(true, false),
     POSTGRES(false, false),
-    COCKROACHDB(false, false);
+    MONETDB(false, false),
+    MYROCKS(true, false),
+    MYSQL(true, false),
+    NOISEPAGE(false, false),
+    NUODB(true, false),
+    ORACLE(true, false),
+    SINGLESTORE(true, false),
+    SQLAZURE(true, false),
+    SQLITE(true, false),
+    SQLSERVER(true, false),
+    TIMESTEN(true, false);
 
     DatabaseType(boolean escapeNames, boolean includeColNames) {
         this.escapeNames = escapeNames;
@@ -58,16 +71,16 @@ public enum DatabaseType {
     // ----------------------------------------------------------------
 
     /**
-     * @return  True if the framework should escape the names of columns/tables when
-     *          generating SQL to load in data for the target database type.
+     * @return True if the framework should escape the names of columns/tables when
+     * generating SQL to load in data for the target database type.
      */
     public boolean shouldEscapeNames() {
         return (this.escapeNames);
     }
 
     /**
-     * @return  True if the framework should include the names of columns when
-     *          generating SQL to load in data for the target database type.
+     * @return True if the framework should include the names of columns when
+     * generating SQL to load in data for the target database type.
      */
     public boolean shouldIncludeColumnNames() {
         return (this.includeColNames);

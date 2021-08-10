@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="AddWatchList">
+            <statement name="insertWatchList">
+                INSERT INTO [watchlist] (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL) 
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE [useracct] SET user_touched = ? WHERE user_id =  ?
+            </statement>
+        </procedure>
+        <procedure name="RemoveWatchList">
+            <statement name="removeWatchList">
+                DELETE FROM [watchlist] WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
+            </statement>
+            <statement name="setUserTouched">
+                UPDATE [useracct] SET user_touched = ? WHERE user_id =  ? 
+            </statement>
+        </procedure>
+        <procedure name="GetPageAnonymous">
+            <statement name="selectPage">
+                SELECT TOP 1 * FROM page WHERE page_namespace = ? AND page_title = ?
+            </statement>
+            <statement name="selectPageRevision">
+                SELECT TOP 1 * FROM page,revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest)
+            </statement>
+            <statement name="selectText">
+                SELECT TOP 1 old_text,old_flags FROM text WHERE old_id = ?
+            </statement>
+        </procedure>
+        <procedure name="UpdatePage">
+            <statement name="selectUser">
+                SELECT  *  FROM [useracct]  WHERE user_id = ?
+            </statement>
+            <statement name="updateUserEdit">
+                UPDATE [useracct] SET user_editcount=user_editcount+1 WHERE user_id = ?
+            </statement>
+            <statement name="updateUserTouched">
+                UPDATE  [useracct] SET user_touched = ? WHERE user_id = ?
+            </statement>
+        </procedure>
+        <procedure name="GetPageAuthenticated">
+            <statement name="selectUser">
+                SELECT TOP 1  *  FROM [useracct]  WHERE user_id = ?
+            </statement>
+            <statement name="selectPage">
+                SELECT TOP 1 * FROM page WHERE page_namespace = ? AND page_title = ?
+            </statement>
+            <statement name="selectPageRevision">
+                SELECT TOP 1 * FROM page, revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest)
+            </statement>
+            <statement name="selectText">
+                SELECT TOP 1 old_text,old_flags FROM text WHERE old_id = ?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
