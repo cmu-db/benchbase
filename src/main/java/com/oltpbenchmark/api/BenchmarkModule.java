@@ -232,8 +232,8 @@ public abstract class BenchmarkModule {
                 throwables.printStackTrace();
             }
         }
-        try {
-            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), dataSource.getConnection());
+        try (Connection conn = dataSource.getConnection()) {
+            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), conn);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
