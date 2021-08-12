@@ -294,7 +294,7 @@ public class SEATSProfile {
             LoadConfig proc = worker.getProcedure(LoadConfig.class);
 
             Config results;
-            try (Connection conn = benchmark.getConnection()) {
+            try (Connection conn = benchmark.makeConnection()) {
                 results = proc.run(conn);
             }
             // CONFIG_PROFILE

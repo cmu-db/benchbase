@@ -48,6 +48,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     private final int id;
     private final T benchmarkModule;
+    protected final Connection conn;
     protected final WorkloadConfiguration configuration;
     protected final TransactionTypes transactionTypes;
     protected final Map<TransactionType, Procedure> procedures = new HashMap<>();
@@ -70,6 +71,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.state = this.configuration.getWorkloadState();
         this.currStatement = null;
         this.transactionTypes = this.configuration.getTransTypes();
+
+        try {
+            this.conn = this.benchmarkModule.makeConnection();
+            this.conn.setAutoCommit(false);
+            this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to connect to database", ex);
+        }
 
         // Generate all the Procedures that we're going to need
         this.procedures.putAll(this.benchmarkModule.getProcedures());
@@ -152,6 +161,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     public final Histogram<TransactionType> getTransactionErrorHistogram() {
         return (this.txnErrors);
     }
+
     public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
         return (this.txtRetryDifffernt);
     }
@@ -327,27 +337,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @param pieceOfWork
      */
     protected final TransactionType doWork(SubmittedProcedure pieceOfWork) {
-
         final DatabaseType type = configuration.getDatabaseType();
         final TransactionType transactionType = transactionTypes.getType(pieceOfWork.getType());
 
-        final int isolationMode = this.configuration.getIsolationMode();
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("desired transaction isolation mode = {}", isolationMode);
-        }
-        try (Connection conn = benchmarkModule.getConnection()) {
-
-
-            if (!conn.getAutoCommit()) {
-                LOG.warn("autocommit is already false at beginning of work.  this is a problem");
-            }
-
-            conn.setAutoCommit(false);
-            conn.setTransactionIsolation(isolationMode);
-
+        try {
             int retryCount = 0;
-
             int maxRetryCount = configuration.getMaxRetries();
 
             while (retryCount < maxRetryCount && this.state.getGlobalState() != State.DONE) {
@@ -425,13 +419,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 }
 
             }
-
-            if (conn.getAutoCommit()) {
-                LOG.warn("autocommit is already true at end of work.  this is a problem");
-            }
-
-            conn.setAutoCommit(true);
-
         } catch (SQLException ex) {
             String msg = String.format("Unexpected SQLException in '%s' when executing '%s' on [%s]", this, transactionType, type.name());
 
@@ -499,7 +486,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * @param error TODO
      */
     public void tearDown(boolean error) {
-
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            LOG.warn("Connection couldn't be closed. Error:");
+            e.printStackTrace();
+        }
     }
 
     public void initializeState() {

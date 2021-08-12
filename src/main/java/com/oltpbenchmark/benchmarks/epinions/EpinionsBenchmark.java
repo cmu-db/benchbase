@@ -67,7 +67,7 @@ public class EpinionsBenchmark extends BenchmarkModule {
             ArrayList<String> item_ids = new ArrayList<>();
             String userCount = SQLUtil.selectColValues(databaseType, t, "u_id");
 
-            try (Connection metaConn = this.getConnection()) {
+            try (Connection metaConn = this.makeConnection()) {
                 try (Statement stmt = metaConn.createStatement()) {
                     try (ResultSet res = stmt.executeQuery(userCount)) {
                         while (res.next()) {

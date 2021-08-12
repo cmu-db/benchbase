@@ -55,7 +55,7 @@ public class YCSBBenchmark extends BenchmarkModule {
 
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDatabaseType(), t, "ycsb_key");
 
-            try (Connection metaConn = this.getConnection();
+            try (Connection metaConn = this.makeConnection();
                  Statement stmt = metaConn.createStatement();
                  ResultSet res = stmt.executeQuery(userCount)) {
                 int init_record_count = 0;

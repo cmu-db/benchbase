@@ -122,7 +122,6 @@ public class DBWorkload {
             wrkld.setUsername(xmlConfig.getString("username"));
             wrkld.setPassword(xmlConfig.getString("password"));
             wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
-            wrkld.setPoolSize(xmlConfig.getInt("poolsize", 12));
             wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
@@ -164,7 +163,6 @@ public class DBWorkload {
             initDebug.put("Type", wrkld.getDatabaseType());
             initDebug.put("Driver", wrkld.getDriverClass());
             initDebug.put("URL", wrkld.getUrl());
-            initDebug.put("Pool Size", wrkld.getPoolSize());
             initDebug.put("Isolation", wrkld.getIsolationString());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
 
