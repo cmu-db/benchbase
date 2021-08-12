@@ -36,7 +36,6 @@ public class WorkloadConfiguration {
     private String username;
     private String password;
     private String driverClass;
-    private int poolSize;
     private int batchSize;
     private int maxRetries;
     private double scaleFactor = 1.0;
@@ -101,14 +100,6 @@ public class WorkloadConfiguration {
 
     public void setDriverClass(String driverClass) {
         this.driverClass = driverClass;
-    }
-
-    public int getPoolSize() {
-        return poolSize;
-    }
-
-    public void setPoolSize(int poolSize) {
-        this.poolSize = poolSize;
     }
 
     public int getBatchSize() {
@@ -293,7 +284,6 @@ public class WorkloadConfiguration {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", driverClass='" + driverClass + '\'' +
-                ", poolSize=" + poolSize +
                 ", batchSize=" + batchSize +
                 ", maxRetries=" + maxRetries +
                 ", scaleFactor=" + scaleFactor +

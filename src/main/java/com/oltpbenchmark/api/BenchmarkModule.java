@@ -42,8 +42,6 @@ import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -81,34 +80,23 @@ public abstract class BenchmarkModule {
      */
     private final Random rng = new Random();
 
-    private final HikariDataSource dataSource;
-
     private AbstractCatalog catalog = null;
 
     public BenchmarkModule(WorkloadConfiguration workConf) {
-
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
-
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(workConf.getUrl());
-        config.setUsername(workConf.getUsername());
-        config.setPassword(workConf.getPassword());
-        config.setMaximumPoolSize(workConf.getPoolSize());
-
-        dataSource = new HikariDataSource(config);
     }
 
     // --------------------------------------------------------------------------
     // DATABASE CONNECTION
     // --------------------------------------------------------------------------
 
-    /**
-     * @return
-     * @throws SQLException
-     */
-    public final Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+    public final Connection makeConnection() throws SQLException {
+        Connection conn = DriverManager.getConnection(
+                workConf.getUrl(),
+                workConf.getUsername(),
+                workConf.getPassword());
+        return conn;
     }
 
     // --------------------------------------------------------------------------
@@ -232,7 +220,7 @@ public abstract class BenchmarkModule {
                 throwables.printStackTrace();
             }
         }
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = this.makeConnection()) {
             this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), conn);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -245,7 +233,7 @@ public abstract class BenchmarkModule {
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
     public final void createDatabase() {
-        try (Connection conn = this.getConnection()) {
+        try (Connection conn = this.makeConnection()) {
             this.createDatabase(this.workConf.getDatabaseType(), conn);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -315,7 +303,7 @@ public abstract class BenchmarkModule {
 
     public final void clearDatabase() {
 
-        try (Connection conn = this.getConnection()) {
+        try (Connection conn = this.makeConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);

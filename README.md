@@ -202,7 +202,6 @@ A significant portion of the modernization was contributed by [Tim Veil @ Cockro
 * Removed various forms of dead code and stale configurations.
 * Removed calls to `commit()` during `Loader` operations.
 * Refactored `Worker` and `Loader` usage of `Connection` objects and cleaned up transaction handling.
-* Introduced `HikariCP` as connection pool and `DataSource` instead of building connections from `DriverManager` as needed (default `poolsize` is 12).
 * Introduced [Dependabot](https://dependabot.com/) to keep Maven dependencies up to date.
 * Simplified output flags by removing most of them, generally leaving the reporting functionality enabled by default.
 * Provided an alternate `Catalog` that can be populated directly from the configured Benchmark database. The old catalog was proxied through `HSQLDB` -- this remains an option for DBMSes that may have incomplete catalog support.

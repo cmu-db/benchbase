@@ -336,7 +336,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         if (LOG.isDebugEnabled()) {
             LOG.debug("desired transaction isolation mode = {}", isolationMode);
         }
-        try (Connection conn = benchmarkModule.getConnection()) {
+        try (Connection conn = benchmarkModule.makeConnection()) {
 
 
             if (!conn.getAutoCommit()) {

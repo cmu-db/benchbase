@@ -342,7 +342,7 @@ public class AuctionMarkProfile {
 
                 // Otherwise we have to go fetch everything again
                 // So first we want to reset the database
-                try (Connection conn = benchmark.getConnection()) {
+                try (Connection conn = benchmark.makeConnection()) {
 
                     if (AuctionMarkConstants.RESET_DATABASE_ENABLE) {
                         if (LOG.isDebugEnabled()) {
@@ -360,7 +360,7 @@ public class AuctionMarkProfile {
                 }
 
                 Config results;
-                try (Connection conn = benchmark.getConnection()) {
+                try (Connection conn = benchmark.makeConnection()) {
                     results = worker.getProcedure(LoadConfig.class).run(conn);
                 }
 
