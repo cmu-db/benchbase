@@ -302,7 +302,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // changed, otherwise we're recording results for a query
                     // that either started during the warmup phase or ended
                     // after the timer went off.
-                    if (preState == State.MEASURE && type != null && this.state.getCurrentPhase().getId() == phase.getId()) {
+                    if (preState == State.MEASURE && type != null && this.state.getCurrentPhase() != null && this.state.getCurrentPhase().getId() == phase.getId()) {
                         latencies.addLatency(type.getId(), start, end, this.id, phase.getId());
                         intervalRequests.incrementAndGet();
                     }
@@ -381,7 +381,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     conn.rollback();
 
                     if (isRetryable(ex)) {
-                        LOG.warn(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
+                        LOG.debug(String.format("Retryable SQLException occurred during [%s]... current retry attempt [%d], max retry attempts [%d], sql state [%s], error code [%d].", transactionType, retryCount, maxRetryCount, ex.getSQLState(), ex.getErrorCode()), ex);
 
                         status = TransactionStatus.RETRY;
 
