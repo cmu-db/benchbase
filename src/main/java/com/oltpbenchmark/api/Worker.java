@@ -198,7 +198,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         // wait for start
         state.blockForStart();
         State preState, postState;
-        Phase phase;
+        Phase phase, postPhase;
 
         TransactionType invalidTT = TransactionType.INVALID;
 
@@ -294,6 +294,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             long end = System.nanoTime();
             postState = state.getGlobalState();
+            postPhase = state.getCurrentPhase();
 
             switch (postState) {
                 case MEASURE:
@@ -302,7 +303,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // changed, otherwise we're recording results for a query
                     // that either started during the warmup phase or ended
                     // after the timer went off.
-                    if (preState == State.MEASURE && type != null && this.state.getCurrentPhase() != null && this.state.getCurrentPhase().getId() == phase.getId()) {
+                    if (preState == State.MEASURE && type != null && phase != null && postPhase != null && postPhase.getId() == phase.getId()) {
                         latencies.addLatency(type.getId(), start, end, this.id, phase.getId());
                         intervalRequests.incrementAndGet();
                     }
