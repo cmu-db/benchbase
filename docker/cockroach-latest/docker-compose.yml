@@ -46,6 +46,6 @@ services:
     environment:
       - COCKROACH_HOST=lb:26257
       - COCKROACH_INSECURE=true
-      - DATABASE_NAME=oltpbench
+      - DATABASE_NAME=benchbase
     depends_on:
       - lb

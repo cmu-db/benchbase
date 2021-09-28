@@ -10,7 +10,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_ROOT_HOST: "%"
-      MYSQL_DATABASE: oltpbench
+      MYSQL_DATABASE: benchbase
     ports:
       - "3306:3306"
 
