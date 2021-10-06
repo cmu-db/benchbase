@@ -248,7 +248,7 @@ public abstract class BenchmarkModule {
     public final void createDatabase(DatabaseType dbType, Connection conn) {
         try {
             String ddlPath = this.getDatabaseDDLPath(dbType);
-            ScriptRunner runner = new ScriptRunner(conn, false, true);
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
