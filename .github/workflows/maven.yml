@@ -46,345 +46,344 @@ jobs:
         name: benchbase.tgz
         path: target/benchbase.tgz
 
-  mysql-job:
-    runs-on: ubuntu-latest
-    services:
-      mysql: # https://hub.docker.com/_/mysql
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: rootyMcRooty
-          MYSQL_DATABASE: benchbase
-          MYSQL_USER: admin
-          MYSQL_PASSWORD: password
-        options: >-
-          --health-cmd "mysqladmin ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 3306:3306
-    steps:
-      - name: Checkout repo.
-        uses: actions/checkout@v2
-      - name: Setup JDK 11.
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Build with Maven.
-        run: mvn -B package --file pom.xml
-      - name: Extract TGZ artifact in target/.
-        working-directory: target
-        run: |
-          tar xvzf benchbase-$POM_VERSION.tgz
-          mv benchbase-$POM_VERSION benchbase-extracted
-      - name: AuctionMark
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b auctionmark -c config/mysql/sample_auctionmark_config.xml --create=true --load=true --execute=true
-      - name: CH-benCHmark
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
-          java -jar benchbase.jar -b chbenchmark -c config/mysql/sample_chbenchmark_config.xml --create=true --load=true --execute=true
-      - name: Epinions.com
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b epinions -c config/mysql/sample_epinions_config.xml --create=true --load=true --execute=true
-      - name: hyadapt
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b hyadapt -c config/mysql/sample_hyadapt_config.xml --create=true --load=true --execute=true
-      - name: noop
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b noop -c config/mysql/sample_noop_config.xml --create=true --load=true --execute=true
-      - name: Resource Stresser
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b resourcestresser -c config/mysql/sample_resourcestresser_config.xml --create=true --load=true --execute=true
-      - name: SEATS
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b seats -c config/mysql/sample_seats_config.xml --create=true --load=true --execute=true
-      - name: SIBench
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b sibench -c config/mysql/sample_sibench_config.xml --create=true --load=true --execute=true
-      - name: SmallBank
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b smallbank -c config/mysql/sample_smallbank_config.xml --create=true --load=true --execute=true
-      - name: TATP
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b tatp -c config/mysql/sample_tatp_config.xml --create=true --load=true --execute=true
-      - name: TPC-C
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=true
-      # TPC-DS does not have a sample configuration available right now.
-      # - name: TPC-DS
-      #   working-directory: target/benchbase-extracted
-      #   env:
-      #     MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-      #   run: |
-      #     mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-      #     java -jar benchbase.jar -b tpcds -c config/mysql/sample_tpcds_config.xml --create=true --load=true --execute=true
-      - name: TPC-H
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uroot -prootyMcRooty -e "SET GLOBAL local_infile=1"
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
-      - name: Twitter
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b twitter -c config/mysql/sample_twitter_config.xml --create=true --load=true --execute=true
-      - name: Voter
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b voter -c config/mysql/sample_voter_config.xml --create=true --load=true --execute=true
-      - name: Wikipedia
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b wikipedia -c config/mysql/sample_wikipedia_config.xml --create=true --load=true --execute=true
-      - name: YCSB
-        working-directory: target/benchbase-extracted
-        env:
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          java -jar benchbase.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
-      - name: Aggregate result summaries.
-        if: ${{ github.event_name == 'pull_request_target' }}
-        working-directory: target/benchbase-extracted
-        run: |
-          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
-          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-          echo -n '<br>' >> $GITHUB_ENV
-          echo $SUMMARIES >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-      - name: Post aggregated result summaries as a comment.
-        if: ${{ github.event_name == 'pull_request_target' }}
-        uses: actions/github-script@v4
-        with:
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '${{ env.COMMENT_MESSAGE }}'
-            })
-
-  postgresql-job:
-    runs-on: ubuntu-latest
-    services:
-      postgres: # https://hub.docker.com/_/postgres
-        image: postgres:latest
-        env:
-          POSTGRES_DB: benchbase
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: password
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    steps:
-      - name: Checkout repo.
-        uses: actions/checkout@v2
-      - name: Setup JDK 11.
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - name: Build with Maven.
-        run: mvn -B package --file pom.xml
-      - name: Extract TGZ artifact in target/.
-        working-directory: target
-        run: |
-          tar xvzf benchbase-$POM_VERSION.tgz
-          mv benchbase-$POM_VERSION benchbase-extracted
-      - name: AuctionMark
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
-      - name: CH-benCHmark
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
-          java -jar benchbase.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
-      - name: Epinions.com
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
-      - name: hyadapt
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b hyadapt -c config/postgres/sample_hyadapt_config.xml --create=true --load=true --execute=true
-      - name: noop
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
-      - name: Resource Stresser
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b resourcestresser -c config/postgres/sample_resourcestresser_config.xml --create=true --load=true --execute=true
-      - name: SEATS
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b seats -c config/postgres/sample_seats_config.xml --create=true --load=true --execute=true
-      - name: SIBench
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b sibench -c config/postgres/sample_sibench_config.xml --create=true --load=true --execute=true
-      - name: SmallBank
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b smallbank -c config/postgres/sample_smallbank_config.xml --create=true --load=true --execute=true
-      - name: TATP
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b tatp -c config/postgres/sample_tatp_config.xml --create=true --load=true --execute=true
-      - name: TPC-C
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
-      # TPC-DS does not have a sample configuration available right now.
-      # - name: TPC-DS
-      #   working-directory: target/benchbase-extracted
-      #   run: |
-      #     PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-      #     PGPASSWORD=password createdb -h localhost -U admin benchbase
-      #     java -jar benchbase.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
-      - name: TPC-H
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
-      - name: Twitter
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b twitter -c config/postgres/sample_twitter_config.xml --create=true --load=true --execute=true
-      - name: Voter
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b voter -c config/postgres/sample_voter_config.xml --create=true --load=true --execute=true
-      - name: Wikipedia
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b wikipedia -c config/postgres/sample_wikipedia_config.xml --create=true --load=true --execute=true
-      - name: YCSB
-        working-directory: target/benchbase-extracted
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
-          java -jar benchbase.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
-      - name: Aggregate result summaries.
-        if: ${{ github.event_name == 'pull_request_target' }}
-        working-directory: target/benchbase-extracted
-        run: |
-          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
-          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
-          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
-          echo -n '<br>' >> $GITHUB_ENV
-          echo $SUMMARIES >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-      - name: Post aggregated result summaries as a comment.
-        if: ${{ github.event_name == 'pull_request_target' }}
-        uses: actions/github-script@v4
-        with:
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '${{ env.COMMENT_MESSAGE }}'
-            })
+#  mysql-job:
+#    runs-on: ubuntu-latest
+#    services:
+#      mysql: # https://hub.docker.com/_/mysql
+#        image: mysql:latest
+#        env:
+#          MYSQL_ROOT_PASSWORD: rootyMcRooty
+#          MYSQL_DATABASE: benchbase
+#          MYSQL_USER: admin
+#          MYSQL_PASSWORD: password
+#        options: >-
+#          --health-cmd "mysqladmin ping"
+#          --health-interval 10s
+#          --health-timeout 5s
+#          --health-retries 5
+#        ports:
+#          - 3306:3306
+#    steps:
+#      - name: Checkout repo.
+#        uses: actions/checkout@v2
+#      - name: Setup JDK 11.
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: 11
+#      - name: Build with Maven.
+#        run: mvn -B package --file pom.xml
+#      - name: Extract TGZ artifact in target/.
+#        working-directory: target
+#        run: |
+#          tar xvzf benchbase-$POM_VERSION.tgz
+#          mv benchbase-$POM_VERSION benchbase-extracted
+#      - name: AuctionMark
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b auctionmark -c config/mysql/sample_auctionmark_config.xml --create=true --load=true --execute=true
+#      - name: CH-benCHmark
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true
+#          java -jar benchbase.jar -b chbenchmark -c config/mysql/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+#      - name: Epinions.com
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b epinions -c config/mysql/sample_epinions_config.xml --create=true --load=true --execute=true
+#      - name: hyadapt
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b hyadapt -c config/mysql/sample_hyadapt_config.xml --create=true --load=true --execute=true
+#      - name: noop
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b noop -c config/mysql/sample_noop_config.xml --create=true --load=true --execute=true
+#      - name: Resource Stresser
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b resourcestresser -c config/mysql/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+#      - name: SEATS
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b seats -c config/mysql/sample_seats_config.xml --create=true --load=true --execute=true
+#      - name: SIBench
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b sibench -c config/mysql/sample_sibench_config.xml --create=true --load=true --execute=true
+#      - name: SmallBank
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b smallbank -c config/mysql/sample_smallbank_config.xml --create=true --load=true --execute=true
+#      - name: TATP
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b tatp -c config/mysql/sample_tatp_config.xml --create=true --load=true --execute=true
+#      - name: TPC-C
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b tpcc -c config/mysql/sample_tpcc_config.xml --create=true --load=true --execute=true
+#      # TPC-DS does not have a sample configuration available right now.
+#      # - name: TPC-DS
+#      #   working-directory: target/benchbase-extracted
+#      #   env:
+#      #     MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#      #   run: |
+#      #     mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#      #     java -jar benchbase.jar -b tpcds -c config/mysql/sample_tpcds_config.xml --create=true --load=true --execute=true
+#      - name: TPC-H
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uroot -prootyMcRooty -e "SET GLOBAL local_infile=1"
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b tpch -c config/mysql/sample_tpch_config.xml --create=true --load=true --execute=true
+#      - name: Twitter
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b twitter -c config/mysql/sample_twitter_config.xml --create=true --load=true --execute=true
+#      - name: Voter
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b voter -c config/mysql/sample_voter_config.xml --create=true --load=true --execute=true
+#      - name: Wikipedia
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b wikipedia -c config/mysql/sample_wikipedia_config.xml --create=true --load=true --execute=true
+#      - name: YCSB
+#        working-directory: target/benchbase-extracted
+#        env:
+#          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+#        run: |
+#          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+#          java -jar benchbase.jar -b ycsb -c config/mysql/sample_ycsb_config.xml --create=true --load=true --execute=true
+#      - name: Aggregate result summaries.
+#        if: ${{ github.event_name == 'pull_request_target' }}
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+#          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+#          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+#          echo -n '<br>' >> $GITHUB_ENV
+#          echo $SUMMARIES >> $GITHUB_ENV
+#          echo 'EOF' >> $GITHUB_ENV
+#      - name: Post aggregated result summaries as a comment.
+#        if: ${{ github.event_name == 'pull_request_target' }}
+#        uses: actions/github-script@v4
+#        with:
+#          script: |
+#            github.issues.createComment({
+#              issue_number: context.issue.number,
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              body: '${{ env.COMMENT_MESSAGE }}'
+#            })
+#
+#  postgresql-job:
+#    runs-on: ubuntu-latest
+#    services:
+#      postgres: # https://hub.docker.com/_/postgres
+#        image: postgres:latest
+#        env:
+#          POSTGRES_DB: benchbase
+#          POSTGRES_USER: admin
+#          POSTGRES_PASSWORD: password
+#        options: >-
+#          --health-cmd pg_isready
+#          --health-interval 10s
+#          --health-timeout 5s
+#          --health-retries 5
+#        ports:
+#          - 5432:5432
+#    steps:
+#      - name: Checkout repo.
+#        uses: actions/checkout@v2
+#      - name: Setup JDK 11.
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: 11
+#      - name: Build with Maven.
+#        run: mvn -B package --file pom.xml
+#      - name: Extract TGZ artifact in target/.
+#        working-directory: target
+#        run: |
+#          tar xvzf benchbase-$POM_VERSION.tgz
+#          mv benchbase-$POM_VERSION benchbase-extracted
+#      - name: AuctionMark
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b auctionmark -c config/postgres/sample_auctionmark_config.xml --create=true --load=true --execute=true
+#      - name: CH-benCHmark
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true
+#          java -jar benchbase.jar -b chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+#      - name: Epinions.com
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b epinions -c config/postgres/sample_epinions_config.xml --create=true --load=true --execute=true
+#      - name: hyadapt
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b hyadapt -c config/postgres/sample_hyadapt_config.xml --create=true --load=true --execute=true
+#      - name: noop
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
+#      - name: Resource Stresser
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b resourcestresser -c config/postgres/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+#      - name: SEATS
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b seats -c config/postgres/sample_seats_config.xml --create=true --load=true --execute=true
+#      - name: SIBench
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b sibench -c config/postgres/sample_sibench_config.xml --create=true --load=true --execute=true
+#      - name: SmallBank
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b smallbank -c config/postgres/sample_smallbank_config.xml --create=true --load=true --execute=true
+#      - name: TATP
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b tatp -c config/postgres/sample_tatp_config.xml --create=true --load=true --execute=true
+#      - name: TPC-C
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+#      # TPC-DS does not have a sample configuration available right now.
+#      # - name: TPC-DS
+#      #   working-directory: target/benchbase-extracted
+#      #   run: |
+#      #     PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#      #     PGPASSWORD=password createdb -h localhost -U admin benchbase
+#      #     java -jar benchbase.jar -b tpcds -c config/postgres/sample_tpcds_config.xml --create=true --load=true --execute=true
+#      - name: TPC-H
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b tpch -c config/postgres/sample_tpch_config.xml --create=true --load=true --execute=true
+#      - name: Twitter
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b twitter -c config/postgres/sample_twitter_config.xml --create=true --load=true --execute=true
+#      - name: Voter
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b voter -c config/postgres/sample_voter_config.xml --create=true --load=true --execute=true
+#      - name: Wikipedia
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b wikipedia -c config/postgres/sample_wikipedia_config.xml --create=true --load=true --execute=true
+#      - name: YCSB
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+#          PGPASSWORD=password createdb -h localhost -U admin benchbase
+#          java -jar benchbase.jar -b ycsb -c config/postgres/sample_ycsb_config.xml --create=true --load=true --execute=true
+#      - name: Aggregate result summaries.
+#        if: ${{ github.event_name == 'pull_request_target' }}
+#        working-directory: target/benchbase-extracted
+#        run: |
+#          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+#          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+#          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+#          echo -n '<br>' >> $GITHUB_ENV
+#          echo $SUMMARIES >> $GITHUB_ENV
+#          echo 'EOF' >> $GITHUB_ENV
+#      - name: Post aggregated result summaries as a comment.
+#        if: ${{ github.event_name == 'pull_request_target' }}
+#        uses: actions/github-script@v4
+#        with:
+#          script: |
+#            github.issues.createComment({
+#              issue_number: context.issue.number,
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              body: '${{ env.COMMENT_MESSAGE }}'
+#            })
 
   cockroachdb-job:
     runs-on: ubuntu-latest
     services:
       cockroach: # https://hub.docker.com/_/postgres
-        image: cockroach:latest
-        options: >-
-          start-single-node
-          --insecure
+        image: timveil/cockroachdb-single-node:latest
+        env:
+          DATABASE_NAME: benchbase
         ports:
           - 26257:26257
     steps:
@@ -396,7 +395,7 @@ jobs:
           java-version: 11
       - name: Build with Maven.
         run: mvn -B package --file pom.xml
-      - name: Extract TGZ artifact in target/.
+      - name: Extract TGZ artifact
         working-directory: target
         run: |
           tar xvzf benchbase-$POM_VERSION.tgz
@@ -465,8 +464,6 @@ jobs:
       - name: TPC-C
         working-directory: target/benchbase-extracted
         run: |
-          cockroach sql --insecure --execute="drop database if exists benchbase cascade"
-          cockroach sql --insecure --execute="CREATE database if not exists benchbase"
           java -jar benchbase.jar -b tpcc -c config/cockroachdb/sample_tpcc_config.xml --create=true --load=true --execute=true
       # TPC-DS does not have a sample configuration available right now.
       # - name: TPC-DS
