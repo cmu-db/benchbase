@@ -1,4 +1,3 @@
-drop table usertable;
 CREATE TABLE usertable (
     ycsb_key INT64,
     field1   STRING(MAX),
