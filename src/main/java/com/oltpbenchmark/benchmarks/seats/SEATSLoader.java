@@ -622,7 +622,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 row_idx++;
 
                 if (++row_batch >= batch_size) {
-                    LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName().toLowerCase(), row_idx));
+                    LOG.trace(String.format("Loading %s batch [total=%d]", catalog_tbl.getName().toLowerCase(), row_idx));
                     insert_stmt.executeBatch();
                     insert_stmt.clearBatch();
                     row_batch = 0;
