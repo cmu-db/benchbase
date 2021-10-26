@@ -423,7 +423,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @SuppressWarnings("unchecked")
         public void releaseHoldsToSubTableGenerators() {
             if (!this.subGenerator_hold.isEmpty()) {
-                LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
+                LOG.trace(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
                 for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
                     sub_generator.queue.addAll(this.subGenerator_hold);
                 }
@@ -569,8 +569,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 this.addRow();
                 batch_count++;
             }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
             }
         }
 
