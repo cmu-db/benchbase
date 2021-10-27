@@ -29,26 +29,26 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
             14, // AIRLINE_ID
             16, // DEPART AIRPORT_ID
             16, // ARRIVE AIRPORT_ID
-            16, // DEPART DATE
+            32, // DEPART DATE
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     /**
      * The airline for this flight
      */
-    private int airline_id;
+    private long airline_id;
     /**
      * The id of the departure airport
      */
-    private int depart_airport_id;
+    private long depart_airport_id;
     /**
      * The id of the arrival airport
      */
-    private int arrive_airport_id;
+    private long arrive_airport_id;
     /**
      * This is the departure time of the flight in minutes since the benchmark start date
      */
-    private int depart_date;
+    private long depart_date;
 
 
     /**
@@ -61,9 +61,9 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
      * @param flight_date       - when departure date of the flight
      */
     public FlightId(long airline_id, long depart_airport_id, long arrive_airport_id, Timestamp benchmark_start, Timestamp flight_date) {
-        this.airline_id = (int) airline_id;
-        this.depart_airport_id = (int) depart_airport_id;
-        this.arrive_airport_id = (int) arrive_airport_id;
+        this.airline_id = airline_id;
+        this.depart_airport_id = depart_airport_id;
+        this.arrive_airport_id = arrive_airport_id;
         this.depart_date = FlightId.calculateFlightDate(benchmark_start, flight_date);
 
     }
@@ -89,10 +89,10 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
     @Override
     public void decode(long composite_id) {
         long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.airline_id = (int) values[0];
-        this.depart_airport_id = (int) values[1];
-        this.arrive_airport_id = (int) values[2];
-        this.depart_date = (int) values[3];
+        this.airline_id = values[0];
+        this.depart_airport_id = values[1];
+        this.arrive_airport_id = values[2];
+        this.depart_date = values[3];
     }
 
     @Override
@@ -108,10 +108,8 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
      * @param flight_date
      * @return
      */
-    protected static int calculateFlightDate(Timestamp benchmark_start, Timestamp flight_date) {
-
-
-        return (int) ((flight_date.getTime() - benchmark_start.getTime()) / 3600000); // 60s * 60m * 1000
+    protected static long calculateFlightDate(Timestamp benchmark_start, Timestamp flight_date) {
+        return (flight_date.getTime() - benchmark_start.getTime()) / 3600000; // 60s * 60m * 1000
     }
 
     /**
@@ -155,31 +153,37 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
 
     @Override
     public int hashCode() {
-        int prime = 17;
-        int result = 1;
-        result = prime * result + airline_id;
-        result = prime * result + depart_airport_id;
-        result = prime * result + arrive_airport_id;
-        result = prime * result + depart_date;
+        int result = super.hashCode();
+        result = 31 * result + (int) (airline_id ^ (airline_id >>> 32));
+        result = 31 * result + (int) (depart_airport_id ^ (depart_airport_id >>> 32));
+        result = 31 * result + (int) (arrive_airport_id ^ (arrive_airport_id >>> 32));
+        result = 31 * result + (int) (depart_date ^ (depart_date >>> 32));
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-
-        if (!(obj instanceof FlightId) || obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        FlightId o = (FlightId) obj;
-        return (this.airline_id == o.airline_id &&
-                this.depart_airport_id == o.depart_airport_id &&
-                this.arrive_airport_id == o.arrive_airport_id &&
-                this.depart_date == o.depart_date);
+        FlightId flightId = (FlightId) o;
+
+        if (airline_id != flightId.airline_id) {
+            return false;
+        }
+        if (depart_airport_id != flightId.depart_airport_id) {
+            return false;
+        }
+        if (arrive_airport_id != flightId.arrive_airport_id) {
+            return false;
+        }
+        return depart_date == flightId.depart_date;
     }
+
 
     @Override
     public int compareTo(FlightId o) {
