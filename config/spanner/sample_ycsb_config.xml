@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <type>SPANNER</type>
     <driver>com.google.cloud.spanner.jdbc.JdbcDriver</driver>
-    <url>jdbc:cloudspanner://localhost:9010/projects/test-project/instances/test-instance/databases/test-db;usePlainText=true</url>
+    <url>jdbc:cloudspanner://localhost:9010/projects/benchbase-project/instances/benchbase-instance/databases/benchbase;usePlainText=true</url>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
