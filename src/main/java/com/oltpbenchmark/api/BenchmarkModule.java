@@ -42,6 +42,7 @@ import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +93,15 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     public final Connection makeConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(
-                workConf.getUrl(),
-                workConf.getUsername(),
-                workConf.getPassword());
-        return conn;
+
+        if (StringUtils.isEmpty(workConf.getUsername())) {
+            return DriverManager.getConnection(workConf.getUrl());
+        } else {
+            return DriverManager.getConnection(
+                    workConf.getUrl(),
+                    workConf.getUsername(),
+                    workConf.getPassword());
+        }
     }
 
     // --------------------------------------------------------------------------
