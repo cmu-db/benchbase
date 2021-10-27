@@ -377,6 +377,116 @@ jobs:
               body: '${{ env.COMMENT_MESSAGE }}'
             })
 
+  sqlite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo.
+        uses: actions/checkout@v2
+      - name: Setup JDK 11.
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build with Maven.
+        run: mvn -B package --file pom.xml
+      - name: Extract TGZ artifact in target/.
+        working-directory: target
+        run: |
+          tar xvzf benchbase-$POM_VERSION.tgz
+          mv benchbase-$POM_VERSION benchbase-extracted
+      - name: AuctionMark
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b auctionmark -c config/sqlite/sample_auctionmark_config.xml --create=true --load=true --execute=true
+      - name: CH-benCHmark
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b tpcc -c config/sqlite/sample_tpcc_config.xml --create=true --load=true
+          java -jar benchbase.jar -b chbenchmark -c config/sqlite/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+      - name: Epinions.com
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b epinions -c config/sqlite/sample_epinions_config.xml --create=true --load=true --execute=true
+      - name: hyadapt
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b hyadapt -c config/sqlite/sample_hyadapt_config.xml --create=true --load=true --execute=true
+      - name: noop
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b noop -c config/sqlite/sample_noop_config.xml --create=true --load=true --execute=true
+      - name: Resource Stresser
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b resourcestresser -c config/sqlite/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+      - name: SEATS
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b seats -c config/sqlite/sample_seats_config.xml --create=true --load=true --execute=true
+      - name: SIBench
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b sibench -c config/sqlite/sample_sibench_config.xml --create=true --load=true --execute=true
+      - name: SmallBank
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b smallbank -c config/sqlite/sample_smallbank_config.xml --create=true --load=true --execute=true
+      - name: TATP
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b tatp -c config/sqlite/sample_tatp_config.xml --create=true --load=true --execute=true
+      - name: TPC-C
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b tpcc -c config/sqlite/sample_tpcc_config.xml --create=true --load=true --execute=true
+      # TPC-DS does not have a sample configuration available right now.
+      # - name: TPC-DS
+      #   working-directory: target/benchbase-extracted
+      #   run: |
+      #     PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+      #     PGPASSWORD=password createdb -h localhost -U admin benchbase
+      #     java -jar benchbase.jar -b tpcds -c config/sqlite/sample_tpcds_config.xml --create=true --load=true --execute=true
+      - name: TPC-H
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b tpch -c config/sqlite/sample_tpch_config.xml --create=true --load=true --execute=true
+      - name: Twitter
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b twitter -c config/sqlite/sample_twitter_config.xml --create=true --load=true --execute=true
+      - name: Voter
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b voter -c config/sqlite/sample_voter_config.xml --create=true --load=true --execute=true
+      - name: Wikipedia
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b wikipedia -c config/sqlite/sample_wikipedia_config.xml --create=true --load=true --execute=true
+      - name: YCSB
+        working-directory: target/benchbase-extracted
+        run: |
+          java -jar benchbase.jar -b ycsb -c config/sqlite/sample_ycsb_config.xml --create=true --load=true --execute=true
+      - name: Aggregate result summaries.
+        if: ${{ github.event_name == 'pull_request_target' }}
+        working-directory: target/benchbase-extracted
+        run: |
+          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          echo -n '<br>' >> $GITHUB_ENV
+          echo $SUMMARIES >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Post aggregated result summaries as a comment.
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ env.COMMENT_MESSAGE }}'
+            })
+            
   cockroachdb:
     runs-on: ubuntu-latest
     services:
