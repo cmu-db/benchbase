@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.sql.SQLException;
 import java.util.*;
 
 public class DBWorkload {
@@ -384,10 +385,15 @@ public class DBWorkload {
 
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
-            for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
-                runCreator(benchmark);
-                LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
+            try {
+                for (BenchmarkModule benchmark : benchList) {
+                    LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
+                    runCreator(benchmark);
+                    LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
+                }
+            } catch (Throwable ex) {
+                LOG.error("Unexpected error when creating benchmark database tables.", ex);
+                System.exit(1);
             }
         } else {
             LOG.debug("Skipping creating benchmark database tables");
@@ -400,12 +406,17 @@ public class DBWorkload {
 
         // Clear the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "clear")) {
-            for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
-                benchmark.refreshCatalog();
-                benchmark.clearDatabase();
-                benchmark.refreshCatalog();
-                LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
+            try {
+                for (BenchmarkModule benchmark : benchList) {
+                    LOG.info("Clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
+                    benchmark.refreshCatalog();
+                    benchmark.clearDatabase();
+                    benchmark.refreshCatalog();
+                    LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
+                }
+            } catch (Throwable ex) {
+                LOG.error("Unexpected error when clearing benchmark database tables.", ex);
+                System.exit(1);
             }
         } else {
             LOG.debug("Skipping clearing benchmark database tables");
@@ -413,11 +424,17 @@ public class DBWorkload {
 
         // Execute Loader
         if (isBooleanOptionSet(argsLine, "load")) {
-            for (BenchmarkModule benchmark : benchList) {
-                LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
-                runLoader(benchmark);
-                LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
+            try {
+                for (BenchmarkModule benchmark : benchList) {
+                    LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
+                    runLoader(benchmark);
+                    LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
+                }
+            } catch (Throwable ex) {
+                LOG.error("Unexpected error when loading benchmark database records.", ex);
+                System.exit(1);
             }
+
         } else {
             LOG.debug("Skipping loading benchmark database records");
         }
@@ -437,7 +454,7 @@ public class DBWorkload {
                     LOG.info("Histograms JSON Data: " + fileName);
                 }
             } catch (Throwable ex) {
-                LOG.error("Unexpected error when running benchmarks.", ex);
+                LOG.error("Unexpected error when executing benchmarks.", ex);
                 System.exit(1);
             }
 
@@ -588,12 +605,12 @@ public class DBWorkload {
 
     }
 
-    private static void runCreator(BenchmarkModule bench) {
+    private static void runCreator(BenchmarkModule bench) throws SQLException, IOException {
         LOG.debug(String.format("Creating %s Database", bench));
         bench.createDatabase();
     }
 
-    private static void runLoader(BenchmarkModule bench) {
+    private static void runLoader(BenchmarkModule bench) throws SQLException, InterruptedException {
         LOG.debug(String.format("Loading %s Database", bench));
         bench.loadDatabase();
     }
