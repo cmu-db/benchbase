@@ -335,7 +335,12 @@ public abstract class SQLUtil {
         boolean escape_names = db_type.shouldEscapeNames();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO ")
+        if(db_type.equals(DatabaseType.PHOENIX)) {
+            sb.append("UPSERT");
+        } else {
+            sb.append("INSERT");
+        }
+        sb.append(" INTO ")
                 .append(escape_names ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
 
         StringBuilder values = new StringBuilder();
