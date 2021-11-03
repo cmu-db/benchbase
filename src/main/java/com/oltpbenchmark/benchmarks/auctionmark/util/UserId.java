@@ -25,7 +25,7 @@ import java.util.Objects;
 public class UserId extends CompositeId implements Comparable<UserId> {
 
     private static final int[] COMPOSITE_BITS = {
-            20, // ITEM_COUNT
+            32, // ITEM_COUNT
             24, // OFFSET
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);

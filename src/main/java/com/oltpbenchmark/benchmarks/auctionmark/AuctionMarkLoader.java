@@ -28,7 +28,6 @@ import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -66,17 +65,11 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
 
     private final Histogram<String> tableSizes = new Histogram<>();
 
-    private final boolean fail = false;
 
     // -----------------------------------------------------------------
     // INITIALIZATION
     // -----------------------------------------------------------------
 
-    /**
-     * Constructor
-     *
-     * @param benchmark
-     */
     public AuctionMarkLoader(AuctionMarkBenchmark benchmark) {
         super(benchmark);
 
@@ -207,11 +200,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         return (this.generators.get(table_name));
     }
 
-    /**
-     * Load the tuples for the given table name
-     *
-     * @param tableName
-     */
     protected void generateTableData(Connection conn, String tableName) throws SQLException {
         LOG.debug("*** START {}", tableName);
         final AbstractTableGenerator generator = this.generators.get(tableName);
@@ -257,17 +245,17 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             }
         }
 
-        // Mark as finished
-        if (!this.fail) {
-            generator.markAsFinished();
-            synchronized (this) {
-                this.finished.add(tableName);
-                LOG.debug(String.format("*** FINISH %s - %d tuples - [%d / %d]", tableName, this.tableSizes.get(tableName), this.finished.size(), this.generators.size()));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Remaining Tables: {}", CollectionUtils.subtract(this.generators.keySet(), this.finished));
-                }
+
+        generator.markAsFinished();
+
+        synchronized (this) {
+            this.finished.add(tableName);
+            LOG.debug(String.format("*** FINISH %s - %d tuples - [%d / %d]", tableName, this.tableSizes.get(tableName), this.finished.size(), this.generators.size()));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Remaining Tables: {}", CollectionUtils.subtract(this.generators.keySet(), this.finished));
             }
         }
+
     }
 
     /**********************************************************************************************
@@ -304,12 +292,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         protected List<Column> random_int_cols = new ArrayList<>();
         protected final Pattern random_int_regex = Pattern.compile("[\\w]+\\_IATTR[\\d]+", Pattern.CASE_INSENSITIVE);
 
-        /**
-         * Constructor
-         *
-         * @param tableName
-         * @param dependencies
-         */
         public AbstractTableGenerator(String tableName, String... dependencies) {
             super(benchmark);
             this.tableName = tableName;
@@ -423,7 +405,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @SuppressWarnings("unchecked")
         public void releaseHoldsToSubTableGenerators() {
             if (!this.subGenerator_hold.isEmpty()) {
-                LOG.debug(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
+                LOG.trace(String.format("%s: Releasing %d held objects to %d sub-generators", this.tableName, this.subGenerator_hold.size(), this.sub_generators.size()));
                 for (@SuppressWarnings("rawtypes") SubTableGenerator sub_generator : this.sub_generators) {
                     sub_generator.queue.addAll(this.subGenerator_hold);
                 }
@@ -470,65 +452,30 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             return (cols);
         }
 
-        /**
-         * Returns true if this generator has more tuples that it wants to add
-         *
-         * @return
-         */
         public synchronized boolean hasMore() {
             return (this.count < this.tableSize);
         }
 
-        /**
-         * Return the table's catalog object for this generator
-         *
-         * @return
-         */
         public Table getTableCatalog() {
             return (this.catalog_tbl);
         }
 
-        /**
-         * Return the VoltTable handle
-         *
-         * @return
-         */
         public List<Object[]> getVoltTable() {
             return this.table;
         }
 
-        /**
-         * Returns the number of tuples that will be loaded into this table
-         *
-         * @return
-         */
         public Long getTableSize() {
             return this.tableSize;
         }
 
-        /**
-         * Returns the number of tuples per batch that this generator will want loaded
-         *
-         * @return
-         */
         public int getBatchSize() {
             return this.batchSize;
         }
 
-        /**
-         * Returns the name of the table this this generates
-         *
-         * @return
-         */
         public String getTableName() {
             return this.tableName;
         }
 
-        /**
-         * Returns the total number of tuples generated thusfar
-         *
-         * @return
-         */
         public synchronized long getCount() {
             return this.count;
         }
@@ -569,8 +516,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 this.addRow();
                 batch_count++;
             }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(String.format("%s: Finished generating new batch of %d tuples", this.getTableName(), batch_count));
             }
         }
 
@@ -777,7 +724,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
      * GLOBAL_ATTRIBUTE_GROUP Generator
      **********************************************************************************************/
     protected class GlobalAttributeGroupGenerator extends AbstractTableGenerator {
-        private long num_categories = 0L;
         private final Histogram<Integer> category_groups = new Histogram<>();
         private final LinkedList<GlobalAttributeGroupId> group_ids = new LinkedList<>();
 
@@ -793,10 +739,10 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
         @Override
         public void prepare() {
             // Grab the number of CATEGORY items that we have inserted
-            this.num_categories = getGenerator(AuctionMarkConstants.TABLENAME_CATEGORY).tableSize;
+            long num_categories = getGenerator(AuctionMarkConstants.TABLENAME_CATEGORY).tableSize;
 
             for (int i = 0; i < this.tableSize; i++) {
-                int category_id = profile.rng.number(0, ((int) this.num_categories - 1));
+                int category_id = profile.rng.number(0, ((int) num_categories - 1));
                 this.category_groups.put(category_id);
                 int id = this.category_groups.get(category_id);
                 int count = (int) profile.rng.number(1, AuctionMarkConstants.TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP);
@@ -812,7 +758,6 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int col = 0;
 
             GlobalAttributeGroupId gag_id = this.group_ids.poll();
-
 
             // GAG_ID
             row[col++] = gag_id.encode();
@@ -1009,7 +954,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             super.init();
             this.tableSize = 0L;
             for (Long size : profile.users_per_itemCount.values()) {
-                this.tableSize += size.intValue() * profile.users_per_itemCount.get(size);
+                this.tableSize += size * profile.users_per_itemCount.get(size);
             }
         }
 
@@ -1027,8 +972,8 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             long bidDurationDay = ((endDate.getTime() - startDate.getTime()) / AuctionMarkConstants.MILLISECONDS_IN_A_DAY);
             Pair<Zipf, Zipf> p = this.item_bid_watch_zipfs.get(bidDurationDay);
             if (p == null) {
-                Zipf randomNumBids = new Zipf(profile.rng, AuctionMarkConstants.ITEM_BIDS_PER_DAY_MIN * (int) bidDurationDay, AuctionMarkConstants.ITEM_BIDS_PER_DAY_MAX * (int) bidDurationDay, AuctionMarkConstants.ITEM_BIDS_PER_DAY_SIGMA);
-                Zipf randomNumWatches = new Zipf(profile.rng, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MIN * (int) bidDurationDay, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MAX * (int) bidDurationDay, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_SIGMA);
+                Zipf randomNumBids = new Zipf(profile.rng, AuctionMarkConstants.ITEM_BIDS_PER_DAY_MIN * bidDurationDay, AuctionMarkConstants.ITEM_BIDS_PER_DAY_MAX * bidDurationDay, AuctionMarkConstants.ITEM_BIDS_PER_DAY_SIGMA);
+                Zipf randomNumWatches = new Zipf(profile.rng, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MIN * bidDurationDay, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_MAX * bidDurationDay, AuctionMarkConstants.ITEM_WATCHES_PER_DAY_SIGMA);
                 p = Pair.of(randomNumBids, randomNumWatches);
                 this.item_bid_watch_zipfs.put(bidDurationDay, p);
             }
@@ -1447,12 +1392,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             int col = 0;
 
             boolean is_buyer = false;
-            if (remaining == 1 || (bid.isBuyer_feedback() && !bid.isSeller_feedback())) {
-                is_buyer = true;
-            } else {
-
-                is_buyer = false;
-            }
+            is_buyer = remaining == 1 || (bid.isBuyer_feedback() && !bid.isSeller_feedback());
             LoaderItemInfo itemInfo = bid.getLoaderItemInfo();
 
             // UF_U_ID
@@ -1544,7 +1484,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
                 LOG.trace(String.format("Selecting USER_WATCH buyerId [useRandom=%s, watchers=%d]", use_random, this.watchers.size()));
             }
             int tries = 1000;
-            while (buyerId == null && num_watchers < num_users && tries-- > 0) {
+            while (num_watchers < num_users && tries-- > 0) {
                 try {
                     if (use_random) {
                         buyerId = profile.getRandomBuyerId();

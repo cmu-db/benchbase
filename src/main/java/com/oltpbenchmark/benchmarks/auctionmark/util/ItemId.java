@@ -32,7 +32,7 @@ import java.util.Objects;
 public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
-            44, // SELLER_ID
+            62, // SELLER_ID
             16, // ITEM_CTR
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
@@ -59,12 +59,12 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
     public void decode(long composite_id) {
         long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.seller_id = new UserId(values[0]);
-        this.item_ctr = (int) values[1] - 1;
+        this.item_ctr = (int) values[1];
     }
 
     @Override
     public long[] toArray() {
-        return (new long[]{this.seller_id.encode(), this.item_ctr + 1});
+        return (new long[]{this.seller_id.encode(), this.item_ctr});
     }
 
     /**

@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.*;
 
 public abstract class ThreadUtil {
@@ -93,7 +94,7 @@ public abstract class ThreadUtil {
 
         try {
             for (R r : runnables) {
-                service.submit(new LatchRunnable(r, latch, handler));
+                service.execute(new LatchRunnable(r, latch, handler));
             }
 
             LOG.trace("all runnables submitted; waiting on latches...");
@@ -102,13 +103,18 @@ public abstract class ThreadUtil {
         } finally {
 
             LOG.trace("attempting to shutdown the pool...");
+
             service.shutdown();
-            boolean cleanTermination = service.awaitTermination(1, TimeUnit.HOURS);
+
+            boolean cleanTermination = service.awaitTermination(5, TimeUnit.MINUTES);
 
             if (cleanTermination) {
                 LOG.trace("pool shut down!");
             } else {
-                LOG.warn("pool shut down after termination timeout expired.  something funky going on here!");
+                LOG.warn("pool shut down after termination timeout expired.  likely caused by unhandled exception in a thread causing latch count down.  will force shutdown now.");
+                List<Runnable> notStarted = service.shutdownNow();
+
+                LOG.warn("{} runnables were terminated before starting.", notStarted.size());
             }
 
             if (LOG.isDebugEnabled()) {
@@ -143,10 +149,8 @@ public abstract class ThreadUtil {
         public void run() {
             Thread.currentThread().setUncaughtExceptionHandler(this.handler);
             try {
-                LOG.trace("running embedded runnable...");
                 this.r.run();
             } finally {
-                LOG.trace("counting down latch...{}", this.latch.toString());
                 this.latch.countDown();
             }
         }
