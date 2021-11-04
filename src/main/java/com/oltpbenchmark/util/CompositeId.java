@@ -31,7 +31,7 @@ import java.util.Arrays;
  *
  * @author pavlo
  */
-public abstract class CompositeId implements JSONSerializable {
+public abstract class CompositeId {
 
     private transient int hashCode = -1;
 
@@ -94,32 +94,4 @@ public abstract class CompositeId implements JSONSerializable {
         return (this.hashCode);
     }
 
-    // -----------------------------------------------------------------
-    // SERIALIZATION
-    // -----------------------------------------------------------------
-
-    @Override
-    public void load(String input_path) throws IOException {
-        JSONUtil.load(this, input_path);
-    }
-
-    @Override
-    public void save(String output_path) throws IOException {
-        JSONUtil.save(this, output_path);
-    }
-
-    @Override
-    public String toJSONString() {
-        return (JSONUtil.toJSONString(this));
-    }
-
-    @Override
-    public void toJSON(JSONStringer stringer) throws JSONException {
-        stringer.key("ID").value(this.encode());
-    }
-
-    @Override
-    public void fromJSON(JSONObject json_object) throws JSONException {
-        this.decode(json_object.getLong("ID"));
-    }
 }
