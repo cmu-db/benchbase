@@ -19,12 +19,14 @@
 package com.oltpbenchmark.util;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Pack multiple values into a single long using bit-shifting
@@ -33,7 +35,7 @@ import java.util.Arrays;
  */
 public abstract class CompositeId {
 
-    private transient int hashCode = -1;
+    public static final String PAD_STRING = "0";
 
     protected static long[] compositeBitsPreCompute(int[] offset_bits) {
         long[] pows = new long[offset_bits.length];
@@ -43,55 +45,39 @@ public abstract class CompositeId {
         return (pows);
     }
 
-    protected final long encode(int[] offset_bits, long[] offset_pows) {
-        long[] values = this.toArray();
+    protected final String encode(int[] offset_bits, long[] offset_pows) {
+        int encodedStringSize = IntStream.of(offset_bits).sum();
+        StringBuilder compositeBuilder = new StringBuilder(encodedStringSize);
 
-        long id = 0;
-        int offset = 0;
-        for (int i = 0; i < values.length; i++) {
-            long max_value = offset_pows[i];
-
-            if (values[i] < 0) {
-                throw new IllegalArgumentException(String.format("%s value at position %d is %d %s",
-                        this.getClass().getSimpleName(), i,
-                        values[i], Arrays.toString(values)));
-            }
-            if (values[i] >= max_value) {
-                throw new IllegalArgumentException(String.format("%s value at position %d is %d. Max value is %d\n",
-                        this.getClass().getSimpleName(), i,
-                        values[i], max_value));
-            }
-
-            id = (i == 0 ? values[i] : id | values[i] << offset);
-            offset += offset_bits[i];
+        String[] decodedValues = this.toArray();
+        for (int i = 0; i < decodedValues.length; i++) {
+            String value = decodedValues[i];
+            int valueLength = offset_bits[i];
+            String encodedValue = StringUtils.leftPad(value, valueLength, PAD_STRING);
+            compositeBuilder.append(encodedValue);
         }
-        this.hashCode = (int) (id ^ (id >>> 32)); // From Long.hashCode()
-        return (id);
+
+        return compositeBuilder.toString();
     }
 
-    protected final long[] decode(long composite_id, int[] offset_bits, long[] offset_pows) {
-        long[] values = new long[offset_bits.length];
-        int offset = 0;
-        for (int i = 0; i < values.length; i++) {
-            values[i] = (composite_id >> offset & offset_pows[i]);
-            offset += offset_bits[i];
+    protected final String[] decode(String composite_id, int[] offset_bits, long[] offset_pows) {
+        String[] decodedValues = new String[offset_bits.length];
+
+        int start = 0;
+        for (int i = 0; i < decodedValues.length; i++) {
+            int valueLength = offset_bits[i];
+            int end = start + valueLength;
+            decodedValues[i] = StringUtils.substring(composite_id, start, end);
+            start = end;
         }
-        return (values);
+        return decodedValues;
     }
 
-    public abstract long encode();
+    public abstract String encode();
 
-    public abstract void decode(long composite_id);
+    public abstract void decode(String composite_id);
 
-    public abstract long[] toArray();
+    public abstract String[] toArray();
 
-    @Override
-    public int hashCode() {
-        if (this.hashCode == -1) {
-            this.encode();
-
-        }
-        return (this.hashCode);
-    }
 
 }

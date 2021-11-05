@@ -44,11 +44,11 @@ public class TestCustomerIdIterable extends TestCase {
      * testIterator
      */
     public void testIterator() throws Exception {
-        Set<Long> seen_ids = new HashSet<Long>();
-        Histogram<Long> airport_ids = new Histogram<Long>();
+        Set<String> seen_ids = new HashSet<>();
+        Histogram<Long> airport_ids = new Histogram<>();
         for (CustomerId c_id : this.customer_id_iterable) {
             assertNotNull(c_id);
-            long encoded = c_id.encode();
+            String encoded = c_id.encode();
             assertFalse(seen_ids.contains(encoded));
             seen_ids.add(encoded);
             airport_ids.put(c_id.getDepartAirportId());

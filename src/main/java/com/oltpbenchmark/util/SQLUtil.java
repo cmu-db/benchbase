@@ -517,4 +517,19 @@ public abstract class SQLUtil {
 
         return new Catalog(tables);
     }
+
+    public static boolean isDuplicateKeyException(Exception ex) {
+        // MYSQL
+        if (ex instanceof SQLIntegrityConstraintViolationException) {
+            return (true);
+        } else if (ex instanceof SQLException) {
+            SQLException sqlEx = (SQLException) ex;
+
+            // POSTGRES
+            if (sqlEx.getSQLState().contains("23505")) {
+                return (true);
+            }
+        }
+        return (false);
+    }
 }

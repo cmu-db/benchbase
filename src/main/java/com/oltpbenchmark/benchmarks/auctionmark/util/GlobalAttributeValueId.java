@@ -20,6 +20,8 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Objects;
+
 public class GlobalAttributeValueId extends CompositeId implements Comparable<GlobalAttributeValueId> {
 
     private static final int[] COMPOSITE_BITS = {
@@ -28,10 +30,10 @@ public class GlobalAttributeValueId extends CompositeId implements Comparable<Gl
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
-    private long group_attribute_id;
+    private String group_attribute_id;
     private int id;
 
-    public GlobalAttributeValueId(long group_attribute_id, int id) {
+    public GlobalAttributeValueId(String group_attribute_id, int id) {
         this.group_attribute_id = group_attribute_id;
         this.id = id;
     }
@@ -41,20 +43,20 @@ public class GlobalAttributeValueId extends CompositeId implements Comparable<Gl
     }
 
     @Override
-    public long encode() {
+    public String encode() {
         return (super.encode(COMPOSITE_BITS, COMPOSITE_POWS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.group_attribute_id = (int) values[0];
-        this.id = (int) values[1];
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        this.group_attribute_id = values[0];
+        this.id = Integer.parseInt(values[1]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.group_attribute_id, this.id});
+    public String[] toArray() {
+        return (new String[]{this.group_attribute_id, Integer.toString(this.id)});
     }
 
     public GlobalAttributeGroupId getGlobalAttributeGroup() {
@@ -63,6 +65,23 @@ public class GlobalAttributeValueId extends CompositeId implements Comparable<Gl
 
     protected int getId() {
         return (this.id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GlobalAttributeValueId that = (GlobalAttributeValueId) o;
+        return id == that.id && Objects.equals(group_attribute_id, that.group_attribute_id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(group_attribute_id, id);
     }
 
     @Override

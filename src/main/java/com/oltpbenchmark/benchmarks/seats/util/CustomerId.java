@@ -20,6 +20,8 @@ package com.oltpbenchmark.benchmarks.seats.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Objects;
+
 public class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     private static final int[] COMPOSITE_BITS = {
@@ -36,25 +38,25 @@ public class CustomerId extends CompositeId implements Comparable<CustomerId> {
         this.depart_airport_id = depart_airport_id;
     }
 
-    public CustomerId(long composite_id) {
+    public CustomerId(String composite_id) {
         this.decode(composite_id);
     }
 
     @Override
-    public long encode() {
+    public String encode() {
         return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.id = (int) values[0];
-        this.depart_airport_id = values[1];
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        this.id = Integer.parseInt(values[0]);
+        this.depart_airport_id = Long.parseLong(values[1]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.id, this.depart_airport_id});
+    public String[] toArray() {
+        return (new String[]{Integer.toString(this.id), Long.toString(this.depart_airport_id)});
     }
 
     /**
@@ -74,6 +76,23 @@ public class CustomerId extends CompositeId implements Comparable<CustomerId> {
     @Override
     public String toString() {
         return String.format("CustomerId{airport=%d,id=%d}", this.depart_airport_id, this.id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CustomerId that = (CustomerId) o;
+        return id == that.id && depart_airport_id == that.depart_airport_id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, depart_airport_id);
     }
 
     @Override

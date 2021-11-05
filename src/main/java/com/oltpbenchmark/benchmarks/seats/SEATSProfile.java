@@ -380,7 +380,7 @@ public class SEATSProfile {
         Iterator<Object[]> iterator = vt.iterator();
         while (iterator.hasNext() && limit++ < SEATSConstants.CACHE_LIMIT_FLIGHT_IDS) {
             Object[] row = iterator.next();
-            long f_id = SQLUtil.getLong(row[0]);
+            String f_id = SQLUtil.getString(row[0]);
             FlightId flight_id = new FlightId(f_id);
             this.cached_flight_ids.add(flight_id);
         }

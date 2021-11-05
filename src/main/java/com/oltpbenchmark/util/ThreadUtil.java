@@ -90,14 +90,13 @@ public abstract class ThreadUtil {
         final long start = System.currentTimeMillis();
 
         final CountDownLatch latch = new CountDownLatch(runnablesSize);
-        LatchedExceptionHandler handler = new LatchedExceptionHandler(latch);
 
         try {
             for (R r : runnables) {
-                service.execute(new LatchRunnable(r, latch, handler));
+                service.execute(new LatchRunnable(r, latch));
             }
 
-            LOG.trace("all runnables submitted; waiting on latches...");
+            LOG.trace("all runnables executed; waiting on latches...");
             latch.await();
 
         } finally {
@@ -137,19 +136,19 @@ public abstract class ThreadUtil {
     private static class LatchRunnable implements Runnable {
         private final Runnable r;
         private final CountDownLatch latch;
-        private final Thread.UncaughtExceptionHandler handler;
 
-        public LatchRunnable(Runnable r, CountDownLatch latch, Thread.UncaughtExceptionHandler handler) {
+        public LatchRunnable(Runnable r, CountDownLatch latch) {
             this.r = r;
             this.latch = latch;
-            this.handler = handler;
         }
 
         @Override
         public void run() {
-            Thread.currentThread().setUncaughtExceptionHandler(this.handler);
             try {
                 this.r.run();
+            } catch (Exception e) {
+                LOG.error(String.format("Exception in thread with message: [%s]; will count down latch with count %d", e.getMessage(), this.latch.getCount()), e);
+                System.exit(1);
             } finally {
                 this.latch.countDown();
             }

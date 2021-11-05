@@ -380,19 +380,19 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         int rand = rng.number(1, 100);
 
         // Parameters
-        long f_id = r.flight_id.encode();
-        Long c_id = null;
+        String f_id = r.flight_id.encode();
+        String c_id = null;
         String c_id_str = null;
         String ff_c_id_str = null;
         Long ff_al_id = null;
 
         // Delete with the Customer's id as a string
         if (rand <= SEATSConstants.PROB_DELETE_WITH_CUSTOMER_ID_STR) {
-            c_id_str = Long.toString(r.customer_id.encode());
+            c_id_str = r.customer_id.encode();
         }
         // Delete using their FrequentFlyer information
         else if (rand <= SEATSConstants.PROB_DELETE_WITH_CUSTOMER_ID_STR + SEATSConstants.PROB_DELETE_WITH_FREQUENTFLYER_ID_STR) {
-            ff_c_id_str = Long.toString(r.customer_id.encode());
+            ff_c_id_str = r.customer_id.encode();
             ff_al_id = r.flight_id.getAirlineId();
         }
         // Delete using their Customer id
@@ -478,7 +478,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             // Convert the data into a FlightIds that other transactions can use
             int ctr = 0;
             for (Object[] row : results) {
-                FlightId flight_id = new FlightId((Long) row[0]);
+                FlightId flight_id = new FlightId((String) row[0]);
 
                 boolean added = profile.addFlightId(flight_id);
                 if (added) {
@@ -646,7 +646,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         // Pick a random customer and then have at it!
         CustomerId customer_id = this.profile.getRandomCustomerId();
 
-        Long c_id = null;
+        String c_id = null;
         String c_id_str = null;
         long attr0 = this.rng.nextLong();
         long attr1 = this.rng.nextLong();
@@ -654,7 +654,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
 
         // Update with the Customer's id as a string
         if (rng.nextInt(100) < SEATSConstants.PROB_UPDATE_WITH_CUSTOMER_ID_STR) {
-            c_id_str = Long.toString(customer_id.encode());
+            c_id_str = customer_id.encode();
         }
         // Update using their Customer id
         else {

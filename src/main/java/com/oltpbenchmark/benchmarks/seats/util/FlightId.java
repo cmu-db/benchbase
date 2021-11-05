@@ -22,6 +22,7 @@ import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.util.CompositeId;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class FlightId extends CompositeId implements Comparable<FlightId> {
 
@@ -73,34 +74,34 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
      *
      * @param composite_id
      */
-    public FlightId(long composite_id) {
+    public FlightId(String composite_id) {
         this.set(composite_id);
     }
 
-    public void set(long composite_id) {
+    public void set(String composite_id) {
         this.decode(composite_id);
     }
 
     @Override
-    public long encode() {
+    public String encode() {
         return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.airline_id = values[0];
-        this.depart_airport_id = values[1];
-        this.arrive_airport_id = values[2];
-        this.depart_date = values[3];
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        this.airline_id = Long.parseLong(values[0]);
+        this.depart_airport_id = Long.parseLong(values[1]);
+        this.arrive_airport_id = Long.parseLong(values[2]);
+        this.depart_date = Long.parseLong(values[3]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.airline_id,
-                this.depart_airport_id,
-                this.arrive_airport_id,
-                this.depart_date});
+    public String[] toArray() {
+        return (new String[]{Long.toString(this.airline_id),
+                Long.toString(this.depart_airport_id),
+                Long.toString(this.arrive_airport_id),
+                Long.toString(this.depart_date)});
     }
 
     /**
@@ -152,16 +153,6 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
     }
 
     @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) (airline_id ^ (airline_id >>> 32));
-        result = 31 * result + (int) (depart_airport_id ^ (depart_airport_id >>> 32));
-        result = 31 * result + (int) (arrive_airport_id ^ (arrive_airport_id >>> 32));
-        result = 31 * result + (int) (depart_date ^ (depart_date >>> 32));
-        return result;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -169,21 +160,14 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         FlightId flightId = (FlightId) o;
-
-        if (airline_id != flightId.airline_id) {
-            return false;
-        }
-        if (depart_airport_id != flightId.depart_airport_id) {
-            return false;
-        }
-        if (arrive_airport_id != flightId.arrive_airport_id) {
-            return false;
-        }
-        return depart_date == flightId.depart_date;
+        return airline_id == flightId.airline_id && depart_airport_id == flightId.depart_airport_id && arrive_airport_id == flightId.arrive_airport_id && depart_date == flightId.depart_date;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(airline_id, depart_airport_id, arrive_airport_id, depart_date);
+    }
 
     @Override
     public int compareTo(FlightId o) {

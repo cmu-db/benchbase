@@ -26,7 +26,7 @@ public class UserId extends CompositeId implements Comparable<UserId> {
 
     private static final int[] COMPOSITE_BITS = {
             32, // ITEM_COUNT
-            24, // OFFSET
+            32, // OFFSET
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
@@ -59,25 +59,25 @@ public class UserId extends CompositeId implements Comparable<UserId> {
      *
      * @param composite_id
      */
-    public UserId(long composite_id) {
+    public UserId(String composite_id) {
         this.decode(composite_id);
     }
 
     @Override
-    public long encode() {
+    public String encode() {
         return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.offset = (int) values[0];
-        this.itemCount = (int) values[1];
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        this.itemCount = Integer.parseInt(values[0]);
+        this.offset = Integer.parseInt(values[1]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.offset, this.itemCount});
+    public String[] toArray() {
+        return (new String[]{Integer.toString(this.itemCount), Integer.toString(this.offset)});
     }
 
     public int getItemCount() {
@@ -90,11 +90,11 @@ public class UserId extends CompositeId implements Comparable<UserId> {
 
     @Override
     public String toString() {
-        return String.format("UserId<itemCount=%d,offset=%d>",
-                this.itemCount, this.offset);
+        return String.format("UserId<itemCount=%d, offset=%d, encoded=%s>",
+                this.itemCount, this.offset, this.encode());
     }
 
-    public static String toString(long userId) {
+    public static String toString(String userId) {
         return new UserId(userId).toString();
     }
 
@@ -107,13 +107,12 @@ public class UserId extends CompositeId implements Comparable<UserId> {
             return false;
         }
         UserId userId = (UserId) o;
-        return itemCount == userId.itemCount &&
-                offset == userId.offset;
+        return itemCount == userId.itemCount && offset == userId.offset;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), itemCount, offset);
+        return Objects.hash(itemCount, offset);
     }
 
     @Override

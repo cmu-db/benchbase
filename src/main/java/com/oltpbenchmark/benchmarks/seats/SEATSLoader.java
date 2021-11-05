@@ -919,7 +919,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // CUSTOMER ID STR
                 case (1): {
 
-                    value = Long.toString(this.last_id.encode());
+                    value = this.last_id.encode();
                     this.last_id = null;
                     break;
                 }
@@ -1041,7 +1041,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 }
                 // CUSTOMER_ID_STR
                 case (2): {
-                    value = Long.toString(this.last_customer_id.encode());
+                    value = this.last_customer_id.encode();
                     break;
                 }
                 // BAD MOJO!
