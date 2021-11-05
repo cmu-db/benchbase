@@ -22,6 +22,7 @@ import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Objects;
 
 public class ReturnFlight implements Comparable<ReturnFlight> {
 
@@ -77,19 +78,20 @@ public class ReturnFlight implements Comparable<ReturnFlight> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-
-        if (!(obj instanceof ReturnFlight) || obj == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        ReturnFlight that = (ReturnFlight) o;
+        return return_airport_id == that.return_airport_id && Objects.equals(customer_id, that.customer_id) && Objects.equals(return_date, that.return_date);
+    }
 
-        ReturnFlight o = (ReturnFlight) obj;
-        return (this.customer_id.equals(o.customer_id) &&
-                this.return_airport_id == o.return_airport_id &&
-                this.return_date.equals(o.return_date));
+    @Override
+    public int hashCode() {
+        return Objects.hash(customer_id, return_airport_id, return_date);
     }
 
     @Override

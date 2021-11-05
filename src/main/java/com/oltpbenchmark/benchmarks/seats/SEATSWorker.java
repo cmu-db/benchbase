@@ -459,7 +459,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             stop_date = new Timestamp(flightDate.getTime() + range);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Using %s as look up in %s: %d / %s", flight_id, proc, flight_id.encode(), flightDate));
+                LOG.debug(String.format("Using %s as look up in %s: %s / %s", flight_id, proc, flight_id.encode(), flightDate));
             }
         }
 
