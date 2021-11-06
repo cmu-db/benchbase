@@ -55,7 +55,7 @@ public class TestFlightId extends TestCase {
                         assertEquals(base_id, flight_id.getAirlineId());
                         assertEquals(depart_airport_id, flight_id.getDepartAirportId());
                         assertEquals(arrive_airport_id, flight_id.getArriveAirportId());
-                        assertEquals(flight_date, flight_id.getDepartDate(this.start_date));
+                        assertEquals(flight_date, flight_id.getDepartDateAsTimestamp(this.start_date));
                     } // FOR (time_code)
                 } // FOR (arrive_airport_id)
             } // FOR (depart_airport_id)
@@ -77,7 +77,7 @@ public class TestFlightId extends TestCase {
                         assertEquals(base_id, flight_id.getAirlineId());
                         assertEquals(depart_airport_id, flight_id.getDepartAirportId());
                         assertEquals(arrive_airport_id, flight_id.getArriveAirportId());
-                        assertEquals(flight_date, flight_id.getDepartDate(this.start_date));
+                        assertEquals(flight_date, flight_id.getDepartDateAsTimestamp(this.start_date));
                     } // FOR (time_code)
                 } // FOR (arrive_airport_id)
             } // FOR (depart_airport_id)

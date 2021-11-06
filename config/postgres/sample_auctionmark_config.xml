@@ -11,7 +11,7 @@
     <batchsize>1280</batchsize>
 
     <!-- Scalefactor in AuctionMark scales by *1000 the number of customers-->
-    <scalefactor>250</scalefactor>
+    <scalefactor>1</scalefactor>
 
     <!-- The workload -->
     <terminals>1</terminals>

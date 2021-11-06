@@ -1508,7 +1508,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 String depart_airport_code = SEATSLoader.this.profile.getAirportCode(depart_airport_id);
                 long arrive_airport_id = flight_id.getArriveAirportId();
                 String arrive_airport_code = SEATSLoader.this.profile.getAirportCode(arrive_airport_id);
-                Timestamp depart_time = flight_id.getDepartDate(SEATSLoader.this.profile.getFlightStartDate());
+                Timestamp depart_time = flight_id.getDepartDateAsTimestamp(SEATSLoader.this.profile.getFlightStartDate());
                 Timestamp arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
                 flight_customer_ids.clear();
 
@@ -1603,7 +1603,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          * @return
          */
         private void getReturningCustomers(Collection<ReturnFlight> returning_customers, FlightId flight_id) {
-            Timestamp flight_date = flight_id.getDepartDate(SEATSLoader.this.profile.getFlightStartDate());
+            Timestamp flight_date = flight_id.getDepartDateAsTimestamp(SEATSLoader.this.profile.getFlightStartDate());
             returning_customers.clear();
             Set<ReturnFlight> returns = this.airport_returns.get(flight_id.getDepartAirportId());
             if (!returns.isEmpty()) {
@@ -1725,7 +1725,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         this.seats_remaining.put(flight_id, (short) SEATSConstants.FLIGHTS_NUM_SEATS);
 
         // XXX
-        if (this.profile.flight_upcoming_offset == null && this.profile.flight_upcoming_date.compareTo(flight_id.getDepartDate(this.profile.flight_start_date)) < 0) {
+        if (this.profile.flight_upcoming_offset == null && this.profile.flight_upcoming_date.compareTo(flight_id.getDepartDateAsTimestamp(this.profile.flight_start_date)) < 0) {
             this.profile.flight_upcoming_offset = (long) (this.seats_remaining.size() - 1);
         }
         return (true);

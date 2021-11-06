@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.seats.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 public class CustomerId extends CompositeId implements Comparable<CustomerId> {
@@ -97,6 +98,8 @@ public class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     @Override
     public int compareTo(CustomerId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparingInt(CustomerId::getId)
+                .thenComparingLong(CustomerId::getDepartAirportId)
+                .compare(this, o);
     }
 }

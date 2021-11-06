@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -113,6 +114,8 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     @Override
     public int compareTo(ItemId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparing(ItemId::getSellerId)
+                .thenComparingInt(ItemId::getItemCtr)
+                .compare(this, o);
     }
 }

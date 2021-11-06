@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 public class GlobalAttributeGroupId extends CompositeId implements Comparable<GlobalAttributeGroupId> {
@@ -94,6 +95,9 @@ public class GlobalAttributeGroupId extends CompositeId implements Comparable<Gl
 
     @Override
     public int compareTo(GlobalAttributeGroupId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparingInt(GlobalAttributeGroupId::getCategoryId)
+                .thenComparingInt(GlobalAttributeGroupId::getId)
+                .thenComparingInt(GlobalAttributeGroupId::getCount)
+                .compare(this, o);
     }
 }

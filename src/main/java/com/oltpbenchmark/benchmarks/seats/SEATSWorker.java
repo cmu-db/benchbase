@@ -453,7 +453,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             depart_airport_id = flight_id.getDepartAirportId();
             arrive_airport_id = flight_id.getArriveAirportId();
 
-            Timestamp flightDate = flight_id.getDepartDate(this.profile.getFlightStartDate());
+            Timestamp flightDate = flight_id.getDepartDateAsTimestamp(this.profile.getFlightStartDate());
             long range = Math.round(SEATSConstants.MILLISECONDS_PER_DAY * 0.5);
             start_date = new Timestamp(flightDate.getTime() - range);
             stop_date = new Timestamp(flightDate.getTime() + range);

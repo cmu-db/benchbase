@@ -22,6 +22,7 @@ import com.oltpbenchmark.benchmarks.seats.SEATSConstants;
 import com.oltpbenchmark.util.CompositeId;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class FlightId extends CompositeId implements Comparable<FlightId> {
@@ -134,15 +135,19 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
         return arrive_airport_id;
     }
 
+    public long getDepartDate() {
+        return depart_date;
+    }
+
     /**
      * @return the flight departure date
      */
-    public Timestamp getDepartDate(Timestamp benchmark_start) {
+    public Timestamp getDepartDateAsTimestamp(Timestamp benchmark_start) {
         return (new Timestamp(benchmark_start.getTime() + (this.depart_date * SEATSConstants.MILLISECONDS_PER_MINUTE * 60)));
     }
 
     public boolean isUpcoming(Timestamp benchmark_start, long past_days) {
-        Timestamp depart_date = this.getDepartDate(benchmark_start);
+        Timestamp depart_date = this.getDepartDateAsTimestamp(benchmark_start);
         return ((depart_date.getTime() - benchmark_start.getTime()) >= (past_days * SEATSConstants.MILLISECONDS_PER_DAY));
     }
 
@@ -171,6 +176,10 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
 
     @Override
     public int compareTo(FlightId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparingLong(FlightId::getAirlineId)
+                .thenComparingLong(FlightId::getDepartAirportId)
+                .thenComparingLong(FlightId::getArriveAirportId)
+                .thenComparingLong(FlightId::getDepartDate)
+                .compare(this, o);
     }
 }
