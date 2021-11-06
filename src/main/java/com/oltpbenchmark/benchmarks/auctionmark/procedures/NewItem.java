@@ -161,7 +161,7 @@ public class NewItem extends Procedure {
             if (results.next()) {
                 sellerItemCount = results.getInt(1);
             }
-        };
+        }
 
         // Insert new ITEM tuple
         try (PreparedStatement stmt = this.getPreparedStatement(conn, insertItem, item_id,         // i_id

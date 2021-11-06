@@ -18,11 +18,6 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import com.oltpbenchmark.util.JSONUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONStringer;
-
 import java.sql.Timestamp;
 import java.util.Objects;
 

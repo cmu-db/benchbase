@@ -945,7 +945,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         protected void callbackFinished() {
             if (LOG.isTraceEnabled()) {
                 Histogram<String> h = this.rand.getHistogramHistory();
-                LOG.trace(String.format("Customer Local Airports Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h.toString()));
+                LOG.trace(String.format("Customer Local Airports Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h));
             }
         }
     }
@@ -1009,7 +1009,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         @Override
         protected Object specialValue(long id, int columnIdx) {
-            Object value = null;
+            String value = null;
             switch (columnIdx) {
                 // CUSTOMER ID
                 case (0): {
@@ -1033,7 +1033,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         value = this.airline_rand.nextValue();
                     }
                     while (this.customer_airlines.contains(value));
-                    this.customer_airlines.add((String) value);
+                    this.customer_airlines.add(value);
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("{} => {}", this.last_customer_id, value);
                     }
@@ -1055,7 +1055,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         protected void callbackFinished() {
             if (LOG.isTraceEnabled()) {
                 Histogram<String> h = this.airline_rand.getHistogramHistory();
-                LOG.trace(String.format("Airline Flights Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h.toString()));
+                LOG.trace(String.format("Airline Flights Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h));
             }
         }
     }

@@ -678,7 +678,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         ItemInfo itemInfo = profile.getRandomCompleteItem();
         UserId sellerId = itemInfo.getSellerId();
         UserId buyerId = profile.getRandomBuyerId(sellerId);
-        long rating = (long) profile.rng.number(-1, 1);
+        long rating = profile.rng.number(-1, 1);
         String feedback = profile.rng.astring(10, 80);
 
         String user_id;

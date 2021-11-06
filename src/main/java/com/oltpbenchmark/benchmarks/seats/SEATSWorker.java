@@ -275,7 +275,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialized SEATSWorker:\n{}", this.toString());
+            LOG.debug("Initialized SEATSWorker:\n{}", this);
         }
     }
 
@@ -610,7 +610,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             reservation = r;
         }
         if (reservation == null) {
-            LOG.warn("Failed to find a valid pending insert Reservation\n{}", this.toString());
+            LOG.warn("Failed to find a valid pending insert Reservation\n{}", this);
             return (false);
         }
 

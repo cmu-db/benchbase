@@ -313,7 +313,7 @@ public class SEATSProfile {
 
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded profile:\n{}", this.toString());
+                LOG.debug("Loaded profile:\n{}", this);
             }
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Airport Max Customer Id:\n{}", this.airport_max_customer_id);

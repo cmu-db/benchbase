@@ -24,7 +24,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
