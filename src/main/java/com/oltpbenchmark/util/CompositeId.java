@@ -20,12 +20,7 @@ package com.oltpbenchmark.util;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONStringer;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
@@ -35,17 +30,11 @@ import java.util.stream.IntStream;
  */
 public abstract class CompositeId {
 
-    public static final String PAD_STRING = "0";
+    private static final String PAD_STRING = "0";
+    public static final int INT_MAX_DIGITS = 10;
+    public static final int LONG_MAX_DIGITS = 19;
 
-    protected static long[] compositeBitsPreCompute(int[] offset_bits) {
-        long[] pows = new long[offset_bits.length];
-        for (int i = 0; i < offset_bits.length; i++) {
-            pows[i] = (long) (Math.pow(2, offset_bits[i]) - 1L);
-        }
-        return (pows);
-    }
-
-    protected final String encode(int[] offset_bits, long[] offset_pows) {
+    protected final String encode(int[] offset_bits) {
         int encodedStringSize = IntStream.of(offset_bits).sum();
         StringBuilder compositeBuilder = new StringBuilder(encodedStringSize);
 
@@ -60,7 +49,7 @@ public abstract class CompositeId {
         return compositeBuilder.toString();
     }
 
-    protected final String[] decode(String composite_id, int[] offset_bits, long[] offset_pows) {
+    protected final String[] decode(String composite_id, int[] offset_bits) {
         String[] decodedValues = new String[offset_bits.length];
 
         int start = 0;

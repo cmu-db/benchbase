@@ -17,56 +17,53 @@
 
 package com.oltpbenchmark.util;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 import java.util.Objects;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestCompositeIdRange {
 
     public static class PackedLong extends CompositeId {
         private static final int[] COMPOSITE_BITS = {
-                16, // FIELD1
-                32, // FIELD2
+                INT_MAX_DIGITS, // FIELD1
+                LONG_MAX_DIGITS, // FIELD2
         };
-        private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
         protected int field1;
-        protected int field2;
+        protected long field2;
 
         public PackedLong() {
         }
 
-        public PackedLong(int field1, int field2) {
+        public PackedLong(int field1, long field2) {
             this.field1 = field1;
             this.field2 = field2;
         }
 
         @Override
         public String encode() {
-            return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+            return (this.encode(COMPOSITE_BITS));
         }
 
         @Override
         public void decode(String composite_id) {
-            String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+            String[] values = super.decode(composite_id, COMPOSITE_BITS);
             this.field1 = Integer.parseInt(values[0]);
-            this.field2 = Integer.parseInt(values[1]);
+            this.field2 = Long.parseLong(values[1]);
         }
 
         @Override
         public String[] toArray() {
-            return (new String[]{Integer.toString(this.field1), Integer.toString(this.field2)});
+            return (new String[]{Integer.toString(this.field1), Long.toString(this.field2)});
         }
 
         public int getField1() {
             return this.field1;
         }
 
-        public int getField2() {
+        public long getField2() {
             return this.field2;
         }
 

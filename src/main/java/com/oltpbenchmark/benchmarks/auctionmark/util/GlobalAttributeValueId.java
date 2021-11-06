@@ -26,10 +26,9 @@ import java.util.Objects;
 public class GlobalAttributeValueId extends CompositeId implements Comparable<GlobalAttributeValueId> {
 
     private static final int[] COMPOSITE_BITS = {
-            32, // GROUP_ATTRIBUTE_ID
-            8,  // ID
+            GlobalAttributeGroupId.ID_LENGTH, // GROUP_ATTRIBUTE_ID
+            INT_MAX_DIGITS  // ID
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private String group_attribute_id;
     private int id;
@@ -45,12 +44,12 @@ public class GlobalAttributeValueId extends CompositeId implements Comparable<Gl
 
     @Override
     public String encode() {
-        return (super.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+        return (super.encode(COMPOSITE_BITS));
     }
 
     @Override
     public void decode(String composite_id) {
-        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.group_attribute_id = values[0];
         this.id = Integer.parseInt(values[1]);
     }

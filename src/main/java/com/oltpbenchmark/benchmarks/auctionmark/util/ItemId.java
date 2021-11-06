@@ -33,10 +33,9 @@ import java.util.Objects;
 public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
-            64, // SELLER_ID
-            16, // ITEM_CTR
+            UserId.ID_LENGTH, // SELLER_ID
+            INT_MAX_DIGITS // ITEM_CTR
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private UserId seller_id;
     private int item_ctr;
@@ -53,12 +52,12 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     @Override
     public String encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
     public void decode(String composite_id) {
-        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.seller_id = new UserId(values[0]);
         this.item_ctr = Integer.parseInt(values[1]);
     }

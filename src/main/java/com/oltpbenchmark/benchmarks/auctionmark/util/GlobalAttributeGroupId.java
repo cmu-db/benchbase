@@ -22,15 +22,17 @@ import com.oltpbenchmark.util.CompositeId;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class GlobalAttributeGroupId extends CompositeId implements Comparable<GlobalAttributeGroupId> {
 
     private static final int[] COMPOSITE_BITS = {
-            16, // CATEGORY
-            8,  // ID
-            8   // COUNT
+            INT_MAX_DIGITS, // CATEGORY
+            INT_MAX_DIGITS,  // ID
+            INT_MAX_DIGITS   // COUNT
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
+
+    public static final int ID_LENGTH = IntStream.of(COMPOSITE_BITS).sum();
 
     private int category_id;
     private int id;
@@ -48,12 +50,12 @@ public class GlobalAttributeGroupId extends CompositeId implements Comparable<Gl
 
     @Override
     public String encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
     public void decode(String composite_id) {
-        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.category_id = Integer.parseInt(values[0]);
         this.id = Integer.parseInt(values[1]);
         this.count = Integer.parseInt(values[2]);

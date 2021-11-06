@@ -28,12 +28,11 @@ import java.util.Objects;
 public class FlightId extends CompositeId implements Comparable<FlightId> {
 
     private static final int[] COMPOSITE_BITS = {
-            14, // AIRLINE_ID
-            16, // DEPART AIRPORT_ID
-            16, // ARRIVE AIRPORT_ID
-            32, // DEPART DATE
+            LONG_MAX_DIGITS, // AIRLINE_ID
+            LONG_MAX_DIGITS, // DEPART AIRPORT_ID
+            LONG_MAX_DIGITS, // ARRIVE AIRPORT_ID
+            LONG_MAX_DIGITS // DEPART DATE
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     /**
      * The airline for this flight
@@ -85,12 +84,12 @@ public class FlightId extends CompositeId implements Comparable<FlightId> {
 
     @Override
     public String encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
     public void decode(String composite_id) {
-        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.airline_id = Long.parseLong(values[0]);
         this.depart_airport_id = Long.parseLong(values[1]);
         this.arrive_airport_id = Long.parseLong(values[2]);

@@ -22,14 +22,16 @@ import com.oltpbenchmark.util.CompositeId;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class UserId extends CompositeId implements Comparable<UserId> {
 
     private static final int[] COMPOSITE_BITS = {
-            32, // ITEM_COUNT
-            32, // OFFSET
+            INT_MAX_DIGITS, // ITEM_COUNT
+            INT_MAX_DIGITS // OFFSET
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
+
+    public static final int ID_LENGTH = IntStream.of(COMPOSITE_BITS).sum();
 
     /**
      * The size index is the position in the histogram for the number
@@ -66,12 +68,12 @@ public class UserId extends CompositeId implements Comparable<UserId> {
 
     @Override
     public String encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
     public void decode(String composite_id) {
-        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.itemCount = Integer.parseInt(values[0]);
         this.offset = Integer.parseInt(values[1]);
     }

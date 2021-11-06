@@ -26,10 +26,9 @@ import java.util.Objects;
 public class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     private static final int[] COMPOSITE_BITS = {
-            48, // ID
-            16, // AIRPORT_ID
+            INT_MAX_DIGITS, // ID
+            LONG_MAX_DIGITS // AIRPORT_ID
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private int id;
     private long depart_airport_id;
@@ -45,12 +44,12 @@ public class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     @Override
     public String encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
     public void decode(String composite_id) {
-        String[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.id = Integer.parseInt(values[0]);
         this.depart_airport_id = Long.parseLong(values[1]);
     }
