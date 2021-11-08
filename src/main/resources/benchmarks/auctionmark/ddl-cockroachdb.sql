@@ -56,7 +56,7 @@ CREATE TABLE config_profile (
     cfp_scale_factor        float          NOT NULL,
     cfp_loader_start        timestamp DEFAULT CURRENT_TIMESTAMP,
     cfp_loader_stop         timestamp DEFAULT CURRENT_TIMESTAMP,
-    cfp_user_item_histogram varchar(12000) NOT NULL
+    cfp_user_item_histogram text NOT NULL
 );
 
 -- ================================================================
