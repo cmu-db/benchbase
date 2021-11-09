@@ -124,11 +124,7 @@ public abstract class ThreadUtil {
     private static final ThreadFactory factory = new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
-
-            LoaderThread loaderThread = (LoaderThread)r;
-
-
-            Thread t = new Thread(loaderThread);
+            Thread t = new Thread(r);
             t.setDaemon(true);
             return (t);
         }
