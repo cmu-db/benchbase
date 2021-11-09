@@ -44,6 +44,7 @@
  ***************************************************************************/
 package com.oltpbenchmark.util;
 
+import com.oltpbenchmark.api.LoaderThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,65 +61,61 @@ public abstract class ThreadUtil {
 
 
     /**
-     * @param <R>
-     * @param threads
-     */
-    public static <R extends Runnable> void runNewPool(final Collection<R> threads, int max_concurrent) throws InterruptedException {
-        ThreadUtil.run(threads, max_concurrent);
-    }
-
-    /**
      * For a given list of threads, execute them all (up to max_concurrent at a
      * time) and return once they have completed. If max_concurrent is null,
      * then all threads will be fired off at the same time
      *
-     * @param runnables
+     * @param loaderThreads
      * @param maxConcurrent
      * @throws Exception
      */
-    private static <R extends Runnable> void run(final Collection<R> runnables, final int maxConcurrent) throws InterruptedException {
-        final int runnablesSize = runnables.size();
+    public static void runLoaderThreads(final Collection<LoaderThread> loaderThreads, int maxConcurrent) throws InterruptedException {
 
-        int poolSize = Math.min(maxConcurrent, runnablesSize);
+        final int loaderThreadSize = loaderThreads.size();
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("runnablesSize{}, maxConcurrent {}, poolSize {}", runnablesSize, maxConcurrent, poolSize);
+        int poolSize = Math.min(maxConcurrent, loaderThreadSize);
+
+        int threadOverflow = (loaderThreadSize > poolSize ? loaderThreadSize - poolSize : 0);
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Creating a Thread Pool with a size of {} to run {} Loader Threads.  {} threads will be queued.", poolSize, loaderThreadSize, threadOverflow);
         }
 
         ExecutorService service = Executors.newFixedThreadPool(poolSize, factory);
 
         final long start = System.currentTimeMillis();
 
-        final CountDownLatch latch = new CountDownLatch(runnablesSize);
+        final CountDownLatch latch = new CountDownLatch(loaderThreadSize);
 
         try {
-            for (R r : runnables) {
-                service.execute(new LatchRunnable(r, latch));
+            for (LoaderThread loaderThread : loaderThreads) {
+                service.execute(new LatchRunnable(loaderThread, latch));
             }
 
-            LOG.trace("all runnables executed; waiting on latches...");
+            LOG.trace("All Loader Threads executed; waiting on latches...");
             latch.await();
 
         } finally {
 
-            LOG.trace("attempting to shutdown the pool...");
+            LOG.trace("Attempting to shutdown the pool...");
 
             service.shutdown();
 
             boolean cleanTermination = service.awaitTermination(5, TimeUnit.MINUTES);
 
             if (cleanTermination) {
-                LOG.trace("pool shut down!");
+                LOG.trace("Pool shut down cleanly!");
             } else {
-                LOG.warn("pool shut down after termination timeout expired.  likely caused by unhandled exception in a thread causing latch count down.  will force shutdown now.");
+                LOG.warn("Pool shut down after termination timeout expired.  Likely caused by an unhandled exception in a Loader Thread causing latch count down.  Will force shutdown now.");
+
                 List<Runnable> notStarted = service.shutdownNow();
 
-                LOG.warn("{} runnables were terminated before starting.", notStarted.size());
+                LOG.warn("{} Loader Threads were terminated before starting.", notStarted.size());
             }
 
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 final long stop = System.currentTimeMillis();
-                LOG.debug(String.format("Finished executing %d threads [time=%.02fs]", runnablesSize, (stop - start) / 1000d));
+                LOG.info(String.format("Finished executing %d Loader Threads [time=%.02fs]", loaderThreadSize, (stop - start) / 1000d));
             }
         }
 
@@ -127,27 +124,31 @@ public abstract class ThreadUtil {
     private static final ThreadFactory factory = new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r);
+
+            LoaderThread loaderThread = (LoaderThread)r;
+
+
+            Thread t = new Thread(loaderThread);
             t.setDaemon(true);
             return (t);
         }
     };
 
     private static class LatchRunnable implements Runnable {
-        private final Runnable r;
+        private final LoaderThread loaderThread;
         private final CountDownLatch latch;
 
-        public LatchRunnable(Runnable r, CountDownLatch latch) {
-            this.r = r;
+        public LatchRunnable(LoaderThread loaderThread, CountDownLatch latch) {
+            this.loaderThread = loaderThread;
             this.latch = latch;
         }
 
         @Override
         public void run() {
             try {
-                this.r.run();
+                this.loaderThread.run();
             } catch (Exception e) {
-                LOG.error(String.format("Exception in thread with message: [%s]; will count down latch with count %d", e.getMessage(), this.latch.getCount()), e);
+                LOG.error(String.format("Exception in Loader Thread with message: [%s]; will count down latch with count %d and then exit :(", e.getMessage(), this.latch.getCount()), e);
                 System.exit(1);
             } finally {
                 this.latch.countDown();
