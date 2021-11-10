@@ -10,11 +10,7 @@
 
 name: BenchBase (Java with Maven)
 
-on:
-  push:
-    branches: [ main ]
-  pull_request_target:
-    branches: [ main ]
+on: [push, pull_request]
 
 env:
   POM_VERSION: 2021-SNAPSHOT
