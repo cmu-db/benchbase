@@ -34,7 +34,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     public void testGetDatabaseDDLPath() throws Exception {
         String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
         assertNotNull(ddlPath);
-        try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(ddlPath)) {
+        try (InputStream stream = this.getClass().getResourceAsStream(ddlPath)) {
             assertNotNull(stream);
         }
     }

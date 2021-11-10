@@ -2,14 +2,15 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>MYSQL</type>
-    <driver>com.mysql.cj.jdbc.Driver</driver>
-    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;sslMode=DISABLED</url>
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
+    <!-- Scale factor is the number of wikipages *1000 -->
     <scalefactor>1</scalefactor>
 
     <!-- The workload -->
@@ -17,30 +18,27 @@
     <works>
         <work>
             <time>60</time>
-            <rate>100</rate>
-            <weights>15,15,15,25,15,15</weights>
+            <rate>1000</rate>
+            <weights>1,1,7,90,1</weights>
         </work>
     </works>
 
-    <!-- SmallBank Procedures declaration -->
+    <!-- Wikipedia Procedures Declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>Amalgamate</name>
+            <name>AddWatchList</name>
         </transactiontype>
         <transactiontype>
-            <name>Balance</name>
+            <name>RemoveWatchList</name>
         </transactiontype>
         <transactiontype>
-            <name>DepositChecking</name>
+            <name>UpdatePage</name>
         </transactiontype>
         <transactiontype>
-            <name>SendPayment</name>
+            <name>GetPageAnonymous</name>
         </transactiontype>
         <transactiontype>
-            <name>TransactSavings</name>
-        </transactiontype>
-        <transactiontype>
-            <name>WriteCheck</name>
+            <name>GetPageAuthenticated</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

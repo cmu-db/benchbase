@@ -189,16 +189,17 @@ public abstract class BenchmarkModule {
         // The order matters!
         List<String> names = new ArrayList<>();
         if (db_type != null) {
-            names.add("ddl-" + db_type.name().toLowerCase() + ".sql");
+            DatabaseType ddl_db_type = db_type;
+            if (ddl_db_type == DatabaseType.MARIADB) ddl_db_type = DatabaseType.MYSQL;
+            names.add("ddl-" + ddl_db_type.name().toLowerCase() + ".sql");
         }
         names.add("ddl-generic.sql");
 
         for (String fileName : names) {
             final String benchmarkName = getBenchmarkName();
-            final String path = "benchmarks" + File.separator + benchmarkName + File.separator + fileName;
+            final String path = "/benchmarks/" + benchmarkName + "/" + fileName;
 
-            try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(path)) {
-
+            try (InputStream stream = this.getClass().getResourceAsStream(path)) {
                 if (stream != null) {
                     return path;
                 }

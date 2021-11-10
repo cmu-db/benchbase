@@ -2,14 +2,15 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>MYSQL</type>
-    <driver>com.mysql.cj.jdbc.Driver</driver>
-    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;sslMode=DISABLED</url>
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
+    <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
     <scalefactor>1</scalefactor>
 
     <!-- The workload -->
@@ -17,30 +18,31 @@
     <works>
         <work>
             <time>60</time>
-            <rate>100</rate>
-            <weights>15,15,15,25,15,15</weights>
+            <rate>10000</rate>
+            <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
         </work>
     </works>
 
-    <!-- SmallBank Procedures declaration -->
+    <!-- R/S Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>Amalgamate</name>
+            <name>CPU1</name>
         </transactiontype>
         <transactiontype>
-            <name>Balance</name>
+            <name>CPU2</name>
         </transactiontype>
         <transactiontype>
-            <name>DepositChecking</name>
+            <name>IO1</name>
         </transactiontype>
         <transactiontype>
-            <name>SendPayment</name>
+            <name>IO2</name>
         </transactiontype>
         <transactiontype>
-            <name>TransactSavings</name>
+            <name>Contention1</name>
         </transactiontype>
         <transactiontype>
-            <name>WriteCheck</name>
+            <name>Contention2</name>
         </transactiontype>
     </transactiontypes>
+
 </parameters>

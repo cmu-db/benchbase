@@ -39,7 +39,7 @@ public class SEATSBenchmark extends BenchmarkModule {
     }
 
     public String getDataDir() {
-        return "benchmarks" + File.separator + getBenchmarkName();
+        return "/benchmarks/" + getBenchmarkName();
     }
 
     public RandomGenerator getRandomGenerator() {
