@@ -24,8 +24,8 @@ import java.util.Objects;
 
 /**
  * Composite Item Id
- * First 48-bits are the seller's USER.U_ID
- * Last 16-bits are the item counter for this particular user
+ * First 44-bits are the seller's USER.U_ID
+ * Last 32-bits are the item counter for this particular user
  *
  * @author pavlo
  */
@@ -33,12 +33,12 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
             44, // SELLER_ID
-            16, // ITEM_CTR
+            32, // ITEM_CTR
     };
     private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private UserId seller_id;
-    private int item_ctr;
+    private long item_ctr;
 
     public ItemId(UserId seller_id, int item_ctr) {
         this.seller_id = seller_id;
@@ -59,7 +59,7 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
     public void decode(long composite_id) {
         long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
         this.seller_id = new UserId(values[0]);
-        this.item_ctr = (int) values[1] - 1;
+        this.item_ctr = values[1] - 1;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
      *
      * @return the item_ctr
      */
-    public int getItemCtr() {
+    public long getItemCtr() {
         return (this.item_ctr);
     }
 
@@ -103,8 +103,7 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
             return false;
         }
         ItemId itemId = (ItemId) o;
-        return item_ctr == itemId.item_ctr &&
-                Objects.equals(seller_id, itemId.seller_id);
+        return item_ctr == itemId.item_ctr && Objects.equals(seller_id, itemId.seller_id);
     }
 
     @Override
