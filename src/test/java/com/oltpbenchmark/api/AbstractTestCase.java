@@ -86,6 +86,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.workConf.setDatabaseType(DB_TYPE);
         this.workConf.setUrl(DB_CONNECTION + this.dbName);
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
+        this.workConf.setBenchmarkName(BenchmarkModule.convertBenchmarkClassToBenchmarkName(clazz));
 
         this.benchmark = ClassUtil.newInstance(clazz,
                 new Object[]{this.workConf},
