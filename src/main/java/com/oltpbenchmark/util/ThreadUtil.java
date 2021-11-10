@@ -78,11 +78,10 @@ public abstract class ThreadUtil {
     private static <R extends Runnable> void run(final Collection<R> runnables, final int maxConcurrent) throws InterruptedException {
         final int runnablesSize = runnables.size();
 
-        int poolSize = Math.min(maxConcurrent, runnablesSize);
+        // want this to never be less than 1 but the min of runnables and max concurrent.
+        int poolSize = Math.max(1, Math.min(maxConcurrent, runnablesSize));
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("runnablesSize{}, maxConcurrent {}, poolSize {}", runnablesSize, maxConcurrent, poolSize);
-        }
+        LOG.info("Runnables size = {}, Max Concurrent Threads = {}; Resulting Pool Size = {}", runnablesSize, maxConcurrent, poolSize);
 
         ExecutorService service = Executors.newFixedThreadPool(poolSize, factory);
 
