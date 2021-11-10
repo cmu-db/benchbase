@@ -73,7 +73,6 @@ public abstract class ThreadUtil {
 
         final int loaderThreadSize = loaderThreads.size();
 
-        // never want poolSize to be less than 1 but the min of loaderThreadSize and maxConcurrent.
         int poolSize =  Math.max(1, Math.min(maxConcurrent, loaderThreadSize));
 
         int threadOverflow = (loaderThreadSize > poolSize ? loaderThreadSize - poolSize : 0);
