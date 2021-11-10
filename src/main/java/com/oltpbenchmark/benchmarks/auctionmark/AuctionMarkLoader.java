@@ -796,7 +796,7 @@ public class AuctionMarkLoader extends Loader<AuctionMarkBenchmark> {
             this.num_categories = getGenerator(AuctionMarkConstants.TABLENAME_CATEGORY).tableSize;
 
             for (int i = 0; i < this.tableSize; i++) {
-                int category_id = profile.rng.number(0, (int) this.num_categories);
+                int category_id = profile.rng.number(0, ((int) this.num_categories - 1));
                 this.category_groups.put(category_id);
                 int id = this.category_groups.get(category_id);
                 int count = (int) profile.rng.number(1, AuctionMarkConstants.TABLESIZE_GLOBAL_ATTRIBUTE_VALUE_PER_GROUP);
