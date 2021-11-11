@@ -269,7 +269,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     long sleep_start = System.nanoTime();
                     Thread.sleep(keying_time_msecs);
                     if (LOG.isDebugEnabled()) {
-                        LOG.info(transactionTypes.getType(pieceOfWork.getType()).getName() + " Keying time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
+                        LOG.debug(transactionTypes.getType(pieceOfWork.getType()).getName() + " Keying time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
                     }
                 } catch (InterruptedException e) {
                     LOG.error("Thread sleep interrupted", e);
@@ -343,7 +343,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     long sleep_start = System.nanoTime();
                     Thread.sleep(think_time_msecs);
                     if (LOG.isDebugEnabled()) {
-                        LOG.info(transactionTypes.getType(pieceOfWork.getType()).getName() + " Think time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
+                        LOG.debug(transactionTypes.getType(pieceOfWork.getType()).getName() + " Think time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
                     }
                 } catch (InterruptedException e) {
                     LOG.error("Thread sleep interrupted", e);

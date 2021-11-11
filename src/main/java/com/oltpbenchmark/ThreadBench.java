@@ -150,7 +150,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         // Main Loop
         while (true) {
-            // posting new work... and reseting the queue in case we have new
+            // posting new work... and resetting the queue in case we have new
             // portion of the workload...
 
             for (WorkloadState workState : workStates) {
