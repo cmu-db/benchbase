@@ -70,7 +70,7 @@ public class TestUserId extends TestCase {
 
         int num_ids = 100;
         for (int i = 0; i < num_ids; i++) {
-            UserId user_id = new UserId(rand.nextInt(), rand.nextInt());
+            UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
             assert (user_id.getItemCount() > 0);
             assert (user_id.getOffset() > 0);
             if (orig.contains(user_id)) {
@@ -155,7 +155,7 @@ public class TestUserId extends TestCase {
         for (int i = 0; i < 100; i++) {
             int size = rand.nextInt(10000);
             for (int offset = 0; offset < 10; offset++) {
-                long[] values = {offset, size};
+                String[] values = {Integer.toString(size), Integer.toString(offset)};
                 String encoded = new UserId(size, offset).encode();
 
                 String[] new_values = new UserId(encoded).toArray();
@@ -165,15 +165,5 @@ public class TestUserId extends TestCase {
                 } // FOR
             } // FOR
         } // FOR
-    }
-
-    @Test
-    public void testRandom() {
-        String test = "000011000000000000000000";
-
-        System.out.println(Long.valueOf(test));
-        System.out.println(Long.parseLong(test));
-
-
     }
 }

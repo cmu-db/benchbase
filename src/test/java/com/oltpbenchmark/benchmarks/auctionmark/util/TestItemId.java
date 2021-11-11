@@ -35,7 +35,7 @@ public class TestItemId extends TestCase {
      */
     public void testItemId() {
         for (int i = 0; i < num_users; i++) {
-            UserId user_id = new UserId(rand.nextInt(), rand.nextInt());
+            UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
             for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
                 ItemId customer_id = new ItemId(user_id, item_ctr);
                 assertNotNull(customer_id);
@@ -50,7 +50,7 @@ public class TestItemId extends TestCase {
      */
     public void testItemIdEncode() {
         for (int i = 0; i < num_users; i++) {
-            UserId user_id = new UserId(rand.nextInt(), rand.nextInt());
+            UserId user_id = new UserId(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
             for (int item_ctr = 0; item_ctr < num_items; item_ctr++) {
                 String encoded = new ItemId(user_id, item_ctr).encode();
 
@@ -60,20 +60,5 @@ public class TestItemId extends TestCase {
                 assertEquals(item_ctr, customer_id.getItemCtr());
             } // FOR
         } // FOR
-    }
-
-    @Test
-    public void testRandom() {
-        UserId seller1 = new UserId(1, 1555);
-        ItemId item1 = new ItemId(seller1, 0);
-        String item1Encoded = item1.encode();
-
-        ItemId item2 = new ItemId(item1Encoded);
-        UserId seller2 = item2.getSellerId();
-
-        assertEquals(seller1.getItemCount(), seller2.getItemCount());
-        assertEquals(seller1.getOffset(), seller2.getOffset());
-        assertEquals(item1.getItemCtr(), item1.getItemCtr());
-
     }
 }
