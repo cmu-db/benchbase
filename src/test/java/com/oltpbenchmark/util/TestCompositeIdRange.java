@@ -95,11 +95,4 @@ public class TestCompositeIdRange {
         assertEquals(packedLong.getField2(), packedLong2.getField2());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testOutOfRange() {
-        // Won't fit, we have allocated only 16 bits to field 1
-        PackedLong packedLong = new PackedLong(Integer.MAX_VALUE, Integer.MAX_VALUE);
-        String encodedLong = packedLong.encode();
-    }
-
 }
