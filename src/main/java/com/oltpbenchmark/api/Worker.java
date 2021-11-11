@@ -60,7 +60,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private final Histogram<TransactionType> txnAbort = new Histogram<>();
     private final Histogram<TransactionType> txnRetry = new Histogram<>();
     private final Histogram<TransactionType> txnErrors = new Histogram<>();
-    private final Histogram<TransactionType> txtRetryDifffernt = new Histogram<>();
+    private final Histogram<TransactionType> txtRetryDifferent = new Histogram<>();
 
     private boolean seenDone = false;
 
@@ -163,7 +163,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
 
     public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
-        return (this.txtRetryDifffernt);
+        return (this.txtRetryDifferent);
     }
 
     /**
@@ -262,6 +262,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // increase latency (queue delay) but we do this anyway since it is
             // useful sometimes
 
+            if (this.configuration.isKeyingTimeEnabled()) {
+                // Wait for the keying time which is a fixed amount for each type of transaction.
+                long keying_time_msecs = getKeyingTimeInMillis(transactionTypes.getType(pieceOfWork.getType()));
+                try {
+                    long sleep_start = System.nanoTime();
+                    Thread.sleep(keying_time_msecs);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.info(transactionTypes.getType(pieceOfWork.getType()).getName() + " Keying time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
+                    }
+                } catch (InterruptedException e) {
+                    LOG.error("Thread sleep interrupted", e);
+                }
+            }
+
             long start = pieceOfWork.getStartTime();
 
             TransactionType type = invalidTT;
@@ -320,6 +334,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     break;
                 default:
                     // Do nothing
+            }
+
+            if (this.configuration.isThinkTimeEnabled()) {
+                // Sleep for the think time duration.
+                long think_time_msecs = getThinkTimeInMillis(transactionTypes.getType(pieceOfWork.getType()));
+                try {
+                    long sleep_start = System.nanoTime();
+                    Thread.sleep(think_time_msecs);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.info(transactionTypes.getType(pieceOfWork.getType()).getName() + " Think time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
+                    }
+                } catch (InterruptedException e) {
+                    LOG.error("Thread sleep interrupted", e);
+                }
             }
 
             state.finishedWork();
@@ -410,7 +438,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                             this.txnRetry.put(transactionType);
                             break;
                         case RETRY_DIFFERENT:
-                            this.txtRetryDifffernt.put(transactionType);
+                            this.txtRetryDifferent.put(transactionType);
                             break;
                         case ERROR:
                             this.txnErrors.put(transactionType);
@@ -498,4 +526,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     public void initializeState() {
         this.state = this.configuration.getWorkloadState();
     }
+
+    protected long getKeyingTimeInMillis(TransactionType type) {
+        return 0;
+    }
+
+    protected long getThinkTimeInMillis(TransactionType type) {
+        return 0;
+    }
+
 }
