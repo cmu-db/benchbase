@@ -276,7 +276,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 }
             }
 
-            long start = pieceOfWork.getStartTime();
+            //long start = pieceOfWork.getStartTime();
+            long start = System.nanoTime();
 
             TransactionType type = invalidTT;
             try {

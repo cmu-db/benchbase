@@ -67,16 +67,16 @@ public class ResultUploader {
 
     }
 
-    public void writeDBParameters(PrintStream os) {
+    public void writeParams(PrintStream os) {
         String dbConf = collector.collectParameters();
         os.print(dbConf);
     }
 
-    public void writeDBMetrics(PrintStream os) {
+    public void writeMetrics(PrintStream os) {
         os.print(collector.collectMetrics());
     }
 
-    public void writeBenchmarkConf(PrintStream os) throws ConfigurationException {
+    public void writeConfig(PrintStream os) throws ConfigurationException {
 
         XMLConfiguration outputConf = (XMLConfiguration) expConf.clone();
         for (String key : IGNORE_CONF) {
