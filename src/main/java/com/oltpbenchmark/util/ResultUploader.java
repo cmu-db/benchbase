@@ -42,7 +42,9 @@ public class ResultUploader {
     private static final String[] BENCHMARK_KEY_FIELD = {
             "isolation",
             "scalefactor",
-            "terminals"
+            "terminals",
+            "keyingTimeEnabled",
+            "thinkTimeEnabled"
     };
 
     private final XMLConfiguration expConf;
@@ -74,6 +76,10 @@ public class ResultUploader {
 
     public void writeMetrics(PrintStream os) {
         os.print(collector.collectMetrics());
+    }
+
+    public boolean hasMetrics() {
+        return collector.hasMetrics();
     }
 
     public void writeConfig(PrintStream os) throws ConfigurationException {

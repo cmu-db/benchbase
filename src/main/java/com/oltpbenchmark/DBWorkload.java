@@ -590,10 +590,12 @@ public class DBWorkload {
             ru.writeParams(ps);
         }
 
-        String metricsFileName = baseFileName + ".metrics.json";
-        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, metricsFileName))) {
-            LOG.info("Output DBMS metrics into file: {}", metricsFileName);
-            ru.writeMetrics(ps);
+        if (ru.hasMetrics()) {
+            String metricsFileName = baseFileName + ".metrics.json";
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, metricsFileName))) {
+                LOG.info("Output DBMS metrics into file: {}", metricsFileName);
+                ru.writeMetrics(ps);
+            }
         }
 
         String configFileName = baseFileName + ".config.xml";
