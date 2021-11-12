@@ -99,22 +99,12 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
     @Override
     protected long getThinkTimeInMillis(TransactionType type) {
         // TPC-C 5.2.5.4: For think times for each type of transaction.
-        long mean;
-        switch (type.getName()) {
-            case "NewOrder":
-            case "Payment":
-                mean = 12000;
-                break;
-            case "OrderStatus":
-                mean = 10000;
-                break;
-            case "Delivery":
-            case "StockLevel":
-                mean = 5000;
-                break;
-            default:
-                throw new IllegalArgumentException("invalid TransactionType provided: " + type);
-        }
+        long mean = switch (type.getName()) {
+            case "NewOrder", "Payment" -> 12000;
+            case "OrderStatus" -> 10000;
+            case "Delivery", "StockLevel" -> 5000;
+            default -> throw new IllegalArgumentException("invalid TransactionType provided: " + type);
+        };
 
         float c = this.getBenchmarkModule().rng().nextFloat();
         long thinkTime = (long) (-1 * Math.log(c) * mean);
