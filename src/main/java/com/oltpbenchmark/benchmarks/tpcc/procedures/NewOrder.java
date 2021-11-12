@@ -152,11 +152,13 @@ public class NewOrder extends TPCCProcedure {
                 int ol_supply_w_id = supplierWarehouseIDs[ol_number - 1];
                 int ol_i_id = itemIDs[ol_number - 1];
                 int ol_quantity = orderQuantities[ol_number - 1];
-                Stock s = getStock(conn, ol_supply_w_id, ol_i_id, ol_quantity);
 
+                // this may occasionally error and that's ok!
                 float i_price = getItemPrice(conn, ol_i_id);
 
                 float ol_amount = ol_quantity * i_price;
+
+                Stock s = getStock(conn, ol_supply_w_id, ol_i_id, ol_quantity);
 
                 String ol_dist_info = getDistInfo(d_id, s);
 
@@ -220,7 +222,7 @@ public class NewOrder extends TPCCProcedure {
             stmtGetStock.setInt(2, ol_supply_w_id);
             try (ResultSet rs = stmtGetStock.executeQuery()) {
                 if (!rs.next()) {
-                    throw new RuntimeException("I_ID=" + ol_i_id + " not found!");
+                    throw new RuntimeException("S_I_ID=" + ol_i_id + " not found!");
                 }
                 Stock s = new Stock();
                 s.s_quantity = rs.getInt("S_QUANTITY");
@@ -251,8 +253,7 @@ public class NewOrder extends TPCCProcedure {
             stmtGetItem.setInt(1, ol_i_id);
             try (ResultSet rs = stmtGetItem.executeQuery()) {
                 if (!rs.next()) {
-                    // This is (hopefully) an expected error: this is an
-                    // expected new order rollback
+                    // This is (hopefully) an expected error: this is an expected new order rollback
                     throw new UserAbortException("EXPECTED new order rollback: I_ID=" + ol_i_id + " not found!");
                 }
 
