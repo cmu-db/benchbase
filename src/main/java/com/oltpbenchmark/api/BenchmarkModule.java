@@ -42,6 +42,7 @@ import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +93,15 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     public final Connection makeConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(
-                workConf.getUrl(),
-                workConf.getUsername(),
-                workConf.getPassword());
-        return conn;
+
+        if (StringUtils.isEmpty(workConf.getUsername())) {
+            return DriverManager.getConnection(workConf.getUrl());
+        } else {
+            return DriverManager.getConnection(
+                    workConf.getUrl(),
+                    workConf.getUsername(),
+                    workConf.getPassword());
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -212,7 +217,7 @@ public abstract class BenchmarkModule {
         return (this.makeWorkersImpl());
     }
 
-    public final void refreshCatalog() {
+    public final void refreshCatalog() throws SQLException {
         if (this.catalog != null) {
             try {
                 this.catalog.close();
@@ -222,8 +227,6 @@ public abstract class BenchmarkModule {
         }
         try (Connection conn = this.makeConnection()) {
             this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), conn);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -232,11 +235,9 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase() {
+    public final void createDatabase() throws SQLException, IOException {
         try (Connection conn = this.makeConnection()) {
             this.createDatabase(this.workConf.getDatabaseType(), conn);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -245,8 +246,8 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase(DatabaseType dbType, Connection conn) {
-        try {
+    public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException, IOException {
+
             String ddlPath = this.getDatabaseDDLPath(dbType);
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
@@ -255,53 +256,40 @@ public abstract class BenchmarkModule {
             }
 
             runner.runScript(ddlPath);
-        } catch (Exception ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
-        }
+
     }
 
 
     /**
      * Invoke this benchmark's database loader
      */
-    public final Loader<? extends BenchmarkModule> loadDatabase() {
+    public final Loader<? extends BenchmarkModule> loadDatabase() throws SQLException, InterruptedException {
         Loader<? extends BenchmarkModule> loader;
-        try {
-            loader = this.makeLoaderImpl();
-            if (loader != null) {
+
+        loader = this.makeLoaderImpl();
+        if (loader != null) {
 
 
-                // PAVLO: 2016-12-23
-                // We are going to eventually migrate everything over to use the
-                // same API for creating multi-threaded loaders. For now we will support
-                // both. So if createLoaderTheads() returns null, we will use the old load()
-                // method.
-                List<? extends LoaderThread> loaderThreads = loader.createLoaderThreads();
+            try {
+                List<LoaderThread> loaderThreads = loader.createLoaderThreads();
                 int maxConcurrent = workConf.getLoaderThreads();
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]", loaderThreads.size(), loader.getClass().getSimpleName(), maxConcurrent));
-                }
-
-                ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
-
+                ThreadUtil.runLoaderThreads(loaderThreads, maxConcurrent);
 
                 if (!loader.getTableCounts().isEmpty()) {
                     LOG.debug("Table Counts:\n{}", loader.getTableCounts());
                 }
-
+            } finally {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
+                }
             }
-        } catch (SQLException ex) {
-            String msg = String.format("Unexpected error when trying to load the %s database", getBenchmarkName());
-            throw new RuntimeException(msg, ex);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
-        }
+
         return loader;
     }
 
-    public final void clearDatabase() {
+    public final void clearDatabase() throws SQLException {
 
         try (Connection conn = this.makeConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
@@ -310,8 +298,6 @@ public abstract class BenchmarkModule {
                 loader.unload(conn, this.catalog);
                 conn.commit();
             }
-        } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", getBenchmarkName()), ex);
         }
     }
 

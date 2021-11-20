@@ -59,7 +59,7 @@ public class NewCommentResponse extends Procedure {
     // -----------------------------------------------------------------
 
     public void run(Connection conn, Timestamp[] benchmarkTimes,
-                    long item_id, long seller_id, long comment_id, String response) throws SQLException {
+                    String item_id, String seller_id, long comment_id, String response) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, updateComment, response, currentTime, comment_id, item_id, seller_id)) {
             preparedStatement.executeUpdate();

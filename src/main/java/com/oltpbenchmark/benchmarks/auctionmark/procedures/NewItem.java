@@ -21,8 +21,10 @@ package com.oltpbenchmark.benchmarks.auctionmark.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
+import com.oltpbenchmark.benchmarks.auctionmark.exceptions.DuplicateItemIdException;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
+import com.oltpbenchmark.util.SQLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +74,9 @@ public class NewItem extends Procedure {
 
     public final SQLStmt updateUserBalance = new SQLStmt("UPDATE " + AuctionMarkConstants.TABLENAME_USERACCT + " " + "SET u_balance = u_balance - 1, " + "    u_updated = ? " + " WHERE u_id = ?");
 
+    public final SQLStmt getSellerItemCount = new SQLStmt("SELECT COUNT(*) FROM " + AuctionMarkConstants.TABLENAME_ITEM + " WHERE i_u_id = ?");
+
+
     // -----------------------------------------------------------------
     // RUN METHOD
     // -----------------------------------------------------------------
@@ -90,7 +95,7 @@ public class NewItem extends Procedure {
      * and so on. After these records are inserted, the transaction then updates
      * the USER record to add the listing fee to the seller's balance.
      */
-    public Object[] run(Connection conn, Timestamp[] benchmarkTimes, long item_id, long seller_id, long category_id, String name, String description, long duration, double initial_price, String attributes, long[] gag_ids, long[] gav_ids, String[] images) throws SQLException {
+    public Object[] run(Connection conn, Timestamp[] benchmarkTimes, String item_id, String seller_id, long category_id, String name, String description, long duration, double initial_price, String attributes, String[] gag_ids, String[] gav_ids, String[] images) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
         final boolean debug = LOG.isDebugEnabled();
 
@@ -116,12 +121,12 @@ public class NewItem extends Procedure {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, getGlobalAttribute)) {
             for (int i = 0; i < gag_ids.length; i++) {
                 int col = 1;
-                stmt.setLong(col++, gav_ids[i]);
-                stmt.setLong(col++, gag_ids[i]);
+                stmt.setString(col++, gav_ids[i]);
+                stmt.setString(col, gag_ids[i]);
                 try (ResultSet results = stmt.executeQuery()) {
                     if (results.next()) {
                         col = 1;
-                        description += String.format(" * %s -> %s\n", results.getString(col++), results.getString(col++));
+                        description += String.format(" * %s -> %s\n", results.getString(col++), results.getString(col));
                     }
                 }
             }
@@ -150,6 +155,14 @@ public class NewItem extends Procedure {
             }
         }
 
+        int sellerItemCount = 0;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, getSellerItemCount, seller_id);
+             ResultSet results = stmt.executeQuery()) {
+            if (results.next()) {
+                sellerItemCount = results.getInt(1);
+            }
+        }
+
         // Insert new ITEM tuple
         try (PreparedStatement stmt = this.getPreparedStatement(conn, insertItem, item_id,         // i_id
                 seller_id,       // i_u_id
@@ -169,19 +182,29 @@ public class NewItem extends Procedure {
                 currentTime      // i_updated
         )) {
 
+            // NOTE: This may fail with a duplicate entry exception because
+            // the client's internal count of the number of items that this seller
+            // already has is wrong. That's ok. We'll just abort and ignore the problem
+            // Eventually the client's internal cache will catch up with what's in the database
             stmt.executeUpdate();
-        }
 
+        } catch (SQLException ex) {
+            if (SQLUtil.isDuplicateKeyException(ex)) {
+                throw new DuplicateItemIdException(item_id, seller_id, sellerItemCount, ex);
+            } else {
+                throw ex;
+            }
+        }
 
         // Insert ITEM_ATTRIBUTE tuples
         try (PreparedStatement stmt = this.getPreparedStatement(conn, insertItemAttribute)) {
             for (int i = 0; i < gav_ids.length; i++) {
                 int param = 1;
-                stmt.setLong(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
-                stmt.setLong(param++, item_id);
-                stmt.setLong(param++, seller_id);
-                stmt.setLong(param++, gag_ids[i]);
-                stmt.setLong(param++, gag_ids[i]);
+                stmt.setString(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
+                stmt.setString(param++, item_id);
+                stmt.setString(param++, seller_id);
+                stmt.setString(param++, gav_ids[i]);
+                stmt.setString(param, gag_ids[i]);
                 stmt.executeUpdate();
 
             }
@@ -191,10 +214,10 @@ public class NewItem extends Procedure {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, insertImage)) {
             for (int i = 0; i < images.length; i++) {
                 int param = 1;
-                stmt.setLong(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
-                stmt.setLong(param++, item_id);
-                stmt.setLong(param++, seller_id);
-                stmt.setString(param++, images[i]);
+                stmt.setString(param++, AuctionMarkUtil.getUniqueElementId(item_id, i));
+                stmt.setString(param++, item_id);
+                stmt.setString(param++, seller_id);
+                stmt.setString(param, images[i]);
                 stmt.executeUpdate();
 
             }

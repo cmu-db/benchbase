@@ -130,7 +130,7 @@ CREATE TABLE airline (
 -- CUSTOMER
 --
 CREATE TABLE customer (
-    c_id         bigint             NOT NULL,
+    c_id         varchar(128)             NOT NULL,
     c_id_str     varchar(64) UNIQUE NOT NULL,
     c_base_ap_id bigint,
     c_balance    float              NOT NULL,
@@ -182,7 +182,7 @@ CREATE TABLE customer (
 -- FREQUENT_FLYER
 --
 CREATE TABLE frequent_flyer (
-    ff_c_id     bigint      NOT NULL,
+    ff_c_id     varchar(128)      NOT NULL,
     ff_al_id    bigint      NOT NULL,
     ff_c_id_str varchar(64) NOT NULL,
     ff_sattr00  varchar(32),
@@ -215,7 +215,7 @@ CREATE INDEX idx_ff_customer_id ON frequent_flyer (ff_c_id_str);
 -- FLIGHT
 --
 CREATE TABLE flight (
-    f_id           bigint                              NOT NULL,
+    f_id           varchar(128)                              NOT NULL,
     f_al_id        bigint                              NOT NULL,
     f_depart_ap_id bigint                              NOT NULL,
     f_depart_time  timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -267,8 +267,8 @@ CREATE INDEX f_depart_time_idx ON flight (f_depart_time);
 --
 CREATE TABLE reservation (
     r_id      bigint NOT NULL,
-    r_c_id    bigint NOT NULL,
-    r_f_id    bigint NOT NULL,
+    r_c_id    varchar(128) NOT NULL,
+    r_f_id    varchar(128) NOT NULL,
     r_seat    bigint NOT NULL,
     r_price   float  NOT NULL,
     r_iattr00 bigint,

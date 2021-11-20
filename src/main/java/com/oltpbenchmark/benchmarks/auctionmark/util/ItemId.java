@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -32,10 +33,9 @@ import java.util.Objects;
 public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     private static final int[] COMPOSITE_BITS = {
-            44, // SELLER_ID
-            16, // ITEM_CTR
+            UserId.ID_LENGTH, // SELLER_ID
+            INT_MAX_DIGITS // ITEM_CTR
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private UserId seller_id;
     private int item_ctr;
@@ -46,25 +46,25 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
     }
 
 
-    public ItemId(long composite_id) {
+    public ItemId(String composite_id) {
         this.decode(composite_id);
     }
 
     @Override
-    public long encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+    public String encode() {
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
         this.seller_id = new UserId(values[0]);
-        this.item_ctr = (int) values[1] - 1;
+        this.item_ctr = Integer.parseInt(values[1]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.seller_id.encode(), this.item_ctr + 1});
+    public String[] toArray() {
+        return (new String[]{this.seller_id.encode(), Integer.toString(this.item_ctr)});
     }
 
     /**
@@ -87,10 +87,10 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
 
     @Override
     public String toString() {
-        return ("ItemId<" + this.item_ctr + "-" + this.seller_id + "/" + this.seller_id.encode() + ">");
+        return (String.format("ItemId<item_ctr=%d, seller_id=%s, encoded=%s>", this.item_ctr, this.seller_id, this.encode()));
     }
 
-    public static String toString(long itemId) {
+    public static String toString(String itemId) {
         return new ItemId(itemId).toString();
     }
 
@@ -103,17 +103,18 @@ public class ItemId extends CompositeId implements Comparable<ItemId> {
             return false;
         }
         ItemId itemId = (ItemId) o;
-        return item_ctr == itemId.item_ctr &&
-                Objects.equals(seller_id, itemId.seller_id);
+        return item_ctr == itemId.item_ctr && Objects.equals(seller_id, itemId.seller_id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), seller_id, item_ctr);
+        return Objects.hash(seller_id, item_ctr);
     }
 
     @Override
     public int compareTo(ItemId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparing(ItemId::getSellerId)
+                .thenComparingInt(ItemId::getItemCtr)
+                .compare(this, o);
     }
 }

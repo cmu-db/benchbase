@@ -17,13 +17,15 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
+import java.util.Objects;
+
 public class ItemCommentResponse {
 
     private final Long commentId;
-    private final Long itemId;
-    private final Long sellerId;
+    private final String itemId;
+    private final String sellerId;
 
-    public ItemCommentResponse(Long commentId, Long itemId, Long sellerId) {
+    public ItemCommentResponse(Long commentId, String itemId, String sellerId) {
         this.commentId = commentId;
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -33,11 +35,28 @@ public class ItemCommentResponse {
         return commentId;
     }
 
-    public Long getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public Long getSellerId() {
+    public String getSellerId() {
         return sellerId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ItemCommentResponse that = (ItemCommentResponse) o;
+        return Objects.equals(commentId, that.commentId) && Objects.equals(itemId, that.itemId) && Objects.equals(sellerId, that.sellerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(commentId, itemId, sellerId);
     }
 }

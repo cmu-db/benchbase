@@ -34,9 +34,11 @@ public abstract class AuctionMarkUtil {
      * @param idx
      * @return
      */
-    public static long getUniqueElementId(long item_id, int idx) {
-        // The idx cannot be more than 7bits
-        return (((long) idx << 56) | (item_id & ITEM_ID_MASK));
+    public static String getUniqueElementId(String item_id, int idx) {
+        ItemId itemId = new ItemId(item_id);
+        UserId sellerId = itemId.getSellerId();
+
+        return new ItemId(sellerId, idx).encode();
     }
 
     /**

@@ -20,7 +20,8 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.SQLUtil;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -29,7 +30,8 @@ import java.util.Set;
 
 public abstract class AbstractTestLoader<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
-    private static final Logger LOG = Logger.getLogger(AbstractTestLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTestLoader.class);
+
 
     /**
      * These are tables that are not pre-loaded by the benchmark loader

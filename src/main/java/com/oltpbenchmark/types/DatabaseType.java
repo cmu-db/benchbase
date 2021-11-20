@@ -43,6 +43,7 @@ public enum DatabaseType {
     NUODB(true, false),
     ORACLE(true, false),
     SINGLESTORE(true, false),
+    SPANNER(false, true),
     SQLAZURE(true, false),
     SQLITE(true, false),
     SQLSERVER(true, false),

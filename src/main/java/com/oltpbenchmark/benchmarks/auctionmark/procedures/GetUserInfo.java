@@ -110,7 +110,7 @@ public class GetUserInfo extends Procedure {
      * @throws SQLException
      */
     public UserInfo run(Connection conn, Timestamp[] benchmarkTimes,
-                                long user_id,
+                                String user_id,
                                 boolean get_feedback,
                                 boolean get_comments,
                                 boolean get_seller_items,
