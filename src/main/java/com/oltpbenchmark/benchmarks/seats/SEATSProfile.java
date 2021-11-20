@@ -209,7 +209,7 @@ public class SEATSProfile {
             stmt.setObject(param_idx++, this.flight_upcoming_offset); // CFP_FLIGHT_OFFSET
             stmt.setObject(param_idx++, this.reservation_upcoming_offset); // CFP_RESERVATION_OFFSET
             stmt.setObject(param_idx++, this.num_reservations); // CFP_NUM_RESERVATIONS
-            stmt.setObject(param_idx++, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
+            stmt.setObject(param_idx, JSONUtil.toJSONString(this.code_id_xref)); // CFP_CODE_ID_XREF
             int result = stmt.executeUpdate();
 
             if (LOG.isDebugEnabled()) {
@@ -225,7 +225,7 @@ public class SEATSProfile {
                 int param_idx = 1;
                 stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
                 stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
-                stmt.setObject(param_idx++, 1); // CFH_IS_AIRPORT
+                stmt.setObject(param_idx, 1); // CFH_IS_AIRPORT
                 int result = stmt.executeUpdate();
 
             }
@@ -237,7 +237,7 @@ public class SEATSProfile {
                 int param_idx = 1;
                 stmt.setObject(param_idx++, e.getKey()); // CFH_NAME
                 stmt.setObject(param_idx++, e.getValue().toJSONString()); // CFH_DATA
-                stmt.setObject(param_idx++, 0); // CFH_IS_AIRPORT
+                stmt.setObject(param_idx, 0); // CFH_IS_AIRPORT
                 int result = stmt.executeUpdate();
 
             }
@@ -313,7 +313,7 @@ public class SEATSProfile {
 
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Loaded profile:\n{}", this.toString());
+                LOG.debug("Loaded profile:\n{}", this);
             }
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Airport Max Customer Id:\n{}", this.airport_max_customer_id);
@@ -380,7 +380,7 @@ public class SEATSProfile {
         Iterator<Object[]> iterator = vt.iterator();
         while (iterator.hasNext() && limit++ < SEATSConstants.CACHE_LIMIT_FLIGHT_IDS) {
             Object[] row = iterator.next();
-            long f_id = SQLUtil.getLong(row[0]);
+            String f_id = SQLUtil.getString(row[0]);
             FlightId flight_id = new FlightId(f_id);
             this.cached_flight_ids.add(flight_id);
         }

@@ -74,7 +74,7 @@ public class NewFeedback extends Procedure {
     // -----------------------------------------------------------------
 
     public void run(Connection conn, Timestamp[] benchmarkTimes,
-                    long user_id, long i_id, long seller_id, long from_id, long rating, String comment) throws SQLException {
+                    String user_id, String i_id, String seller_id, String from_id, long rating, String comment) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
         // Check to make sure they're not trying to add feedback

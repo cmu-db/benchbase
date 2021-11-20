@@ -19,92 +19,52 @@ package com.oltpbenchmark.util;
 import junit.framework.TestCase;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 public class TestTextGenerator extends TestCase {
 
     final Random rng = new Random();
-
     final int MAX_SIZE = 2048;
     final int NUM_ROUNDS = 10000;
-    boolean SPEED_TEST = false;
 
     /**
      * testRandomChars
      */
     public void testRandomChars() throws Exception {
-        Set<String> previous = new HashSet<String>();
-        long start = System.nanoTime();
         int strLen = rng.nextInt(MAX_SIZE) + 10;
         for (int i = 0; i < NUM_ROUNDS; i++) {
+            // Make sure that the random strings are not null and
+            // the length that they are supposed to be.
             char[] text = TextGenerator.randomChars(rng, strLen);
-            if (SPEED_TEST == false) {
-                assertNotNull(text);
-                assertEquals(strLen, text.length);
-                for (int idx = 0; idx < strLen; idx++) {
-                    assertFalse(Integer.toString(idx), text[idx] == 0);
-                } // FOR
-            }
-            assertFalse(String.valueOf(text), previous.contains(String.valueOf(text)));
-            previous.add(String.valueOf(text));
+            assertNotNull(text);
+            assertEquals(strLen, text.length);
         } // FOR
-        long stop = System.nanoTime();
-        assertEquals(NUM_ROUNDS, previous.size());
-//        System.err.println("Chars Time: " + ((stop - start) / 1000000d) + " ms");
     }
 
     /**
      * testRandomCharsPrealloc
      */
     public void testRandomCharsPrealloc() throws Exception {
-        Set<String> previous = new HashSet<String>();
-        long start = System.nanoTime();
         int strLen = rng.nextInt(MAX_SIZE);
         char[] text = new char[strLen];
         for (int i = 0; i < NUM_ROUNDS; i++) {
             TextGenerator.randomChars(rng, text);
-            if (SPEED_TEST == false) {
-                assertNotNull(text);
-                assertEquals(strLen, text.length);
-                for (int idx = 0; idx < strLen; idx++) {
-                    assertFalse(Integer.toString(idx), text[idx] == 0);
-                } // FOR
-            }
-            assertFalse(String.valueOf(text), previous.contains(String.valueOf(text)));
-            previous.add(String.valueOf(text));
+            assertNotNull(text);
+            assertEquals(strLen, text.length);
         } // FOR
-        long stop = System.nanoTime();
-        assertEquals(NUM_ROUNDS, previous.size());
-//        System.err.println("Pre-allocated Time: " + ((stop - start) / 1000000d) + " ms");
     }
 
     /**
      * testFastRandomChars
      */
     public void testFastRandomChars() throws Exception {
-        Set<String> previous = new HashSet<String>();
-        long start = System.nanoTime();
         for (int i = 0; i < NUM_ROUNDS; i++) {
             int strLen = rng.nextInt(MAX_SIZE) + 10;
             char[] text = new char[strLen];
             TextGenerator.randomFastChars(rng, text);
-//            System.err.println("FAST: " + String.valueOf(text));
-            if (SPEED_TEST == false) {
-                assertNotNull(text);
-                assertEquals(strLen, text.length);
-                for (int idx = 0; idx < strLen; idx++) {
-                    assertFalse(Integer.toString(idx), text[idx] == 0);
-                } // FOR
-            }
-            assertFalse("Duplicate: " + String.valueOf(text),
-                    previous.contains(String.valueOf(text)));
-            previous.add(String.valueOf(text));
+            assertNotNull(text);
+            assertEquals(strLen, text.length);
         } // FOR
-        long stop = System.nanoTime();
-        assertEquals(NUM_ROUNDS, previous.size());
-//        System.err.println("Fast Time: " + ((stop - start) / 1000000d) + " ms");
     }
 
     /**
@@ -158,10 +118,7 @@ public class TestTextGenerator extends TestCase {
                 break;
             }
         } // FOR
-//        System.err.println(new String(orig));
-//        System.err.println(new String(newText));
         assertTrue(valid);
-
     }
 
 }

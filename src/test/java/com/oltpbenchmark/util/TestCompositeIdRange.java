@@ -17,73 +17,82 @@
 
 package com.oltpbenchmark.util;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
-import junit.framework.TestCase;
+import java.util.Objects;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestCompositeIdRange {
 
-    public class PackedLong extends CompositeId {
-        protected final int COMPOSITE_BITS[] = {
-                16, // FIELD1
-                32, // FIELD2
+    public static class PackedLong extends CompositeId {
+        private static final int[] COMPOSITE_BITS = {
+                INT_MAX_DIGITS, // FIELD1
+                LONG_MAX_DIGITS, // FIELD2
         };
-        protected final long COMPOSITE_POWS[] = compositeBitsPreCompute(COMPOSITE_BITS);
 
         protected int field1;
-        protected int field2;
+        protected long field2;
 
         public PackedLong() {
         }
 
-        public PackedLong(int field1, int field2) {
+        public PackedLong(int field1, long field2) {
             this.field1 = field1;
             this.field2 = field2;
         }
 
         @Override
-        public long encode() {
-            return (this.encode(this.COMPOSITE_BITS, this.COMPOSITE_POWS));
+        public String encode() {
+            return (this.encode(COMPOSITE_BITS));
         }
 
         @Override
-        public void decode(long composite_id) {
-            long values[] = super.decode(composite_id, this.COMPOSITE_BITS, this.COMPOSITE_POWS);
-            this.field1 = (int) values[0];
-            this.field2 = (int) values[1];
+        public void decode(String composite_id) {
+            String[] values = super.decode(composite_id, COMPOSITE_BITS);
+            this.field1 = Integer.parseInt(values[0]);
+            this.field2 = Long.parseLong(values[1]);
         }
 
         @Override
-        public long[] toArray() {
-            return (new long[]{this.field1, this.field2});
+        public String[] toArray() {
+            return (new String[]{Integer.toString(this.field1), Long.toString(this.field2)});
         }
 
         public int getField1() {
             return this.field1;
         }
 
-        public int getField2() {
+        public long getField2() {
             return this.field2;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            PackedLong that = (PackedLong) o;
+            return field1 == that.field1 && field2 == that.field2;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(field1, field2);
         }
     }
 
     @Test
     public void testPackOK() {
         PackedLong packedLong = new PackedLong(1, 2);
-        long encodedLong = packedLong.encode();
+        String encodedLong = packedLong.encode();
         PackedLong packedLong2 = new PackedLong();
         packedLong2.decode(encodedLong);
         assertEquals(packedLong.getField1(), packedLong2.getField1());
         assertEquals(packedLong.getField2(), packedLong2.getField2());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOutOfRange() {
-        // Won't fit, we have allocated only 16 bits to field 1
-        PackedLong packedLong = new PackedLong(Integer.MAX_VALUE, Integer.MAX_VALUE);
-        long encodedLong = packedLong.encode();
     }
 
 }

@@ -24,7 +24,6 @@ import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.benchmarks.auctionmark.util.AuctionMarkUtil;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemId;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemStatus;
-import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,10 +133,10 @@ public class NewBid extends Procedure {
     );
 
     public Object[] run(Connection conn, Timestamp[] benchmarkTimes,
-                        long item_id, long seller_id, long buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
+                        String item_id, String seller_id, String buyer_id, double newBid, Timestamp estimatedEndDate) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
-        LOG.debug(String.format("Attempting to place new bid on Item %d [buyer=%d, bid=%.2f]",
+        LOG.debug(String.format("Attempting to place new bid on Item %s [buyer=%s, bid=%.2f]",
                 item_id, buyer_id, newBid));
 
 
@@ -160,13 +159,13 @@ public class NewBid extends Procedure {
                 i_current_price = results.getDouble(col++);
                 i_num_bids = results.getLong(col++);
                 i_end_date = results.getTimestamp(col++);
-                i_status = ItemStatus.get(results.getLong(col++));
+                i_status = ItemStatus.get(results.getLong(col));
 
             }
         }
 
         long newBidId = 0;
-        long newBidMaxBuyerId = buyer_id;
+        String newBidMaxBuyerId = buyer_id;
 
 
 
@@ -187,7 +186,7 @@ public class NewBid extends Procedure {
             long currentBidId;
             double currentBidAmount;
             double currentBidMax;
-            long currentBuyerId;
+            String currentBuyerId;
             try (PreparedStatement stmt = this.getPreparedStatement(conn, getItemMaxBid, item_id, seller_id)) {
                 try (ResultSet results = stmt.executeQuery()) {
                     results.next();
@@ -196,7 +195,7 @@ public class NewBid extends Procedure {
                     currentBidId = results.getLong(col++);
                     currentBidAmount = results.getDouble(col++);
                     currentBidMax = results.getDouble(col++);
-                    currentBuyerId = results.getLong(col++);
+                    currentBuyerId = results.getString(col);
                 }
             }
 
@@ -204,9 +203,9 @@ public class NewBid extends Procedure {
             // Check whether this bidder is already the max bidder
             // This means we just need to increase their current max bid amount without
             // changing the current auction price
-            if (buyer_id == currentBuyerId) {
+            if (buyer_id.equals(currentBuyerId)) {
                 if (newBid < currentBidMax) {
-                    String msg = String.format("%s is already the highest bidder for Item %d but is trying to " +
+                    String msg = String.format("%s is already the highest bidder for Item %s but is trying to " +
                                     "set a new max bid %.2f that is less than current max bid %.2f",
                             buyer_id, item_id, newBid, currentBidMax);
                     LOG.debug(msg);
@@ -220,7 +219,7 @@ public class NewBid extends Procedure {
                         seller_id)) {
                     preparedStatement.executeUpdate();
                 }
-                LOG.debug(String.format("Increasing the max bid the highest bidder %s from %.2f to %.2f for Item %d",
+                LOG.debug(String.format("Increasing the max bid the highest bidder %s from %.2f to %.2f for Item %s",
                         buyer_id, currentBidMax, newBid, item_id));
             }
             // Otherwise check whether this new bidder's max bid is greater than the current max
@@ -250,7 +249,7 @@ public class NewBid extends Procedure {
                             seller_id)) {
                         preparedStatement.executeUpdate();
                     }
-                    LOG.debug(String.format("Keeping the existing highest bidder of Item %d as %s but updating current price from %.2f to %.2f",
+                    LOG.debug(String.format("Keeping the existing highest bidder of Item %s as %s but updating current price from %.2f to %.2f",
                             item_id, buyer_id, currentBidAmount, i_current_price));
                 }
 
@@ -286,8 +285,8 @@ public class NewBid extends Procedure {
                             seller_id)) {
                         preparedStatement.executeUpdate();
                     }
-                    LOG.debug(String.format("Changing new highest bidder of Item %d to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
-                            item_id, UserId.toString(buyer_id), newBid, currentBidMax));
+                    LOG.debug(String.format("Changing new highest bidder of Item %s to %s [newMaxBid=%.2f > currentMaxBid=%.2f]",
+                            item_id, buyer_id, newBid, currentBidMax));
                 }
             }
         }
@@ -318,7 +317,7 @@ public class NewBid extends Procedure {
                     seller_id)) {
                 preparedStatement.execute();
             }
-            LOG.debug(String.format("Creating the first bid record for Item %d and setting %s as highest bidder at %.2f",
+            LOG.debug(String.format("Creating the first bid record for Item %s and setting %s as highest bidder at %.2f",
                     item_id, buyer_id, i_current_price));
         }
 
