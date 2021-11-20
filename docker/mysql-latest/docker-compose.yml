@@ -11,7 +11,8 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
       MYSQL_DATABASE: benchbase
     ports:
       - "3306:3306"
@@ -29,4 +30,4 @@ services:
     links:
       - mysql
     ports:
-      - "8080:80"
+      - "8888:80"

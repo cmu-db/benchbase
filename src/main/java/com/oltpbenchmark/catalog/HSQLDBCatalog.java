@@ -38,7 +38,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         Connection conn;
         try {
             Class.forName(DB_JDBC);
-            conn = DriverManager.getConnection(DB_CONNECTION + dbName, null, null);
+            conn = DriverManager.getConnection(DB_CONNECTION + dbName + ";sql.syntax_mys=true", null, null);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }

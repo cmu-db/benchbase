@@ -67,7 +67,7 @@ public class FindOpenSeats extends Procedure {
                     " WHERE R_F_ID = ?"
     );
 
-    public Object[][] run(Connection conn, long f_id) throws SQLException {
+    public Object[][] run(Connection conn, String f_id) throws SQLException {
 
         // 150 seats
         final long[] seatmap = new long[]
@@ -91,7 +91,7 @@ public class FindOpenSeats extends Procedure {
         // First calculate the seat price using the flight's base price
         // and the number of seats that remaining
         try (PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight)) {
-            f_stmt.setLong(1, f_id);
+            f_stmt.setString(1, f_id);
             try (ResultSet f_results = f_stmt.executeQuery()) {
                 f_results.next();
 
@@ -111,19 +111,19 @@ public class FindOpenSeats extends Procedure {
         //                         more-or-less equivalent to java.math.BigDecimal.)
         double _seat_price = base_price + (base_price * (1.0 - (seats_left / (double) seats_total)));
 
-        LOG.debug(String.format("Flight %d - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
+        LOG.debug(String.format("Flight %s - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
                 f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
 
 
         // Then build the seat map of the remaining seats
         try (PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats)) {
-            s_stmt.setLong(1, f_id);
+            s_stmt.setString(1, f_id);
             try (ResultSet s_results = s_stmt.executeQuery()) {
                 while (s_results.next()) {
                     long r_id = s_results.getLong(1);
                     int seatnum = s_results.getInt(3);
 
-                    LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
+                    LOG.debug(String.format("Reserved Seat: fid %s / rid %d / seat %d", f_id, r_id, seatnum));
 
 
                     seatmap[seatnum] = 1;

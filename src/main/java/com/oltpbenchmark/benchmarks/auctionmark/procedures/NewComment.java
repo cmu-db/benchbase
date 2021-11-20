@@ -72,7 +72,7 @@ public class NewComment extends Procedure {
     // -----------------------------------------------------------------
 
     public Object[] run(Connection conn, Timestamp[] benchmarkTimes,
-                        long item_id, long seller_id, long buyer_id, String question) throws SQLException {
+                        String item_id, String seller_id, String buyer_id, String question) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
         // Set comment_id

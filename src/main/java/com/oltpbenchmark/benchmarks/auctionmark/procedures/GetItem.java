@@ -55,7 +55,7 @@ public class GetItem extends Procedure {
     // -----------------------------------------------------------------
 
     public Object[][] run(Connection conn, Timestamp[] benchmarkTimes,
-                          long item_id, long seller_id) throws SQLException {
+                          String item_id, String seller_id) throws SQLException {
 
         Object[] item_row = null;
         try (PreparedStatement item_stmt = this.getPreparedStatement(conn, getItem, item_id, seller_id)) {

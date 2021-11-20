@@ -272,19 +272,10 @@ public abstract class BenchmarkModule {
 
 
             try {
-                // PAVLO: 2016-12-23
-                // We are going to eventually migrate everything over to use the
-                // same API for creating multi-threaded loaders. For now we will support
-                // both. So if createLoaderTheads() returns null, we will use the old load()
-                // method.
-                List<? extends LoaderThread> loaderThreads = loader.createLoaderThreads();
+                List<LoaderThread> loaderThreads = loader.createLoaderThreads();
                 int maxConcurrent = workConf.getLoaderThreads();
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]", loaderThreads.size(), loader.getClass().getSimpleName(), maxConcurrent));
-                }
-
-                ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
+                ThreadUtil.runLoaderThreads(loaderThreads, maxConcurrent);
 
                 if (!loader.getTableCounts().isEmpty()) {
                     LOG.debug("Table Counts:\n{}", loader.getTableCounts());

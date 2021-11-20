@@ -124,7 +124,7 @@ public class FindFlights extends Procedure {
                                 Object[] row = new Object[13];
                                 int r = 0;
 
-                                row[r++] = flightResults.getLong(1);    // [00] F_ID
+                                row[r++] = flightResults.getString(1);    // [00] F_ID
                                 row[r++] = flightResults.getLong(3);    // [01] SEATS_LEFT
                                 row[r++] = flightResults.getString(8);  // [02] AL_NAME
 
@@ -149,7 +149,7 @@ public class FindFlights extends Procedure {
                                     row[r++] = ai_results.getString(1);     // [09] ARRIVE_AP_CODE
                                     row[r++] = ai_results.getString(2);     // [10] ARRIVE_AP_NAME
                                     row[r++] = ai_results.getString(3);     // [11] ARRIVE_AP_CITY
-                                    row[r++] = ai_results.getString(7);     // [12] ARRIVE_AP_COUNTRY
+                                    row[r] = ai_results.getString(7);     // [12] ARRIVE_AP_COUNTRY
                                 }
 
                                 finalResults.add(row);

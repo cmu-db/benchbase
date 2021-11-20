@@ -435,7 +435,7 @@ public class AuctionMarkProfile {
     private static void loadItems(AuctionMarkProfile profile, List<Object[]> vt) {
         int ctr = 0;
         for (Object[] row : vt) {
-            ItemId i_id = new ItemId(SQLUtil.getLong(row[0]));
+            ItemId i_id = new ItemId(SQLUtil.getString(row[0]));
             double i_current_price = SQLUtil.getDouble(row[1]);
             Timestamp i_end_date = SQLUtil.getTimestamp(row[2]);
             int i_num_bids = SQLUtil.getInteger(row[3]);
@@ -457,8 +457,8 @@ public class AuctionMarkProfile {
         for (Object[] row : vt) {
             int col = 1;
             long ic_id = SQLUtil.getLong(row[0]);
-            long ic_i_id = SQLUtil.getLong(row[1]);
-            long ic_u_id = SQLUtil.getLong(row[2]);
+            String ic_i_id = SQLUtil.getString(row[1]);
+            String ic_u_id = SQLUtil.getString(row[2]);
             ItemCommentResponse cr = new ItemCommentResponse(ic_id, ic_i_id, ic_u_id);
             profile.pending_commentResponses.add(cr);
         }
@@ -470,7 +470,7 @@ public class AuctionMarkProfile {
 
     private static void loadGlobalAttributeGroups(AuctionMarkProfile profile, List<Object[]> vt) {
         for (Object[] row : vt) {
-            long gag_id = SQLUtil.getLong(row[0]);
+            String gag_id = SQLUtil.getString(row[0]);
             profile.gag_ids.add(new GlobalAttributeGroupId(gag_id));
         }
         if (LOG.isDebugEnabled()) {
@@ -698,9 +698,9 @@ public class AuctionMarkProfile {
         Integer cnt = this.seller_item_cnt.get(seller_id);
         if (cnt == null || cnt == 0) {
             cnt = seller_id.getItemCount();
-            this.seller_item_cnt.put(seller_id, cnt);
+            //this.seller_item_cnt.put(seller_id, cnt);
         }
-        this.seller_item_cnt.put(seller_id);
+        this.seller_item_cnt.put(seller_id, cnt);
         return (new ItemId(seller_id, cnt));
     }
 
@@ -828,7 +828,7 @@ public class AuctionMarkProfile {
         }
 
         if (LOG.isTraceEnabled()) {
-            LOG.trace(String.format("%s - #%d [%s]", new_status, itemInfo.getItemId().encode(), itemInfo.getEndDate()));
+            LOG.trace(String.format("%s - #%s [%s]", new_status, itemInfo.getItemId().encode(), itemInfo.getEndDate()));
         }
 
         return (new_status);

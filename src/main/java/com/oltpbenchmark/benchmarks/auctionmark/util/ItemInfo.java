@@ -18,16 +18,10 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import com.oltpbenchmark.util.JSONSerializable;
-import com.oltpbenchmark.util.JSONUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONStringer;
-
 import java.sql.Timestamp;
 import java.util.Objects;
 
-public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
+public class ItemInfo implements Comparable<ItemInfo> {
     private ItemId itemId;
     private Float currentPrice;
     private Timestamp endDate;
@@ -101,7 +95,13 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
 
     @Override
     public String toString() {
-        return this.itemId.toString();
+        return "ItemInfo{" +
+               "itemId=" + itemId +
+               ", currentPrice=" + currentPrice +
+               ", endDate=" + endDate +
+               ", numBids=" + numBids +
+               ", status=" + status +
+               '}';
     }
 
     @Override
@@ -113,40 +113,11 @@ public class ItemInfo implements JSONSerializable, Comparable<ItemInfo> {
             return false;
         }
         ItemInfo itemInfo = (ItemInfo) o;
-        return Objects.equals(itemId, itemInfo.itemId);
+        return numBids == itemInfo.numBids && Objects.equals(itemId, itemInfo.itemId) && Objects.equals(currentPrice, itemInfo.currentPrice) && Objects.equals(endDate, itemInfo.endDate) && status == itemInfo.status;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(itemId);
-    }
-
-    // -----------------------------------------------------------------
-    // SERIALIZATION
-    // -----------------------------------------------------------------
-
-    @Override
-    public void load(String input_path) {
-
-    }
-
-    @Override
-    public void save(String output_path) {
-
-    }
-
-    @Override
-    public String toJSONString() {
-        return (JSONUtil.toJSONString(this));
-    }
-
-    @Override
-    public void toJSON(JSONStringer stringer) throws JSONException {
-        JSONUtil.fieldsToJSON(stringer, this, ItemInfo.class, JSONUtil.getSerializableFields(ItemInfo.class));
-    }
-
-    @Override
-    public void fromJSON(JSONObject json_object) throws JSONException {
-        JSONUtil.fieldsFromJSON(json_object, this, ItemInfo.class, true, JSONUtil.getSerializableFields(ItemInfo.class));
+        return Objects.hash(itemId, currentPrice, endDate, numBids, status);
     }
 }

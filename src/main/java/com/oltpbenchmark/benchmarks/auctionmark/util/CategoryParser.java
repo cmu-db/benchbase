@@ -89,7 +89,7 @@ public class CategoryParser {
         if (categoryName.indexOf('/') != -1) {
             int separatorIndex = fullCategoryName.lastIndexOf('/');
             parentCategoryName = fullCategoryName.substring(0, separatorIndex);
-            categoryName = fullCategoryName.substring(separatorIndex + 1, fullCategoryName.length());
+            categoryName = fullCategoryName.substring(separatorIndex + 1);
         }
 		/*
 		System.out.println("parentCat name = " + parentCategoryName);
