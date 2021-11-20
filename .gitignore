@@ -4,6 +4,10 @@ docker/**/*.zip
 docker/**/output
 results
 
+### SQLite ###
+**/*.db
+**/*.db-journal
+
 HELP.md
 PRIVATE.md
 target/
@@ -43,3 +47,4 @@ build/
 
 ### VS Code ###
 .vscode/
+*.log

@@ -38,7 +38,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         Connection conn;
         try {
             Class.forName(DB_JDBC);
-            conn = DriverManager.getConnection(DB_CONNECTION + dbName, null, null);
+            conn = DriverManager.getConnection(DB_CONNECTION + dbName + ";sql.syntax_mys=true", null, null);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -47,7 +47,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         this.originalTableNames = this.getOriginalTableNames();
         try {
             this.init();
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(String.format("Failed to initialize %s database catalog.", this.benchmarkModule.getBenchmarkName()), e);
         }
     }
@@ -67,7 +67,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         return tables.get(originalTableNames.get(tableName.toUpperCase()));
     }
 
-    private void init() throws SQLException {
+    private void init() throws SQLException, IOException {
         // Load the database DDL.
         this.benchmarkModule.createDatabase(DB_TYPE, this.conn);
 

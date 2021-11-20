@@ -55,7 +55,7 @@ public class TestFlightId extends TestCase {
                         assertEquals(base_id, flight_id.getAirlineId());
                         assertEquals(depart_airport_id, flight_id.getDepartAirportId());
                         assertEquals(arrive_airport_id, flight_id.getArriveAirportId());
-                        assertEquals(flight_date, flight_id.getDepartDate(this.start_date));
+                        assertEquals(flight_date, flight_id.getDepartDateAsTimestamp(this.start_date));
                     } // FOR (time_code)
                 } // FOR (arrive_airport_id)
             } // FOR (depart_airport_id)
@@ -70,15 +70,14 @@ public class TestFlightId extends TestCase {
             for (long depart_airport_id : this.depart_airport_ids) {
                 for (long arrive_airport_id : this.arrive_airport_ids) {
                     for (Timestamp flight_date : this.flight_dates) {
-                        long encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
-                        assert (encoded >= 0) : "Invalid encoded value '" + encoded + "'";
+                        String encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
 
                         FlightId flight_id = new FlightId(encoded);
                         assertNotNull(flight_id);
                         assertEquals(base_id, flight_id.getAirlineId());
                         assertEquals(depart_airport_id, flight_id.getDepartAirportId());
                         assertEquals(arrive_airport_id, flight_id.getArriveAirportId());
-                        assertEquals(flight_date, flight_id.getDepartDate(this.start_date));
+                        assertEquals(flight_date, flight_id.getDepartDateAsTimestamp(this.start_date));
                     } // FOR (time_code)
                 } // FOR (arrive_airport_id)
             } // FOR (depart_airport_id)
@@ -93,11 +92,10 @@ public class TestFlightId extends TestCase {
             for (long depart_airport_id : this.depart_airport_ids) {
                 for (long arrive_airport_id : this.arrive_airport_ids) {
                     for (Timestamp flight_date : this.flight_dates) {
-                        long[] values = {base_id, depart_airport_id, arrive_airport_id, FlightId.calculateFlightDate(this.start_date, flight_date)};
-                        long encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
-                        assert (encoded >= 0) : "Invalid encoded value '" + encoded + "'";
+                        String[] values = {String.valueOf(base_id), String.valueOf(depart_airport_id), String.valueOf(arrive_airport_id), String.valueOf(FlightId.calculateFlightDate(this.start_date, flight_date))};
+                        String encoded = new FlightId(base_id, depart_airport_id, arrive_airport_id, this.start_date, flight_date).encode();
 
-                        long[] new_values = new FlightId(encoded).toArray();
+                        String[] new_values = new FlightId(encoded).toArray();
                         assertEquals(values.length, new_values.length);
                         for (int i = 0; i < new_values.length; i++) {
                             assertEquals(values[i], new_values[i]);

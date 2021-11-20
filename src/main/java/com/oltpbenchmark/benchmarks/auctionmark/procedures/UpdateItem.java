@@ -76,8 +76,8 @@ public class UpdateItem extends Procedure {
      * uneditable (1.0%?); when this occurs, the transaction will abort.
      */
     public boolean run(Connection conn, Timestamp[] benchmarkTimes,
-                       long item_id, long seller_id, String description,
-                       boolean delete_attribute, long[] add_attribute) throws SQLException {
+                       String item_id, String seller_id, String description,
+                       boolean delete_attribute, String[] add_attribute) throws SQLException {
         final Timestamp currentTime = AuctionMarkUtil.getProcTimestamp(benchmarkTimes);
 
         try (PreparedStatement stmt = this.getPreparedStatement(conn, updateItem, description, currentTime, item_id, seller_id)) {
@@ -91,22 +91,22 @@ public class UpdateItem extends Procedure {
         // DELETE ITEM_ATTRIBUTE
         if (delete_attribute) {
             // Only delete the first (if it even exists)
-            long ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
+            String ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
             try (PreparedStatement stmt = this.getPreparedStatement(conn, deleteItemAttribute, ia_id, item_id, seller_id)) {
                 stmt.executeUpdate();
             }
         }
         // ADD ITEM_ATTRIBUTE
-        if (add_attribute.length > 0 && add_attribute[0] != -1) {
+        if (add_attribute.length > 0 && !add_attribute[0].equals("-1")) {
 
-            long gag_id = add_attribute[0];
-            long gav_id = add_attribute[1];
-            long ia_id = -1;
+            String gag_id = add_attribute[0];
+            String gav_id = add_attribute[1];
+            String ia_id = "-1";
 
             try (PreparedStatement stmt = this.getPreparedStatement(conn, getMaxItemAttributeId, item_id, seller_id)) {
                 try (ResultSet results = stmt.executeQuery()) {
                     if (results.next()) {
-                        ia_id = results.getLong(0);
+                        ia_id = results.getString(0);
                     } else {
                         ia_id = AuctionMarkUtil.getUniqueElementId(item_id, 0);
                     }

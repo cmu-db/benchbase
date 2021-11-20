@@ -20,13 +20,15 @@ package com.oltpbenchmark.benchmarks.seats.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Comparator;
+import java.util.Objects;
+
 public class CustomerId extends CompositeId implements Comparable<CustomerId> {
 
     private static final int[] COMPOSITE_BITS = {
-            48, // ID
-            16, // AIRPORT_ID
+            INT_MAX_DIGITS, // ID
+            LONG_MAX_DIGITS // AIRPORT_ID
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
 
     private int id;
     private long depart_airport_id;
@@ -36,25 +38,25 @@ public class CustomerId extends CompositeId implements Comparable<CustomerId> {
         this.depart_airport_id = depart_airport_id;
     }
 
-    public CustomerId(long composite_id) {
+    public CustomerId(String composite_id) {
         this.decode(composite_id);
     }
 
     @Override
-    public long encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+    public String encode() {
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.id = (int) values[0];
-        this.depart_airport_id = values[1];
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
+        this.id = Integer.parseInt(values[0]);
+        this.depart_airport_id = Long.parseLong(values[1]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.id, this.depart_airport_id});
+    public String[] toArray() {
+        return (new String[]{Integer.toString(this.id), Long.toString(this.depart_airport_id)});
     }
 
     /**
@@ -77,7 +79,26 @@ public class CustomerId extends CompositeId implements Comparable<CustomerId> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        CustomerId that = (CustomerId) o;
+        return id == that.id && depart_airport_id == that.depart_airport_id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, depart_airport_id);
+    }
+
+    @Override
     public int compareTo(CustomerId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparingInt(CustomerId::getId)
+                .thenComparingLong(CustomerId::getDepartAirportId)
+                .compare(this, o);
     }
 }
