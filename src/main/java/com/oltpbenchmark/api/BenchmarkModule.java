@@ -138,40 +138,43 @@ public abstract class BenchmarkModule {
     }
 
     private String convertBenchmarkClassToBenchmarkName() {
-        Object benchmarkClass = this;
-        if (benchmarkClass instanceof AuctionMarkBenchmark) {
+        return convertBenchmarkClassToBenchmarkName(this.getClass());
+    }
+
+    protected static <T> String convertBenchmarkClassToBenchmarkName(Class<T> clazz) {
+        if (clazz == AuctionMarkBenchmark.class) {
             return "auctionmark";
-        } else if (benchmarkClass instanceof CHBenCHmark) {
+        } else if (clazz == CHBenCHmark.class) {
             return "chbenchmark";
-        } else if (benchmarkClass instanceof EpinionsBenchmark) {
+        } else if (clazz == EpinionsBenchmark.class) {
             return "epinions";
-        } else if (benchmarkClass instanceof HYADAPTBenchmark) {
+        } else if (clazz == HYADAPTBenchmark.class) {
             return "hyadapt";
-        } else if (benchmarkClass instanceof NoOpBenchmark) {
+        } else if (clazz == NoOpBenchmark.class) {
             return "noop";
-        } else if (benchmarkClass instanceof ResourceStresserBenchmark) {
+        } else if (clazz == ResourceStresserBenchmark.class) {
             return "resourcestresser";
-        } else if (benchmarkClass instanceof SEATSBenchmark) {
+        } else if (clazz == SEATSBenchmark.class) {
             return "seats";
-        } else if (benchmarkClass instanceof SIBenchmark) {
+        } else if (clazz == SIBenchmark.class) {
             return "sibench";
-        } else if (benchmarkClass instanceof SmallBankBenchmark) {
+        } else if (clazz == SmallBankBenchmark.class) {
             return "smallbank";
-        } else if (benchmarkClass instanceof TATPBenchmark) {
+        } else if (clazz == TATPBenchmark.class) {
             return "tatp";
-        } else if (benchmarkClass instanceof TPCCBenchmark) {
+        } else if (clazz == TPCCBenchmark.class) {
             return "tpcc";
-        } else if (benchmarkClass instanceof TPCDSBenchmark) {
+        } else if (clazz == TPCDSBenchmark.class) {
             return "tpcds";
-        } else if (benchmarkClass instanceof TPCHBenchmark) {
+        } else if (clazz == TPCHBenchmark.class) {
             return "tpch";
-        } else if (benchmarkClass instanceof TwitterBenchmark) {
+        } else if (clazz == TwitterBenchmark.class) {
             return "twitter";
-        } else if (benchmarkClass instanceof VoterBenchmark) {
+        } else if (clazz == VoterBenchmark.class) {
             return "voter";
-        } else if (benchmarkClass instanceof WikipediaBenchmark) {
+        } else if (clazz == WikipediaBenchmark.class) {
             return "wikipedia";
-        } else if (benchmarkClass instanceof YCSBBenchmark) {
+        } else if (clazz == YCSBBenchmark.class) {
             return "ycsb";
         }
 
