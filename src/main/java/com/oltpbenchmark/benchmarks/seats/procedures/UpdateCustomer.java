@@ -72,7 +72,7 @@ public class UpdateCustomer extends Procedure {
                     "   AND FF_AL_ID = ? "
     );
 
-    public void run(Connection conn, Long c_id, String c_id_str, Long update_ff, long attr0, long attr1) throws SQLException {
+    public void run(Connection conn, String c_id, String c_id_str, Long update_ff, long attr0, long attr1) throws SQLException {
         // Use C_ID_STR to get C_ID
         if (c_id == null) {
 
@@ -80,7 +80,7 @@ public class UpdateCustomer extends Procedure {
             try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetCustomerIdStr, c_id_str)) {
                 try (ResultSet rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
-                        c_id = rs.getLong(1);
+                        c_id = rs.getString(1);
                     } else {
                         throw new UserAbortException(String.format("No Customer information record found for string '%s'", c_id_str));
                     }
@@ -92,7 +92,7 @@ public class UpdateCustomer extends Procedure {
         try (PreparedStatement preparedStatement = this.getPreparedStatement(conn, GetCustomer, c_id)) {
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (!rs.next()) {
-                    throw new UserAbortException(String.format("No Customer information record found for id '%d'", c_id));
+                    throw new UserAbortException(String.format("No Customer information record found for id '%s'", c_id));
                 }
 
                 base_airport = rs.getLong(3);
@@ -129,7 +129,7 @@ public class UpdateCustomer extends Procedure {
             updated = preparedStatement.executeUpdate();
         }
         if (updated != 1) {
-            String msg = String.format("Failed to update customer #%d - Updated %d records", c_id, updated);
+            String msg = String.format("Failed to update customer #%s - Updated %d records", c_id, updated);
             LOG.warn(msg);
             throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
         }

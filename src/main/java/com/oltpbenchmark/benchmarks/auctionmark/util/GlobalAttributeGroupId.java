@@ -20,14 +20,19 @@ package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import com.oltpbenchmark.util.CompositeId;
 
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.stream.IntStream;
+
 public class GlobalAttributeGroupId extends CompositeId implements Comparable<GlobalAttributeGroupId> {
 
     private static final int[] COMPOSITE_BITS = {
-            16, // CATEGORY
-            8,  // ID
-            8   // COUNT
+            INT_MAX_DIGITS, // CATEGORY
+            INT_MAX_DIGITS,  // ID
+            INT_MAX_DIGITS   // COUNT
     };
-    private static final long[] COMPOSITE_POWS = compositeBitsPreCompute(COMPOSITE_BITS);
+
+    public static final int ID_LENGTH = IntStream.of(COMPOSITE_BITS).sum();
 
     private int category_id;
     private int id;
@@ -39,26 +44,26 @@ public class GlobalAttributeGroupId extends CompositeId implements Comparable<Gl
         this.count = count;
     }
 
-    public GlobalAttributeGroupId(long composite_id) {
+    public GlobalAttributeGroupId(String composite_id) {
         this.decode(composite_id);
     }
 
     @Override
-    public long encode() {
-        return (this.encode(COMPOSITE_BITS, COMPOSITE_POWS));
+    public String encode() {
+        return (this.encode(COMPOSITE_BITS));
     }
 
     @Override
-    public void decode(long composite_id) {
-        long[] values = super.decode(composite_id, COMPOSITE_BITS, COMPOSITE_POWS);
-        this.category_id = (int) values[0];
-        this.id = (int) values[1];
-        this.count = (int) values[2];
+    public void decode(String composite_id) {
+        String[] values = super.decode(composite_id, COMPOSITE_BITS);
+        this.category_id = Integer.parseInt(values[0]);
+        this.id = Integer.parseInt(values[1]);
+        this.count = Integer.parseInt(values[2]);
     }
 
     @Override
-    public long[] toArray() {
-        return (new long[]{this.category_id, this.id, this.count});
+    public String[] toArray() {
+        return (new String[]{Integer.toString(this.category_id), Integer.toString(this.id), Integer.toString(this.count)});
     }
 
     public int getCategoryId() {
@@ -74,7 +79,27 @@ public class GlobalAttributeGroupId extends CompositeId implements Comparable<Gl
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GlobalAttributeGroupId that = (GlobalAttributeGroupId) o;
+        return category_id == that.category_id && id == that.id && count == that.count;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(category_id, id, count);
+    }
+
+    @Override
     public int compareTo(GlobalAttributeGroupId o) {
-        return Math.abs(this.hashCode()) - Math.abs(o.hashCode());
+        return Comparator.comparingInt(GlobalAttributeGroupId::getCategoryId)
+                .thenComparingInt(GlobalAttributeGroupId::getId)
+                .thenComparingInt(GlobalAttributeGroupId::getCount)
+                .compare(this, o);
     }
 }
