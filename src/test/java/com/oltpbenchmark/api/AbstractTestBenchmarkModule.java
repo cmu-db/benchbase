@@ -20,9 +20,14 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.ClassUtil;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -93,10 +98,14 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      * testGetSQLDialectPath
      */
     public void testGetSQLDialectPath() throws Exception {
-        String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(DB_TYPE);
-        if (xmlFilePath != null) {
-            File xmlFile = new File(xmlFilePath);
-            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+        for (DatabaseType dbType : DatabaseType.values()) {
+            String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(dbType);
+            if (xmlFilePath != null) {
+                URL xmlUrl = this.getClass().getClassLoader().getResource(xmlFilePath);
+                assertNotNull(xmlUrl);
+                File xmlFile = new File(xmlUrl.toURI());
+                assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+            }
         }
     }
 
@@ -104,28 +113,90 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      * testLoadSQLDialect
      */
     public void testLoadSQLDialect() throws Exception {
-        String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(DB_TYPE);
-        if (xmlFilePath == null) return;
-
-        File xmlFile = new File(xmlFilePath);
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDatabaseType(dbType);
 
             // Just make sure that we can load it
             StatementDialects dialects = new StatementDialects(this.workConf);
-            dialects.load();
+            if (dialects.load()) {
 
-            for (String procName : dialects.getProcedureNames()) {
-                for (String stmtName : dialects.getStatementNames(procName)) {
-                    String sql = dialects.getSQL(procName, stmtName);
-                    assertNotNull(sql);
-                    assertFalse(sql.isEmpty());
-                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
+                for (String procName : dialects.getProcedureNames()) {
+                    for (String stmtName : dialects.getStatementNames(procName)) {
+                        String sql = dialects.getSQL(procName, stmtName);
+                        assertNotNull(sql);
+                        assertFalse(sql.isEmpty());
+                        // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
+                    } // FOR
                 } // FOR
-            } // FOR
 
-            // TODO: We should XSD to validate the SQL
-        } // FOR (dbtype)
+                // TODO: We should XSD to validate the SQL
+            } // FOR (dbtype)
+        }
+    }
+
+
+    /**
+     * testDumpSQLDialect
+     */
+    public void testDumpSQLDialect() throws Exception {
+        for (DatabaseType dbType : DatabaseType.values()) {
+            this.workConf.setDatabaseType(dbType);
+
+            StatementDialects dialects = new StatementDialects(this.workConf);
+            if (dialects.load()) {
+                String dump = dialects.export(dbType, this.benchmark.getProcedures().values());
+                assertNotNull(dump);
+                assertFalse(dump.isEmpty());
+                Set<String> benchmarkProcedureNames = this.benchmark.getProcedures().values()
+                    .stream()
+                    .map(Procedure::getProcedureName)
+                    .collect(Collectors.toSet());
+                for (String procName : dialects.getProcedureNames()) {
+                    if (benchmarkProcedureNames.contains(procName)) {
+                        assertTrue(procName, dump.contains(procName));
+                        for (String stmtName : dialects.getStatementNames(procName)) {
+                            assertTrue(procName + "." + stmtName, dump.contains(stmtName));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * testSetSQLDialect
+     */
+    public void testSetSQLDialect() throws Exception {
+        for (DatabaseType dbType : DatabaseType.values()) {
+            this.workConf.setDatabaseType(dbType);
+
+            StatementDialects dialects = new StatementDialects(this.workConf);
+            if (dialects.load()) {
+
+                for (Procedure proc : this.benchmark.getProcedures().values()) {
+                    if (dialects.getProcedureNames().contains(proc.getProcedureName())) {
+                        // Need a new proc because the dialect gets loaded in BenchmarkModule::getProcedureName
+                        Procedure testProc = ClassUtil.newInstance(proc.getClass().getName(),
+                            new Object[0], new Class<?>[0]);
+                        assertNotNull(testProc);
+                        testProc.initialize(dbType);
+                        testProc.loadSQLDialect(dialects);
+
+                        Collection<String> dialectStatementNames = dialects.getStatementNames(
+                            testProc.getProcedureName());
+
+                        for (String statementName : dialectStatementNames) {
+                            SQLStmt stmt = testProc.getStatements().get(statementName);
+                            assertNotNull(stmt);
+                            String dialectSQL = dialects.getSQL(testProc.getProcedureName(),
+                                statementName);
+                            assertEquals(dialectSQL, stmt.getOriginalSQL());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
