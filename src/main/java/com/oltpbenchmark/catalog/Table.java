@@ -91,7 +91,7 @@ public class Table extends AbstractCatalogObject {
 
     public Index getIndex(String indexName) {
         for (Index catalog_idx : this.indexes) {
-            if (catalog_idx.getName().equalsIgnoreCase(indexName)) {
+            if (indexName.equalsIgnoreCase(catalog_idx.getName())) {
                 return (catalog_idx);
             }
         }
