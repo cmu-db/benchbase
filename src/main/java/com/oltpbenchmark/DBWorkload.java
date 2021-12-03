@@ -165,7 +165,9 @@ public class DBWorkload {
             initDebug.put("Driver", wrkld.getDriverClass());
             initDebug.put("URL", wrkld.getUrl());
             initDebug.put("Isolation", wrkld.getIsolationString());
+            initDebug.put("Batch Size", wrkld.getBatchSize());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
+            initDebug.put("Terminals", wrkld.getTerminals());
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);

@@ -19,6 +19,7 @@ package com.oltpbenchmark.catalog;
 
 import com.oltpbenchmark.types.SortDirectionType;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -31,7 +32,7 @@ public class Index extends AbstractCatalogObject {
     private final int type;
     private final boolean unique;
 
-    private static class IndexColumn {
+    private static class IndexColumn implements Serializable {
         private final String name;
         private final SortDirectionType dir;
 
