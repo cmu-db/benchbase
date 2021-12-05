@@ -289,7 +289,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
                 k++;
 
-                if ((k % workConf.getBatchSize()) == 0) {
+                if (k != 0 && (k % workConf.getBatchSize()) == 0) {
                     stockPreparedStatement.executeBatch();
                     stockPreparedStatement.clearBatch();
                 }
@@ -419,7 +419,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
                     k++;
 
-                    if ((k % workConf.getBatchSize()) == 0) {
+                    if (k != 0 && (k % workConf.getBatchSize()) == 0) {
                         custPrepStmt.executeBatch();
                         custPrepStmt.clearBatch();
                     }
@@ -469,7 +469,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
                     k++;
 
-                    if ((k % workConf.getBatchSize()) == 0) {
+                    if (k != 0 && (k % workConf.getBatchSize()) == 0) {
                         histPrepStmt.executeBatch();
                         histPrepStmt.clearBatch();
                     }
@@ -508,7 +508,6 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     c_ids[i] = temp;
                 }
 
-                int newOrderBatch = 0;
                 for (int c = 1; c <= customersPerDistrict; c++) {
 
                     Oorder oorder = new Oorder();
@@ -545,7 +544,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
                     k++;
 
-                    if ((k % workConf.getBatchSize()) == 0) {
+                    if (k != 0 && (k % workConf.getBatchSize()) == 0) {
                         openOrderStatement.executeBatch();
                         openOrderStatement.clearBatch();
                     }
@@ -602,7 +601,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         k++;
                     }
 
-                    if ((k % workConf.getBatchSize()) == 0) {
+                    if (k != 0 && (k % workConf.getBatchSize()) == 0) {
                         newOrderStatement.executeBatch();
                         newOrderStatement.clearBatch();
                     }
@@ -670,7 +669,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
                         k++;
 
-                        if ((k % workConf.getBatchSize()) == 0) {
+                        if (k != 0 && (k % workConf.getBatchSize()) == 0) {
                             orderLineStatement.executeBatch();
                             orderLineStatement.clearBatch();
                         }
