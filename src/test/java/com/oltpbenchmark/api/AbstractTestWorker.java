@@ -83,13 +83,11 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             if (txnType.isSupplemental()) { continue; }
             try {
                 // Bombs away!
-//                System.err.println("Executing " + txnType);
                 w.executeWork(this.conn, txnType);
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored
                 // Anything else is a serious error
             } catch (Throwable ex) {
-//                ex.printStackTrace();
                 throw new RuntimeException("Failed to execute " + txnType, ex);
             }
             conn.commit();

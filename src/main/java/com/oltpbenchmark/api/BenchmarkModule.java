@@ -225,7 +225,7 @@ public abstract class BenchmarkModule {
             try {
                 this.catalog.close();
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                LOG.error(throwables.getMessage(), throwables);
             }
         }
         try (Connection conn = this.makeConnection()) {
