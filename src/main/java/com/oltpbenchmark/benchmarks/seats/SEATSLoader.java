@@ -919,7 +919,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // CUSTOMER ID STR
                 case (1): {
 
-                    value = Long.toString(this.last_id.encode());
+                    value = this.last_id.encode();
                     this.last_id = null;
                     break;
                 }
@@ -945,7 +945,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         protected void callbackFinished() {
             if (LOG.isTraceEnabled()) {
                 Histogram<String> h = this.rand.getHistogramHistory();
-                LOG.trace(String.format("Customer Local Airports Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h.toString()));
+                LOG.trace(String.format("Customer Local Airports Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h));
             }
         }
     }
@@ -1009,7 +1009,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         @Override
         protected Object specialValue(long id, int columnIdx) {
-            Object value = null;
+            String value = null;
             switch (columnIdx) {
                 // CUSTOMER ID
                 case (0): {
@@ -1033,7 +1033,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         value = this.airline_rand.nextValue();
                     }
                     while (this.customer_airlines.contains(value));
-                    this.customer_airlines.add((String) value);
+                    this.customer_airlines.add(value);
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("{} => {}", this.last_customer_id, value);
                     }
@@ -1041,7 +1041,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 }
                 // CUSTOMER_ID_STR
                 case (2): {
-                    value = Long.toString(this.last_customer_id.encode());
+                    value = this.last_customer_id.encode();
                     break;
                 }
                 // BAD MOJO!
@@ -1055,7 +1055,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         protected void callbackFinished() {
             if (LOG.isTraceEnabled()) {
                 Histogram<String> h = this.airline_rand.getHistogramHistory();
-                LOG.trace(String.format("Airline Flights Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h.toString()));
+                LOG.trace(String.format("Airline Flights Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h));
             }
         }
     }
@@ -1508,7 +1508,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 String depart_airport_code = SEATSLoader.this.profile.getAirportCode(depart_airport_id);
                 long arrive_airport_id = flight_id.getArriveAirportId();
                 String arrive_airport_code = SEATSLoader.this.profile.getAirportCode(arrive_airport_id);
-                Timestamp depart_time = flight_id.getDepartDate(SEATSLoader.this.profile.getFlightStartDate());
+                Timestamp depart_time = flight_id.getDepartDateAsTimestamp(SEATSLoader.this.profile.getFlightStartDate());
                 Timestamp arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
                 flight_customer_ids.clear();
 
@@ -1603,7 +1603,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          * @return
          */
         private void getReturningCustomers(Collection<ReturnFlight> returning_customers, FlightId flight_id) {
-            Timestamp flight_date = flight_id.getDepartDate(SEATSLoader.this.profile.getFlightStartDate());
+            Timestamp flight_date = flight_id.getDepartDateAsTimestamp(SEATSLoader.this.profile.getFlightStartDate());
             returning_customers.clear();
             Set<ReturnFlight> returns = this.airport_returns.get(flight_id.getDepartAirportId());
             if (!returns.isEmpty()) {
@@ -1725,7 +1725,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         this.seats_remaining.put(flight_id, (short) SEATSConstants.FLIGHTS_NUM_SEATS);
 
         // XXX
-        if (this.profile.flight_upcoming_offset == null && this.profile.flight_upcoming_date.compareTo(flight_id.getDepartDate(this.profile.flight_start_date)) < 0) {
+        if (this.profile.flight_upcoming_offset == null && this.profile.flight_upcoming_date.compareTo(flight_id.getDepartDateAsTimestamp(this.profile.flight_start_date)) < 0) {
             this.profile.flight_upcoming_offset = (long) (this.seats_remaining.size() - 1);
         }
         return (true);

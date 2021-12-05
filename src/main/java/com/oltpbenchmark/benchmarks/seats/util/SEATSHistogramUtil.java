@@ -92,7 +92,7 @@ public abstract class SEATSHistogramUtil {
             cached_Histograms.put(filePath, histogram);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Histogram %s\n%s", name, histogram.toString()));
+            LOG.debug(String.format("Histogram %s\n%s", name, histogram));
         }
 
         return (histogram);

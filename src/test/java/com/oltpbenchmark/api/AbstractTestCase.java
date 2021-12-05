@@ -21,7 +21,8 @@ import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.Connection;
@@ -31,7 +32,7 @@ import java.util.Random;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
 
-    private static final Logger LOG = Logger.getLogger(AbstractTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTestCase.class);
 
     // -----------------------------------------------------------------
 
@@ -84,8 +85,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
         this.workConf.setTransTypes(txnTypes);
         this.workConf.setDatabaseType(DB_TYPE);
-        this.workConf.setUrl(DB_CONNECTION + this.dbName);
+        this.workConf.setUrl(DB_CONNECTION + this.dbName + ";sql.syntax_mys=true");
         this.workConf.setScaleFactor(DB_SCALE_FACTOR);
+        this.workConf.setBenchmarkName(BenchmarkModule.convertBenchmarkClassToBenchmarkName(clazz));
 
         this.benchmark = ClassUtil.newInstance(clazz,
                 new Object[]{this.workConf},

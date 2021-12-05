@@ -175,9 +175,12 @@ public class DBWorkload {
             initDebug.put("Driver", wrkld.getDriverClass());
             initDebug.put("URL", wrkld.getUrl());
             initDebug.put("Isolation", wrkld.getIsolationString());
+            initDebug.put("Batch Size", wrkld.getBatchSize());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
+            initDebug.put("Terminals", wrkld.getTerminals());
             initDebug.put("Keying Time Enabled", wrkld.isKeyingTimeEnabled());
             initDebug.put("Think Time Enabled", wrkld.isThinkTimeEnabled());
+            initDebug.put("Terminals", wrkld.getTerminals());
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);
@@ -607,7 +610,7 @@ public class DBWorkload {
         String resultsFileName = baseFileName + ".results.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, resultsFileName))) {
             LOG.info("Output results into file: {} with window size {}", resultsFileName, windowSize);
-            r.writeResults(windowSize, ps);
+            r.writeCSV(windowSize, ps);
         }
 
         for (TransactionType t : activeTXTypes) {

@@ -63,9 +63,6 @@ public class UserIdGenerator implements Iterator<UserId> {
         this.clientId = clientId;
 
         Long temp = users_per_item_count.getMaxValue();
-        if (temp == null) {
-            temp = users_per_item_count.getMaxValue();
-        }
         this.maxItemCount = temp.intValue();
         this.usersPerItemCounts = new int[this.maxItemCount + 2];
         for (int i = 0; i < this.usersPerItemCounts.length; i++) {
