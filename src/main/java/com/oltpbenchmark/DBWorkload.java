@@ -610,7 +610,7 @@ public class DBWorkload {
         String resultsFileName = baseFileName + ".results.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, resultsFileName))) {
             LOG.info("Output results into file: {} with window size {}", resultsFileName, windowSize);
-            r.writeCSV(windowSize, ps);
+            r.writeResults(windowSize, ps);
         }
 
         for (TransactionType t : activeTXTypes) {
