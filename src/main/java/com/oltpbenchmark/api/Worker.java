@@ -26,7 +26,6 @@ import com.oltpbenchmark.util.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -200,8 +199,6 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         // wait for start
         workloadState.blockForStart();
 
-        TransactionType invalidTT = TransactionType.INVALID;
-
         while (true) {
 
             // PART 1: Init and check if done
@@ -352,13 +349,13 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 switch (state) {
                     case WARMUP -> {
                         // Don't quit yet: we haven't even begun!
+                        LOG.info("[Serial] Resetting serial for phase.");
                         phase.resetSerial();
-                        LOG.info("[Serial] Reset serial.");
                     }
                     case COLD_QUERY, MEASURE -> {
                         // The serial phase is over. Finish the run early.
+                        LOG.info("[Serial] Updating workload state to {}.", State.LATENCY_COMPLETE);
                         workloadState.signalLatencyComplete();
-                        LOG.info("[Serial] Serial execution of all transactions complete.");
                     }
                     default -> throw e;
                 }
