@@ -558,7 +558,7 @@ public class DBWorkload {
 
 
         FileUtil.makeDirIfNotExists(outputDirectory);
-        ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
+        ResultWriter rw = new ResultWriter(r, xmlConfig, argsLine);
 
         String name = StringUtils.join(StringUtils.split(argsLine.getOptionValue("b"), ','), '-');
 
@@ -569,51 +569,51 @@ public class DBWorkload {
         String rawFileName = baseFileName + ".raw.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, rawFileName))) {
             LOG.info("Output Raw data into file: {}", rawFileName);
-            r.writeRaw(activeTXTypes, ps);
+            rw.writeRaw(activeTXTypes, ps);
         }
 
         String sampleFileName = baseFileName + ".samples.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, sampleFileName))) {
             LOG.info("Output samples into file: {}", sampleFileName);
-            r.writeSamples(ps);
+            rw.writeSamples(ps);
         }
 
         String summaryFileName = baseFileName + ".summary.json";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, summaryFileName))) {
             LOG.info("Output summary data into file: {}", summaryFileName);
-            ru.writeSummary(ps);
+            rw.writeSummary(ps);
         }
 
         String paramsFileName = baseFileName + ".params.json";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, paramsFileName))) {
             LOG.info("Output DBMS parameters into file: {}", paramsFileName);
-            ru.writeParams(ps);
+            rw.writeParams(ps);
         }
 
-        if (ru.hasMetrics()) {
+        if (rw.hasMetrics()) {
             String metricsFileName = baseFileName + ".metrics.json";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, metricsFileName))) {
                 LOG.info("Output DBMS metrics into file: {}", metricsFileName);
-                ru.writeMetrics(ps);
+                rw.writeMetrics(ps);
             }
         }
 
         String configFileName = baseFileName + ".config.xml";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
             LOG.info("Output benchmark config into file: {}", configFileName);
-            ru.writeConfig(ps);
+            rw.writeConfig(ps);
         }
 
         String resultsFileName = baseFileName + ".results.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, resultsFileName))) {
             LOG.info("Output results into file: {} with window size {}", resultsFileName, windowSize);
-            r.writeResults(windowSize, ps);
+            rw.writeResults(windowSize, ps);
         }
 
         for (TransactionType t : activeTXTypes) {
             String fileName = baseFileName + ".results." + t.getName() + ".csv";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
-                r.writeResults(windowSize, ps, t);
+                rw.writeResults(windowSize, ps, t);
             }
         }
 
