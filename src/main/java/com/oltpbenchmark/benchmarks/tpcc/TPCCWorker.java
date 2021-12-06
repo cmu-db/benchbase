@@ -40,7 +40,6 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
      */
     private final int terminalDistrictLowerID;
     private final int terminalDistrictUpperID;
-    // private boolean debugMessages;
     private final Random gen = new Random();
 
     private final int numWarehouses;
@@ -76,41 +75,22 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
     }
 
     @Override
-    protected long getKeyingTimeInMillis(TransactionType type) {
+    protected long getPreExecutionWaitInMillis(TransactionType type) {
         // TPC-C 5.2.5.2: For keying times for each type of transaction.
-        if (type.getName().equals("NewOrder")) {
-            return 18000;
-        }
-        if (type.getName().equals("Payment")) {
-            return 3000;
-        }
-        if (type.getName().equals("OrderStatus")) {
-            return 2000;
-        }
-        if (type.getName().equals("Delivery")) {
-            return 2000;
-        }
-        if (type.getName().equals("StockLevel")) {
-            return 2000;
-        }
-        throw new IllegalArgumentException("invalid TransactionType provided: " + type);
+        return type.getPreExecutionWait();
     }
 
     @Override
-    protected long getThinkTimeInMillis(TransactionType type) {
+    protected long getPostExecutionWaitInMillis(TransactionType type) {
         // TPC-C 5.2.5.4: For think times for each type of transaction.
-        long mean = switch (type.getName()) {
-            case "NewOrder", "Payment" -> 12000;
-            case "OrderStatus" -> 10000;
-            case "Delivery", "StockLevel" -> 5000;
-            default -> throw new IllegalArgumentException("invalid TransactionType provided: " + type);
-        };
+        long mean = type.getPostExecutionWait();
 
         float c = this.getBenchmarkModule().rng().nextFloat();
         long thinkTime = (long) (-1 * Math.log(c) * mean);
         if (thinkTime > 10 * mean) {
             thinkTime = 10 * mean;
         }
+
         return thinkTime;
     }
 

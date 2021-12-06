@@ -134,16 +134,6 @@ public class DBWorkload {
                 wrkld.setLoaderThreads(loaderThreads);
             }
 
-            if (xmlConfig.containsKey("keyingTimeEnabled")) {
-                boolean keyingTime = xmlConfig.getBoolean("keyingTimeEnabled");
-                wrkld.setKeyingTimeEnabled(keyingTime);
-            }
-
-            if (xmlConfig.containsKey("thinkTimeEnabled")) {
-                boolean thinkTime = xmlConfig.getBoolean("thinkTimeEnabled");
-                wrkld.setThinkTimeEnabled(thinkTime);
-            }
-
             String isolationMode = xmlConfig.getString("isolation[not(@bench)]", "TRANSACTION_SERIALIZABLE");
             wrkld.setIsolationMode(xmlConfig.getString("isolation" + pluginTest, isolationMode));
             wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
@@ -178,9 +168,6 @@ public class DBWorkload {
             initDebug.put("Batch Size", wrkld.getBatchSize());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
             initDebug.put("Terminals", wrkld.getTerminals());
-            initDebug.put("Keying Time Enabled", wrkld.isKeyingTimeEnabled());
-            initDebug.put("Think Time Enabled", wrkld.isThinkTimeEnabled());
-            initDebug.put("Terminals", wrkld.getTerminals());
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);
@@ -213,7 +200,17 @@ public class DBWorkload {
                     txnId = xmlConfig.getInt(key + "/id");
                 }
 
-                TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset);
+                long preExecutionWait = 0;
+                if (xmlConfig.containsKey(key + "/preExecutionWait")) {
+                    preExecutionWait = xmlConfig.getLong(key + "/preExecutionWait");
+                }
+
+                long postExecutionWait = 0;
+                if (xmlConfig.containsKey(key + "/postExecutionWait")) {
+                    postExecutionWait = xmlConfig.getLong(key + "/postExecutionWait");
+                }
+
+                TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset, preExecutionWait, postExecutionWait);
 
                 // Keep a reference for filtering
                 activeTXTypes.add(tmpType);

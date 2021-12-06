@@ -42,9 +42,7 @@ public class ResultUploader {
     private static final String[] BENCHMARK_KEY_FIELD = {
             "isolation",
             "scalefactor",
-            "terminals",
-            "keyingTimeEnabled",
-            "thinkTimeEnabled"
+            "terminals"
     };
 
     private final XMLConfiguration expConf;

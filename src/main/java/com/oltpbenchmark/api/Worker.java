@@ -262,17 +262,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // increase latency (queue delay) but we do this anyway since it is
             // useful sometimes
 
-            if (this.configuration.isKeyingTimeEnabled()) {
-                // Wait for the keying time which is a fixed amount for each type of transaction.
-                long keying_time_msecs = getKeyingTimeInMillis(transactionTypes.getType(pieceOfWork.getType()));
+            // Wait before transaction if specified
+            long preExecutionWaitInMillis = getPreExecutionWaitInMillis(transactionTypes.getType(pieceOfWork.getType()));
+
+            if (preExecutionWaitInMillis > 0) {
                 try {
-                    long sleep_start = System.nanoTime();
-                    Thread.sleep(keying_time_msecs);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(transactionTypes.getType(pieceOfWork.getType()).getName() + " Keying time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
-                    }
+                    LOG.debug("{} will sleep for {}ms before executing", transactionTypes.getType(pieceOfWork.getType()).getName(), preExecutionWaitInMillis);
+
+                    Thread.sleep(preExecutionWaitInMillis);
                 } catch (InterruptedException e) {
-                    LOG.error("Thread sleep interrupted", e);
+                    LOG.error("Pre-execution sleep interrupted", e);
                 }
             }
 
@@ -337,17 +336,17 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // Do nothing
             }
 
-            if (this.configuration.isThinkTimeEnabled()) {
-                // Sleep for the think time duration.
-                long think_time_msecs = getThinkTimeInMillis(transactionTypes.getType(pieceOfWork.getType()));
+
+            // wait after transaction if specified
+            long postExecutionWaitInMillis = getPostExecutionWaitInMillis(transactionTypes.getType(pieceOfWork.getType()));
+
+            if (postExecutionWaitInMillis > 0) {
                 try {
-                    long sleep_start = System.nanoTime();
-                    Thread.sleep(think_time_msecs);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(transactionTypes.getType(pieceOfWork.getType()).getName() + " Think time " + (System.nanoTime() - sleep_start) / 1000 / 1000 / 1000);
-                    }
+                    LOG.debug("{} will sleep for {}ms after executing", transactionTypes.getType(pieceOfWork.getType()).getName(), postExecutionWaitInMillis);
+
+                    Thread.sleep(postExecutionWaitInMillis);
                 } catch (InterruptedException e) {
-                    LOG.error("Thread sleep interrupted", e);
+                    LOG.error("Post-execution sleep interrupted", e);
                 }
             }
 
@@ -528,11 +527,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.state = this.configuration.getWorkloadState();
     }
 
-    protected long getKeyingTimeInMillis(TransactionType type) {
+    protected long getPreExecutionWaitInMillis(TransactionType type) {
         return 0;
     }
 
-    protected long getThinkTimeInMillis(TransactionType type) {
+    protected long getPostExecutionWaitInMillis(TransactionType type) {
         return 0;
     }
 

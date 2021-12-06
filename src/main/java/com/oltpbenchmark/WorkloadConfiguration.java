@@ -47,8 +47,6 @@ public class WorkloadConfiguration {
     private TransactionTypes transTypes = null;
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
-    private boolean keyingTimeEnabled;
-    private boolean thinkTimeEnabled;
 
     public String getBenchmarkName() {
         return benchmarkName;
@@ -243,22 +241,6 @@ public class WorkloadConfiguration {
         return isolationMode;
     }
 
-    public boolean isKeyingTimeEnabled() {
-        return keyingTimeEnabled;
-    }
-
-    public void setKeyingTimeEnabled(boolean keyingTimeEnabled) {
-        this.keyingTimeEnabled = keyingTimeEnabled;
-    }
-
-    public boolean isThinkTimeEnabled() {
-        return thinkTimeEnabled;
-    }
-
-    public void setThinkTimeEnabled(boolean thinkTimeEnabled) {
-        this.thinkTimeEnabled = thinkTimeEnabled;
-    }
-
     public void setIsolationMode(String mode) {
         switch (mode) {
             case "TRANSACTION_SERIALIZABLE":
@@ -293,25 +275,23 @@ public class WorkloadConfiguration {
     @Override
     public String toString() {
         return "WorkloadConfiguration{" +
-                "phases=" + phases +
-                ", databaseType=" + databaseType +
-                ", benchmarkName='" + benchmarkName + '\'' +
-                ", url='" + url + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", driverClass='" + driverClass + '\'' +
-                ", batchSize=" + batchSize +
-                ", maxRetries=" + maxRetries +
-                ", scaleFactor=" + scaleFactor +
-                ", selectivity=" + selectivity +
-                ", terminals=" + terminals +
-                ", loaderThreads=" + loaderThreads +
-                ", workloadState=" + workloadState +
-                ", transTypes=" + transTypes +
-                ", isolationMode=" + isolationMode +
-                ", keyingTimeEnabled=" + keyingTimeEnabled +
-                ", thinkTimeEnabled=" + thinkTimeEnabled +
-                ", dataDir='" + dataDir + '\'' +
-                '}';
+               "phases=" + phases +
+               ", databaseType=" + databaseType +
+               ", benchmarkName='" + benchmarkName + '\'' +
+               ", url='" + url + '\'' +
+               ", username='" + username + '\'' +
+               ", password='" + password + '\'' +
+               ", driverClass='" + driverClass + '\'' +
+               ", batchSize=" + batchSize +
+               ", maxRetries=" + maxRetries +
+               ", scaleFactor=" + scaleFactor +
+               ", selectivity=" + selectivity +
+               ", terminals=" + terminals +
+               ", loaderThreads=" + loaderThreads +
+               ", workloadState=" + workloadState +
+               ", transTypes=" + transTypes +
+               ", isolationMode=" + isolationMode +
+               ", dataDir='" + dataDir + '\'' +
+               '}';
     }
 }

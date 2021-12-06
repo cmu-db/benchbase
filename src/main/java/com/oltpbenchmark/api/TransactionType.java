@@ -26,24 +26,28 @@ public class TransactionType implements Comparable<TransactionType> {
     }
 
     public static final int INVALID_ID = 0;
-    public static final TransactionType INVALID = new TransactionType(Invalid.class, INVALID_ID, false);
+    public static final TransactionType INVALID = new TransactionType(Invalid.class, INVALID_ID, false, 0, 0);
 
-    private final Class<? extends Procedure> procClass;
+    private final Class<? extends Procedure> procedureClass;
     private final int id;
     private final boolean supplemental;
+    private final long preExecutionWait;
+    private final long postExecutionWait;
 
-    protected TransactionType(Class<? extends Procedure> procClass, int id, boolean supplemental) {
-        this.procClass = procClass;
+    protected TransactionType(Class<? extends Procedure> procedureClass, int id, boolean supplemental, long preExecutionWait, long postExecutionWait) {
+        this.procedureClass = procedureClass;
         this.id = id;
         this.supplemental = supplemental;
+        this.preExecutionWait = preExecutionWait;
+        this.postExecutionWait = postExecutionWait;
     }
 
     public Class<? extends Procedure> getProcedureClass() {
-        return (this.procClass);
+        return (this.procedureClass);
     }
 
     public String getName() {
-        return this.procClass.getSimpleName();
+        return this.procedureClass.getSimpleName();
     }
 
     public int getId() {
@@ -52,6 +56,14 @@ public class TransactionType implements Comparable<TransactionType> {
 
     public boolean isSupplemental() {
         return this.supplemental;
+    }
+
+    public long getPreExecutionWait() {
+        return preExecutionWait;
+    }
+
+    public long getPostExecutionWait() {
+        return postExecutionWait;
     }
 
     @Override
@@ -63,13 +75,12 @@ public class TransactionType implements Comparable<TransactionType> {
             return false;
         }
         TransactionType that = (TransactionType) o;
-        return id == that.id &&
-                Objects.equals(procClass, that.procClass);
+        return id == that.id && supplemental == that.supplemental && preExecutionWait == that.preExecutionWait && postExecutionWait == that.postExecutionWait && procedureClass.equals(that.procedureClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(procClass, id);
+        return Objects.hash(procedureClass, id, supplemental, preExecutionWait, postExecutionWait);
     }
 
     @Override
@@ -79,7 +90,7 @@ public class TransactionType implements Comparable<TransactionType> {
 
     @Override
     public String toString() {
-        return String.format("%s/%02d", this.procClass.getName(), this.id);
+        return String.format("%s/%02d", this.procedureClass.getName(), this.id);
     }
 
 }
