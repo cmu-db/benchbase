@@ -35,6 +35,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.oltpbenchmark.types.State.MEASURE;
+
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
     private static final Logger ABORT_LOG = LoggerFactory.getLogger("com.oltpbenchmark.api.ABORT_LOG");
@@ -182,13 +184,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     @Override
     public final void run() {
         Thread t = Thread.currentThread();
-        SubmittedProcedure pieceOfWork;
         t.setName(this.toString());
 
         // In case of reuse reset the measurements
         latencies = new LatencyRecord(state.getTestStartNs());
 
-        // Invoke the initialize callback
+        // Invoke initialize callback
         try {
             this.initialize();
         } catch (Throwable ex) {
@@ -197,62 +198,61 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         // wait for start
         state.blockForStart();
-        State preState, postState;
-        Phase phase, postPhase;
 
         TransactionType invalidTT = TransactionType.INVALID;
 
-        work:
         while (true) {
 
             // PART 1: Init and check if done
 
-            preState = state.getGlobalState();
-            phase = this.state.getCurrentPhase();
+            State preState = state.getGlobalState();
 
-            switch (preState) {
-                case DONE:
-                    if (!seenDone) {
-                        // This is the first time we have observed that the
-                        // test is done notify the global test state, then
-                        // continue applying load
-                        seenDone = true;
-                        state.signalDone();
-                        break work;
-                    }
+            // Do nothing
+            if (preState == State.DONE) {
+                if (!seenDone) {
+                    // This is the first time we have observed that the
+                    // test is done notify the global test state, then
+                    // continue applying load
+                    seenDone = true;
+                    state.signalDone();
                     break;
-                default:
-                    // Do nothing
+                }
             }
 
             // PART 2: Wait for work
 
             // Sleep if there's nothing to do.
             state.stayAwake();
-            phase = this.state.getCurrentPhase();
-            if (phase == null) {
-                continue work;
+
+            Phase prePhase = state.getCurrentPhase();
+            if (prePhase == null) {
+                LOG.warn("prePhase is null? will continue...");
+                continue;
             }
 
             // Grab some work and update the state, in case it changed while we
             // waited.
-            pieceOfWork = state.fetchWork();
-            preState = state.getGlobalState();
 
-            phase = this.state.getCurrentPhase();
-            if (phase == null) {
-                continue work;
+            SubmittedProcedure pieceOfWork = state.fetchWork();
+
+            prePhase = state.getCurrentPhase();
+            if (prePhase == null) {
+                LOG.warn("prePhase is null? will continue...");
+                continue;
             }
 
+            preState = state.getGlobalState();
+
             switch (preState) {
-                case DONE:
-                case EXIT:
-                case LATENCY_COMPLETE:
+                case DONE, EXIT, LATENCY_COMPLETE -> {
                     // Once a latency run is complete, we wait until the next
                     // phase or until DONE.
-                    continue work;
-                default:
-                    // Do nothing
+                    LOG.warn("preState is {}? will continue...", preState);
+                    continue;
+                }
+                default -> {
+                }
+                // Do nothing
             }
 
             // PART 3: Execute work
@@ -282,24 +282,21 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             try {
                 type = doWork(pieceOfWork);
             } catch (IndexOutOfBoundsException e) {
-                if (phase.isThroughputRun()) {
+                if (prePhase.isThroughputRun()) {
                     LOG.error("Thread tried executing disabled phase!");
                     throw e;
                 }
-                if (phase.getId() == this.state.getCurrentPhase().getId()) {
+                if (prePhase.getId() == state.getCurrentPhase().getId()) {
                     switch (preState) {
-                        case WARMUP:
-                            // Don't quit yet: we haven't even begun!
-                            phase.resetSerial();
-                            break;
-                        case COLD_QUERY:
-                        case MEASURE:
+                        case WARMUP ->
+                                // Don't quit yet: we haven't even begun!
+                                prePhase.resetSerial();
+                        case COLD_QUERY, MEASURE -> {
                             // The serial phase is over. Finish the run early.
                             state.signalLatencyComplete();
-                            LOG.info("[Serial] Serial execution of all" + " transactions complete.");
-                            break;
-                        default:
-                            throw e;
+                            LOG.info("[Serial] Serial execution of all transactions complete.");
+                        }
+                        default -> throw e;
                     }
                 }
             }
@@ -307,8 +304,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // PART 4: Record results
 
             long end = System.nanoTime();
-            postState = state.getGlobalState();
-            postPhase = state.getCurrentPhase();
+            State postState = state.getGlobalState();
 
             switch (postState) {
                 case MEASURE:
@@ -317,19 +313,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     // changed, otherwise we're recording results for a query
                     // that either started during the warmup phase or ended
                     // after the timer went off.
-                    if (preState == State.MEASURE && type != null && phase != null && postPhase != null && postPhase.getId() == phase.getId()) {
-                        latencies.addLatency(type.getId(), start, end, this.id, phase.getId());
+                    Phase postPhase = state.getCurrentPhase();
+                    if (preState == MEASURE && type != null && postPhase != null && postPhase.getId() == prePhase.getId()) {
+                        latencies.addLatency(type.getId(), start, end, this.id, prePhase.getId());
                         intervalRequests.incrementAndGet();
                     }
-                    if (phase.isLatencyRun()) {
-                        this.state.startColdQuery();
+                    if (prePhase.isLatencyRun()) {
+                        state.startColdQuery();
                     }
                     break;
                 case COLD_QUERY:
                     // No recording for cold runs, but next time we will since
                     // it'll be a hot run.
                     if (preState == State.COLD_QUERY) {
-                        this.state.startHotQuery();
+                        state.startHotQuery();
                     }
                     break;
                 default:
@@ -355,7 +352,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
         LOG.debug("worker calling teardown");
 
-        tearDown(false);
+        tearDown();
     }
 
     /**
@@ -363,7 +360,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param pieceOfWork
+     * @param pieceOfWork TODO
      */
     protected final TransactionType doWork(SubmittedProcedure pieceOfWork) {
         final DatabaseType type = configuration.getDatabaseType();
@@ -424,25 +421,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 } finally {
 
                     switch (status) {
-
-                        case UNKNOWN:
-                            this.txnUnknown.put(transactionType);
-                            break;
-                        case SUCCESS:
-                            this.txnSuccess.put(transactionType);
-                            break;
-                        case USER_ABORTED:
-                            this.txnAbort.put(transactionType);
-                            break;
-                        case RETRY:
-                            this.txnRetry.put(transactionType);
-                            break;
-                        case RETRY_DIFFERENT:
-                            this.txtRetryDifferent.put(transactionType);
-                            break;
-                        case ERROR:
-                            this.txnErrors.put(transactionType);
-                            break;
+                        case UNKNOWN -> this.txnUnknown.put(transactionType);
+                        case SUCCESS -> this.txnSuccess.put(transactionType);
+                        case USER_ABORTED -> this.txnAbort.put(transactionType);
+                        case RETRY -> this.txnRetry.put(transactionType);
+                        case RETRY_DIFFERENT -> this.txtRetryDifferent.put(transactionType);
+                        case ERROR -> this.txnErrors.put(transactionType);
                     }
 
                 }
@@ -482,12 +466,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         // ------------------
         // POSTGRES: https://www.postgresql.org/docs/current/errcodes-appendix.html
         // ------------------
-        if (errorCode == 0 && sqlState.equals("40001")) {
-            // Postgres serialization_failure
-            return true;
-        }
-
-        return false;
+        // Postgres serialization_failure
+        return errorCode == 0 && sqlState.equals("40001");
     }
 
     /**
@@ -501,8 +481,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     /**
      * Invoke a single transaction for the given TransactionType
      *
-     * @param conn
-     * @param txnType
+     * @param conn    TODO
+     * @param txnType TODO
      * @return TODO
      * @throws UserAbortException TODO
      * @throws SQLException       TODO
@@ -511,15 +491,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     /**
      * Called at the end of the test to do any clean up that may be required.
-     *
-     * @param error TODO
      */
-    public void tearDown(boolean error) {
+    public void tearDown() {
         try {
             conn.close();
         } catch (SQLException e) {
-            LOG.warn("Connection couldn't be closed. Error:");
-            e.printStackTrace();
+            LOG.error("Connection couldn't be closed.", e);
         }
     }
 
