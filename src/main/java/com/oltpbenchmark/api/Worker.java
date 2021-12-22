@@ -437,7 +437,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         LOG.debug("sql state [{}] and error code [{}]", sqlState, errorCode);
 
         if (sqlState == null) {
-            return true;
+            return false;
         }
 
         // ------------------
