@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class DistributionStatistics {
     private static final Logger LOG = LoggerFactory.getLogger(DistributionStatistics.class);
@@ -142,15 +143,15 @@ public class DistributionStatistics {
 
     @Override
     public String toString() {
-        return "in milliseconds [min=" + getMinimum() + ", "
-                + "25th=" + get25thPercentile() / 1e6  + ", "
-                + "median=" + getMedian() / 1e6 + ", "
-                + "avg=" + getAverage() / 1e6 + ", "
-                + "75th=" + get75thPercentile() / 1e6 + ", "
-                + "90th=" + get90thPercentile() / 1e6  + ", "
-                + "95th=" + get95thPercentile() / 1e6  + ", "
-                + "99th=" + get99thPercentile() / 1e6  + ", "
-                + "max=" + getMaximum() / 1e6  + "]";
+        return "in milliseconds [min=" + TimeUnit.MICROSECONDS.toMillis((long) getMinimum()) + ", "
+               + "25th=" + TimeUnit.MICROSECONDS.toMillis((long) get25thPercentile()) + ", "
+               + "median=" + TimeUnit.MICROSECONDS.toMillis((long) getMedian()) + ", "
+               + "avg=" + TimeUnit.MICROSECONDS.toMillis((long) getAverage()) + ", "
+               + "75th=" + TimeUnit.MICROSECONDS.toMillis((long) get75thPercentile()) + ", "
+               + "90th=" + TimeUnit.MICROSECONDS.toMillis((long) get90thPercentile()) + ", "
+               + "95th=" + TimeUnit.MICROSECONDS.toMillis((long) get95thPercentile()) + ", "
+               + "99th=" + TimeUnit.MICROSECONDS.toMillis((long) get99thPercentile()) + ", "
+               + "max=" + TimeUnit.MICROSECONDS.toMillis((long) getMaximum()) + "]";
     }
 
     public Map<String, Integer> toMap() {
