@@ -142,15 +142,15 @@ public class DistributionStatistics {
 
     @Override
     public String toString() {
-        return "in microseconds [min=" + getMinimum() + ", "
-                + "25th=" + get25thPercentile()  + ", "
-                + "median=" + getMedian() + ", "
-                + "avg=" + getAverage() + ", "
-                + "75th=" + get75thPercentile() + ", "
-                + "90th=" + get90thPercentile()  + ", "
-                + "95th=" + get95thPercentile()  + ", "
-                + "99th=" + get99thPercentile()  + ", "
-                + "max=" + getMaximum()  + "]";
+        return "in milliseconds [min=" + getMinimum() + ", "
+                + "25th=" + get25thPercentile() / 1e6  + ", "
+                + "median=" + getMedian() / 1e6 + ", "
+                + "avg=" + getAverage() / 1e6 + ", "
+                + "75th=" + get75thPercentile() / 1e6 + ", "
+                + "90th=" + get90thPercentile() / 1e6  + ", "
+                + "95th=" + get95thPercentile() / 1e6  + ", "
+                + "99th=" + get99thPercentile() / 1e6  + ", "
+                + "max=" + getMaximum() / 1e6  + "]";
     }
 
     public Map<String, Integer> toMap() {
