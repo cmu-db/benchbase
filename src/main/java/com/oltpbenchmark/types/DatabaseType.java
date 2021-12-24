@@ -48,7 +48,9 @@ public enum DatabaseType {
     SQLAZURE(true, false),
     SQLITE(true, false),
     SQLSERVER(true, false),
-    TIMESTEN(true, false);
+    TIMESTEN(true, false),
+    PHOENIX(true, true);
+
 
     DatabaseType(boolean escapeNames, boolean includeColNames) {
         this.escapeNames = escapeNames;

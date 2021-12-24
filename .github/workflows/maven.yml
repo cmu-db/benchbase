@@ -562,6 +562,7 @@ jobs:
         image: timveil/cockroachdb-single-node:latest
         env:
           DATABASE_NAME: benchbase
+          MEMORY_SIZE: .75
         ports:
           - 26257:26257
     steps:
