@@ -60,25 +60,23 @@ features, e.g., per-transaction-type latency and throughput logs.
 
 The BenchBase framework has the following benchmarks:
 
-(TODO(WAN): Get permission to migrate/copy Tim's wiki for benchmark descriptions)
-
-* [AuctionMark](https://github.com/timveil-cockroach/oltpbench/wiki/AuctionMark)
-* [CH-benCHmark](https://github.com/timveil-cockroach/oltpbench/wiki/CH-benCHmark)
-* [Epinions.com](https://github.com/timveil-cockroach/oltpbench/wiki/epinions)
+* [AuctionMark](https://github.com/cmu-db/benchbase/wiki/AuctionMark)
+* [CH-benCHmark](https://github.com/cmu-db/benchbase/wiki/CH-benCHmark)
+* [Epinions.com](https://github.com/cmu-db/benchbase/wiki/epinions)
 * hyadapt -- pending configuration files
-* [NoOp](https://github.com/timveil-cockroach/oltpbench/wiki/NoOp)
-* [Resource Stresser](https://github.com/timveil-cockroach/oltpbench/wiki/Resource-Stresser)
-* [SEATS](https://github.com/timveil-cockroach/oltpbench/wiki/Seats)
-* [SIBench](https://github.com/timveil-cockroach/oltpbench/wiki/SIBench)
-* [SmallBank](https://github.com/timveil-cockroach/oltpbench/wiki/SmallBank)
-* [TATP](https://github.com/timveil-cockroach/oltpbench/wiki/TATP)
-* [TPC-C](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-C)
-* [TPC-H](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-H)
+* [NoOp](https://github.com/cmu-db/benchbase/wiki/NoOp)
+* [Resource Stresser](https://github.com/cmu-db/benchbase/wiki/Resource-Stresser)
+* [SEATS](https://github.com/cmu-db/benchbase/wiki/Seats)
+* [SIBench](https://github.com/cmu-db/benchbase/wiki/SIBench)
+* [SmallBank](https://github.com/cmu-db/benchbase/wiki/SmallBank)
+* [TATP](https://github.com/cmu-db/benchbase/wiki/TATP)
+* [TPC-C](https://github.com/cmu-db/benchbase/wiki/TPC-C)
+* [TPC-H](https://github.com/cmu-db/benchbase/wiki/TPC-H)
 * TPC-DS -- pending configuration files
-* [Twitter](https://github.com/timveil-cockroach/oltpbench/wiki/Twitter)
-* [Voter](https://github.com/timveil-cockroach/oltpbench/wiki/Voter)
-* [Wikipedia](https://github.com/timveil-cockroach/oltpbench/wiki/Wikipedia)
-* [YCSB](https://github.com/timveil-cockroach/oltpbench/wiki/YCSB)
+* [Twitter](https://github.com/cmu-db/benchbase/wiki/Twitter)
+* [Voter](https://github.com/cmu-db/benchbase/wiki/Voter)
+* [Wikipedia](https://github.com/cmu-db/benchbase/wiki/Wikipedia)
+* [YCSB](https://github.com/cmu-db/benchbase/wiki/YCSB)
 
 This framework is design to allow for easy extension. We provide stub code that a contributor can use to include a new
 benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
