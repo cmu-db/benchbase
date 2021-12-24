@@ -225,7 +225,7 @@ public abstract class BenchmarkModule {
             try {
                 this.catalog.close();
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                LOG.error(throwables.getMessage(), throwables);
             }
         }
         try (Connection conn = this.makeConnection()) {
@@ -351,7 +351,7 @@ public abstract class BenchmarkModule {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public final TransactionType initTransactionType(String procName, int id) {
+    public final TransactionType initTransactionType(String procName, int id, long preExecutionWait, long postExecutionWait) {
         if (id == TransactionType.INVALID_ID) {
             throw new RuntimeException(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
         }
@@ -361,7 +361,7 @@ public abstract class BenchmarkModule {
         String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
 
-        return new TransactionType(procClass, id, false);
+        return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
@@ -381,7 +381,7 @@ public abstract class BenchmarkModule {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode(), true);
+                    txn = new TransactionType(procClass, procClass.hashCode(), true, 0, 0);
                     txns.add(txn);
                 }
             }
