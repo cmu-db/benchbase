@@ -29,6 +29,14 @@ package com.oltpbenchmark.benchmarks.tpch;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.tpch.util.CopyUtil;
+import com.oltpbenchmark.benchmarks.tpch.generation.RegionGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.NationGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.PartGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.PartSupplierGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.OrderGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.CustomerGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator;
+import com.oltpbenchmark.benchmarks.tpch.generation.SupplierGenerator;
 import com.oltpbenchmark.types.DatabaseType;
 import org.apache.commons.io.IOUtils;
 
@@ -168,6 +176,8 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         final CountDownLatch supplierLatch = new CountDownLatch(1);
         final CountDownLatch partsSuppLatch = new CountDownLatch(1);
 
+        final double scaleFactor = this.workConf.getScaleFactor();
+
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -190,7 +200,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
-                    loadTable(conn, statement, "Region", regionTypes);
+                    List<Iterable<List<Object>>> regionGenerators = new ArrayList<>();
+                    regionGenerators.add(new RegionGenerator());
+
+                    // loadTable(conn, statement, "Region", regionTypes);
+                    genTable(conn, statement, regionGenerators, regionTypes, "Region");
                 }
             }
 
@@ -217,7 +231,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "part", partTypes);
+                    List<Iterable<List<Object>>> partGenerators = new ArrayList<>();
+                    partGenerators.add(new PartGenerator(scaleFactor, 1, 1));
+
+                    //loadTable(conn, statement, "part", partTypes);
+                    genTable(conn, statement, partGenerators, partTypes, "part");
                 }
             }
 
@@ -244,7 +262,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + "(n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "Nation", nationTypes);
+                    List<Iterable<List<Object>>> nationGenerators = new ArrayList<>();
+                    nationGenerators.add(new NationGenerator());
+
+                    // loadTable(conn, statement, "Nation", nationTypes);
+                    genTable(conn, statement, nationGenerators, nationTypes, "Nation");
                 }
             }
 
@@ -272,7 +294,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "Supplier", supplierTypes);
+                    List<Iterable<List<Object>>> supplierGenerators = new ArrayList<>();
+                    supplierGenerators.add(new SupplierGenerator(scaleFactor, 1, 1));
+
+                    //loadTable(conn, statement, "Supplier", supplierTypes);
+                    genTable(conn, statement, supplierGenerators, supplierTypes, "Supplier");
                 }
             }
 
@@ -300,7 +326,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO customer " + "(c_custkey, c_name, c_address, c_nationkey," + " c_phone, c_acctbal, c_mktsegment, c_comment ) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "Customer", customerTypes);
+                    List<Iterable<List<Object>>> customerGenerators = new ArrayList<>();
+                    customerGenerators.add(new CustomerGenerator(scaleFactor, 1, 1));
+
+                    //loadTable(conn, statement, "Customer", customerTypes);
+                    genTable(conn, statement, customerGenerators, customerTypes, "Customer");
                 }
             }
 
@@ -328,7 +358,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO orders " + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice," + " o_orderdate, o_orderpriority, o_clerk, o_shippriority," + " o_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "orders", ordersTypes);
+                    List<Iterable<List<Object>>> orderGenerators = new ArrayList<>();
+                    orderGenerators.add(new OrderGenerator(scaleFactor, 1, 1));
+
+                    //loadTable(conn, statement, "orders", ordersTypes);
+                    genTable(conn, statement, orderGenerators, ordersTypes, "orders");
                 }
             }
 
@@ -356,7 +390,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO partsupp " + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost," + " ps_comment) " + "VALUES (?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "partsupp", partsuppTypes);
+                    List<Iterable<List<Object>>> partSuppGenerators = new ArrayList<>();
+                    partSuppGenerators.add(new PartSupplierGenerator(scaleFactor, 1, 1));
+
+                    // loadTable(conn, statement, "partsupp", partsuppTypes);
+                    genTable(conn, statement, partSuppGenerators, partsuppTypes, "partsupp");
                 }
             }
 
@@ -385,7 +423,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     return;
                 }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "LineItem", lineitemTypes);
+                    List<Iterable<List<Object>>> lineItemGenerators = new ArrayList<>();
+                    lineItemGenerators.add(new LineItemGenerator(scaleFactor, 1, 1));
+
+                    // loadTable(conn, statement, "LineItem", lineitemTypes);
+                    genTable(conn, statement, lineItemGenerators, lineitemTypes, "LineItem");
                 }
             }
 
@@ -543,5 +585,48 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     }
 
+    private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators, CastTypes[] types, String tableName) {
+        for (Iterable<List<Object>> generator : generators) {
+            try {
+                for (List<Object> elems : generator) {
+                    int recordsRead = 0;
+                    for (int idx = 0; idx < types.length; idx++) {
+                        final CastTypes type = types[idx];
+                        switch (type) {
+                            case DOUBLE:
+                                prepStmt.setDouble(idx + 1, (Double)elems.get(idx));
+                                break;
+                            case LONG:
+                                prepStmt.setLong(idx + 1, (Long)elems.get(idx));
+                                break;
+                            case STRING:
+                                prepStmt.setString(idx + 1, (String)elems.get(idx));
+                                break;
+                            case DATE:
+                                prepStmt.setDate(idx + 1, (Date)elems.get(idx));
+                                break;
+                            default:
+                                throw new RuntimeException("Unrecognized type for prepared statement");
+                        }
 
+                        ++recordsRead;
+                        prepStmt.addBatch();
+                        if ((recordsRead % workConf.getBatchSize()) == 0) {
+
+                            LOG.debug("writing batch {} for table {}", recordsRead, tableName);
+        
+                            prepStmt.executeBatch();
+                            prepStmt.clearBatch();
+                        }
+                    }
+
+                    if (recordsRead > 0) {
+                        prepStmt.executeBatch();
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+    }
 }
