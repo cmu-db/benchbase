@@ -58,14 +58,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     private enum CastTypes {LONG, DOUBLE, STRING, DATE}
 
-    private static final Pattern isoFmt = Pattern.compile("^\\s*(\\d{4})-(\\d{2})-(\\d{2})\\s*$");
-    private static final Pattern nondelimFmt = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");
-    private static final Pattern usaFmt = Pattern.compile("^\\s*(\\d{2})/(\\d{2})/(\\d{4})\\s*$");
-    private static final Pattern eurFmt = Pattern.compile("^\\s*(\\d{2})\\.(\\d{2})\\.(\\d{4})\\s*$");
-    private static final Pattern CSV_PATTERN = Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
-    private static final Pattern TBL_PATTERN = Pattern.compile("[^\\|]*\\|");
-
-
     private static final CastTypes[] customerTypes = {CastTypes.LONG,   // c_custkey
             CastTypes.STRING, // c_name
             CastTypes.STRING, // c_address
@@ -204,7 +196,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> regionGenerators = new ArrayList<>();
                     regionGenerators.add(new RegionGenerator());
 
-                    // loadTable(conn, statement, "Region", regionTypes);
                     genTable(conn, statement, regionGenerators, regionTypes, "Region");
                 }
             }
@@ -235,7 +226,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> partGenerators = new ArrayList<>();
                     partGenerators.add(new PartGenerator(scaleFactor, 1, 1));
 
-                    //loadTable(conn, statement, "part", partTypes);
                     genTable(conn, statement, partGenerators, partTypes, "part");
                 }
             }
@@ -266,7 +256,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> nationGenerators = new ArrayList<>();
                     nationGenerators.add(new NationGenerator());
 
-                    // loadTable(conn, statement, "Nation", nationTypes);
                     genTable(conn, statement, nationGenerators, nationTypes, "Nation");
                 }
             }
@@ -298,7 +287,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> supplierGenerators = new ArrayList<>();
                     supplierGenerators.add(new SupplierGenerator(scaleFactor, 1, 1));
 
-                    //loadTable(conn, statement, "Supplier", supplierTypes);
                     genTable(conn, statement, supplierGenerators, supplierTypes, "Supplier");
                 }
             }
@@ -330,7 +318,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> customerGenerators = new ArrayList<>();
                     customerGenerators.add(new CustomerGenerator(scaleFactor, 1, 1));
 
-                    //loadTable(conn, statement, "Customer", customerTypes);
                     genTable(conn, statement, customerGenerators, customerTypes, "Customer");
                 }
             }
@@ -362,7 +349,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> orderGenerators = new ArrayList<>();
                     orderGenerators.add(new OrderGenerator(scaleFactor, 1, 1));
 
-                    //loadTable(conn, statement, "orders", ordersTypes);
                     genTable(conn, statement, orderGenerators, ordersTypes, "orders");
                 }
             }
@@ -394,7 +380,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> partSuppGenerators = new ArrayList<>();
                     partSuppGenerators.add(new PartSupplierGenerator(scaleFactor, 1, 1));
 
-                    // loadTable(conn, statement, "partsupp", partsuppTypes);
                     genTable(conn, statement, partSuppGenerators, partsuppTypes, "partsupp");
                 }
             }
@@ -427,7 +412,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> lineItemGenerators = new ArrayList<>();
                     lineItemGenerators.add(new LineItemGenerator(scaleFactor, 1, 1));
 
-                    // loadTable(conn, statement, "LineItem", lineitemTypes);
                     genTable(conn, statement, lineItemGenerators, lineitemTypes, "LineItem");
                 }
             }
@@ -445,145 +429,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         });
 
         return threads;
-    }
-
-
-    private String getFileFormat() {
-        String format = workConf.getXmlConfig().getString("fileFormat");
-            /*
-               Previouse configuration migh not have a fileFormat and assume
-                that the files are csv.
-            */
-        if (format == null) {
-            return "csv";
-        }
-
-        if ((!"csv".equals(format) && !"tbl".equals(format))) {
-            throw new IllegalArgumentException("Configuration doesn't have a valid fileFormat");
-        }
-        return format;
-    }
-
-    private Pattern getFormatPattern(String format) {
-
-        if ("csv".equals(format)) {
-            // The following pattern parses the lines by commas, except for
-            // ones surrounded by double-quotes. Further, strings that are
-            // double-quoted have the quotes dropped (we don't need them).
-            return CSV_PATTERN;
-        } else {
-
-            return TBL_PATTERN;
-        }
-    }
-
-    private int getFormatGroup(String format) {
-        if ("csv".equals(format)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-
-    private void loadTable(Connection conn, PreparedStatement prepStmt, String tableName, CastTypes[] types) {
-        int recordsRead = 0;
-
-        String format = getFileFormat();
-
-        File file = new File(workConf.getDataDir(), tableName.toLowerCase() + "." + format);
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            // The following pattern parses the lines by commas, except for
-            // ones surrounded by double-quotes. Further, strings that are
-            // double-quoted have the quotes dropped (we don't need them).
-            Pattern pattern = getFormatPattern(format);
-            int group = getFormatGroup(format);
-
-            final List<String> lines = IOUtils.readLines(br);
-
-            for (String line : lines) {
-                Matcher matcher = pattern.matcher(line);
-
-
-                for (int i = 0; i < types.length; ++i) {
-                    final CastTypes type = types[i];
-
-                    matcher.find();
-                    String field = matcher.group(group);
-
-                    // Remove quotes that may surround a field.
-                    if (field.charAt(0) == '\"') {
-                        field = field.substring(1, field.length() - 1);
-                    }
-
-                    if (group == 0) {
-                        field = field.substring(0, field.length() - 1);
-                    }
-
-                    switch (type) {
-                        case DOUBLE:
-                            prepStmt.setDouble(i + 1, Double.parseDouble(field));
-                            break;
-                        case LONG:
-                            prepStmt.setLong(i + 1, Long.parseLong(field));
-                            break;
-                        case STRING:
-                            prepStmt.setString(i + 1, field);
-                            break;
-                        case DATE:
-                            // Four possible formats for date
-                            // yyyy-mm-dd
-                            Matcher isoMatcher = isoFmt.matcher(field);
-                            // yyyymmdd
-
-                            Matcher nondelimMatcher = nondelimFmt.matcher(field);
-                            // mm/dd/yyyy
-
-                            Matcher usaMatcher = usaFmt.matcher(field);
-                            // dd.mm.yyyy
-
-                            Matcher eurMatcher = eurFmt.matcher(field);
-
-                            Date fieldAsDate = null;
-                            if (isoMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(isoMatcher.group(1)) - 1900, Integer.parseInt(isoMatcher.group(2)), Integer.parseInt(isoMatcher.group(3))));
-                            } else if (nondelimMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(nondelimMatcher.group(1)) - 1900, Integer.parseInt(nondelimMatcher.group(2)), Integer.parseInt(nondelimMatcher.group(3))));
-                            } else if (usaMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(usaMatcher.group(3)) - 1900, Integer.parseInt(usaMatcher.group(1)), Integer.parseInt(usaMatcher.group(2))));
-                            } else if (eurMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1))));
-                            } else {
-                                throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getPath());
-                            }
-                            prepStmt.setDate(i + 1, fieldAsDate, null);
-                            break;
-                        default:
-                            throw new RuntimeException("Unrecognized type for prepared statement");
-                    }
-                }
-
-
-                prepStmt.addBatch();
-                ++recordsRead;
-
-                if ((recordsRead % workConf.getBatchSize()) == 0) {
-
-                    LOG.debug("writing batch {} for table {}", recordsRead, tableName);
-
-                    prepStmt.executeBatch();
-                    prepStmt.clearBatch();
-                }
-            }
-
-
-            prepStmt.executeBatch();
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-
     }
 
     private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators, CastTypes[] types, String tableName) {
