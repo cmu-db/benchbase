@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Calendar;
-import java.util.Date;
+import java.sql.Date;
 
 import static java.util.Locale.ENGLISH;
 
@@ -112,9 +112,9 @@ public final class GenerateUtils
         int dy = d - MONTH_YEAR_DAY_START[m - 1] - ((isLeapYear(y) && m > 2) ? 1 : 0);
 
         Calendar cal = Calendar.getInstance();
-        cal.set(1900 + y, m, dy);
+        cal.set(1900 + y, m - 1, dy, 0, 0, 0);
 
-        return cal.getTime();
+        return new Date(cal.getTimeInMillis());
     }
 
     private static int leapYearAdjustment(int year, int month)

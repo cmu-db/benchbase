@@ -223,12 +223,12 @@ public class OrderGenerator
             List<Object> order = new ArrayList<>();
             order.add(orderKey);
             order.add(customerKey);
-            order.add(orderStatus);
+            order.add(Character.valueOf(orderStatus).toString());
             order.add((double)totalPrice / 100.);
             order.add(toEpochDate(orderDate));
             order.add(orderPriorityRandom.nextValue());
             order.add(String.format(ENGLISH, "Clerk#%09d", clerkRandom.nextValue()));
-            order.add(0);
+            order.add(0L);
             order.add(commentRandom.nextValue());
 
             return order;

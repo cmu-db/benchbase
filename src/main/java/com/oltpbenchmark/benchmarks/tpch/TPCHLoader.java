@@ -150,15 +150,16 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
      * @return True if the COPY operation was successful. False otherwise.
      */
     private boolean loadCopy(Connection conn) {
-        DatabaseType dbType = this.workConf.getDatabaseType();
-        switch (dbType) {
-            case POSTGRES:
-                return CopyUtil.copyPOSTGRES(workConf, conn, LOG);
-            case MYSQL:
-                return CopyUtil.copyMYSQL(workConf, conn, LOG);
-            default:
-                return false;
-        }
+        return false;
+        // DatabaseType dbType = this.workConf.getDatabaseType();
+        // switch (dbType) {
+        //     case POSTGRES:
+        //         return CopyUtil.copyPOSTGRES(workConf, conn, LOG);
+        //     case MYSQL:
+        //         return CopyUtil.copyMYSQL(workConf, conn, LOG);
+        //     default:
+        //         return false;
+        // }
     }
 
     @Override
@@ -608,22 +609,20 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             default:
                                 throw new RuntimeException("Unrecognized type for prepared statement");
                         }
-
-                        ++recordsRead;
-                        prepStmt.addBatch();
-                        if ((recordsRead % workConf.getBatchSize()) == 0) {
-
-                            LOG.debug("writing batch {} for table {}", recordsRead, tableName);
-        
-                            prepStmt.executeBatch();
-                            prepStmt.clearBatch();
-                        }
                     }
 
-                    if (recordsRead > 0) {
+                    ++recordsRead;
+                    prepStmt.addBatch();
+                    if ((recordsRead % workConf.getBatchSize()) == 0) {
+
+                        LOG.debug("writing batch {} for table {}", recordsRead, tableName);
+    
                         prepStmt.executeBatch();
+                        prepStmt.clearBatch();
                     }
                 }
+
+                prepStmt.executeBatch();
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }

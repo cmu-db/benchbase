@@ -68,9 +68,9 @@ public class NationGenerator
             }
 
             List<Object> nation = new ArrayList<>();
-            nation.add(index);
+            nation.add((long)index);
             nation.add(nations.getValue(index));
-            nation.add(nations.getWeight(index));
+            nation.add((long)nations.getWeight(index));
             nation.add(commentRandom.nextValue());
 
             commentRandom.rowFinished();

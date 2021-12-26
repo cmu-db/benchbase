@@ -148,7 +148,7 @@ public class PartGenerator
             part.add(String.format(ENGLISH, "Manufacturer#%d", manufacturer));
             part.add(String.format(ENGLISH, "Brand#%d", brand));
             part.add(typeRandom.nextValue());
-            part.add(sizeRandom.nextValue());
+            part.add((long)sizeRandom.nextValue());
             part.add(containerRandom.nextValue());
             part.add((double)calculatePartPrice(partKey) / 100.);
             part.add(commentRandom.nextValue());

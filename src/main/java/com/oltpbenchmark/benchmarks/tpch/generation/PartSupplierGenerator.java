@@ -128,7 +128,7 @@ public class PartSupplierGenerator
             List<Object> partSupplier = new ArrayList<>();
             partSupplier.add(partKey);
             partSupplier.add(selectPartSupplier(partKey, partSupplierNumber, scaleFactor));
-            partSupplier.add(availableQuantityRandom.nextValue());
+            partSupplier.add((long)availableQuantityRandom.nextValue());
             partSupplier.add((double)supplyCostRandom.nextValue() / 100.);
             partSupplier.add(commentRandom.nextValue());
             return partSupplier;

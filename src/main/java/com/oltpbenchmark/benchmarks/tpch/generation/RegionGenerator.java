@@ -68,7 +68,7 @@ public class RegionGenerator
             }
 
             List<Object> region = new ArrayList<>();
-            region.add(index);
+            region.add((long)index);
             region.add(regions.getValue(index));
             region.add(commentRandom.nextValue());
 

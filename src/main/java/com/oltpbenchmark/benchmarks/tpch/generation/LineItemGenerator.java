@@ -253,8 +253,8 @@ public class LineItemGenerator
             lineItem.add(orderKey);
             lineItem.add(partKey);
             lineItem.add(supplierKey);
-            lineItem.add(lineNumber + 1);
-            lineItem.add(quantity);
+            lineItem.add((long)(lineNumber + 1));
+            lineItem.add((double)quantity);
             lineItem.add((double)extendedPrice / 100.);
             lineItem.add((double)discount / 100.);
             lineItem.add((double)tax / 100.);
