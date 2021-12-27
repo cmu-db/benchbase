@@ -2,16 +2,22 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>MYSQL</type>
-    <driver>com.mysql.cj.jdbc.Driver</driver>
-    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;sslMode=DISABLED</url>
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
     <batchsize>128</batchsize>
 
-    <!-- Scalefactor in ResourceStresser scales by *100 the number of employees -->
+    <!-- Scalefactor in Twitter scales by *500 the number of users-->
     <scalefactor>1</scalefactor>
+
+
+    <!-- Trace files for Twitter -->
+    <tracefile>data/twitter/twitter_tweetids.txt</tracefile>
+    <tracefile2>data/twitter/twitter_user_ids.txt</tracefile2>
+    <base_ip>10.1.</base_ip>
 
     <!-- The workload -->
     <terminals>1</terminals>
@@ -19,30 +25,26 @@
         <work>
             <time>60</time>
             <rate>10000</rate>
-            <weights>16.66,16.66,16.66,16.66,16.66,16.7</weights>
+            <weights>1,1,7,90,1</weights>
         </work>
     </works>
 
-    <!-- R/S Procedures declaration -->
+    <!-- Twitter Procedures declaration -->
     <transactiontypes>
         <transactiontype>
-            <name>CPU1</name>
+            <name>GetTweet</name>
         </transactiontype>
         <transactiontype>
-            <name>CPU2</name>
+            <name>GetTweetsFromFollowing</name>
         </transactiontype>
         <transactiontype>
-            <name>IO1</name>
+            <name>GetFollowers</name>
         </transactiontype>
         <transactiontype>
-            <name>IO2</name>
+            <name>GetUserTweets</name>
         </transactiontype>
         <transactiontype>
-            <name>Contention1</name>
-        </transactiontype>
-        <transactiontype>
-            <name>Contention2</name>
+            <name>InsertTweet</name>
         </transactiontype>
     </transactiontypes>
-
 </parameters>

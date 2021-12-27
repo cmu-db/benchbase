@@ -146,6 +146,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         switch (dbType) {
             case POSTGRES:
                 return CopyUtil.copyPOSTGRES(workConf, conn, LOG);
+            case MARIADB:
             case MYSQL:
                 return CopyUtil.copyMYSQL(workConf, conn, LOG);
             default:

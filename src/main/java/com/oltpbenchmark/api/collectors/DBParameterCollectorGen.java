@@ -24,6 +24,7 @@ public class DBParameterCollectorGen {
         switch (dbType) {
 
             case MYSQL:
+            case MARIADB:
                 return new MySQLCollector(dbUrl, username, password);
             case POSTGRES:
                 return new PostgresCollector(dbUrl, username, password);

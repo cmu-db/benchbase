@@ -55,7 +55,7 @@ public class ScriptRunner {
 
         LOG.debug("trying to find file by path {}", path);
 
-        try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(path);
+        try (InputStream in = this.getClass().getResourceAsStream(path);
              Reader reader = new InputStreamReader(in)) {
 
             boolean originalAutoCommit = connection.getAutoCommit();

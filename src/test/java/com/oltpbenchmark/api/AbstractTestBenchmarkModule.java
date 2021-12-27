@@ -39,7 +39,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     public void testGetDatabaseDDLPath() throws Exception {
         String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
         assertNotNull(ddlPath);
-        try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(ddlPath)) {
+        try (InputStream stream = this.getClass().getResourceAsStream(ddlPath)) {
             assertNotNull(stream);
         }
     }
@@ -101,7 +101,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         for (DatabaseType dbType : DatabaseType.values()) {
             String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(dbType);
             if (xmlFilePath != null) {
-                URL xmlUrl = this.getClass().getClassLoader().getResource(xmlFilePath);
+                URL xmlUrl = this.getClass().getResource(xmlFilePath);
                 assertNotNull(xmlUrl);
                 File xmlFile = new File(xmlUrl.toURI());
                 assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());

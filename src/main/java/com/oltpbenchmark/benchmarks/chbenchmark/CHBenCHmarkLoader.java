@@ -155,9 +155,9 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         Region region = new Region();
 
-        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "region_gen.tbl";
+        final String path = "/benchmarks/" + this.benchmark.getBenchmarkName() + "/region_gen.tbl";
 
-        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+        try (InputStream resourceAsStream = this.getClass().getResourceAsStream(path)) {
 
             List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
 
@@ -214,9 +214,9 @@ public class CHBenCHmarkLoader extends Loader<CHBenCHmark> {
 
         Nation nation = new Nation();
 
-        final String path = "benchmarks" + File.separator + this.benchmark.getBenchmarkName() + File.separator + "nation_gen.tbl";
+        final String path = "/benchmarks/" + this.benchmark.getBenchmarkName() + "/nation_gen.tbl";
 
-        try (final InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+        try (final InputStream resourceAsStream = this.getClass().getResourceAsStream(path)) {
 
             List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
 
