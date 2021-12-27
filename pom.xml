@@ -32,6 +32,87 @@
         </repository>
     </distributionManagement>
 
+    <profiles>
+        <profile>
+            <id>postgres</id>
+            <properties>
+                <classifier>postgres</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>42.3.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>mysql</id>
+            <properties>
+                <classifier>mysql</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>8.0.27</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>mariadb</id>
+            <properties>
+                <classifier>mariadb</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.mariadb.jdbc</groupId>
+                    <artifactId>mariadb-java-client</artifactId>
+                    <version>2.7.4</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>spanner</id>
+            <properties>
+                <classifier>spanner</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.cloud</groupId>
+                    <artifactId>google-cloud-spanner-jdbc</artifactId>
+                    <version>2.5.5</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>cockroachdb</id>
+            <properties>
+                <classifier>cockroachdb</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>42.3.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>phoenix</id>
+            <properties>
+                <classifier>phoenix</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix-client-hbase-2.4</artifactId>
+                    <version>5.1.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -106,33 +187,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.3.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.27</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-            <version>2.7.4</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>2.6.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-spanner-jdbc</artifactId>
-            <version>2.5.5</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -141,11 +199,7 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.phoenix</groupId>
-            <artifactId>phoenix-client-hbase-2.4</artifactId>
-            <version>5.1.2</version>
-        </dependency>
+
 
     </dependencies>
 
@@ -165,6 +219,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
+                    <classifier>${classifier}</classifier>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
@@ -188,9 +243,9 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>${project.artifactId}-${classifier}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/tgz.xml</descriptor>
-                                <descriptor>src/main/assembly/zip.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>

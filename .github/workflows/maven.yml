@@ -22,6 +22,9 @@ env:
 jobs:
   build-and-upload:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix' ]
     steps:
     - name: Checkout repo.
       uses: actions/checkout@v2
@@ -34,24 +37,13 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven.
-      run: mvn -B package --file pom.xml
+      run: mvn -B package -P ${{matrix.profile}} --file pom.xml
 
-    - name: Rename artifacts.
-      run: |
-        mv target/benchbase-$POM_VERSION.zip target/benchbase.zip
-        mv target/benchbase-$POM_VERSION.tgz target/benchbase.tgz
-
-    - name: Upload ZIP artifact.
+    - name: Upload TGZ artifacts.
       uses: actions/upload-artifact@v2
       with:
-        name: benchbase.zip
-        path: target/benchbase.zip
-
-    - name: Upload TGZ artifact.
-      uses: actions/upload-artifact@v2
-      with:
-        name: benchbase.tgz
-        path: target/benchbase.tgz
+        name: benchbase-${{matrix.profile}}
+        path: target/benchbase-${{matrix.profile}}.tgz
 
   mariadb:
     needs: build-and-upload
@@ -74,15 +66,15 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: benchbase.tgz
+          name: benchbase-mariadb
 
       - name: extract artifact
         run: |
-          tar xvzf benchbase.tgz --strip-components=1
+          tar xvzf benchbase-mariadb.tgz --strip-components=1
 
       - name: delete artifact
         run: |
-          rm -rf benchbase.tgz
+          rm -rf benchbase-mariadb.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -247,15 +239,15 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: benchbase.tgz
+          name: benchbase-mysql
 
       - name: extract artifact
         run: |
-          tar xvzf benchbase.tgz --strip-components=1
+          tar xvzf benchbase-mysql.tgz --strip-components=1
 
       - name: delete artifact
         run: |
-          rm -rf benchbase.tgz
+          rm -rf benchbase-mysql.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -419,15 +411,15 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: benchbase.tgz
+          name: benchbase-postgres
 
       - name: extract artifact
         run: |
-          tar xvzf benchbase.tgz --strip-components=1
+          tar xvzf benchbase-postgres.tgz --strip-components=1
 
       - name: delete artifact
         run: |
-          rm -rf benchbase.tgz
+          rm -rf benchbase-postgres.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -568,15 +560,15 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: benchbase.tgz
+          name: benchbase-cockroachdb
 
       - name: extract artifact
         run: |
-          tar xvzf benchbase.tgz --strip-components=1
+          tar xvzf benchbase-cockroachdb.tgz --strip-components=1
 
       - name: delete artifact
         run: |
-          rm -rf benchbase.tgz
+          rm -rf benchbase-cockroachdb.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
