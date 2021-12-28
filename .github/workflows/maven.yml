@@ -20,7 +20,24 @@ env:
   POM_VERSION: 2021-SNAPSHOT
 
 jobs:
-  build-and-upload:
+  compile-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo.
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          cache: 'maven'
+          distribution: 'temurin'
+
+      - name: Build with Maven.
+        run: mvn -B test --file pom.xml
+
+  package-and-upload:
+    needs: compile-and-test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,7 +54,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Maven.
-      run: mvn -B package -P ${{matrix.profile}} --file pom.xml
+      run: mvn -B package -P ${{matrix.profile}} --file pom.xml -DskipTests
 
     - name: Upload TGZ artifacts.
       uses: actions/upload-artifact@v2
@@ -46,7 +63,7 @@ jobs:
         path: target/benchbase-${{matrix.profile}}.tgz
 
   mariadb:
-    needs: build-and-upload
+    needs: package-and-upload
     runs-on: ubuntu-latest
     services:
       mariadb: # https://hub.docker.com/_/mariadb
@@ -219,7 +236,7 @@ jobs:
             })
 
   mysql:
-    needs: build-and-upload
+    needs: package-and-upload
     runs-on: ubuntu-latest
     services:
       mysql: # https://hub.docker.com/_/mysql
@@ -392,7 +409,7 @@ jobs:
             })
 
   postgresql:
-    needs: build-and-upload
+    needs: package-and-upload
     runs-on: ubuntu-latest
     services:
       postgres: # https://hub.docker.com/_/postgres
@@ -547,7 +564,7 @@ jobs:
             })
 
   cockroachdb:
-    needs: build-and-upload
+    needs: package-and-upload
     runs-on: ubuntu-latest
     services:
       cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node

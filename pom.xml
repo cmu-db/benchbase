@@ -246,6 +246,7 @@
                             <finalName>${project.artifactId}-${classifier}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/tgz.xml</descriptor>
+                                <descriptor>src/main/assembly/zip.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>

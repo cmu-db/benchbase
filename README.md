@@ -23,7 +23,7 @@ To clone and build BenchBase,
 ```bash
 git clone --depth 1 https://github.com/cmu-db/benchbase.git
 cd benchbase
-./mvnw clean package
+./mvnw clean package -P postgres
 ```
 
 This produces artifacts in the `target` folder, which can be extracted,
@@ -86,9 +86,10 @@ benchmark, leveraging all the system features (logging, controlled speed, contro
 ## Usage Guide
 
 ### How to Build
-Run the following command to build the distribution:
+Run the following command to build the distribution for a given database specified as the profile name (`-P`).  The following profiles are currently supported: `postgres`, `mysql`, `mariadb`, `cockroachdb`, `phoenix` and `spanner`.
+
 ```bash
-./mvnw clean package
+./mvnw clean package -P <profile name>
 ```
 
 The following files will be placed in the `./target` folder:
