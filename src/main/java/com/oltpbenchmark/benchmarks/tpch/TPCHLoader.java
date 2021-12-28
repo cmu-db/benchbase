@@ -28,7 +28,6 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
-import com.oltpbenchmark.benchmarks.tpch.util.CopyUtil;
 import com.oltpbenchmark.benchmarks.tpch.generation.RegionGenerator;
 import com.oltpbenchmark.benchmarks.tpch.generation.NationGenerator;
 import com.oltpbenchmark.benchmarks.tpch.generation.PartGenerator;
@@ -135,31 +134,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             CastTypes.STRING, // s_comment
     };
 
-
-    /**
-     * Try to load the TPC-H data from .tbl files using the COPY command.
-     *
-     * @return True if the COPY operation was successful. False otherwise.
-     */
-    private boolean loadCopy(Connection conn) {
-        return false;
-        // DatabaseType dbType = this.workConf.getDatabaseType();
-        // switch (dbType) {
-        //     case POSTGRES:
-        //         return CopyUtil.copyPOSTGRES(workConf, conn, LOG);
-        //     case MYSQL:
-        //         return CopyUtil.copyMYSQL(workConf, conn, LOG);
-        //     default:
-        //         return false;
-        // }
-    }
-
     @Override
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
-
-        final CountDownLatch copyLatch = new CountDownLatch(1);
-        final boolean[] copySuccess = {false};
 
         final CountDownLatch regionLatch = new CountDownLatch(1);
         final CountDownLatch nationLatch = new CountDownLatch(1);
@@ -174,38 +151,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (loadCopy(conn)) {
-                    copySuccess[0] = true;
-                }
-            }
-
-            @Override
-            public void afterLoad() {
-                copyLatch.countDown();
-            }
-        });
-
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Region because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
                     List<Iterable<List<Object>>> regionGenerators = new ArrayList<>();
                     regionGenerators.add(new RegionGenerator());
 
                     genTable(conn, statement, regionGenerators, regionTypes, "Region");
-                }
-            }
-
-            @Override
-            public void beforeLoad() {
-                try {
-                    copyLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             }
 
@@ -218,24 +168,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Part because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> partGenerators = new ArrayList<>();
                     partGenerators.add(new PartGenerator(scaleFactor, 1, 1));
 
                     genTable(conn, statement, partGenerators, partTypes, "part");
-                }
-            }
-
-            @Override
-            public void beforeLoad() {
-                try {
-                    copyLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             }
 
@@ -248,10 +185,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Nation because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + "(n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> nationGenerators = new ArrayList<>();
                     nationGenerators.add(new NationGenerator());
@@ -263,7 +196,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     regionLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -279,10 +211,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Supplier because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> supplierGenerators = new ArrayList<>();
                     supplierGenerators.add(new SupplierGenerator(scaleFactor, 1, 1));
@@ -294,7 +222,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     nationLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -310,10 +237,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Customer because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO customer " + "(c_custkey, c_name, c_address, c_nationkey," + " c_phone, c_acctbal, c_mktsegment, c_comment ) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> customerGenerators = new ArrayList<>();
                     customerGenerators.add(new CustomerGenerator(scaleFactor, 1, 1));
@@ -325,7 +248,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     nationLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -341,10 +263,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Orders because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO orders " + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice," + " o_orderdate, o_orderpriority, o_clerk, o_shippriority," + " o_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> orderGenerators = new ArrayList<>();
                     orderGenerators.add(new OrderGenerator(scaleFactor, 1, 1));
@@ -356,7 +274,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     customerLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -372,10 +289,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of PartSupp because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO partsupp " + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost," + " ps_comment) " + "VALUES (?, ?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> partSuppGenerators = new ArrayList<>();
                     partSuppGenerators.add(new PartSupplierGenerator(scaleFactor, 1, 1));
@@ -387,7 +300,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     partsLatch.await();
                     supplierLatch.await();
                 } catch (InterruptedException e) {
@@ -404,10 +316,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of LineItem because COPY has been done.");
-                    return;
-                }
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                     List<Iterable<List<Object>>> lineItemGenerators = new ArrayList<>();
                     lineItemGenerators.add(new LineItemGenerator(scaleFactor, 1, 1));
@@ -419,7 +327,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     ordersLatch.await();
                     partsSuppLatch.await();
                 } catch (InterruptedException e) {
@@ -434,8 +341,8 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators, CastTypes[] types, String tableName) {
         for (Iterable<List<Object>> generator : generators) {
             try {
+                int recordsRead = 0;
                 for (List<Object> elems : generator) {
-                    int recordsRead = 0;
                     for (int idx = 0; idx < types.length; idx++) {
                         final CastTypes type = types[idx];
                         switch (type) {
