@@ -18,22 +18,23 @@ on:
 
 env:
   POM_VERSION: 2021-SNAPSHOT
+  JAVA_VERSION: 17
 
 jobs:
   compile-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo.
+      - name: Checkout repo
         uses: actions/checkout@v2
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 17
+          java-version: ${{env.JAVA_VERSION}}
           cache: 'maven'
           distribution: 'temurin'
 
-      - name: Build with Maven.
+      - name: Test with Maven
         run: mvn -B test --file pom.xml
 
   package-and-upload:
@@ -43,20 +44,20 @@ jobs:
       matrix:
         profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix' ]
     steps:
-    - name: Checkout repo.
+    - name: Checkout repo
       uses: actions/checkout@v2
 
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-        java-version: 17
+        java-version: ${{env.JAVA_VERSION}}
         cache: 'maven'
         distribution: 'temurin'
 
-    - name: Build with Maven.
+    - name: Package with Maven
       run: mvn -B package -P ${{matrix.profile}} --file pom.xml -DskipTests
 
-    - name: Upload TGZ artifacts.
+    - name: Upload TGZ artifact
       uses: actions/upload-artifact@v2
       with:
         name: benchbase-${{matrix.profile}}
@@ -84,25 +85,26 @@ jobs:
         ports:
           - 3306:3306
     steps:
+      - name: Download artifact
       - uses: actions/download-artifact@v2
         with:
           name: benchbase-mariadb
 
-      - name: extract artifact
+      - name: Extract artifact
         run: |
           tar xvzf benchbase-mariadb.tgz --strip-components=1
 
-      - name: delete artifact
+      - name: Delete artifact
         run: |
           rm -rf benchbase-mariadb.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 17
+          java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
-      - name: mariadb-${{matrix.benchmark}}
+      - name: Run benchmark
         env:
           MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
         run: |
@@ -131,25 +133,26 @@ jobs:
         ports:
           - 3306:3306
     steps:
+      - name: Download artifact
       - uses: actions/download-artifact@v2
         with:
           name: benchbase-mysql
 
-      - name: extract artifact
+      - name: Extract artifact
         run: |
           tar xvzf benchbase-mysql.tgz --strip-components=1
 
-      - name: delete artifact
+      - name: Delete artifact
         run: |
           rm -rf benchbase-mysql.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '17'
+          java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
-      - name: mysql-${{matrix.benchmark}}
+      - name: Run benchmark
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
@@ -178,25 +181,26 @@ jobs:
         ports:
           - 5432:5432
     steps:
+      - name: Download artifact
       - uses: actions/download-artifact@v2
         with:
           name: benchbase-postgres
 
-      - name: extract artifact
+      - name: Extract artifact
         run: |
           tar xvzf benchbase-postgres.tgz --strip-components=1
 
-      - name: delete artifact
+      - name: Delete artifact
         run: |
           rm -rf benchbase-postgres.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '17'
+          java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
-      - name: postgres-${{matrix.benchmark}}
+      - name: Run benchmark
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
@@ -217,24 +221,25 @@ jobs:
         ports:
           - 26257:26257
     steps:
+      - name: Download artifact
       - uses: actions/download-artifact@v2
         with:
           name: benchbase-cockroachdb
 
-      - name: extract artifact
+      - name: Extract artifact
         run: |
           tar xvzf benchbase-cockroachdb.tgz --strip-components=1
 
-      - name: delete artifact
+      - name: Delete artifact
         run: |
           rm -rf benchbase-cockroachdb.tgz
 
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '17'
+          java-version: ${{env.JAVA_VERSION}}
           distribution: 'temurin'
 
-      - name: cockroach-${{matrix.benchmark}}
+      - name: Run benchmark
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
