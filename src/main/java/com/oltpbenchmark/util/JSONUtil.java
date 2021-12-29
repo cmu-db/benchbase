@@ -167,7 +167,7 @@ public abstract class JSONUtil {
 
         String contents;
 
-        try (InputStream in = JSONUtil.class.getClassLoader().getResourceAsStream(input_path)) {
+        try (InputStream in = JSONUtil.class.getResourceAsStream(input_path)) {
             contents = IOUtils.toString(in, Charset.defaultCharset());
         }
 

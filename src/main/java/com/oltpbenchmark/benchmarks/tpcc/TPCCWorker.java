@@ -40,7 +40,6 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
      */
     private final int terminalDistrictLowerID;
     private final int terminalDistrictUpperID;
-    // private boolean debugMessages;
     private final Random gen = new Random();
 
     private final int numWarehouses;
@@ -74,4 +73,25 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
         }
         return (TransactionStatus.SUCCESS);
     }
+
+    @Override
+    protected long getPreExecutionWaitInMillis(TransactionType type) {
+        // TPC-C 5.2.5.2: For keying times for each type of transaction.
+        return type.getPreExecutionWait();
+    }
+
+    @Override
+    protected long getPostExecutionWaitInMillis(TransactionType type) {
+        // TPC-C 5.2.5.4: For think times for each type of transaction.
+        long mean = type.getPostExecutionWait();
+
+        float c = this.getBenchmarkModule().rng().nextFloat();
+        long thinkTime = (long) (-1 * Math.log(c) * mean);
+        if (thinkTime > 10 * mean) {
+            thinkTime = 10 * mean;
+        }
+
+        return thinkTime;
+    }
+
 }

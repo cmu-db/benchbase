@@ -39,7 +39,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     public void testGetDatabaseDDLPath() throws Exception {
         String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
         assertNotNull(ddlPath);
-        try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(ddlPath)) {
+        try (InputStream stream = this.getClass().getResourceAsStream(ddlPath)) {
             assertNotNull(stream);
         }
     }
@@ -71,7 +71,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
+            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
 //            System.err.println(procClass + " -> " + txnType);
@@ -87,7 +87,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         String procName = procClass.getSimpleName();
         TransactionType txnType = null;
         try {
-            txnType = this.benchmark.initTransactionType(procName, TransactionType.INVALID_ID);
+            txnType = this.benchmark.initTransactionType(procName, TransactionType.INVALID_ID, 0, 0);
         } catch (Throwable ex) {
             // Ignore
         }
@@ -101,7 +101,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         for (DatabaseType dbType : DatabaseType.values()) {
             String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(dbType);
             if (xmlFilePath != null) {
-                URL xmlUrl = this.getClass().getClassLoader().getResource(xmlFilePath);
+                URL xmlUrl = this.getClass().getResource(xmlFilePath);
                 assertNotNull(xmlUrl);
                 File xmlFile = new File(xmlUrl.toURI());
                 assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());

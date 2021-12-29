@@ -53,6 +53,179 @@ jobs:
         name: benchbase.tgz
         path: target/benchbase.tgz
 
+  mariadb:
+    needs: build-and-upload
+    runs-on: ubuntu-latest
+    services:
+      mariadb: # https://hub.docker.com/_/mariadb
+        image: mariadb:latest
+        env:
+          MARIADB_ROOT_PASSWORD: rootyMcRooty
+          MARIADB_DATABASE: benchbase
+          MARIADB_USER: admin
+          MARIADB_PASSWORD: password
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: benchbase.tgz
+
+      - name: extract artifact
+        run: |
+          tar xvzf benchbase.tgz --strip-components=1
+
+      - name: delete artifact
+        run: |
+          rm -rf benchbase.tgz
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: AuctionMark
+        env:
+          MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b auctionmark -c config/mariadb/sample_auctionmark_config.xml --create=true --load=true --execute=true
+
+      - name: CH-benCHmark
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --create=true --load=true
+          java -jar benchbase.jar -b chbenchmark -c config/mariadb/sample_chbenchmark_config.xml --create=true --load=true --execute=true
+
+      - name: Epinions.com
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b epinions -c config/mariadb/sample_epinions_config.xml --create=true --load=true --execute=true
+
+      - name: hyadapt
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b hyadapt -c config/mariadb/sample_hyadapt_config.xml --create=true --load=true --execute=true
+
+      - name: noop
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b noop -c config/mariadb/sample_noop_config.xml --create=true --load=true --execute=true
+
+      - name: Resource Stresser
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b resourcestresser -c config/mariadb/sample_resourcestresser_config.xml --create=true --load=true --execute=true
+
+      - name: SEATS
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b seats -c config/mariadb/sample_seats_config.xml --create=true --load=true --execute=true
+
+      - name: SIBench
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b sibench -c config/mariadb/sample_sibench_config.xml --create=true --load=true --execute=true
+
+      - name: SmallBank
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b smallbank -c config/mariadb/sample_smallbank_config.xml --create=true --load=true --execute=true
+
+      - name: TATP
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b tatp -c config/mariadb/sample_tatp_config.xml --create=true --load=true --execute=true
+
+      - name: TPC-C
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b tpcc -c config/mariadb/sample_tpcc_config.xml --create=true --load=true --execute=true
+
+      - name: TPC-H
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uroot -prootyMcRooty -e "SET GLOBAL local_infile=1"
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b tpch -c config/mariadb/sample_tpch_config.xml --create=true --load=true --execute=true
+
+      - name: Twitter
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b twitter -c config/mariadb/sample_twitter_config.xml --create=true --load=true --execute=true
+
+      - name: Voter
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b voter -c config/mariadb/sample_voter_config.xml --create=true --load=true --execute=true
+
+      - name: Wikipedia
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b wikipedia -c config/mariadb/sample_wikipedia_config.xml --create=true --load=true --execute=true
+
+      - name: YCSB
+        env:
+         MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b ycsb -c config/mariadb/sample_ycsb_config.xml --create=true --load=true --execute=true
+
+      - name: Aggregate result summaries.
+        if: ${{ github.event_name == 'pull_request_target' }}
+        run: |
+          SUMMARIES=$(python3 scripts/result_aggregator.py results/)
+          echo 'COMMENT_MESSAGE<<EOF' >> $GITHUB_ENV
+          echo -n "Commit Hash: ${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          echo -n '<br>' >> $GITHUB_ENV
+          echo $SUMMARIES >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Post aggregated result summaries as a comment.
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '${{ env.COMMENT_MESSAGE }}'
+            })
+
   mysql:
     needs: build-and-upload
     runs-on: ubuntu-latest
@@ -389,6 +562,7 @@ jobs:
         image: timveil/cockroachdb-single-node:latest
         env:
           DATABASE_NAME: benchbase
+          MEMORY_SIZE: .75
         ports:
           - 26257:26257
     steps:

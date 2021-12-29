@@ -206,7 +206,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         String ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;
         try {
-            ddlContents = IOUtils.toString(Objects.requireNonNull(this.getClass().getClassLoader().getResource(ddlPath)), Charset.defaultCharset());
+            ddlContents = IOUtils.toString(Objects.requireNonNull(this.getClass().getResource(ddlPath)), Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

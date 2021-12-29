@@ -48,7 +48,7 @@ public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchma
         Table countryTable = this.benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_COUNTRY);
         String countryFilePath = SEATSBenchmark.getTableDataFilePath(this.benchmark.getDataDir(), countryTable);
         assertNotNull(countryFilePath);
-        InputStream countryFile = this.getClass().getClassLoader().getResourceAsStream(countryFilePath);
+        InputStream countryFile = this.getClass().getResourceAsStream(countryFilePath);
         assertNotNull(countryFile);
     }
 
