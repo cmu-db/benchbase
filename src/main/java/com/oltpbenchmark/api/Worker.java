@@ -35,11 +35,13 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.oltpbenchmark.types.State.MEASURE;
+
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
     private static final Logger ABORT_LOG = LoggerFactory.getLogger("com.oltpbenchmark.api.ABORT_LOG");
 
-    private WorkloadState state;
+    private WorkloadState workloadState;
     private LatencyRecord latencies;
     private final Statement currStatement;
 
@@ -60,7 +62,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private final Histogram<TransactionType> txnAbort = new Histogram<>();
     private final Histogram<TransactionType> txnRetry = new Histogram<>();
     private final Histogram<TransactionType> txnErrors = new Histogram<>();
-    private final Histogram<TransactionType> txtRetryDifffernt = new Histogram<>();
+    private final Histogram<TransactionType> txtRetryDifferent = new Histogram<>();
 
     private boolean seenDone = false;
 
@@ -68,7 +70,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.id = id;
         this.benchmarkModule = benchmarkModule;
         this.configuration = this.benchmarkModule.getWorkloadConfiguration();
-        this.state = this.configuration.getWorkloadState();
+        this.workloadState = this.configuration.getWorkloadState();
         this.currStatement = null;
         this.transactionTypes = this.configuration.getTransTypes();
 
@@ -163,7 +165,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
 
     public final Histogram<TransactionType> getTransactionRetryDifferentHistogram() {
-        return (this.txtRetryDifffernt);
+        return (this.txtRetryDifferent);
     }
 
     /**
@@ -182,13 +184,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     @Override
     public final void run() {
         Thread t = Thread.currentThread();
-        SubmittedProcedure pieceOfWork;
         t.setName(this.toString());
 
         // In case of reuse reset the measurements
-        latencies = new LatencyRecord(state.getTestStartNs());
+        latencies = new LatencyRecord(workloadState.getTestStartNs());
 
-        // Invoke the initialize callback
+        // Invoke initialize callback
         try {
             this.initialize();
         } catch (Throwable ex) {
@@ -196,138 +197,172 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
 
         // wait for start
-        state.blockForStart();
-        State preState, postState;
-        Phase phase, postPhase;
+        workloadState.blockForStart();
 
-        TransactionType invalidTT = TransactionType.INVALID;
-
-        work:
         while (true) {
 
             // PART 1: Init and check if done
 
-            preState = state.getGlobalState();
-            phase = this.state.getCurrentPhase();
+            State preState = workloadState.getGlobalState();
 
-            switch (preState) {
-                case DONE:
-                    if (!seenDone) {
-                        // This is the first time we have observed that the
-                        // test is done notify the global test state, then
-                        // continue applying load
-                        seenDone = true;
-                        state.signalDone();
-                        break work;
-                    }
+            // Do nothing
+            if (preState == State.DONE) {
+                if (!seenDone) {
+                    // This is the first time we have observed that the
+                    // test is done notify the global test state, then
+                    // continue applying load
+                    seenDone = true;
+                    workloadState.signalDone();
                     break;
-                default:
-                    // Do nothing
+                }
             }
 
             // PART 2: Wait for work
 
             // Sleep if there's nothing to do.
-            state.stayAwake();
-            phase = this.state.getCurrentPhase();
-            if (phase == null) {
-                continue work;
+            workloadState.stayAwake();
+
+            Phase prePhase = workloadState.getCurrentPhase();
+            if (prePhase == null) {
+                continue;
             }
 
             // Grab some work and update the state, in case it changed while we
             // waited.
-            pieceOfWork = state.fetchWork();
-            preState = state.getGlobalState();
 
-            phase = this.state.getCurrentPhase();
-            if (phase == null) {
-                continue work;
+            SubmittedProcedure pieceOfWork = workloadState.fetchWork();
+
+            prePhase = workloadState.getCurrentPhase();
+            if (prePhase == null) {
+                continue;
             }
 
+            preState = workloadState.getGlobalState();
+
             switch (preState) {
-                case DONE:
-                case EXIT:
-                case LATENCY_COMPLETE:
+                case DONE, EXIT, LATENCY_COMPLETE -> {
                     // Once a latency run is complete, we wait until the next
                     // phase or until DONE.
-                    continue work;
-                default:
-                    // Do nothing
+                    LOG.warn("preState is {}? will continue...", preState);
+                    continue;
+                }
+                default -> {
+                }
+                // Do nothing
             }
 
             // PART 3: Execute work
 
-            // TODO: Measuring latency when not rate limited is ... a little
-            // weird because if you add more simultaneous clients, you will
-            // increase latency (queue delay) but we do this anyway since it is
-            // useful sometimes
+            TransactionType transactionType = getTransactionType(pieceOfWork, prePhase, preState, workloadState);
 
-            long start = pieceOfWork.getStartTime();
+            if (!transactionType.equals(TransactionType.INVALID)) {
 
-            TransactionType type = invalidTT;
-            try {
-                type = doWork(pieceOfWork);
-            } catch (IndexOutOfBoundsException e) {
-                if (phase.isThroughputRun()) {
-                    LOG.error("Thread tried executing disabled phase!");
-                    throw e;
+                // TODO: Measuring latency when not rate limited is ... a little
+                // weird because if you add more simultaneous clients, you will
+                // increase latency (queue delay) but we do this anyway since it is
+                // useful sometimes
+
+                // Wait before transaction if specified
+                long preExecutionWaitInMillis = getPreExecutionWaitInMillis(transactionType);
+
+                if (preExecutionWaitInMillis > 0) {
+                    try {
+                        LOG.debug("{} will sleep for {} ms before executing", transactionType.getName(), preExecutionWaitInMillis);
+
+                        Thread.sleep(preExecutionWaitInMillis);
+                    } catch (InterruptedException e) {
+                        LOG.error("Pre-execution sleep interrupted", e);
+                    }
                 }
-                if (phase.getId() == this.state.getCurrentPhase().getId()) {
-                    switch (preState) {
-                        case WARMUP:
-                            // Don't quit yet: we haven't even begun!
-                            phase.resetSerial();
-                            break;
-                        case COLD_QUERY:
-                        case MEASURE:
-                            // The serial phase is over. Finish the run early.
-                            state.signalLatencyComplete();
-                            LOG.info("[Serial] Serial execution of all" + " transactions complete.");
-                            break;
-                        default:
-                            throw e;
+
+                long start = System.nanoTime();
+
+                doWork(configuration.getDatabaseType(), transactionType);
+
+                long end = System.nanoTime();
+
+                // PART 4: Record results
+
+                State postState = workloadState.getGlobalState();
+
+                switch (postState) {
+                    case MEASURE:
+                        // Non-serial measurement. Only measure if the state both
+                        // before and after was MEASURE, and the phase hasn't
+                        // changed, otherwise we're recording results for a query
+                        // that either started during the warmup phase or ended
+                        // after the timer went off.
+                        Phase postPhase = workloadState.getCurrentPhase();
+                        if (preState == MEASURE && postPhase.getId() == prePhase.getId()) {
+                            latencies.addLatency(transactionType.getId(), start, end, this.id, prePhase.getId());
+                            intervalRequests.incrementAndGet();
+                        }
+                        if (prePhase.isLatencyRun()) {
+                            workloadState.startColdQuery();
+                        }
+                        break;
+                    case COLD_QUERY:
+                        // No recording for cold runs, but next time we will since
+                        // it'll be a hot run.
+                        if (preState == State.COLD_QUERY) {
+                            workloadState.startHotQuery();
+                        }
+                        break;
+                    default:
+                        // Do nothing
+                }
+
+
+                // wait after transaction if specified
+                long postExecutionWaitInMillis = getPostExecutionWaitInMillis(transactionType);
+
+                if (postExecutionWaitInMillis > 0) {
+                    try {
+                        LOG.debug("{} will sleep for {} ms after executing", transactionType.getName(), postExecutionWaitInMillis);
+
+                        Thread.sleep(postExecutionWaitInMillis);
+                    } catch (InterruptedException e) {
+                        LOG.error("Post-execution sleep interrupted", e);
                     }
                 }
             }
 
-            // PART 4: Record results
-
-            long end = System.nanoTime();
-            postState = state.getGlobalState();
-            postPhase = state.getCurrentPhase();
-
-            switch (postState) {
-                case MEASURE:
-                    // Non-serial measurement. Only measure if the state both
-                    // before and after was MEASURE, and the phase hasn't
-                    // changed, otherwise we're recording results for a query
-                    // that either started during the warmup phase or ended
-                    // after the timer went off.
-                    if (preState == State.MEASURE && type != null && phase != null && postPhase != null && postPhase.getId() == phase.getId()) {
-                        latencies.addLatency(type.getId(), start, end, this.id, phase.getId());
-                        intervalRequests.incrementAndGet();
-                    }
-                    if (phase.isLatencyRun()) {
-                        this.state.startColdQuery();
-                    }
-                    break;
-                case COLD_QUERY:
-                    // No recording for cold runs, but next time we will since
-                    // it'll be a hot run.
-                    if (preState == State.COLD_QUERY) {
-                        this.state.startHotQuery();
-                    }
-                    break;
-                default:
-                    // Do nothing
-            }
-
-            state.finishedWork();
+            workloadState.finishedWork();
         }
 
         LOG.debug("worker calling teardown");
 
-        tearDown(false);
+        tearDown();
+    }
+
+    private TransactionType getTransactionType(SubmittedProcedure pieceOfWork, Phase phase, State state, WorkloadState workloadState) {
+        TransactionType type = TransactionType.INVALID;
+
+        try {
+            type = transactionTypes.getType(pieceOfWork.getType());
+        } catch (IndexOutOfBoundsException e) {
+            if (phase.isThroughputRun()) {
+                LOG.error("Thread tried executing disabled phase!");
+                throw e;
+            }
+            if (phase.getId() == workloadState.getCurrentPhase().getId()) {
+                switch (state) {
+                    case WARMUP -> {
+                        // Don't quit yet: we haven't even begun!
+                        LOG.info("[Serial] Resetting serial for phase.");
+                        phase.resetSerial();
+                    }
+                    case COLD_QUERY, MEASURE -> {
+                        // The serial phase is over. Finish the run early.
+                        LOG.info("[Serial] Updating workload state to {}.", State.LATENCY_COMPLETE);
+                        workloadState.signalLatencyComplete();
+                    }
+                    default -> throw e;
+                }
+            }
+        }
+
+        return type;
     }
 
     /**
@@ -335,17 +370,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param pieceOfWork
+     * @param databaseType TODO
+     * @param transactionType TODO
      */
-    protected final TransactionType doWork(SubmittedProcedure pieceOfWork) {
-        final DatabaseType type = configuration.getDatabaseType();
-        final TransactionType transactionType = transactionTypes.getType(pieceOfWork.getType());
+    protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {
 
         try {
             int retryCount = 0;
             int maxRetryCount = configuration.getMaxRetries();
 
-            while (retryCount < maxRetryCount && this.state.getGlobalState() != State.DONE) {
+            while (retryCount < maxRetryCount && this.workloadState.getGlobalState() != State.DONE) {
 
                 TransactionStatus status = TransactionStatus.UNKNOWN;
 
@@ -396,37 +430,23 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 } finally {
 
                     switch (status) {
-
-                        case UNKNOWN:
-                            this.txnUnknown.put(transactionType);
-                            break;
-                        case SUCCESS:
-                            this.txnSuccess.put(transactionType);
-                            break;
-                        case USER_ABORTED:
-                            this.txnAbort.put(transactionType);
-                            break;
-                        case RETRY:
-                            this.txnRetry.put(transactionType);
-                            break;
-                        case RETRY_DIFFERENT:
-                            this.txtRetryDifffernt.put(transactionType);
-                            break;
-                        case ERROR:
-                            this.txnErrors.put(transactionType);
-                            break;
+                        case UNKNOWN -> this.txnUnknown.put(transactionType);
+                        case SUCCESS -> this.txnSuccess.put(transactionType);
+                        case USER_ABORTED -> this.txnAbort.put(transactionType);
+                        case RETRY -> this.txnRetry.put(transactionType);
+                        case RETRY_DIFFERENT -> this.txtRetryDifferent.put(transactionType);
+                        case ERROR -> this.txnErrors.put(transactionType);
                     }
 
                 }
 
             }
         } catch (SQLException ex) {
-            String msg = String.format("Unexpected SQLException in '%s' when executing '%s' on [%s]", this, transactionType, type.name());
+            String msg = String.format("Unexpected SQLException in '%s' when executing '%s' on [%s]", this, transactionType, databaseType.name());
 
             throw new RuntimeException(msg, ex);
         }
 
-        return (transactionType);
     }
 
     private boolean isRetryable(SQLException ex) {
@@ -454,12 +474,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         // ------------------
         // POSTGRES: https://www.postgresql.org/docs/current/errcodes-appendix.html
         // ------------------
-        if (errorCode == 0 && sqlState.equals("40001")) {
-            // Postgres serialization_failure
-            return true;
-        }
-
-        return false;
+        // Postgres serialization_failure
+        return errorCode == 0 && sqlState.equals("40001");
     }
 
     /**
@@ -473,8 +489,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     /**
      * Invoke a single transaction for the given TransactionType
      *
-     * @param conn
-     * @param txnType
+     * @param conn    TODO
+     * @param txnType TODO
      * @return TODO
      * @throws UserAbortException TODO
      * @throws SQLException       TODO
@@ -483,19 +499,25 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     /**
      * Called at the end of the test to do any clean up that may be required.
-     *
-     * @param error TODO
      */
-    public void tearDown(boolean error) {
+    public void tearDown() {
         try {
             conn.close();
         } catch (SQLException e) {
-            LOG.warn("Connection couldn't be closed. Error:");
-            e.printStackTrace();
+            LOG.error("Connection couldn't be closed.", e);
         }
     }
 
     public void initializeState() {
-        this.state = this.configuration.getWorkloadState();
+        this.workloadState = this.configuration.getWorkloadState();
     }
+
+    protected long getPreExecutionWaitInMillis(TransactionType type) {
+        return 0;
+    }
+
+    protected long getPostExecutionWaitInMillis(TransactionType type) {
+        return 0;
+    }
+
 }

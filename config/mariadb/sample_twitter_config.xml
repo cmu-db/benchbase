@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
+    <username>admin</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in Twitter scales by *500 the number of users-->
+    <scalefactor>1</scalefactor>
+
+
+    <!-- Trace files for Twitter -->
+    <tracefile>data/twitter/twitter_tweetids.txt</tracefile>
+    <tracefile2>data/twitter/twitter_user_ids.txt</tracefile2>
+    <base_ip>10.1.</base_ip>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>1,1,7,90,1</weights>
+        </work>
+    </works>
+
+    <!-- Twitter Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetTweet</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetTweetsFromFollowing</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetFollowers</name>
+        </transactiontype>
+        <transactiontype>
+            <name>GetUserTweets</name>
+        </transactiontype>
+        <transactiontype>
+            <name>InsertTweet</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

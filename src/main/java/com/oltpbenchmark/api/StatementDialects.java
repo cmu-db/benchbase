@@ -20,6 +20,7 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.dialects.*;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -84,9 +85,9 @@ public class StatementDialects {
 
         if (fileName != null) {
 
-            final String path = "benchmarks" + File.separator + workloadConfiguration.getBenchmarkName() + File.separator + fileName;
+            final String path = "/benchmarks/" + workloadConfiguration.getBenchmarkName() + "/" + fileName;
 
-            try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+            try (InputStream stream = this.getClass().getResourceAsStream(path)) {
 
                 if (stream != null) {
                     return path;
@@ -120,17 +121,16 @@ public class StatementDialects {
 
         final String xmlContext = this.getClass().getPackage().getName() + ".dialects";
 
-
         // COPIED FROM VoltDB's VoltCompiler.java
         JAXBContext jc = JAXBContext.newInstance(xmlContext);
         // This schema shot the sheriff.
         SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = sf.newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("dialect.xsd")));
+        Schema schema = sf.newSchema(new StreamSource(this.getClass().getResourceAsStream("/dialect.xsd")));
         Unmarshaller unmarshaller = jc.createUnmarshaller();
         // But did not shoot unmarshaller!
         unmarshaller.setSchema(schema);
 
-        StreamSource streamSource = new StreamSource(this.getClass().getClassLoader().getResourceAsStream(sqlDialectPath));
+        StreamSource streamSource = new StreamSource(this.getClass().getResourceAsStream(sqlDialectPath));
         JAXBElement<DialectsType> result = unmarshaller.unmarshal(streamSource, DialectsType.class);
         DialectsType dialects = result.getValue();
 
@@ -193,7 +193,7 @@ public class StatementDialects {
             marshaller = jc.createMarshaller();
 
             SchemaFactory sf = SchemaFactory.newInstance(javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = sf.newSchema(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("dialect.xsd")));
+            Schema schema = sf.newSchema(new StreamSource(this.getClass().getResourceAsStream("/dialect.xsd")));
             marshaller.setSchema(schema);
         } catch (Exception ex) {
             throw new RuntimeException("Unable to initialize serializer", ex);

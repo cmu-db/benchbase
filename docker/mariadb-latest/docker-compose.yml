@@ -1,0 +1,32 @@
+version: '3.5'
+
+services:
+
+  mariadb:
+    container_name: mariadb
+    hostname: mariadb
+    image: mariadb:latest
+    command: --max-connections=500
+    environment:
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_ROOT_HOST: "%"
+      MARIADB_DATABASE: benchbase
+    ports:
+      - "3306:3306"
+
+
+  mariadb-ui:
+    container_name: mariadb-ui
+    hostname: mariadb-ui
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
+    links:
+      - mariadb
+    ports:
+      - "8081:80"

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class DistributionStatistics {
     private static final Logger LOG = LoggerFactory.getLogger(DistributionStatistics.class);
@@ -55,30 +56,30 @@ public class DistributionStatistics {
      * Computes distribution statistics over values. WARNING: This will sort
      * values.
      */
-    public static DistributionStatistics computeStatistics(int[] values) {
-        if (values.length == 0) {
+    public static DistributionStatistics computeStatistics(int[] valuesAsMicroseconds) {
+        if (valuesAsMicroseconds.length == 0) {
             long[] percentiles = new long[PERCENTILES.length];
             Arrays.fill(percentiles, -1);
             return new DistributionStatistics(0, percentiles, -1, -1);
         }
 
-        Arrays.sort(values);
+        Arrays.sort(valuesAsMicroseconds);
 
         double sum = 0;
-        for (int value1 : values) {
+        for (int value1 : valuesAsMicroseconds) {
             sum += value1;
         }
-        double average = sum / values.length;
+        double average = sum / valuesAsMicroseconds.length;
 
         double sumDiffsSquared = 0;
-        for (int value : values) {
+        for (int value : valuesAsMicroseconds) {
             double v = value - average;
             sumDiffsSquared += v * v;
         }
         double standardDeviation = 0;
-        if (values.length > 1) {
+        if (valuesAsMicroseconds.length > 1) {
             standardDeviation = Math
-                    .sqrt(sumDiffsSquared / (values.length - 1));
+                    .sqrt(sumDiffsSquared / (valuesAsMicroseconds.length - 1));
         }
 
         // NOTE: NIST recommends interpolating. This just selects the closest
@@ -86,14 +87,14 @@ public class DistributionStatistics {
         // http://www.itl.nist.gov/div898/handbook/prc/section2/prc252.htm
         long[] percentiles = new long[PERCENTILES.length];
         for (int i = 0; i < percentiles.length; ++i) {
-            int index = (int) (PERCENTILES[i] * values.length);
-            if (index == values.length) {
-                index = values.length - 1;
+            int index = (int) (PERCENTILES[i] * valuesAsMicroseconds.length);
+            if (index == valuesAsMicroseconds.length) {
+                index = valuesAsMicroseconds.length - 1;
             }
-            percentiles[i] = values[index];
+            percentiles[i] = valuesAsMicroseconds[index];
         }
 
-        return new DistributionStatistics(values.length, percentiles, average, standardDeviation);
+        return new DistributionStatistics(valuesAsMicroseconds.length, percentiles, average, standardDeviation);
     }
 
     public int getCount() {
@@ -142,16 +143,15 @@ public class DistributionStatistics {
 
     @Override
     public String toString() {
-        // convert times to ms
-        return "[min=" + getMinimum() / 1e6 + ", "
-                + "25th=" + get25thPercentile() / 1e6 + ", "
-                + "median=" + getMedian() / 1e6 + ", "
-                + "avg=" + getAverage() / 1e6 + ", "
-                + "75th=" + get75thPercentile() / 1e6 + ", "
-                + "90th=" + get90thPercentile() / 1e6 + ", "
-                + "95th=" + get95thPercentile() / 1e6 + ", "
-                + "99th=" + get99thPercentile() / 1e6 + ", "
-                + "max=" + getMaximum() / 1e6 + "]";
+        return "in milliseconds [min=" + TimeUnit.MICROSECONDS.toMillis((long) getMinimum()) + ", "
+               + "25th=" + TimeUnit.MICROSECONDS.toMillis((long) get25thPercentile()) + ", "
+               + "median=" + TimeUnit.MICROSECONDS.toMillis((long) getMedian()) + ", "
+               + "avg=" + TimeUnit.MICROSECONDS.toMillis((long) getAverage()) + ", "
+               + "75th=" + TimeUnit.MICROSECONDS.toMillis((long) get75thPercentile()) + ", "
+               + "90th=" + TimeUnit.MICROSECONDS.toMillis((long) get90thPercentile()) + ", "
+               + "95th=" + TimeUnit.MICROSECONDS.toMillis((long) get95thPercentile()) + ", "
+               + "99th=" + TimeUnit.MICROSECONDS.toMillis((long) get99thPercentile()) + ", "
+               + "max=" + TimeUnit.MICROSECONDS.toMillis((long) getMaximum()) + "]";
     }
 
     public Map<String, Integer> toMap() {

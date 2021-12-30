@@ -38,7 +38,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
+            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
             txnList.add(txnType);
@@ -83,13 +83,11 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             if (txnType.isSupplemental()) { continue; }
             try {
                 // Bombs away!
-//                System.err.println("Executing " + txnType);
                 w.executeWork(this.conn, txnType);
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored
                 // Anything else is a serious error
             } catch (Throwable ex) {
-//                ex.printStackTrace();
                 throw new RuntimeException("Failed to execute " + txnType, ex);
             }
             conn.commit();
