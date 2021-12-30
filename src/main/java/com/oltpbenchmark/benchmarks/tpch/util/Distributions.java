@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.io.Resources;
 
@@ -21,30 +21,23 @@ import java.net.URL;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Suppliers.memoize;
-import static com.oltpbenchmark.benchmarks.tpch.generation.DistributionLoader.loadDistribution;
+import static com.oltpbenchmark.benchmarks.tpch.util.DistributionLoader.loadDistribution;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class Distributions
-{
+public class Distributions {
     private static final Supplier<Distributions> DEFAULT_DISTRIBUTIONS = memoize(Distributions::loadDefaults);
 
-    private static Distributions loadDefaults()
-    {
+    private static Distributions loadDefaults() {
         try {
             URL resource = Resources.getResource(Distribution.class, "dists.dss");
-            checkState(resource != null, "Distribution file 'dists.dss' not found");
             return new Distributions(loadDistribution(Resources.asCharSource(resource, UTF_8)));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static Distributions getDefaultDistributions()
-    {
+    public static Distributions getDefaultDistributions() {
         return DEFAULT_DISTRIBUTIONS.get();
     }
 
@@ -70,8 +63,7 @@ public class Distributions
     private final Distribution nations;
     private final Distribution regions;
 
-    public Distributions(Map<String, Distribution> distributions)
-    {
+    public Distributions(Map<String, Distribution> distributions) {
         this.grammars = getDistribution(distributions, "grammar");
         this.nounPhrase = getDistribution(distributions, "np");
         this.verbPhrase = getDistribution(distributions, "vp");
@@ -95,115 +87,92 @@ public class Distributions
         this.regions = getDistribution(distributions, "regions");
     }
 
-    public Distribution getAdjectives()
-    {
+    public Distribution getAdjectives() {
         return adjectives;
     }
 
-    public Distribution getAdverbs()
-    {
+    public Distribution getAdverbs() {
         return adverbs;
     }
 
-    public Distribution getArticles()
-    {
+    public Distribution getArticles() {
         return articles;
     }
 
-    public Distribution getAuxiliaries()
-    {
+    public Distribution getAuxiliaries() {
         return auxiliaries;
     }
 
-    public Distribution getGrammars()
-    {
+    public Distribution getGrammars() {
         return grammars;
     }
 
-    public Distribution getMarketSegments()
-    {
+    public Distribution getMarketSegments() {
         return marketSegments;
     }
 
-    public Distribution getNations()
-    {
+    public Distribution getNations() {
         return nations;
     }
 
-    public Distribution getNounPhrase()
-    {
+    public Distribution getNounPhrase() {
         return nounPhrase;
     }
 
-    public Distribution getNouns()
-    {
+    public Distribution getNouns() {
         return nouns;
     }
 
-    public Distribution getOrderPriorities()
-    {
+    public Distribution getOrderPriorities() {
         return orderPriorities;
     }
 
-    public Distribution getPartColors()
-    {
+    public Distribution getPartColors() {
         return partColors;
     }
 
-    public Distribution getPartContainers()
-    {
+    public Distribution getPartContainers() {
         return partContainers;
     }
 
-    public Distribution getPartTypes()
-    {
+    public Distribution getPartTypes() {
         return partTypes;
     }
 
-    public Distribution getPrepositions()
-    {
+    public Distribution getPrepositions() {
         return prepositions;
     }
 
-    public Distribution getRegions()
-    {
+    public Distribution getRegions() {
         return regions;
     }
 
-    public Distribution getReturnFlags()
-    {
+    public Distribution getReturnFlags() {
         return returnFlags;
     }
 
-    public Distribution getShipInstructions()
-    {
+    public Distribution getShipInstructions() {
         return shipInstructions;
     }
 
-    public Distribution getShipModes()
-    {
+    public Distribution getShipModes() {
         return shipModes;
     }
 
-    public Distribution getTerminators()
-    {
+    public Distribution getTerminators() {
         return terminators;
     }
 
-    public Distribution getVerbPhrase()
-    {
+    public Distribution getVerbPhrase() {
         return verbPhrase;
     }
 
-    public Distribution getVerbs()
-    {
+    public Distribution getVerbs() {
         return verbs;
     }
 
-    private static Distribution getDistribution(Map<String, Distribution> distributions, String name)
-    {
+    private static Distribution getDistribution(Map<String, Distribution> distributions, String name) {
         Distribution distribution = distributions.get(name);
-        checkArgument(distribution != null, "Distribution %s does not exist");
         return distribution;
     }
 }

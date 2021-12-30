@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.ImmutableList;
 
@@ -22,16 +22,14 @@ import java.sql.Date;
 
 import static java.util.Locale.ENGLISH;
 
-public final class GenerateUtils
-{
+public final class GenerateUtils {
     private GenerateUtils() {}
 
     //
     // Partitioning Utils
     //
 
-    public static long calculateRowCount(int scaleBase, double scaleFactor, int part, int partCount)
-    {
+    public static long calculateRowCount(int scaleBase, double scaleFactor, int part, int partCount) {
         long totalRowCount = (long) (scaleBase * scaleFactor);
         long rowCount = totalRowCount / partCount;
         if (part == partCount) {
@@ -41,8 +39,7 @@ public final class GenerateUtils
         return rowCount;
     }
 
-    public static long calculateStartIndex(int scaleBase, double scaleFactor, int part, int partCount)
-    {
+    public static long calculateStartIndex(int scaleBase, double scaleFactor, int part, int partCount) {
         long totalRowCount = (long) (scaleBase * scaleFactor);
 
         long rowsPerPart = totalRowCount / partCount;
@@ -80,18 +77,15 @@ public final class GenerateUtils
 
     private static final List<Date> DATE_INDEX = makeDateIndex();
 
-    public static Date toEpochDate(int generatedDate)
-    {
+    public static Date toEpochDate(int generatedDate) {
         return formatDate(generatedDate - GENERATED_DATE_EPOCH_OFFSET);
     }
 
-    public static Date formatDate(int epochDate)
-    {
+    public static Date formatDate(int epochDate) {
         return DATE_INDEX.get(epochDate - (MIN_GENERATE_DATE - GENERATED_DATE_EPOCH_OFFSET));
     }
 
-    private static List<Date> makeDateIndex()
-    {
+    private static List<Date> makeDateIndex() {
         ImmutableList.Builder<Date> dates = ImmutableList.builder();
         for (int i = 0; i < TOTAL_DATE_RANGE; i++) {
             dates.add(makeDate(i + 1));
@@ -100,8 +94,7 @@ public final class GenerateUtils
         return dates.build();
     }
 
-    private static Date makeDate(int index)
-    {
+    private static Date makeDate(int index) {
         int y = julian(index + MIN_GENERATE_DATE - 1) / 1000;
         int d = julian(index + MIN_GENERATE_DATE - 1) % 1000;
 
@@ -117,18 +110,15 @@ public final class GenerateUtils
         return new Date(cal.getTimeInMillis());
     }
 
-    private static int leapYearAdjustment(int year, int month)
-    {
+    private static int leapYearAdjustment(int year, int month) {
         return ((isLeapYear(year) && (month) >= 2) ? 1 : 0);
     }
 
-    public static boolean isInPast(int date)
-    {
+    public static boolean isInPast(int date) {
         return julian(date) <= CURRENT_DATE;
     }
 
-    private static int julian(int date)
-    {
+    private static int julian(int date) {
         int offset = date - MIN_GENERATE_DATE;
         int result = MIN_GENERATE_DATE;
 
@@ -145,8 +135,7 @@ public final class GenerateUtils
         return (result + offset);
     }
 
-    private static boolean isLeapYear(int year)
-    {
+    private static boolean isLeapYear(int year) {
         return year % 4 == 0 && year % 100 != 0;
     }
 
@@ -154,8 +143,7 @@ public final class GenerateUtils
     // Format utils
     //
 
-    public static String formatMoney(long value)
-    {
+    public static String formatMoney(long value) {
         // todo there must be a better way to do this
         return new BigDecimal(value).divide(new BigDecimal(100)).setScale(2).toString();
     }

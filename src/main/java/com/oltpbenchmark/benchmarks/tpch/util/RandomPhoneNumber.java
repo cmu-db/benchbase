@@ -11,28 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import static java.util.Locale.ENGLISH;
 
 public class RandomPhoneNumber
-        extends AbstractRandomInt
-{
+        extends AbstractRandomInt {
     // limited by country codes in phone numbers
     private static final int NATIONS_MAX = 90;
 
-    public RandomPhoneNumber(long seed)
-    {
+    public RandomPhoneNumber(long seed) {
         this(seed, 1);
     }
 
-    public RandomPhoneNumber(long seed, int expectedRowCount)
-    {
+    public RandomPhoneNumber(long seed, int expectedRowCount) {
         super(seed, 3 * expectedRowCount);
     }
 
-    public String nextValue(long nationKey)
-    {
+    public String nextValue(long nationKey) {
         return String.format(ENGLISH,
                 "%02d-%03d-%03d-%04d",
                 (10 + (nationKey % NATIONS_MAX)),

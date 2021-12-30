@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -19,14 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateRowCount;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateStartIndex;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Objects.requireNonNull;
 
 public class PartSupplierGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     private static final int SUPPLIERS_PER_PART = 4;
 
     private static final int AVAILABLE_QUANTITY_MIN = 1;
@@ -43,17 +41,11 @@ public class PartSupplierGenerator
 
     private final TextPool textPool;
 
-    public PartSupplierGenerator(double scaleFactor, int part, int partCount)
-    {
+    public PartSupplierGenerator(double scaleFactor, int part, int partCount) {
         this(scaleFactor, part, partCount, TextPool.getDefaultTestPool());
     }
 
-    public PartSupplierGenerator(double scaleFactor, int part, int partCount, TextPool textPool)
-    {
-        checkArgument(scaleFactor > 0, "scaleFactor must be greater than 0");
-        checkArgument(part >= 1, "part must be at least 1");
-        checkArgument(part <= partCount, "part must be less than or equal to part count");
-
+    public PartSupplierGenerator(double scaleFactor, int part, int partCount, TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -62,8 +54,7 @@ public class PartSupplierGenerator
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new PartSupplierGeneratorIterator(
                 textPool,
                 scaleFactor,
@@ -72,8 +63,7 @@ public class PartSupplierGenerator
     }
 
     private static class PartSupplierGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final double scaleFactor;
         private final long startIndex;
         private final long rowCount;
@@ -85,8 +75,7 @@ public class PartSupplierGenerator
         private long index;
         private int partSupplierNumber;
 
-        private PartSupplierGeneratorIterator(TextPool textPool, double scaleFactor, long startIndex, long rowCount)
-        {
+        private PartSupplierGeneratorIterator(TextPool textPool, double scaleFactor, long startIndex, long rowCount) {
             this.scaleFactor = scaleFactor;
             this.startIndex = startIndex;
             this.rowCount = rowCount;
@@ -101,8 +90,7 @@ public class PartSupplierGenerator
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= rowCount) {
                 return endOfData();
             }
@@ -123,8 +111,7 @@ public class PartSupplierGenerator
             return partSupplier;
         }
 
-        private List<Object> makePartSupplier(long partKey)
-        {
+        private List<Object> makePartSupplier(long partKey) {
             List<Object> partSupplier = new ArrayList<>();
             partSupplier.add(partKey);
             partSupplier.add(selectPartSupplier(partKey, partSupplierNumber, scaleFactor));
@@ -135,8 +122,7 @@ public class PartSupplierGenerator
         }
     }
 
-    static long selectPartSupplier(long partKey, long supplierNumber, double scaleFactor)
-    {
+    static long selectPartSupplier(long partKey, long supplierNumber, double scaleFactor) {
         long supplierCount = (long) (SupplierGenerator.SCALE_BASE * scaleFactor);
         return ((partKey + (supplierNumber * ((supplierCount / SUPPLIERS_PER_PART) + ((partKey - 1) / supplierCount)))) % supplierCount) + 1;
     }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -22,47 +22,40 @@ import java.util.ArrayList;
 import static java.util.Objects.requireNonNull;
 
 public class NationGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     private static final int COMMENT_AVERAGE_LENGTH = 72;
 
     private final Distributions distributions;
     private final TextPool textPool;
 
-    public NationGenerator()
-    {
+    public NationGenerator() {
         this(Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public NationGenerator(Distributions distributions, TextPool textPool)
-    {
+    public NationGenerator(Distributions distributions, TextPool textPool) {
         this.distributions = requireNonNull(distributions, "distributions is null");
         this.textPool = requireNonNull(textPool, "textPool is null");
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new NationGeneratorIterator(distributions.getNations(), textPool);
     }
 
     private static class NationGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final Distribution nations;
         private final RandomText commentRandom;
 
         private int index;
 
-        private NationGeneratorIterator(Distribution nations, TextPool textPool)
-        {
+        private NationGeneratorIterator(Distribution nations, TextPool textPool) {
             this.nations = nations;
             this.commentRandom = new RandomText(606179079, textPool, COMMENT_AVERAGE_LENGTH);
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= nations.size()) {
                 return endOfData();
             }

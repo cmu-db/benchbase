@@ -11,12 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
-import static com.google.common.base.Preconditions.checkState;
-
-public abstract class AbstractRandomInt
-{
+public abstract class AbstractRandomInt {
     private static final long MULTIPLIER = 16807;
     private static final long MODULUS = 2147483647;
 
@@ -29,8 +26,7 @@ public abstract class AbstractRandomInt
      * Creates a new random number generator with the specified seed and
      * specified number of random values per row.
      */
-    protected AbstractRandomInt(long seed, int expectedUsagePerRow)
-    {
+    protected AbstractRandomInt(long seed, int expectedUsagePerRow) {
         this.seed = seed;
         this.expectedUsagePerRow = expectedUsagePerRow;
     }
@@ -38,8 +34,7 @@ public abstract class AbstractRandomInt
     /**
      * Get a random value between lowValue (inclusive) and highValue (inclusive).
      */
-    protected int nextInt(int lowValue, int highValue)
-    {
+    protected int nextInt(int lowValue, int highValue) {
         nextRand();
 
         // This code is strange because we must maintain the bugs in the
@@ -55,11 +50,7 @@ public abstract class AbstractRandomInt
         return lowValue + valueInRange;
     }
 
-    protected long nextRand()
-    {
-        if (usage >= expectedUsagePerRow) {
-            checkState(false, "Expected random to be used only %s times per row", expectedUsagePerRow);
-        }
+    protected long nextRand() {
         seed = (seed * MULTIPLIER) % MODULUS;
         usage++;
         return seed;
@@ -71,8 +62,7 @@ public abstract class AbstractRandomInt
      * random number generator can be quickly advanced for partitioned data
      * sets.
      */
-    public void rowFinished()
-    {
+    public void rowFinished() {
         advanceSeed(expectedUsagePerRow - usage);
         usage = 0;
     }
@@ -81,8 +71,7 @@ public abstract class AbstractRandomInt
      * Advance the specified number of rows.  Advancing to a specific row is
      * needed for partitioned data sets.
      */
-    public void advanceRows(long rowCount)
-    {
+    public void advanceRows(long rowCount) {
         // finish the current row
         if (usage != 0) {
             rowFinished();
@@ -92,8 +81,7 @@ public abstract class AbstractRandomInt
         advanceSeed(expectedUsagePerRow * rowCount);
     }
 
-    private void advanceSeed(long count)
-    {
+    private void advanceSeed(long count) {
         long multiplier = MULTIPLIER;
         while (count > 0) {
             if (count % 2 != 0) {

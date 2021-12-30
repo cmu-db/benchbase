@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.base.Splitter;
 
@@ -20,8 +20,7 @@ import java.util.List;
 import static com.google.common.base.CharMatcher.whitespace;
 import static java.util.Objects.requireNonNull;
 
-public class TextPoolGenerator
-{
+public class TextPoolGenerator {
     private static final int MAX_SENTENCE_LENGTH = 256;
 
     private final int size;
@@ -39,19 +38,14 @@ public class TextPoolGenerator
     private final IndexedDistribution adjectives;
     private final IndexedDistribution nouns;
 
-    public TextPoolGenerator(int size, Distributions distributions)
-    {
-        this(size, distributions, new TextGenerationProgressMonitor()
-        {
+    public TextPoolGenerator(int size, Distributions distributions) {
+        this(size, distributions, new TextGenerationProgressMonitor() {
             @Override
-            public void updateProgress(double progress)
-            {
-            }
+            public void updateProgress(double progress) {}
         });
     }
 
-    public TextPoolGenerator(int size, Distributions distributions, TextGenerationProgressMonitor monitor)
-    {
+    public TextPoolGenerator(int size, Distributions distributions, TextGenerationProgressMonitor monitor) {
         this.size = size;
         requireNonNull(distributions, "distributions is null");
         this.monitor = requireNonNull(monitor, "monitor is null");
@@ -70,8 +64,7 @@ public class TextPoolGenerator
         nouns = new IndexedDistribution(distributions.getNouns());
     }
 
-    public String generate()
-    {
+    public String generate() {
         StringBuilder output = new StringBuilder(size + MAX_SENTENCE_LENGTH);
 
         RandomInt randomInt = new RandomInt(933588178, Integer.MAX_VALUE);
@@ -84,8 +77,7 @@ public class TextPoolGenerator
         return output.toString();
     }
 
-    private void generateSentence(StringBuilder builder, RandomInt random)
-    {
+    private void generateSentence(StringBuilder builder, RandomInt random) {
         int index = grammars.getRandomIndex(random);
         for (char token : grammars.getTokens(index)) {
             switch (token) {
@@ -117,8 +109,7 @@ public class TextPoolGenerator
         }
     }
 
-    private void generateVerbPhrase(StringBuilder builder, RandomInt random)
-    {
+    private void generateVerbPhrase(StringBuilder builder, RandomInt random) {
         int index = verbPhrases.getRandomIndex(random);
         for (char token : verbPhrases.getTokens(index)) {
             // pick a random word
@@ -144,8 +135,7 @@ public class TextPoolGenerator
         }
     }
 
-    private void generateNounPhrase(StringBuilder builder, RandomInt random)
-    {
+    private void generateNounPhrase(StringBuilder builder, RandomInt random) {
         int index = nounPhrases.getRandomIndex(random);
         for (char token : nounPhrases.getTokens(index)) {
             // pick a random word
@@ -174,17 +164,14 @@ public class TextPoolGenerator
         }
     }
 
-    public interface TextGenerationProgressMonitor
-    {
+    public interface TextGenerationProgressMonitor {
         void updateProgress(double progress);
     }
 
-    private static class IndexedDistribution
-    {
+    private static class IndexedDistribution {
         private final String[] randomTable;
 
-        private IndexedDistribution(Distribution distribution)
-        {
+        private IndexedDistribution(Distribution distribution) {
             randomTable = new String[distribution.getWeight(distribution.size() - 1)];
             int valueIndex = 0;
             for (int i = 0; i < randomTable.length; i++) {
@@ -195,22 +182,19 @@ public class TextPoolGenerator
             }
         }
 
-        public String randomValue(RandomInt random)
-        {
+        public String randomValue(RandomInt random) {
             int randomIndex = random.nextInt(0, randomTable.length - 1);
             return randomTable[randomIndex];
         }
     }
 
-    private static class ParsedDistribution
-    {
+    private static class ParsedDistribution {
         private final char[][] parsedDistribution;
         private final String[] bonusText;
 
         private final int[] randomTable;
 
-        private ParsedDistribution(Distribution distribution)
-        {
+        private ParsedDistribution(Distribution distribution) {
             parsedDistribution = new char[distribution.size()][];
             bonusText = new String[distribution.size()];
             for (int i = 0; i < distribution.size(); i++) {
@@ -234,19 +218,16 @@ public class TextPoolGenerator
             }
         }
 
-        public int getRandomIndex(RandomInt random)
-        {
+        public int getRandomIndex(RandomInt random) {
             int randomIndex = random.nextInt(0, randomTable.length - 1);
             return randomTable[randomIndex];
         }
 
-        public char[] getTokens(int index)
-        {
+        public char[] getTokens(int index) {
             return parsedDistribution[index];
         }
 
-        public String getBonusText(int index)
-        {
+        public String getBonusText(int index) {
             return bonusText[index];
         }
     }

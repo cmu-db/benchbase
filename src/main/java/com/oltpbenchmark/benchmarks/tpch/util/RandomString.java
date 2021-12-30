@@ -11,19 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
-public class RandomInt
-        extends AbstractRandomInt
-{
-    public RandomInt(long seed, int expectedUsagePerRow)
-    {
-        super(seed, expectedUsagePerRow);
+public class RandomString
+        extends RandomInt {
+    private final Distribution distribution;
+
+    public RandomString(long seed, Distribution distribution) {
+        this(seed, distribution, 1);
     }
 
-    @Override
-    public int nextInt(int lowValue, int highValue)
-    {
-        return super.nextInt(lowValue, highValue);
+    public RandomString(long seed, Distribution distribution, int expectedRowCount) {
+        super(seed, expectedRowCount);
+        this.distribution = distribution;
+    }
+
+    public String nextValue() {
+        return distribution.randomValue(this);
     }
 }

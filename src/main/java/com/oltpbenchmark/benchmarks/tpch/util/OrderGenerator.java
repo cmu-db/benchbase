@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -19,25 +19,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.MIN_GENERATE_DATE;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.TOTAL_DATE_RANGE;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateRowCount;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateStartIndex;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.toEpochDate;
-import static com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator.ITEM_SHIP_DAYS;
-import static com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator.createDiscountRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator.createPartKeyRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator.createQuantityRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator.createShipDateRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator.createTaxRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.PartGenerator.calculatePartPrice;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.MIN_GENERATE_DATE;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.TOTAL_DATE_RANGE;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.toEpochDate;
+import static com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator.ITEM_SHIP_DAYS;
+import static com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator.createDiscountRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator.createPartKeyRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator.createQuantityRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator.createShipDateRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator.createTaxRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.PartGenerator.calculatePartPrice;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
 public class OrderGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     public static final int SCALE_BASE = 1_500_000;
 
     // portion with have no orders
@@ -62,17 +60,11 @@ public class OrderGenerator
     private final Distributions distributions;
     private final TextPool textPool;
 
-    public OrderGenerator(double scaleFactor, int part, int partCount)
-    {
+    public OrderGenerator(double scaleFactor, int part, int partCount) {
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public OrderGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool)
-    {
-        checkArgument(scaleFactor > 0, "scaleFactor must be greater than 0");
-        checkArgument(part >= 1, "part must be at least 1");
-        checkArgument(part <= partCount, "part must be less than or equal to part count");
-
+    public OrderGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -82,8 +74,7 @@ public class OrderGenerator
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new OrderGeneratorIterator(
                 distributions,
                 textPool,
@@ -93,8 +84,7 @@ public class OrderGenerator
     }
 
     private static class OrderGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final RandomBoundedInt orderDateRandom = createOrderDateRandom();
         private final RandomBoundedInt lineCountRandom = createLineCountRandom();
         private final RandomBoundedLong customerKeyRandom;
@@ -115,8 +105,7 @@ public class OrderGenerator
 
         private long index;
 
-        private OrderGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor, long startIndex, long rowCount)
-        {
+        private OrderGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor, long startIndex, long rowCount) {
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
@@ -145,8 +134,7 @@ public class OrderGenerator
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= rowCount) {
                 return endOfData();
             }
@@ -171,8 +159,7 @@ public class OrderGenerator
             return order;
         }
 
-        private List<Object> makeOrder(long index)
-        {
+        private List<Object> makeOrder(long index) {
             long orderKey = makeOrderKey(index);
 
             int orderDate = orderDateRandom.nextValue();
@@ -212,11 +199,9 @@ public class OrderGenerator
             char orderStatus;
             if (shippedCount == lineCount) {
                 orderStatus = 'F';
-            }
-            else if (shippedCount > 0) {
+            } else if (shippedCount > 0) {
                 orderStatus = 'P';
-            }
-            else {
+            } else {
                 orderStatus = 'O';
             }
 
@@ -235,18 +220,15 @@ public class OrderGenerator
         }
     }
 
-    static RandomBoundedInt createLineCountRandom()
-    {
+    static RandomBoundedInt createLineCountRandom() {
         return new RandomBoundedInt(1434868289, LINE_COUNT_MIN, LINE_COUNT_MAX);
     }
 
-    static RandomBoundedInt createOrderDateRandom()
-    {
+    static RandomBoundedInt createOrderDateRandom() {
         return new RandomBoundedInt(1066728069, ORDER_DATE_MIN, ORDER_DATE_MAX);
     }
 
-    static long makeOrderKey(long orderIndex)
-    {
+    static long makeOrderKey(long orderIndex) {
         long lowBits = orderIndex & ((1 << ORDER_KEY_SPARSE_KEEP) - 1);
 
         long ok = orderIndex;

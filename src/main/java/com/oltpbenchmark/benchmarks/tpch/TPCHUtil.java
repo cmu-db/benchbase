@@ -15,7 +15,7 @@
  *
  */
 
-package com.oltpbenchmark.benchmarks.tpch.util;
+package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.util.RandomGenerator;
 

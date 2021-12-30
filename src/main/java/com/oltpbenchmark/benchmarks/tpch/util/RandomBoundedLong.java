@@ -11,28 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
-public class RandomBoundedLong
-{
+public class RandomBoundedLong {
     private final RandomLong randomLong;
     private final RandomInt randomInt;
 
     private final long lowValue;
     private final long highValue;
 
-    public RandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue)
-    {
+    public RandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue) {
         this(seed, use64Bits, lowValue, highValue, 1);
     }
 
-    public RandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue, int expectedRowCount)
-    {
+    public RandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue, int expectedRowCount) {
         if (use64Bits) {
             this.randomLong = new RandomLong(seed, expectedRowCount);
             this.randomInt = null;
-        }
-        else {
+        } else {
             this.randomLong = null;
             this.randomInt = new RandomInt(seed, expectedRowCount);
         }
@@ -41,30 +37,25 @@ public class RandomBoundedLong
         this.highValue = highValue;
     }
 
-    public long nextValue()
-    {
+    public long nextValue() {
         if (randomLong != null) {
             return randomLong.nextLong(lowValue, highValue);
         }
         return randomInt.nextInt((int) lowValue, (int) highValue);
     }
 
-    public void rowFinished()
-    {
+    public void rowFinished() {
         if (randomLong != null) {
             randomLong.rowFinished();
-        }
-        else {
+        } else {
             randomInt.rowFinished();
         }
     }
 
-    public void advanceRows(long rowCount)
-    {
+    public void advanceRows(long rowCount) {
         if (randomLong != null) {
             randomLong.advanceRows(rowCount);
-        }
-        else {
+        } else {
             randomInt.advanceRows(rowCount);
         }
     }

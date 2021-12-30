@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -19,15 +19,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateRowCount;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateStartIndex;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
 public class PartGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     public static final int SCALE_BASE = 200_000;
 
     private static final int NAME_WORDS = 5;
@@ -46,17 +44,11 @@ public class PartGenerator
     private final Distributions distributions;
     private final TextPool textPool;
 
-    public PartGenerator(double scaleFactor, int part, int partCount)
-    {
+    public PartGenerator(double scaleFactor, int part, int partCount) {
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public PartGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool)
-    {
-        checkArgument(scaleFactor > 0, "scaleFactor must be greater than 0");
-        checkArgument(part >= 1, "part must be at least 1");
-        checkArgument(part <= partCount, "part must be less than or equal to part count");
-
+    public PartGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -66,8 +58,7 @@ public class PartGenerator
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new PartGeneratorIterator(
                 distributions,
                 textPool,
@@ -76,8 +67,7 @@ public class PartGenerator
     }
 
     private static class PartGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final RandomStringSequence nameRandom;
         private final RandomBoundedInt manufacturerRandom;
         private final RandomBoundedInt brandRandom;
@@ -91,8 +81,7 @@ public class PartGenerator
 
         private long index;
 
-        private PartGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex, long rowCount)
-        {
+        private PartGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex, long rowCount) {
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
@@ -114,8 +103,7 @@ public class PartGenerator
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= rowCount) {
                 return endOfData();
             }
@@ -135,8 +123,7 @@ public class PartGenerator
             return part;
         }
 
-        private List<Object> makePart(long partKey)
-        {
+        private List<Object> makePart(long partKey) {
             String name = nameRandom.nextValue();
 
             int manufacturer = manufacturerRandom.nextValue();
@@ -157,8 +144,7 @@ public class PartGenerator
         }
     }
 
-    static long calculatePartPrice(long p)
-    {
+    static long calculatePartPrice(long p) {
         long price = 90000;
 
         // limit contribution to $200

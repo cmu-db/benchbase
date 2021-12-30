@@ -28,15 +28,18 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
-import com.oltpbenchmark.benchmarks.tpch.generation.RegionGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.NationGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.PartGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.PartSupplierGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.OrderGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.CustomerGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.LineItemGenerator;
-import com.oltpbenchmark.benchmarks.tpch.generation.SupplierGenerator;
+import static com.oltpbenchmark.benchmarks.tpch.TPCHConstants.*;
+import com.oltpbenchmark.benchmarks.tpch.util.RegionGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.NationGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.PartGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.PartSupplierGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.CustomerGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.SupplierGenerator;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.catalog.Table;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
@@ -134,6 +137,12 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             CastTypes.STRING, // s_comment
     };
 
+    private PreparedStatement getInsertStatement(Connection conn, String tableName) throws SQLException {
+        Table catalog_tbl = benchmark.getCatalog().getTable(tableName);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        return conn.prepareStatement(sql);
+    }
+
     @Override
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
@@ -151,11 +160,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_REGION)) {
                     List<Iterable<List<Object>>> regionGenerators = new ArrayList<>();
                     regionGenerators.add(new RegionGenerator());
 
-                    genTable(conn, statement, regionGenerators, regionTypes, "Region");
+                    genTable(conn, statement, regionGenerators, regionTypes, TABLENAME_REGION);
                 }
             }
 
@@ -168,11 +177,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_PART)) {
                     List<Iterable<List<Object>>> partGenerators = new ArrayList<>();
                     partGenerators.add(new PartGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, partGenerators, partTypes, "part");
+                    genTable(conn, statement, partGenerators, partTypes, TABLENAME_PART);
                 }
             }
 
@@ -185,11 +194,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + "(n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_NATION)) {
                     List<Iterable<List<Object>>> nationGenerators = new ArrayList<>();
                     nationGenerators.add(new NationGenerator());
 
-                    genTable(conn, statement, nationGenerators, nationTypes, "Nation");
+                    genTable(conn, statement, nationGenerators, nationTypes, TABLENAME_NATION);
                 }
             }
 
@@ -211,11 +220,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_SUPPLIER)) {
                     List<Iterable<List<Object>>> supplierGenerators = new ArrayList<>();
                     supplierGenerators.add(new SupplierGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, supplierGenerators, supplierTypes, "Supplier");
+                    genTable(conn, statement, supplierGenerators, supplierTypes, TABLENAME_SUPPLIER);
                 }
             }
 
@@ -237,11 +246,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO customer " + "(c_custkey, c_name, c_address, c_nationkey," + " c_phone, c_acctbal, c_mktsegment, c_comment ) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_CUSTOMER)) {
                     List<Iterable<List<Object>>> customerGenerators = new ArrayList<>();
                     customerGenerators.add(new CustomerGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, customerGenerators, customerTypes, "Customer");
+                    genTable(conn, statement, customerGenerators, customerTypes, TABLENAME_CUSTOMER);
                 }
             }
 
@@ -263,11 +272,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO orders " + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice," + " o_orderdate, o_orderpriority, o_clerk, o_shippriority," + " o_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_ORDER)) {
                     List<Iterable<List<Object>>> orderGenerators = new ArrayList<>();
                     orderGenerators.add(new OrderGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, orderGenerators, ordersTypes, "orders");
+                    genTable(conn, statement, orderGenerators, ordersTypes, TABLENAME_ORDER);
                 }
             }
 
@@ -289,11 +298,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO partsupp " + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost," + " ps_comment) " + "VALUES (?, ?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_PARTSUPP)) {
                     List<Iterable<List<Object>>> partSuppGenerators = new ArrayList<>();
                     partSuppGenerators.add(new PartSupplierGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, partSuppGenerators, partsuppTypes, "partsupp");
+                    genTable(conn, statement, partSuppGenerators, partsuppTypes, TABLENAME_PARTSUPP);
                 }
             }
 
@@ -316,11 +325,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_LINEITEM)) {
                     List<Iterable<List<Object>>> lineItemGenerators = new ArrayList<>();
                     lineItemGenerators.add(new LineItemGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, lineItemGenerators, lineitemTypes, "LineItem");
+                    genTable(conn, statement, lineItemGenerators, lineitemTypes, TABLENAME_LINEITEM);
                 }
             }
 

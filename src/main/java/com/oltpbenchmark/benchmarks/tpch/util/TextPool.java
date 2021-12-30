@@ -11,40 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import java.util.function.Supplier;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Suppliers.memoize;
-import static com.oltpbenchmark.benchmarks.tpch.generation.Distributions.getDefaultDistributions;
+import static com.oltpbenchmark.benchmarks.tpch.util.Distributions.getDefaultDistributions;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.util.Objects.requireNonNull;
 
-public class TextPool
-{
+public class TextPool {
     private static final int DEFAULT_TEXT_POOL_SIZE = 300 * 1024 * 1024;
     private static final int MAX_SENTENCE_LENGTH = 256;
 
     private static final Supplier<TextPool> DEFAULT_TEXT_POOL = memoize(() ->
             new TextPool(DEFAULT_TEXT_POOL_SIZE, getDefaultDistributions()));
 
-    public static TextPool getDefaultTestPool()
-    {
+    public static TextPool getDefaultTestPool() {
         return DEFAULT_TEXT_POOL.get();
     }
 
     private final byte[] textPool;
     private final int textPoolSize;
 
-    public TextPool(int size, Distributions distributions)
-    {
+    public TextPool(int size, Distributions distributions) {
         this(size, distributions, progress -> {});
     }
 
-    public TextPool(int size, Distributions distributions, TextGenerationProgressMonitor monitor)
-    {
+    public TextPool(int size, Distributions distributions, TextGenerationProgressMonitor monitor) {
         requireNonNull(distributions, "distributions is null");
         requireNonNull(monitor, "monitor is null");
 
@@ -61,21 +56,18 @@ public class TextPool
         textPoolSize = output.getLength();
     }
 
-    public int size()
-    {
+    public int size() {
         return textPoolSize;
     }
 
-    public String getText(int begin, int end)
-    {
+    public String getText(int begin, int end) {
         if (end > textPoolSize) {
             throw new IndexOutOfBoundsException(format("Index %d is beyond end of text pool (size = %d)", end, textPoolSize));
         }
         return new String(textPool, begin, end - begin, US_ASCII);
     }
 
-    private static void generateSentence(Distributions distributions, ByteArrayBuilder builder, RandomInt random)
-    {
+    private static void generateSentence(Distributions distributions, ByteArrayBuilder builder, RandomInt random) {
         String syntax = distributions.getGrammars().randomValue(random);
 
         int maxLength = syntax.length();
@@ -109,8 +101,7 @@ public class TextPool
         }
     }
 
-    private static void generateVerbPhrase(Distributions distributions, ByteArrayBuilder builder, RandomInt random)
-    {
+    private static void generateVerbPhrase(Distributions distributions, ByteArrayBuilder builder, RandomInt random) {
         String syntax = distributions.getVerbPhrase().randomValue(random);
         int maxLength = syntax.length();
         for (int i = 0; i < maxLength; i += 2) {
@@ -138,8 +129,7 @@ public class TextPool
         }
     }
 
-    private static void generateNounPhrase(Distributions distributions, ByteArrayBuilder builder, RandomInt random)
-    {
+    private static void generateNounPhrase(Distributions distributions, ByteArrayBuilder builder, RandomInt random) {
         String syntax = distributions.getNounPhrase().randomValue(random);
         int maxLength = syntax.length();
         for (int i = 0; i < maxLength; i++) {
@@ -175,47 +165,38 @@ public class TextPool
         }
     }
 
-    public interface TextGenerationProgressMonitor
-    {
+    public interface TextGenerationProgressMonitor {
         void updateProgress(double progress);
     }
 
-    private static class ByteArrayBuilder
-    {
+    private static class ByteArrayBuilder {
         private int length;
         private final byte[] bytes;
 
-        public ByteArrayBuilder(int size)
-        {
+        public ByteArrayBuilder(int size) {
             this.bytes = new byte[size];
         }
 
         @SuppressWarnings("deprecation")
-        public void append(String string)
-        {
+        public void append(String string) {
             // This is safe because the data is ASCII
             string.getBytes(0, string.length(), bytes, length);
             length += string.length();
         }
 
-        public void erase(int count)
-        {
-            checkState(length >= count, "not enough bytes to erase");
+        public void erase(int count) {
             length -= count;
         }
 
-        public int getLength()
-        {
+        public int getLength() {
             return length;
         }
 
-        public byte[] getBytes()
-        {
+        public byte[] getBytes() {
             return bytes;
         }
 
-        public char getLastChar()
-        {
+        public char getLastChar() {
             return (char) bytes[length - 1];
         }
     }

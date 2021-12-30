@@ -15,9 +15,18 @@
  *
  */
 
-package com.oltpbenchmark.benchmarks.tpch.util;
+package com.oltpbenchmark.benchmarks.tpch;
 
 public class TPCHConstants {
+
+    public static final String TABLENAME_REGION = "region";
+    public static final String TABLENAME_NATION = "nation";
+    public static final String TABLENAME_SUPPLIER = "supplier";
+    public static final String TABLENAME_CUSTOMER = "customer";
+    public static final String TABLENAME_PART = "part";
+    public static final String TABLENAME_ORDER = "orders";
+    public static final String TABLENAME_PARTSUPP = "partsupp";
+    public static final String TABLENAME_LINEITEM = "lineitem";
 
     // 4.2.2.13 CONTAINERS SYLLABLE 1
     public static final String[] CONTAINERS_S1 = {"SM", "LG", "MED", "JUMBO", "WRAP"};

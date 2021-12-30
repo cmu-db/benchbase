@@ -11,28 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import static com.google.common.base.MoreObjects.toStringHelper;
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-public class Distribution
-{
+public class Distribution {
     private final String name;
     private final List<String> values;
     private final int[] weights;
     private final String[] distribution;
     private final int maxWeight;
 
-    public Distribution(String name, Map<String, Integer> distribution)
-    {
+    public Distribution(String name, Map<String, Integer> distribution) {
         this.name = requireNonNull(name, "name is null");
         requireNonNull(distribution, "distribution is null");
 
@@ -67,46 +62,30 @@ public class Distribution
                     index++;
                 }
             }
-        }
-        else {
+        } else {
             this.maxWeight = -1;
             this.distribution = null;
         }
     }
 
-    public String getValue(int index)
-    {
+    public String getValue(int index) {
         return values.get(index);
     }
 
-    public List<String> getValues()
-    {
+    public List<String> getValues() {
         return values;
     }
 
-    public int getWeight(int index)
-    {
+    public int getWeight(int index) {
         return weights[index];
     }
 
-    public int size()
-    {
+    public int size() {
         return values.size();
     }
 
-    public String randomValue(RandomInt randomInt)
-    {
-        checkState(distribution != null, "%s does not have a distribution", name);
-
+    public String randomValue(RandomInt randomInt) {
         int randomValue = randomInt.nextInt(0, maxWeight - 1);
         return distribution[randomValue];
-    }
-
-    @Override
-    public String toString()
-    {
-        return toStringHelper(this)
-                .add("name", name)
-                .toString();
     }
 }

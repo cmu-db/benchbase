@@ -11,11 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 public class RandomAlphaNumeric
-        extends AbstractRandomInt
-{
+        extends AbstractRandomInt {
     private static final char[] ALPHA_NUMERIC = "0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,".toCharArray();
 
     private static final double LOW_LENGTH_MULTIPLIER = 0.4;
@@ -26,20 +25,17 @@ public class RandomAlphaNumeric
     private final int minLength;
     private final int maxLength;
 
-    public RandomAlphaNumeric(long seed, int averageLength)
-    {
+    public RandomAlphaNumeric(long seed, int averageLength) {
         this(seed, averageLength, 1);
     }
 
-    public RandomAlphaNumeric(long seed, int averageLength, int expectedRowCount)
-    {
+    public RandomAlphaNumeric(long seed, int averageLength, int expectedRowCount) {
         super(seed, USAGE_PER_ROW * expectedRowCount);
         this.minLength = (int) (averageLength * LOW_LENGTH_MULTIPLIER);
         this.maxLength = (int) (averageLength * HIGH_LENGTH_MULTIPLIER);
     }
 
-    public String nextValue()
-    {
+    public String nextValue() {
         char[] buffer = new char[nextInt(minLength, maxLength)];
 
         long charIndex = 0;

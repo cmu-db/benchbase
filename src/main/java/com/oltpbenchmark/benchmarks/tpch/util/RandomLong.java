@@ -11,12 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
-import static com.google.common.base.Preconditions.checkState;
-
-public class RandomLong
-{
+public class RandomLong {
     private static final long MULTIPLIER = 6364136223846793005L;
     private static final long INCREMENT = 1;
 
@@ -29,8 +26,7 @@ public class RandomLong
      * Creates a new random number generator with the specified seed and
      * specified number of random values per row.
      */
-    public RandomLong(long seed, int expectedUsagePerRow)
-    {
+    public RandomLong(long seed, int expectedUsagePerRow) {
         this.seed = seed;
         this.expectedUsagePerRow = expectedUsagePerRow;
     }
@@ -38,8 +34,7 @@ public class RandomLong
     /**
      * Get a random value between lowValue (inclusive) and highValue (inclusive).
      */
-    protected long nextLong(long lowValue, long highValue)
-    {
+    protected long nextLong(long lowValue, long highValue) {
         nextRand();
 
         long valueInRange = Math.abs(seed) % (highValue - lowValue + 1);
@@ -47,9 +42,7 @@ public class RandomLong
         return lowValue + valueInRange;
     }
 
-    protected long nextRand()
-    {
-        checkState(usage < expectedUsagePerRow, "Expected random to be used only %s times per row", expectedUsagePerRow);
+    protected long nextRand() {
         seed = (seed * MULTIPLIER) + INCREMENT;
         usage++;
         return seed;
@@ -61,8 +54,7 @@ public class RandomLong
      * random number generator can be quickly advanced for partitioned data
      * sets.
      */
-    public void rowFinished()
-    {
+    public void rowFinished() {
         advanceSeed32(expectedUsagePerRow - usage);
         usage = 0;
     }
@@ -71,8 +63,7 @@ public class RandomLong
      * Advance the specified number of rows.  Advancing to a specific row is
      * needed for partitioned data sets.
      */
-    public void advanceRows(long rowCount)
-    {
+    public void advanceRows(long rowCount) {
         // finish the current row
         if (usage != 0) {
             rowFinished();
@@ -86,8 +77,7 @@ public class RandomLong
     // TPC-H uses the 32bit code for advancing 64bit randoms for some reason, so
     // the following code is not used
     //
-    public void advanceSeed(long count)
-    {
+    public void advanceSeed(long count) {
         if (count == 0) {
             return;
         }
@@ -129,8 +119,7 @@ public class RandomLong
     private static final long MULTIPLIER_32 = 16807;
     private static final long MODULUS_32 = 2147483647;
 
-    private void advanceSeed32(long count)
-    {
+    private void advanceSeed32(long count) {
         long multiplier = MULTIPLIER_32;
         while (count > 0) {
             // testing for oddness, this seems portable

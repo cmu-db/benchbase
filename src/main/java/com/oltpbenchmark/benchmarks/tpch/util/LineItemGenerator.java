@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -19,20 +19,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateRowCount;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateStartIndex;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.toEpochDate;
-import static com.oltpbenchmark.benchmarks.tpch.generation.OrderGenerator.LINE_COUNT_MAX;
-import static com.oltpbenchmark.benchmarks.tpch.generation.OrderGenerator.createLineCountRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.OrderGenerator.createOrderDateRandom;
-import static com.oltpbenchmark.benchmarks.tpch.generation.OrderGenerator.makeOrderKey;
-import static com.oltpbenchmark.benchmarks.tpch.generation.PartSupplierGenerator.selectPartSupplier;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.toEpochDate;
+import static com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator.LINE_COUNT_MAX;
+import static com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator.createLineCountRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator.createOrderDateRandom;
+import static com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator.makeOrderKey;
+import static com.oltpbenchmark.benchmarks.tpch.util.PartSupplierGenerator.selectPartSupplier;
 import static java.util.Objects.requireNonNull;
 
 public class LineItemGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     private static final int QUANTITY_MIN = 1;
     private static final int QUANTITY_MAX = 50;
     private static final int TAX_MIN = 0;
@@ -59,17 +57,11 @@ public class LineItemGenerator
     private final Distributions distributions;
     private final TextPool textPool;
 
-    public LineItemGenerator(double scaleFactor, int part, int partCount)
-    {
+    public LineItemGenerator(double scaleFactor, int part, int partCount) {
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public LineItemGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool)
-    {
-        checkArgument(scaleFactor > 0, "scaleFactor must be greater than 0");
-        checkArgument(part >= 1, "part must be at least 1");
-        checkArgument(part <= partCount, "part must be less than or equal to part count");
-
+    public LineItemGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -79,8 +71,7 @@ public class LineItemGenerator
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new LineItemGeneratorIterator(
                 distributions,
                 textPool,
@@ -90,8 +81,7 @@ public class LineItemGenerator
     }
 
     private static class LineItemGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final RandomBoundedInt orderDateRandom = createOrderDateRandom();
         private final RandomBoundedInt lineCountRandom = createLineCountRandom();
 
@@ -123,8 +113,7 @@ public class LineItemGenerator
         private int lineCount;
         private int lineNumber;
 
-        private LineItemGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor, long startIndex, long rowCount)
-        {
+        private LineItemGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor, long startIndex, long rowCount) {
             this.scaleFactor = scaleFactor;
             this.startIndex = startIndex;
             this.rowCount = rowCount;
@@ -163,8 +152,7 @@ public class LineItemGenerator
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= rowCount) {
                 return endOfData();
             }
@@ -206,8 +194,7 @@ public class LineItemGenerator
             return lineitem;
         }
 
-        private List<Object> makeLineitem(long orderIndex)
-        {
+        private List<Object> makeLineitem(long orderIndex) {
             long orderKey = makeOrderKey(orderIndex);
 
             int quantity = quantityRandom.nextValue();
@@ -232,16 +219,14 @@ public class LineItemGenerator
             String returnedFlag;
             if (GenerateUtils.isInPast(receiptDate)) {
                 returnedFlag = returnedFlagRandom.nextValue();
-            }
-            else {
+            } else {
                 returnedFlag = "N";
             }
 
             String status;
             if (GenerateUtils.isInPast(shipDate)) {
                 status = "F";
-            }
-            else {
+            } else {
                 status = "O";
             }
 
@@ -271,28 +256,23 @@ public class LineItemGenerator
         }
     }
 
-    static RandomBoundedInt createQuantityRandom()
-    {
+    static RandomBoundedInt createQuantityRandom() {
         return new RandomBoundedInt(209208115, QUANTITY_MIN, QUANTITY_MAX, LINE_COUNT_MAX);
     }
 
-    static RandomBoundedInt createDiscountRandom()
-    {
+    static RandomBoundedInt createDiscountRandom() {
         return new RandomBoundedInt(554590007, DISCOUNT_MIN, DISCOUNT_MAX, LINE_COUNT_MAX);
     }
 
-    static RandomBoundedInt createTaxRandom()
-    {
+    static RandomBoundedInt createTaxRandom() {
         return new RandomBoundedInt(721958466, TAX_MIN, TAX_MAX, LINE_COUNT_MAX);
     }
 
-    static RandomBoundedLong createPartKeyRandom(double scaleFactor)
-    {
+    static RandomBoundedLong createPartKeyRandom(double scaleFactor) {
         return new RandomBoundedLong(1808217256, scaleFactor >= 30000, PART_KEY_MIN, (long) (PartGenerator.SCALE_BASE * scaleFactor), LINE_COUNT_MAX);
     }
 
-    static RandomBoundedInt createShipDateRandom()
-    {
+    static RandomBoundedInt createShipDateRandom() {
         return new RandomBoundedInt(1769349045, SHIP_DATE_MIN, SHIP_DATE_MAX, LINE_COUNT_MAX);
     }
 }

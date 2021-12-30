@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -22,47 +22,40 @@ import java.util.ArrayList;
 import static java.util.Objects.requireNonNull;
 
 public class RegionGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     private static final int COMMENT_AVERAGE_LENGTH = 72;
 
     private final Distributions distributions;
     private final TextPool textPool;
 
-    public RegionGenerator()
-    {
+    public RegionGenerator() {
         this(Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public RegionGenerator(Distributions distributions, TextPool textPool)
-    {
+    public RegionGenerator(Distributions distributions, TextPool textPool) {
         this.distributions = requireNonNull(distributions, "distributions is null");
         this.textPool = requireNonNull(textPool, "textPool is null");
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new RegionGeneratorIterator(distributions.getRegions(), textPool);
     }
 
     private static class RegionGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final Distribution regions;
         private final RandomText commentRandom;
 
         private int index;
 
-        private RegionGeneratorIterator(Distribution regions, TextPool textPool)
-        {
+        private RegionGeneratorIterator(Distribution regions, TextPool textPool) {
             this.regions = regions;
             this.commentRandom = new RandomText(1500869201, textPool, COMMENT_AVERAGE_LENGTH);
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= regions.size()) {
                 return endOfData();
             }

@@ -11,11 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 public class RandomText
-        extends AbstractRandomInt
-{
+        extends AbstractRandomInt {
     private static final double LOW_LENGTH_MULTIPLIER = 0.4;
     private static final double HIGH_LENGTH_MULTIPLIER = 1.6;
 
@@ -23,21 +22,18 @@ public class RandomText
     private final int minLength;
     private final int maxLength;
 
-    public RandomText(long seed, TextPool textPool, double averageTextLength)
-    {
+    public RandomText(long seed, TextPool textPool, double averageTextLength) {
         this(seed, textPool, averageTextLength, 1);
     }
 
-    public RandomText(long seed, TextPool textPool, double averageTextLength, int expectedRowCount)
-    {
+    public RandomText(long seed, TextPool textPool, double averageTextLength, int expectedRowCount) {
         super(seed, expectedRowCount * 2);
         this.textPool = textPool;
         this.minLength = (int) (averageTextLength * LOW_LENGTH_MULTIPLIER);
         this.maxLength = (int) (averageTextLength * HIGH_LENGTH_MULTIPLIER);
     }
 
-    public String nextValue()
-    {
+    public String nextValue() {
         int offset = nextInt(0, textPool.size() - maxLength);
         int length = nextInt(minLength, maxLength);
         return textPool.getText(offset, offset + length);

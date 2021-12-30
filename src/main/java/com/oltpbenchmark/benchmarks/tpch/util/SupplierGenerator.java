@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.generation;
+package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.google.common.collect.AbstractIterator;
 
@@ -19,15 +19,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateRowCount;
-import static com.oltpbenchmark.benchmarks.tpch.generation.GenerateUtils.calculateStartIndex;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
+import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
 public class SupplierGenerator
-        implements Iterable<List<Object>>
-{
+        implements Iterable<List<Object>> {
     public static final int SCALE_BASE = 10_000;
 
     private static final int ACCOUNT_BALANCE_MIN = -99999;
@@ -49,17 +47,11 @@ public class SupplierGenerator
     private final Distributions distributions;
     private final TextPool textPool;
 
-    public SupplierGenerator(double scaleFactor, int part, int partCount)
-    {
+    public SupplierGenerator(double scaleFactor, int part, int partCount) {
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public SupplierGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool)
-    {
-        checkArgument(scaleFactor > 0, "scaleFactor must be greater than 0");
-        checkArgument(part >= 1, "part must be at least 1");
-        checkArgument(part <= partCount, "part must be less than or equal to part count");
-
+    public SupplierGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -69,8 +61,7 @@ public class SupplierGenerator
     }
 
     @Override
-    public Iterator<List<Object>> iterator()
-    {
+    public Iterator<List<Object>> iterator() {
         return new SupplierGeneratorIterator(
                 distributions,
                 textPool,
@@ -79,8 +70,7 @@ public class SupplierGenerator
     }
 
     private static class SupplierGeneratorIterator
-            extends AbstractIterator<List<Object>>
-    {
+            extends AbstractIterator<List<Object>> {
         private final RandomAlphaNumeric addressRandom = new RandomAlphaNumeric(706178559, ADDRESS_AVERAGE_LENGTH);
         private final RandomBoundedInt nationKeyRandom;
         private final RandomPhoneNumber phoneRandom = new RandomPhoneNumber(884434366);
@@ -96,8 +86,7 @@ public class SupplierGenerator
 
         private long index;
 
-        private SupplierGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex, long rowCount)
-        {
+        private SupplierGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex, long rowCount) {
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
@@ -116,8 +105,7 @@ public class SupplierGenerator
         }
 
         @Override
-        protected List<Object> computeNext()
-        {
+        protected List<Object> computeNext() {
             if (index >= rowCount) {
                 return endOfData();
             }
@@ -139,8 +127,7 @@ public class SupplierGenerator
             return supplier;
         }
 
-        private List<Object> makeSupplier(long supplierKey)
-        {
+        private List<Object> makeSupplier(long supplierKey) {
             String comment = commentRandom.nextValue();
 
             // Add supplier complaints or commendation to the comment
@@ -156,8 +143,7 @@ public class SupplierGenerator
                 String type;
                 if (bbbTypeRandom.nextValue() < BBB_COMPLAINT_PERCENT) {
                     type = BBB_COMPLAINT_TEXT;
-                }
-                else {
+                } else {
                     type = BBB_RECOMMEND_TEXT;
                 }
 
