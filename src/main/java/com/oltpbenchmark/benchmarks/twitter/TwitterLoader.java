@@ -42,9 +42,9 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
     public TwitterLoader(TwitterBenchmark benchmark) {
         super(benchmark);
-        this.num_users = (int) Math.round(TwitterConstants.NUM_USERS * this.scaleFactor);
-        this.num_tweets = (int) Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor);
-        this.num_follows = (int) Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor);
+        this.num_users = (int) Math.max(Math.round(TwitterConstants.NUM_USERS * this.scaleFactor), 1);
+        this.num_tweets = (int) Math.max(Math.round(TwitterConstants.NUM_TWEETS * this.scaleFactor), 1);
+        this.num_follows = (int) Math.max(Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * this.scaleFactor), 1);
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  {}", this.num_users);
             LOG.debug("# of TWEETS: {}", this.num_tweets);
@@ -184,7 +184,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Users Loaded [%d]", total));
+            LOG.debug(String.format("[Users Loaded] %d", total));
         }
     }
 
@@ -234,7 +234,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("[Tweets Loaded] {}", this.num_tweets);
+            LOG.debug("[Tweets Loaded] {}", total);
         }
     }
 
@@ -287,7 +287,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
                         total++;
                         batchSize++;
-                        f++;
+
 
                         if ((batchSize % workConf.getBatchSize()) == 0) {
                             followsInsert.executeBatch();
@@ -300,6 +300,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                             }
                         }
                     }
+
+                    f++;
                 }
             }
             if (batchSize > 0) {
