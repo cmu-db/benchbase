@@ -86,8 +86,12 @@ public final class Results {
         return abortMessages;
     }
 
-    public double requestsPerSecond() {
+    public double requestsPerSecondThroughput() {
         return (double) measuredRequests / (double) nanoseconds * 1e9;
+    }
+
+    public double requestsPerSecondGoodput() {
+        return (double) success.getSampleCount() / (double) nanoseconds * 1e9;
     }
 
     public List<Sample> getLatencySamples() {
@@ -104,9 +108,19 @@ public final class Results {
 
     @Override
     public String toString() {
-        return "Results(nanoSeconds=" + nanoseconds + ", measuredRequests=" + measuredRequests + ") = " + requestsPerSecond() + " requests/sec";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Results(nanoSeconds=");
+        sb.append(nanoseconds);
+        sb.append(", measuredRequests=");
+        sb.append(measuredRequests);
+        sb.append(") = ");
+        sb.append(requestsPerSecondThroughput());
+        sb.append(" requests/sec (throughput)");
+        sb.append(", ");
+        sb.append(requestsPerSecondGoodput());
+        sb.append(" requests/sec (goodput)");
+        return sb.toString();
     }
-
 
 
 }
