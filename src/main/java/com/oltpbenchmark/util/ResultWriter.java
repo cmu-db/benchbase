@@ -107,7 +107,8 @@ public class ResultWriter {
         summaryMap.put("DBMS Version", collector.collectVersion());
         summaryMap.put("Benchmark Type", benchType);
         summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
-        summaryMap.put("Throughput (requests/second)", results.requestsPerSecond());
+        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
+        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
         for (String field : BENCHMARK_KEY_FIELD) {
             summaryMap.put(field, expConf.getString(field));
         }
