@@ -91,9 +91,6 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     }
 
 
-
-
-
     /**
      * testSetSQLDialect
      */
@@ -103,27 +100,24 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
             StatementDialects dialects = new StatementDialects(this.workConf.getBenchmarkName(), dbType);
 
 
-                for (Procedure proc : this.benchmark.getProcedures().values()) {
-                    if (dialects.getProcedureNames().contains(proc.getProcedureName())) {
-                        // Need a new proc because the dialect gets loaded in BenchmarkModule::getProcedureName
-                        Procedure testProc = ClassUtil.newInstance(proc.getClass().getName(),
-                            new Object[0], new Class<?>[0]);
-                        assertNotNull(testProc);
-                        testProc.initialize(dbType);
-                        testProc.loadSQLDialect(dialects);
+            for (Procedure proc : this.benchmark.getProcedures().values()) {
+                if (dialects.getProcedureNames().contains(proc.getProcedureName())) {
+                    // Need a new proc because the dialect gets loaded in BenchmarkModule::getProcedureName
+                    Procedure testProc = ClassUtil.newInstance(proc.getClass().getName(), new Object[0], new Class<?>[0]);
+                    assertNotNull(testProc);
+                    testProc.initialize(dbType);
+                    testProc.loadSQLDialect(dialects);
 
-                        Collection<String> dialectStatementNames = dialects.getStatementNames(
-                            testProc.getProcedureName());
+                    Collection<String> dialectStatementNames = dialects.getStatementNames(testProc.getProcedureName());
 
-                        for (String statementName : dialectStatementNames) {
-                            SQLStmt stmt = testProc.getStatements().get(statementName);
-                            assertNotNull(stmt);
-                            String dialectSQL = dialects.getSQL(testProc.getProcedureName(),
-                                statementName);
-                            assertEquals(dialectSQL, stmt.getOriginalSQL());
-                        }
+                    for (String statementName : dialectStatementNames) {
+                        SQLStmt stmt = testProc.getStatements().get(statementName);
+                        assertNotNull(stmt);
+                        String dialectSQL = dialects.getSQL(testProc.getProcedureName(), statementName);
+                        assertEquals(dialectSQL, stmt.getOriginalSQL());
                     }
                 }
+            }
 
         }
     }

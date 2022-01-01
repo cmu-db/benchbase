@@ -74,8 +74,9 @@ public final class SQLStmt {
             sql = m.replaceFirst(replace);
         }
         this.sql = sql;
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Initialized SQL:\n{}", this.sql);
+        
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Initialized SQL:\n{}", this.sql);
         }
     }
 
