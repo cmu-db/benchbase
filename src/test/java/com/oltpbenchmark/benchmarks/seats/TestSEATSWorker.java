@@ -23,7 +23,6 @@ public class TestSEATSWorker extends AbstractTestWorker<SEATSBenchmark> {
     @Override
     protected void setUp() throws Exception {
         super.setUp(SEATSBenchmark.class, TestSEATSBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.01);
         SEATSProfile.clearCachedProfile();
     }
 

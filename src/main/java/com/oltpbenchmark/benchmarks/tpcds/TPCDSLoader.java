@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.tpcds;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
+import com.oltpbenchmark.api.config.FileFormat;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
 
@@ -425,21 +426,8 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         return threads;
     }
 
-    private String getFileFormat() {
-        String format = workConf.getXmlConfig().getString("fileFormat");
-            /*
-               Previouse configuration migh not have a fileFormat and assume
-                that the files are csv.
-            */
-        if (format == null) {
-            return "csv";
-        }
-
-        if ((!"csv".equals(format) && !"tbl".equals(format) && !"dat".equals(format))) {
-            throw new IllegalArgumentException("Configuration doesent"
-                    + " have a valid fileFormat");
-        }
-        return format;
+    private FileFormat getFileFormat() {
+        return workConf.getFileFormat();
     }
 
     private Pattern getFormatPattern(String format) {
@@ -468,7 +456,7 @@ public class TPCDSLoader extends Loader<TPCDSBenchmark> {
         int batchSize = 0;
         String line = "";
         String field = "";
-        String format = getFileFormat();
+        String format = getFileFormat().toString().toLowerCase();
         File file = new File(workConf.getDataDir()
                 , table + "."
                 + format);

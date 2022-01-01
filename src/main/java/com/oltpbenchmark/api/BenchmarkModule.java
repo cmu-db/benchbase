@@ -46,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -85,7 +84,7 @@ public abstract class BenchmarkModule {
 
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
-        this.dialects = new StatementDialects(workConf);
+        this.dialects = new StatementDialects(workConf.getBenchmarkName(), workConf.getDatabaseType());
     }
 
     // --------------------------------------------------------------------------

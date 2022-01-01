@@ -22,6 +22,7 @@ import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.config.PhaseArrival;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
@@ -332,9 +333,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    private long getInterval(int lowestRate, Phase.Arrival arrival) {
+    private long getInterval(int lowestRate, PhaseArrival arrival) {
         // TODO Auto-generated method stub
-        if (arrival == Phase.Arrival.POISSON) {
+        if (arrival == PhaseArrival.POISSON) {
             return (long) ((-Math.log(1 - Math.random()) / lowestRate) * 1000000000.);
         } else {
             return (long) (1000000000. / (double) lowestRate + 0.5);

@@ -23,7 +23,6 @@ public class TestSmallBankLoader extends AbstractTestLoader<SmallBankBenchmark> 
     @Override
     protected void setUp() throws Exception {
         super.setUp(SmallBankBenchmark.class, null, TestSmallBankBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.0001);
     }
 
 }

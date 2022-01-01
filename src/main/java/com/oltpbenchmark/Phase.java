@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark;
 
+import com.oltpbenchmark.api.config.PhaseArrival;
 import com.oltpbenchmark.util.StringUtil;
 
 import java.util.ArrayList;
@@ -24,9 +25,6 @@ import java.util.List;
 import java.util.Random;
 
 public class Phase {
-    public enum Arrival {
-        REGULAR, POISSON,
-    }
 
     private final Random gen = new Random();
     private final String benchmarkName;
@@ -34,7 +32,7 @@ public class Phase {
     private final int time;
     private final int warmupTime;
     private final int rate;
-    private final Arrival arrival;
+    private final PhaseArrival arrival;
 
 
     private final boolean rateLimited;
@@ -47,7 +45,7 @@ public class Phase {
     private int nextSerial;
 
 
-    Phase(String benchmarkName, int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
+    Phase(String benchmarkName, int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, PhaseArrival a) {
         this.benchmarkName = benchmarkName;
         this.id = id;
         this.time = t;
@@ -118,7 +116,7 @@ public class Phase {
         return rate;
     }
 
-    public Arrival getArrival() {
+    public PhaseArrival getArrival() {
         return arrival;
     }
 

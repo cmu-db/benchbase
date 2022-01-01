@@ -28,12 +28,16 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
+import com.oltpbenchmark.api.config.FileFormat;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -341,20 +345,8 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     }
 
 
-    private String getFileFormat() {
-        String format = workConf.getXmlConfig().getString("fileFormat");
-            /*
-               Previouse configuration migh not have a fileFormat and assume
-                that the files are csv.
-            */
-        if (format == null) {
-            return "csv";
-        }
-
-        if ((!"csv".equals(format) && !"tbl".equals(format))) {
-            throw new IllegalArgumentException("Configuration doesn't have a valid fileFormat");
-        }
-        return format;
+    private FileFormat getFileFormat() {
+        return workConf.getFileFormat();
     }
 
     private Pattern getFormatPattern(String format) {
@@ -382,7 +374,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     private void loadTable(Connection conn, PreparedStatement prepStmt, String tableName, CastTypes[] types) {
         int recordsRead = 0;
 
-        String format = getFileFormat();
+        String format = getFileFormat().toString().toLowerCase();
 
         File file = new File(workConf.getDataDir(), tableName.toLowerCase() + "." + format);
 

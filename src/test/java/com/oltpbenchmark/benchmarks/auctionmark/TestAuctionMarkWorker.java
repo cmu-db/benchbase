@@ -29,7 +29,6 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
     @Override
     protected void setUp() throws Exception {
         super.setUp(AuctionMarkBenchmark.class, TestAuctionMarkBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.1);
         AuctionMarkProfile.clearCachedProfile();
         AuctionMarkConstants.CLOSE_AUCTIONS_ENABLE = false;
     }
@@ -39,8 +38,6 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
      */
     public void testUniqueSellers() throws Exception {
         int num_workers = 2;
-        this.workConf.setScaleFactor(0.1);
-        this.workConf.setTerminals(num_workers);
         this.benchmark.createDatabase();
         this.benchmark.loadDatabase();
 

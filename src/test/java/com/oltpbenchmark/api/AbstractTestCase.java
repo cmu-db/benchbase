@@ -17,10 +17,14 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.config.Database;
+import com.oltpbenchmark.api.config.TransactionIsolation;
+import com.oltpbenchmark.api.config.Workload;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import junit.framework.TestCase;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,25 +45,11 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
      * This should always be one of the embedded java databases
      */
     public static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
-    public static final String DB_CONNECTION;
-
-    static {
-        switch (DB_TYPE) {
-            case HSQLDB: {
-                DB_CONNECTION = "jdbc:hsqldb:mem:";
-                break;
-            }
-            default: {
-                LOG.warn("Unexpected testing DatabaseType '" + DB_TYPE + "'");
-                DB_CONNECTION = null;
-            }
-        } // SWITCH
-
-    }
+    public static final String DB_CONNECTION = "jdbc:hsqldb:mem:";
 
     // -----------------------------------------------------------------
 
-    protected static final double DB_SCALE_FACTOR = 0.01;
+    protected static final double DB_SCALE_FACTOR = 0.001;
 
     protected String dbName;
     protected WorkloadConfiguration workConf;
@@ -72,7 +62,13 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
         super.setUp();
 
-        this.workConf = new WorkloadConfiguration();
+        String benchmarkName = BenchmarkModule.convertBenchmarkClassToBenchmarkName(clazz);
+
+        Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION + this.dbName + ";sql.syntax_mys=true", null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
+        Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, 1, null, null, null, null, null, null);
+
+
+        this.workConf = new WorkloadConfiguration(benchmarkName, database, workload);
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
         for (int i = 0; i < procClasses.length; i++) {
             assertFalse("Duplicate Procedure '" + procClasses[i] + "'",
@@ -84,10 +80,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
         this.workConf.setTransTypes(txnTypes);
-        this.workConf.setDatabaseType(DB_TYPE);
-        this.workConf.setUrl(DB_CONNECTION + this.dbName + ";sql.syntax_mys=true");
-        this.workConf.setScaleFactor(DB_SCALE_FACTOR);
-        this.workConf.setBenchmarkName(BenchmarkModule.convertBenchmarkClassToBenchmarkName(clazz));
 
         this.benchmark = ClassUtil.newInstance(clazz,
                 new Object[]{this.workConf},

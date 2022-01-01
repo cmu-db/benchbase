@@ -36,11 +36,9 @@ import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
 
-    private final TwitterConfiguration twitterConf;
 
     public TwitterBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
-        this.twitterConf = new TwitterConfiguration(workConf);
     }
 
     @Override
@@ -50,8 +48,8 @@ public class TwitterBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        List<String> tweetIds = FileUtils.readLines(new File(twitterConf.getTracefile()), Charset.defaultCharset());
-        List<String> userIds = FileUtils.readLines(new File(twitterConf.getTracefile2()), Charset.defaultCharset());
+        List<String> tweetIds = FileUtils.readLines(new File(workConf.getTraceFile1()), Charset.defaultCharset());
+        List<String> userIds = FileUtils.readLines(new File(workConf.getTraceFile2()), Charset.defaultCharset());
 
         if (tweetIds.size() != userIds.size()) {
             throw new RuntimeException(String.format("there was a problem reading files, sizes don't match.  tweets %d, userids %d", tweetIds.size(), userIds.size()));

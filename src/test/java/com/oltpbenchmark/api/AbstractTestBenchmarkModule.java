@@ -22,12 +22,8 @@ import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 
-import java.io.File;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -94,74 +90,8 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         assertNull(txnType);
     }
 
-    /**
-     * testGetSQLDialectPath
-     */
-    public void testGetSQLDialectPath() throws Exception {
-        for (DatabaseType dbType : DatabaseType.values()) {
-            String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(dbType);
-            if (xmlFilePath != null) {
-                URL xmlUrl = this.getClass().getResource(xmlFilePath);
-                assertNotNull(xmlUrl);
-                File xmlFile = new File(xmlUrl.toURI());
-                assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
-            }
-        }
-    }
-
-    /**
-     * testLoadSQLDialect
-     */
-    public void testLoadSQLDialect() throws Exception {
-        for (DatabaseType dbType : DatabaseType.values()) {
-            this.workConf.setDatabaseType(dbType);
-
-            // Just make sure that we can load it
-            StatementDialects dialects = new StatementDialects(this.workConf);
-            if (dialects.load()) {
-
-                for (String procName : dialects.getProcedureNames()) {
-                    for (String stmtName : dialects.getStatementNames(procName)) {
-                        String sql = dialects.getSQL(procName, stmtName);
-                        assertNotNull(sql);
-                        assertFalse(sql.isEmpty());
-                        // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
-                    } // FOR
-                } // FOR
-
-                // TODO: We should XSD to validate the SQL
-            } // FOR (dbtype)
-        }
-    }
 
 
-    /**
-     * testDumpSQLDialect
-     */
-    public void testDumpSQLDialect() throws Exception {
-        for (DatabaseType dbType : DatabaseType.values()) {
-            this.workConf.setDatabaseType(dbType);
-
-            StatementDialects dialects = new StatementDialects(this.workConf);
-            if (dialects.load()) {
-                String dump = dialects.export(dbType, this.benchmark.getProcedures().values());
-                assertNotNull(dump);
-                assertFalse(dump.isEmpty());
-                Set<String> benchmarkProcedureNames = this.benchmark.getProcedures().values()
-                    .stream()
-                    .map(Procedure::getProcedureName)
-                    .collect(Collectors.toSet());
-                for (String procName : dialects.getProcedureNames()) {
-                    if (benchmarkProcedureNames.contains(procName)) {
-                        assertTrue(procName, dump.contains(procName));
-                        for (String stmtName : dialects.getStatementNames(procName)) {
-                            assertTrue(procName + "." + stmtName, dump.contains(stmtName));
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 
     /**
@@ -169,10 +99,9 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      */
     public void testSetSQLDialect() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
-            this.workConf.setDatabaseType(dbType);
 
-            StatementDialects dialects = new StatementDialects(this.workConf);
-            if (dialects.load()) {
+            StatementDialects dialects = new StatementDialects(this.workConf.getBenchmarkName(), dbType);
+
 
                 for (Procedure proc : this.benchmark.getProcedures().values()) {
                     if (dialects.getProcedureNames().contains(proc.getProcedureName())) {
@@ -195,18 +124,8 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
                         }
                     }
                 }
-            }
+
         }
     }
 
-    /**
-     * testMakeWorkers
-     */
-//    public void testMakeWorkers() throws Exception {
-//        this.workConf.setTerminals(NUM_TERMINALS);
-//        List<Worker> workers = this.benchmark.makeWorkers(false);
-//        assertNotNull(workers);
-//        assertEquals(NUM_TERMINALS, workers.size());
-//        assertNotNull(workers.get(0));
-//    }
 }

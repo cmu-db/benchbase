@@ -27,7 +27,6 @@ public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
     @Override
     protected void setUp() throws Exception {
         super.setUp(VoterBenchmark.class, IGNORE, TestVoterBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.0001);
     }
 
 }

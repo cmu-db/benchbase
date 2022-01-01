@@ -49,10 +49,6 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             } // FOR
         }
 
-        this.workConf.setScaleFactor(.001);
-        this.workConf.setTerminals(1);
-        this.workConf.setBatchSize(128);
-
         this.benchmark.createDatabase();
         this.benchmark.getProcedures();
     }

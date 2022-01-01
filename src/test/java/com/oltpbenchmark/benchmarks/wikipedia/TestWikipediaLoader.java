@@ -35,7 +35,6 @@ public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> 
     @Override
     protected void setUp() throws Exception {
         super.setUp(WikipediaBenchmark.class, IGNORE, TestWikipediaBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.1);
     }
 
 //    public void testHistograms() throws Exception {

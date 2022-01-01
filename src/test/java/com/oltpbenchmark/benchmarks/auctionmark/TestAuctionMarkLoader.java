@@ -36,7 +36,6 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
     @Override
     protected void setUp() throws Exception {
         super.setUp(AuctionMarkBenchmark.class, IGNORE, TestAuctionMarkBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.1);
     }
 
     /**
@@ -71,7 +70,6 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         // We just want to make sure that each client's profile contains a unique
         // set of ItemInfo records that are not found in any other profile's lists
         int num_clients = 9;
-        this.workConf.setTerminals(num_clients);
         AuctionMarkLoader loader = (AuctionMarkLoader) super.testLoadWithReturn();
         assertNotNull(loader);
 
