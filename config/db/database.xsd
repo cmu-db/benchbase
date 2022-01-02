@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="configuration" type="configurationType"/>
+    <xs:complexType name="databaseType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="type">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="COCKROACHDB"/>
+                        <xs:enumeration value="MARIADB"/>
+                        <xs:enumeration value="MYSQL"/>
+                        <xs:enumeration value="NOISEPAGE"/>
+                        <xs:enumeration value="PHOENIX"/>
+                        <xs:enumeration value="POSTGRES"/>
+                        <xs:enumeration value="SPANNER"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element type="xs:string" name="driverClass">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="url">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="username" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="password" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="transactionIsolation" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="TRANSACTION_SERIALIZABLE"/>
+                        <xs:enumeration value="TRANSACTION_READ_COMMITTED"/>
+                        <xs:enumeration value="TRANSACTION_REPEATABLE_READ"/>
+                        <xs:enumeration value="TRANSACTION_READ_UNCOMMITTED"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element type="xs:int" name="batchSize" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="retries" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="configurationType">
+        <xs:sequence>
+            <xs:element type="databaseType" name="database"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
