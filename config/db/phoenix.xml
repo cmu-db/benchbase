@@ -2,7 +2,7 @@
 <configuration xsi:noNamespaceSchemaLocation="database.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <database>
         <type>PHOENIX</type>
-        <driverClass>og.apache.phoenix.jdbc.PhoenixDive</driverClass>
+        <driverClass>org.apache.phoenix.jdbc.PhoenixDive</driverClass>
         <url>jdbc:phoenix:localhost:2181/benchbase</url>
         <username>oot</username>
         <password></password>
