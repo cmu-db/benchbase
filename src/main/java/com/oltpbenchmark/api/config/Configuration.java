@@ -6,7 +6,7 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import java.util.List;
 
 @JacksonXmlRootElement(localName = "configuration")
-public record Configuration(Database database, List<Workload> workloads ) {
+public record Configuration(List<Workload> workloads) {
 
     public Workload getWorkloadForBenchmark(Class<? extends BenchmarkModule> benchmarkClass) {
         for (Workload workload : workloads) {

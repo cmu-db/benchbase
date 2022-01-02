@@ -64,8 +64,12 @@ public class DBWorkload {
         if (argsLine.hasOption("h")) {
             printUsage(options);
             return;
-        } else if (!argsLine.hasOption("c")) {
-            LOG.error("Missing Configuration file");
+        } else if (!argsLine.hasOption("d")) {
+            LOG.error("Missing Database Configuration file");
+            printUsage(options);
+            return;
+        } else if (!argsLine.hasOption("w")) {
+            LOG.error("Missing Workload Configuration file");
             printUsage(options);
             return;
         }
@@ -82,42 +86,41 @@ public class DBWorkload {
         // Use this list for filtering of the output
         List<TransactionType> activeTXTypes = new ArrayList<>();
 
-        String configFile = argsLine.getOptionValue("c");
+        String databaseConfigFile = argsLine.getOptionValue("d");
+        String workloadConfigFile = argsLine.getOptionValue("w");
 
         ObjectMapper xmlMapper = new XmlMapper();
-        Configuration configuration = xmlMapper.readValue(FileUtils.getFile(configFile), Configuration.class);
-        Database database = configuration.database();
+        Database database = xmlMapper.readValue(FileUtils.getFile(databaseConfigFile), Database.class);
+
+        Map<String, Object> databaseDebug = new ListOrderedMap<>();
+        databaseDebug.put("Type", database.type());
+        databaseDebug.put("Driver", database.driverClass());
+        databaseDebug.put("URL", database.url());
+        databaseDebug.put("Isolation", database.transactionIsolation());
+        databaseDebug.put("Batch Size", database.batchSize());
+        databaseDebug.put("Retries", database.retries());
+
+        LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(databaseDebug));
+        LOG.info(SINGLE_LINE);
+
+        Configuration configuration = xmlMapper.readValue(FileUtils.getFile(workloadConfigFile), Configuration.class);
 
         for (Workload workload : configuration.workloads()) {
 
+            Map<String, Object> initDebug = new ListOrderedMap<>();
+            initDebug.put("Benchmark", workload.benchmarkClass());
+            initDebug.put("Scale Factor", workload.scaleFactor());
+            initDebug.put("Terminals", workload.terminals());
+            initDebug.put("Selectivity", workload.selectivity());
 
-            // ----------------------------------------------------------------
-            // BEGIN LOADING WORKLOAD CONFIGURATION
-            // ----------------------------------------------------------------
+            LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
+            LOG.info(SINGLE_LINE);
 
             String benchmarkName = workload.benchmarkClass().getName();
 
             WorkloadConfiguration wrkld = new WorkloadConfiguration(benchmarkName, database, workload);
 
-
             BenchmarkModule bench = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{wrkld}, new Class<?>[]{WorkloadConfiguration.class});
-            Map<String, Object> initDebug = new ListOrderedMap<>();
-            initDebug.put("Benchmark", benchmarkName);
-            initDebug.put("Configuration", configFile);
-            initDebug.put("Type", wrkld.getDatabaseType());
-            initDebug.put("Driver", wrkld.getDriverClass());
-            initDebug.put("URL", wrkld.getUrl());
-            initDebug.put("Isolation", wrkld.getIsolationMode());
-            initDebug.put("Batch Size", wrkld.getBatchSize());
-            initDebug.put("Scale Factor", wrkld.getScaleFactor());
-            initDebug.put("Terminals", wrkld.getTerminals());
-            initDebug.put("Selectivity", wrkld.getSelectivity());
-
-            LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
-            LOG.info(SINGLE_LINE);
-
-            // ----------------------------------------------------------------
-            // LOAD TRANSACTION DESCRIPTIONS
 
             List<TransactionType> ttypes = new ArrayList<>();
             ttypes.add(TransactionType.INVALID);
@@ -248,7 +251,8 @@ public class DBWorkload {
 
     private static Options buildOptions() {
         Options options = new Options();
-        options.addOption("c", "config", true, "[required] Workload configuration file");
+        options.addOption("d", "database", true, "[required] Database configuration file");
+        options.addOption("w", "workloads", true, "[required] Workload configuration file");
         options.addOption(null, "create", true, "Initialize the database for this benchmark");
         options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");

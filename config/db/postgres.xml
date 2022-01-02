@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
-<configuration xsi:noNamespaceSchemaLocation="database.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <database>
-        <type>POSTGRES</type>
-        <driverClass>org.postgresql.Driver</driverClass>
-        <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
-        <username>admin</username>
-        <password>password</password>
-        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
-        <batchSize>128</batchSize>
-    </database>
-</configuration>
+<database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
+    <type>POSTGRES</type>
+    <driverClass>org.postgresql.Driver</driverClass>
+    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
+    <username>admin</username>
+    <password>password</password>
+    <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+    <batchSize>128</batchSize>
+</database>

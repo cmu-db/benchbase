@@ -7,5 +7,6 @@ import com.oltpbenchmark.types.DatabaseType;
 import java.util.List;
 
 @JacksonXmlRootElement(localName = "dialect")
-public record Dialect(@JacksonXmlProperty(localName = "type", isAttribute = true) DatabaseType databaseType, @JacksonXmlProperty(localName = "procedures", isAttribute = false) List<Procedure> procedures) {
+public record Dialect(@JacksonXmlProperty(localName = "type", isAttribute = true) DatabaseType databaseType,
+                      @JacksonXmlProperty(localName = "procedures", isAttribute = false) List<Procedure> procedures) {
 }

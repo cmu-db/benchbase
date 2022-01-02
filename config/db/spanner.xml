@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
-<configuration xsi:noNamespaceSchemaLocation="database.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <database>
-        <type>SPANNER</type>
-        <driverClass>com.google.cloud.spanner.jdbc.JdbcDriver</driverClass>
-        <url>jdbc:cloudspanner://localhost:9010/projects/benchbase-project/instances/benchbase-instance/databases/benchbase;usePlainText=true</url>
-        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
-        <batchSize>128</batchSize>
-    </database>
-</configuration>
+<database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
+    <type>SPANNER</type>
+    <driverClass>com.google.cloud.spanner.jdbc.JdbcDriver</driverClass>
+    <url>jdbc:cloudspanner://localhost:9010/projects/benchbase-project/instances/benchbase-instance/databases/benchbase;usePlainText=true</url>
+    <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+    <batchSize>128</batchSize>
+</database>

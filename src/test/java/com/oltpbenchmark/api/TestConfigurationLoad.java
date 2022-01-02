@@ -1,86 +1,152 @@
 package com.oltpbenchmark.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.oltpbenchmark.api.config.Configuration;
+import com.oltpbenchmark.api.config.Database;
 import com.oltpbenchmark.api.config.Dialect;
+import com.oltpbenchmark.api.config.Workload;
 import junit.framework.TestCase;
 
 public class TestConfigurationLoad extends TestCase {
 
 
-    private static final String CONFIGURATION = """
+    private static final String DATABASE_CONFIGURATION = """
             <?xml version="1.0"?>
-            <configuration>
-                <database>
-                    <type>NOISEPAGE</type>
+            <database xsi:noNamespaceSchemaLocation="database.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <type>COCKROACHDB</type>
                     <driverClass>org.postgresql.Driver</driverClass>
-                    <url>jdbc:postgresql://localhost:15721/noisepage?sslmode=disable&amp;ApplicationName=epinions&amp;reWriteBatchedInserts=true</url>
-                    <username>noisepage</username>
+                    <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
+                    <username>root</username>
                     <password></password>
                     <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
                     <batchSize>128</batchSize>
-                </database>
+                    <retries>3</retries>
+            </database>
+            """;
+
+    private static final String WORKLOAD_CONFIGURATION = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                 
+                 <workloads>       
+                <workload benchmarkClass="com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark">
+                    <scaleFactor>1</scaleFactor>
+                    <terminals>1</terminals>
                         
-                <workloads>
-                    <workload benchmarkClass="com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark">
-                        <scaleFactor>1</scaleFactor>
-                        <terminals>1</terminals>
-                        <dataDirectory>/foo/bar</dataDirectory>
-                        <fileFormat>CSV</fileFormat>
-                        <phases>
-                            <phase>
-                                <serial>false</serial>
-                                <warmup>300</warmup>
-                                <time>300</time>
-                                <rate>10000</rate>
-                                <weight>50,50</weight>
-                                <activeTerminals>1</activeTerminals>
-                                <rateType>DISABLED</rateType>
-                                <arrival>REGULAR</arrival>
-                            </phase>
-                        </phases>
-                        <transactions>
-                            <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet">
-                                <id>99</id>
-                                <name>GetTweet</name>
-                            </transaction>
-                            <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers">
-                                <name>GetFollowers</name>
-                                <supplemental>true</supplemental>
-                                <preExecutionWait>1000</preExecutionWait>
-                                <postExecutionWait>2222</postExecutionWait>
-                            </transaction>
-                        </transactions>
-                    </workload>
-                    <workload benchmarkClass="com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark">
-                        <scaleFactor>1</scaleFactor>
-                        <terminals>1</terminals>
-                        <dataDirectory>/foo/bar</dataDirectory>
-                        <fileFormat>CSV</fileFormat>
-                        <phases>
-                            <phase>
-                                <serial>false</serial>
-                                <warmup>300</warmup>
-                                <time>300</time>
-                                <rate>10000</rate>
-                                <weight>100</weight>
-                                <activeTerminals>1</activeTerminals>
-                                <rateType>DISABLED</rateType>
-                                <arrival>REGULAR</arrival>
-                            </phase>
-                        </phases>
-                        <transactions>
-                            <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.Amalgamate">
-                                <name>Amalgamate</name>
-                                <supplemental>true</supplemental>
-                                <preExecutionWait>1000</preExecutionWait>
-                                <postExecutionWait>2222</postExecutionWait>
-                            </transaction>
-                        </transactions>
-                    </workload>
-                </workloads>
+                    <phases>
+                        <phase>
+                            <time>60</time>
+                            <rateType>LIMITED</rateType>
+                            <rate>200</rate>
+                            <weight>3, 2, 3, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weight>
+                        </phase>
+                    </phases>
+                        
+                    <transactions>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1">
+                            <name>Q1</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q2">
+                            <name>Q2</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q3">
+                            <name>Q3</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q4">
+                            <name>Q4</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q5">
+                            <name>Q5</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q6">
+                            <name>Q6</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q7">
+                            <name>Q7</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q8">
+                            <name>Q8</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q9">
+                            <name>Q9</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q10">
+                            <name>Q10</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q11">
+                            <name>Q11</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q12">
+                            <name>Q12</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q13">
+                            <name>Q13</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q14">
+                            <name>Q14</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q15">
+                            <name>Q15</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q16">
+                            <name>Q16</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q17">
+                            <name>Q17</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q18">
+                            <name>Q18</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q19">
+                            <name>Q19</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q20">
+                            <name>Q20</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q21">
+                            <name>Q21</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q22">
+                            <name>Q22</name>
+                        </transaction>
+                    </transactions>
+                        
+                </workload>
+                        
+                <workload benchmarkClass="com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark">
+                    <scaleFactor>1</scaleFactor>
+                    <terminals>1</terminals>
+                        
+                    <phases>
+                        <phase>
+                            <time>60</time>
+                            <rateType>LIMITED</rateType>
+                            <rate>200</rate>
+                            <weight>45,43,4,4,4</weight>
+                        </phase>
+                    </phases>
+                        
+                    <transactions>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder">
+                            <name>NewOrder</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Payment">
+                            <name>Payment</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus">
+                            <name>OrderStatus</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery">
+                            <name>Delivery</name>
+                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel">
+                            <name>StockLevel</name>
+                        </transaction>
+                    </transactions>
+                </workload>
+            </workloads>
             </configuration>
             """;
 
@@ -199,21 +265,42 @@ public class TestConfigurationLoad extends TestCase {
             </dialect>
             """;
 
-    public void testLoadConfiguration() throws JsonProcessingException {
-        ObjectMapper mapper = new XmlMapper();
-        Configuration configuration = mapper.readValue(CONFIGURATION, Configuration.class);
+    public void testLoadDatabase() throws JsonProcessingException {
+        XmlMapper mapper = new XmlMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        System.out.println(configuration);
+        Database database = mapper.readValue(DATABASE_CONFIGURATION, Database.class);
 
-        String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(configuration);
+        System.out.println(database);
+
+        String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(database);
 
         System.out.println(s);
 
 
     }
 
+    public void testLoadWorkloads() throws JsonProcessingException {
+        XmlMapper mapper = new XmlMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        Configuration configuration = mapper.readValue(WORKLOAD_CONFIGURATION, Configuration.class);
+
+        for (Workload workload : configuration.workloads()) {
+            System.out.println(workload);
+
+            String s = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(workload);
+
+            System.out.println(s);
+        }
+
+
+    }
+
     public void testLoadDialect() throws JsonProcessingException {
-        ObjectMapper mapper = new XmlMapper();
+        XmlMapper mapper = new XmlMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
         Dialect configuration = mapper.readValue(DIALECTS, Dialect.class);
 
         System.out.println(configuration);
