@@ -25,8 +25,6 @@ import java.util.List;
 
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
-    protected static final int NUM_TERMINALS = 1;
-
     protected List<Worker<? extends BenchmarkModule>> workers;
 
     @SuppressWarnings("rawtypes")
@@ -47,7 +45,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         this.workConf.setTransTypes(txnTypes);
         this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
-        assertEquals(NUM_TERMINALS, this.workers.size());
+        assertEquals(DB_TERMINALS, this.workers.size());
     }
 
     /**

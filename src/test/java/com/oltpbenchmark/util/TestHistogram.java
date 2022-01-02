@@ -55,7 +55,9 @@ public class TestHistogram extends TestCase {
         Histogram<Integer> h = new Histogram<Integer>();
         int expected = 10;
         for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < expected; j++) h.put(i);
+            for (int j = 0; j < expected; j++) {
+                h.put(i);
+            }
         } // FOR
         long min_count = h.getMinCount();
         assertEquals(expected, min_count);
@@ -63,10 +65,13 @@ public class TestHistogram extends TestCase {
         assertEquals(expected, max_count);
 
         for (int i = 9; i >= 0; i--) {
-            if (i == 5) continue;
-            for (int j = 0; j < expected; j++) h.put(i);
+            if (i == 5) {
+                continue;
+            }
+            for (int j = 0; j < expected; j++) {
+                h.put(i);
+            }
         } // FOR
-//        System.err.println(h);
         min_count = h.getMinCount();
         assertEquals(expected, min_count);
         max_count = h.getMaxCount();
@@ -177,7 +182,8 @@ public class TestHistogram extends TestCase {
             int key = 0;
             do {
                 key = rand.nextInt();
-            } while (h.contains(key) || attempted.contains(key));
+            }
+            while (h.contains(key) || attempted.contains(key));
             h.put(key, 0);
             attempted.add(key);
         } // FOR
@@ -214,8 +220,9 @@ public class TestHistogram extends TestCase {
         hist.put(50);
 
         List<Integer> partitions = new ArrayList<Integer>();
-        for (int i = 0; i < NUM_PARTITIONS; i++)
+        for (int i = 0; i < NUM_PARTITIONS; i++) {
             partitions.add(i);
+        }
 
         hist.putAll(partitions);
         assertEquals(partitions.size(), hist.getValueCount());
@@ -236,7 +243,9 @@ public class TestHistogram extends TestCase {
         String json = h.toJSONString();
         assertNotNull(json);
         for (Histogram.Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.KEEP_ZERO_ENTRIES) continue;
+            if (element == Histogram.Members.KEEP_ZERO_ENTRIES) {
+                continue;
+            }
             assertTrue(json.indexOf(element.name()) != -1);
         } // FOR
     }
@@ -248,13 +257,14 @@ public class TestHistogram extends TestCase {
         String json = h.toJSONString();
         assertNotNull(json);
         JSONObject jsonObject = new JSONObject(json);
-//        System.err.println(jsonObject.toString(1));
 
         Histogram<Integer> copy = new Histogram<Integer>();
         copy.fromJSON(jsonObject);
         assertEquals(h.getValueCount(), copy.getValueCount());
         for (Histogram.Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.VALUE_TYPE) continue;
+            if (element == Histogram.Members.VALUE_TYPE) {
+                continue;
+            }
             String field_name = element.toString().toLowerCase();
             Field field = Histogram.class.getDeclaredField(field_name);
             assertNotNull(field);

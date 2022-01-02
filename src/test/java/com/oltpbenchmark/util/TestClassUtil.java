@@ -30,24 +30,6 @@ public class TestClassUtil extends TestCase {
 
     private final Class<?> target_class = ArrayList.class;
 
-    public static class MockObject1 {
-        public MockObject1(MockObject1 x) {
-
-        }
-    }
-
-    public static class MockObject2 {
-        public MockObject2(MockObject2 x) {
-
-        }
-    }
-
-    public static class MockObject3 extends MockObject2 {
-        public MockObject3(MockObject2 x) {
-            super(x);
-        }
-    }
-
     /**
      * testGetConstructor
      */
@@ -66,7 +48,6 @@ public class TestClassUtil extends TestCase {
         } // FOR
     }
 
-
     /**
      * testGetSuperClasses
      */
@@ -78,7 +59,6 @@ public class TestClassUtil extends TestCase {
                 Object.class,
         };
         List<Class<?>> results = ClassUtil.getSuperClasses(target_class);
-        // System.err.println(target_class + " => " + results);
         assert (!results.isEmpty());
         assertEquals(expected.length, results.size());
 
@@ -86,7 +66,6 @@ public class TestClassUtil extends TestCase {
             assert (results.contains(e));
         } // FOR
     }
-
 
     /**
      * testGetSuperClassesCatalogType
@@ -119,12 +98,29 @@ public class TestClassUtil extends TestCase {
                 RandomAccess.class,
         };
         Collection<Class<?>> results = ClassUtil.getInterfaces(target_class);
-        // System.err.println(target_class + " => " + results);
         assert (!results.isEmpty());
         assertEquals(expected.length, results.size());
 
         for (Class<?> e : expected) {
             assert (results.contains(e));
         } // FOR
+    }
+
+    public static class MockObject1 {
+        public MockObject1(MockObject1 x) {
+
+        }
+    }
+
+    public static class MockObject2 {
+        public MockObject2(MockObject2 x) {
+
+        }
+    }
+
+    public static class MockObject3 extends MockObject2 {
+        public MockObject3(MockObject2 x) {
+            super(x);
+        }
     }
 }

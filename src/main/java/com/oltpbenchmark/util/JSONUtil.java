@@ -483,7 +483,6 @@ public abstract class JSONUtil {
             try {
                 readFieldValue(json_object, json_key, field_handle, object);
             } catch (Exception ex) {
-                // System.err.println(field_class + ": " + ClassUtil.getSuperClasses(field_class));
                 LOG.error("Unable to deserialize field '{}' from {}", json_key, base_class.getSimpleName(), ex);
                 throw new JSONException(ex);
             }
@@ -530,7 +529,6 @@ public abstract class JSONUtil {
             // JSONSerializable
         } else if (ClassUtil.getInterfaces(field_class).contains(JSONSerializable.class)) {
             // Just return the value back. The JSON library will take care of it
-//            System.err.println(field_class + ": " + field_value);
             value = field_value;
             // Everything else
         } else {

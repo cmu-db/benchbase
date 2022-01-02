@@ -17,27 +17,15 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-
-import junit.framework.TestCase;
-
-import org.junit.Before;
-
 import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkConstants;
 import com.oltpbenchmark.util.CollectionUtil;
 import com.oltpbenchmark.util.Histogram;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
 import com.oltpbenchmark.util.RandomGenerator;
+import junit.framework.TestCase;
+import org.junit.Before;
+
+import java.util.*;
 
 /**
  * @author pavlo
@@ -110,13 +98,9 @@ public class TestUserIdGenerator extends TestCase {
 
         int itemCount = rand.nextInt(users_per_item_count.getMaxValue().intValue() - 1);
         generator.setCurrentItemCount(itemCount);
-//	    System.err.println("itemCount = " + itemCount);
 
         int cur_position = generator.getCurrentPosition();
         int new_position = rand.number(cur_position, num_users);
-//        System.err.println(users_per_item_count);
-//        System.err.println("cur_position = " + cur_position);
-//        System.err.println("new_position = " + new_position);
         generator.setCurrentItemCount(0);
         UserId expected = null;
         for (int i = 0; i <= new_position; i++) {
@@ -128,7 +112,6 @@ public class TestUserIdGenerator extends TestCase {
         generator.setCurrentItemCount(0);
         UserId user_id = generator.seekToPosition(new_position);
         assertNotNull(user_id);
-//        System.err.println(user_id);
         assertEquals(expected, user_id);
     }
 
@@ -147,7 +130,6 @@ public class TestUserIdGenerator extends TestCase {
             assertNotNull(user_id);
             expectedIds.put(position, user_id);
         } // WHILE
-//        System.err.println(StringUtil.formatMaps(expectedIds));
 
         for (int client = 0; client < num_clients; client++) {
             generator = new UserIdGenerator(users_per_item_count, num_clients, client);
@@ -183,7 +165,6 @@ public class TestUserIdGenerator extends TestCase {
             assertNotNull(u_id);
             assert (seen.contains(u_id) == false) : "Duplicate " + u_id;
             seen.add(u_id);
-//	        System.err.println(u_id);
         } // FOR
         assertEquals(NUM_USERS, seen.size());
     }
@@ -219,7 +200,6 @@ public class TestUserIdGenerator extends TestCase {
             }
             last_cnt = clients_h.get(client);
         } // FOR
-//	    System.err.println(clients_h);
     }
 
     /**

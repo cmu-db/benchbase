@@ -45,10 +45,6 @@ public class TestCustomerId extends TestCase {
         for (long base_id : this.base_ids) {
             for (long airport_id : this.airport_ids) {
                 String encoded = new CustomerId((int) base_id, airport_id).encode();
-//                System.err.println("base_id=" + base_id);
-//                System.err.println("airport_id=" + airport_id);
-//                System.err.println("encodd=" + encoded);
-//                System.exit(1);
 
                 CustomerId customer_id = new CustomerId(encoded);
                 assertNotNull(customer_id);

@@ -25,6 +25,16 @@ import static org.junit.Assert.assertEquals;
 
 public class TestCompositeIdRange {
 
+    @Test
+    public void testPackOK() {
+        PackedLong packedLong = new PackedLong(1, 2);
+        String encodedLong = packedLong.encode();
+        PackedLong packedLong2 = new PackedLong();
+        packedLong2.decode(encodedLong);
+        assertEquals(packedLong.getField1(), packedLong2.getField1());
+        assertEquals(packedLong.getField2(), packedLong2.getField2());
+    }
+
     public static class PackedLong extends CompositeId {
         private static final int[] COMPOSITE_BITS = {
                 INT_MAX_DIGITS, // FIELD1
@@ -83,16 +93,6 @@ public class TestCompositeIdRange {
         public int hashCode() {
             return Objects.hash(field1, field2);
         }
-    }
-
-    @Test
-    public void testPackOK() {
-        PackedLong packedLong = new PackedLong(1, 2);
-        String encodedLong = packedLong.encode();
-        PackedLong packedLong2 = new PackedLong();
-        packedLong2.decode(encodedLong);
-        assertEquals(packedLong.getField1(), packedLong2.getField1());
-        assertEquals(packedLong.getField2(), packedLong2.getField2());
     }
 
 }

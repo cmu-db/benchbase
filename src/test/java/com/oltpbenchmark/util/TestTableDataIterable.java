@@ -59,14 +59,14 @@ public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
             if (num_cols != -1) {
                 assertEquals(num_cols, row.length);
             } else {
-//                System.err.println("NUM OF COLS: " + row.length);
             }
 
             assertEquals(this.catalog_tbl.getColumnCount(), row.length);
             for (int i = 0; i < num_cols; i++) {
                 // The first two columns cannot be null
-                if (i < 2)
+                if (i < 2) {
                     assertNotNull(String.format("Row:%d, Col:%d\n%s", num_rows, i, Arrays.toString(row)), row[i]);
+                }
             } // FOR
 
             num_cols = row.length;

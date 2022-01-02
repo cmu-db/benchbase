@@ -186,7 +186,6 @@ public abstract class StringUtil {
         }
 
         // Put it all together!
-//        System.err.println("max_title_size=" + max_title_size + ", max_key_size=" + max_key_size + ", max_value_size=" + max_value_size + ", delimiter=" + delimiter.length());
         int total_width = Math.max(max_title_size, (max_key_size + max_value_size + delimiter.length())) + 1;
         String dividing_line = (need_divider ? repeat("-", total_width) : "");
         StringBuilder sb = null;

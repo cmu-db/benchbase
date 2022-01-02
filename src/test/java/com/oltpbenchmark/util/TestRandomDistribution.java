@@ -40,7 +40,6 @@ public class TestRandomDistribution extends TestCase {
 
         RandomDistribution.Gaussian gaussian = new RandomDistribution.Gaussian(this.rand, min, max);
         double mean = gaussian.calculateMean(samples);
-//        System.err.println("mean="+ mean);
         assert ((expected - 1) <= mean) : (expected - 1) + " <= " + mean;
         assert ((expected + 1) >= mean) : (expected - 1) + " >= " + mean;
     }

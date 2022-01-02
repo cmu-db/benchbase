@@ -37,27 +37,4 @@ public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> 
         super.setUp(WikipediaBenchmark.class, IGNORE, TestWikipediaBenchmark.PROC_CLASSES);
     }
 
-//    public void testHistograms() throws Exception {
-//        Collection<Integer> values = RevisionHistograms.REVISION_DELTA.values();
-//        Histogram<Integer> new_h = new Histogram<Integer>();
-//        for (Integer v : values) {
-//            Integer cnt = RevisionHistograms.REVISION_DELTA.get(v);
-//            if (Math.abs(v) >= 100000) {
-//                int new_v = (int)Math.round(v / 10000.0d) * 10000;
-//                new_h.put(new_v, cnt);
-//            }
-//            else if (Math.abs(v) >= 10000) {
-//                int new_v = (int)Math.round(v / 1000.0d) * 1000;
-//                new_h.put(new_v, cnt);
-//            }
-//            else {
-//                new_h.put(v, cnt);
-//            }
-//        }
-//        for (Integer v : new_h.values()) {
-//            Integer cnt = new_h.get(v);
-//            System.err.printf("this.put(%d, %d);\n", v, cnt);
-//        }
-//    }
-
 }

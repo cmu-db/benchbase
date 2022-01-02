@@ -237,7 +237,6 @@ public class ZipfianGenerator extends IntegerGenerator {
             //have to recompute zetan and eta, since they depend on itemcount
             synchronized (this) {
                 if (itemcount > countforzeta) {
-                    //System.err.println("WARNING: Incrementally recomputing Zipfian distribtion. (itemcount="+itemcount+" countforzeta="+countforzeta+")");
 
                     //we have added more items. can compute zetan incrementally, which is cheaper
                     zetan = zeta(countforzeta, itemcount, theta, zetan);

@@ -49,8 +49,9 @@ public class TestCollectionUtil extends TestCase {
         };
 
         List<Integer> found = new ArrayList<Integer>();
-        for (Integer i : CollectionUtil.iterable(e.asIterator()))
+        for (Integer i : CollectionUtil.iterable(e.asIterator())) {
             found.add(i);
+        }
         assertEquals(size, found.size());
     }
 

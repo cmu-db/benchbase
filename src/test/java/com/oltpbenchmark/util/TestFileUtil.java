@@ -38,8 +38,9 @@ public class TestFileUtil extends TestCase {
     void touch(String name) {
         try {
             File f = new File(name);
-            if (!f.exists())
+            if (!f.exists()) {
                 new FileOutputStream(f).close();
+            }
             f.setLastModified(TimeUtil.getCurrentTime().getTime());
         } catch (IOException e) {
         }
