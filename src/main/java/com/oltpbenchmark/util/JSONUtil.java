@@ -26,11 +26,8 @@ import org.json.JSONStringer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.Map.Entry;
@@ -40,38 +37,6 @@ import java.util.Map.Entry;
  */
 public abstract class JSONUtil {
     private static final Logger LOG = LoggerFactory.getLogger(JSONUtil.class.getName());
-
-    private static final String JSON_CLASS_SUFFIX = "_class";
-    private static final Map<Class<?>, Field[]> SERIALIZABLE_FIELDS = new HashMap<>();
-
-    /**
-     * @param clazz
-     * @return
-     */
-    public static Field[] getSerializableFields(Class<?> clazz, String... fieldsToExclude) {
-        Field[] ret = SERIALIZABLE_FIELDS.get(clazz);
-        if (ret == null) {
-            Collection<String> exclude = CollectionUtil.addAll(new HashSet<>(), fieldsToExclude);
-            synchronized (SERIALIZABLE_FIELDS) {
-                ret = SERIALIZABLE_FIELDS.get(clazz);
-                if (ret == null) {
-                    List<Field> fields = new ArrayList<>();
-                    for (Field f : clazz.getFields()) {
-                        int modifiers = f.getModifiers();
-                        if (!Modifier.isTransient(modifiers) &&
-                                Modifier.isPublic(modifiers) &&
-                                !Modifier.isStatic(modifiers) &&
-                                !exclude.contains(f.getName())) {
-                            fields.add(f);
-                        }
-                    }
-                    ret = fields.toArray(new Field[0]);
-                    SERIALIZABLE_FIELDS.put(clazz, ret);
-                }
-            }
-        }
-        return (ret);
-    }
 
     /**
      * JSON Pretty Print
@@ -131,29 +96,6 @@ public abstract class JSONUtil {
     }
 
     /**
-     * Write the contents of a JSONSerializable object out to a file on the local disk
-     *
-     * @param <T>
-     * @param object
-     * @param output_path
-     * @throws IOException
-     */
-    public static <T extends JSONSerializable> void save(T object, String output_path) throws IOException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Writing out contents of {} to '{}'", object.getClass().getSimpleName(), output_path);
-        }
-        File f = new File(output_path);
-        try {
-            FileUtil.makeDirIfNotExists(f.getParent());
-            String json = object.toJSONString();
-            FileUtil.writeStringToFile(f, format(json));
-        } catch (Exception ex) {
-            LOG.error("Failed to serialize the {} file '{}'", object.getClass().getSimpleName(), f, ex);
-            throw new IOException(ex);
-        }
-    }
-
-    /**
      * Load in a JSONSerialable stored in a file
      *
      * @param object
@@ -180,45 +122,6 @@ public abstract class JSONUtil {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("The loading of the {} is complete", object.getClass().getSimpleName());
-        }
-    }
-
-    /**
-     * For a given list of Fields, write out the contents of the corresponding field to the JSONObject
-     * The each of the JSONObject's elements will be the upper case version of the Field's name
-     *
-     * @param <T>
-     * @param stringer
-     * @param object
-     * @param base_class
-     * @param fields
-     * @throws JSONException
-     */
-    public static <T> void fieldsToJSON(JSONStringer stringer, T object, Class<? extends T> base_class, Field[] fields) throws JSONException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Serializing out {} elements for {}", fields.length, base_class.getSimpleName());
-        }
-        for (Field f : fields) {
-            String json_key = f.getName().toUpperCase();
-            stringer.key(json_key);
-
-            try {
-                Class<?> f_class = f.getType();
-                Object f_value = f.get(object);
-
-                // Null
-                if (f_value == null) {
-                    writeFieldValue(stringer, f_class, f_value);
-                    // Maps
-                } else if (f_value instanceof Map) {
-                    writeFieldValue(stringer, f_class, f_value);
-                    // Everything else
-                } else {
-                    writeFieldValue(stringer, f_class, f_value);
-                }
-            } catch (Exception ex) {
-                throw new JSONException(ex);
-            }
         }
     }
 
@@ -375,142 +278,6 @@ public abstract class JSONUtil {
             }
             collection.add(value);
         }
-    }
-
-    /**
-     * @param json_object
-     * @param json_key
-     * @param field_handle
-     * @param object
-     * @throws Exception
-     */
-    @SuppressWarnings("unchecked")
-    public static void readFieldValue(final JSONObject json_object, final String json_key, Field field_handle, Object object) throws Exception {
-
-        Class<?> field_class = field_handle.getType();
-        Object field_object = field_handle.get(object);
-        // String field_name = field_handle.getName();
-
-        // Null
-        if (json_object.isNull(json_key)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Field {} is null", json_key);
-            }
-            field_handle.set(object, null);
-
-            // Collections
-        } else if (ClassUtil.getInterfaces(field_class).contains(Collection.class)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Field {} is a collection", json_key);
-            }
-
-            Stack<Class> inner_classes = new Stack<>();
-            inner_classes.addAll(ClassUtil.getGenericTypes(field_handle));
-            Collections.reverse(inner_classes);
-
-            JSONArray json_inner = json_object.getJSONArray(json_key);
-            if (json_inner == null) {
-                throw new JSONException("No array exists for '" + json_key + "'");
-            }
-            readCollectionField(json_inner, (Collection) field_object, inner_classes);
-
-            // Maps
-        } else if (field_object instanceof Map) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Field {} is a map", json_key);
-            }
-
-            Stack<Class> inner_classes = new Stack<>();
-            inner_classes.addAll(ClassUtil.getGenericTypes(field_handle));
-            Collections.reverse(inner_classes);
-
-            JSONObject json_inner = json_object.getJSONObject(json_key);
-            if (json_inner == null) {
-                throw new JSONException("No object exists for '" + json_key + "'");
-            }
-            readMapField(json_inner, (Map) field_object, inner_classes);
-
-            // Everything else...
-        } else {
-            Class explicit_field_class = JSONUtil.getClassForField(json_object, json_key);
-            if (explicit_field_class != null) {
-                field_class = explicit_field_class;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found explict field class {} for {}", field_class.getSimpleName(), json_key);
-                }
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Field {} is primitive type {}", json_key, field_class.getSimpleName());
-            }
-            Object value = JSONUtil.getPrimitiveValue(json_object.getString(json_key), field_class);
-            field_handle.set(object, value);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Set field {} to '{}'", json_key, value);
-            }
-        }
-    }
-
-    /**
-     * For the given list of Fields, load in the values from the JSON object into the current object
-     * If ignore_missing is false, then JSONUtil will not throw an error if a field is missing
-     *
-     * @param <E>
-     * @param <T>
-     * @param json_object
-     * @param object
-     * @param base_class
-     * @param ignore_missing
-     * @param fields
-     * @throws JSONException
-     */
-    public static <E extends Enum<?>, T> void fieldsFromJSON(JSONObject json_object, T object, Class<? extends T> base_class, boolean ignore_missing, Field... fields) throws JSONException {
-        for (Field field_handle : fields) {
-            String json_key = field_handle.getName().toUpperCase();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Retreiving value for field '{}'", json_key);
-            }
-
-            if (!json_object.has(json_key)) {
-                String msg = "JSONObject for " + base_class.getSimpleName() + " does not have key '" + json_key + "': " + CollectionUtil.list(json_object.keys());
-                if (ignore_missing) {
-                    LOG.warn(msg);
-                    continue;
-                } else {
-                    throw new JSONException(msg);
-                }
-            }
-
-            try {
-                readFieldValue(json_object, json_key, field_handle, object);
-            } catch (Exception ex) {
-                LOG.error("Unable to deserialize field '{}' from {}", json_key, base_class.getSimpleName(), ex);
-                throw new JSONException(ex);
-            }
-        }
-    }
-
-    /**
-     * Return the class of a field if it was stored in the JSONObject along with the value
-     * If there is no class information, then this will return null
-     *
-     * @param json_object
-     * @param json_key
-     * @return
-     * @throws JSONException
-     */
-    private static Class<?> getClassForField(JSONObject json_object, String json_key) throws JSONException {
-        Class<?> field_class = null;
-        // Check whether we also stored the class
-        if (json_object.has(json_key + JSON_CLASS_SUFFIX)) {
-            try {
-                field_class = ClassUtil.getClass(json_object.getString(json_key + JSON_CLASS_SUFFIX));
-            } catch (Exception ex) {
-                LOG.error("Failed to include class for field '{}'", json_key, ex);
-                throw new JSONException(ex);
-            }
-        }
-        return (field_class);
-
     }
 
     /**

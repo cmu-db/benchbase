@@ -565,11 +565,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
     }
 
     @Override
-    public void save(String output_path) throws IOException {
-        JSONUtil.save(this, output_path);
-    }
-
-    @Override
     public String toJSONString() {
         return (JSONUtil.toJSONString(this));
     }
