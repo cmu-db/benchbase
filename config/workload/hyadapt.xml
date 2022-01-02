@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>10000</rate>
+                    <weight>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord1">
+                    <name>MaxRecord1</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord2">
+                    <name>MaxRecord2</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord3">
+                    <name>MaxRecord3</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord4">
+                    <name>MaxRecord4</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord5">
+                    <name>MaxRecord5</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord6">
+                    <name>MaxRecord6</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord7">
+                    <name>MaxRecord7</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord8">
+                    <name>MaxRecord8</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord9">
+                    <name>MaxRecord9</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.MaxRecord10">
+                    <name>MaxRecord10</name>
+                </transaction>
+
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord1">
+                    <name>ReadRecord1</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord2">
+                    <name>ReadRecord2</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord3">
+                    <name>ReadRecord3</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord4">
+                    <name>ReadRecord4</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord5">
+                    <name>ReadRecord5</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord6">
+                    <name>ReadRecord6</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord7">
+                    <name>ReadRecord7</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord8">
+                    <name>ReadRecord8</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord9">
+                    <name>ReadRecord9</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.ReadRecord10">
+                    <name>ReadRecord10</name>
+                </transaction>
+
+
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord1">
+                    <name>SumRecord1</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord2">
+                    <name>SumRecord2</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord3">
+                    <name>SumRecord3</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord4">
+                    <name>SumRecord4</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord5">
+                    <name>SumRecord5</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord6">
+                    <name>SumRecord6</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord7">
+                    <name>SumRecord7</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord8">
+                    <name>SumRecord8</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord9">
+                    <name>SumRecord9</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.hyadapt.procedures.SumRecord10">
+                    <name>SumRecord10</name>
+                </transaction>
+
+            </transactions>
+        </workload>
+    </workloads>
+
+</configuration>

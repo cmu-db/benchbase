@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration>
+    <database>
+        <type>PHOENIX</type>
+        <driverClass>og.apache.phoenix.jdbc.PhoenixDive</driverClass>
+        <url>jdbc:phoenix:localhost:2181/benchbase</url>
+        <username>oot</username>
+        <password></password>
+        <transactionIsolation>TRANSACTION_READ_COMMITTED</transactionIsolation>
+        <batchSize>128</batchSize>
+    </database>
+</configuration>

@@ -213,7 +213,7 @@ public class Phase {
             inner.add("[Rate=" + (isRateLimited() ? rate : "unlimited") + "]");
             inner.add("[Arrival=" + arrival + "]");
             inner.add("[Ratios=" + getWeights() + "]");
-            inner.add("[ActiveWorkers=" + getActiveTerminals() + "]");
+            inner.add("[ActiveTerminals=" + getActiveTerminals() + "]");
         }
 
         return StringUtil.bold("PHASE START") + " :: " + StringUtil.join(" ", inner);

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration>
+    <database>
+        <type>NOISEPAGE</type>
+        <driverClass>org.postgresql.Driver</driverClass>
+        <url>jdbc:postgresql://localhost:15721/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
+        <username>noisepage</username>
+        <password></password>
+        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+        <batchSize>128</batchSize>
+    </database>
+</configuration>

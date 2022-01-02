@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <dataDirectory>data/tpch-sf0.01</dataDirectory>
+            <fileFormat>TBL</fileFormat>
+
+            <phases>
+                <phase>
+                    <serial>true</serial>
+                    <rateType>UNLIMITED</rateType>
+                    <weight>1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1</weight>
+                </phase>
+                <phase>
+                    <serial>true</serial>
+                    <rateType>UNLIMITED</rateType>
+                    <weight>0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1</weight>
+                </phase>
+                <phase>
+                    <serial>true</serial>
+                    <rateType>UNLIMITED</rateType>
+                    <weight>1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q1">
+                    <id>1</id>
+                    <name>Q1</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q2">
+                    <id>2</id>
+                    <name>Q2</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q3">
+                    <id>3</id>
+                    <name>Q3</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q4">
+                    <id>4</id>
+                    <name>Q4</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q5">
+                    <id>5</id>
+                    <name>Q5</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q6">
+                    <id>6</id>
+                    <name>Q6</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q7">
+                    <id>7</id>
+                    <name>Q7</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q8">
+                    <id>8</id>
+                    <name>Q8</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q9">
+                    <id>9</id>
+                    <name>Q9</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q10">
+                    <id>10</id>
+                    <name>Q10</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q11">
+                    <id>11</id>
+                    <name>Q11</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q12">
+                    <id>12</id>
+                    <name>Q12</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q13">
+                    <id>13</id>
+                    <name>Q13</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q14">
+                    <id>14</id>
+                    <name>Q14</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q15">
+                    <id>15</id>
+                    <name>Q15</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q16">
+                    <id>16</id>
+                    <name>Q16</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q17">
+                    <id>17</id>
+                    <name>Q17</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q18">
+                    <id>18</id>
+                    <name>Q18</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q19">
+                    <id>19</id>
+                    <name>Q19</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q20">
+                    <id>20</id>
+                    <name>Q20</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q21">
+                    <id>21</id>
+                    <name>Q21</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q22">
+                    <id>22</id>
+                    <name>Q22</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+
+</configuration>

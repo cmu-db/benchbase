@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<configuration>
+    <database>
+        <type>COCKROACHDB</type>
+        <driverClass>org.postgresql.Driver</driverClass>
+        <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
+        <username>root</username>
+        <password></password>
+        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+        <batchSize>128</batchSize>
+        <retries>3</retries>
+    </database>
+</configuration>

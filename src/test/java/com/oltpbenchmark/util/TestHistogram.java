@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -253,6 +254,10 @@ public class TestHistogram extends TestCase {
         String json = h.toJSONString();
         assertNotNull(json);
         JSONObject jsonObject = new JSONObject(json);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json2 = mapper.writeValueAsString(h);
+
 
         Histogram<Integer> copy = new Histogram<Integer>();
         copy.fromJSON(jsonObject);

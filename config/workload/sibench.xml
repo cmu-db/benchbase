@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.sibench.SIBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>UNLIMITED</rateType>
+                    <weight>50,50</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.sibench.procedures.MinRecord">
+                    <name>MinRecord</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord">
+                    <name>UpdateRecord</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+
+</configuration>

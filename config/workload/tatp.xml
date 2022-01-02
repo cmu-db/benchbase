@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.tatp.TATPBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>10000</rate>
+                    <weight>2, 35, 10, 35, 2, 14, 2</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding">
+                    <name>DeleteCallForwarding</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetAccessData">
+                    <name>GetAccessData</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetNewDestination">
+                    <name>GetNewDestination</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetSubscriberData">
+                    <name>GetSubscriberData</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.InsertCallForwarding">
+                    <name>InsertCallForwarding</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation">
+                    <name>UpdateLocation</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData">
+                    <name>UpdateSubscriberData</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+
+
+</configuration>

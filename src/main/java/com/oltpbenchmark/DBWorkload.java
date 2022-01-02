@@ -68,10 +68,6 @@ public class DBWorkload {
             LOG.error("Missing Configuration file");
             printUsage(options);
             return;
-        } else if (!argsLine.hasOption("b")) {
-            LOG.error("Missing Benchmark Class to load");
-            printUsage(options);
-            return;
         }
 
 

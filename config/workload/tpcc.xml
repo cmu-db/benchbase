@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>10000</rate>
+                    <weight>45,43,4,4,4</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder">
+                    <name>NewOrder</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Payment">
+                    <name>Payment</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus">
+                    <name>OrderStatus</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery">
+                    <name>Delivery</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel">
+                    <name>StockLevel</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+
+</configuration>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>10000</rate>
+                    <weight>45, 10, 20, 2, 1, 4, 10, 5, 3</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem">
+                    <name>GetItem</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.GetUserInfo">
+                    <name>GetUserInfo</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewBid">
+                    <name>NewBid</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewComment">
+                    <name>NewComment</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewCommentResponse">
+                    <name>NewCommentResponse</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewFeedback">
+                    <name>NewFeedback</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewItem">
+                    <name>NewItem</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewPurchase">
+                    <name>NewPurchase</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.UpdateItem">
+                    <name>UpdateItem</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+</configuration>

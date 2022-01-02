@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration>
+    <database>
+        <type>MYSQL</type>
+        <driverClass>com.mysql.cj.jdbc.Driver</driverClass>
+        <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;sslMode=DISABLED</url>
+        <username>admin</username>
+        <password>password</password>
+        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+        <batchSize>128</batchSize>
+    </database>
+</configuration>

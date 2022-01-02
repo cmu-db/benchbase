@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration>
+    <database>
+        <type>MARIADB</type>
+        <driverClass>org.mariadb.jdbc.Driver</driverClass>
+        <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
+        <username>admin</username>
+        <password>password</password>
+        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+        <batchSize>128</batchSize>
+    </database>
+</configuration>

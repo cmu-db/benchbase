@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <traceFile1>data/twitter/twitter_tweetids.txt</traceFile1>
+            <traceFile2>data/twitter/twitter_user_ids.txt</traceFile2>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>10000</rate>
+                    <weight>1,1,7,90,1</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet">
+                    <name>GetTweet</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing">
+                    <name>GetTweetsFromFollowing</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers">
+                    <name>GetFollowers</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets">
+                    <name>GetUserTweets</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet">
+                    <name>InsertTweet</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+
+
+</configuration>

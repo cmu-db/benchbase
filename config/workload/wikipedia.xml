@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>1000</rate>
+                    <weight>1,1,7,90,1</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList">
+                    <name>AddWatchList</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList">
+                    <name>RemoveWatchList</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage">
+                    <name>UpdatePage</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous">
+                    <name>GetPageAnonymous</name>
+                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated">
+                    <name>GetPageAuthenticated</name>
+                </transaction>
+            </transactions>
+        </workload>
+    </workloads>
+
+</configuration>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration>
+    <database>
+        <type>POSTGRES</type>
+        <driverClass>org.postgresql.Driver</driverClass>
+        <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
+        <username>admin</username>
+        <password>password</password>
+        <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+        <batchSize>128</batchSize>
+    </database>
+</configuration>
