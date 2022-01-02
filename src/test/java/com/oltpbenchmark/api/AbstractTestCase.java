@@ -50,6 +50,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     // -----------------------------------------------------------------
 
     protected static final double DB_SCALE_FACTOR = 0.01;
+    protected static final int DB_TERMINALS = 1;
 
     protected String dbName;
     protected WorkloadConfiguration workConf;
@@ -65,13 +66,13 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         String benchmarkName = BenchmarkModule.convertBenchmarkClassToBenchmarkName(clazz);
 
         Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION + this.dbName + ";sql.syntax_mys=true", null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
-        Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, 1, null, null, null, null, null, null);
+        Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, DB_TERMINALS, null, null, null, null, null, null);
 
 
         this.workConf = new WorkloadConfiguration(benchmarkName, database, workload);
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
         for (int i = 0; i < procClasses.length; i++) {
-            assertFalse("Duplicate Procedure '" + procClasses[i] + "'",                    this.procClasses.contains(procClasses[i]));
+            assertFalse("Duplicate Procedure '" + procClasses[i] + "'", this.procClasses.contains(procClasses[i]));
             this.procClasses.add(procClasses[i]);
             TransactionType tt = new TransactionType(procClasses[i], i, false, 0, 0);
             txnTypes.add(tt);
@@ -80,7 +81,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
         this.workConf.setTransTypes(txnTypes);
 
-        this.benchmark = ClassUtil.newInstance(clazz,                new Object[]{this.workConf},                new Class<?>[]{WorkloadConfiguration.class});
+        this.benchmark = ClassUtil.newInstance(clazz, new Object[]{this.workConf}, new Class<?>[]{WorkloadConfiguration.class});
         assertNotNull(this.benchmark);
         LOG.debug(DB_TYPE + "::" + this.benchmark + " -> " + this.dbName);
 

@@ -69,7 +69,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         // We don't have to reload our cached profile here
         // We just want to make sure that each client's profile contains a unique
         // set of ItemInfo records that are not found in any other profile's lists
-        int num_clients = 9;
+        int num_clients = DB_TERMINALS;
         AuctionMarkLoader loader = (AuctionMarkLoader) super.testLoadWithReturn();
         assertNotNull(loader);
 

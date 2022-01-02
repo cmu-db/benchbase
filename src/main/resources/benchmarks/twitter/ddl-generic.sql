@@ -1,6 +1,6 @@
 -- MySQL ddl from Twitter dump
 
-DROP TABLE IF EXISTS user_profiles;
+DROP TABLE IF EXISTS user_profiles CASCADE;
 CREATE TABLE user_profiles (
   uid int NOT NULL,
   name varchar(255) DEFAULT NULL,

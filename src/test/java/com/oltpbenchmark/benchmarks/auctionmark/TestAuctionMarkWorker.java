@@ -37,7 +37,7 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
      * testUniqueSellers
      */
     public void testUniqueSellers() throws Exception {
-        int num_workers = 2;
+        int num_workers = DB_TERMINALS;
         this.benchmark.createDatabase();
         this.benchmark.loadDatabase();
 
