@@ -81,10 +81,6 @@ public class DBWorkload {
             intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
         }
 
-        // -------------------------------------------------------------------
-        // GET PLUGIN LIST
-        // -------------------------------------------------------------------
-
         List<BenchmarkModule> benchList = new ArrayList<>();
 
         // Use this list for filtering of the output
