@@ -46,7 +46,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         if (ignoreTables != null) {
             for (String t : ignoreTables) {
                 this.ignoreTables.add(t.toUpperCase());
-            } // FOR
+            }
         }
 
         this.benchmark.createDatabase();
@@ -82,7 +82,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             result.close();
             LOG.debug(sql + " => " + count);
             tableSizes.put(tableName, count);
-        } // FOR
+        }
         LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
         assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
                 tableSizes.isEmpty());
@@ -90,8 +90,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         for (String tableName : tableSizes.values()) {
             long count = tableSizes.get(tableName);
             assert (count > 0) : "No tuples were inserted for table " + tableName;
-        } // FOR
-
+        }
     }
 
     public Loader<? extends BenchmarkModule> testLoadWithReturn() throws Exception {
@@ -121,7 +120,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
             result.close();
             LOG.debug(sql + " => " + count);
             tableSizes.put(tableName, count);
-        } // FOR
+        }
         LOG.debug("=== TABLE SIZES ===\n" + tableSizes);
         assertFalse("Unable to compute the tables size for " + benchmark.getBenchmarkName().toUpperCase(),
                 tableSizes.isEmpty());
@@ -129,7 +128,7 @@ public abstract class AbstractTestLoader<T extends BenchmarkModule> extends Abst
         for (String tableName : tableSizes.values()) {
             long count = tableSizes.get(tableName);
             assert (count > 0) : "No tuples were inserted for table " + tableName;
-        } // FOR
+        }
         return loader;
     }
 }

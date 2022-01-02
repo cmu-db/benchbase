@@ -49,8 +49,8 @@ public class TestDistanceUtil extends TestCase {
                 double[] loc1 = locations[j];
                 double distance = Math.round(DistanceUtil.distance(loc0[0], loc0[1], loc1[0], loc1[1]));
                 assertEquals(expected[e++], distance);
-            } // FOR
-        } // FOR
+            }
+        }
     }
 
 }

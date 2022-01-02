@@ -91,12 +91,12 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
                     assertFalse(itemInfo.toString(), clientItemInfos.contains(itemInfo));
                     // Nor that we have seen it in any other client
                     assertFalse(itemInfo.toString(), allItemInfos.contains(itemInfo));
-                } // FOR
+                }
                 clientItemInfos.addAll(items);
-            } // FOR
+            }
             clientItemCtr.put(i, clientItemInfos.size());
             allItemInfos.addAll(clientItemInfos);
-        } // FOR
+        }
     }
 
 }

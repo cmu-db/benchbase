@@ -346,13 +346,17 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         if (this.keep_zero_entries) {
             for (Entry<X, Integer> e : this.histogram.entrySet()) {
                 this.histogram.put(e.getKey(), 0);
-            } // FOR
+            }
             this.num_samples = 0;
             this.min_count = 0;
-            if (this.min_count_values != null) this.min_count_values.clear();
+            if (this.min_count_values != null) {
+                this.min_count_values.clear();
+            }
             this.min_value = null;
             this.max_count = 0;
-            if (this.max_count_values != null) this.max_count_values.clear();
+            if (this.max_count_values != null) {
+                this.max_count_values.clear();
+            }
             this.max_value = null;
         } else {
             this.clear();

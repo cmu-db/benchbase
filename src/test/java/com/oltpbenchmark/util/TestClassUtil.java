@@ -45,7 +45,7 @@ public class TestClassUtil extends TestCase {
         for (Class<?> targetClass : targets) {
             Constructor<?> c = ClassUtil.getConstructor(targetClass, params);
             assertNotNull(c);
-        } // FOR
+        }
     }
 
     /**
@@ -64,7 +64,7 @@ public class TestClassUtil extends TestCase {
 
         for (Class<?> e : expected) {
             assert (results.contains(e));
-        } // FOR
+        }
     }
 
     /**
@@ -82,7 +82,7 @@ public class TestClassUtil extends TestCase {
 
         for (Class<?> e : expected) {
             assert (results.contains(e));
-        } // FOR
+        }
     }
 
     /**
@@ -103,7 +103,7 @@ public class TestClassUtil extends TestCase {
 
         for (Class<?> e : expected) {
             assert (results.contains(e));
-        } // FOR
+        }
     }
 
     public static class MockObject1 {

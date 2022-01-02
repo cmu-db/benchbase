@@ -48,7 +48,7 @@ public class TestUserIdGenerator extends TestCase {
     public void setUp() throws Exception {
         for (long i = 0; i < NUM_USERS; i++) {
             this.users_per_item_count.put((long) randomNumItems.nextInt());
-        } // FOR
+        }
         assertEquals(NUM_USERS, this.users_per_item_count.getSampleCount());
     }
 
@@ -68,8 +68,7 @@ public class TestUserIdGenerator extends TestCase {
             assertFalse(users.isEmpty());
             clientIds.put(client, users);
             clientGenerators.put(client, generator);
-        } // FOR
-
+        }
         // Then loop back through all of the User Ids and make sure that each UserId
         // is mappable to the expected client
         generator = new UserIdGenerator(users_per_item_count, num_clients);
@@ -79,14 +78,16 @@ public class TestUserIdGenerator extends TestCase {
             boolean found = false;
             for (int client = 0; client < num_clients; client++) {
                 boolean expected = clientIds.get(client).contains(user_id);
-                if (expected) assertFalse(found);
+                if (expected) {
+                    assertFalse(found);
+                }
                 boolean actual = clientGenerators.get(client).checkClient(user_id);
                 assertEquals(String.format("[%03d] %d / %s", ctr, client, user_id), expected, actual);
                 found = (found || expected);
                 ctr++;
-            } // FOR
+            }
             assertTrue(user_id.toString(), found);
-        } // FOR
+        }
     }
 
     /**
@@ -107,8 +108,7 @@ public class TestUserIdGenerator extends TestCase {
             assertTrue(generator.hasNext());
             expected = generator.next();
             assertNotNull(expected);
-        } // FOR
-
+        }
         generator.setCurrentItemCount(0);
         UserId user_id = generator.seekToPosition(new_position);
         assertNotNull(user_id);
@@ -140,7 +140,9 @@ public class TestUserIdGenerator extends TestCase {
                 // client beyond the given position
                 int position = rand.nextInt(num_users);
                 UserId user_id = generator.seekToPosition(position);
-                if (user_id == null) continue;
+                if (user_id == null) {
+                    continue;
+                }
 
                 // We have to go back and get our position since we used a client id,
                 // which means that the generator could skip ahead even more
@@ -149,9 +151,8 @@ public class TestUserIdGenerator extends TestCase {
                 assertNotNull(expected);
 
                 assertEquals("Position: " + position, expected, user_id);
-            } // FOR
-        } // FOR
-
+            }
+        }
     }
 
     /**
@@ -165,7 +166,7 @@ public class TestUserIdGenerator extends TestCase {
             assertNotNull(u_id);
             assert (seen.contains(u_id) == false) : "Duplicate " + u_id;
             seen.add(u_id);
-        } // FOR
+        }
         assertEquals(NUM_USERS, seen.size());
     }
 
@@ -185,11 +186,11 @@ public class TestUserIdGenerator extends TestCase {
                 assert (all_seen.contains(u_id) == false) : "Duplicate " + u_id;
                 seen.add(u_id);
                 all_seen.add(u_id);
-            } // FOR
+            }
             assertNotSame(Integer.toString(client), NUM_USERS, seen.size());
             assertFalse(Integer.toString(client), seen.isEmpty());
             clients_h.put(client, seen.size());
-        } // FOR
+        }
         assertEquals(NUM_USERS, all_seen.size());
 
         // Make sure that they all have the same number of UserIds
@@ -199,7 +200,7 @@ public class TestUserIdGenerator extends TestCase {
                 assertEquals(client.toString(), last_cnt, clients_h.get(client));
             }
             last_cnt = clients_h.get(client);
-        } // FOR
+        }
     }
 
     /**
@@ -214,8 +215,7 @@ public class TestUserIdGenerator extends TestCase {
             assertNotNull(u_id);
             assert (expected.contains(u_id) == false) : "Duplicate " + u_id;
             expected.add(u_id);
-        } // FOR
-
+        }
         // Now create a new generator that only has one client. That means that we should
         // get back all the same UserIds
         Set<UserId> actual = new HashSet<UserId>();
@@ -225,7 +225,7 @@ public class TestUserIdGenerator extends TestCase {
             assert (actual.contains(u_id) == false) : "Duplicate " + u_id;
             assert (expected.contains(u_id)) : "Unexpected " + u_id;
             actual.add(u_id);
-        } // FOR
+        }
         assertEquals(expected.size(), actual.size());
     }
 
@@ -243,8 +243,7 @@ public class TestUserIdGenerator extends TestCase {
             assertNotNull(u_id);
             assert (seen.contains(u_id) == false) : "Duplicate " + u_id;
             seen.add(u_id);
-        } // FOR
-
+        }
         // Now make sure that we always get back the same UserIds regardless of where
         // we jump around with using setCurrentSize()
         for (int i = 0; i < 10; i++) {
@@ -253,7 +252,7 @@ public class TestUserIdGenerator extends TestCase {
             for (UserId u_id : CollectionUtil.iterable(generator)) {
                 assertNotNull(u_id);
                 assert (seen.contains(u_id)) : "Unexpected " + u_id;
-            } // FOR
-        } // FOR
+            }
+        }
     }
 }

@@ -34,8 +34,8 @@ public class TestCustomerId extends TestCase {
                 assertNotNull(customer_id);
                 assertEquals(base_id, customer_id.getId());
                 assertEquals(airport_id, customer_id.getDepartAirportId());
-            } // FOR
-        } // FOR
+            }
+        }
     }
 
     /**
@@ -50,8 +50,8 @@ public class TestCustomerId extends TestCase {
                 assertNotNull(customer_id);
                 assertEquals(base_id, customer_id.getId());
                 assertEquals(airport_id, customer_id.getDepartAirportId());
-            } // FOR
-        } // FOR
+            }
+        }
     }
 
     /**
@@ -67,8 +67,8 @@ public class TestCustomerId extends TestCase {
                 assertEquals(values.length, new_values.length);
                 for (int i = 0; i < new_values.length; i++) {
                     assertEquals(values[i], new_values[i]);
-                } // FOR
-            } // FOR
-        } // FOR
+                }
+            }
+        }
     }
 }

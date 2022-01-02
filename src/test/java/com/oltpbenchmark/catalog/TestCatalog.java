@@ -60,8 +60,7 @@
 //        for (Entry<String, String> e : origTableNames.entrySet()) {
 //            assertFalse(e.toString(), e.getKey().equals(e.getValue()));
 //            assertTrue(e.toString(), e.getKey().equalsIgnoreCase(e.getValue()));
-//        } // FOR
-//    }
+//        }//    }
 //
 //    /**
 //     * testInit
@@ -77,8 +76,7 @@
 //            if (offset == -1) break;
 //            num_tables++;
 //            offset++;
-//        } // FOR
-//        assert(num_tables > 0);
+//        }//        assert(num_tables > 0);
 //
 //        // Make sure that CatalogUtil returns the same number of tables
 //        assertEquals(num_tables, this.catalog.getTableCount());
@@ -88,8 +86,7 @@
 //            Table catalog_tbl = this.catalog.getTable(table_name);
 //            assertNotNull(catalog_tbl);
 //            assertEquals(table_name, catalog_tbl.getName());
-//        } // FOR
-//    }
+//        }//    }
 //
 //    /**
 //     * testPrimaryKeys
@@ -110,8 +107,7 @@
 //                multicol_table = catalog_tbl;
 //                assertEquals(num_tables, pkeys.size());
 //            }
-//        } // FOR
-//        assertNotNull(multicol_table);
+//        }//        assertNotNull(multicol_table);
 //    }
 //
 //    /**
@@ -129,8 +125,7 @@
 //                assertFalse(fkey_col.getTable().equals(catalog_tbl));
 //                found++;
 //            }
-//        } // FOR
-//        assertEquals(2, found);
+//        }//        assertEquals(2, found);
 //    }
 //
 //    /**
@@ -149,10 +144,8 @@
 //                for (int i = 0; i < catalog_idx.getColumnCount(); i++) {
 //                    assertNotNull(catalog_idx.getColumnName(i));
 //                    assertNotNull(catalog_idx.getColumnDirection(i));
-//                } // FOR
-//                System.err.println(catalog_idx.debug());
-//            } // FOR
-//        }
+//                }//                System.err.println(catalog_idx.debug());
+//            }//        }
 //    }
 //
 //    /**

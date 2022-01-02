@@ -67,11 +67,10 @@ public class TestTableDataIterable extends AbstractTestCase<SEATSBenchmark> {
                 if (i < 2) {
                     assertNotNull(String.format("Row:%d, Col:%d\n%s", num_rows, i, Arrays.toString(row)), row[i]);
                 }
-            } // FOR
-
+            }
             num_cols = row.length;
             num_rows++;
-        } // FOR
+        }
         assertTrue(num_rows > 0);
 
     }

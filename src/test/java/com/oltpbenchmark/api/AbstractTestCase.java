@@ -76,8 +76,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
             this.procClasses.add(procClasses[i]);
             TransactionType tt = new TransactionType(procClasses[i], i, false, 0, 0);
             txnTypes.add(tt);
-        } // FOR
-
+        }
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
         this.workConf.setTransTypes(txnTypes);
 

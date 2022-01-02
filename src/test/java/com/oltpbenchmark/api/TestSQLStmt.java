@@ -50,8 +50,10 @@ public class TestSQLStmt extends TestCase {
         // Count the number of times '?' appears
         int actual = 0;
         for (int i = 0; i < sql.length(); i++) {
-            if (sql.charAt(i) == '?') actual++;
-        } // FOR
+            if (sql.charAt(i) == '?') {
+                actual++;
+            }
+        }
         assertEquals(expected, actual);
     }
 

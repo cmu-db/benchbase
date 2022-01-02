@@ -77,11 +77,11 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
                 assertFalse(worker.getId() + " -> " + user_id.toString() + " / " + user_id.encode(),
                         all_users.contains(user_id));
                 worker_users.add(user_id);
-            } // FOR
+            }
             assertFalse(worker_users.isEmpty());
             all_users.addAll(worker_users);
             last_num_users = num_users;
-        } // FOR
+        }
     }
 
 }

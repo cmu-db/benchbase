@@ -40,7 +40,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
             txnList.add(txnType);
-        } // FOR
+        }
         TransactionTypes txnTypes = new TransactionTypes(txnList);
         this.workConf.setTransTypes(txnTypes);
         this.workers = this.benchmark.makeWorkers();
@@ -60,7 +60,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             Procedure proc = w.getProcedure(procClass);
             assertNotNull("Failed to get procedure " + procClass.getSimpleName(), proc);
             assertEquals(procClass, proc.getClass());
-        } // FOR
+        }
     }
 
     /**
@@ -87,6 +87,6 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
                 throw new RuntimeException("Failed to execute " + txnType, ex);
             }
             conn.commit();
-        } // FOR
+        }
     }
 }

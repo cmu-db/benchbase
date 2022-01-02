@@ -58,7 +58,7 @@ public class TestHistogram extends TestCase {
             for (int j = 0; j < expected; j++) {
                 h.put(i);
             }
-        } // FOR
+        }
         long min_count = h.getMinCount();
         assertEquals(expected, min_count);
         long max_count = h.getMaxCount();
@@ -71,7 +71,7 @@ public class TestHistogram extends TestCase {
             for (int j = 0; j < expected; j++) {
                 h.put(i);
             }
-        } // FOR
+        }
         min_count = h.getMinCount();
         assertEquals(expected, min_count);
         max_count = h.getMaxCount();
@@ -87,7 +87,7 @@ public class TestHistogram extends TestCase {
         h.put(expected);
         for (int i = 0; i < 1000; i++) {
             h.put((long) 99999);
-        } // FOR
+        }
         Collection<Long> min_values = h.getMinCountValues();
         assertNotNull(min_values);
         assertEquals(1, min_values.size());
@@ -115,7 +115,7 @@ public class TestHistogram extends TestCase {
         int count = 1000;
         for (int i = 0; i < count; i++) {
             h.put(expected);
-        } // FOR
+        }
         Collection<Integer> max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(1, max_values.size());
@@ -128,8 +128,7 @@ public class TestHistogram extends TestCase {
         int expected2 = -99999;
         for (int i = 0; i < count; i++) {
             h.put(expected2);
-        } // FOR
-
+        }
         max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(2, max_values.size());
@@ -153,8 +152,7 @@ public class TestHistogram extends TestCase {
         for (Object o : keys) {
             Integer k = (Integer) o;
             assertEquals(0, h.get(k).intValue());
-        } // FOR
-
+        }
         // Now make sure they get wiped out
         h.setKeepZeroEntries(false);
         h.clearValues();
@@ -164,7 +162,7 @@ public class TestHistogram extends TestCase {
         for (Object o : keys) {
             Integer k = (Integer) o;
             assertNull(h.get(k));
-        } // FOR
+        }
     }
 
     /**
@@ -186,12 +184,11 @@ public class TestHistogram extends TestCase {
             while (h.contains(key) || attempted.contains(key));
             h.put(key, 0);
             attempted.add(key);
-        } // FOR
+        }
         for (Integer key : attempted) {
             assertFalse(h.contains(key));
             assertNull(h.get(key));
-        } // FOR
-
+        }
         // Now enable zero entries and make sure that our entries make it in there
         h.setKeepZeroEntries(true);
         assert (h.isZeroEntriesEnabled());
@@ -199,15 +196,14 @@ public class TestHistogram extends TestCase {
             h.put(key, 0);
             assert (h.contains(key));
             assertEquals(0, h.get(key).longValue());
-        } // FOR
-
+        }
         // Disable zero entries again and make sure that our entries from the last step are removed
         h.setKeepZeroEntries(false);
         assertFalse(h.isZeroEntriesEnabled());
         for (Integer key : attempted) {
             assertFalse(h.contains(key));
             assertNull(h.get(key));
-        } // FOR
+        }
     }
 
     /**
@@ -233,7 +229,7 @@ public class TestHistogram extends TestCase {
             int cnt = hist.get(i).intValue();
             int expected = (i == 49 || i == 50 ? 2 : 1);
             assertEquals(expected, cnt);
-        } // FOR
+        }
     }
 
     /**
@@ -247,7 +243,7 @@ public class TestHistogram extends TestCase {
                 continue;
             }
             assertTrue(json.indexOf(element.name()) != -1);
-        } // FOR
+        }
     }
 
     /**
@@ -276,10 +272,10 @@ public class TestHistogram extends TestCase {
                 for (Integer value : h.values()) {
                     assertNotNull(value);
                     assertEquals(h.get(value), copy.get(value));
-                } // FOR
+                }
             } else {
                 assertEquals(orig_value.toString(), copy_value.toString());
             }
-        } // FOR
+        }
     }
 }

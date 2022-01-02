@@ -66,8 +66,7 @@ public class TestCollectionUtil extends TestCase {
             int next = rand.nextInt();
             l.add(next);
             a[i] = next;
-        } // FOR
-
+        }
         Collection<Integer> c = CollectionUtil.addAll(new HashSet<Integer>(), l.iterator());
         assertEquals(l.size(), c.size());
         assert (c.containsAll(l));
@@ -111,8 +110,7 @@ public class TestCollectionUtil extends TestCase {
         RandomGenerator rng = new RandomGenerator(0);
         for (int i = 0; i < expected.length; i++) {
             expected[i] = rng.astring(1, 32);
-        } // FOR
-
+        }
         Collection<String>[] collections = new Collection[]{
                 CollectionUtil.addAll(new ListOrderedSet<String>(), expected),
                 CollectionUtil.addAll(new HashSet<String>(), expected),
@@ -129,6 +127,6 @@ public class TestCollectionUtil extends TestCase {
             if (c instanceof List || c instanceof ListOrderedSet) {
                 assertEquals(c.getClass().getSimpleName(), expected[0], pop);
             }
-        } // FOR
+        }
     }
 }

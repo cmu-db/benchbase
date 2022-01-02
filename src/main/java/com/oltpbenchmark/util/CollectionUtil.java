@@ -84,7 +84,7 @@ public abstract class CollectionUtil {
                 max_value = value;
                 max_key = key;
             }
-        } // FOR
+        }
         return (max_key);
     }
 

@@ -37,8 +37,8 @@ public class TestUserId extends TestCase {
                 assertNotNull(user_id);
                 assertEquals(size, user_id.getItemCount());
                 assertEquals(offset, user_id.getOffset());
-            } // FOR
-        } // FOR
+            }
+        }
     }
 
     /**
@@ -88,7 +88,7 @@ public class TestUserId extends TestCase {
             seen_encode.add(user_id.encode());
             seen_array.add(user_id.toArray());
             seen_map.put(user_id, true);
-        } // FOR
+        }
         assertEquals(num_ids, orig.size());
         assertEquals(num_ids, h.values().size());
         assertEquals(num_ids, h.getValueCount());
@@ -113,13 +113,12 @@ public class TestUserId extends TestCase {
                 h.removeAll(user_id);
                 deleted.add(user_id);
             }
-        } // FOR
+        }
         assertFalse(deleted.isEmpty());
         assertEquals(orig.size() - deleted.size(), h.getValueCount());
         for (UserId user_id : orig) {
             assertEquals(user_id.toString(), !deleted.contains(user_id), h.contains(user_id));
-        } // FOR
-
+        }
     }
 
     /**
@@ -135,8 +134,8 @@ public class TestUserId extends TestCase {
                 assertNotNull(user_id);
                 assertEquals(size, user_id.getItemCount());
                 assertEquals(offset, user_id.getOffset());
-            } // FOR
-        } // FOR
+            }
+        }
     }
 
     /**
@@ -153,8 +152,8 @@ public class TestUserId extends TestCase {
                 assertEquals(values.length, new_values.length);
                 for (int j = 0; j < new_values.length; j++) {
                     assertEquals(values[j], new_values[j]);
-                } // FOR
-            } // FOR
-        } // FOR
+                }
+            }
+        }
     }
 }
