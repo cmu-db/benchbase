@@ -43,13 +43,8 @@ import java.util.Map;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
-
     private static final String SINGLE_LINE = StringUtil.repeat("=", 70);
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
 
         CommandLineParser parser = new DefaultParser();
@@ -78,6 +73,7 @@ public class DBWorkload {
 
         XmlMapper xmlMapper = new XmlMapper();
         Database database = xmlMapper.readValue(FileUtils.getFile(databaseConfigFile), Database.class);
+        Configuration configuration = xmlMapper.readValue(FileUtils.getFile(workloadConfigFile), Configuration.class);
 
         Map<String, Object> databaseDebug = new ListOrderedMap<>();
         databaseDebug.put("Type", database.type());
@@ -87,21 +83,10 @@ public class DBWorkload {
         databaseDebug.put("Batch Size", database.batchSize());
         databaseDebug.put("Retries", database.retries());
 
-        LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(databaseDebug));
-        LOG.info(SINGLE_LINE);
-
-        Configuration configuration = xmlMapper.readValue(FileUtils.getFile(workloadConfigFile), Configuration.class);
-
+        int benchmarkCount = 1;
         for (Workload workload : configuration.workloads()) {
 
-            Map<String, Object> initDebug = new ListOrderedMap<>();
-            initDebug.put("Benchmark", workload.benchmarkClass());
-            initDebug.put("Scale Factor", workload.scaleFactor());
-            initDebug.put("Terminals", workload.terminals());
-            initDebug.put("Selectivity", workload.selectivity());
-
-            LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
-            LOG.info(SINGLE_LINE);
+            databaseDebug.put(String.format("Benchmark %d", benchmarkCount), workload.benchmarkClass());
 
             List<TransactionType> transactionTypeList = new ArrayList<>();
             int transactionId = 1;
@@ -160,11 +145,20 @@ public class DBWorkload {
 
             WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, new TransactionTypes(transactionTypeList), phaseList);
 
+            databaseDebug.put(String.format("Terminals %d", benchmarkCount), workloadConfiguration.getTerminals());
+            databaseDebug.put(String.format("Scale Factor %d", benchmarkCount), workloadConfiguration.getScaleFactor());
+            databaseDebug.put(String.format("Selectivity %d", benchmarkCount), workloadConfiguration.getSelectivity());
+
             BenchmarkModule benchmarkModule = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{workloadConfiguration}, new Class<?>[]{WorkloadConfiguration.class});
 
             benchList.add(benchmarkModule);
 
+            benchmarkCount++;
+
         }
+
+        LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(databaseDebug));
+        LOG.info(SINGLE_LINE);
 
 
         // Create the Benchmark's Database
