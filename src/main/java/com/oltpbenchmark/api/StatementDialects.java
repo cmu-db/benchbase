@@ -61,6 +61,9 @@ public class StatementDialects {
         boolean exists = FileUtil.exists(path);
 
         if (exists) {
+
+            LOG.warn("Found dialect file in {}", path);
+
             try {
 
                 XmlMapper mapper = new XmlMapper();
