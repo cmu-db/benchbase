@@ -31,10 +31,11 @@ import java.util.List;
 
 public class SmallBankBenchmark extends BenchmarkModule {
 
+    public static final String NAME = "smallbank";
     protected final long numAccounts;
 
     public SmallBankBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
         this.numAccounts = (int) Math.round(SmallBankConstants.NUM_ACCOUNTS * workConf.getScaleFactor());
     }
 

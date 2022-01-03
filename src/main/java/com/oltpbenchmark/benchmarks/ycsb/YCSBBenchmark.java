@@ -37,9 +37,10 @@ import java.util.List;
 public class YCSBBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
+    public static final String NAME = "ycsb";
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

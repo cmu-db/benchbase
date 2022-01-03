@@ -31,9 +31,10 @@ import java.util.List;
 
 public class ResourceStresserBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(ResourceStresserBenchmark.class);
+    public static final String NAME = "resourcestresser";
 
     public ResourceStresserBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

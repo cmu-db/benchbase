@@ -39,9 +39,10 @@ import java.util.List;
 
 public class TPCHBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(TPCHBenchmark.class);
+    public static final String NAME = "tpch";
 
     public TPCHBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

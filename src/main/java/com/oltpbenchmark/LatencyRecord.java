@@ -49,7 +49,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
 
     }
 
-    public void addLatency(int transType, long startNanosecond, long endNanosecond, int workerId, int phaseId) {
+    public void addLatency(int transactionId, long startNanosecond, long endNanosecond, int workerId, int phaseId) {
 
 
         if (nextIndex == ALLOC_SIZE) {
@@ -62,7 +62,7 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
         int latencyMicroseconds = (int) ((endNanosecond - startNanosecond + 500) / 1000);
 
 
-        chunk[nextIndex] = new Sample(transType, startOffsetNanosecond, latencyMicroseconds, workerId, phaseId);
+        chunk[nextIndex] = new Sample(transactionId, startOffsetNanosecond, latencyMicroseconds, workerId, phaseId);
         ++nextIndex;
 
         lastNanosecond += startOffsetNanosecond;
@@ -89,22 +89,22 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
      * Stores the start time and latency for a single sample. Immutable.
      */
     public static final class Sample implements Comparable<Sample> {
-        private final int transactionType;
+        private final int transactionId;
         private long startNanosecond;
         private final int latencyMicrosecond;
         private final int workerId;
         private final int phaseId;
 
-        public Sample(int transactionType, long startNanosecond, int latencyMicrosecond, int workerId, int phaseId) {
-            this.transactionType = transactionType;
+        public Sample(int transactionId, long startNanosecond, int latencyMicrosecond, int workerId, int phaseId) {
+            this.transactionId = transactionId;
             this.startNanosecond = startNanosecond;
             this.latencyMicrosecond = latencyMicrosecond;
             this.workerId = workerId;
             this.phaseId = phaseId;
         }
 
-        public int getTransactionType() {
-            return transactionType;
+        public int getTransactionId() {
+            return transactionId;
         }
 
         public long getStartNanosecond() {

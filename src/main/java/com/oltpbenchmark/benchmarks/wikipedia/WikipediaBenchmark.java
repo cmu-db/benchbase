@@ -33,6 +33,7 @@ import java.util.List;
 
 public class WikipediaBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaBenchmark.class);
+    public static final String NAME = "wikipedia";
 
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;
@@ -40,7 +41,7 @@ public class WikipediaBenchmark extends BenchmarkModule {
 
     @SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
 
         this.commentLength = new FlatHistogram<>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
         this.minorEdit = new FlatHistogram<>(this.rng(), RevisionHistograms.MINOR_EDIT);

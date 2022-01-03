@@ -35,8 +35,10 @@ import java.util.List;
  */
 public class NoOpBenchmark extends BenchmarkModule {
 
+    public static final String NAME = "noop";
+
     public NoOpBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

@@ -29,8 +29,10 @@ import java.util.List;
 
 public class TATPBenchmark extends BenchmarkModule {
 
+    public static final String NAME = "tatp";
+
     public TATPBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

@@ -28,10 +28,11 @@ import java.util.List;
 
 public class VoterBenchmark extends BenchmarkModule {
 
+    public static final String NAME = "voter";
     public final int numContestants;
 
     public VoterBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
         numContestants = VoterUtil.getScaledNumContestants(workConf.getScaleFactor());
     }
 

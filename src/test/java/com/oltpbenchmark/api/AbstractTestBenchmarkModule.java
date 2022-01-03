@@ -75,7 +75,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     public void testSetSQLDialect() throws Exception {
         for (DatabaseType dbType : DatabaseType.values()) {
 
-            StatementDialects dialects = new StatementDialects(this.workConf.getBenchmarkName(), dbType);
+            StatementDialects dialects = new StatementDialects(this.benchmark.getBenchmarkName(), dbType);
 
 
             for (Procedure proc : this.benchmark.getProcedures().values()) {

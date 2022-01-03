@@ -31,7 +31,6 @@ import java.util.List;
 
 public class WorkloadConfiguration {
 
-    private final String benchmarkName;
     private final Database database;
     private final Workload workload;
     private final TransactionTypes transactionTypes;
@@ -42,16 +41,11 @@ public class WorkloadConfiguration {
     private WorkloadState workloadState;
 
 
-    public WorkloadConfiguration(String benchmarkName, Database database, Workload workload, TransactionTypes transactionTypes, List<Phase> phases) {
-        this.benchmarkName = benchmarkName;
+    public WorkloadConfiguration(Database database, Workload workload, TransactionTypes transactionTypes, List<Phase> phases) {
         this.database = database;
         this.workload = workload;
         this.transactionTypes = transactionTypes;
         this.phases = phases;
-    }
-
-    public String getBenchmarkName() {
-        return benchmarkName;
     }
 
     public WorkloadState getWorkloadState() {
@@ -79,11 +73,11 @@ public class WorkloadConfiguration {
     }
 
     public int getBatchSize() {
-        return database.batchSize();
+        return database.batchSize() != null ? database.batchSize() : 128;
     }
 
     public int getMaxRetries() {
-        return database.retries();
+        return database.retries() != null ? database.retries() : 3;
     }
 
     /**
@@ -113,10 +107,12 @@ public class WorkloadConfiguration {
      * @return
      */
     public double getScaleFactor() {
-        return workload.scaleFactor();
+        return workload.scaleFactor() != null ? workload.scaleFactor() : 1;
     }
 
-    public double getSelectivity() { return workload.selectivity(); }
+    public double getSelectivity() {
+        return workload.selectivity() != null ? workload.selectivity() : -1;
+    }
 
     /**
      * Return the number of phases specified in the config file

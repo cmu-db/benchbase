@@ -422,7 +422,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // Check if a TX Type filter is set, in the default case,
                 // null TxType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType == null || txType.getId() == sample.getTransactionType()) {
+                if (txType == null || txType.getId() == sample.getTransactionId()) {
                     latencies.add(sample.getLatencyMicrosecond());
                 }
 

@@ -37,8 +37,10 @@ import java.util.List;
 public class TwitterBenchmark extends BenchmarkModule {
 
 
+    public static final String NAME = "twitter";
+
     public TwitterBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

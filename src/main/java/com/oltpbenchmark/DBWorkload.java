@@ -116,8 +116,6 @@ public class DBWorkload {
                 transactionId++;
             }
 
-            String benchmarkName = workload.benchmarkClass().getName();
-
             List<Phase> phaseList = new ArrayList<>();
             int phaseId = 1;
             for (com.oltpbenchmark.api.config.Phase phase : workload.phases()) {
@@ -126,14 +124,44 @@ public class DBWorkload {
 
                 boolean isRateLimited = phaseRateType.equals(PhaseRateType.LIMITED);
                 boolean isDisabled = phaseRateType.equals(PhaseRateType.DISABLED);
-                boolean isTimed = phase.time() > 0;
+                boolean isSerial = phase.serial() != null && phase.serial().equals(Boolean.TRUE);
 
-                phaseList.add(new Phase(benchmarkName, phaseId, phase.time(), phase.warmup(), phase.rate(), phase.weights(), isRateLimited, isDisabled, phase.serial(), isTimed, phase.activeTerminals(), phase.arrival()));
+                int time = 0;
+                if (phase.time() != null) {
+                    time = phase.time();
+                }
+
+                int warmup = 0;
+                if (phase.warmup() != null) {
+                    warmup = phase.warmup();
+                }
+
+                boolean isTimed = time > 0;
+
+                PhaseArrival arrival = PhaseArrival.REGULAR;
+
+                if (phase.arrival() != null) {
+                    arrival = phase.arrival();
+                }
+
+                int rate = 1;
+
+                if (isRateLimited && phase.rate() != null) {
+                    rate = phase.rate();
+                }
+
+                int activeTerminals = workload.terminals();
+
+                if (phase.activeTerminals() != null) {
+                    activeTerminals = phase.activeTerminals();
+                }
+
+                phaseList.add(new Phase(phaseId, time, warmup, rate, phase.weights(), isRateLimited, isDisabled, isSerial, isTimed, activeTerminals, arrival));
 
                 phaseId++;
             }
 
-            WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(benchmarkName, database, workload, new TransactionTypes(transactionTypeList), phaseList);
+            WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, new TransactionTypes(transactionTypeList), phaseList);
 
             BenchmarkModule benchmarkModule = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{workloadConfiguration}, new Class<?>[]{WorkloadConfiguration.class});
 
@@ -211,11 +239,10 @@ public class DBWorkload {
 
                 Results r = runWorkload(benchList, intervalMonitor);
 
-                // If an output directory is used, store the information
                 String outputDirectory = "results";
 
-                if (argsLine.hasOption("d")) {
-                    outputDirectory = argsLine.getOptionValue("d");
+                if (argsLine.hasOption("directory")) {
+                    outputDirectory = argsLine.getOptionValue("directory");
                 }
 
                 int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));

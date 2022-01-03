@@ -63,8 +63,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
         super.setUp();
 
-        String benchmarkName = BenchmarkModule.convertBenchmarkClassToBenchmarkName(clazz);
-
         Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION + this.dbName + ";sql.syntax_mys=true", null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
         Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, DB_TERMINALS, null, null, null, null, null, null);
 
@@ -76,7 +74,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
             txnTypes.add(tt);
         }
 
-        this.workConf = new WorkloadConfiguration(benchmarkName, database, workload, txnTypes, new ArrayList<>());
+        this.workConf = new WorkloadConfiguration(database, workload, txnTypes, new ArrayList<>());
 
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
 

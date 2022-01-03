@@ -19,23 +19,6 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark;
-import com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark;
-import com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark;
-import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark;
-import com.oltpbenchmark.benchmarks.noop.NoOpBenchmark;
-import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark;
-import com.oltpbenchmark.benchmarks.seats.SEATSBenchmark;
-import com.oltpbenchmark.benchmarks.sibench.SIBenchmark;
-import com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark;
-import com.oltpbenchmark.benchmarks.tatp.TATPBenchmark;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
-import com.oltpbenchmark.benchmarks.tpcds.TPCDSBenchmark;
-import com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark;
-import com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark;
-import com.oltpbenchmark.benchmarks.voter.VoterBenchmark;
-import com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark;
-import com.oltpbenchmark.benchmarks.ycsb.YCSBBenchmark;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
@@ -59,6 +42,7 @@ import java.util.*;
 public abstract class BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkModule.class);
 
+    private final String benchmarkName;
 
     /**
      * The workload configuration for this benchmark invocation
@@ -82,9 +66,10 @@ public abstract class BenchmarkModule {
 
     private AbstractCatalog catalog = null;
 
-    public BenchmarkModule(WorkloadConfiguration workConf) {
+    public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf) {
+        this.benchmarkName = benchmarkName;
         this.workConf = workConf;
-        this.dialects = new StatementDialects(workConf.getBenchmarkName(), workConf.getDatabaseType());
+        this.dialects = new StatementDialects(benchmarkName, workConf.getDatabaseType());
     }
 
     // --------------------------------------------------------------------------
@@ -136,49 +121,6 @@ public abstract class BenchmarkModule {
         return (this.rng);
     }
 
-    private String convertBenchmarkClassToBenchmarkName() {
-        return convertBenchmarkClassToBenchmarkName(this.getClass());
-    }
-
-    protected static <T> String convertBenchmarkClassToBenchmarkName(Class<T> clazz) {
-        if (clazz == AuctionMarkBenchmark.class) {
-            return "auctionmark";
-        } else if (clazz == CHBenCHmark.class) {
-            return "chbenchmark";
-        } else if (clazz == EpinionsBenchmark.class) {
-            return "epinions";
-        } else if (clazz == HYADAPTBenchmark.class) {
-            return "hyadapt";
-        } else if (clazz == NoOpBenchmark.class) {
-            return "noop";
-        } else if (clazz == ResourceStresserBenchmark.class) {
-            return "resourcestresser";
-        } else if (clazz == SEATSBenchmark.class) {
-            return "seats";
-        } else if (clazz == SIBenchmark.class) {
-            return "sibench";
-        } else if (clazz == SmallBankBenchmark.class) {
-            return "smallbank";
-        } else if (clazz == TATPBenchmark.class) {
-            return "tatp";
-        } else if (clazz == TPCCBenchmark.class) {
-            return "tpcc";
-        } else if (clazz == TPCDSBenchmark.class) {
-            return "tpcds";
-        } else if (clazz == TPCHBenchmark.class) {
-            return "tpch";
-        } else if (clazz == TwitterBenchmark.class) {
-            return "twitter";
-        } else if (clazz == VoterBenchmark.class) {
-            return "voter";
-        } else if (clazz == WikipediaBenchmark.class) {
-            return "wikipedia";
-        } else if (clazz == YCSBBenchmark.class) {
-            return "ycsb";
-        }
-
-        throw new RuntimeException("Sorry, this is a hack. You need to add your new benchmark class here.");
-    }
 
     /**
      * Return the URL handle to the DDL used to load the benchmark's database
@@ -312,8 +254,7 @@ public abstract class BenchmarkModule {
      * Return the unique identifier for this benchmark
      */
     public final String getBenchmarkName() {
-        String workConfName = this.workConf.getBenchmarkName();
-        return workConfName != null ? workConfName : convertBenchmarkClassToBenchmarkName();
+        return benchmarkName;
     }
 
     /**
@@ -358,11 +299,13 @@ public abstract class BenchmarkModule {
         TransactionTypes txns = this.workConf.getTransactionTypes();
 
         if (txns != null) {
+            int id = txns.size() + 1;
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass.hashCode(), procClass, true, 0, 0);
+                    txn = new TransactionType(id, procClass, true, 0, 0);
                     txns.add(txn);
+                    id++;
                 }
             }
 

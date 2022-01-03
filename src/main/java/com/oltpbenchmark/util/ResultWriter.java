@@ -184,10 +184,10 @@ public class ResultWriter {
         for (LatencyRecord.Sample s : results.getLatencySamples()) {
             double startUs = ((double) s.getStartNanosecond() / (double) 1000000000);
             String[] row = {
-                    Integer.toString(s.getTransactionType()),
+                    Integer.toString(s.getTransactionId()),
                     // Important!
                     // The TxnType offsets start at 1!
-                    activeTXTypes.get(s.getTransactionType() - 1).getName(),
+                    activeTXTypes.get(s.getTransactionId() - 1).getName(),
                     String.format("%10.6f", startUs - offset),
                     Integer.toString(s.getLatencyMicrosecond()),
                     Integer.toString(s.getWorkerId()),

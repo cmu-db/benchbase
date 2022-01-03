@@ -27,7 +27,6 @@ import java.util.Random;
 public class Phase {
 
     private final Random gen = new Random();
-    private final String benchmarkName;
     private final int id;
     private final int time;
     private final int warmupTime;
@@ -45,8 +44,7 @@ public class Phase {
     private int nextSerial;
 
 
-    Phase(String benchmarkName, int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, PhaseArrival a) {
-        this.benchmarkName = benchmarkName;
+    Phase(int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, PhaseArrival a) {
         this.id = id;
         this.time = t;
         this.warmupTime = wt;
@@ -198,7 +196,6 @@ public class Phase {
      */
     public String currentPhaseString() {
         List<String> inner = new ArrayList<>();
-        inner.add("[Workload=" + benchmarkName.toUpperCase() + "]");
         if (isDisabled()) {
             inner.add("[Disabled=true]");
         } else {
@@ -212,11 +209,12 @@ public class Phase {
             inner.add("[WarmupTime=" + warmupTime + "]");
             inner.add("[Rate=" + (isRateLimited() ? rate : "unlimited") + "]");
             inner.add("[Arrival=" + arrival + "]");
-            inner.add("[Ratios=" + getWeights() + "]");
+            inner.add("[Weights=" + getWeights() + "]");
             inner.add("[ActiveTerminals=" + getActiveTerminals() + "]");
         }
 
         return StringUtil.bold("PHASE START") + " :: " + StringUtil.join(" ", inner);
     }
+
 
 }
