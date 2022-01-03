@@ -68,17 +68,17 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION + this.dbName + ";sql.syntax_mys=true", null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
         Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, DB_TERMINALS, null, null, null, null, null, null);
 
-
-        this.workConf = new WorkloadConfiguration(benchmarkName, database, workload);
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
         for (int i = 0; i < procClasses.length; i++) {
             assertFalse("Duplicate Procedure '" + procClasses[i] + "'", this.procClasses.contains(procClasses[i]));
             this.procClasses.add(procClasses[i]);
-            TransactionType tt = new TransactionType(procClasses[i], i, false, 0, 0);
+            TransactionType tt = new TransactionType(i, procClasses[i], false, 0, 0);
             txnTypes.add(tt);
         }
+
+        this.workConf = new WorkloadConfiguration(benchmarkName, database, workload, txnTypes, new ArrayList<>());
+
         this.dbName = String.format("%s-%d.db", clazz.getSimpleName(), new Random().nextInt());
-        this.workConf.setTransTypes(txnTypes);
 
         this.benchmark = ClassUtil.newInstance(clazz, new Object[]{this.workConf}, new Class<?>[]{WorkloadConfiguration.class});
         assertNotNull(this.benchmark);

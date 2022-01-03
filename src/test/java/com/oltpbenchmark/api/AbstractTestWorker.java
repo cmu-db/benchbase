@@ -20,7 +20,6 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
@@ -31,18 +30,13 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
         super.setUp(clazz, procClasses);
 
-        List<TransactionType> txnList = new ArrayList<TransactionType>();
         int id = 1;
         for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
-            String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
+            TransactionType txnType = new TransactionType(id++, procClass, false, 0, 0);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
-            txnList.add(txnType);
         }
-        TransactionTypes txnTypes = new TransactionTypes(txnList);
-        this.workConf.setTransTypes(txnTypes);
         this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
         assertEquals(DB_TERMINALS, this.workers.size());
@@ -75,8 +69,10 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         assertNotNull(w);
         w.initialize();
         assertFalse(this.conn.isReadOnly());
-        for (TransactionType txnType : this.workConf.getTransTypes()) {
-            if (txnType.isSupplemental()) { continue; }
+        for (TransactionType txnType : this.workConf.getTransactionTypes()) {
+            if (txnType.isSupplemental()) {
+                continue;
+            }
             try {
                 // Bombs away!
                 w.executeWork(this.conn, txnType);

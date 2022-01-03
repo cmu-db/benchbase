@@ -307,9 +307,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Compute transaction histogram
             Set<TransactionType> txnTypes = new HashSet<>();
             for (WorkloadConfiguration workConf : workConfs) {
-                txnTypes.addAll(workConf.getTransTypes());
+                txnTypes.addAll(workConf.getTransactionTypes());
             }
-            txnTypes.remove(TransactionType.INVALID);
 
             results.getUnknown().putAll(txnTypes, 0);
             results.getSuccess().putAll(txnTypes, 0);
@@ -421,9 +420,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             while (sample != null && sample.getStartNanosecond() < endNanoseconds) {
 
                 // Check if a TX Type filter is set, in the default case,
-                // INVALID TXType means all should be reported, if a filter is
+                // null TxType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.getTransactionType()) {
+                if (txType == null || txType.getId() == sample.getTransactionType()) {
                     latencies.add(sample.getLatencyMicrosecond());
                 }
 

@@ -63,29 +63,11 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         int id = 1;
         for (Class<? extends Procedure> procClass : this.procClasses) {
             assertNotNull(procClass);
-            String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
+            TransactionType txnType = new TransactionType(id++, procClass, false, 0, 0);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
         }
     }
-
-    /**
-     * testGetTransactionTypeInvalidId
-     */
-    public void testGetTransactionTypeInvalidId() throws Exception {
-        Class<? extends Procedure> procClass = this.procClasses.get(0);
-        assertNotNull(procClass);
-        String procName = procClass.getSimpleName();
-        TransactionType txnType = null;
-        try {
-            txnType = this.benchmark.initTransactionType(procName, TransactionType.INVALID_ID, 0, 0);
-        } catch (Throwable ex) {
-            // Ignore
-        }
-        assertNull(txnType);
-    }
-
 
     /**
      * testSetSQLDialect

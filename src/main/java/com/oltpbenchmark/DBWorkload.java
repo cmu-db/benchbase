@@ -18,7 +18,6 @@
 
 package com.oltpbenchmark;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
@@ -53,9 +52,7 @@ public class DBWorkload {
      */
     public static void main(String[] args) throws Exception {
 
-        // create the command line parser
         CommandLineParser parser = new DefaultParser();
-
 
         Options options = buildOptions();
 
@@ -74,22 +71,12 @@ public class DBWorkload {
             return;
         }
 
-
-        // Seconds
-        int intervalMonitor = 0;
-        if (argsLine.hasOption("im")) {
-            intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
-        }
-
         List<BenchmarkModule> benchList = new ArrayList<>();
-
-        // Use this list for filtering of the output
-        List<TransactionType> activeTXTypes = new ArrayList<>();
 
         String databaseConfigFile = argsLine.getOptionValue("d");
         String workloadConfigFile = argsLine.getOptionValue("w");
 
-        ObjectMapper xmlMapper = new XmlMapper();
+        XmlMapper xmlMapper = new XmlMapper();
         Database database = xmlMapper.readValue(FileUtils.getFile(databaseConfigFile), Database.class);
 
         Map<String, Object> databaseDebug = new ListOrderedMap<>();
@@ -116,57 +103,43 @@ public class DBWorkload {
             LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
             LOG.info(SINGLE_LINE);
 
-            String benchmarkName = workload.benchmarkClass().getName();
-
-            WorkloadConfiguration wrkld = new WorkloadConfiguration(benchmarkName, database, workload);
-
-            BenchmarkModule bench = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{wrkld}, new Class<?>[]{WorkloadConfiguration.class});
-
-            List<TransactionType> ttypes = new ArrayList<>();
-            ttypes.add(TransactionType.INVALID);
-
+            List<TransactionType> transactionTypeList = new ArrayList<>();
             int transactionId = 1;
             for (Transaction transaction : workload.transactions()) {
 
-                TransactionType tmpType = bench.initTransactionType(transaction.name(), transactionId, transaction.preExecutionWait(), transaction.postExecutionWait());
+                long preExecutionWait = transaction.preExecutionWait() != null ? transaction.preExecutionWait() : 0;
+                long postExecutionWait = transaction.postExecutionWait() != null ? transaction.postExecutionWait() : 0;
 
-                // Keep a reference for filtering
-                activeTXTypes.add(tmpType);
-
-                // Add a ref for the active TTypes in this benchmark
-                ttypes.add(tmpType);
+                TransactionType type = new TransactionType(transactionId, transaction.procedureClass(), false, preExecutionWait, postExecutionWait);
+                transactionTypeList.add(type);
 
                 transactionId++;
             }
 
-            // Wrap the list of transactions and save them
-            TransactionTypes tt = new TransactionTypes(ttypes);
-            wrkld.setTransTypes(tt);
-            LOG.debug("Using the following transaction types: {}", tt);
+            String benchmarkName = workload.benchmarkClass().getName();
 
-
-            benchList.add(bench);
-
-            // ----------------------------------------------------------------
-            // WORKLOAD CONFIGURATION
-            // ----------------------------------------------------------------
-
+            List<Phase> phaseList = new ArrayList<>();
             int phaseId = 1;
             for (com.oltpbenchmark.api.config.Phase phase : workload.phases()) {
 
                 PhaseRateType phaseRateType = phase.rateType();
 
-                wrkld.addPhase(phaseId, phase.time(), phase.warmup(), phase.rate(), phase.weights(), phaseRateType.equals(PhaseRateType.LIMITED), phaseRateType.equals(PhaseRateType.DISABLED), phase.serial(), phase.time() > 0, phase.activeTerminals(), phase.arrival());
+                boolean isRateLimited = phaseRateType.equals(PhaseRateType.LIMITED);
+                boolean isDisabled = phaseRateType.equals(PhaseRateType.DISABLED);
+                boolean isTimed = phase.time() > 0;
+
+                phaseList.add(new Phase(benchmarkName, phaseId, phase.time(), phase.warmup(), phase.rate(), phase.weights(), isRateLimited, isDisabled, phase.serial(), isTimed, phase.activeTerminals(), phase.arrival()));
 
                 phaseId++;
             }
 
+            WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(benchmarkName, database, workload, new TransactionTypes(transactionTypeList), phaseList);
 
+            BenchmarkModule benchmarkModule = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{workloadConfiguration}, new Class<?>[]{WorkloadConfiguration.class});
 
+            benchList.add(benchmarkModule);
 
         }
-
-
 
 
         // Create the Benchmark's Database
@@ -229,8 +202,26 @@ public class DBWorkload {
         if (isBooleanOptionSet(argsLine, "execute")) {
             // Bombs away!
             try {
+
+
+                int intervalMonitor = 0;
+                if (argsLine.hasOption("im")) {
+                    intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
+                }
+
                 Results r = runWorkload(benchList, intervalMonitor);
-                writeOutputs(r, activeTXTypes, argsLine, database);
+
+                // If an output directory is used, store the information
+                String outputDirectory = "results";
+
+                if (argsLine.hasOption("d")) {
+                    outputDirectory = argsLine.getOptionValue("d");
+                }
+
+                int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
+
+                writeOutputs(outputDirectory, windowSize, r, benchList, database);
+
                 writeHistograms(r);
 
                 if (argsLine.hasOption("json-histograms")) {
@@ -258,9 +249,11 @@ public class DBWorkload {
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
         options.addOption(null, "execute", true, "Execute the benchmark workload");
         options.addOption("h", "help", false, "Print this help");
-        options.addOption("s", "sample", true, "Sampling window");
+        // todo verify unit of measure for -s
+        options.addOption("s", "sample", true, "Sampling window size");
+        // todo verify unit of measure for -im
         options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
-        options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
+        options.addOption(null, "directory", true, "Base directory for the result files, default is current directory");
         options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
         return options;
     }
@@ -299,38 +292,31 @@ public class DBWorkload {
         return JSONUtil.toJSONString(map);
     }
 
-    /**
-     * Write out the results for a benchmark run to a bunch of files
-     *
-     * @param r
-     * @param activeTXTypes
-     * @param argsLine
-     * @param database
-     * @throws Exception
-     */
-    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine, Database database) throws Exception {
 
-        // If an output directory is used, store the information
-        String outputDirectory = "results";
-
-        if (argsLine.hasOption("d")) {
-            outputDirectory = argsLine.getOptionValue("d");
-        }
+    private static void writeOutputs(String outputDirectory, int windowSize, Results r, List<BenchmarkModule> benchList, Database database) throws Exception {
 
 
         FileUtil.makeDirIfNotExists(outputDirectory);
-        ResultWriter rw = new ResultWriter(r, database, argsLine);
 
-        String name = StringUtils.join(StringUtils.split(argsLine.getOptionValue("b"), ','), '-');
+        ResultWriter rw = new ResultWriter(r, database, benchList);
+
+        List<String> names = new ArrayList<>();
+        List<TransactionType> allTransactionTypes = new ArrayList<>();
+        for (BenchmarkModule module : benchList) {
+            names.add(module.getBenchmarkName());
+            List<TransactionType> transactionTypes = module.getWorkloadConfiguration().getTransactionTypes().stream().toList();
+            allTransactionTypes.addAll(transactionTypes);
+        }
+
+        String name = StringUtils.join(names, '-');
 
         String baseFileName = name + "_" + TimeUtil.getCurrentTimeString();
 
-        int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
 
         String rawFileName = baseFileName + ".raw.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, rawFileName))) {
             LOG.info("Output Raw data into file: {}", rawFileName);
-            rw.writeRaw(activeTXTypes, ps);
+            rw.writeRaw(allTransactionTypes, ps);
         }
 
         String sampleFileName = baseFileName + ".samples.csv";
@@ -359,11 +345,11 @@ public class DBWorkload {
             }
         }
 
-        String configFileName = baseFileName + ".config.xml";
-        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
-            LOG.info("Output benchmark config into file: {}", configFileName);
-            //rw.writeConfig(ps);
-        }
+//        String configFileName = baseFileName + ".config.xml";
+//        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
+//            LOG.info("Output benchmark config into file: {}", configFileName);
+//            rw.writeConfig(ps);
+//        }
 
         String resultsFileName = baseFileName + ".results.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, resultsFileName))) {
@@ -371,7 +357,7 @@ public class DBWorkload {
             rw.writeResults(windowSize, ps);
         }
 
-        for (TransactionType t : activeTXTypes) {
+        for (TransactionType t : allTransactionTypes) {
             String fileName = baseFileName + ".results." + t.getName() + ".csv";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
                 rw.writeResults(windowSize, ps, t);
@@ -430,4 +416,5 @@ public class DBWorkload {
         }
         return (false);
     }
+
 }

@@ -21,12 +21,12 @@ import com.oltpbenchmark.DistributionStatistics;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Results;
 import com.oltpbenchmark.ThreadBench;
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.collectors.DBParameterCollector;
 import com.oltpbenchmark.api.collectors.DBParameterCollectorGen;
 import com.oltpbenchmark.api.config.Database;
 import com.oltpbenchmark.types.DatabaseType;
-import org.apache.commons.cli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -38,18 +38,17 @@ public class ResultWriter {
     private final DBParameterCollector collector;
     private final Results results;
     private final DatabaseType dbType;
-    private final String benchType;
+    private final List<BenchmarkModule> benchmarkModules;
 
 
-    public ResultWriter(Results r, Database database, CommandLine argsLine) {
+    public ResultWriter(Results r, Database database, List<BenchmarkModule> benchmarkModules) {
         this.results = r;
         this.dbType = database.type();
-        this.benchType = argsLine.getOptionValue("b");
+        this.benchmarkModules = benchmarkModules;
 
         String dbUrl = database.url();
         String username = database.username();
         String password = database.password();
-
 
         this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
 
@@ -76,7 +75,9 @@ public class ResultWriter {
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
         summaryMap.put("DBMS Type", dbType);
         summaryMap.put("DBMS Version", collector.collectVersion());
-        summaryMap.put("Benchmark Type", benchType);
+        for (BenchmarkModule benchmarkModule : benchmarkModules) {
+            summaryMap.put("Benchmark Module", benchmarkModule.getBenchmarkName());
+        }
         summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
         summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
         summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
@@ -85,7 +86,7 @@ public class ResultWriter {
     }
 
     public void writeResults(int windowSizeSeconds, PrintStream out) {
-        writeResults(windowSizeSeconds, out, TransactionType.INVALID);
+        writeResults(windowSizeSeconds, out, null);
     }
 
     public void writeResults(int windowSizeSeconds, PrintStream out, TransactionType txType) {
@@ -124,7 +125,7 @@ public class ResultWriter {
     }
 
     public void writeSamples(PrintStream out) {
-        writeSamples(1, out, TransactionType.INVALID);
+        writeSamples(1, out, null);
     }
 
     public void writeSamples(int windowSizeSeconds, PrintStream out, TransactionType txType) {

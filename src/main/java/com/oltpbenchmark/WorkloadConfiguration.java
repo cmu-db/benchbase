@@ -19,31 +19,35 @@
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.api.TransactionTypes;
-import com.oltpbenchmark.api.config.*;
+import com.oltpbenchmark.api.config.Database;
+import com.oltpbenchmark.api.config.FileFormat;
+import com.oltpbenchmark.api.config.TransactionIsolation;
+import com.oltpbenchmark.api.config.Workload;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ThreadUtil;
 
 import java.sql.Driver;
-import java.util.ArrayList;
 import java.util.List;
 
 public class WorkloadConfiguration {
 
-    private final List<Phase> phases = new ArrayList<>();
-
     private final String benchmarkName;
     private final Database database;
     private final Workload workload;
+    private final TransactionTypes transactionTypes;
+    private final List<Phase> phases;
+
     private final int loaderThreads = ThreadUtil.availableProcessors();
 
     private WorkloadState workloadState;
-    private TransactionTypes transTypes = null;
 
 
-    public WorkloadConfiguration(String benchmarkName, Database database, Workload workload) {
+    public WorkloadConfiguration(String benchmarkName, Database database, Workload workload, TransactionTypes transactionTypes, List<Phase> phases) {
         this.benchmarkName = benchmarkName;
         this.database = database;
         this.workload = workload;
+        this.transactionTypes = transactionTypes;
+        this.phases = phases;
     }
 
     public String getBenchmarkName() {
@@ -89,9 +93,6 @@ public class WorkloadConfiguration {
         this.workloadState = new WorkloadState(benchmarkState, phases, getTerminals());
     }
 
-    public void addPhase(int id, int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, PhaseArrival arrival) {
-        phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
-    }
 
 
 
@@ -134,18 +135,12 @@ public class WorkloadConfiguration {
         return workload.dataDirectory();
     }
 
-
     public int getTerminals() {
         return workload.terminals();
     }
 
-
-    public TransactionTypes getTransTypes() {
-        return transTypes;
-    }
-
-    public void setTransTypes(TransactionTypes transTypes) {
-        this.transTypes = transTypes;
+    public TransactionTypes getTransactionTypes() {
+        return transactionTypes;
     }
 
     public List<Phase> getPhases() {

@@ -64,7 +64,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         public void run() {
             Thread.currentThread().setName(this.getClass().getSimpleName());
 
-            TransactionTypes txnTypes = AuctionMarkWorker.this.getWorkloadConfiguration().getTransTypes();
+            TransactionTypes txnTypes = AuctionMarkWorker.this.getWorkloadConfiguration().getTransactionTypes();
             TransactionType txnType = txnTypes.getType(CloseAuctions.class);
 
 
@@ -326,7 +326,7 @@ public class AuctionMarkWorker extends Worker<AuctionMarkBenchmark> {
         if (!AuctionMarkConstants.CLOSE_AUCTIONS_SEPARATE_THREAD &&
                 closeAuctions_flag.compareAndSet(true, false)) {
             txn = Transaction.CloseAuctions;
-            TransactionTypes txnTypes = this.getWorkloadConfiguration().getTransTypes();
+            TransactionTypes txnTypes = this.getWorkloadConfiguration().getTransactionTypes();
             txnType = txnTypes.getType(txn.procClass);
 
         } else {

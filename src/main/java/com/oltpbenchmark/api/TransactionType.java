@@ -22,21 +22,15 @@ import java.util.Objects;
 
 public class TransactionType implements Comparable<TransactionType> {
 
-    public static class Invalid extends Procedure {
-    }
-
-    public static final int INVALID_ID = 0;
-    public static final TransactionType INVALID = new TransactionType(Invalid.class, INVALID_ID, false, 0, 0);
-
-    private final Class<? extends Procedure> procedureClass;
     private final int id;
+    private final Class<? extends Procedure> procedureClass;
     private final boolean supplemental;
     private final long preExecutionWait;
     private final long postExecutionWait;
 
-    protected TransactionType(Class<? extends Procedure> procedureClass, int id, boolean supplemental, long preExecutionWait, long postExecutionWait) {
-        this.procedureClass = procedureClass;
+    public TransactionType(int id, Class<? extends Procedure> procedureClass, boolean supplemental, long preExecutionWait, long postExecutionWait) {
         this.id = id;
+        this.procedureClass = procedureClass;
         this.supplemental = supplemental;
         this.preExecutionWait = preExecutionWait;
         this.postExecutionWait = postExecutionWait;

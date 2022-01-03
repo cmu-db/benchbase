@@ -342,27 +342,7 @@ public abstract class BenchmarkModule {
     }
 
 
-    /**
-     * Initialize a TransactionType handle for the get procedure name and id
-     * This should only be invoked a start-up time
-     *
-     * @param procName
-     * @param id
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public final TransactionType initTransactionType(String procName, int id, long preExecutionWait, long postExecutionWait) {
-        if (id == TransactionType.INVALID_ID) {
-            throw new RuntimeException(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
-        }
 
-        Package pkg = this.getProcedurePackageImpl();
-
-        String fullName = pkg.getName() + "." + procName;
-        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
-
-        return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
-    }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.workConf);
@@ -375,13 +355,13 @@ public abstract class BenchmarkModule {
      */
     public Map<TransactionType, Procedure> getProcedures() {
         Map<TransactionType, Procedure> proc_xref = new HashMap<>();
-        TransactionTypes txns = this.workConf.getTransTypes();
+        TransactionTypes txns = this.workConf.getTransactionTypes();
 
         if (txns != null) {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode(), true, 0, 0);
+                    txn = new TransactionType(procClass.hashCode(), procClass, true, 0, 0);
                     txns.add(txn);
                 }
             }

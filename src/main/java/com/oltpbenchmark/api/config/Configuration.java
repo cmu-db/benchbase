@@ -1,11 +1,13 @@
 package com.oltpbenchmark.api.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.oltpbenchmark.api.BenchmarkModule;
 
 import java.util.List;
 
 @JacksonXmlRootElement(localName = "configuration")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record Configuration(List<Workload> workloads) {
 
     public Workload getWorkloadForBenchmark(Class<? extends BenchmarkModule> benchmarkClass) {
