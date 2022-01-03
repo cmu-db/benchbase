@@ -62,7 +62,7 @@ public class StatementDialects {
 
         if (exists) {
 
-            LOG.warn("Found dialect file in {}", path);
+            LOG.info("Found dialect file in {}", path);
 
             try {
 
