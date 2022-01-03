@@ -86,10 +86,9 @@ public class StatementDialects {
             } catch (IOException e) {
                 LOG.error(e.getMessage(), e);
             }
+        } else {
+            LOG.warn("No dialect file in {}", path);
         }
-
-        LOG.warn("No dialect file in {}", path);
-
     }
 
 
