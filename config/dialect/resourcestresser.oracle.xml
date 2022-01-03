@@ -1,15 +1,19 @@
 <?xml version="1.0"?>
-<dialect type="ORACLE" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="ORACLE" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
         <procedure name="Contention1">
-            <statement name="lockSleep">
-                BEGIN DBMS_LOCK.SLEEP(?); END;
-            </statement>
+            <statements>
+                <statement name="lockSleep">
+                    BEGIN DBMS_LOCK.SLEEP(?); END;
+                </statement>
+            </statements>
         </procedure>
         <procedure name="Contention2">
-            <statement name="lockSleep">
-                BEGIN DBMS_LOCK.SLEEP(?); END;
-            </statement>
+            <statements>
+                <statement name="lockSleep">
+                    BEGIN DBMS_LOCK.SLEEP(?); END;
+                </statement>
+            </statements>
         </procedure>
     </procedures>
 </dialect>

@@ -1,31 +1,39 @@
 <?xml version="1.0"?>
-<dialect type="SQLSERVER" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
         <procedure name="GetTweet">
-            <statement name="getTweet">
-                SELECT * FROM "tweets" WHERE id = ?
-            </statement>
+            <statements>
+                <statement name="getTweet">
+                    SELECT * FROM "tweets" WHERE id = ?
+                </statement>
+            </statements>
         </procedure>
         <procedure name="GetTweetsFromFollowing">
-            <statement name="getFollowing">
-                SELECT TOP 20 f2 FROM "follows" WHERE f1 = ?
-            </statement>
-            <statement name="getTweets">
-                SELECT * FROM "tweets" WHERE uid IN (??)
-            </statement>
+            <statements>
+                <statement name="getFollowing">
+                    SELECT TOP 20 f2 FROM "follows" WHERE f1 = ?
+                </statement>
+                <statement name="getTweets">
+                    SELECT * FROM "tweets" WHERE uid IN (??)
+                </statement>
+            </statements>
         </procedure>
         <procedure name="GetFollowers">
-            <statement name="getFollowers">
-                SELECT TOP 20 f2 FROM "followers" WHERE f1 = ?
-            </statement>
-            <statement name="getFollowerNames">
-                SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
-            </statement>
+            <statements>
+                <statement name="getFollowers">
+                    SELECT TOP 20 f2 FROM "followers" WHERE f1 = ?
+                </statement>
+                <statement name="getFollowerNames">
+                    SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
+                </statement>
+            </statements>
         </procedure>
         <procedure name="GetUserTweets">
-            <statement name="getTweets">
-                SELECT TOP 10 * FROM "tweets" WHERE uid = ?
-            </statement>
+            <statements>
+                <statement name="getTweets">
+                    SELECT TOP 10 * FROM "tweets" WHERE uid = ?
+                </statement>
+            </statements>
         </procedure>
     </procedures>
 </dialect>

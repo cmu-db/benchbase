@@ -1,15 +1,19 @@
 <?xml version="1.0"?>
-<dialect type="POSTGRES" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="POSTGRES" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
         <procedure name="Contention1">
-            <statement name="lockSleep">
-                SELECT PG_SLEEP(?)
-            </statement>
+            <statements>
+                <statement name="lockSleep">
+                    SELECT PG_SLEEP(?)
+                </statement>
+            </statements>
         </procedure>
         <procedure name="Contention2">
-            <statement name="lockSleep">
-                SELECT PG_SLEEP(?)
-            </statement>
+            <statements>
+                <statement name="lockSleep">
+                    SELECT PG_SLEEP(?)
+                </statement>
+            </statements>
         </procedure>
     </procedures>
 </dialect>
