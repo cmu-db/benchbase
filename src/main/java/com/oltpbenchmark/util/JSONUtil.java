@@ -134,15 +134,15 @@ public abstract class JSONUtil {
     public static void writeFieldValue(JSONStringer stringer, Class<?> field_class, Object field_value) throws JSONException {
         // Null
         if (field_value == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("writeNullFieldValue({}, {})", field_class, field_value);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("writeNullFieldValue({}, {})", field_class, field_value);
             }
             stringer.value(null);
 
             // Collections
         } else if (ClassUtil.getInterfaces(field_class).contains(Collection.class)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("writeCollectionFieldValue({}, {})", field_class, field_value);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("writeCollectionFieldValue({}, {})", field_class, field_value);
             }
             stringer.array();
             for (Object value : (Collection<?>) field_value) {
@@ -156,8 +156,8 @@ public abstract class JSONUtil {
 
             // Maps
         } else if (field_value instanceof Map) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("writeMapFieldValue({}, {})", field_class, field_value);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("writeMapFieldValue({}, {})", field_class, field_value);
             }
             stringer.object();
             for (Entry<?, ?> e : ((Map<?, ?>) field_value).entrySet()) {
@@ -181,8 +181,8 @@ public abstract class JSONUtil {
 
             // Primitive
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("writePrimitiveFieldValue({}, {})", field_class, field_value);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("writePrimitiveFieldValue({}, {})", field_class, field_value);
             }
             stringer.value(makePrimitiveValue(field_class, field_value));
         }
