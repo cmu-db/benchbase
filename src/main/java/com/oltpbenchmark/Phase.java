@@ -141,11 +141,11 @@ public class Phase {
      *
      * @return
      */
-    public int chooseTransaction() {
-        return chooseTransaction(false);
+    public int chooseTransactionIndex() {
+        return chooseTransactionIndex(false);
     }
 
-    public int chooseTransaction(boolean isColdQuery) {
+    public int chooseTransactionIndex(boolean isColdQuery) {
         if (isDisabled()) {
             return -1;
         }
@@ -183,7 +183,7 @@ public class Phase {
             for (int i = 0; i < this.weightCount; i++) {
                 weight += weights.get(i);
                 if (randomPercentage <= weight) {
-                    return i + 1;
+                    return i;
                 }
             }
         }

@@ -337,7 +337,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         TransactionType type = null;
 
         try {
-            type = transactionTypes.getType(pieceOfWork.getType());
+            type = transactionTypes.getTypeByIndex(pieceOfWork.getTransactionIndex());
         } catch (IndexOutOfBoundsException e) {
             if (phase.isThroughputRun()) {
                 LOG.error("Thread tried executing disabled phase!");

@@ -72,7 +72,7 @@ public class WorkloadState {
             } else {
                 // Add the specified number of procedures to the end of the queue.
                 for (int i = 0; i < amount; ++i) {
-                    workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
+                    workQueue.add(new SubmittedProcedure(currentPhase.chooseTransactionIndex()));
                 }
             }
 
@@ -122,7 +122,7 @@ public class WorkloadState {
                 }
 
                 ++workersWorking;
-                return new SubmittedProcedure(currentPhase.chooseTransaction(getGlobalState() == State.COLD_QUERY));
+                return new SubmittedProcedure(currentPhase.chooseTransactionIndex(getGlobalState() == State.COLD_QUERY));
             }
         }
 
@@ -131,7 +131,7 @@ public class WorkloadState {
             synchronized (this) {
                 ++workersWorking;
             }
-            return new SubmittedProcedure(currentPhase.chooseTransaction(getGlobalState() == State.COLD_QUERY));
+            return new SubmittedProcedure(currentPhase.chooseTransactionIndex(getGlobalState() == State.COLD_QUERY));
         }
 
         synchronized (this) {
