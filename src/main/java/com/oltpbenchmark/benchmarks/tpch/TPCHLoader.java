@@ -143,9 +143,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
 
-        final CountDownLatch copyLatch = new CountDownLatch(1);
-        final boolean[] copySuccess = {false};
-
         final CountDownLatch regionLatch = new CountDownLatch(1);
         final CountDownLatch nationLatch = new CountDownLatch(1);
         final CountDownLatch ordersLatch = new CountDownLatch(1);
@@ -163,15 +160,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             }
 
             @Override
-            public void beforeLoad() {
-                try {
-                    copyLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
             public void afterLoad() {
                 regionLatch.countDown();
             }
@@ -182,15 +170,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void load(Connection conn) throws SQLException {
                 try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                     loadTable(conn, statement, "part", partTypes);
-                }
-            }
-
-            @Override
-            public void beforeLoad() {
-                try {
-                    copyLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             }
 
@@ -211,7 +190,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     regionLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -235,7 +213,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     nationLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -259,7 +236,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     nationLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -283,7 +259,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     customerLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -307,7 +282,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     partsLatch.await();
                     supplierLatch.await();
                 } catch (InterruptedException e) {
@@ -332,7 +306,6 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     ordersLatch.await();
                     partsSuppLatch.await();
                 } catch (InterruptedException e) {

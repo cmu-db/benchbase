@@ -255,78 +255,81 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             TransactionType transactionType = getTransactionType(pieceOfWork, prePhase, preState, workloadState);
 
+            if (transactionType != null) {
 
-            // TODO: Measuring latency when not rate limited is ... a little
-            // weird because if you add more simultaneous clients, you will
-            // increase latency (queue delay) but we do this anyway since it is
-            // useful sometimes
+                // TODO: Measuring latency when not rate limited is ... a little
+                // weird because if you add more simultaneous clients, you will
+                // increase latency (queue delay) but we do this anyway since it is
+                // useful sometimes
 
-            // Wait before transaction if specified
-            long preExecutionWaitInMillis = getPreExecutionWaitInMillis(transactionType);
+                // Wait before transaction if specified
+                long preExecutionWaitInMillis = getPreExecutionWaitInMillis(transactionType);
 
-            if (preExecutionWaitInMillis > 0) {
-                try {
-                    LOG.debug("{} will sleep for {} ms before executing", transactionType.getName(), preExecutionWaitInMillis);
+                if (preExecutionWaitInMillis > 0) {
+                    try {
+                        LOG.debug("{} will sleep for {} ms before executing", transactionType.getName(), preExecutionWaitInMillis);
 
-                    Thread.sleep(preExecutionWaitInMillis);
-                } catch (InterruptedException e) {
-                    LOG.error("Pre-execution sleep interrupted", e);
+                        Thread.sleep(preExecutionWaitInMillis);
+                    } catch (InterruptedException e) {
+                        LOG.error("Pre-execution sleep interrupted", e);
+                    }
+                }
+
+                long start = System.nanoTime();
+
+                doWork(configuration.getDatabaseType(), transactionType);
+
+                long end = System.nanoTime();
+
+                // PART 4: Record results
+
+                State postState = workloadState.getGlobalState();
+
+                switch (postState) {
+                    case MEASURE:
+                        // Non-serial measurement. Only measure if the state both
+                        // before and after was MEASURE, and the phase hasn't
+                        // changed, otherwise we're recording results for a query
+                        // that either started during the warmup phase or ended
+                        // after the timer went off.
+                        Phase postPhase = workloadState.getCurrentPhase();
+                        if (preState == MEASURE && postPhase.getId() == prePhase.getId()) {
+                            latencies.addLatency(transactionType.getId(), start, end, this.id, prePhase.getId());
+                            intervalRequests.incrementAndGet();
+                        }
+                        if (prePhase.isLatencyRun()) {
+                            workloadState.startColdQuery();
+                        }
+                        break;
+                    case COLD_QUERY:
+                        // No recording for cold runs, but next time we will since
+                        // it'll be a hot run.
+                        if (preState == State.COLD_QUERY) {
+                            workloadState.startHotQuery();
+                        }
+                        break;
+                    default:
+                        // Do nothing
+                }
+
+
+                // wait after transaction if specified
+                long postExecutionWaitInMillis = getPostExecutionWaitInMillis(transactionType);
+
+                if (postExecutionWaitInMillis > 0) {
+                    try {
+                        LOG.debug("{} will sleep for {} ms after executing", transactionType.getName(), postExecutionWaitInMillis);
+
+                        Thread.sleep(postExecutionWaitInMillis);
+                    } catch (InterruptedException e) {
+                        LOG.error("Post-execution sleep interrupted", e);
+                    }
                 }
             }
 
-            long start = System.nanoTime();
+            workloadState.finishedWork();
 
-            doWork(configuration.getDatabaseType(), transactionType);
-
-            long end = System.nanoTime();
-
-            // PART 4: Record results
-
-            State postState = workloadState.getGlobalState();
-
-            switch (postState) {
-                case MEASURE:
-                    // Non-serial measurement. Only measure if the state both
-                    // before and after was MEASURE, and the phase hasn't
-                    // changed, otherwise we're recording results for a query
-                    // that either started during the warmup phase or ended
-                    // after the timer went off.
-                    Phase postPhase = workloadState.getCurrentPhase();
-                    if (preState == MEASURE && postPhase.getId() == prePhase.getId()) {
-                        latencies.addLatency(transactionType.getId(), start, end, this.id, prePhase.getId());
-                        intervalRequests.incrementAndGet();
-                    }
-                    if (prePhase.isLatencyRun()) {
-                        workloadState.startColdQuery();
-                    }
-                    break;
-                case COLD_QUERY:
-                    // No recording for cold runs, but next time we will since
-                    // it'll be a hot run.
-                    if (preState == State.COLD_QUERY) {
-                        workloadState.startHotQuery();
-                    }
-                    break;
-                default:
-                    // Do nothing
-            }
-
-
-            // wait after transaction if specified
-            long postExecutionWaitInMillis = getPostExecutionWaitInMillis(transactionType);
-
-            if (postExecutionWaitInMillis > 0) {
-                try {
-                    LOG.debug("{} will sleep for {} ms after executing", transactionType.getName(), postExecutionWaitInMillis);
-
-                    Thread.sleep(postExecutionWaitInMillis);
-                } catch (InterruptedException e) {
-                    LOG.error("Post-execution sleep interrupted", e);
-                }
-            }
         }
-
-        workloadState.finishedWork();
 
         LOG.debug("worker calling teardown");
 

@@ -75,79 +75,28 @@ public class DBWorkload {
         Database database = xmlMapper.readValue(FileUtils.getFile(databaseConfigFile), Database.class);
         Configuration configuration = xmlMapper.readValue(FileUtils.getFile(workloadConfigFile), Configuration.class);
 
-        Map<String, Object> databaseDebug = new ListOrderedMap<>();
-        databaseDebug.put("Type", database.type());
-        databaseDebug.put("Driver", database.driverClass());
-        databaseDebug.put("URL", database.url());
-        databaseDebug.put("Isolation", database.transactionIsolation());
-        databaseDebug.put("Batch Size", database.batchSize());
-        databaseDebug.put("Retries", database.retries());
+        Map<String, Object> debugMap = new ListOrderedMap<>();
+        debugMap.put("Type", database.type());
+        debugMap.put("Driver", database.driverClass());
+        debugMap.put("URL", database.url());
+        debugMap.put("Isolation", database.transactionIsolation());
+        debugMap.put("Batch Size", database.batchSize());
+        debugMap.put("Retries", database.retries());
 
         int benchmarkCount = 1;
         for (Workload workload : configuration.workloads()) {
 
-            databaseDebug.put(String.format("Benchmark (%d)", benchmarkCount), workload.benchmarkClass());
+            debugMap.put(String.format("Benchmark (%d)", benchmarkCount), workload.benchmarkClass());
 
-            List<TransactionType> transactionTypeList = new ArrayList<>();
-            int transactionId = 1;
-            for (Transaction transaction : workload.transactions()) {
+            TransactionTypes transactionTypes = getTransactionTypes(workload);
 
-                long preExecutionWait = transaction.preExecutionWait() != null ? transaction.preExecutionWait() : 0;
-                long postExecutionWait = transaction.postExecutionWait() != null ? transaction.postExecutionWait() : 0;
+            List<Phase> phaseList = getPhases(workload);
 
-                TransactionType type = new TransactionType(transactionId, transaction.procedureClass(), false, preExecutionWait, postExecutionWait);
-                transactionTypeList.add(type);
+            WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, transactionTypes, phaseList);
 
-                transactionId++;
-            }
-
-            List<Phase> phaseList = new ArrayList<>();
-            int phaseId = 1;
-            for (com.oltpbenchmark.api.config.Phase phase : workload.phases()) {
-
-                PhaseRateType phaseRateType = phase.rateType();
-
-                boolean isRateLimited = phaseRateType.equals(PhaseRateType.LIMITED);
-                boolean isDisabled = phaseRateType.equals(PhaseRateType.DISABLED);
-                boolean isSerial = phase.serial() != null && phase.serial().equals(Boolean.TRUE);
-
-                int time = 0;
-                if (phase.time() != null) {
-                    time = phase.time();
-                }
-
-                int warmup = 0;
-                if (phase.warmup() != null) {
-                    warmup = phase.warmup();
-                }
-
-                boolean isTimed = time > 0;
-
-                PhaseArrival arrival = PhaseArrival.REGULAR;
-                if (phase.arrival() != null) {
-                    arrival = phase.arrival();
-                }
-
-                int rate = 1;
-                if (isRateLimited && phase.rate() != null) {
-                    rate = phase.rate();
-                }
-
-                int activeTerminals = workload.terminals();
-                if (phase.activeTerminals() != null) {
-                    activeTerminals = phase.activeTerminals();
-                }
-
-                phaseList.add(new Phase(phaseId, time, warmup, rate, phase.weights(), isRateLimited, isDisabled, isSerial, isTimed, activeTerminals, arrival));
-
-                phaseId++;
-            }
-
-            WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, new TransactionTypes(transactionTypeList), phaseList);
-
-            databaseDebug.put(String.format("Terminals (%d)", benchmarkCount), workloadConfiguration.getTerminals());
-            databaseDebug.put(String.format("Scale Factor (%d)", benchmarkCount), workloadConfiguration.getScaleFactor());
-            databaseDebug.put(String.format("Selectivity (%d)", benchmarkCount), workloadConfiguration.getSelectivity());
+            debugMap.put(String.format("Terminals (%d)", benchmarkCount), workloadConfiguration.getTerminals());
+            debugMap.put(String.format("Scale Factor (%d)", benchmarkCount), workloadConfiguration.getScaleFactor());
+            debugMap.put(String.format("Selectivity (%d)", benchmarkCount), workloadConfiguration.getSelectivity());
 
             BenchmarkModule benchmarkModule = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{workloadConfiguration}, new Class<?>[]{WorkloadConfiguration.class});
 
@@ -157,7 +106,7 @@ public class DBWorkload {
 
         }
 
-        LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(databaseDebug));
+        LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(debugMap));
         LOG.info(SINGLE_LINE);
 
 
@@ -256,6 +205,68 @@ public class DBWorkload {
         } else {
             LOG.info("Skipping benchmark workload execution");
         }
+    }
+
+    private static List<Phase> getPhases(Workload workload) {
+        List<Phase> phaseList = new ArrayList<>();
+        int phaseId = 1;
+        for (com.oltpbenchmark.api.config.Phase phase : workload.phases()) {
+
+            PhaseRateType phaseRateType = phase.rateType();
+
+            boolean isRateLimited = phaseRateType.equals(PhaseRateType.LIMITED);
+            boolean isDisabled = phaseRateType.equals(PhaseRateType.DISABLED);
+            boolean isSerial = phase.serial() != null && phase.serial().equals(Boolean.TRUE);
+
+            int time = 0;
+            if (phase.time() != null) {
+                time = phase.time();
+            }
+
+            int warmup = 0;
+            if (phase.warmup() != null) {
+                warmup = phase.warmup();
+            }
+
+            boolean isTimed = time > 0;
+
+            PhaseArrival arrival = PhaseArrival.REGULAR;
+            if (phase.arrival() != null) {
+                arrival = phase.arrival();
+            }
+
+            int rate = 1;
+            if (isRateLimited && phase.rate() != null) {
+                rate = phase.rate();
+            }
+
+            int activeTerminals = workload.terminals();
+            if (phase.activeTerminals() != null) {
+                activeTerminals = phase.activeTerminals();
+            }
+
+            phaseList.add(new Phase(phaseId, time, warmup, rate, phase.weights(), isRateLimited, isDisabled, isSerial, isTimed, activeTerminals, arrival));
+
+            phaseId++;
+
+        }
+        return phaseList;
+    }
+
+    private static TransactionTypes getTransactionTypes(Workload workload) {
+        List<TransactionType> transactionTypeList = new ArrayList<>();
+        int transactionId = 1;
+        for (Transaction transaction : workload.transactions()) {
+
+            long preExecutionWait = transaction.preExecutionWait() != null ? transaction.preExecutionWait() : 0;
+            long postExecutionWait = transaction.postExecutionWait() != null ? transaction.postExecutionWait() : 0;
+
+            TransactionType type = new TransactionType(transactionId, transaction.procedureClass(), false, preExecutionWait, postExecutionWait);
+            transactionTypeList.add(type);
+
+            transactionId++;
+        }
+        return new TransactionTypes(transactionTypeList);
     }
 
     private static Options buildOptions() {
