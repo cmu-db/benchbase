@@ -13,7 +13,7 @@ public class TestConfigurationLoad extends TestCase {
 
 
     private static final String DATABASE_CONFIGURATION = """
-            <?xml version="1.0"?>
+            <?xml version="1.0" encoding="utf-8"?>
             <database xsi:noNamespaceSchemaLocation="database.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <type>COCKROACHDB</type>
                     <driverClass>org.postgresql.Driver</driverClass>
@@ -151,7 +151,7 @@ public class TestConfigurationLoad extends TestCase {
             """;
 
     private static final String DIALECTS = """
-            <?xml version="1.0"?>
+            <?xml version="1.0" encoding="utf-8"?>
             <dialect type="POSTGRES">
                 <procedures>
                     <procedure name="CloseAuctions">
