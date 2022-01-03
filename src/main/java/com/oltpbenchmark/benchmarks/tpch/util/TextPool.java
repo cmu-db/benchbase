@@ -13,9 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import java.util.function.Supplier;
-
-import static com.google.common.base.Suppliers.memoize;
 import static com.oltpbenchmark.benchmarks.tpch.util.Distributions.getDefaultDistributions;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -25,11 +22,11 @@ public class TextPool {
     private static final int DEFAULT_TEXT_POOL_SIZE = 300 * 1024 * 1024;
     private static final int MAX_SENTENCE_LENGTH = 256;
 
-    private static final Supplier<TextPool> DEFAULT_TEXT_POOL = memoize(() ->
-            new TextPool(DEFAULT_TEXT_POOL_SIZE, getDefaultDistributions()));
+    private static final TextPool DEFAULT_TEXT_POOL =
+            new TextPool(DEFAULT_TEXT_POOL_SIZE, getDefaultDistributions());
 
     public static TextPool getDefaultTestPool() {
-        return DEFAULT_TEXT_POOL.get();
+        return DEFAULT_TEXT_POOL;
     }
 
     private final byte[] textPool;

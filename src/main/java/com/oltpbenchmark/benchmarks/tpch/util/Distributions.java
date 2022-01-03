@@ -13,32 +13,36 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.io.Resources;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static com.google.common.base.Suppliers.memoize;
 import static com.oltpbenchmark.benchmarks.tpch.util.DistributionLoader.loadDistribution;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Distributions {
-    private static final Supplier<Distributions> DEFAULT_DISTRIBUTIONS = memoize(Distributions::loadDefaults);
+    private static final Distributions DEFAULT_DISTRIBUTIONS = loadDefaults();
 
     private static Distributions loadDefaults() {
         try {
-            URL resource = Resources.getResource(Distribution.class, "dists.dss");
-            return new Distributions(loadDistribution(Resources.asCharSource(resource, UTF_8)));
+            Path distPath = Paths.get(Distributions.class
+                .getResource("/benchmarks/tpch/dists.dss").toURI());
+            return new Distributions(loadDistribution(Files.lines(distPath, UTF_8)));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     public static Distributions getDefaultDistributions() {
-        return DEFAULT_DISTRIBUTIONS.get();
+        return DEFAULT_DISTRIBUTIONS;
     }
 
     private final Distribution grammars;

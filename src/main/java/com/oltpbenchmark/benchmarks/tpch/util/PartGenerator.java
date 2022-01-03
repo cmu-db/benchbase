@@ -13,8 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.AbstractIterator;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -67,7 +65,7 @@ public class PartGenerator
     }
 
     private static class PartGeneratorIterator
-            extends AbstractIterator<List<Object>> {
+            implements Iterator<List<Object>> {
         private final RandomStringSequence nameRandom;
         private final RandomBoundedInt manufacturerRandom;
         private final RandomBoundedInt brandRandom;
@@ -103,11 +101,12 @@ public class PartGenerator
         }
 
         @Override
-        protected List<Object> computeNext() {
-            if (index >= rowCount) {
-                return endOfData();
-            }
+        public boolean hasNext() {
+            return index < rowCount;
+        }
 
+        @Override
+        public List<Object> next() {
             List<Object> part = makePart(startIndex + index + 1);
 
             nameRandom.rowFinished();

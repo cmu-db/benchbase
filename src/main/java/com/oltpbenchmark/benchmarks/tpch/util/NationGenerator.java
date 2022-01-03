@@ -13,8 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.AbstractIterator;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ public class NationGenerator
     }
 
     private static class NationGeneratorIterator
-            extends AbstractIterator<List<Object>> {
+            implements Iterator<List<Object>> {
         private final Distribution nations;
         private final RandomText commentRandom;
 
@@ -55,11 +53,12 @@ public class NationGenerator
         }
 
         @Override
-        protected List<Object> computeNext() {
-            if (index >= nations.size()) {
-                return endOfData();
-            }
+        public boolean hasNext() {
+            return index < nations.size();
+        }
 
+        @Override
+        public List<Object> next() {
             List<Object> nation = new ArrayList<>();
             nation.add((long)index);
             nation.add(nations.getValue(index));

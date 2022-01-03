@@ -13,8 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.AbstractIterator;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -81,7 +79,7 @@ public class LineItemGenerator
     }
 
     private static class LineItemGeneratorIterator
-            extends AbstractIterator<List<Object>> {
+            implements Iterator<List<Object>> {
         private final RandomBoundedInt orderDateRandom = createOrderDateRandom();
         private final RandomBoundedInt lineCountRandom = createLineCountRandom();
 
@@ -152,11 +150,12 @@ public class LineItemGenerator
         }
 
         @Override
-        protected List<Object> computeNext() {
-            if (index >= rowCount) {
-                return endOfData();
-            }
+        public boolean hasNext() {
+            return index < rowCount;
+        }
 
+        @Override
+        public List<Object> next() {
             List<Object> lineitem = makeLineitem(startIndex + index + 1);
             lineNumber++;
 

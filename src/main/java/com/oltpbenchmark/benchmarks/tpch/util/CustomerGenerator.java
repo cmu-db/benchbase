@@ -13,8 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.AbstractIterator;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -62,7 +60,7 @@ public class CustomerGenerator
     }
 
     private static class CustomerGeneratorIterator
-            extends AbstractIterator<List<Object>> {
+            implements Iterator<List<Object>> {
         private final RandomAlphaNumeric addressRandom = new RandomAlphaNumeric(881155353, ADDRESS_AVERAGE_LENGTH);
         private final RandomBoundedInt nationKeyRandom;
         private final RandomPhoneNumber phoneRandom = new RandomPhoneNumber(1521138112);
@@ -92,11 +90,12 @@ public class CustomerGenerator
         }
 
         @Override
-        protected List<Object> computeNext() {
-            if (index >= rowCount) {
-                return endOfData();
-            }
+        public boolean hasNext() {
+            return index < rowCount;
+        }
 
+        @Override
+        public List<Object> next() {
             List<Object> customer = makeCustomer(startIndex + index + 1);
 
             addressRandom.rowFinished();

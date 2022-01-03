@@ -13,45 +13,39 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.CharSource;
+import com.oltpbenchmark.util.StringUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Stream;
-
-import static com.google.common.base.CharMatcher.whitespace;
+import java.util.regex.Pattern;
 
 public final class DistributionLoader {
     private DistributionLoader() {}
 
-    public static <R extends Readable & Closeable> Map<String, Distribution> loadDistribution(CharSource input)
+    public static <R extends Readable & Closeable> Map<String, Distribution> loadDistribution(Stream<String> lines)
             throws IOException {
-        try (Stream<String> lines = input.lines()) {
-            return loadDistributions(lines
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .iterator());
-        }
+        return loadDistributions(lines
+                .map(String::trim)
+                .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                .iterator());
     }
 
     private static Distribution loadDistribution(Iterator<String> lines, String name) {
         int count = -1;
-        ImmutableMap.Builder<String, Integer> members = ImmutableMap.builder();
+        Map<String, Integer> members = new HashMap<>();
         while (lines.hasNext()) {
             // advance to "begin"
             String line = lines.next();
             if (isEnd(name, line)) {
-                Map<String, Integer> weights = members.build();
-                return new Distribution(name, weights);
+                return new Distribution(name, members);
             }
 
-            List<String> parts = ImmutableList.copyOf(Splitter.on('|').trimResults().omitEmptyStrings().split(line));
+            List<String> parts = StringUtil.splitToList(Pattern.compile("\\|"), line);
 
             String value = parts.get(0);
             int weight;
@@ -71,7 +65,7 @@ public final class DistributionLoader {
     }
 
     private static boolean isEnd(String name, String line) {
-        List<String> parts = ImmutableList.copyOf(Splitter.on(whitespace()).omitEmptyStrings().split(line));
+        List<String> parts = StringUtil.splitToList(StringUtil.WHITESPACE, line);
         if (parts.get(0).equalsIgnoreCase("END")) {
             return true;
         }
@@ -79,11 +73,11 @@ public final class DistributionLoader {
     }
 
     private static Map<String, Distribution> loadDistributions(Iterator<String> lines) {
-        ImmutableMap.Builder<String, Distribution> distributions = ImmutableMap.builder();
+        Map<String, Distribution> distributions = new HashMap<>();
         while (lines.hasNext()) {
             // advance to "begin"
             String line = lines.next();
-            List<String> parts = ImmutableList.copyOf(Splitter.on(whitespace()).omitEmptyStrings().split(line));
+            List<String> parts = StringUtil.splitToList(StringUtil.WHITESPACE, line);
             if (parts.size() != 2) {
                 continue;
             }
@@ -94,6 +88,6 @@ public final class DistributionLoader {
                 distributions.put(name.toLowerCase(), distribution);
             }
         }
-        return distributions.build();
+        return distributions;
     }
 }

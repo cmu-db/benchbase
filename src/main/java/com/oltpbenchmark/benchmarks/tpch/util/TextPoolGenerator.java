@@ -13,11 +13,10 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.base.Splitter;
+import com.oltpbenchmark.util.StringUtil;
 
 import java.util.List;
 
-import static com.google.common.base.CharMatcher.whitespace;
 import static java.util.Objects.requireNonNull;
 
 public class TextPoolGenerator {
@@ -198,7 +197,7 @@ public class TextPoolGenerator {
             parsedDistribution = new char[distribution.size()][];
             bonusText = new String[distribution.size()];
             for (int i = 0; i < distribution.size(); i++) {
-                List<String> tokens = Splitter.on(whitespace()).splitToList(distribution.getValue(i));
+                List<String> tokens = StringUtil.splitToList(StringUtil.WHITESPACE, distribution.getValue(i));
 
                 parsedDistribution[i] = new char[tokens.size()];
                 for (int j = 0; j < parsedDistribution[i].length; j++) {

@@ -20,6 +20,8 @@ package com.oltpbenchmark.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -32,6 +34,34 @@ public abstract class StringUtil {
 
     private static final Pattern LINE_SPLIT = Pattern.compile("\n");
     private static final Pattern TITLE_SPLIT = Pattern.compile(" ");
+    public static final Pattern WHITESPACE = Pattern.compile("["
+        + "\\u0009" // CHARACTER TABULATION
+        + "\\u000A" // LINE FEED (LF)
+        + "\\u000B" // LINE TABULATION
+        + "\\u000C" // FORM FEED (FF)
+        + "\\u000D" // CARRIAGE RETURN (CR)
+        + "\\u0020" // SPACE
+        + "\\u0085" // NEXT LINE (NEL) 
+        + "\\u00A0" // NO-BREAK SPACE
+        + "\\u1680" // OGHAM SPACE MARK
+        + "\\u180E" // MONGOLIAN VOWEL SEPARATOR
+        + "\\u2000" // EN QUAD 
+        + "\\u2001" // EM QUAD 
+        + "\\u2002" // EN SPACE
+        + "\\u2003" // EM SPACE
+        + "\\u2004" // THREE-PER-EM SPACE
+        + "\\u2005" // FOUR-PER-EM SPACE
+        + "\\u2006" // SIX-PER-EM SPACE
+        + "\\u2007" // FIGURE SPACE
+        + "\\u2008" // PUNCTUATION SPACE
+        + "\\u2009" // THIN SPACE
+        + "\\u200A" // HAIR SPACE
+        + "\\u2028" // LINE SEPARATOR
+        + "\\u2029" // PARAGRAPH SEPARATOR
+        + "\\u202F" // NARROW NO-BREAK SPACE
+        + "\\u205F" // MEDIUM MATHEMATICAL SPACE
+        + "\\u3000" // IDEOGRAPHIC SPACE)
+        + "]");
 
     private static final String SET_PLAIN_TEXT = "\033[0;0m";
     private static final String SET_BOLD_TEXT = "\033[0;1m";
@@ -381,6 +411,35 @@ public abstract class StringUtil {
         sb.delete(sb.length() - delimiter.length(), sb.length());
 
         return sb.toString();
+    }
+
+    public static List<String> splitToList(Pattern delim, String str) {
+        String[] arr = delim.split(str);
+        List<String> retList = new ArrayList<>();
+        // remove empty strings.
+        for (String s : arr) {
+            if (s.length() == 0) {
+                continue;
+            }
+            // strip the spaces.
+            int left_idx = 0;
+            int right_idx = s.length();
+            while (left_idx < right_idx && Pattern.matches(WHITESPACE.pattern(),
+                s.substring(left_idx, left_idx + 1))) {
+                left_idx++;
+            }
+            while (right_idx > left_idx && Pattern.matches(WHITESPACE.pattern(),
+            s.substring(right_idx - 1, right_idx))) {
+                right_idx--;
+            }
+
+            if (right_idx <= left_idx) {
+                continue;
+            }
+
+            retList.add(s.substring(left_idx, right_idx));
+        }
+        return retList;
     }
 
 }

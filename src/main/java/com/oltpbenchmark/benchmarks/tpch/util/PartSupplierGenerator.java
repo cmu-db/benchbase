@@ -13,8 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.AbstractIterator;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -63,7 +61,7 @@ public class PartSupplierGenerator
     }
 
     private static class PartSupplierGeneratorIterator
-            extends AbstractIterator<List<Object>> {
+            implements Iterator<List<Object>> {
         private final double scaleFactor;
         private final long startIndex;
         private final long rowCount;
@@ -90,11 +88,12 @@ public class PartSupplierGenerator
         }
 
         @Override
-        protected List<Object> computeNext() {
-            if (index >= rowCount) {
-                return endOfData();
-            }
+        public boolean hasNext() {
+            return index < rowCount;
+        }
 
+        @Override
+        public List<Object> next() {
             List<Object> partSupplier = makePartSupplier(startIndex + index + 1);
             partSupplierNumber++;
 

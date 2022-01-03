@@ -13,10 +13,9 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.ImmutableList;
-
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.sql.Date;
 
@@ -86,12 +85,12 @@ public final class GenerateUtils {
     }
 
     private static List<Date> makeDateIndex() {
-        ImmutableList.Builder<Date> dates = ImmutableList.builder();
+        List<Date> dates = new ArrayList<>();
         for (int i = 0; i < TOTAL_DATE_RANGE; i++) {
             dates.add(makeDate(i + 1));
         }
 
-        return dates.build();
+        return dates;
     }
 
     private static Date makeDate(int index) {

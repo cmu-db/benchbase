@@ -13,9 +13,8 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import static java.util.Objects.requireNonNull;
@@ -31,7 +30,7 @@ public class Distribution {
         this.name = requireNonNull(name, "name is null");
         requireNonNull(distribution, "distribution is null");
 
-        ImmutableList.Builder<String> values = ImmutableList.builder();
+        List<String> values = new ArrayList<>();
         this.weights = new int[distribution.size()];
 
         int runningWeight = 0;
@@ -47,7 +46,7 @@ public class Distribution {
 
             index++;
         }
-        this.values = values.build();
+        this.values = values;
 
         // "nations" is hack and not a valid distribution so we need to skip it
         if (isValidDistribution) {

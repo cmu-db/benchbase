@@ -13,7 +13,7 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.base.Joiner;
+import com.oltpbenchmark.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +44,7 @@ public class RandomStringSequence
         }
 
         // join random words
-        String result = Joiner.on(' ').join(values.subList(0, count));
+        String result = StringUtil.join(" ", values.subList(0, count));
         return result;
     }
 }

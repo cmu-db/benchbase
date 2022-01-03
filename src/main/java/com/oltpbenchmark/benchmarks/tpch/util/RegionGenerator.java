@@ -13,8 +13,6 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import com.google.common.collect.AbstractIterator;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ public class RegionGenerator
     }
 
     private static class RegionGeneratorIterator
-            extends AbstractIterator<List<Object>> {
+            implements Iterator<List<Object>> {
         private final Distribution regions;
         private final RandomText commentRandom;
 
@@ -55,11 +53,12 @@ public class RegionGenerator
         }
 
         @Override
-        protected List<Object> computeNext() {
-            if (index >= regions.size()) {
-                return endOfData();
-            }
+        public boolean hasNext() {
+            return index < regions.size();
+        }
 
+        @Override
+        public List<Object> next() {
             List<Object> region = new ArrayList<>();
             region.add((long)index);
             region.add(regions.getValue(index));
