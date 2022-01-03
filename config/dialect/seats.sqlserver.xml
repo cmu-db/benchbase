@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
-    <dialect type="SQLSERVER" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
+<dialect type="SQLSERVER" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
+    <procedures>
         <procedure name="LoadConfig">
             <statement name="getFlights">
                 SELECT TOP 10000 f_id FROM FLIGHT ORDER BY F_DEPART_TIME DESC
             </statement>
         </procedure>
-    </dialect>
+    </procedures>
+</dialect>

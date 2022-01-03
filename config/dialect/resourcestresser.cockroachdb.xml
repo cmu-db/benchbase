@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <dialect type="COCKROACHDB" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
-    <procedure name="Contention1">
-        <statement name="lockSleep">
-            SELECT PG_SLEEP(?)
-        </statement>
-    </procedure>
-    <procedure name="Contention2">
-        <statement name="lockSleep">
-            SELECT PG_SLEEP(?)
-        </statement>
-    </procedure>
+    <procedures>
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+                SELECT PG_SLEEP(?)
+            </statement>
+        </procedure>
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+                SELECT PG_SLEEP(?)
+            </statement>
+        </procedure>
+    </procedures>
 </dialect>

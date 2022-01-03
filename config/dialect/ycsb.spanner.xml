@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <dialect type="SPANNER" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
-    <procedure name="ReadModifyWriteRecord">
-        <statement name="selectStmt">
-            SELECT * FROM usertable WHERE ycsb_key=?
-        </statement>
-    </procedure>
-    <procedure name="InsertRecord">
-        <statement name="insertStmt">
-            INSERT INTO usertable (ycsb_key, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10) VALUES (?,?,?,?,?,?,?,?,?,?,?)
-        </statement>
-    </procedure>
+    <procedures>
+        <procedure name="ReadModifyWriteRecord">
+            <statement name="selectStmt">
+                SELECT * FROM usertable WHERE ycsb_key=?
+            </statement>
+        </procedure>
+        <procedure name="InsertRecord">
+            <statement name="insertStmt">
+                INSERT INTO usertable (ycsb_key, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            </statement>
+        </procedure>
+    </procedures>
 </dialect>

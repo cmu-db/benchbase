@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <dialect type="SQLSERVER" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
-    <procedure name="ReadModifyWriteRecord">
-        <statement name="selectStmt">
-            Select * from USERTABLE where YCSB_KEY=?
-        </statement>
-    </procedure>
+    <procedures>
+        <procedure name="ReadModifyWriteRecord">
+            <statement name="selectStmt">
+                Select * from USERTABLE where YCSB_KEY=?
+            </statement>
+        </procedure>
+    </procedures>
 </dialect>
 

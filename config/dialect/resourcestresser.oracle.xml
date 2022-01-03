@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <dialect type="ORACLE" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="dialect.xsd">
-    <procedure name="Contention1">
-        <statement name="lockSleep">
-            BEGIN DBMS_LOCK.SLEEP(?); END;
-        </statement>
-    </procedure>
-    <procedure name="Contention2">
-        <statement name="lockSleep">
-            BEGIN DBMS_LOCK.SLEEP(?); END;
-        </statement>
-    </procedure>
+    <procedures>
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+                BEGIN DBMS_LOCK.SLEEP(?); END;
+            </statement>
+        </procedure>
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+                BEGIN DBMS_LOCK.SLEEP(?); END;
+            </statement>
+        </procedure>
+    </procedures>
 </dialect>
 
