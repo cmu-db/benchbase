@@ -139,19 +139,16 @@ public class DBWorkload {
                 boolean isTimed = time > 0;
 
                 PhaseArrival arrival = PhaseArrival.REGULAR;
-
                 if (phase.arrival() != null) {
                     arrival = phase.arrival();
                 }
 
                 int rate = 1;
-
                 if (isRateLimited && phase.rate() != null) {
                     rate = phase.rate();
                 }
 
                 int activeTerminals = workload.terminals();
-
                 if (phase.activeTerminals() != null) {
                     activeTerminals = phase.activeTerminals();
                 }
