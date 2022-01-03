@@ -99,7 +99,7 @@
     </xs:complexType>
     <xs:complexType name="workloadType">
         <xs:sequence>
-            <xs:element type="xs:int" name="scaleFactor">
+            <xs:element type="xs:double" name="scaleFactor">
                 <xs:annotation>
                     <xs:documentation>todo</xs:documentation>
                 </xs:annotation>
