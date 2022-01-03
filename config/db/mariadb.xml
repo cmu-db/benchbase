@@ -7,4 +7,5 @@
     <password>password</password>
     <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
     <batchSize>128</batchSize>
+    <retries>3</retries>
 </database>

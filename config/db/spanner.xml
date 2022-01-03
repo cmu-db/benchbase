@@ -5,4 +5,5 @@
     <url>jdbc:cloudspanner://localhost:9010/projects/benchbase-project/instances/benchbase-instance/databases/benchbase;usePlainText=true</url>
     <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
     <batchSize>128</batchSize>
+    <retries>3</retries>
 </database>
