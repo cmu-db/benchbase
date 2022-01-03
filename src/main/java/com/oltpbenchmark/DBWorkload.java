@@ -86,7 +86,7 @@ public class DBWorkload {
         int benchmarkCount = 1;
         for (Workload workload : configuration.workloads()) {
 
-            databaseDebug.put(String.format("Benchmark %d", benchmarkCount), workload.benchmarkClass());
+            databaseDebug.put(String.format("Benchmark (%d)", benchmarkCount), workload.benchmarkClass());
 
             List<TransactionType> transactionTypeList = new ArrayList<>();
             int transactionId = 1;
@@ -145,9 +145,9 @@ public class DBWorkload {
 
             WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, new TransactionTypes(transactionTypeList), phaseList);
 
-            databaseDebug.put(String.format("Terminals %d", benchmarkCount), workloadConfiguration.getTerminals());
-            databaseDebug.put(String.format("Scale Factor %d", benchmarkCount), workloadConfiguration.getScaleFactor());
-            databaseDebug.put(String.format("Selectivity %d", benchmarkCount), workloadConfiguration.getSelectivity());
+            databaseDebug.put(String.format("Terminals (%d)", benchmarkCount), workloadConfiguration.getTerminals());
+            databaseDebug.put(String.format("Scale Factor (%d)", benchmarkCount), workloadConfiguration.getScaleFactor());
+            databaseDebug.put(String.format("Selectivity (%d)", benchmarkCount), workloadConfiguration.getSelectivity());
 
             BenchmarkModule benchmarkModule = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{workloadConfiguration}, new Class<?>[]{WorkloadConfiguration.class});
 
