@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SINGLESTORE">
+        <procedure name="ReadRecord">
+            <statement name="readStmt">
+                SELECT * FROM USERTABLE WHERE YCSB_KEY=?
+            </statement>
+        </procedure>
+        <procedure name="ScanRecord">
+            <statement name="scanStmt">
+                SELECT * FROM USERTABLE WHERE YCSB_KEY &gt; ? AND YCSB_KEY &lt; ?
+            </statement>
+        </procedure>
+        <procedure name="UpdateRecord">
+            <statement name="updateAllStmt">
+                UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?
+            </statement>
+        </procedure>
+        <procedure name="InsertRecord">
+            <statement name="insertStmt">
+                INSERT INTO USERTABLE VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            </statement>
+        </procedure>
+        <procedure name="DeleteRecord">
+            <statement name="deleteStmt">
+                DELETE FROM USERTABLE where YCSB_KEY=?
+            </statement>
+        </procedure>
+        <procedure name="ReadModifyWriteRecord">
+            <statement name="selectStmt">
+                SELECT * from USERTABLE where YCSB_KEY=?
+            </statement>
+            <statement name="updateAllStmt">
+                UPDATE USERTABLE SET FIELD1=?,FIELD2=?,FIELD3=?,FIELD4=?,FIELD5=?,FIELD6=?,FIELD7=?,FIELD8=?,FIELD9=?,FIELD10=? WHERE YCSB_KEY=?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

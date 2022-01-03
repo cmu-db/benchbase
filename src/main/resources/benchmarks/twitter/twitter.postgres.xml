@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="GetTweet">
+            <statement name="getTweet">
+                SELECT * FROM "tweets" WHERE id = ?
+            </statement>
+        </procedure>
+        <procedure name="GetTweetsFromFollowing">
+            <statement name="getFollowing">
+                SELECT f2 FROM "follows" WHERE f1 = ? LIMIT 20
+            </statement>
+            <statement name="getTweets">
+                SELECT * FROM "tweets" WHERE uid IN (??)
+            </statement>
+        </procedure>        
+        <procedure name="GetFollowers">
+            <statement name="getFollowers">
+                SELECT f2 FROM "followers" WHERE f1 = ? LIMIT 20
+            </statement>
+            <statement name="getFollowerNames">
+                SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
+            </statement>
+        </procedure>
+        <procedure name="GetUserTweets">
+            <statement name="getTweets">
+                SELECT * FROM "tweets" WHERE uid = ? LIMIT 10
+            </statement>
+        </procedure>
+        <procedure name="InsertTweet">
+            <statement name="insertTweet">
+                INSERT INTO "added_tweets" VALUES (default, ?, ?, ?)
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

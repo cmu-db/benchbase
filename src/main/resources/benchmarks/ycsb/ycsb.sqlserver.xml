@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="ReadModifyWriteRecord">
+            <statement name="selectStmt">
+                Select * from USERTABLE where YCSB_KEY=?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
+
