@@ -3,7 +3,7 @@
 
     <workloads>
         <workload benchmarkClass="com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark">
-            <scaleFactor>1</scaleFactor>
+            <scaleFactor>.01</scaleFactor>
             <terminals>1</terminals>
 
             <dataDirectory>data/tpch-sf0.01</dataDirectory>
