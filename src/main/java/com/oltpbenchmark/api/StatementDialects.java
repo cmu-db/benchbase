@@ -22,11 +22,11 @@ import com.oltpbenchmark.api.config.Dialect;
 import com.oltpbenchmark.api.config.Statement;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,39 +54,35 @@ public class StatementDialects {
      */
     private void load(String benchmarkName, DatabaseType databaseType) {
 
-        String fileName = "dialect-" + databaseType.name().toLowerCase() + ".xml";
+        String fileName = benchmarkName + "." + databaseType.name().toLowerCase() + ".xml";
 
-        final String path = "/benchmarks/" + benchmarkName + "/" + fileName;
+        final String path = "config/dialect/" + fileName;
 
         boolean exists = FileUtil.exists(path);
 
         if (exists) {
-            try (InputStream stream = this.getClass().getResourceAsStream(path)) {
+            try {
 
-                if (stream != null) {
-                    XmlMapper mapper = new XmlMapper();
-                    Dialect dialect = mapper.readValue(stream, Dialect.class);
+                XmlMapper mapper = new XmlMapper();
+                Dialect dialect = mapper.readValue(FileUtils.getFile(path), Dialect.class);
 
-                    for (com.oltpbenchmark.api.config.Procedure procedure : dialect.procedures()) {
+                for (com.oltpbenchmark.api.config.Procedure procedure : dialect.procedures()) {
 
-                        String procName = procedure.name();
-                        Map<String, String> procDialects = this.dialectsMap.get(procName);
+                    String procName = procedure.name();
+                    Map<String, String> procDialects = this.dialectsMap.get(procName);
 
-                        for (Statement statement : procedure.statements()) {
-                            String stmtName = statement.name();
-                            String stmtSQL = statement.sql();
-                            if (procDialects == null) {
-                                procDialects = new HashMap<>();
-                                this.dialectsMap.put(procName, procDialects);
-                            }
-                            procDialects.put(stmtName, stmtSQL);
-                            LOG.debug(String.format("%s.%s.%s\n%s\n", databaseType, procName, stmtName, stmtSQL));
+                    for (Statement statement : procedure.statements()) {
+                        String stmtName = statement.name();
+                        String stmtSQL = statement.sql();
+                        if (procDialects == null) {
+                            procDialects = new HashMap<>();
+                            this.dialectsMap.put(procName, procDialects);
                         }
-
+                        procDialects.put(stmtName, stmtSQL);
+                        LOG.debug(String.format("%s.%s.%s\n%s\n", databaseType, procName, stmtName, stmtSQL));
                     }
 
                 }
-
             } catch (IOException e) {
                 LOG.error(e.getMessage(), e);
             }
@@ -95,7 +91,6 @@ public class StatementDialects {
         LOG.warn("No dialect file in {}", path);
 
     }
-
 
 
     /**
