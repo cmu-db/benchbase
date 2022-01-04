@@ -11,13 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.util;
+package com.oltpbenchmark.util;
 
-public abstract class AbstractRandomInt {
+public class RowRandomInt {
     private static final long MULTIPLIER = 16807;
     private static final long MODULUS = 2147483647;
+    private static final long DEFAULT_SEED = 19620718;
 
-    private final int expectedUsagePerRow;
+    private final int seedsPerRow;
 
     private long seed;
     private int usage;
@@ -26,19 +27,35 @@ public abstract class AbstractRandomInt {
      * Creates a new random number generator with the specified seed and
      * specified number of random values per row.
      */
-    protected AbstractRandomInt(long seed, int expectedUsagePerRow) {
+    public RowRandomInt(long seed, int seedsPerRow) {
         this.seed = seed;
-        this.expectedUsagePerRow = expectedUsagePerRow;
+        this.seedsPerRow = seedsPerRow;
+    }
+
+    /**
+     * Creates a new random generator with specified column number
+     * and specified number of random values per row.
+     * Seed is base + colnum * Constant.
+     */
+    public RowRandomInt(int globalColumnNumber, int seedsPerRow) {
+        this(globalColumnNumber, DEFAULT_SEED, seedsPerRow);
+    }
+
+    /**
+     * Creates a new random generator with specified column number
+     * and specified number of random values per row.
+     * Seed is base + colnum * Constant.
+     */
+    public RowRandomInt(int globalColumnNumber, long seed, int seedsPerRow) {
+        this.seed = seed + globalColumnNumber * (MODULUS / 799);
+        this.seedsPerRow = seedsPerRow;
     }
 
     /**
      * Get a random value between lowValue (inclusive) and highValue (inclusive).
      */
-    protected int nextInt(int lowValue, int highValue) {
+    public int nextInt(int lowValue, int highValue) {
         nextRand();
-
-        // This code is strange because we must maintain the bugs in the
-        // original TPC-H generator code.
 
         // This will result in overflow when high is max int and low is 0,
         // which is a bug since you will get a value outside of the
@@ -50,7 +67,7 @@ public abstract class AbstractRandomInt {
         return lowValue + valueInRange;
     }
 
-    protected long nextRand() {
+    public long nextRand() {
         seed = (seed * MULTIPLIER) % MODULUS;
         usage++;
         return seed;
@@ -63,7 +80,7 @@ public abstract class AbstractRandomInt {
      * sets.
      */
     public void rowFinished() {
-        advanceSeed(expectedUsagePerRow - usage);
+        advanceSeed(seedsPerRow - usage);
         usage = 0;
     }
 
@@ -78,7 +95,7 @@ public abstract class AbstractRandomInt {
         }
 
         // advance the seed
-        advanceSeed(expectedUsagePerRow * rowCount);
+        advanceSeed(seedsPerRow * rowCount);
     }
 
     private void advanceSeed(long count) {

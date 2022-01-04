@@ -43,13 +43,13 @@ public class RegionGenerator
     private static class RegionGeneratorIterator
             implements Iterator<List<Object>> {
         private final Distribution regions;
-        private final RandomText commentRandom;
+        private final TPCHRandomText commentRandom;
 
         private int index;
 
         private RegionGeneratorIterator(Distribution regions, TextPool textPool) {
             this.regions = regions;
-            this.commentRandom = new RandomText(1500869201, textPool, COMMENT_AVERAGE_LENGTH);
+            this.commentRandom = new TPCHRandomText(1500869201L, textPool, COMMENT_AVERAGE_LENGTH);
         }
 
         @Override

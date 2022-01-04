@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.oltpbenchmark.util.RowRandomBoundedInt;
+
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Locale.ENGLISH;
@@ -66,13 +68,13 @@ public class PartGenerator
 
     private static class PartGeneratorIterator
             implements Iterator<List<Object>> {
-        private final RandomStringSequence nameRandom;
-        private final RandomBoundedInt manufacturerRandom;
-        private final RandomBoundedInt brandRandom;
-        private final RandomString typeRandom;
-        private final RandomBoundedInt sizeRandom;
-        private final RandomString containerRandom;
-        private final RandomText commentRandom;
+        private final TPCHRandomStringSequence nameRandom;
+        private final RowRandomBoundedInt manufacturerRandom;
+        private final RowRandomBoundedInt brandRandom;
+        private final TPCHRandomString typeRandom;
+        private final RowRandomBoundedInt sizeRandom;
+        private final TPCHRandomString containerRandom;
+        private final TPCHRandomText commentRandom;
 
         private final long startIndex;
         private final long rowCount;
@@ -83,13 +85,13 @@ public class PartGenerator
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            nameRandom = new RandomStringSequence(709314158, NAME_WORDS, distributions.getPartColors());
-            manufacturerRandom = new RandomBoundedInt(1, MANUFACTURER_MIN, MANUFACTURER_MAX);
-            brandRandom = new RandomBoundedInt(46831694, BRAND_MIN, BRAND_MAX);
-            typeRandom = new RandomString(1841581359, distributions.getPartTypes());
-            sizeRandom = new RandomBoundedInt(1193163244, SIZE_MIN, SIZE_MAX);
-            containerRandom = new RandomString(727633698, distributions.getPartContainers());
-            commentRandom = new RandomText(804159733, textPool, COMMENT_AVERAGE_LENGTH);
+            nameRandom = new TPCHRandomStringSequence(709314158L, NAME_WORDS, distributions.getPartColors());
+            manufacturerRandom = new RowRandomBoundedInt(1L, MANUFACTURER_MIN, MANUFACTURER_MAX);
+            brandRandom = new RowRandomBoundedInt(46831694L, BRAND_MIN, BRAND_MAX);
+            typeRandom = new TPCHRandomString(1841581359L, distributions.getPartTypes());
+            sizeRandom = new RowRandomBoundedInt(1193163244L, SIZE_MIN, SIZE_MAX);
+            containerRandom = new TPCHRandomString(727633698L, distributions.getPartContainers());
+            commentRandom = new TPCHRandomText(804159733L, textPool, COMMENT_AVERAGE_LENGTH);
 
             nameRandom.advanceRows(startIndex);
             manufacturerRandom.advanceRows(startIndex);

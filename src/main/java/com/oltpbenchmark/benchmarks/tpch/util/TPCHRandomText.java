@@ -13,8 +13,10 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-public class RandomText
-        extends AbstractRandomInt {
+import com.oltpbenchmark.util.RowRandomInt;
+
+public class TPCHRandomText
+        extends RowRandomInt {
     private static final double LOW_LENGTH_MULTIPLIER = 0.4;
     private static final double HIGH_LENGTH_MULTIPLIER = 1.6;
 
@@ -22,12 +24,12 @@ public class RandomText
     private final int minLength;
     private final int maxLength;
 
-    public RandomText(long seed, TextPool textPool, double averageTextLength) {
+    public TPCHRandomText(long seed, TextPool textPool, double averageTextLength) {
         this(seed, textPool, averageTextLength, 1);
     }
 
-    public RandomText(long seed, TextPool textPool, double averageTextLength, int expectedRowCount) {
-        super(seed, expectedRowCount * 2);
+    public TPCHRandomText(long seed, TextPool textPool, double averageTextLength, int seedsPerRow) {
+        super(seed, seedsPerRow * 2);
         this.textPool = textPool;
         this.minLength = (int) (averageTextLength * LOW_LENGTH_MULTIPLIER);
         this.maxLength = (int) (averageTextLength * HIGH_LENGTH_MULTIPLIER);

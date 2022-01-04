@@ -14,6 +14,8 @@
 package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.oltpbenchmark.util.StringUtil;
+import com.oltpbenchmark.util.RowRandomBoundedInt;
+import com.oltpbenchmark.util.RowRandomInt;
 
 import java.util.List;
 
@@ -66,7 +68,7 @@ public class TextPoolGenerator {
     public String generate() {
         StringBuilder output = new StringBuilder(size + MAX_SENTENCE_LENGTH);
 
-        RandomInt randomInt = new RandomInt(933588178, Integer.MAX_VALUE);
+        RowRandomInt randomInt = new RowRandomInt(933588178L, Integer.MAX_VALUE);
 
         while (output.length() < size) {
             generateSentence(output, randomInt);
@@ -76,7 +78,7 @@ public class TextPoolGenerator {
         return output.toString();
     }
 
-    private void generateSentence(StringBuilder builder, RandomInt random) {
+    private void generateSentence(StringBuilder builder, RowRandomInt random) {
         int index = grammars.getRandomIndex(random);
         for (char token : grammars.getTokens(index)) {
             switch (token) {
@@ -108,7 +110,7 @@ public class TextPoolGenerator {
         }
     }
 
-    private void generateVerbPhrase(StringBuilder builder, RandomInt random) {
+    private void generateVerbPhrase(StringBuilder builder, RowRandomInt random) {
         int index = verbPhrases.getRandomIndex(random);
         for (char token : verbPhrases.getTokens(index)) {
             // pick a random word
@@ -134,7 +136,7 @@ public class TextPoolGenerator {
         }
     }
 
-    private void generateNounPhrase(StringBuilder builder, RandomInt random) {
+    private void generateNounPhrase(StringBuilder builder, RowRandomInt random) {
         int index = nounPhrases.getRandomIndex(random);
         for (char token : nounPhrases.getTokens(index)) {
             // pick a random word
@@ -181,7 +183,7 @@ public class TextPoolGenerator {
             }
         }
 
-        public String randomValue(RandomInt random) {
+        public String randomValue(RowRandomInt random) {
             int randomIndex = random.nextInt(0, randomTable.length - 1);
             return randomTable[randomIndex];
         }
@@ -217,7 +219,7 @@ public class TextPoolGenerator {
             }
         }
 
-        public int getRandomIndex(RandomInt random) {
+        public int getRandomIndex(RowRandomInt random) {
             int randomIndex = random.nextInt(0, randomTable.length - 1);
             return randomTable[randomIndex];
         }

@@ -13,6 +13,8 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
+import com.oltpbenchmark.util.RowRandomInt;
+
 import static com.oltpbenchmark.benchmarks.tpch.util.Distributions.getDefaultDistributions;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -42,7 +44,7 @@ public class TextPool {
 
         ByteArrayBuilder output = new ByteArrayBuilder(size + MAX_SENTENCE_LENGTH);
 
-        RandomInt randomInt = new RandomInt(933588178, Integer.MAX_VALUE);
+        RowRandomInt randomInt = new RowRandomInt(933588178L, Integer.MAX_VALUE);
 
         while (output.getLength() < size) {
             generateSentence(distributions, output, randomInt);
@@ -64,7 +66,7 @@ public class TextPool {
         return new String(textPool, begin, end - begin, US_ASCII);
     }
 
-    private static void generateSentence(Distributions distributions, ByteArrayBuilder builder, RandomInt random) {
+    private static void generateSentence(Distributions distributions, ByteArrayBuilder builder, RowRandomInt random) {
         String syntax = distributions.getGrammars().randomValue(random);
 
         int maxLength = syntax.length();
@@ -98,7 +100,7 @@ public class TextPool {
         }
     }
 
-    private static void generateVerbPhrase(Distributions distributions, ByteArrayBuilder builder, RandomInt random) {
+    private static void generateVerbPhrase(Distributions distributions, ByteArrayBuilder builder, RowRandomInt random) {
         String syntax = distributions.getVerbPhrase().randomValue(random);
         int maxLength = syntax.length();
         for (int i = 0; i < maxLength; i += 2) {
@@ -126,7 +128,7 @@ public class TextPool {
         }
     }
 
-    private static void generateNounPhrase(Distributions distributions, ByteArrayBuilder builder, RandomInt random) {
+    private static void generateNounPhrase(Distributions distributions, ByteArrayBuilder builder, RowRandomInt random) {
         String syntax = distributions.getNounPhrase().randomValue(random);
         int maxLength = syntax.length();
         for (int i = 0; i < maxLength; i++) {

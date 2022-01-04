@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.oltpbenchmark.util.RowRandomInt;
+
 import static java.util.Objects.requireNonNull;
 
 public class Distribution {
@@ -83,7 +86,7 @@ public class Distribution {
         return values.size();
     }
 
-    public String randomValue(RandomInt randomInt) {
+    public String randomValue(RowRandomInt randomInt) {
         int randomValue = randomInt.nextInt(0, maxWeight - 1);
         return distribution[randomValue];
     }

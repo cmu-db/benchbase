@@ -11,26 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.util;
+package com.oltpbenchmark.util;
 
-public class RandomBoundedLong {
-    private final RandomLong randomLong;
-    private final RandomInt randomInt;
+public class RowRandomBoundedLong {
+    private final RowRandomLong randomLong;
+    private final RowRandomInt randomInt;
 
     private final long lowValue;
     private final long highValue;
 
-    public RandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue) {
+    public RowRandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue) {
         this(seed, use64Bits, lowValue, highValue, 1);
     }
 
-    public RandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue, int expectedRowCount) {
+    public RowRandomBoundedLong(long seed, boolean use64Bits, long lowValue, long highValue, int seedsPerRow) {
         if (use64Bits) {
-            this.randomLong = new RandomLong(seed, expectedRowCount);
+            this.randomLong = new RowRandomLong(seed, seedsPerRow);
             this.randomInt = null;
         } else {
             this.randomLong = null;
-            this.randomInt = new RandomInt(seed, expectedRowCount);
+            this.randomInt = new RowRandomInt(seed, seedsPerRow);
         }
 
         this.lowValue = lowValue;

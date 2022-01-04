@@ -17,6 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.oltpbenchmark.util.RowRandomBoundedInt;
+import com.oltpbenchmark.util.RowRandomBoundedLong;
+
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.MIN_GENERATE_DATE;
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.TOTAL_DATE_RANGE;
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
@@ -83,18 +86,18 @@ public class OrderGenerator
 
     private static class OrderGeneratorIterator
             implements Iterator<List<Object>> {
-        private final RandomBoundedInt orderDateRandom = createOrderDateRandom();
-        private final RandomBoundedInt lineCountRandom = createLineCountRandom();
-        private final RandomBoundedLong customerKeyRandom;
-        private final RandomString orderPriorityRandom;
-        private final RandomBoundedInt clerkRandom;
-        private final RandomText commentRandom;
+        private final RowRandomBoundedInt orderDateRandom = createOrderDateRandom();
+        private final RowRandomBoundedInt lineCountRandom = createLineCountRandom();
+        private final RowRandomBoundedLong customerKeyRandom;
+        private final TPCHRandomString orderPriorityRandom;
+        private final RowRandomBoundedInt clerkRandom;
+        private final TPCHRandomText commentRandom;
 
-        private final RandomBoundedInt lineQuantityRandom = createQuantityRandom();
-        private final RandomBoundedInt lineDiscountRandom = createDiscountRandom();
-        private final RandomBoundedInt lineTaxRandom = createTaxRandom();
-        private final RandomBoundedLong linePartKeyRandom;
-        private final RandomBoundedInt lineShipDateRandom = createShipDateRandom();
+        private final RowRandomBoundedInt lineQuantityRandom = createQuantityRandom();
+        private final RowRandomBoundedInt lineDiscountRandom = createDiscountRandom();
+        private final RowRandomBoundedInt lineTaxRandom = createTaxRandom();
+        private final RowRandomBoundedLong linePartKeyRandom;
+        private final RowRandomBoundedInt lineShipDateRandom = createShipDateRandom();
 
         private final long startIndex;
         private final long rowCount;
@@ -107,13 +110,13 @@ public class OrderGenerator
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            clerkRandom = new RandomBoundedInt(1171034773, 1, Math.max((int) (scaleFactor * CLERK_SCALE_BASE), CLERK_SCALE_BASE));
+            clerkRandom = new RowRandomBoundedInt(1171034773L, 1, Math.max((int) (scaleFactor * CLERK_SCALE_BASE), CLERK_SCALE_BASE));
 
             maxCustomerKey = (long) (CustomerGenerator.SCALE_BASE * scaleFactor);
-            customerKeyRandom = new RandomBoundedLong(851767375, scaleFactor >= 30000, 1, maxCustomerKey);
+            customerKeyRandom = new RowRandomBoundedLong(851767375L, scaleFactor >= 30000, 1, maxCustomerKey);
 
-            orderPriorityRandom = new RandomString(591449447, distributions.getOrderPriorities());
-            commentRandom = new RandomText(276090261, textPool, COMMENT_AVERAGE_LENGTH);
+            orderPriorityRandom = new TPCHRandomString(591449447L, distributions.getOrderPriorities());
+            commentRandom = new TPCHRandomText(276090261L, textPool, COMMENT_AVERAGE_LENGTH);
 
             linePartKeyRandom = createPartKeyRandom(scaleFactor);
 
@@ -219,12 +222,12 @@ public class OrderGenerator
         }
     }
 
-    static RandomBoundedInt createLineCountRandom() {
-        return new RandomBoundedInt(1434868289, LINE_COUNT_MIN, LINE_COUNT_MAX);
+    static RowRandomBoundedInt createLineCountRandom() {
+        return new RowRandomBoundedInt(1434868289L, LINE_COUNT_MIN, LINE_COUNT_MAX);
     }
 
-    static RandomBoundedInt createOrderDateRandom() {
-        return new RandomBoundedInt(1066728069, ORDER_DATE_MIN, ORDER_DATE_MAX);
+    static RowRandomBoundedInt createOrderDateRandom() {
+        return new RowRandomBoundedInt(1066728069L, ORDER_DATE_MIN, ORDER_DATE_MAX);
     }
 
     static long makeOrderKey(long orderIndex) {

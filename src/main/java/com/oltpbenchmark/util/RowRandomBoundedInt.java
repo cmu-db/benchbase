@@ -11,19 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.util;
+package com.oltpbenchmark.util;
 
-public class RandomBoundedInt
-        extends AbstractRandomInt {
+public class RowRandomBoundedInt
+        extends RowRandomInt {
     private final int lowValue;
     private final int highValue;
 
-    public RandomBoundedInt(long seed, int lowValue, int highValue) {
+    public RowRandomBoundedInt(long seed, int lowValue, int highValue) {
         this(seed, lowValue, highValue, 1);
     }
 
-    public RandomBoundedInt(long seed, int lowValue, int highValue, int expectedRowCount) {
-        super(seed, expectedRowCount);
+    public RowRandomBoundedInt(long seed, int lowValue, int highValue, int seedsPerRow) {
+        super(seed, seedsPerRow);
         this.lowValue = lowValue;
         this.highValue = highValue;
     }

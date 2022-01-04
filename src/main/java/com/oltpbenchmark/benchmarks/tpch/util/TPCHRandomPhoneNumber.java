@@ -13,19 +13,21 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
+import com.oltpbenchmark.util.RowRandomInt;
+
 import static java.util.Locale.ENGLISH;
 
-public class RandomPhoneNumber
-        extends AbstractRandomInt {
+public class TPCHRandomPhoneNumber
+        extends RowRandomInt {
     // limited by country codes in phone numbers
     private static final int NATIONS_MAX = 90;
 
-    public RandomPhoneNumber(long seed) {
+    public TPCHRandomPhoneNumber(long seed) {
         this(seed, 1);
     }
 
-    public RandomPhoneNumber(long seed, int expectedRowCount) {
-        super(seed, 3 * expectedRowCount);
+    public TPCHRandomPhoneNumber(long seed, int seedsPerRow) {
+        super(seed, 3 * seedsPerRow);
     }
 
     public String nextValue(long nationKey) {

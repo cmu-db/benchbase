@@ -11,13 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.oltpbenchmark.benchmarks.tpch.util;
+package com.oltpbenchmark.util;
 
-public class RandomLong {
+public class RowRandomLong {
     private static final long MULTIPLIER = 6364136223846793005L;
     private static final long INCREMENT = 1;
 
-    private final int expectedUsagePerRow;
+    private final int seedsPerRow;
 
     private long seed;
     private int usage;
@@ -26,9 +26,9 @@ public class RandomLong {
      * Creates a new random number generator with the specified seed and
      * specified number of random values per row.
      */
-    public RandomLong(long seed, int expectedUsagePerRow) {
+    public RowRandomLong(long seed, int seedsPerRow) {
         this.seed = seed;
-        this.expectedUsagePerRow = expectedUsagePerRow;
+        this.seedsPerRow = seedsPerRow;
     }
 
     /**
@@ -55,7 +55,7 @@ public class RandomLong {
      * sets.
      */
     public void rowFinished() {
-        advanceSeed32(expectedUsagePerRow - usage);
+        advanceSeed32(seedsPerRow - usage);
         usage = 0;
     }
 
@@ -70,50 +70,7 @@ public class RandomLong {
         }
 
         // advance the seed
-        advanceSeed32(expectedUsagePerRow * rowCount);
-    }
-
-    //
-    // TPC-H uses the 32bit code for advancing 64bit randoms for some reason, so
-    // the following code is not used
-    //
-    public void advanceSeed(long count) {
-        if (count == 0) {
-            return;
-        }
-
-        // Recursively compute X(n) = A * X(n-1) + C
-        //
-        // explicitly:
-        // X(n) = A^n * X(0) + { A^(n-1) + A^(n-2) + ... A + 1 } * C
-        //
-        // we write this as:
-        // X(n) = aPow(n) * X(0) + dSum(n) * C
-        //
-        // we use the following relations:
-        // aPow(n) = A^(n%2)*aPow(n/2)*aPow(n/2)
-        // dSum(n) =   (n%2)*aPow(n/2)*aPow(n/2) + (aPow(n/2) + 1) * dSum(n/2)
-        //
-
-        // first get the highest non-zero bit
-        int numberOfBits = 0;
-        while (count >> numberOfBits != INCREMENT) {
-            numberOfBits++;
-        }
-
-        long aPow = MULTIPLIER;
-        long dSum = INCREMENT;
-        while (--numberOfBits >= 0) {
-            dSum *= (aPow + 1);
-            aPow = aPow * aPow;
-
-            // odd value
-            if (((count >> numberOfBits) % 2) == 1) {
-                dSum += aPow;
-                aPow *= MULTIPLIER;
-            }
-        }
-        seed = seed * aPow + dSum * INCREMENT;
+        advanceSeed32(seedsPerRow * rowCount);
     }
 
     private static final long MULTIPLIER_32 = 16807;

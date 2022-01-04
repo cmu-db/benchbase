@@ -17,6 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.oltpbenchmark.util.RowRandomBoundedInt;
+import com.oltpbenchmark.util.RowRandomInt;
+
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Locale.ENGLISH;
@@ -69,15 +72,15 @@ public class SupplierGenerator
 
     private static class SupplierGeneratorIterator
             implements Iterator<List<Object>> {
-        private final RandomAlphaNumeric addressRandom = new RandomAlphaNumeric(706178559, ADDRESS_AVERAGE_LENGTH);
-        private final RandomBoundedInt nationKeyRandom;
-        private final RandomPhoneNumber phoneRandom = new RandomPhoneNumber(884434366);
-        private final RandomBoundedInt accountBalanceRandom = new RandomBoundedInt(962338209, ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
-        private final RandomText commentRandom;
-        private final RandomBoundedInt bbbCommentRandom = new RandomBoundedInt(202794285, 1, SCALE_BASE);
-        private final RandomInt bbbJunkRandom = new RandomInt(263032577, 1);
-        private final RandomInt bbbOffsetRandom = new RandomInt(715851524, 1);
-        private final RandomBoundedInt bbbTypeRandom = new RandomBoundedInt(753643799, 0, 100);
+        private final TPCHRandomAlphaNumeric addressRandom = new TPCHRandomAlphaNumeric(706178559L, ADDRESS_AVERAGE_LENGTH);
+        private final RowRandomBoundedInt nationKeyRandom;
+        private final TPCHRandomPhoneNumber phoneRandom = new TPCHRandomPhoneNumber(884434366L);
+        private final RowRandomBoundedInt accountBalanceRandom = new RowRandomBoundedInt(962338209L, ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
+        private final TPCHRandomText commentRandom;
+        private final RowRandomBoundedInt bbbCommentRandom = new RowRandomBoundedInt(202794285L, 1, SCALE_BASE);
+        private final RowRandomInt bbbJunkRandom = new RowRandomInt(263032577L, 1);
+        private final RowRandomInt bbbOffsetRandom = new RowRandomInt(715851524L, 1);
+        private final RowRandomBoundedInt bbbTypeRandom = new RowRandomBoundedInt(753643799L, 0, 100);
 
         private final long startIndex;
         private final long rowCount;
@@ -88,8 +91,8 @@ public class SupplierGenerator
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            nationKeyRandom = new RandomBoundedInt(110356601, 0, distributions.getNations().size() - 1);
-            commentRandom = new RandomText(1341315363, textPool, COMMENT_AVERAGE_LENGTH);
+            nationKeyRandom = new RowRandomBoundedInt(110356601L, 0, distributions.getNations().size() - 1);
+            commentRandom = new TPCHRandomText(1341315363L, textPool, COMMENT_AVERAGE_LENGTH);
 
             addressRandom.advanceRows(startIndex);
             nationKeyRandom.advanceRows(startIndex);

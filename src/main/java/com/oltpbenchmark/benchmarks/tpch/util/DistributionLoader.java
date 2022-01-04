@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.stream.Stream;
 import java.util.regex.Pattern;
 
@@ -37,7 +37,7 @@ public final class DistributionLoader {
 
     private static Distribution loadDistribution(Iterator<String> lines, String name) {
         int count = -1;
-        Map<String, Integer> members = new HashMap<>();
+        Map<String, Integer> members = new LinkedHashMap<>();
         while (lines.hasNext()) {
             // advance to "begin"
             String line = lines.next();
@@ -73,7 +73,7 @@ public final class DistributionLoader {
     }
 
     private static Map<String, Distribution> loadDistributions(Iterator<String> lines) {
-        Map<String, Distribution> distributions = new HashMap<>();
+        Map<String, Distribution> distributions = new LinkedHashMap<>();
         while (lines.hasNext()) {
             // advance to "begin"
             String line = lines.next();

@@ -13,14 +13,22 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-public class RandomInt
-        extends AbstractRandomInt {
-    public RandomInt(long seed, int expectedUsagePerRow) {
-        super(seed, expectedUsagePerRow);
+import com.oltpbenchmark.util.RowRandomInt;
+
+public class TPCHRandomString
+        extends RowRandomInt {
+    private final Distribution distribution;
+
+    public TPCHRandomString(long seed, Distribution distribution) {
+        this(seed, distribution, 1);
     }
 
-    @Override
-    public int nextInt(int lowValue, int highValue) {
-        return super.nextInt(lowValue, highValue);
+    public TPCHRandomString(long seed, Distribution distribution, int seedsPerRow) {
+        super(seed, seedsPerRow);
+        this.distribution = distribution;
+    }
+
+    public String nextValue() {
+        return distribution.randomValue(this);
     }
 }

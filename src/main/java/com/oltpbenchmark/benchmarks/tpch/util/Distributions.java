@@ -13,14 +13,12 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URL;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static com.oltpbenchmark.benchmarks.tpch.util.DistributionLoader.loadDistribution;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -29,15 +27,11 @@ public class Distributions {
     private static final Distributions DEFAULT_DISTRIBUTIONS = loadDefaults();
 
     private static Distributions loadDefaults() {
-        try {
-            Path distPath = Paths.get(Distributions.class
-                .getResource("/benchmarks/tpch/dists.dss").toURI());
-            return new Distributions(loadDistribution(Files.lines(distPath, UTF_8)));
+        try (InputStream resource = Distributions.class.getResourceAsStream("/benchmarks/tpch/dists.dss")) {
+            BufferedReader distReader = new BufferedReader(new InputStreamReader(resource, UTF_8));
+            return new Distributions(loadDistribution(distReader.lines()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

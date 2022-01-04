@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.oltpbenchmark.util.RowRandomBoundedInt;
+
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Locale.ENGLISH;
@@ -61,12 +63,12 @@ public class CustomerGenerator
 
     private static class CustomerGeneratorIterator
             implements Iterator<List<Object>> {
-        private final RandomAlphaNumeric addressRandom = new RandomAlphaNumeric(881155353, ADDRESS_AVERAGE_LENGTH);
-        private final RandomBoundedInt nationKeyRandom;
-        private final RandomPhoneNumber phoneRandom = new RandomPhoneNumber(1521138112);
-        private final RandomBoundedInt accountBalanceRandom = new RandomBoundedInt(298370230, ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
-        private final RandomString marketSegmentRandom;
-        private final RandomText commentRandom;
+        private final TPCHRandomAlphaNumeric addressRandom = new TPCHRandomAlphaNumeric(881155353L, ADDRESS_AVERAGE_LENGTH);
+        private final RowRandomBoundedInt nationKeyRandom;
+        private final TPCHRandomPhoneNumber phoneRandom = new TPCHRandomPhoneNumber(1521138112L);
+        private final RowRandomBoundedInt accountBalanceRandom = new RowRandomBoundedInt(298370230L, ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
+        private final TPCHRandomString marketSegmentRandom;
+        private final TPCHRandomText commentRandom;
 
         private final long startIndex;
         private final long rowCount;
@@ -77,9 +79,9 @@ public class CustomerGenerator
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            nationKeyRandom = new RandomBoundedInt(1489529863, 0, distributions.getNations().size() - 1);
-            marketSegmentRandom = new RandomString(1140279430, distributions.getMarketSegments());
-            commentRandom = new RandomText(1335826707, textPool, COMMENT_AVERAGE_LENGTH);
+            nationKeyRandom = new RowRandomBoundedInt(1489529863L, 0, distributions.getNations().size() - 1);
+            marketSegmentRandom = new TPCHRandomString(1140279430L, distributions.getMarketSegments());
+            commentRandom = new TPCHRandomText(1335826707L, textPool, COMMENT_AVERAGE_LENGTH);
 
             addressRandom.advanceRows(startIndex);
             nationKeyRandom.advanceRows(startIndex);

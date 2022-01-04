@@ -13,8 +13,10 @@
  */
 package com.oltpbenchmark.benchmarks.tpch.util;
 
-public class RandomAlphaNumeric
-        extends AbstractRandomInt {
+import com.oltpbenchmark.util.RowRandomInt;
+
+public class TPCHRandomAlphaNumeric
+        extends RowRandomInt {
     private static final char[] ALPHA_NUMERIC = "0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,".toCharArray();
 
     private static final double LOW_LENGTH_MULTIPLIER = 0.4;
@@ -25,12 +27,12 @@ public class RandomAlphaNumeric
     private final int minLength;
     private final int maxLength;
 
-    public RandomAlphaNumeric(long seed, int averageLength) {
+    public TPCHRandomAlphaNumeric(long seed, int averageLength) {
         this(seed, averageLength, 1);
     }
 
-    public RandomAlphaNumeric(long seed, int averageLength, int expectedRowCount) {
-        super(seed, USAGE_PER_ROW * expectedRowCount);
+    public TPCHRandomAlphaNumeric(long seed, int averageLength, int seedsPerRow) {
+        super(seed, USAGE_PER_ROW * seedsPerRow);
         this.minLength = (int) (averageLength * LOW_LENGTH_MULTIPLIER);
         this.maxLength = (int) (averageLength * HIGH_LENGTH_MULTIPLIER);
     }

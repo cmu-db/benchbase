@@ -14,22 +14,23 @@
 package com.oltpbenchmark.benchmarks.tpch.util;
 
 import com.oltpbenchmark.util.StringUtil;
+import com.oltpbenchmark.util.RowRandomInt;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class RandomStringSequence
-        extends AbstractRandomInt {
+public class TPCHRandomStringSequence
+        extends RowRandomInt {
     private final int count;
     private final Distribution distribution;
 
-    public RandomStringSequence(long seed, int count, Distribution distribution) {
+    public TPCHRandomStringSequence(long seed, int count, Distribution distribution) {
         this(seed, count, distribution, 1);
     }
 
-    public RandomStringSequence(long seed, int count, Distribution distribution, int expectedRowCount) {
-        super(seed, distribution.size() * expectedRowCount);
+    public TPCHRandomStringSequence(long seed, int count, Distribution distribution, int seedsPerRow) {
+        super(seed, distribution.size() * seedsPerRow);
         this.count = count;
         this.distribution = distribution;
     }

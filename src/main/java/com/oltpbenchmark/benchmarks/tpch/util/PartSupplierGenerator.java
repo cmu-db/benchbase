@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.oltpbenchmark.util.RowRandomBoundedInt;
+
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateRowCount;
 import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStartIndex;
 import static java.util.Objects.requireNonNull;
@@ -66,9 +68,9 @@ public class PartSupplierGenerator
         private final long startIndex;
         private final long rowCount;
 
-        private final RandomBoundedInt availableQuantityRandom;
-        private final RandomBoundedInt supplyCostRandom;
-        private final RandomText commentRandom;
+        private final RowRandomBoundedInt availableQuantityRandom;
+        private final RowRandomBoundedInt supplyCostRandom;
+        private final TPCHRandomText commentRandom;
 
         private long index;
         private int partSupplierNumber;
@@ -78,9 +80,9 @@ public class PartSupplierGenerator
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            availableQuantityRandom = new RandomBoundedInt(1671059989, AVAILABLE_QUANTITY_MIN, AVAILABLE_QUANTITY_MAX, SUPPLIERS_PER_PART);
-            supplyCostRandom = new RandomBoundedInt(1051288424, SUPPLY_COST_MIN, SUPPLY_COST_MAX, SUPPLIERS_PER_PART);
-            commentRandom = new RandomText(1961692154, textPool, COMMENT_AVERAGE_LENGTH, SUPPLIERS_PER_PART);
+            availableQuantityRandom = new RowRandomBoundedInt(1671059989L, AVAILABLE_QUANTITY_MIN, AVAILABLE_QUANTITY_MAX, SUPPLIERS_PER_PART);
+            supplyCostRandom = new RowRandomBoundedInt(1051288424L, SUPPLY_COST_MIN, SUPPLY_COST_MAX, SUPPLIERS_PER_PART);
+            commentRandom = new TPCHRandomText(1961692154L, textPool, COMMENT_AVERAGE_LENGTH, SUPPLIERS_PER_PART);
 
             availableQuantityRandom.advanceRows(startIndex);
             supplyCostRandom.advanceRows(startIndex);

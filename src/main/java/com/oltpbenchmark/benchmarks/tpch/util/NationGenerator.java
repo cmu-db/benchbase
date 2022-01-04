@@ -43,13 +43,13 @@ public class NationGenerator
     private static class NationGeneratorIterator
             implements Iterator<List<Object>> {
         private final Distribution nations;
-        private final RandomText commentRandom;
+        private final TPCHRandomText commentRandom;
 
         private int index;
 
         private NationGeneratorIterator(Distribution nations, TextPool textPool) {
             this.nations = nations;
-            this.commentRandom = new RandomText(606179079, textPool, COMMENT_AVERAGE_LENGTH);
+            this.commentRandom = new TPCHRandomText(606179079L, textPool, COMMENT_AVERAGE_LENGTH);
         }
 
         @Override
