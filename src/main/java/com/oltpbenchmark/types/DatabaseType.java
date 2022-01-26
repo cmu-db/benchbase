@@ -34,6 +34,8 @@ public enum DatabaseType {
     COCKROACHDB(false, false),
     DB2(true, false),
     H2(true, false),
+    IGNITE2(true, false),
+    IGNITE3(true, false),
     HSQLDB(false, false),
     POSTGRES(false, false),
     MARIADB(true, false),

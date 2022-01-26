@@ -201,19 +201,30 @@ public class NewOrder extends TPCCProcedure {
     }
 
     private String getDistInfo(int d_id, Stock s) {
-        return switch (d_id) {
-            case 1 -> s.s_dist_01;
-            case 2 -> s.s_dist_02;
-            case 3 -> s.s_dist_03;
-            case 4 -> s.s_dist_04;
-            case 5 -> s.s_dist_05;
-            case 6 -> s.s_dist_06;
-            case 7 -> s.s_dist_07;
-            case 8 -> s.s_dist_08;
-            case 9 -> s.s_dist_09;
-            case 10 -> s.s_dist_10;
-            default -> null;
-        };
+        switch (d_id) {
+            case 1:
+                return s.s_dist_01;
+            case 2:
+                return s.s_dist_02;
+            case 3 :
+                return s.s_dist_03;
+            case 4:
+                return s.s_dist_04;
+            case 5:
+                return s.s_dist_05;
+            case 6:
+                return s.s_dist_06;
+            case 7:
+                return s.s_dist_07;
+            case 8:
+                return s.s_dist_08;
+            case 9:
+                return s.s_dist_09;
+            case 10:
+                return s.s_dist_10;
+            default:
+                return null;
+        }
     }
 
     private Stock getStock(Connection conn, int ol_supply_w_id, int ol_i_id, int ol_quantity) throws SQLException {

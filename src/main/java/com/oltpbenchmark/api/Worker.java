@@ -35,7 +35,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.oltpbenchmark.types.State.MEASURE;
+import static com.oltpbenchmark.types.State.*;
 
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
@@ -206,7 +206,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             State preState = workloadState.getGlobalState();
 
             // Do nothing
-            if (preState == State.DONE) {
+            if (preState == DONE) {
                 if (!seenDone) {
                     // This is the first time we have observed that the
                     // test is done notify the global test state, then
@@ -237,18 +237,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 continue;
             }
 
-            preState = workloadState.getGlobalState();
-
-            switch (preState) {
-                case DONE, EXIT, LATENCY_COMPLETE -> {
-                    // Once a latency run is complete, we wait until the next
-                    // phase or until DONE.
-                    LOG.warn("preState is {}? will continue...", preState);
-                    continue;
-                }
-                default -> {
-                }
-                // Do nothing
+           preState = workloadState.getGlobalState();
+            if (preState == DONE | preState == EXIT | preState == LATENCY_COMPLETE) {
+                // Once a latency run is complete, we wait until the next
+                // phase or until DONE.
+                LOG.warn("preState is {}? will continue...", preState);
+                continue;
             }
 
             // PART 3: Execute work
@@ -347,21 +341,22 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             }
             if (phase.getId() == workloadState.getCurrentPhase().getId()) {
                 switch (state) {
-                    case WARMUP -> {
-                        // Don't quit yet: we haven't even begun!
+                    case WARMUP:
                         LOG.info("[Serial] Resetting serial for phase.");
                         phase.resetSerial();
-                    }
-                    case COLD_QUERY, MEASURE -> {
+                    case COLD_QUERY:
                         // The serial phase is over. Finish the run early.
                         LOG.info("[Serial] Updating workload state to {}.", State.LATENCY_COMPLETE);
                         workloadState.signalLatencyComplete();
-                    }
-                    default -> throw e;
+                    case MEASURE:
+                        // The serial phase is over. Finish the run early.
+                        LOG.info("[Serial] Updating workload state to {}.", State.LATENCY_COMPLETE);
+                        workloadState.signalLatencyComplete();
+                    default:
+                        throw e;
                 }
             }
         }
-
         return type;
     }
 
@@ -379,7 +374,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             int retryCount = 0;
             int maxRetryCount = configuration.getMaxRetries();
 
-            while (retryCount < maxRetryCount && this.workloadState.getGlobalState() != State.DONE) {
+            while (retryCount < maxRetryCount && this.workloadState.getGlobalState() != DONE) {
 
                 TransactionStatus status = TransactionStatus.UNKNOWN;
 
@@ -430,12 +425,24 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 } finally {
 
                     switch (status) {
-                        case UNKNOWN -> this.txnUnknown.put(transactionType);
-                        case SUCCESS -> this.txnSuccess.put(transactionType);
-                        case USER_ABORTED -> this.txnAbort.put(transactionType);
-                        case RETRY -> this.txnRetry.put(transactionType);
-                        case RETRY_DIFFERENT -> this.txtRetryDifferent.put(transactionType);
-                        case ERROR -> this.txnErrors.put(transactionType);
+                        case UNKNOWN:
+                            this.txnUnknown.put(transactionType);
+                            break;
+                        case SUCCESS:
+                            this.txnSuccess.put(transactionType);
+                            break;
+                        case USER_ABORTED:
+                            this.txnAbort.put(transactionType);
+                            break;
+                        case RETRY:
+                            this.txnRetry.put(transactionType);
+                            break;
+                        case RETRY_DIFFERENT:
+                            this.txtRetryDifferent.put(transactionType);
+                            break;
+                        case ERROR:
+                            this.txnErrors.put(transactionType);
+                            break;
                     }
 
                 }
