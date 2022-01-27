@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ycsb - ignite3" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
+    <module name="benchbase" />
+    <option name="PROGRAM_PARAMETERS" value="-b ycsb -c config/ignite/sample_ycsb_config_ign3.xml -d results/ignite3 --create=true --load=true --execute=true" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.oltpbenchmark.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

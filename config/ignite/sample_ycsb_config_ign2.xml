@@ -3,7 +3,7 @@
 
     <!-- Connection details -->
     <type>ignite2</type>
-    <driver>org.apache.ignite.jdbc.IgniteJdbcDriver</driver>
+    <driver>org.apache.ignite.IgniteJdbcThinDriver</driver>
 <!--    <driver>java.sql.Driver</driver>-->
     <url>jdbc:ignite:thin://127.0.0.1:10800</url>
 

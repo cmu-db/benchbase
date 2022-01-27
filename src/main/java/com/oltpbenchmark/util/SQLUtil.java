@@ -474,30 +474,30 @@ public abstract class SQLUtil {
                     }
                 }
 
-                try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
-                    while (idx_rs.next()) {
-                        boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
-                        String idx_name = idx_rs.getString("INDEX_NAME");
-                        int idx_type = idx_rs.getShort("TYPE");
-                        int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
-                        String idx_col_name = idx_rs.getString("COLUMN_NAME");
-                        String sort = idx_rs.getString("ASC_OR_DESC");
-                        SortDirectionType idx_direction;
-                        if (sort != null) {
-                            idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
-                        } else {
-                            idx_direction = null;
-                        }
-
-                        Index catalog_idx = catalog_tbl.getIndex(idx_name);
-                        if (catalog_idx == null) {
-                            catalog_idx = new Index(idx_name, separator, catalog_tbl, idx_type, idx_unique);
-                            catalog_tbl.addIndex(catalog_idx);
-                        }
-
-                        catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
-                    }
-                }
+//                try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
+//                    while (idx_rs.next()) {
+//                        boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
+//                        String idx_name = idx_rs.getString("INDEX_NAME");
+//                        int idx_type = idx_rs.getShort("TYPE");
+//                        int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
+//                        String idx_col_name = idx_rs.getString("COLUMN_NAME");
+//                        String sort = idx_rs.getString("ASC_OR_DESC");
+//                        SortDirectionType idx_direction;
+//                        if (sort != null) {
+//                            idx_direction = sort.equalsIgnoreCase("A") ? SortDirectionType.ASC : SortDirectionType.DESC;
+//                        } else {
+//                            idx_direction = null;
+//                        }
+//
+//                        Index catalog_idx = catalog_tbl.getIndex(idx_name);
+//                        if (catalog_idx == null) {
+//                            catalog_idx = new Index(idx_name, separator, catalog_tbl, idx_type, idx_unique);
+//                            catalog_tbl.addIndex(catalog_idx);
+//                        }
+//
+//                        catalog_idx.addColumn(idx_col_name, idx_direction, idx_col_pos);
+//                    }
+//                }
 
                 tables.put(table_name, catalog_tbl);
             }
