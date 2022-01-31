@@ -2,13 +2,15 @@ DROP TABLE IF EXISTS useracct;
 CREATE TABLE useracct (
   u_id int NOT NULL,
   name varchar(128) DEFAULT NULL,
+  creation_date datetime DEFAULT NULL,
   PRIMARY KEY (u_id)
 );
 
 DROP TABLE IF EXISTS item;
 CREATE TABLE item (
   i_id int NOT NULL,
-  title varchar(20) DEFAULT NULL,
+  title varchar(128) DEFAULT NULL,
+  creation_date datetime DEFAULT NULL,
   PRIMARY KEY (i_id)
 );
 
@@ -18,7 +20,8 @@ CREATE TABLE review (
   u_id int NOT NULL REFERENCES useracct (u_id),
   i_id int NOT NULL REFERENCES item (i_id),
   rating int DEFAULT NULL,
-  rank int DEFAULT NULL
+  rank int DEFAULT NULL,
+  creation_date datetime DEFAULT NULL
 );
 CREATE INDEX IDX_RATING_UID ON review (u_id);
 CREATE INDEX IDX_RATING_AID ON review (a_id);
