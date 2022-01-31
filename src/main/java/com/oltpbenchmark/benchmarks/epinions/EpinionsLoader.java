@@ -165,9 +165,12 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
             long timestamp = System.currentTimeMillis();
             for (int i = lo; i < hi; i++) {
                 String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
+                String email = TextGenerator.randomStr(rng(), EpinionsConstants.EMAIL_LENGTH);
+
                 userInsert.setInt(1, i);
                 userInsert.setString(2, name);
-                userInsert.setTimestamp(3, new Timestamp(timestamp));
+                userInsert.setString(3, email);
+                userInsert.setTimestamp(4, new Timestamp(timestamp));
                 userInsert.addBatch();
                 total++;
 
@@ -201,13 +204,17 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         int total = 0;
         int batch = 0;
         try (PreparedStatement itemInsert = conn.prepareStatement(sql)) {
-
+            ZipfianGenerator descLength = new ZipfianGenerator(EpinionsConstants.DESCRIPTION_LENGTH);
             long timestamp = System.currentTimeMillis();
+
             for (int i = lo; i < hi; i++) {
                 String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH);
+                String desc = TextGenerator.randomStr(rng(), descLength.nextInt());
+
                 itemInsert.setInt(1, i);
                 itemInsert.setString(2, title);
-                itemInsert.setTimestamp(3, new Timestamp(timestamp));
+                itemInsert.setString(3, desc);
+                itemInsert.setTimestamp(4, new Timestamp(timestamp));
                 itemInsert.addBatch();
                 total++;
 
@@ -248,6 +255,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         try (PreparedStatement reviewInsert = conn.prepareStatement(sql)) {
             ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
             ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
+            ZipfianGenerator commentLength = new ZipfianGenerator(EpinionsConstants.COMMENT_LENGTH - EpinionsConstants.COMMENT_MIN_LENGTH);
             Set<Integer> reviewers = new HashSet<>();
 
             for (int i = lo; i < hi; i++) {
@@ -258,17 +266,18 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                 for (int rc = 0; rc < review_count; ) {
                     int u_id = reviewer.nextInt();
                     if (!reviewers.contains(u_id)) {
-                        rc++;
+                        String comment = TextGenerator.randomStr(rng(), commentLength.nextInt() + EpinionsConstants.COMMENT_MIN_LENGTH);
                         reviewInsert.setInt(1, total);
                         reviewInsert.setInt(2, u_id);
                         reviewInsert.setInt(3, i);
                         reviewInsert.setInt(4, rng().nextInt(5));// rating
                         reviewInsert.setNull(5, java.sql.Types.INTEGER);
-                        reviewInsert.setTimestamp(6, new Timestamp(timestamp));
+                        reviewInsert.setString(6, comment);
+                        reviewInsert.setTimestamp(7, new Timestamp(timestamp));
                         reviewInsert.addBatch();
                         reviewers.add(u_id);
                         total++;
-
+                        rc++;
                         if ((++batch % workConf.getBatchSize()) == 0) {
                             reviewInsert.executeBatch();
                             batch = 0;

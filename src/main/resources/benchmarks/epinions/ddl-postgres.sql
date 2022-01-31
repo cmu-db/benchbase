@@ -10,13 +10,15 @@ DROP TABLE IF EXISTS item CASCADE;
 
 CREATE TABLE useracct (
     u_id int NOT NULL,
-    name varchar(128) DEFAULT NULL,
+    name varchar(128) NOT NULL,
+    email varchar(128) NOT NULL,
     creation_date timestamp DEFAULT NULL
 );
 
 CREATE TABLE item (
     i_id  int NOT NULL,
     title varchar(128) DEFAULT NULL,
+    description varchar(512) DEFAULT NULL,
     creation_date timestamp DEFAULT NULL
 );
 
@@ -26,6 +28,7 @@ CREATE TABLE review (
     i_id   int NOT NULL,
     rating int DEFAULT NULL,
     rank   int DEFAULT NULL,
+    comment varchar(256) DEFAULT NULL,
     creation_date timestamp DEFAULT NULL
 );
 

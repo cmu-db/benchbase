@@ -8,7 +8,7 @@
     <username>benchbase</username>
     <password>benchbase321</password>
 <!--     <isolation>TRANSACTION_SERIALIZABLE</isolation> -->
-    <batchsize>128</batchsize>
+    <batchsize>2048</batchsize>
 
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
     <scalefactor>2000</scalefactor>
