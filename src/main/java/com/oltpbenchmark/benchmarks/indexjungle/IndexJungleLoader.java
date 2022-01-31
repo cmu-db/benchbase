@@ -77,6 +77,11 @@ public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
             for (int record = lo; record < hi; record++) {
                 int offset = 1;
 
+                // First field is pkey that's as UUID
+                // But we're going to store it as a varchar which is...
+                String uuid = UUID.randomUUID().toString();
+                insertBatch.setString(offset++, uuid);
+
                 // INTEGER
                 for (int i = 0; i < IndexJungleConstants.NUM_FIELDS_PER_TYPE; i++) {
                     insertBatch.setInt(offset++, rng().nextInt());
@@ -90,17 +95,16 @@ public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
                 char prefix[] = new char[IndexJungleConstants.VARCHAR_PREFIX_SIZE];
                 for (int i = 0; i < IndexJungleConstants.NUM_FIELDS_PER_TYPE; i++) {
                     // The first four characters will be a repeated letter of the alphabet
-                    char c = (char)((record % 26) + 65);
+                    char c = (char)(((record+i) % 26) + 65);
                     for (int x = 0; x < IndexJungleConstants.VARCHAR_PREFIX_SIZE; x++) {
                         prefix[x] = c;
                     }
-                    String str = String.valueOf(prefix) + TextGenerator.permuteText(rng(), baseStr);
+                    String str = String.valueOf(prefix) + String.valueOf(TextGenerator.permuteText(rng(), baseStr));
                     insertBatch.setString(offset++, str);
                 }
                 // TIMESTAMP
                 for (int i = 0; i < IndexJungleConstants.NUM_FIELDS_PER_TYPE; i++) {
                     insertBatch.setTimestamp(offset++, new Timestamp(timestamp - (i * 10000)));
-                    insertBatch.setFloat(offset++, rng().nextFloat());
                 }
 
                 insertBatch.addBatch();

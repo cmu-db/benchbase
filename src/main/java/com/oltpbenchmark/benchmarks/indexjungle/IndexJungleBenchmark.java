@@ -23,7 +23,6 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.indexjungle.procedures.GetRecord;
-import com.oltpbenchmark.types.DatabaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

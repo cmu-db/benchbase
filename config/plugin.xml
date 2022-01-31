@@ -16,4 +16,5 @@
     <plugin name="noop">com.oltpbenchmark.benchmarks.noop.NoOpBenchmark</plugin>
     <plugin name="smallbank">com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark</plugin>
     <plugin name="hyadapt">com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark</plugin>
+    <plugin name="indexjungle">com.oltpbenchmark.benchmarks.indexjungle.IndexJungleBenchmark</plugin>
 </plugins>

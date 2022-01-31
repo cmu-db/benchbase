@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS jungle;
 
 CREATE TABLE jungle (
-  uuid_field VARCHAR(128) PRIMARY KEY,
+  uuid_field VARCHAR(36) NOT NULL PRIMARY KEY,
   int_field0 INTEGER NOT NULL,
   int_field1 INTEGER NOT NULL,
   int_field2 INTEGER NOT NULL,
