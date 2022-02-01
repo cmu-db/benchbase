@@ -61,7 +61,9 @@ public class DBWorkload {
         // create the command line parser
         CommandLineParser parser = new DefaultParser();
 
-        XMLConfiguration pluginConfig = buildConfiguration("config/plugin.xml");
+        // Get the directory of the jar output
+        String jarDirPath = new File(DBWorkload.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+        XMLConfiguration pluginConfig = buildConfiguration(jarDirPath + "/config/plugin.xml");
 
         Options options = buildOptions(pluginConfig);
 
