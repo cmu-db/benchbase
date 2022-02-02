@@ -47,36 +47,26 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException {
-
-        boolean successful = false;
-        while (!successful) {
-            try {
-                if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
-                    reviewItemByID(conn);
-                } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
-                    reviewsByUser(conn);
-                } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
-                    averageRatingByTrustedUser(conn);
-                } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
-                    averageRatingOfItem(conn);
-                } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
-                    itemReviewsByTrustedUser(conn);
-                } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
-                    updateUserName(conn);
-                } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
-                    updateItemTitle(conn);
-                } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
-                    updateReviewRating(conn);
-                } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
-                    updateTrustRating(conn);
-                }
-                successful = true;
-            } catch (Exception e) {
-                LOG.error("caught Exceptions in Epinions for the procedure {}:{}", nextTrans.getName(), e);
-            }
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+        if (nextTrans.getProcedureClass().equals(GetReviewItemById.class)) {
+            reviewItemByID(conn);
+        } else if (nextTrans.getProcedureClass().equals(GetReviewsByUser.class)) {
+            reviewsByUser(conn);
+        } else if (nextTrans.getProcedureClass().equals(GetAverageRatingByTrustedUser.class)) {
+            averageRatingByTrustedUser(conn);
+        } else if (nextTrans.getProcedureClass().equals(GetItemAverageRating.class)) {
+            averageRatingOfItem(conn);
+        } else if (nextTrans.getProcedureClass().equals(GetItemReviewsByTrustedUser.class)) {
+            itemReviewsByTrustedUser(conn);
+        } else if (nextTrans.getProcedureClass().equals(UpdateUserName.class)) {
+            updateUserName(conn);
+        } else if (nextTrans.getProcedureClass().equals(UpdateItemTitle.class)) {
+            updateItemTitle(conn);
+        } else if (nextTrans.getProcedureClass().equals(UpdateReviewRating.class)) {
+            updateReviewRating(conn);
+        } else if (nextTrans.getProcedureClass().equals(UpdateTrustRating.class)) {
+            updateTrustRating(conn);
         }
-
         return (TransactionStatus.SUCCESS);
     }
 
