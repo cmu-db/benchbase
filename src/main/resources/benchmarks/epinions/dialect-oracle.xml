@@ -22,13 +22,13 @@
         <procedure name="GetReviewItemById">
             <statement name="getReviewItem">
                 SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM &lt;= 10 
-                ORDER BY rating DESC, creation_date DESC
+                ORDER BY rating DESC, r.creation_date DESC
             </statement>
         </procedure>
         <procedure name="GetReviewsByUser">
             <statement name="getReviewUser">
                 SELECT * FROM "review" r, "useracct" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM &lt;= 10
-                ORDER BY rating DESC, creation_date DESC
+                ORDER BY rating DESC, r.creation_date DESC
             </statement>
         </procedure>
         <procedure name="UpdateItemTitle">
