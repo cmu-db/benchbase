@@ -17,8 +17,9 @@ CREATE TABLE useracct (
 
 CREATE TABLE item (
     i_id  int NOT NULL,
-    title varchar(128) DEFAULT NULL,
+    title varchar(128) NOT NULL,
     description varchar(512) DEFAULT NULL,
+    creation_date datetime DEFAULT NULL,
     creation_date timestamp DEFAULT NULL
 );
 
