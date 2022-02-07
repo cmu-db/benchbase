@@ -11,4 +11,4 @@ CREATE TABLE usertable (
     field8   varchar(100),
     field9   varchar(100),
     field10  varchar(100)
-) WITH "ATOMICITY=TRANSACTIONAL_SNAPSHOT";
+); -- WITH "ATOMICITY=TRANSACTIONAL_SNAPSHOT";

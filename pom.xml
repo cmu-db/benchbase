@@ -163,6 +163,7 @@
                 <dependency>
                     <groupId>org.apache.ignite</groupId>
                     <artifactId>ignite-core</artifactId>
+                    <scope>runtime</scope>
                     <version>3.0.0-SNAPSHOT</version>
                 </dependency>
             </dependencies>
