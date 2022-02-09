@@ -474,6 +474,7 @@ public abstract class SQLUtil {
                     }
                 }
 
+// TODO: enable this then section then indexes will be in ignite3 master.
 //                try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
 //                    while (idx_rs.next()) {
 //                        boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
