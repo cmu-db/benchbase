@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,7 +44,8 @@ public class TextPoolGenerator {
     public TextPoolGenerator(int size, Distributions distributions) {
         this(size, distributions, new TextGenerationProgressMonitor() {
             @Override
-            public void updateProgress(double progress) {}
+            public void updateProgress(double progress) {
+            }
         });
     }
 

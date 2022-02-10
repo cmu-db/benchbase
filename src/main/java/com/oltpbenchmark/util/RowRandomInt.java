@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -59,7 +61,7 @@ public class RowRandomInt {
 
         // This will result in overflow when high is max int and low is 0,
         // which is a bug since you will get a value outside of the
-        // specified range.  There is code that relies on this bug.
+        // specified range. There is code that relies on this bug.
         int intRange = highValue - lowValue + 1;
         double doubleRange = (double) intRange;
         int valueInRange = (int) ((1.0 * seed / MODULUS) * doubleRange);
@@ -75,7 +77,7 @@ public class RowRandomInt {
 
     /**
      * Advances the random number generator to the start of the sequence for
-     * the next row.  Each row uses a specified number of random values, so the
+     * the next row. Each row uses a specified number of random values, so the
      * random number generator can be quickly advanced for partitioned data
      * sets.
      */
@@ -85,7 +87,7 @@ public class RowRandomInt {
     }
 
     /**
-     * Advance the specified number of rows.  Advancing to a specific row is
+     * Advance the specified number of rows. Advancing to a specific row is
      * needed for partitioned data sets.
      */
     public void advanceRows(long rowCount) {

@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -80,8 +82,10 @@ public class PartSupplierGenerator
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            availableQuantityRandom = new RowRandomBoundedInt(1671059989L, AVAILABLE_QUANTITY_MIN, AVAILABLE_QUANTITY_MAX, SUPPLIERS_PER_PART);
-            supplyCostRandom = new RowRandomBoundedInt(1051288424L, SUPPLY_COST_MIN, SUPPLY_COST_MAX, SUPPLIERS_PER_PART);
+            availableQuantityRandom = new RowRandomBoundedInt(1671059989L, AVAILABLE_QUANTITY_MIN,
+                    AVAILABLE_QUANTITY_MAX, SUPPLIERS_PER_PART);
+            supplyCostRandom = new RowRandomBoundedInt(1051288424L, SUPPLY_COST_MIN, SUPPLY_COST_MAX,
+                    SUPPLIERS_PER_PART);
             commentRandom = new TPCHRandomText(1961692154L, textPool, COMMENT_AVERAGE_LENGTH, SUPPLIERS_PER_PART);
 
             availableQuantityRandom.advanceRows(startIndex);
@@ -116,8 +120,8 @@ public class PartSupplierGenerator
             List<Object> partSupplier = new ArrayList<>();
             partSupplier.add(partKey);
             partSupplier.add(selectPartSupplier(partKey, partSupplierNumber, scaleFactor));
-            partSupplier.add((long)availableQuantityRandom.nextValue());
-            partSupplier.add((double)supplyCostRandom.nextValue() / 100.);
+            partSupplier.add((long) availableQuantityRandom.nextValue());
+            partSupplier.add((double) supplyCostRandom.nextValue() / 100.);
             partSupplier.add(commentRandom.nextValue());
             return partSupplier;
         }
@@ -125,6 +129,7 @@ public class PartSupplierGenerator
 
     static long selectPartSupplier(long partKey, long supplierNumber, double scaleFactor) {
         long supplierCount = (long) (SupplierGenerator.SCALE_BASE * scaleFactor);
-        return ((partKey + (supplierNumber * ((supplierCount / SUPPLIERS_PER_PART) + ((partKey - 1) / supplierCount)))) % supplierCount) + 1;
+        return ((partKey + (supplierNumber * ((supplierCount / SUPPLIERS_PER_PART) + ((partKey - 1) / supplierCount))))
+                % supplierCount) + 1;
     }
 }

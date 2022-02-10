@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +54,8 @@ public class SupplierGenerator
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public SupplierGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
+    public SupplierGenerator(double scaleFactor, int part, int partCount, Distributions distributions,
+            TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -72,10 +75,12 @@ public class SupplierGenerator
 
     private static class SupplierGeneratorIterator
             implements Iterator<List<Object>> {
-        private final TPCHRandomAlphaNumeric addressRandom = new TPCHRandomAlphaNumeric(706178559L, ADDRESS_AVERAGE_LENGTH);
+        private final TPCHRandomAlphaNumeric addressRandom = new TPCHRandomAlphaNumeric(706178559L,
+                ADDRESS_AVERAGE_LENGTH);
         private final RowRandomBoundedInt nationKeyRandom;
         private final TPCHRandomPhoneNumber phoneRandom = new TPCHRandomPhoneNumber(884434366L);
-        private final RowRandomBoundedInt accountBalanceRandom = new RowRandomBoundedInt(962338209L, ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
+        private final RowRandomBoundedInt accountBalanceRandom = new RowRandomBoundedInt(962338209L,
+                ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
         private final TPCHRandomText commentRandom;
         private final RowRandomBoundedInt bbbCommentRandom = new RowRandomBoundedInt(202794285L, 1, SCALE_BASE);
         private final RowRandomInt bbbJunkRandom = new RowRandomInt(263032577L, 1);
@@ -87,7 +92,8 @@ public class SupplierGenerator
 
         private long index;
 
-        private SupplierGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex, long rowCount) {
+        private SupplierGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex,
+                long rowCount) {
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
@@ -169,7 +175,7 @@ public class SupplierGenerator
             supplier.add(addressRandom.nextValue());
             supplier.add(nationKey);
             supplier.add(phoneRandom.nextValue(nationKey));
-            supplier.add((double)accountBalanceRandom.nextValue() / 100.);
+            supplier.add((double) accountBalanceRandom.nextValue() / 100.);
             supplier.add(comment);
 
             return supplier;

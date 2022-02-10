@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -136,9 +138,9 @@ public class PartGenerator
             part.add(String.format(ENGLISH, "Manufacturer#%d", manufacturer));
             part.add(String.format(ENGLISH, "Brand#%d", brand));
             part.add(typeRandom.nextValue());
-            part.add((long)sizeRandom.nextValue());
+            part.add((long) sizeRandom.nextValue());
             part.add(containerRandom.nextValue());
-            part.add((double)calculatePartPrice(partKey) / 100.);
+            part.add((double) calculatePartPrice(partKey) / 100.);
             part.add(commentRandom.nextValue());
 
             return part;

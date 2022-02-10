@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,8 +26,7 @@ public class TextPool {
     private static final int DEFAULT_TEXT_POOL_SIZE = 300 * 1024 * 1024;
     private static final int MAX_SENTENCE_LENGTH = 256;
 
-    private static final TextPool DEFAULT_TEXT_POOL =
-            new TextPool(DEFAULT_TEXT_POOL_SIZE, getDefaultDistributions());
+    private static final TextPool DEFAULT_TEXT_POOL = new TextPool(DEFAULT_TEXT_POOL_SIZE, getDefaultDistributions());
 
     public static TextPool getDefaultTestPool() {
         return DEFAULT_TEXT_POOL;
@@ -35,7 +36,8 @@ public class TextPool {
     private final int textPoolSize;
 
     public TextPool(int size, Distributions distributions) {
-        this(size, distributions, progress -> {});
+        this(size, distributions, progress -> {
+        });
     }
 
     public TextPool(int size, Distributions distributions, TextGenerationProgressMonitor monitor) {
@@ -61,7 +63,8 @@ public class TextPool {
 
     public String getText(int begin, int end) {
         if (end > textPoolSize) {
-            throw new IndexOutOfBoundsException(format("Index %d is beyond end of text pool (size = %d)", end, textPoolSize));
+            throw new IndexOutOfBoundsException(
+                    format("Index %d is beyond end of text pool (size = %d)", end, textPoolSize));
         }
         return new String(textPool, begin, end - begin, US_ASCII);
     }

@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -106,11 +108,13 @@ public class OrderGenerator
 
         private long index;
 
-        private OrderGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor, long startIndex, long rowCount) {
+        private OrderGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor,
+                long startIndex, long rowCount) {
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
-            clerkRandom = new RowRandomBoundedInt(1171034773L, 1, Math.max((int) (scaleFactor * CLERK_SCALE_BASE), CLERK_SCALE_BASE));
+            clerkRandom = new RowRandomBoundedInt(1171034773L, 1,
+                    Math.max((int) (scaleFactor * CLERK_SCALE_BASE), CLERK_SCALE_BASE));
 
             maxCustomerKey = (long) (CustomerGenerator.SCALE_BASE * scaleFactor);
             customerKeyRandom = new RowRandomBoundedLong(851767375L, scaleFactor >= 30000, 1, maxCustomerKey);
@@ -211,7 +215,7 @@ public class OrderGenerator
             order.add(orderKey);
             order.add(customerKey);
             order.add(Character.valueOf(orderStatus).toString());
-            order.add((double)totalPrice / 100.);
+            order.add((double) totalPrice / 100.);
             order.add(toEpochDate(orderDate));
             order.add(orderPriorityRandom.nextValue());
             order.add(String.format(ENGLISH, "Clerk#%09d", clerkRandom.nextValue()));

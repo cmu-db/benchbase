@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -60,9 +62,9 @@ public class NationGenerator
         @Override
         public List<Object> next() {
             List<Object> nation = new ArrayList<>();
-            nation.add((long)index);
+            nation.add((long) index);
             nation.add(nations.getValue(index));
-            nation.add((long)nations.getWeight(index));
+            nation.add((long) nations.getWeight(index));
             nation.add(commentRandom.nextValue());
 
             commentRandom.rowFinished();

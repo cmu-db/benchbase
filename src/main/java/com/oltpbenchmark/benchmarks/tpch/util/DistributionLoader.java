@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +27,8 @@ import java.util.stream.Stream;
 import java.util.regex.Pattern;
 
 public final class DistributionLoader {
-    private DistributionLoader() {}
+    private DistributionLoader() {
+    }
 
     public static <R extends Readable & Closeable> Map<String, Distribution> loadDistribution(Stream<String> lines)
             throws IOException {
@@ -52,7 +55,8 @@ public final class DistributionLoader {
             try {
                 weight = Integer.parseInt(parts.get(1));
             } catch (NumberFormatException e) {
-                throw new IllegalStateException(String.format("Invalid distribution %s: invalid weight on line %s", name, line));
+                throw new IllegalStateException(
+                        String.format("Invalid distribution %s: invalid weight on line %s", name, line));
             }
 
             if (value.equalsIgnoreCase("count")) {

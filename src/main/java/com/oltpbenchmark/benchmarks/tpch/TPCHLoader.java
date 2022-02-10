@@ -15,7 +15,6 @@
  *
  */
 
-
 /***
  *   TPC-H implementation
  *
@@ -58,19 +57,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         super(benchmark);
     }
 
-    private enum CastTypes {LONG, DOUBLE, STRING, DATE}
+    private enum CastTypes {
+        LONG, DOUBLE, STRING, DATE
+    }
 
-    private static final CastTypes[] customerTypes = {CastTypes.LONG,   // c_custkey
+    private static final CastTypes[] customerTypes = { CastTypes.LONG, // c_custkey
             CastTypes.STRING, // c_name
             CastTypes.STRING, // c_address
-            CastTypes.LONG,   // c_nationkey
+            CastTypes.LONG, // c_nationkey
             CastTypes.STRING, // c_phone
             CastTypes.DOUBLE, // c_acctbal
             CastTypes.STRING, // c_mktsegment
-            CastTypes.STRING  // c_comment
+            CastTypes.STRING // c_comment
     };
 
-    private static final CastTypes[] lineitemTypes = {CastTypes.LONG, // l_orderkey
+    private static final CastTypes[] lineitemTypes = { CastTypes.LONG, // l_orderkey
             CastTypes.LONG, // l_partkey
             CastTypes.LONG, // l_suppkey
             CastTypes.LONG, // l_linenumber
@@ -85,53 +86,53 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             CastTypes.DATE, // l_receiptdate
             CastTypes.STRING, // l_shipinstruct
             CastTypes.STRING, // l_shipmode
-            CastTypes.STRING  // l_comment
+            CastTypes.STRING // l_comment
     };
 
-    private static final CastTypes[] nationTypes = {CastTypes.LONG,   // n_nationkey
+    private static final CastTypes[] nationTypes = { CastTypes.LONG, // n_nationkey
             CastTypes.STRING, // n_name
-            CastTypes.LONG,   // n_regionkey
-            CastTypes.STRING  // n_comment
+            CastTypes.LONG, // n_regionkey
+            CastTypes.STRING // n_comment
     };
 
-    private static final CastTypes[] ordersTypes = {CastTypes.LONG,   // o_orderkey
-            CastTypes.LONG,   // o_LONG, custkey
+    private static final CastTypes[] ordersTypes = { CastTypes.LONG, // o_orderkey
+            CastTypes.LONG, // o_LONG, custkey
             CastTypes.STRING, // o_orderstatus
             CastTypes.DOUBLE, // o_totalprice
-            CastTypes.DATE,   // o_orderdate
+            CastTypes.DATE, // o_orderdate
             CastTypes.STRING, // o_orderpriority
             CastTypes.STRING, // o_clerk
-            CastTypes.LONG,   // o_shippriority
-            CastTypes.STRING  // o_comment
+            CastTypes.LONG, // o_shippriority
+            CastTypes.STRING // o_comment
     };
 
-    private static final CastTypes[] partTypes = {CastTypes.LONG,   // p_partkey
+    private static final CastTypes[] partTypes = { CastTypes.LONG, // p_partkey
             CastTypes.STRING, // p_name
             CastTypes.STRING, // p_mfgr
             CastTypes.STRING, // p_brand
             CastTypes.STRING, // p_type
-            CastTypes.LONG,   // p_size
+            CastTypes.LONG, // p_size
             CastTypes.STRING, // p_container
             CastTypes.DOUBLE, // p_retailprice
-            CastTypes.STRING  // p_comment
+            CastTypes.STRING // p_comment
     };
 
-    private static final CastTypes[] partsuppTypes = {CastTypes.LONG,   // ps_partkey
-            CastTypes.LONG,   // ps_suppkey
-            CastTypes.LONG,   // ps_availqty
+    private static final CastTypes[] partsuppTypes = { CastTypes.LONG, // ps_partkey
+            CastTypes.LONG, // ps_suppkey
+            CastTypes.LONG, // ps_availqty
             CastTypes.DOUBLE, // ps_supplycost
-            CastTypes.STRING  // ps_comment
+            CastTypes.STRING // ps_comment
     };
 
-    private static final CastTypes[] regionTypes = {CastTypes.LONG,   // r_regionkey
+    private static final CastTypes[] regionTypes = { CastTypes.LONG, // r_regionkey
             CastTypes.STRING, // r_name
-            CastTypes.STRING  // r_comment
+            CastTypes.STRING // r_comment
     };
 
-    private static final CastTypes[] supplierTypes = {CastTypes.LONG,   // s_suppkey
+    private static final CastTypes[] supplierTypes = { CastTypes.LONG, // s_suppkey
             CastTypes.STRING, // s_name
             CastTypes.STRING, // s_address
-            CastTypes.LONG,   // s_nationkey
+            CastTypes.LONG, // s_nationkey
             CastTypes.STRING, // s_phone
             CastTypes.DOUBLE, // s_acctbal
             CastTypes.STRING, // s_comment
@@ -347,7 +348,8 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         return threads;
     }
 
-    private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators, CastTypes[] types, String tableName) {
+    private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators,
+            CastTypes[] types, String tableName) {
         for (Iterable<List<Object>> generator : generators) {
             try {
                 int recordsRead = 0;
@@ -356,16 +358,16 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                         final CastTypes type = types[idx];
                         switch (type) {
                             case DOUBLE:
-                                prepStmt.setDouble(idx + 1, (Double)elems.get(idx));
+                                prepStmt.setDouble(idx + 1, (Double) elems.get(idx));
                                 break;
                             case LONG:
-                                prepStmt.setLong(idx + 1, (Long)elems.get(idx));
+                                prepStmt.setLong(idx + 1, (Long) elems.get(idx));
                                 break;
                             case STRING:
-                                prepStmt.setString(idx + 1, (String)elems.get(idx));
+                                prepStmt.setString(idx + 1, (String) elems.get(idx));
                                 break;
                             case DATE:
-                                prepStmt.setDate(idx + 1, (Date)elems.get(idx));
+                                prepStmt.setDate(idx + 1, (Date) elems.get(idx));
                                 break;
                             default:
                                 throw new RuntimeException("Unrecognized type for prepared statement");
@@ -377,7 +379,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     if ((recordsRead % workConf.getBatchSize()) == 0) {
 
                         LOG.debug("writing batch {} for table {}", recordsRead, tableName);
-    
+
                         prepStmt.executeBatch();
                         prepStmt.clearBatch();
                     }

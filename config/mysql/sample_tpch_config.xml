@@ -18,7 +18,7 @@
     <fileFormat>tbl</fileFormat>
 
     <!-- Control scale factor to generate different amount of data -->
-    <scalefactor>1</scalefactor>
+    <scalefactor>0.1</scalefactor>
 
     <!-- The workload -->
     <terminals>1</terminals>

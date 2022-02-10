@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,7 +64,8 @@ public class LineItemGenerator
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public LineItemGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
+    public LineItemGenerator(double scaleFactor, int part, int partCount, Distributions distributions,
+            TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -92,11 +95,14 @@ public class LineItemGenerator
 
         private final RowRandomBoundedLong linePartKeyRandom;
 
-        private final RowRandomBoundedInt supplierNumberRandom = new RowRandomBoundedInt(2095021727L, 0, 3, LINE_COUNT_MAX);
+        private final RowRandomBoundedInt supplierNumberRandom = new RowRandomBoundedInt(2095021727L, 0, 3,
+                LINE_COUNT_MAX);
 
         private final RowRandomBoundedInt shipDateRandom = createShipDateRandom();
-        private final RowRandomBoundedInt commitDateRandom = new RowRandomBoundedInt(904914315L, COMMIT_DATE_MIN, COMMIT_DATE_MAX, LINE_COUNT_MAX);
-        private final RowRandomBoundedInt receiptDateRandom = new RowRandomBoundedInt(373135028L, RECEIPT_DATE_MIN, RECEIPT_DATE_MAX, LINE_COUNT_MAX);
+        private final RowRandomBoundedInt commitDateRandom = new RowRandomBoundedInt(904914315L, COMMIT_DATE_MIN,
+                COMMIT_DATE_MAX, LINE_COUNT_MAX);
+        private final RowRandomBoundedInt receiptDateRandom = new RowRandomBoundedInt(373135028L, RECEIPT_DATE_MIN,
+                RECEIPT_DATE_MAX, LINE_COUNT_MAX);
 
         private final TPCHRandomString returnedFlagRandom;
         private final TPCHRandomString shipInstructionsRandom;
@@ -114,13 +120,15 @@ public class LineItemGenerator
         private int lineCount;
         private int lineNumber;
 
-        private LineItemGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor, long startIndex, long rowCount) {
+        private LineItemGeneratorIterator(Distributions distributions, TextPool textPool, double scaleFactor,
+                long startIndex, long rowCount) {
             this.scaleFactor = scaleFactor;
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
             returnedFlagRandom = new TPCHRandomString(717419739L, distributions.getReturnFlags(), LINE_COUNT_MAX);
-            shipInstructionsRandom = new TPCHRandomString(1371272478L, distributions.getShipInstructions(), LINE_COUNT_MAX);
+            shipInstructionsRandom = new TPCHRandomString(1371272478L, distributions.getShipInstructions(),
+                    LINE_COUNT_MAX);
             shipModeRandom = new TPCHRandomString(675466456L, distributions.getShipModes(), LINE_COUNT_MAX);
             commentRandom = new TPCHRandomText(1095462486L, textPool, COMMENT_AVERAGE_LENGTH, LINE_COUNT_MAX);
 
@@ -240,11 +248,11 @@ public class LineItemGenerator
             lineItem.add(orderKey);
             lineItem.add(partKey);
             lineItem.add(supplierKey);
-            lineItem.add((long)(lineNumber + 1));
-            lineItem.add((double)quantity);
-            lineItem.add((double)extendedPrice / 100.);
-            lineItem.add((double)discount / 100.);
-            lineItem.add((double)tax / 100.);
+            lineItem.add((long) (lineNumber + 1));
+            lineItem.add((double) quantity);
+            lineItem.add((double) extendedPrice / 100.);
+            lineItem.add((double) discount / 100.);
+            lineItem.add((double) tax / 100.);
             lineItem.add(returnedFlag);
             lineItem.add(status);
             lineItem.add(toEpochDate(shipDate));
@@ -271,7 +279,8 @@ public class LineItemGenerator
     }
 
     static RowRandomBoundedLong createPartKeyRandom(double scaleFactor) {
-        return new RowRandomBoundedLong(1808217256L, scaleFactor >= 30000, PART_KEY_MIN, (long) (PartGenerator.SCALE_BASE * scaleFactor), LINE_COUNT_MAX);
+        return new RowRandomBoundedLong(1808217256L, scaleFactor >= 30000, PART_KEY_MIN,
+                (long) (PartGenerator.SCALE_BASE * scaleFactor), LINE_COUNT_MAX);
     }
 
     static RowRandomBoundedInt createShipDateRandom() {

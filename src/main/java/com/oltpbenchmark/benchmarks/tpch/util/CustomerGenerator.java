@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,7 +45,8 @@ public class CustomerGenerator
         this(scaleFactor, part, partCount, Distributions.getDefaultDistributions(), TextPool.getDefaultTestPool());
     }
 
-    public CustomerGenerator(double scaleFactor, int part, int partCount, Distributions distributions, TextPool textPool) {
+    public CustomerGenerator(double scaleFactor, int part, int partCount, Distributions distributions,
+            TextPool textPool) {
         this.scaleFactor = scaleFactor;
         this.part = part;
         this.partCount = partCount;
@@ -63,10 +66,12 @@ public class CustomerGenerator
 
     private static class CustomerGeneratorIterator
             implements Iterator<List<Object>> {
-        private final TPCHRandomAlphaNumeric addressRandom = new TPCHRandomAlphaNumeric(881155353L, ADDRESS_AVERAGE_LENGTH);
+        private final TPCHRandomAlphaNumeric addressRandom = new TPCHRandomAlphaNumeric(881155353L,
+                ADDRESS_AVERAGE_LENGTH);
         private final RowRandomBoundedInt nationKeyRandom;
         private final TPCHRandomPhoneNumber phoneRandom = new TPCHRandomPhoneNumber(1521138112L);
-        private final RowRandomBoundedInt accountBalanceRandom = new RowRandomBoundedInt(298370230L, ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
+        private final RowRandomBoundedInt accountBalanceRandom = new RowRandomBoundedInt(298370230L,
+                ACCOUNT_BALANCE_MIN, ACCOUNT_BALANCE_MAX);
         private final TPCHRandomString marketSegmentRandom;
         private final TPCHRandomText commentRandom;
 
@@ -75,7 +80,8 @@ public class CustomerGenerator
 
         private long index;
 
-        private CustomerGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex, long rowCount) {
+        private CustomerGeneratorIterator(Distributions distributions, TextPool textPool, long startIndex,
+                long rowCount) {
             this.startIndex = startIndex;
             this.rowCount = rowCount;
 
@@ -122,7 +128,7 @@ public class CustomerGenerator
             customer.add(addressRandom.nextValue());
             customer.add(nationKey);
             customer.add(phoneRandom.nextValue(nationKey));
-            customer.add((double)accountBalanceRandom.nextValue() / 100.);
+            customer.add((double) accountBalanceRandom.nextValue() / 100.);
             customer.add(marketSegmentRandom.nextValue());
             customer.add(commentRandom.nextValue());
 

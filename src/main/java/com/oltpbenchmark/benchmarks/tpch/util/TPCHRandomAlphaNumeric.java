@@ -1,4 +1,6 @@
 /*
+ * Copyright 2020 Trino
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +19,8 @@ import com.oltpbenchmark.util.RowRandomInt;
 
 public class TPCHRandomAlphaNumeric
         extends RowRandomInt {
-    private static final char[] ALPHA_NUMERIC = "0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,".toCharArray();
+    private static final char[] ALPHA_NUMERIC = "0123456789abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,"
+            .toCharArray();
 
     private static final double LOW_LENGTH_MULTIPLIER = 0.4;
     private static final double HIGH_LENGTH_MULTIPLIER = 1.6;
