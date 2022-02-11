@@ -7,7 +7,7 @@
     <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=epinions&amp;reWriteBatchedInserts=true</url>
     <username>benchbase</username>
     <password>benchbase321</password>
-<!--     <isolation>TRANSACTION_SERIALIZABLE</isolation> -->
+    <isolation>TRANSACTION_READ_COMMITTED</isolation>
     <batchsize>2048</batchsize>
 
     <!-- Scalefactor in Epinions scales by *2000 the number of users-->
