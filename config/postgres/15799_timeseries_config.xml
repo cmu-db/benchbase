@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>POSTGRES</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=indexjungle&amp;reWriteBatchedInserts=true</url>
+    <username>benchbase</username>
+    <password>benchbase321</password>
+<!--     <isolation>TRANSACTION_SERIALIZABLE</isolation> -->
+    <batchsize>2048</batchsize>
+
+    <!-- Scalefactor in IndexJungle by 10000 per scalefactor increment -->
+    <scalefactor>1</scalefactor>
+    
+    <randomSeed>1235</randomSeed>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>10</time>
+            <rate>1</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Transaction Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetData</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

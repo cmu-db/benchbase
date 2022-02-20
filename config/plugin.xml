@@ -17,4 +17,5 @@
     <plugin name="smallbank">com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark</plugin>
     <plugin name="hyadapt">com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark</plugin>
     <plugin name="indexjungle">com.oltpbenchmark.benchmarks.indexjungle.IndexJungleBenchmark</plugin>
+    <plugin name="timeseries">com.oltpbenchmark.benchmarks.timeseries.TimeseriesBenchmark</plugin>
 </plugins>

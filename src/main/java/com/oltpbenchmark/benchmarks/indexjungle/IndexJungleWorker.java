@@ -23,11 +23,9 @@ import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.indexjungle.procedures.GetRecord;
-import com.oltpbenchmark.benchmarks.indexjungle.procedures.UpdateRecord;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.TransactionStatus;
-import com.oltpbenchmark.util.TextGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,19 +53,9 @@ public class IndexJungleWorker extends Worker<IndexJungleBenchmark> {
     }
 
     @Override
-    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException {
-        boolean successful = false;
-        while (!successful) {
-            try {
-                if (nextTrans.getProcedureClass().equals(GetRecord.class)) {
-                    execGetRecord(conn);
-                } else if (nextTrans.getProcedureClass().equals(UpdateRecord.class)) {
-                    execUpdateRecord(conn);
-                }
-                successful = true;
-            } catch (Exception e) {
-                LOG.error("Caught Exceptions in IndexJungle for the procedure {}:{}", nextTrans.getName(), e);
-            }
+    protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
+        if (nextTrans.getProcedureClass().equals(GetRecord.class)) {
+            execGetRecord(conn);
         }
         return (TransactionStatus.SUCCESS);
     }
