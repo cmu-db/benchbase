@@ -21,7 +21,7 @@
         <work>
             <time>10</time>
             <rate>1</rate>
-            <weights>100,0</weights>
+            <weights>100</weights>
         </work>
     </works>
 
@@ -29,9 +29,6 @@
     <transactiontypes>
         <transactiontype>
             <name>GetRecord</name>
-        </transactiontype>
-        <transactiontype>
-            <name>UpdateRecord</name>
         </transactiontype>
     </transactiontypes>
 </parameters>

@@ -20,6 +20,8 @@ package com.oltpbenchmark.benchmarks.timeseries;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
+import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.RandomDistribution;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
 
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Timeseries Benchmark Data Generator
@@ -49,12 +52,21 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
         // final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
         // final int loadPerThread = Math.max(this.num_records / numLoaders, 1);
 
+        // final CountDownLatch sourcesLatch = new CountDownLatch(1);
+
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadSources(conn);
             }
         });
+        threads.add(new LoaderThread(this.benchmark) {
+            @Override
+            public void load(Connection conn) throws SQLException {
+                loadTypes(conn);
+            }
+        });
+
 
         return threads;
     }
@@ -93,6 +105,53 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                     insertBatch.clearBatch();
                     if (LOG.isDebugEnabled()) {
                         LOG.debug(String.format("Record %d / %d", total, this.benchmark.num_sources));
+                    }
+                }
+            }
+            if (batch > 0) {
+                insertBatch.executeBatch();
+            }
+        }
+        LOG.info("Loaded {} records into {}", total, catalog_tbl.getName());
+    }
+
+    private void loadTypes(Connection conn) throws SQLException {
+        Table catalog_tbl = this.benchmark.getCatalog().getTable(TimeseriesConstants.TABLENAME_TYPES);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+
+        int total = 0;
+        int batch = 0;
+        char[] baseStr = TextGenerator.randomChars(rng(), 200);
+        ZipfianGenerator valueTypeZipf = new ZipfianGenerator(rng(), 8);
+
+        try (PreparedStatement insertBatch = conn.prepareStatement(sql)) {
+            for (int record = 0; record < this.benchmark.num_types; record++) {
+                int offset = 1;
+
+                // ID
+                insertBatch.setInt(offset++, record);
+
+                // CATEGORY
+                insertBatch.setInt(offset++, (int)Math.ceil(record / TimeseriesConstants.NUM_TYPES));
+
+                // VALUE_TYPE
+                insertBatch.setInt(offset++, rng().nextInt(8));
+
+                // NAME
+                insertBatch.setString(offset++, String.format("type-%027d", record % TimeseriesConstants.NUM_TYPES));
+
+                // COMMENT
+                insertBatch.setString(offset++, String.valueOf(TextGenerator.permuteText(rng(), baseStr)));
+
+                insertBatch.addBatch();
+                total++;
+
+                if ((++batch % workConf.getBatchSize()) == 0) {
+                    insertBatch.executeBatch();
+                    batch = 0;
+                    insertBatch.clearBatch();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("Record %d / %d", total, this.benchmark.num_types));
                     }
                 }
             }

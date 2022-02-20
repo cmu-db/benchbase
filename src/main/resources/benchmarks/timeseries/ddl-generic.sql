@@ -13,6 +13,7 @@ CREATE TABLE sources (
 
 CREATE TABLE sessions (
     id INTEGER NOT NULL,
+    source_id INTEGER NOT NULL REFERENCES sources (id),
     agent VARCHAR(32) NOT NULL,
     created_time TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
@@ -22,9 +23,10 @@ CREATE TABLE types (
     id INTEGER NOT NULL,
     category INTEGER NOT NULL,
     value_type INTEGER NOT NULL,
-    name VARCHAR(128) NOT NULL UNIQUE,
+    name VARCHAR(64) NOT NULL,
     comment varchar(256) DEFAULT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (category, name)
 );
 
 CREATE TABLE observations (

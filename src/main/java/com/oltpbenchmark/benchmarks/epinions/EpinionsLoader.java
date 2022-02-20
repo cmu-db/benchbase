@@ -204,7 +204,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         int total = 0;
         int batch = 0;
         try (PreparedStatement itemInsert = conn.prepareStatement(sql)) {
-            ZipfianGenerator descLength = new ZipfianGenerator(EpinionsConstants.DESCRIPTION_LENGTH);
+            ZipfianGenerator descLength = new ZipfianGenerator(rng(), EpinionsConstants.DESCRIPTION_LENGTH);
             long timestamp = System.currentTimeMillis();
 
             for (int i = lo; i < hi; i++) {
@@ -253,9 +253,9 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         int batch = 0;
 
         try (PreparedStatement reviewInsert = conn.prepareStatement(sql)) {
-            ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
-            ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
-            ZipfianGenerator commentLength = new ZipfianGenerator(EpinionsConstants.COMMENT_LENGTH - EpinionsConstants.COMMENT_MIN_LENGTH);
+            ZipfianGenerator numReviews = new ZipfianGenerator(rng(), num_reviews, 1.8);
+            ZipfianGenerator reviewer = new ZipfianGenerator(rng(), num_users);
+            ZipfianGenerator commentLength = new ZipfianGenerator(rng(), EpinionsConstants.COMMENT_LENGTH - EpinionsConstants.COMMENT_MIN_LENGTH);
             Set<Integer> reviewers = new HashSet<>();
 
             for (int i = lo; i < hi; i++) {
@@ -317,7 +317,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         int batch = 0;
 
         try (PreparedStatement trustInsert = conn.prepareStatement(sql)) {
-            ZipfianGenerator numTrust = new ZipfianGenerator(num_trust, 1.95);
+            ZipfianGenerator numTrust = new ZipfianGenerator(rng(), num_trust, 1.95);
             ScrambledZipfianGenerator reviewed = new ScrambledZipfianGenerator(num_users);
             Set<Integer> trusted = new HashSet<>();
 
