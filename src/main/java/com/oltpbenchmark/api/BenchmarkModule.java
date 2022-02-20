@@ -79,13 +79,19 @@ public abstract class BenchmarkModule {
     /**
      * A single Random object that should be re-used by all a benchmark's components
      */
-    private final Random rng = new Random();
+    private final Random rng;
 
     private AbstractCatalog catalog = null;
 
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
+
+        if (this.workConf.getRandomSeed() != -1) {
+            this.rng = new Random(this.workConf.getRandomSeed());
+        } else {
+            this.rng = new Random();
+        }
     }
 
     // --------------------------------------------------------------------------
