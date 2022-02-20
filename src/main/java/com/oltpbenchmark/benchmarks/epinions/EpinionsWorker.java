@@ -38,7 +38,6 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
 
     private final ArrayList<String> user_ids;
     private final ArrayList<String> item_ids;
-    private final Random rand = new Random(System.currentTimeMillis());
 
     public EpinionsWorker(EpinionsBenchmark benchmarkModule, int id, ArrayList<String> user_ids, ArrayList<String> item_ids) {
         super(benchmarkModule, id);
@@ -73,44 +72,44 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     public void reviewItemByID(Connection conn) throws SQLException {
         GetReviewItemById proc = this.getProcedure(GetReviewItemById.class);
 
-        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        long iid = Long.valueOf(item_ids.get(rng().nextInt(item_ids.size())));
         proc.run(conn, iid);
     }
 
     public void reviewsByUser(Connection conn) throws SQLException {
         GetReviewsByUser proc = this.getProcedure(GetReviewsByUser.class);
 
-        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rng().nextInt(user_ids.size())));
         proc.run(conn, uid);
     }
 
     public void averageRatingByTrustedUser(Connection conn) throws SQLException {
         GetAverageRatingByTrustedUser proc = this.getProcedure(GetAverageRatingByTrustedUser.class);
 
-        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
-        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        long iid = Long.valueOf(item_ids.get(rng().nextInt(item_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rng().nextInt(user_ids.size())));
         proc.run(conn, iid, uid);
     }
 
     public void averageRatingOfItem(Connection conn) throws SQLException {
         GetItemAverageRating proc = this.getProcedure(GetItemAverageRating.class);
 
-        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        long iid = Long.valueOf(item_ids.get(rng().nextInt(item_ids.size())));
         proc.run(conn, iid);
     }
 
     public void itemReviewsByTrustedUser(Connection conn) throws SQLException {
         GetItemReviewsByTrustedUser proc = this.getProcedure(GetItemReviewsByTrustedUser.class);
 
-        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
-        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        long iid = Long.valueOf(item_ids.get(rng().nextInt(item_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rng().nextInt(user_ids.size())));
         proc.run(conn, iid, uid);
     }
 
     public void updateUserName(Connection conn) throws SQLException {
         UpdateUserName proc = this.getProcedure(UpdateUserName.class);
 
-        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rng().nextInt(user_ids.size())));
         String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH); // FIXME
         proc.run(conn, uid, name);
     }
@@ -118,7 +117,7 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     public void updateItemTitle(Connection conn) throws SQLException {
         UpdateItemTitle proc = this.getProcedure(UpdateItemTitle.class);
 
-        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
+        long iid = Long.valueOf(item_ids.get(rng().nextInt(item_ids.size())));
         String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH); // FIXME
         proc.run(conn, iid, title);
     }
@@ -126,19 +125,19 @@ public class EpinionsWorker extends Worker<EpinionsBenchmark> {
     public void updateReviewRating(Connection conn) throws SQLException {
         UpdateReviewRating proc = this.getProcedure(UpdateReviewRating.class);
 
-        long iid = Long.valueOf(item_ids.get(rand.nextInt(item_ids.size())));
-        long uid = Long.valueOf(user_ids.get(rand.nextInt(user_ids.size())));
-        int rating = rand.nextInt(1000); // ???
+        long iid = Long.valueOf(item_ids.get(rng().nextInt(item_ids.size())));
+        long uid = Long.valueOf(user_ids.get(rng().nextInt(user_ids.size())));
+        int rating = rng().nextInt(1000); // ???
         proc.run(conn, iid, uid, rating);
     }
 
     public void updateTrustRating(Connection conn) throws SQLException {
         UpdateTrustRating proc = this.getProcedure(UpdateTrustRating.class);
-        int uix = rand.nextInt(user_ids.size());
-        int uix2 = rand.nextInt(user_ids.size());
+        int uix = rng().nextInt(user_ids.size());
+        int uix2 = rng().nextInt(user_ids.size());
         long uid = Long.valueOf(user_ids.get(uix));
         long uid2 = Long.valueOf(user_ids.get(uix2));
-        int trust = rand.nextInt(2);
+        int trust = rng().nextInt(2);
         proc.run(conn, uid, uid2, trust);
     }
 
