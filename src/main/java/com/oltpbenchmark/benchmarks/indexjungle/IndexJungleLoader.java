@@ -84,7 +84,7 @@ public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
 
                 // INTEGER
                 for (int i = 0; i < IndexJungleConstants.NUM_FIELDS_PER_TYPE; i++) {
-                    insertBatch.setInt(offset++, rng().nextInt());
+                    insertBatch.setInt(offset++, Math.abs(rng().nextInt(IndexJungleConstants.INT_MAX_VALUE)));
                 }
                 // FLOAT
                 for (int i = 0; i < IndexJungleConstants.NUM_FIELDS_PER_TYPE; i++) {

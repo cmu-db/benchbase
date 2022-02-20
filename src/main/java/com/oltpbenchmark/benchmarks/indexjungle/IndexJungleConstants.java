@@ -22,6 +22,9 @@ public abstract class IndexJungleConstants {
     // Constants
     public static final int NUM_FIELDS_PER_TYPE = 10;
     public static final int NUM_RECORDS = 10000;
+
+    public static final int INT_MAX_VALUE = 100000;
+
     public static final int VARCHAR_LENGTH = 32;
     public static final int VARCHAR_PREFIX_SIZE = 4;
 

@@ -11,19 +11,21 @@
     <batchsize>2048</batchsize>
 
     <!-- Scalefactor in IndexJungle by 10000 per scalefactor increment -->
-    <scalefactor>1000</scalefactor>
+    <scalefactor>1</scalefactor>
+    
+    <randomSeed>1235</randomSeed>
 
     <!-- The workload -->
     <terminals>1</terminals>
     <works>
         <work>
-            <time>60</time>
-            <rate>10</rate>
-            <weights>50,50</weights>
+            <time>10</time>
+            <rate>1</rate>
+            <weights>100,0</weights>
         </work>
     </works>
 
-    <!-- Epinions Procedures Declaration -->
+    <!-- Transaction Declaration -->
     <transactiontypes>
         <transactiontype>
             <name>GetRecord</name>

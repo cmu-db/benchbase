@@ -20,24 +20,28 @@ package com.oltpbenchmark.benchmarks.indexjungle.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class GetRecord extends Procedure {
 
-    public final SQLStmt getReviewItem = new SQLStmt(
-            "SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=? " +
-                    "ORDER BY rating DESC, creation_date DESC LIMIT 10;"
-    );
+    public void run(Connection conn, String where[], String output[]) throws SQLException {
+        // SQL Template
+        String sql = String.format("SELECT %s FROM jungle WHERE %s",
+                String.join(", ", output),
+                String.join(" AND ", where));
+        System.out.println(sql);
 
-    public void run(Connection conn, long iid) throws SQLException {
-        try (PreparedStatement stmt = this.getPreparedStatement(conn, getReviewItem)) {
-            stmt.setLong(1, iid);
-            try (ResultSet r = stmt.executeQuery()) {
-                while (r.next()) {
-                    continue;
+        try (Statement stmt = conn.createStatement(); ResultSet result = stmt.executeQuery(sql)) {
+
+            // We should get the same # of output columns as specified in our output list
+            ResultSetMetaData meta = result.getMetaData();
+            assert(meta.getColumnCount() == output.length);
+
+            while (result.next()) {
+                for (int i = 1; i <= output.length; i++) {
+                    if (meta.getColumnType(i) == Types.INTEGER) {
+                        assert(result.getInt(i) >= 0);
+                    }
                 }
             }
         }
