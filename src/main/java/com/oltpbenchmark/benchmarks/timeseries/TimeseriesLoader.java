@@ -21,6 +21,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.distributions.ZipfianGenerator;
+import com.oltpbenchmark.util.Pair;
 import com.oltpbenchmark.util.RandomDistribution;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.TextGenerator;
@@ -49,17 +50,23 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
     @Override
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
-        // final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
-        // final int loadPerThread = Math.max(this.num_records / numLoaders, 1);
+        final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
+        final int loadPerThread = Math.max(this.benchmark.num_sessions / numLoaders, 1);
 
-        // final CountDownLatch sourcesLatch = new CountDownLatch(1);
-
+        // SOURCES
+        final CountDownLatch sourcesLatch = new CountDownLatch(1);
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadSources(conn);
             }
+            @Override
+            public void afterLoad() {
+                sourcesLatch.countDown();
+            }
         });
+
+        // TYPES
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -67,8 +74,145 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
             }
         });
 
+        // SESSIONS
+        for (int i = 0; i < numLoaders; i++) {
+            final int lo = i * loadPerThread;
+            final int hi = Math.min(this.benchmark.num_sessions, (i + 1) * loadPerThread);
+
+            threads.add(new LoaderThread(this.benchmark) {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    loadSessions(conn, lo, hi);
+                }
+
+                @Override
+                public void beforeLoad() {
+                    try {
+                        sourcesLatch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
 
         return threads;
+    }
+
+    private void loadSessions(Connection conn, int low, int high) throws SQLException {
+        Table catalog_tbl = this.benchmark.getCatalog().getTable(TimeseriesConstants.TABLENAME_SESSIONS);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+
+        int total = 0;
+        int batch = 0;
+
+        // SourceId/SessionId Pairs
+        List<Pair<Integer, Integer>> observations = new ArrayList<>();
+
+        try (PreparedStatement insertBatch = conn.prepareStatement(sql)) {
+            for (int i = low; i < high; i++) {
+                int offset = 1;
+
+                // ID
+                insertBatch.setInt(offset++, i);
+
+                // SOURCE_ID
+                int source_id = rng().nextInt(this.benchmark.num_sources);
+                insertBatch.setInt(offset++, source_id);
+
+                // AGENT
+                String agent = String.format("agent-%016d-v%d", source_id, rng().nextInt(10));
+                insertBatch.setString(offset++, agent);
+
+                // CREATED_TIME
+                // This should be the same time as the source's created_time
+                insertBatch.setTimestamp(offset++, Timestamp.valueOf(TimeseriesUtil.getCreateDateTime(source_id)));
+
+                observations.add(Pair.of(source_id, i));
+
+                insertBatch.addBatch();
+                total++;
+
+                if ((++batch % workConf.getBatchSize()) == 0) {
+                    insertBatch.executeBatch();
+                    batch = 0;
+                    insertBatch.clearBatch();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("Sessions %d / %d", total, this.benchmark.num_sessions));
+                    }
+                }
+            }
+            if (batch > 0) {
+                insertBatch.executeBatch();
+            }
+            LOG.info("Loaded {} records into {}", total, catalog_tbl.getName());
+        }
+
+        // Load Observations
+        int total_observations = 0;
+        for (Pair<Integer, Integer> p : observations) {
+            total_observations += loadObservations(conn, p.first, p.second);
+        }
+        LOG.info("Loaded {} records into {}", total_observations, TimeseriesConstants.TABLENAME_OBSERVATIONS);
+    }
+
+    private int loadObservations(Connection conn, int source_id, int session_id) throws SQLException {
+        Table catalog_tbl = this.benchmark.getCatalog().getTable(TimeseriesConstants.TABLENAME_OBSERVATIONS);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+
+        int total = 0;
+        int batch = 0;
+
+        // For each session_id / source_id, we will divide the # of observations that we
+        // insert into timeticks. Then for each timetick, we will insert NUM_TYPES observations
+        int timetick = 0;
+
+        int type_category = (int)Math.floor(rng().nextInt(TimeseriesConstants.NUM_TYPES) / TimeseriesConstants.NUM_TYPES);
+
+        try (PreparedStatement insertBatch = conn.prepareStatement(sql)) {
+            for (int i = 1; i <= TimeseriesConstants.NUM_OBSERVATIONS; i++) {
+                // SOURCE_ID
+                int offset = 1;
+
+                // SOURCE_ID
+                insertBatch.setInt(offset++, source_id);
+
+                // SESSION_ID
+                insertBatch.setInt(offset++, session_id);
+
+                // TYPE_ID
+                int type_id = (i % TimeseriesConstants.NUM_TYPES);
+                insertBatch.setInt(offset++, type_id + type_category);
+
+                // VALUE
+                insertBatch.setFloat(offset++, rng().nextFloat());
+
+                // CREATED_TIME
+                LocalDateTime created = TimeseriesUtil.getObservationDateTime(source_id, timetick);
+                insertBatch.setTimestamp(offset++, Timestamp.valueOf(created));
+
+                insertBatch.addBatch();
+                total++;
+
+                if ((++batch % workConf.getBatchSize()) == 0) {
+                    insertBatch.executeBatch();
+                    batch = 0;
+                    insertBatch.clearBatch();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("Observations %d / %d", total, this.benchmark.num_observations));
+                    }
+                }
+
+                if (type_id == 0) {
+                    timetick++;
+                }
+            } // FOR
+            if (batch > 0) {
+                insertBatch.executeBatch();
+            }
+
+        }
+        return (total);
     }
 
     private void loadSources(Connection conn) throws SQLException {
@@ -93,8 +237,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                 insertBatch.setString(offset++, String.valueOf(TextGenerator.permuteText(rng(), baseStr)));
 
                 // CREATED_TIME
-                LocalDateTime created = TimeseriesConstants.START_DATE.plusDays(record);
-                insertBatch.setTimestamp(offset++, Timestamp.valueOf(created));
+                insertBatch.setTimestamp(offset++, Timestamp.valueOf(TimeseriesUtil.getCreateDateTime(record)));
 
                 insertBatch.addBatch();
                 total++;
@@ -104,7 +247,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                     batch = 0;
                     insertBatch.clearBatch();
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Record %d / %d", total, this.benchmark.num_sources));
+                        LOG.debug(String.format("Sources %d / %d", total, this.benchmark.num_sources));
                     }
                 }
             }
@@ -151,7 +294,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                     batch = 0;
                     insertBatch.clearBatch();
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Record %d / %d", total, this.benchmark.num_types));
+                        LOG.debug(String.format("Types %d / %d", total, this.benchmark.num_types));
                     }
                 }
             }

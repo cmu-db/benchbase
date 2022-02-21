@@ -11,14 +11,6 @@ CREATE TABLE sources (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE sessions (
-    id INTEGER NOT NULL,
-    source_id INTEGER NOT NULL REFERENCES sources (id),
-    agent VARCHAR(32) NOT NULL,
-    created_time TIMESTAMP NOT NULL,
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE types (
     id INTEGER NOT NULL,
     category INTEGER NOT NULL,
@@ -29,10 +21,18 @@ CREATE TABLE types (
     UNIQUE (category, name)
 );
 
+CREATE TABLE sessions (
+    id INTEGER NOT NULL,
+    source_id INTEGER NOT NULL REFERENCES sources (id),
+    agent VARCHAR(32) NOT NULL,
+    created_time TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE observations (
   source_id INTEGER NOT NULL REFERENCES sources (id),
-  type_id INTEGER NOT NULL REFERENCES types (id),
   session_id INTEGER NOT NULL REFERENCES sessions (id),
+  type_id INTEGER NOT NULL REFERENCES types (id),
   value DOUBLE PRECISION NOT NULL,
   created_time TIMESTAMP NOT NULL
 );
