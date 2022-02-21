@@ -117,7 +117,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                 insertBatch.setInt(offset++, i);
 
                 // SOURCE_ID
-                int source_id = rng().nextInt(this.benchmark.num_sources);
+                int source_id = i % this.benchmark.num_sources;
                 insertBatch.setInt(offset++, source_id);
 
                 // AGENT
@@ -167,7 +167,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
         // insert into timeticks. Then for each timetick, we will insert NUM_TYPES observations
         int timetick = 0;
 
-        int type_category = (int)Math.floor(rng().nextInt(TimeseriesConstants.NUM_TYPES) / TimeseriesConstants.NUM_TYPES);
+        int type_category = (int)Math.floor(source_id / TimeseriesConstants.NUM_TYPES);
 
         try (PreparedStatement insertBatch = conn.prepareStatement(sql)) {
             for (int i = 1; i <= TimeseriesConstants.NUM_OBSERVATIONS; i++) {

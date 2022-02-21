@@ -20,7 +20,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.timeseries.procedures.GetData;
+import com.oltpbenchmark.benchmarks.timeseries.procedures.GetSessionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class TimeseriesBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-        return GetData.class.getPackage();
+        return GetSessionRange.class.getPackage();
     }
 
     @Override

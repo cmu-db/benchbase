@@ -65,8 +65,6 @@ public class FindFlights extends Procedure {
 
     public List<Object[]> run(Connection conn, long depart_aid, long arrive_aid, Timestamp start_date, Timestamp end_date, long distance) throws SQLException {
         try {
-
-
             final List<Long> arrive_aids = new ArrayList<>();
             arrive_aids.add(arrive_aid);
 
@@ -100,9 +98,7 @@ public class FindFlights extends Procedure {
                     sqlStmt = GetFlights3;
                 }
 
-
                 try (PreparedStatement f_stmt = this.getPreparedStatement(conn, sqlStmt)) {
-
                     // Set Parameters
                     f_stmt.setLong(1, depart_aid);
                     f_stmt.setTimestamp(2, start_date);
