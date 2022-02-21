@@ -70,7 +70,6 @@ public class Table extends AbstractCatalogObject {
         return (idx >= 0 ? this.columns.get(idx) : null);
     }
 
-
     public int getColumnIndex(Column catalog_col) {
         return (this.getColumnIndex(catalog_col.getName()));
     }

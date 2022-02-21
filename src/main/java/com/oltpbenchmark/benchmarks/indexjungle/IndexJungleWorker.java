@@ -15,10 +15,8 @@
  *
  */
 
-
 package com.oltpbenchmark.benchmarks.indexjungle;
 
-import com.google.common.collect.Iterables;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
@@ -44,7 +42,7 @@ public class IndexJungleWorker extends Worker<IndexJungleBenchmark> {
     public IndexJungleWorker(IndexJungleBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.num_records = (int) Math.round(IndexJungleConstants.NUM_RECORDS * benchmarkModule.getWorkloadConfiguration().getScaleFactor());
-        this.table = Iterables.getFirst(this.getBenchmarkModule().getCatalog().getTables(), null);
+        this.table = this.getBenchmarkModule().getCatalog().getTable("jungle");
         assert(this.table != null);
 
         int int_field0 = rng().nextInt(IndexJungleConstants.NUM_FIELDS_PER_TYPE);
