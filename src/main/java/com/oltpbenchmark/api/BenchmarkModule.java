@@ -140,8 +140,10 @@ public abstract class BenchmarkModule {
     }
 
     protected static <T> String convertBenchmarkClassToBenchmarkName(Class<T> clazz) {
+        assert(clazz != null);
         String name = clazz.getSimpleName().toLowerCase();
-        if (name.endsWith("benchmark")) {
+        // Special case for "CHBenCHmark"
+        if (!name.equals("chbenchmark") && name.endsWith("benchmark")) {
             name = name.replace("benchmark", "");
         }
         return (name);
