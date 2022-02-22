@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <parameters>
 
-    <type>POSTGRES</type>
-    <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=indexjungle&amp;reWriteBatchedInserts=true</url>
+    <type>MYSQL</type>
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;sslMode=DISABLED</url>
     <username>admin</username>
     <password>password</password>
     <batchsize>2048</batchsize>

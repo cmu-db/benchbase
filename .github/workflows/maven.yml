@@ -90,6 +90,13 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
+      - name: Timeseries
+        env:
+          MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b timeseries -c config/mariadb/sample_timeseries_config.xml --create=true --load=true --execute=true
+          
       - name: AuctionMark
         env:
           MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -263,6 +270,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Timeseries
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b timeseries -c config/mysql/sample_timeseries_config.xml --create=true --load=true --execute=true
+          
       - name: AuctionMark
         env:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}

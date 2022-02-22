@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <parameters>
 
-    <type>POSTGRES</type>
-    <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=indexjungle&amp;reWriteBatchedInserts=true</url>
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
     <username>admin</username>
     <password>password</password>
     <batchsize>2048</batchsize>
