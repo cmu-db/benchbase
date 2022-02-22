@@ -37,7 +37,6 @@ public class TimeseriesBenchmark extends BenchmarkModule {
 
     protected final int num_sources;
     protected final int num_sessions;
-    protected final int num_types;
     protected final long num_observations;
 
     public TimeseriesBenchmark(WorkloadConfiguration workConf) {
@@ -46,7 +45,6 @@ public class TimeseriesBenchmark extends BenchmarkModule {
         // Compute the number of records per table.
         this.num_sources = (int) Math.round(TimeseriesConstants.NUM_SOURCES * workConf.getScaleFactor());
         this.num_sessions = (int) Math.round(TimeseriesConstants.NUM_SESSIONS * workConf.getScaleFactor());
-        this.num_types = (int) Math.round(TimeseriesConstants.NUM_TYPES * workConf.getScaleFactor());
         this.num_observations = (long) Math.round(TimeseriesConstants.NUM_OBSERVATIONS * workConf.getScaleFactor());
     }
 

@@ -36,22 +36,12 @@ public abstract class TimeseriesConstants {
      */
     public static final int NUM_SOURCES = 100;
     public static final int NUM_SESSIONS = 1000;
-    public static final int NUM_TYPES = 500;
-
+    public static final int NUM_TYPES = 500; // FIXED SIZE
     public static final int NUM_OBSERVATIONS = 10000;
 
     /**
      * All objects in the database will be created starting after this date
      */
     public static final LocalDateTime START_DATE = LocalDateTime.of(2022, Month.JANUARY, 1, 0, 0);
-
-    // Constants
-    public static final int NUM_FIELDS_PER_TYPE = 10;
-
-
-    public static final int INT_MAX_VALUE = 100000;
-
-    public static final int VARCHAR_LENGTH = 32;
-    public static final int VARCHAR_PREFIX_SIZE = 4;
 
 }

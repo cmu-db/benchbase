@@ -274,17 +274,17 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
         ZipfianGenerator valueTypeZipf = new ZipfianGenerator(rng(), 8);
 
         try (PreparedStatement insertBatch = conn.prepareStatement(sql)) {
-            for (int record = 0; record < this.benchmark.num_types; record++) {
+            for (int record = 0; record < TimeseriesConstants.NUM_TYPES; record++) {
                 int offset = 1;
 
                 // ID
                 insertBatch.setInt(offset++, record);
 
                 // CATEGORY
-                insertBatch.setInt(offset++, (int)Math.ceil(record / TimeseriesConstants.NUM_TYPES));
+                insertBatch.setInt(offset++, (int)Math.floor(record / TimeseriesConstants.NUM_TYPES));
 
                 // VALUE_TYPE
-                insertBatch.setInt(offset++, rng().nextInt(8));
+                insertBatch.setInt(offset++, valueTypeZipf.nextInt(8));
 
                 // NAME
                 insertBatch.setString(offset++, String.format("type-%027d", record % TimeseriesConstants.NUM_TYPES));
@@ -300,7 +300,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                     batch = 0;
                     insertBatch.clearBatch();
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Types %d / %d", total, this.benchmark.num_types));
+                        LOG.debug(String.format("Types %d / %d", total, TimeseriesConstants.NUM_TYPES));
                     }
                 }
             }
