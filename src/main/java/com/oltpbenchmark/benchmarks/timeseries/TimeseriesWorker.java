@@ -57,7 +57,7 @@ public class TimeseriesWorker extends Worker<TimeseriesBenchmark> {
 
         int type_category = (int)Math.floor(source_id / TimeseriesConstants.NUM_TYPES);
         int type_id = (rng().nextInt(TimeseriesConstants.NUM_TYPES) % TimeseriesConstants.NUM_TYPES);
-        int num_types = rng().nextInt(5) + 1;
+        int num_types = rng().nextInt(3) + 1;
         int types[] = new int[num_types];
         for (int i = 0; i < types.length; i++) {
             types[i] = type_id + type_category + i;
