@@ -55,6 +55,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
 
         // SOURCES
         final CountDownLatch sourcesLatch = new CountDownLatch(1);
+        final CountDownLatch typesLatch = new CountDownLatch(1);
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
@@ -71,6 +72,10 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
             @Override
             public void load(Connection conn) throws SQLException {
                 loadTypes(conn);
+            }
+            @Override
+            public void afterLoad() {
+                typesLatch.countDown();
             }
         });
 
@@ -89,6 +94,7 @@ public class TimeseriesLoader extends Loader<TimeseriesBenchmark> {
                 public void beforeLoad() {
                     try {
                         sourcesLatch.await();
+                        typesLatch.await();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
