@@ -11,16 +11,16 @@
     <batchsize>2048</batchsize>
 
     <!-- Scalefactor in IndexJungle by 10000 per scalefactor increment -->
-    <scalefactor>1</scalefactor>
+    <scalefactor>2</scalefactor>
     
-    <randomSeed>1235</randomSeed>
+<!--     <randomSeed>1235</randomSeed> -->
 
     <!-- The workload -->
     <terminals>1</terminals>
     <works>
         <work>
-            <time>10</time>
-            <rate>1</rate>
+            <time>60</time>
+            <rate>unlimited</rate>
             <weights>100</weights>
         </work>
     </works>

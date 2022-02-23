@@ -33,8 +33,14 @@ public class IndexJungleBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexJungleBenchmark.class);
 
+    /**
+     * The number of columns to consider in lookup txns
+     */
+    protected final int lookup_cols_set_size;
+
     public IndexJungleBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
+        this.lookup_cols_set_size = workConf.getXmlConfig().getInt("lookupColumnsSize", 3);
     }
 
     @Override

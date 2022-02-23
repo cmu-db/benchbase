@@ -21,10 +21,11 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
 import java.sql.*;
+import java.util.List;
 
 public class GetRecord extends Procedure {
 
-    public void run(Connection conn, String where[], String output[]) throws SQLException {
+    public void run(Connection conn, List<String> where, List<String> output) throws SQLException {
         // SQL Template
         String sql = String.format("SELECT %s FROM jungle WHERE %s",
                 String.join(", ", output),
@@ -35,10 +36,10 @@ public class GetRecord extends Procedure {
 
             // We should get the same # of output columns as specified in our output list
             ResultSetMetaData meta = result.getMetaData();
-            assert(meta.getColumnCount() == output.length);
+            assert(meta.getColumnCount() == output.size());
 
             while (result.next()) {
-                for (int i = 1; i <= output.length; i++) {
+                for (int i = 1; i <= output.size(); i++) {
                     if (meta.getColumnType(i) == Types.INTEGER) {
                         assert(result.getInt(i) >= 0);
                     }
