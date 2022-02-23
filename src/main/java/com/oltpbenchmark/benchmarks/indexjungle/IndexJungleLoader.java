@@ -34,23 +34,20 @@ import java.util.concurrent.CountDownLatch;
 
 public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
 
-    private final int num_records;
-
     public IndexJungleLoader(IndexJungleBenchmark benchmark) {
         super(benchmark);
-        this.num_records = (int) Math.round(IndexJungleConstants.NUM_RECORDS * this.scaleFactor);
     }
 
     @Override
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
-        final int loadPerThread = Math.max(this.num_records / numLoaders, 1);
+        final int loadPerThread = (int)Math.max(this.benchmark.num_records / numLoaders, 1);
 
         // Main data table
         for (int i = 0; i < numLoaders; i++) {
-            final int lo = i * loadPerThread;
-            final int hi = Math.min(this.num_records, (i + 1) * loadPerThread);
+            final long lo = i * loadPerThread;
+            final long hi = Math.min(this.benchmark.num_records, (i + 1) * loadPerThread);
 
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
@@ -66,7 +63,7 @@ public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
      * @throws SQLException
      * @author pavlo
      */
-    private void loadRecords(Connection conn, int lo, int hi) throws SQLException {
+    private void loadRecords(Connection conn, long lo, long hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getCatalog().getTable("jungle");
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
@@ -74,13 +71,12 @@ public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
         int batch = 0;
         try (PreparedStatement insertBatch = conn.prepareStatement(sql)) {
             long timestamp = System.currentTimeMillis();
-            for (int record = lo; record < hi; record++) {
+            for (long record = lo; record < hi; record++) {
                 int offset = 1;
 
                 // First field is pkey that's as UUID
                 // But we're going to store it as a varchar which is...
-                String uuid = UUID.randomUUID().toString();
-                insertBatch.setString(offset++, uuid);
+                insertBatch.setString(offset++, IndexJungleUtil.generateUUID(record));
 
                 // INTEGER
                 for (int i = 0; i < IndexJungleConstants.NUM_FIELDS_PER_TYPE; i++) {
@@ -115,7 +111,7 @@ public class IndexJungleLoader extends Loader<IndexJungleBenchmark> {
                     batch = 0;
                     insertBatch.clearBatch();
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug(String.format("Record %d / %d", total, num_records));
+                        LOG.debug(String.format("Record %d / %d", total, this.benchmark.num_records));
                     }
                 }
             }

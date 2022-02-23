@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.indexjungle;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.indexjungle.procedures.GetRange;
 import com.oltpbenchmark.benchmarks.indexjungle.procedures.GetRecord;
 import com.oltpbenchmark.catalog.Column;
 import com.oltpbenchmark.catalog.Table;
@@ -30,18 +31,18 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IndexJungleWorker extends Worker<IndexJungleBenchmark> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexJungleWorker.class);
-    private final long num_records;
     private final Table table;
     private final List<Column> lookup_cols = new ArrayList<>();
 
     public IndexJungleWorker(IndexJungleBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
-        this.num_records = (int) Math.round(IndexJungleConstants.NUM_RECORDS * benchmarkModule.getWorkloadConfiguration().getScaleFactor());
+
         this.table = this.getBenchmarkModule().getCatalog().getTable("jungle");
         assert(this.table != null);
 
@@ -55,13 +56,24 @@ public class IndexJungleWorker extends Worker<IndexJungleBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTrans) throws UserAbortException, SQLException {
-        if (nextTrans.getProcedureClass().equals(GetRecord.class)) {
+        if (nextTrans.getProcedureClass().equals(GetRange.class)) {
+            execGetRange(conn);
+        } else if (nextTrans.getProcedureClass().equals(GetRecord.class)) {
             execGetRecord(conn);
         }
         return (TransactionStatus.SUCCESS);
     }
 
     public void execGetRecord(Connection conn) throws SQLException {
+        long record = rng().nextLong(this.getBenchmarkModule().num_records);
+        String uuid = IndexJungleUtil.generateUUID(record);
+
+        GetRecord proc = this.getProcedure(GetRecord.class);
+        Object row[] = proc.run(conn, uuid);
+        LOG.info(uuid + "=>" + Arrays.toString(row));
+    }
+
+    public void execGetRange(Connection conn) throws SQLException {
         // WHERE Clause
         // Generate a random scan range
         int val0 = rng().nextInt(IndexJungleConstants.INT_MAX_VALUE);
@@ -86,7 +98,7 @@ public class IndexJungleWorker extends Worker<IndexJungleBenchmark> {
             // output.add("MAX(timestamp_field0)");
         }
 
-        GetRecord proc = this.getProcedure(GetRecord.class);
+        GetRange proc = this.getProcedure(GetRange.class);
         proc.run(conn, where, output);
     }
 

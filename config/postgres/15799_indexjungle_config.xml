@@ -21,12 +21,15 @@
         <work>
             <time>60</time>
             <rate>unlimited</rate>
-            <weights>100</weights>
+            <weights>98,2</weights>
         </work>
     </works>
 
     <!-- Transaction Declaration -->
     <transactiontypes>
+        <transactiontype>
+            <name>GetRange</name>
+        </transactiontype>
         <transactiontype>
             <name>GetRecord</name>
         </transactiontype>

@@ -1,51 +1,34 @@
-/*
- * Copyright 2020 by OLTPBenchmark Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 package com.oltpbenchmark.benchmarks.indexjungle.procedures;
 
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class GetRecord extends Procedure {
 
-    public void run(Connection conn, List<String> where, List<String> output) throws SQLException {
-        // SQL Template
-        String sql = String.format("SELECT %s FROM jungle WHERE %s",
-                String.join(", ", output),
-                String.join(" AND ", where));
-        System.out.println(sql);
+    public final SQLStmt GetRecord = new SQLStmt("SELECT * FROM jungle WHERE uuid_field = ?");
 
-        try (Statement stmt = conn.createStatement(); ResultSet result = stmt.executeQuery(sql)) {
+    public Object[] run(Connection conn, String uuid) throws SQLException {
+        Object[] finalResult = null;
+        try (PreparedStatement stmt = this.getPreparedStatement(conn, GetRecord)) {
+            stmt.setString(1, uuid);
 
-            // We should get the same # of output columns as specified in our output list
-            ResultSetMetaData meta = result.getMetaData();
-            assert(meta.getColumnCount() == output.size());
-
-            while (result.next()) {
-                for (int i = 1; i <= output.size(); i++) {
-                    if (meta.getColumnType(i) == Types.INTEGER) {
-                        assert(result.getInt(i) >= 0);
+            // Bombs Away!
+            try (ResultSet results = stmt.executeQuery()) {
+                if (results.next()) {
+                    int cols = results.getMetaData().getColumnCount();
+                    finalResult = new Object[cols];
+                    for (int i = 0; i < cols; i++) {
+                        finalResult[i] = results.getObject(i + 1).toString();
                     }
                 }
             }
         }
+        return (finalResult);
     }
 
 }

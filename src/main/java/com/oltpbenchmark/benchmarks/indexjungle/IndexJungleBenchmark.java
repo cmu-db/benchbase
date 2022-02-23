@@ -22,7 +22,7 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.indexjungle.procedures.GetRecord;
+import com.oltpbenchmark.benchmarks.indexjungle.procedures.GetRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,14 +38,17 @@ public class IndexJungleBenchmark extends BenchmarkModule {
      */
     protected final int lookup_cols_set_size;
 
+    protected final long num_records;
+
     public IndexJungleBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
         this.lookup_cols_set_size = workConf.getXmlConfig().getInt("lookupColumnsSize", 3);
+        this.num_records = (int) Math.round(IndexJungleConstants.NUM_RECORDS * workConf.getScaleFactor());
     }
 
     @Override
     protected Package getProcedurePackageImpl() {
-        return GetRecord.class.getPackage();
+        return GetRange.class.getPackage();
     }
 
     @Override
