@@ -70,7 +70,7 @@ public class IndexJungleWorker extends Worker<IndexJungleBenchmark> {
 
         GetRecord proc = this.getProcedure(GetRecord.class);
         Object row[] = proc.run(conn, uuid);
-        LOG.info(uuid + "=>" + Arrays.toString(row));
+        if (LOG.isDebugEnabled()) LOG.debug(uuid + "=>" + Arrays.toString(row));
     }
 
     public void execGetRange(Connection conn) throws SQLException {

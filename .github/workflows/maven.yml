@@ -449,6 +449,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: IndexJungle
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin benchbase
+          java -jar benchbase.jar -b indexjungle -c config/postgres/15799_indexjungle_config.xml --create=true --load=true --execute=true
+          
       - name: Timeseries
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists

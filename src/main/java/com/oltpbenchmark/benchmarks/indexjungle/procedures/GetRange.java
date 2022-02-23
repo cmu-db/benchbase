@@ -29,7 +29,7 @@ public class GetRange extends Procedure {
         String sql = String.format("SELECT %s FROM jungle WHERE %s",
                 String.join(", ", output),
                 String.join(" AND ", where));
-        System.out.println(sql);
+        // System.out.println(sql);
 
         try (Statement stmt = conn.createStatement(); ResultSet result = stmt.executeQuery(sql)) {
 
