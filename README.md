@@ -179,13 +179,13 @@ The original OLTPBench code was largely written by the authors of the original p
 
 A significant portion of the modernization was contributed by [Tim Veil @ Cockroach Labs](https://github.com/timveil-cockroach), including but not limited to:
 
-* Built with and for Java 11.
+* Built with and for Java ~~11~~ 17.
 * Migration from Ant to Maven.
-    * Reorganized project to fit Maven structure.
-    * Removed static `lib` directory and dependencies.
-    * Updated required dependencies and removed unused or unwanted dependencies.
-    * Moved all non `.java` files to standard Maven `resources` directory.
-    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper).
+  * Reorganized project to fit Maven structure.
+  * Removed static `lib` directory and dependencies.
+  * Updated required dependencies and removed unused or unwanted dependencies.
+  * Moved all non `.java` files to standard Maven `resources` directory.
+  * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper).
 * Improved packaging and versioning.
     * Moved to Calendar Versioning (https://calver.org/).
     * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`.
