@@ -145,7 +145,7 @@ To enable logging, e.g., for the PostgreSQL JDBC driver, add the following JVM p
 ```
 -Djava.util.logging.config.file=src/main/resources/logging.properties
 ```
-To modify the logging level you can update [`logging.properties`](https://github.com/oltpbenchmark/oltpbench/blob/oltpbench_tim/src/main/resources/logging.properties) and/or [`log4j.properties`](https://github.com/oltpbenchmark/oltpbench/blob/oltpbench_tim/src/main/resources/log4j.properties).
+To modify the logging level you can update [`logging.properties`](src/main/resources/logging.properties) and/or [`log4j.properties`](src/main/resources/log4j.properties).
 
 ### How to Release
 ```
