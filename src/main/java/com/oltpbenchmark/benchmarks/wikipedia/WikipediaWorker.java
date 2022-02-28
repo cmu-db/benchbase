@@ -23,7 +23,6 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
-import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaUtil;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
@@ -39,7 +38,7 @@ import java.util.Set;
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaWorker.class);
 
-    private Set<Integer> addedWatchlistPages = new HashSet<>();
+    private final Set<Integer> addedWatchlistPages = new HashSet<>();
     private final int num_users;
     private final int num_pages;
 
@@ -85,8 +84,13 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             addedWatchlistPages.add(page_id);
         }
 
-        String pageTitle = WikipediaUtil.generatePageTitle(this.rng(), page_id);
-        int nameSpace = WikipediaUtil.generatePageNamespace(this.rng(), page_id);
+        int nameSpace = getBenchmarkModule().util.getNamespace();
+        String pageTitle = getBenchmarkModule().util.getExistingPageTitle(nameSpace);
+
+        while (pageTitle == null) {
+            nameSpace = getBenchmarkModule().util.getNamespace();
+            pageTitle = getBenchmarkModule().util.getExistingPageTitle(nameSpace);
+        }
 
         // AddWatchList
         try {

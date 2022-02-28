@@ -22,7 +22,6 @@ import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.wikipedia.data.PageHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.TextHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.data.UserHistograms;
-import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaUtil;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
@@ -86,6 +85,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             LOG.debug("# of USERS:  {}", this.num_users);
             LOG.debug("# of PAGES: {}", this.num_pages);
         }
+
     }
 
     @Override
@@ -248,7 +248,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
 
-            Random rand = new Random();
+            Random rand = this.rng();
 
             FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rand, UserHistograms.NAME_LENGTH);
             FlatHistogram<Integer> h_realNameLength = new FlatHistogram<>(rand, UserHistograms.REAL_NAME_LENGTH);
@@ -290,7 +290,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 userInsert.setNull(param++, types[param - 2]); // user_email_token
                 userInsert.setNull(param++, types[param - 2]); // user_email_token_expires
                 userInsert.setNull(param++, types[param - 2]); // user_registration
-                userInsert.setInt(param++, revCount); // user_editcount
+                userInsert.setInt(param, revCount); // user_editcount
                 userInsert.addBatch();
 
                 if (++batchSize % workConf.getBatchSize() == 0) {
@@ -331,7 +331,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement pageInsert = conn.prepareStatement(sql)) {
 
-            Random rand = new Random();
+            Random rand = this.rng();
 
             FlatHistogram<String> h_restrictions = new FlatHistogram<>(rand, PageHistograms.RESTRICTIONS);
 
@@ -339,8 +339,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             int lastPercent = -1;
 
             for (int i = lo; i <= hi; i++) {
-                String title = WikipediaUtil.generatePageTitle(rand, i);
-                int namespace = WikipediaUtil.generatePageNamespace(rand, i);
+                int namespace = benchmark.util.getNamespace();
+                String title = benchmark.util.createNewPageTitle(namespace);
                 String restrictions = h_restrictions.nextValue();
                 double pageRandom = rand.nextDouble();
                 String pageTouched = TimeUtil.getCurrentTimeString14();
@@ -356,7 +356,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 pageInsert.setDouble(param++, pageRandom); // page_random
                 pageInsert.setString(param++, pageTouched); // page_touched
                 pageInsert.setInt(param++, 0); // page_latest
-                pageInsert.setInt(param++, 0); // page_len
+                pageInsert.setInt(param, 0); // page_len
                 pageInsert.addBatch();
 
                 if (++batchSize % workConf.getBatchSize() == 0) {
@@ -397,74 +397,71 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement watchInsert = conn.prepareStatement(sql)) {
 
-            Random rand = new Random();
+            Random rand = this.rng();
 
             int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
             Zipf h_numWatches = new Zipf(rand, 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
-            Zipf h_pageId = new Zipf(rand, 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
             // Use a large max batch size for tables with smaller tuples
-            int maxBatchSize = workConf.getBatchSize() * 5;
+            int batchSize = workConf.getBatchSize();
 
-            int batchSize = 0;
-            int lastPercent = -1;
-            Set<Integer> userPages = new HashSet<>();
+            int counter = 0;
 
             for (int user_id = 1; user_id <= this.num_users; user_id++) {
                 int num_watches = h_numWatches.nextInt();
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("{} => {}", user_id, num_watches);
-                }
+
+                LOG.debug("user {} has {} watches", user_id, num_watches);
+
                 if (num_watches == 0) {
                     continue;
                 }
 
-                userPages.clear();
+                Set<String> userTitles = new HashSet<>();
+
                 for (int i = 0; i < num_watches; i++) {
-                    int pageId = -1;
-                    // HACK: Work around for testing with small database sizes
-                    if (num_watches == max_watches_per_user) {
-                        pageId = i + 1;
-                    } else {
-                        pageId = h_pageId.nextInt();
-                        while (userPages.contains(pageId)) {
-                            pageId = h_pageId.nextInt();
-                        }
+
+                    int namespace = benchmark.util.getNamespace();
+                    String title = benchmark.util.getExistingPageTitle(namespace);
+
+                    while (title == null) {
+                        namespace = benchmark.util.getNamespace();
+                        title = benchmark.util.getExistingPageTitle(namespace);
                     }
 
-                    userPages.add(pageId);
-
-                    Integer namespace = WikipediaUtil.generatePageNamespace(rand, pageId);
-                    String title = WikipediaUtil.generatePageTitle(rand, pageId);
+                    if (!userTitles.contains(title)) {
+                        userTitles.add(title);
+                    } else {
+                        continue;
+                    }
 
                     int param = 1;
-                    watchInsert.setInt(param++, user_id); // wl_user
-                    watchInsert.setInt(param++, namespace); // wl_namespace
-                    watchInsert.setString(param++, title); // wl_title
-                    watchInsert.setNull(param++, java.sql.Types.VARCHAR); // wl_notificationtimestamp
+                    watchInsert.setInt(param++, user_id); // wl_user; unique key part
+                    watchInsert.setInt(param++, namespace); // wl_namespace; unique key part
+                    watchInsert.setString(param++, title); // wl_title; unique key part
+
+                    LOG.debug("adding to batch... user [{}], namespace [{}], title [{}]", user_id, namespace, title);
+
+                    watchInsert.setNull(param, java.sql.Types.VARCHAR); // wl_notificationtimestamp
                     watchInsert.addBatch();
-                    batchSize++;
+                    counter++;
                 }
 
-                if (batchSize >= maxBatchSize) {
+                if (counter >= batchSize) {
                     watchInsert.executeBatch();
                     watchInsert.clearBatch();
-                    this.addToTableCount(catalog_tbl.getName(), batchSize);
-                    batchSize = 0;
-                    if (LOG.isDebugEnabled()) {
-                        int percent = (int) (((double) user_id / (double) this.num_users) * 100);
-                        if (percent != lastPercent) {
-                            LOG.debug("WATCHLIST ({}%)", percent);
-                        }
-                        lastPercent = percent;
-                    }
+                    this.addToTableCount(catalog_tbl.getName(), counter);
+                    counter = 0;
+
+                    LOG.debug("flushing WATCHLIST batch..");
                 }
             }
 
-            if (batchSize > 0) {
+            if (counter > 0) {
                 watchInsert.executeBatch();
                 watchInsert.clearBatch();
-                this.addToTableCount(catalog_tbl.getName(), batchSize);
+                this.addToTableCount(catalog_tbl.getName(), counter);
+
+                LOG.debug("flushing final WATCHLIST batch..");
             }
         }
         if (LOG.isDebugEnabled()) {
@@ -487,7 +484,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType());
 
 
-        Random rand = new Random();
+        Random rand = this.rng();
 
 
         WikipediaBenchmark b = this.benchmark;
@@ -543,7 +540,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     textInsert.setInt(col++, rev_id); // old_id
                     textInsert.setString(col++, new String(old_text)); // old_text
                     textInsert.setString(col++, "utf-8"); // old_flags
-                    textInsert.setInt(col++, page_id); // old_page
+                    textInsert.setInt(col, page_id); // old_page
                     textInsert.addBatch();
 
                     // Insert the revision
@@ -558,7 +555,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     revisionInsert.setInt(col++, h_minorEdit.nextValue()); // rev_minor_edit
                     revisionInsert.setInt(col++, 0); // rev_deleted
                     revisionInsert.setInt(col++, 0); // rev_len
-                    revisionInsert.setInt(col++, 0); // rev_parent_id
+                    revisionInsert.setInt(col, 0); // rev_parent_id
                     revisionInsert.addBatch();
 
                     // Update Last Revision Stuff
@@ -594,14 +591,14 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         String revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
-        String updateUserSql = "UPDATE " + revTableName + "   SET user_editcount = ?, " + "       user_touched = ? " + " WHERE user_id = ?";
+        String updateUserSql = "UPDATE " + revTableName + " SET user_editcount = ?, user_touched = ? WHERE user_id = ?";
         try (PreparedStatement userUpdate = conn.prepareStatement(updateUserSql)) {
             batchSize = 0;
             for (int i = 0; i < this.num_users; i++) {
                 int col = 1;
                 userUpdate.setInt(col++, this.user_revision_ctr[i]);
                 userUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
-                userUpdate.setInt(col++, i + 1); // ids start at 1
+                userUpdate.setInt(col, i + 1); // ids start at 1
                 userUpdate.addBatch();
                 if ((++batchSize % workConf.getBatchSize()) == 0) {
                     userUpdate.executeBatch();
@@ -620,7 +617,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
-        String updatePageSql = "UPDATE " + revTableName + "   SET page_latest = ?, " + "       page_touched = ?, " + "       page_is_new = 0, " + "       page_is_redirect = 0, " + "       page_len = ? " + " WHERE page_id = ?";
+        String updatePageSql = "UPDATE " + revTableName + " SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
         try (PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql)) {
             batchSize = 0;
             for (int i = 0; i < this.num_pages; i++) {
@@ -632,7 +629,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 pageUpdate.setInt(col++, this.page_last_rev_id[i]);
                 pageUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
                 pageUpdate.setInt(col++, this.page_last_rev_length[i]);
-                pageUpdate.setInt(col++, i + 1); // ids start at 1
+                pageUpdate.setInt(col, i + 1); // ids start at 1
                 pageUpdate.addBatch();
                 if ((++batchSize % workConf.getBatchSize()) == 0) {
                     pageUpdate.executeBatch();
