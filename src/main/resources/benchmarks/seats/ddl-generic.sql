@@ -1,24 +1,25 @@
 -- Drop Tables
-DROP TABLE IF EXISTS config_profile;
-DROP TABLE IF EXISTS config_histograms;
-DROP TABLE IF EXISTS reservation;
-DROP TABLE IF EXISTS frequent_flyer;
-DROP TABLE IF EXISTS customer;
-DROP TABLE IF EXISTS flight;
-DROP TABLE IF EXISTS airport_distance;
-DROP TABLE IF EXISTS airport;
-DROP TABLE IF EXISTS airline;
-DROP TABLE IF EXISTS country;
+DROP TABLE IF EXISTS config_profile CASCADE;
+DROP TABLE IF EXISTS config_histograms CASCADE;
+DROP TABLE IF EXISTS reservation CASCADE;
+DROP TABLE IF EXISTS frequent_flyer CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS flight CASCADE;
+DROP TABLE IF EXISTS airport_distance CASCADE;
+DROP TABLE IF EXISTS airport CASCADE;
+DROP TABLE IF EXISTS airline CASCADE;
+DROP TABLE IF EXISTS country CASCADE;
 
 --
 -- CONFIG_PROFILE
 --
-CREATE TABLE config_profile (
-                                cfp_scale_factor        float                               NOT NULL,
-                                cfp_aiport_max_customer varchar(10001)                      NOT NULL,
-                                cfp_flight_start        timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                cfp_flight_upcoming     timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                                cfp_flight_past_days    int                                 NOT NULL,
+CREATE TABLE config_profile
+(
+    cfp_scale_factor                                    float                               NOT NULL,
+    cfp_aiport_max_customer                             varchar(10001)                      NOT NULL,
+    cfp_flight_start                                    timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    cfp_flight_upcoming                                 timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    cfp_flight_past_days                                int                                 NOT NULL,
                                 cfp_flight_future_days  int                                 NOT NULL,
                                 cfp_flight_offset       int,
                                 cfp_reservation_offset  int,
