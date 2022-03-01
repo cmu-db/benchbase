@@ -17,8 +17,8 @@
     <!-- Values: csv or tbl-->
     <fileFormat>tbl</fileFormat>
 
-    <!-- This setting doesn't do anything here -->
-    <scalefactor>1</scalefactor>
+    <!-- Control scale factor to generate different amount of data -->
+    <scalefactor>0.1</scalefactor>
 
     <!-- The workload -->
     <terminals>1</terminals>

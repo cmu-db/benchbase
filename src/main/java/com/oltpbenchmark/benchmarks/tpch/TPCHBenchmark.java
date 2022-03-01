@@ -15,7 +15,6 @@
  *
  */
 
-
 /***
  *   TPC-H implementation
  *
@@ -66,4 +65,4 @@ public class TPCHBenchmark extends BenchmarkModule {
         return new TPCHLoader(this);
     }
 
-} 
+}
