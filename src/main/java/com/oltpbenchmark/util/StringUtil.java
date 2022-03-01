@@ -15,11 +15,12 @@
  *
  */
 
-
 package com.oltpbenchmark.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -32,6 +33,34 @@ public abstract class StringUtil {
 
     private static final Pattern LINE_SPLIT = Pattern.compile("\n");
     private static final Pattern TITLE_SPLIT = Pattern.compile(" ");
+    public static final Pattern WHITESPACE = Pattern.compile("["
+            + "\\u0009" // CHARACTER TABULATION
+            + "\\u000A" // LINE FEED (LF)
+            + "\\u000B" // LINE TABULATION
+            + "\\u000C" // FORM FEED (FF)
+            + "\\u000D" // CARRIAGE RETURN (CR)
+            + "\\u0020" // SPACE
+            + "\\u0085" // NEXT LINE (NEL)
+            + "\\u00A0" // NO-BREAK SPACE
+            + "\\u1680" // OGHAM SPACE MARK
+            + "\\u180E" // MONGOLIAN VOWEL SEPARATOR
+            + "\\u2000" // EN QUAD
+            + "\\u2001" // EM QUAD
+            + "\\u2002" // EN SPACE
+            + "\\u2003" // EM SPACE
+            + "\\u2004" // THREE-PER-EM SPACE
+            + "\\u2005" // FOUR-PER-EM SPACE
+            + "\\u2006" // SIX-PER-EM SPACE
+            + "\\u2007" // FIGURE SPACE
+            + "\\u2008" // PUNCTUATION SPACE
+            + "\\u2009" // THIN SPACE
+            + "\\u200A" // HAIR SPACE
+            + "\\u2028" // LINE SEPARATOR
+            + "\\u2029" // PARAGRAPH SEPARATOR
+            + "\\u202F" // NARROW NO-BREAK SPACE
+            + "\\u205F" // MEDIUM MATHEMATICAL SPACE
+            + "\\u3000" // IDEOGRAPHIC SPACE)
+            + "]");
 
     private static final String SET_PLAIN_TEXT = "\033[0;0m";
     private static final String SET_BOLD_TEXT = "\033[0;1m";
@@ -39,7 +68,6 @@ public abstract class StringUtil {
     private static String CACHE_REPEAT_STR = null;
     private static Integer CACHE_REPEAT_SIZE = null;
     private static String CACHE_REPEAT_RESULT = null;
-
 
     /**
      * Return key/value maps into a nicely formatted table
@@ -54,7 +82,8 @@ public abstract class StringUtil {
 
     /**
      * Return key/value maps into a nicely formatted table
-     * The maps are displayed in order from first to last, and there will be a spacer
+     * The maps are displayed in order from first to last, and there will be a
+     * spacer
      * created between each map. The format for each record is:
      *
      * <KEY><DELIMITER><SPACING><VALUE>
@@ -74,7 +103,8 @@ public abstract class StringUtil {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static String formatMaps(String delimiter, boolean upper, boolean box, boolean border_top, boolean border_bottom, boolean recursive, boolean first_element_title, Map<?, ?>... maps) {
+    public static String formatMaps(String delimiter, boolean upper, boolean box, boolean border_top,
+            boolean border_bottom, boolean recursive, boolean first_element_title, Map<?, ?>... maps) {
         boolean need_divider = (maps.length > 1 || border_bottom || border_top);
 
         // Figure out the largest key size so we can get spacing right
@@ -93,8 +123,10 @@ public abstract class StringUtil {
                 String[] k_str = LINE_SPLIT.split(k != null ? k.toString() : "");
                 keys.put(k, k_str);
 
-                // If the first element has a null value, then we can let it be the title for this map
-                // It's length doesn't affect the other keys, but will affect the total size of the map
+                // If the first element has a null value, then we can let it be the title for
+                // this map
+                // It's length doesn't affect the other keys, but will affect the total size of
+                // the map
                 if (first && first_element_title && m.get(k) == null) {
                     for (String line : k_str) {
                         max_title_size = Math.max(max_title_size, line.length());
@@ -144,7 +176,8 @@ public abstract class StringUtil {
                     Object v_obj = e.getValue();
                     String v = null;
                     if (recursive && v_obj instanceof Map<?, ?>) {
-                        v = formatMaps(delimiter, upper, box, border_top, border_bottom, recursive, first_element_title, (Map<?, ?>) v_obj).trim();
+                        v = formatMaps(delimiter, upper, box, border_top, border_bottom, recursive, first_element_title,
+                                (Map<?, ?>) v_obj).trim();
                     } else if (key.length == 1 && key[0].trim().isEmpty() && v_obj == null) {
                         blocks[map_i].append("\n");
                         continue;
@@ -153,7 +186,6 @@ public abstract class StringUtil {
                     } else {
                         v = v_obj.toString();
                     }
-
 
                     // If the key or value is multiple lines, format them nicely!
                     String[] value = LINE_SPLIT.split(v);
@@ -186,7 +218,9 @@ public abstract class StringUtil {
         }
 
         // Put it all together!
-//        System.err.println("max_title_size=" + max_title_size + ", max_key_size=" + max_key_size + ", max_value_size=" + max_value_size + ", delimiter=" + delimiter.length());
+        // System.err.println("max_title_size=" + max_title_size + ", max_key_size=" +
+        // max_key_size + ", max_value_size=" + max_value_size + ", delimiter=" +
+        // delimiter.length());
         int total_width = Math.max(max_title_size, (max_key_size + max_value_size + delimiter.length())) + 1;
         String dividing_line = (need_divider ? repeat("-", total_width) : "");
         StringBuilder sb = null;
@@ -204,8 +238,8 @@ public abstract class StringUtil {
                 sb.append(blocks[i]);
             }
         }
-        return (box ? StringUtil.box(sb.toString()) :
-                (border_top ? dividing_line + "\n" : "") + sb.toString() + (border_bottom ? dividing_line : ""));
+        return (box ? StringUtil.box(sb.toString())
+                : (border_top ? dividing_line + "\n" : "") + sb.toString() + (border_bottom ? dividing_line : ""));
     }
 
     /**
@@ -216,7 +250,8 @@ public abstract class StringUtil {
      * @return
      */
     public static String repeat(String str, int size) {
-        // We cache the last call in case they are making repeated calls for the same thing
+        // We cache the last call in case they are making repeated calls for the same
+        // thing
         if (CACHE_REPEAT_STR != null && CACHE_REPEAT_SIZE != null &&
                 CACHE_REPEAT_STR.equals(str) &&
                 CACHE_REPEAT_SIZE.equals(size)) {
@@ -234,7 +269,8 @@ public abstract class StringUtil {
     }
 
     /**
-     * Make a box around some text. If str has multiple lines, then the box will be the length
+     * Make a box around some text. If str has multiple lines, then the box will be
+     * the length
      * of the longest string.
      *
      * @param str
@@ -293,7 +329,8 @@ public abstract class StringUtil {
      * Converts a string to title case (ala Python)
      *
      * @param string
-     * @param keep_upper If true, then any non-first character that is uppercase stays uppercase
+     * @param keep_upper If true, then any non-first character that is uppercase
+     *                   stays uppercase
      * @return
      */
     public static String title(String string, boolean keep_upper) {
@@ -381,6 +418,35 @@ public abstract class StringUtil {
         sb.delete(sb.length() - delimiter.length(), sb.length());
 
         return sb.toString();
+    }
+
+    public static List<String> splitToList(Pattern delim, String str) {
+        String[] arr = delim.split(str);
+        List<String> retList = new ArrayList<>();
+        // remove empty strings.
+        for (String s : arr) {
+            if (s.length() == 0) {
+                continue;
+            }
+            // strip the spaces.
+            int left_idx = 0;
+            int right_idx = s.length();
+            while (left_idx < right_idx && Pattern.matches(WHITESPACE.pattern(),
+                    s.substring(left_idx, left_idx + 1))) {
+                left_idx++;
+            }
+            while (right_idx > left_idx && Pattern.matches(WHITESPACE.pattern(),
+                    s.substring(right_idx - 1, right_idx))) {
+                right_idx--;
+            }
+
+            if (right_idx <= left_idx) {
+                continue;
+            }
+
+            retList.add(s.substring(left_idx, right_idx));
+        }
+        return retList;
     }
 
 }
