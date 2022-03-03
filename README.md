@@ -18,20 +18,20 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 
 ## Quickstart
 
-To clone and build BenchBase,
+To clone and build BenchBase using the `postgres` profile,
 
 ```bash
 git clone --depth 1 https://github.com/cmu-db/benchbase.git
 cd benchbase
-./mvnw clean package
+./mvnw clean package -P postgres
 ```
 
 This produces artifacts in the `target` folder, which can be extracted,
 
 ```bash
 cd target
-tar xvzf benchbase-x-y-z.tgz # Change x-y-z appropriately.
-cd benchbase-x-y-z           # Change x-y-z appropriately.
+tar xvzf benchbase-postgres.tgz
+cd benchbase-postgres
 ```
 
 Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark,
@@ -60,25 +60,23 @@ features, e.g., per-transaction-type latency and throughput logs.
 
 The BenchBase framework has the following benchmarks:
 
-(TODO(WAN): Get permission to migrate/copy Tim's wiki for benchmark descriptions)
-
-* [AuctionMark](https://github.com/timveil-cockroach/oltpbench/wiki/AuctionMark)
-* [CH-benCHmark](https://github.com/timveil-cockroach/oltpbench/wiki/CH-benCHmark)
-* [Epinions.com](https://github.com/timveil-cockroach/oltpbench/wiki/epinions)
+* [AuctionMark](https://github.com/cmu-db/benchbase/wiki/AuctionMark)
+* [CH-benCHmark](https://github.com/cmu-db/benchbase/wiki/CH-benCHmark)
+* [Epinions.com](https://github.com/cmu-db/benchbase/wiki/epinions)
 * hyadapt -- pending configuration files
-* [NoOp](https://github.com/timveil-cockroach/oltpbench/wiki/NoOp)
-* [Resource Stresser](https://github.com/timveil-cockroach/oltpbench/wiki/Resource-Stresser)
-* [SEATS](https://github.com/timveil-cockroach/oltpbench/wiki/Seats)
-* [SIBench](https://github.com/timveil-cockroach/oltpbench/wiki/SIBench)
-* [SmallBank](https://github.com/timveil-cockroach/oltpbench/wiki/SmallBank)
-* [TATP](https://github.com/timveil-cockroach/oltpbench/wiki/TATP)
-* [TPC-C](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-C)
-* [TPC-H](https://github.com/timveil-cockroach/oltpbench/wiki/TPC-H)
+* [NoOp](https://github.com/cmu-db/benchbase/wiki/NoOp)
+* [Resource Stresser](https://github.com/cmu-db/benchbase/wiki/Resource-Stresser)
+* [SEATS](https://github.com/cmu-db/benchbase/wiki/Seats)
+* [SIBench](https://github.com/cmu-db/benchbase/wiki/SIBench)
+* [SmallBank](https://github.com/cmu-db/benchbase/wiki/SmallBank)
+* [TATP](https://github.com/cmu-db/benchbase/wiki/TATP)
+* [TPC-C](https://github.com/cmu-db/benchbase/wiki/TPC-C)
+* [TPC-H](https://github.com/cmu-db/benchbase/wiki/TPC-H)
 * TPC-DS -- pending configuration files
-* [Twitter](https://github.com/timveil-cockroach/oltpbench/wiki/Twitter)
-* [Voter](https://github.com/timveil-cockroach/oltpbench/wiki/Voter)
-* [Wikipedia](https://github.com/timveil-cockroach/oltpbench/wiki/Wikipedia)
-* [YCSB](https://github.com/timveil-cockroach/oltpbench/wiki/YCSB)
+* [Twitter](https://github.com/cmu-db/benchbase/wiki/Twitter)
+* [Voter](https://github.com/cmu-db/benchbase/wiki/Voter)
+* [Wikipedia](https://github.com/cmu-db/benchbase/wiki/Wikipedia)
+* [YCSB](https://github.com/cmu-db/benchbase/wiki/YCSB)
 
 This framework is design to allow for easy extension. We provide stub code that a contributor can use to include a new
 benchmark, leveraging all the system features (logging, controlled speed, controlled mixture, etc.)
@@ -88,15 +86,16 @@ benchmark, leveraging all the system features (logging, controlled speed, contro
 ## Usage Guide
 
 ### How to Build
-Run the following command to build the distribution:
+Run the following command to build the distribution for a given database specified as the profile name (`-P`).  The following profiles are currently supported: `postgres`, `mysql`, `mariadb`, `cockroachdb`, `phoenix` and `spanner`.
+
 ```bash
-./mvnw clean package
+./mvnw clean package -P <profile name>
 ```
 
 The following files will be placed in the `./target` folder:
 
-* `benchbase-x.y.z.tgz`
-* `benchbase-x.y.z.zip`
+* `benchbase-<profile name>.tgz`
+* `benchbase-<profile name>.zip`
 
 ### How to Run
 Once you build and unpack the distribution, you can run `benchbase` just like any other executable jar.  The following examples assume you are running from the root of the expanded `.zip` or `.tgz` distribution.  If you attempt to run `benchbase` outside of the distribution structure you may encounter a variety of errors including `java.lang.NoClassDefFoundError`.
@@ -119,7 +118,7 @@ java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmar
 The following options are provided:
 
 ```text
-usage: oltpbenchmark
+usage: benchbase
  -b,--bench <arg>               [required] Benchmark class. Currently
                                 supported: [tpcc, tpch, tatp, wikipedia,
                                 resourcestresser, twitter, epinions, ycsb,
@@ -146,7 +145,7 @@ To enable logging, e.g., for the PostgreSQL JDBC driver, add the following JVM p
 ```
 -Djava.util.logging.config.file=src/main/resources/logging.properties
 ```
-To modify the logging level you can update [`logging.properties`](https://github.com/oltpbenchmark/oltpbench/blob/oltpbench_tim/src/main/resources/logging.properties) and/or [`log4j.properties`](https://github.com/oltpbenchmark/oltpbench/blob/oltpbench_tim/src/main/resources/log4j.properties).
+To modify the logging level you can update [`logging.properties`](src/main/resources/logging.properties) and/or [`log4j.properties`](src/main/resources/log4j.properties).
 
 ### How to Release
 ```
@@ -180,13 +179,13 @@ The original OLTPBench code was largely written by the authors of the original p
 
 A significant portion of the modernization was contributed by [Tim Veil @ Cockroach Labs](https://github.com/timveil-cockroach), including but not limited to:
 
-* Built with and for Java 11.
+* Built with and for Java ~~11~~ 17.
 * Migration from Ant to Maven.
-    * Reorganized project to fit Maven structure.
-    * Removed static `lib` directory and dependencies.
-    * Updated required dependencies and removed unused or unwanted dependencies.
-    * Moved all non `.java` files to standard Maven `resources` directory.
-    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper).
+  * Reorganized project to fit Maven structure.
+  * Removed static `lib` directory and dependencies.
+  * Updated required dependencies and removed unused or unwanted dependencies.
+  * Moved all non `.java` files to standard Maven `resources` directory.
+  * Shipped with [Maven Wrapper](https://maven.apache.org/wrapper).
 * Improved packaging and versioning.
     * Moved to Calendar Versioning (https://calver.org/).
     * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`.

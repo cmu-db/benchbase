@@ -39,19 +39,17 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     private final ArrayList<Sample[]> values = new ArrayList<>();
     private int nextIndex;
 
-    private final long startNs;
-    private long lastNs;
+    private final long startNanosecond;
+    private long lastNanosecond;
 
-    public LatencyRecord(long startNs) {
-
-
-        this.startNs = startNs;
-        lastNs = startNs;
+    public LatencyRecord(long startNanosecond) {
+        this.startNanosecond = startNanosecond;
+        this.lastNanosecond = startNanosecond;
         allocateChunk();
 
     }
 
-    public void addLatency(int transType, long startNs, long endNs, int workerId, int phaseId) {
+    public void addLatency(int transType, long startNanosecond, long endNanosecond, int workerId, int phaseId) {
 
 
         if (nextIndex == ALLOC_SIZE) {
@@ -59,16 +57,15 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
         }
         Sample[] chunk = values.get(values.size() - 1);
 
-        long startOffsetNs = (startNs - lastNs + 500);
+        long startOffsetNanosecond = (startNanosecond - lastNanosecond + 500);
 
-        int latencyUs = (int) ((endNs - startNs + 500) / 1000);
+        int latencyMicroseconds = (int) ((endNanosecond - startNanosecond + 500) / 1000);
 
 
-        chunk[nextIndex] = new Sample(transType, startOffsetNs, latencyUs
-                , workerId, phaseId);
+        chunk[nextIndex] = new Sample(transType, startOffsetNanosecond, latencyMicroseconds, workerId, phaseId);
         ++nextIndex;
 
-        lastNs += startOffsetNs;
+        lastNanosecond += startOffsetNanosecond;
     }
 
     private void allocateChunk() {
@@ -92,23 +89,43 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
      * Stores the start time and latency for a single sample. Immutable.
      */
     public static final class Sample implements Comparable<Sample> {
-        public final int tranType;
-        public long startNs;
-        public final int latencyUs;
-        public final int workerId;
-        public final int phaseId;
+        private final int transactionType;
+        private long startNanosecond;
+        private final int latencyMicrosecond;
+        private final int workerId;
+        private final int phaseId;
 
-        public Sample(int tranType, long startNs, int latencyUs, int workerId, int phaseId) {
-            this.tranType = tranType;
-            this.startNs = startNs;
-            this.latencyUs = latencyUs;
+        public Sample(int transactionType, long startNanosecond, int latencyMicrosecond, int workerId, int phaseId) {
+            this.transactionType = transactionType;
+            this.startNanosecond = startNanosecond;
+            this.latencyMicrosecond = latencyMicrosecond;
             this.workerId = workerId;
             this.phaseId = phaseId;
         }
 
+        public int getTransactionType() {
+            return transactionType;
+        }
+
+        public long getStartNanosecond() {
+            return startNanosecond;
+        }
+
+        public int getLatencyMicrosecond() {
+            return latencyMicrosecond;
+        }
+
+        public int getWorkerId() {
+            return workerId;
+        }
+
+        public int getPhaseId() {
+            return phaseId;
+        }
+
         @Override
         public int compareTo(Sample other) {
-            long diff = this.startNs - other.startNs;
+            long diff = this.startNanosecond - other.startNanosecond;
 
             // explicit comparison to avoid long to int overflow
             if (diff > 0) {
@@ -125,15 +142,13 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
     private final class LatencyRecordIterator implements Iterator<Sample> {
         private int chunkIndex = 0;
         private int subIndex = 0;
-        private long lastIteratorNs = startNs;
+        private long lastIteratorNanosecond = startNanosecond;
 
         @Override
         public boolean hasNext() {
             if (chunkIndex < values.size() - 1) {
                 return true;
             }
-
-
             return subIndex < nextIndex;
         }
 
@@ -152,8 +167,8 @@ public class LatencyRecord implements Iterable<LatencyRecord.Sample> {
 
             // Previously, s.startNs was just an offset from the previous
             // value.  Now we make it an absolute.
-            s.startNs += lastIteratorNs;
-            lastIteratorNs = s.startNs;
+            s.startNanosecond += lastIteratorNanosecond;
+            lastIteratorNanosecond = s.startNanosecond;
 
             return s;
         }

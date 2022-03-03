@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
+    <username>admin</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>unlimited</rate>
+            <weights>50,50</weights>
+        </work>
+    </works>
+
+    <!-- SIBENCH Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>MinRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

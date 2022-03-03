@@ -45,7 +45,7 @@ public class TPCCBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
-        ArrayList<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+        List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
 
         try {
             List<TPCCWorker> terminals = createTerminals();
@@ -62,25 +62,22 @@ public class TPCCBenchmark extends BenchmarkModule {
         return new TPCCLoader(this);
     }
 
-    protected ArrayList<TPCCWorker> createTerminals() throws SQLException {
+    protected List<TPCCWorker> createTerminals() throws SQLException {
 
         TPCCWorker[] terminals = new TPCCWorker[workConf.getTerminals()];
 
-        int numWarehouses = (int) workConf.getScaleFactor();//tpccConf.getNumWarehouses();
+        int numWarehouses = (int) workConf.getScaleFactor();
         if (numWarehouses <= 0) {
             numWarehouses = 1;
         }
-        int numTerminals = workConf.getTerminals();
-        // TODO: This is currently broken: fix it!
-        int warehouseOffset = Integer.getInteger("warehouseOffset", 1);
 
+        int numTerminals = workConf.getTerminals();
 
         // We distribute terminals evenly across the warehouses
         // Eg. if there are 10 terminals across 7 warehouses, they
         // are distributed as
         // 1, 1, 2, 1, 2, 1, 2
-        final double terminalsPerWarehouse = (double) numTerminals
-                / numWarehouses;
+        final double terminalsPerWarehouse = (double) numTerminals / numWarehouses;
         int workerId = 0;
 
         for (int w = 0; w < numWarehouses; w++) {
@@ -95,12 +92,10 @@ public class TPCCBenchmark extends BenchmarkModule {
             int numWarehouseTerminals = upperTerminalId - lowerTerminalId;
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]",
-                        w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
+                LOG.debug(String.format("w_id %d = %d terminals [lower=%d / upper%d]", w_id, numWarehouseTerminals, lowerTerminalId, upperTerminalId));
             }
 
-            final double districtsPerTerminal = TPCCConfig.configDistPerWhse
-                    / (double) numWarehouseTerminals;
+            final double districtsPerTerminal = TPCCConfig.configDistPerWhse / (double) numWarehouseTerminals;
             for (int terminalId = 0; terminalId < numWarehouseTerminals; terminalId++) {
                 int lowerDistrictId = (int) (terminalId * districtsPerTerminal);
                 int upperDistrictId = (int) ((terminalId + 1) * districtsPerTerminal);
@@ -109,16 +104,14 @@ public class TPCCBenchmark extends BenchmarkModule {
                 }
                 lowerDistrictId += 1;
 
-                TPCCWorker terminal = new TPCCWorker(this, workerId++,
-                        w_id, lowerDistrictId, upperDistrictId,
-                        numWarehouses);
+                TPCCWorker terminal = new TPCCWorker(this, workerId++, w_id, lowerDistrictId, upperDistrictId, numWarehouses);
                 terminals[lowerTerminalId + terminalId] = terminal;
             }
 
         }
 
 
-        return new ArrayList<>(Arrays.asList(terminals));
+        return Arrays.asList(terminals);
     }
 
 
