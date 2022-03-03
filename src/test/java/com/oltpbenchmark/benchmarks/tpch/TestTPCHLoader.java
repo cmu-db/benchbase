@@ -23,7 +23,6 @@ public class TestTPCHLoader extends AbstractTestLoader<TPCHBenchmark> {
     @Override
     protected void setUp() throws Exception {
         super.setUp(TPCHBenchmark.class, null, TestTPCHBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.01);
     }
 
 }
