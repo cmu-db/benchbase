@@ -42,7 +42,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>42.3.1</version>
+                    <version>42.3.3</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -55,7 +55,7 @@
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.27</version>
+                    <version>8.0.28</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -81,7 +81,7 @@
                 <dependency>
                     <groupId>com.google.cloud</groupId>
                     <artifactId>google-cloud-spanner-jdbc</artifactId>
-                    <version>2.5.5</version>
+                    <version>2.6.1</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -94,7 +94,88 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>42.3.1</version>
+                    <version>42.3.3</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>phoenix</id>
+            <properties>
+                <classifier>phoenix</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.phoenix</groupId>
+                    <artifactId>phoenix-client-hbase-2.4</artifactId>
+                    <version>5.1.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+    <profiles>
+        <profile>
+            <id>postgres</id>
+            <properties>
+                <classifier>postgres</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>42.3.3</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>mysql</id>
+            <properties>
+                <classifier>mysql</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>8.0.28</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>mariadb</id>
+            <properties>
+                <classifier>mariadb</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.mariadb.jdbc</groupId>
+                    <artifactId>mariadb-java-client</artifactId>
+                    <version>2.7.4</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>spanner</id>
+            <properties>
+                <classifier>spanner</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.google.cloud</groupId>
+                    <artifactId>google-cloud-spanner-jdbc</artifactId>
+                    <version>2.6.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>cockroachdb</id>
+            <properties>
+                <classifier>cockroachdb</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>42.3.3</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -117,13 +198,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.32</version>
+            <version>1.7.36</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.32</version>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>1.7.36</version>
         </dependency>
 
         <dependency>
@@ -153,7 +234,7 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>5.5.2</version>
+            <version>5.6</version>
         </dependency>
 
         <dependency>
@@ -182,8 +263,6 @@
             <version>2.13.1</version>
         </dependency>
 
-
-
     </dependencies>
 
     <build>
@@ -191,7 +270,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -200,7 +279,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.2</version>
                 <configuration>
                     <classifier>${classifier}</classifier>
                     <archive>

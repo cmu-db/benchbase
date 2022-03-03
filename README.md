@@ -18,7 +18,7 @@ BenchBase (formerly [OLTPBench](https://github.com/oltpbenchmark/oltpbench/)) is
 
 ## Quickstart
 
-To clone and build BenchBase,
+To clone and build BenchBase using the `postgres` profile,
 
 ```bash
 git clone --depth 1 https://github.com/cmu-db/benchbase.git
@@ -30,8 +30,8 @@ This produces artifacts in the `target` folder, which can be extracted,
 
 ```bash
 cd target
-tar xvzf benchbase-x-y-z.tgz # Change x-y-z appropriately.
-cd benchbase-x-y-z           # Change x-y-z appropriately.
+tar xvzf benchbase-postgres.tgz
+cd benchbase-postgres
 ```
 
 Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark,
@@ -94,8 +94,8 @@ Run the following command to build the distribution for a given database specifi
 
 The following files will be placed in the `./target` folder:
 
-* `benchbase-x.y.z.tgz`
-* `benchbase-x.y.z.zip`
+* `benchbase-<profile name>.tgz`
+* `benchbase-<profile name>.zip`
 
 ### How to Run
 Once you build and unpack the distribution, you can run `benchbase` just like any other executable jar.  The following examples assume you are running from the root of the expanded `.zip` or `.tgz` distribution.  If you attempt to run `benchbase` outside of the distribution structure you may encounter a variety of errors including `java.lang.NoClassDefFoundError`.
@@ -118,7 +118,7 @@ java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmar
 The following options are provided:
 
 ```text
-usage: oltpbenchmark
+usage: benchbase
  -b,--bench <arg>               [required] Benchmark class. Currently
                                 supported: [tpcc, tpch, tatp, wikipedia,
                                 resourcestresser, twitter, epinions, ycsb,
@@ -145,7 +145,7 @@ To enable logging, e.g., for the PostgreSQL JDBC driver, add the following JVM p
 ```
 -Djava.util.logging.config.file=src/main/resources/logging.properties
 ```
-To modify the logging level you can update [`logging.properties`](https://github.com/oltpbenchmark/oltpbench/blob/oltpbench_tim/src/main/resources/logging.properties) and/or [`log4j.properties`](https://github.com/oltpbenchmark/oltpbench/blob/oltpbench_tim/src/main/resources/log4j.properties).
+To modify the logging level you can update [`logging.properties`](src/main/resources/logging.properties) and/or [`log4j.properties`](src/main/resources/log4j.properties).
 
 ### How to Release
 ```
@@ -179,13 +179,13 @@ The original OLTPBench code was largely written by the authors of the original p
 
 A significant portion of the modernization was contributed by [Tim Veil @ Cockroach Labs](https://github.com/timveil-cockroach), including but not limited to:
 
-* Built with and for Java 11.
+* Built with and for Java ~~11~~ 17.
 * Migration from Ant to Maven.
-    * Reorganized project to fit Maven structure.
-    * Removed static `lib` directory and dependencies.
-    * Updated required dependencies and removed unused or unwanted dependencies.
-    * Moved all non `.java` files to standard Maven `resources` directory.
-    * Shipped with [Maven Wrapper](https://github.com/takari/maven-wrapper).
+  * Reorganized project to fit Maven structure.
+  * Removed static `lib` directory and dependencies.
+  * Updated required dependencies and removed unused or unwanted dependencies.
+  * Moved all non `.java` files to standard Maven `resources` directory.
+  * Shipped with [Maven Wrapper](https://maven.apache.org/wrapper).
 * Improved packaging and versioning.
     * Moved to Calendar Versioning (https://calver.org/).
     * Project is now distributed as a `.tgz` or `.zip` with an executable `.jar`.
