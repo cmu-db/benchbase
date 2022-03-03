@@ -15,7 +15,6 @@
  *
  */
 
-
 /***
  *   TPC-H implementation
  *
@@ -28,8 +27,18 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
-import com.oltpbenchmark.benchmarks.tpch.util.CopyUtil;
+import static com.oltpbenchmark.benchmarks.tpch.TPCHConstants.*;
+import com.oltpbenchmark.benchmarks.tpch.util.RegionGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.NationGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.PartGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.PartSupplierGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.CustomerGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.SupplierGenerator;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.catalog.Table;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
@@ -48,27 +57,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         super(benchmark);
     }
 
-    private enum CastTypes {LONG, DOUBLE, STRING, DATE}
+    private enum CastTypes {
+        LONG, DOUBLE, STRING, DATE
+    }
 
-    private static final Pattern isoFmt = Pattern.compile("^\\s*(\\d{4})-(\\d{2})-(\\d{2})\\s*$");
-    private static final Pattern nondelimFmt = Pattern.compile("^\\s*(\\d{4})(\\d{2})(\\d{2})\\s*$");
-    private static final Pattern usaFmt = Pattern.compile("^\\s*(\\d{2})/(\\d{2})/(\\d{4})\\s*$");
-    private static final Pattern eurFmt = Pattern.compile("^\\s*(\\d{2})\\.(\\d{2})\\.(\\d{4})\\s*$");
-    private static final Pattern CSV_PATTERN = Pattern.compile("\\s*(\"[^\"]*\"|[^,]*)\\s*,?");
-    private static final Pattern TBL_PATTERN = Pattern.compile("[^\\|]*\\|");
-
-
-    private static final CastTypes[] customerTypes = {CastTypes.LONG,   // c_custkey
+    private static final CastTypes[] customerTypes = { CastTypes.LONG, // c_custkey
             CastTypes.STRING, // c_name
             CastTypes.STRING, // c_address
-            CastTypes.LONG,   // c_nationkey
+            CastTypes.LONG, // c_nationkey
             CastTypes.STRING, // c_phone
             CastTypes.DOUBLE, // c_acctbal
             CastTypes.STRING, // c_mktsegment
-            CastTypes.STRING  // c_comment
+            CastTypes.STRING // c_comment
     };
 
-    private static final CastTypes[] lineitemTypes = {CastTypes.LONG, // l_orderkey
+    private static final CastTypes[] lineitemTypes = { CastTypes.LONG, // l_orderkey
             CastTypes.LONG, // l_partkey
             CastTypes.LONG, // l_suppkey
             CastTypes.LONG, // l_linenumber
@@ -83,83 +86,67 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             CastTypes.DATE, // l_receiptdate
             CastTypes.STRING, // l_shipinstruct
             CastTypes.STRING, // l_shipmode
-            CastTypes.STRING  // l_comment
+            CastTypes.STRING // l_comment
     };
 
-    private static final CastTypes[] nationTypes = {CastTypes.LONG,   // n_nationkey
+    private static final CastTypes[] nationTypes = { CastTypes.LONG, // n_nationkey
             CastTypes.STRING, // n_name
-            CastTypes.LONG,   // n_regionkey
-            CastTypes.STRING  // n_comment
+            CastTypes.LONG, // n_regionkey
+            CastTypes.STRING // n_comment
     };
 
-    private static final CastTypes[] ordersTypes = {CastTypes.LONG,   // o_orderkey
-            CastTypes.LONG,   // o_LONG, custkey
+    private static final CastTypes[] ordersTypes = { CastTypes.LONG, // o_orderkey
+            CastTypes.LONG, // o_LONG, custkey
             CastTypes.STRING, // o_orderstatus
             CastTypes.DOUBLE, // o_totalprice
-            CastTypes.DATE,   // o_orderdate
+            CastTypes.DATE, // o_orderdate
             CastTypes.STRING, // o_orderpriority
             CastTypes.STRING, // o_clerk
-            CastTypes.LONG,   // o_shippriority
-            CastTypes.STRING  // o_comment
+            CastTypes.LONG, // o_shippriority
+            CastTypes.STRING // o_comment
     };
 
-    private static final CastTypes[] partTypes = {CastTypes.LONG,   // p_partkey
+    private static final CastTypes[] partTypes = { CastTypes.LONG, // p_partkey
             CastTypes.STRING, // p_name
             CastTypes.STRING, // p_mfgr
             CastTypes.STRING, // p_brand
             CastTypes.STRING, // p_type
-            CastTypes.LONG,   // p_size
+            CastTypes.LONG, // p_size
             CastTypes.STRING, // p_container
             CastTypes.DOUBLE, // p_retailprice
-            CastTypes.STRING  // p_comment
+            CastTypes.STRING // p_comment
     };
 
-    private static final CastTypes[] partsuppTypes = {CastTypes.LONG,   // ps_partkey
-            CastTypes.LONG,   // ps_suppkey
-            CastTypes.LONG,   // ps_availqty
+    private static final CastTypes[] partsuppTypes = { CastTypes.LONG, // ps_partkey
+            CastTypes.LONG, // ps_suppkey
+            CastTypes.LONG, // ps_availqty
             CastTypes.DOUBLE, // ps_supplycost
-            CastTypes.STRING  // ps_comment
+            CastTypes.STRING // ps_comment
     };
 
-    private static final CastTypes[] regionTypes = {CastTypes.LONG,   // r_regionkey
+    private static final CastTypes[] regionTypes = { CastTypes.LONG, // r_regionkey
             CastTypes.STRING, // r_name
-            CastTypes.STRING  // r_comment
+            CastTypes.STRING // r_comment
     };
 
-    private static final CastTypes[] supplierTypes = {CastTypes.LONG,   // s_suppkey
+    private static final CastTypes[] supplierTypes = { CastTypes.LONG, // s_suppkey
             CastTypes.STRING, // s_name
             CastTypes.STRING, // s_address
-            CastTypes.LONG,   // s_nationkey
+            CastTypes.LONG, // s_nationkey
             CastTypes.STRING, // s_phone
             CastTypes.DOUBLE, // s_acctbal
             CastTypes.STRING, // s_comment
     };
 
-
-    /**
-     * Try to load the TPC-H data from .tbl files using the COPY command.
-     *
-     * @return True if the COPY operation was successful. False otherwise.
-     */
-    private boolean loadCopy(Connection conn) {
-        DatabaseType dbType = this.workConf.getDatabaseType();
-        switch (dbType) {
-            case POSTGRES:
-                return CopyUtil.copyPOSTGRES(workConf, conn, LOG);
-            case MARIADB:
-            case MYSQL:
-                return CopyUtil.copyMYSQL(workConf, conn, LOG);
-            default:
-                return false;
-        }
+    private PreparedStatement getInsertStatement(Connection conn, String tableName) throws SQLException {
+        Table catalog_tbl = benchmark.getCatalog().getTable(tableName);
+        String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
+        return conn.prepareStatement(sql);
     }
 
     @Override
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
-
-        final CountDownLatch copyLatch = new CountDownLatch(1);
-        final boolean[] copySuccess = {false};
 
         final CountDownLatch regionLatch = new CountDownLatch(1);
         final CountDownLatch nationLatch = new CountDownLatch(1);
@@ -169,38 +156,16 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         final CountDownLatch supplierLatch = new CountDownLatch(1);
         final CountDownLatch partsSuppLatch = new CountDownLatch(1);
 
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                if (loadCopy(conn)) {
-                    copySuccess[0] = true;
-                }
-            }
-
-            @Override
-            public void afterLoad() {
-                copyLatch.countDown();
-            }
-        });
+        final double scaleFactor = this.workConf.getScaleFactor();
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Region because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO region " + " (r_regionkey, r_name, r_comment) " + "VALUES (?, ?, ?)")) {
-                    loadTable(conn, statement, "Region", regionTypes);
-                }
-            }
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_REGION)) {
+                    List<Iterable<List<Object>>> regionGenerators = new ArrayList<>();
+                    regionGenerators.add(new RegionGenerator());
 
-            @Override
-            public void beforeLoad() {
-                try {
-                    copyLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    genTable(conn, statement, regionGenerators, regionTypes, TABLENAME_REGION);
                 }
             }
 
@@ -213,21 +178,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Part because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO part " + "(p_partkey, p_name, p_mfgr, p_brand, p_type," + " p_size, p_container, p_retailprice, p_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "part", partTypes);
-                }
-            }
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_PART)) {
+                    List<Iterable<List<Object>>> partGenerators = new ArrayList<>();
+                    partGenerators.add(new PartGenerator(scaleFactor, 1, 1));
 
-            @Override
-            public void beforeLoad() {
-                try {
-                    copyLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    genTable(conn, statement, partGenerators, partTypes, TABLENAME_PART);
                 }
             }
 
@@ -240,19 +195,17 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Nation because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO nation " + "(n_nationkey, n_name, n_regionkey, n_comment) " + "VALUES (?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "Nation", nationTypes);
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_NATION)) {
+                    List<Iterable<List<Object>>> nationGenerators = new ArrayList<>();
+                    nationGenerators.add(new NationGenerator());
+
+                    genTable(conn, statement, nationGenerators, nationTypes, TABLENAME_NATION);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     regionLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -268,19 +221,17 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Supplier because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO supplier " + "(s_suppkey, s_name, s_address, s_nationkey, s_phone," + " s_acctbal, s_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "Supplier", supplierTypes);
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_SUPPLIER)) {
+                    List<Iterable<List<Object>>> supplierGenerators = new ArrayList<>();
+                    supplierGenerators.add(new SupplierGenerator(scaleFactor, 1, 1));
+
+                    genTable(conn, statement, supplierGenerators, supplierTypes, TABLENAME_SUPPLIER);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     nationLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -296,19 +247,17 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Customer because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO customer " + "(c_custkey, c_name, c_address, c_nationkey," + " c_phone, c_acctbal, c_mktsegment, c_comment ) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "Customer", customerTypes);
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_CUSTOMER)) {
+                    List<Iterable<List<Object>>> customerGenerators = new ArrayList<>();
+                    customerGenerators.add(new CustomerGenerator(scaleFactor, 1, 1));
+
+                    genTable(conn, statement, customerGenerators, customerTypes, TABLENAME_CUSTOMER);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     nationLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -324,19 +273,17 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of Orders because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO orders " + "(o_orderkey, o_custkey, o_orderstatus, o_totalprice," + " o_orderdate, o_orderpriority, o_clerk, o_shippriority," + " o_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "orders", ordersTypes);
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_ORDER)) {
+                    List<Iterable<List<Object>>> orderGenerators = new ArrayList<>();
+                    orderGenerators.add(new OrderGenerator(scaleFactor, 1, 1));
+
+                    genTable(conn, statement, orderGenerators, ordersTypes, TABLENAME_ORDER);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     customerLatch.await();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -352,19 +299,17 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of PartSupp because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO partsupp " + "(ps_partkey, ps_suppkey, ps_availqty, ps_supplycost," + " ps_comment) " + "VALUES (?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "partsupp", partsuppTypes);
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_PARTSUPP)) {
+                    List<Iterable<List<Object>>> partSuppGenerators = new ArrayList<>();
+                    partSuppGenerators.add(new PartSupplierGenerator(scaleFactor, 1, 1));
+
+                    genTable(conn, statement, partSuppGenerators, partsuppTypes, TABLENAME_PARTSUPP);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     partsLatch.await();
                     supplierLatch.await();
                 } catch (InterruptedException e) {
@@ -381,19 +326,17 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                if (copySuccess[0]) {
-                    LOG.info("Skipping LOAD of LineItem because COPY has been done.");
-                    return;
-                }
-                try (PreparedStatement statement = conn.prepareStatement("INSERT INTO lineitem " + "(l_orderkey, l_partkey, l_suppkey, l_linenumber," + " l_quantity, l_extendedprice, l_discount, l_tax," + " l_returnflag, l_linestatus, l_shipdate, l_commitdate," + " l_receiptdate, l_shipinstruct, l_shipmode, l_comment) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-                    loadTable(conn, statement, "LineItem", lineitemTypes);
+                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_LINEITEM)) {
+                    List<Iterable<List<Object>>> lineItemGenerators = new ArrayList<>();
+                    lineItemGenerators.add(new LineItemGenerator(scaleFactor, 1, 1));
+
+                    genTable(conn, statement, lineItemGenerators, lineitemTypes, TABLENAME_LINEITEM);
                 }
             }
 
             @Override
             public void beforeLoad() {
                 try {
-                    copyLatch.await();
                     ordersLatch.await();
                     partsSuppLatch.await();
                 } catch (InterruptedException e) {
@@ -405,144 +348,47 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         return threads;
     }
 
-
-    private String getFileFormat() {
-        String format = workConf.getXmlConfig().getString("fileFormat");
-            /*
-               Previouse configuration migh not have a fileFormat and assume
-                that the files are csv.
-            */
-        if (format == null) {
-            return "csv";
-        }
-
-        if ((!"csv".equals(format) && !"tbl".equals(format))) {
-            throw new IllegalArgumentException("Configuration doesn't have a valid fileFormat");
-        }
-        return format;
-    }
-
-    private Pattern getFormatPattern(String format) {
-
-        if ("csv".equals(format)) {
-            // The following pattern parses the lines by commas, except for
-            // ones surrounded by double-quotes. Further, strings that are
-            // double-quoted have the quotes dropped (we don't need them).
-            return CSV_PATTERN;
-        } else {
-
-            return TBL_PATTERN;
-        }
-    }
-
-    private int getFormatGroup(String format) {
-        if ("csv".equals(format)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-
-    private void loadTable(Connection conn, PreparedStatement prepStmt, String tableName, CastTypes[] types) {
-        int recordsRead = 0;
-
-        String format = getFileFormat();
-
-        File file = new File(workConf.getDataDir(), tableName.toLowerCase() + "." + format);
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            // The following pattern parses the lines by commas, except for
-            // ones surrounded by double-quotes. Further, strings that are
-            // double-quoted have the quotes dropped (we don't need them).
-            Pattern pattern = getFormatPattern(format);
-            int group = getFormatGroup(format);
-
-            final List<String> lines = IOUtils.readLines(br);
-
-            for (String line : lines) {
-                Matcher matcher = pattern.matcher(line);
-
-
-                for (int i = 0; i < types.length; ++i) {
-                    final CastTypes type = types[i];
-
-                    matcher.find();
-                    String field = matcher.group(group);
-
-                    // Remove quotes that may surround a field.
-                    if (field.charAt(0) == '\"') {
-                        field = field.substring(1, field.length() - 1);
+    private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators,
+            CastTypes[] types, String tableName) {
+        for (Iterable<List<Object>> generator : generators) {
+            try {
+                int recordsRead = 0;
+                for (List<Object> elems : generator) {
+                    for (int idx = 0; idx < types.length; idx++) {
+                        final CastTypes type = types[idx];
+                        switch (type) {
+                            case DOUBLE:
+                                prepStmt.setDouble(idx + 1, (Double) elems.get(idx));
+                                break;
+                            case LONG:
+                                prepStmt.setLong(idx + 1, (Long) elems.get(idx));
+                                break;
+                            case STRING:
+                                prepStmt.setString(idx + 1, (String) elems.get(idx));
+                                break;
+                            case DATE:
+                                prepStmt.setDate(idx + 1, (Date) elems.get(idx));
+                                break;
+                            default:
+                                throw new RuntimeException("Unrecognized type for prepared statement");
+                        }
                     }
 
-                    if (group == 0) {
-                        field = field.substring(0, field.length() - 1);
-                    }
+                    ++recordsRead;
+                    prepStmt.addBatch();
+                    if ((recordsRead % workConf.getBatchSize()) == 0) {
 
-                    switch (type) {
-                        case DOUBLE:
-                            prepStmt.setDouble(i + 1, Double.parseDouble(field));
-                            break;
-                        case LONG:
-                            prepStmt.setLong(i + 1, Long.parseLong(field));
-                            break;
-                        case STRING:
-                            prepStmt.setString(i + 1, field);
-                            break;
-                        case DATE:
-                            // Four possible formats for date
-                            // yyyy-mm-dd
-                            Matcher isoMatcher = isoFmt.matcher(field);
-                            // yyyymmdd
+                        LOG.debug("writing batch {} for table {}", recordsRead, tableName);
 
-                            Matcher nondelimMatcher = nondelimFmt.matcher(field);
-                            // mm/dd/yyyy
-
-                            Matcher usaMatcher = usaFmt.matcher(field);
-                            // dd.mm.yyyy
-
-                            Matcher eurMatcher = eurFmt.matcher(field);
-
-                            Date fieldAsDate = null;
-                            if (isoMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(isoMatcher.group(1)) - 1900, Integer.parseInt(isoMatcher.group(2)), Integer.parseInt(isoMatcher.group(3))));
-                            } else if (nondelimMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(nondelimMatcher.group(1)) - 1900, Integer.parseInt(nondelimMatcher.group(2)), Integer.parseInt(nondelimMatcher.group(3))));
-                            } else if (usaMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(usaMatcher.group(3)) - 1900, Integer.parseInt(usaMatcher.group(1)), Integer.parseInt(usaMatcher.group(2))));
-                            } else if (eurMatcher.find()) {
-                                fieldAsDate = Date.valueOf(LocalDate.of(Integer.parseInt(eurMatcher.group(3)) - 1900, Integer.parseInt(eurMatcher.group(2)), Integer.parseInt(eurMatcher.group(1))));
-                            } else {
-                                throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getPath());
-                            }
-                            prepStmt.setDate(i + 1, fieldAsDate, null);
-                            break;
-                        default:
-                            throw new RuntimeException("Unrecognized type for prepared statement");
+                        prepStmt.executeBatch();
+                        prepStmt.clearBatch();
                     }
                 }
 
-
-                prepStmt.addBatch();
-                ++recordsRead;
-
-                if ((recordsRead % workConf.getBatchSize()) == 0) {
-
-                    LOG.debug("writing batch {} for table {}", recordsRead, tableName);
-
-                    prepStmt.executeBatch();
-                    prepStmt.clearBatch();
-                }
+                prepStmt.executeBatch();
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
             }
-
-
-            prepStmt.executeBatch();
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
         }
-
     }
-
-
 }
