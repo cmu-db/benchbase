@@ -62,7 +62,7 @@ public class StatementDialects {
 
         if (exists) {
 
-            LOG.info("Found dialect file at path {}", path);
+            LOG.info("Found dialect.xml file for benchmark [{}] and database [{}] at path [{}]", benchmarkName, databaseType, path);
 
             try {
 
@@ -90,7 +90,7 @@ public class StatementDialects {
                 LOG.error(e.getMessage(), e);
             }
         } else {
-            LOG.warn("No dialect file at path {}", path);
+            LOG.warn("No dialect.xml file for benchmark [{}] and database [{}] at path [{}]", benchmarkName, databaseType, path);
         }
     }
 
