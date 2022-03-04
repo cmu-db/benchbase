@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="phoenix" xsi:noNamespaceSchemaLocation="dialect.xsd">
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="PHOENIX" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
         <procedure name="NewOrder">
             <statements>
