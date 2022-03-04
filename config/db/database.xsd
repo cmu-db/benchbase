@@ -16,6 +16,7 @@
                         <xs:enumeration value="PHOENIX"/>
                         <xs:enumeration value="POSTGRES"/>
                         <xs:enumeration value="SPANNER"/>
+                        <xs:enumeration value="HSQLDB"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>

@@ -14,15 +14,15 @@ public class TestConfigurationLoad extends TestCase {
 
     private static final String DATABASE_CONFIGURATION = """
             <?xml version="1.0" encoding="utf-8"?>
-            <database xsi:noNamespaceSchemaLocation="database.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <type>COCKROACHDB</type>
-                    <driverClass>org.postgresql.Driver</driverClass>
-                    <url>jdbc:postgresql://localhost:26257/benchbase?sslmode=disable&amp;ApplicationName=benchbase&amp;reWriteBatchedInserts=true</url>
-                    <username>root</username>
-                    <password></password>
-                    <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
-                    <batchSize>128</batchSize>
-                    <retries>3</retries>
+            <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
+                <type>HSQLDB</type>
+                <driverClass>org.hsqldb.jdbc.JDBCDriver</driverClass>
+                <url>jdbc:hsqldb:mem:benchbase;sql.syntax_mys=true</url>
+                <username>admin</username>
+                <password>password</password>
+                <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+                <batchSize>128</batchSize>
+                <retries>3</retries>
             </database>
             """;
 
