@@ -587,40 +587,62 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         }
 
         // UPDATE USER
-        revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
+        updateUser(conn);
 
-        String revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
+        // UPDATE PAGES
+        updatePage(conn);
 
-        String updateUserSql = "UPDATE " + revTableName + " SET user_editcount = ?, user_touched = ? WHERE user_id = ?";
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Revision loaded");
+        }
+    }
+
+    private void updateUser(Connection conn) throws SQLException {
+
+        Table userTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_USER);
+
+        String userTableName = (this.getDatabaseType().shouldEscapeNames()) ? userTable.getEscapedName() : userTable.getName();
+
+        String updateUserSql = "UPDATE " + userTableName + " SET user_editcount = ?, user_touched = ? WHERE user_id = ?";
+
         try (PreparedStatement userUpdate = conn.prepareStatement(updateUserSql)) {
-            batchSize = 0;
+            int batchSize = 0;
+
             for (int i = 0; i < this.num_users; i++) {
                 int col = 1;
                 userUpdate.setInt(col++, this.user_revision_ctr[i]);
                 userUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
                 userUpdate.setInt(col, i + 1); // ids start at 1
                 userUpdate.addBatch();
+
                 if ((++batchSize % workConf.getBatchSize()) == 0) {
                     userUpdate.executeBatch();
                     userUpdate.clearBatch();
                     batchSize = 0;
                 }
             }
+
             if (batchSize > 0) {
                 userUpdate.executeBatch();
                 userUpdate.clearBatch();
             }
         }
+    }
 
-        // UPDATE PAGES
-        revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_PAGE);
+    private void updatePage(Connection conn) throws SQLException {
 
-        revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
+        Table pageTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_PAGE);
 
-        String updatePageSql = "UPDATE " + revTableName + " SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
+        String pageTableName = (this.getDatabaseType().shouldEscapeNames()) ? pageTable.getEscapedName() : pageTable.getName();
+
+        String updatePageSql = "UPDATE " + pageTableName + " SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? WHERE page_id = ?";
+
         try (PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql)) {
-            batchSize = 0;
+
+            int batchSize = 0;
+
             for (int i = 0; i < this.num_pages; i++) {
+
                 if (this.page_last_rev_id[i] == -1) {
                     continue;
                 }
@@ -631,6 +653,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 pageUpdate.setInt(col++, this.page_last_rev_length[i]);
                 pageUpdate.setInt(col, i + 1); // ids start at 1
                 pageUpdate.addBatch();
+
                 if ((++batchSize % workConf.getBatchSize()) == 0) {
                     pageUpdate.executeBatch();
                     pageUpdate.clearBatch();
@@ -641,10 +664,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 pageUpdate.executeBatch();
                 pageUpdate.clearBatch();
             }
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Revision loaded");
         }
     }
 }
