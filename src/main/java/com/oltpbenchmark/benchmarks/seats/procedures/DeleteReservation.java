@@ -111,8 +111,8 @@ public class DeleteReservation extends Procedure {
                             ff_al_id = results.getLong(2);
                         }
                     } else {
-                        throw new UserAbortException(String.format("No Customer record was found [c_id_str=%s, ff_c_id_str=%s, ff_al_id=%s]",
-                                c_id_str, ff_c_id_str, ff_al_id));
+                        LOG.debug("No Customer record was found [c_id_str={}, ff_c_id_str={}, ff_al_id={}]", c_id_str, ff_c_id_str, ff_al_id);
+                        return;
                     }
                 }
             }
@@ -131,7 +131,8 @@ public class DeleteReservation extends Procedure {
             stmt.setString(2, f_id);
             try (ResultSet results = stmt.executeQuery()) {
                 if (!results.next()) {
-                    throw new UserAbortException(String.format("No Customer information record found for id '%s'", c_id));
+                    LOG.debug("No Customer information record found for id '{}'", c_id);
+                    return;
                 }
                 c_iattr00 = results.getLong(4) + 1;
                 seats_left = results.getLong(8);
