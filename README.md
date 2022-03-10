@@ -140,14 +140,28 @@ usage: benchbase
  -s,--sample <arg>              Sampling window
 ```
 
+### How to Run with Maven
+
+Instead of first building, packaging and extracting before running benchbase, it is possible to execute benchmarks directly against the source code using Maven. Once you have the project cloned you can run any benchmark from the root project directory using the Maven `exec:java` goal. For example, the following command executes the `tpcc` benchmark against `postgres`:
+
+```
+mvn compile exec:java -Dexec.args="-b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true" -P postgres
+```
+
+this is equivalent to the steps above but eliminates the need to first package and then extract the distribution.
+
 ### How to Enable Logging
+
 To enable logging, e.g., for the PostgreSQL JDBC driver, add the following JVM property when starting...
+
 ```
 -Djava.util.logging.config.file=src/main/resources/logging.properties
 ```
+
 To modify the logging level you can update [`logging.properties`](src/main/resources/logging.properties) and/or [`log4j.properties`](src/main/resources/log4j.properties).
 
 ### How to Release
+
 ```
 ./mvnw -B release:prepare
 ./mvnw -B release:perform
