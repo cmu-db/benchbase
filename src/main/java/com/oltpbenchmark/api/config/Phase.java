@@ -14,7 +14,7 @@ public record Phase(Integer time,
                     String weight) {
 
     public List<Double> weights() {
-        return Stream.of(weight.split(","))
+        return Stream.of(weight.split("\\s*,\\s*"))
                 .map(Double::parseDouble).collect(Collectors.toList());
     }
 }
