@@ -34,10 +34,10 @@ tar xvzf benchbase-postgres.tgz
 cd benchbase-postgres
 ```
 
-Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark,
+Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark (workload) against a `postgres`...
 
 ```bash
-java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+java -jar benchbase.jar -w config/workload/tpcc.xml -d config/db/postgres.xml --create=true --load=true --execute=true
 ```
 
 A full list of options can be displayed,
@@ -105,47 +105,39 @@ To bring up help contents:
 java -jar benchbase.jar -h
 ```
 
-To execute the `tpcc` benchmark:
+To execute the `tpcc` benchmark (workload) against a `postgres` database:
 ```bash
-java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
+java -jar benchbase.jar -w config/workload/tpcc.xml -d config/db/postgres.xml --create=true --load=true --execute=true
 ```
 
-For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list: `
-```bash
-java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
-```
 
 The following options are provided:
 
 ```text
 usage: benchbase
- -b,--bench <arg>               [required] Benchmark class. Currently
-                                supported: [tpcc, tpch, tatp, wikipedia,
-                                resourcestresser, twitter, epinions, ycsb,
-                                seats, auctionmark, chbenchmark, voter,
-                                sibench, noop, smallbank, hyadapt]
- -c,--config <arg>              [required] Workload configuration file
     --clear <arg>               Clear all records in the database for this
                                 benchmark
     --create <arg>              Initialize the database for this benchmark
- -d,--directory <arg>           Base directory for the result files,
+ -d,--database <arg>            [required] Database configuration file
+    --directory <arg>           Base directory for the result files,
                                 default is current directory
-    --dialects-export <arg>     Export benchmark SQL to a dialects file
     --execute <arg>             Execute the benchmark workload
  -h,--help                      Print this help
  -im,--interval-monitor <arg>   Throughput Monitoring Interval in
                                 milliseconds
+ -jh,--json-histograms <arg>    Export histograms to JSON file
     --load <arg>                Load data using the benchmark's data
                                 loader
- -s,--sample <arg>              Sampling window
+ -s,--sample <arg>              Sampling window size
+ -w,--workload <arg>            [required] Workload configuration file
 ```
 
 ### How to Run with Maven
 
-Instead of first building, packaging and extracting before running benchbase, it is possible to execute benchmarks directly against the source code using Maven. Once you have the project cloned you can run any benchmark from the root project directory using the Maven `exec:java` goal. For example, the following command executes the `tpcc` benchmark against `postgres`:
+Instead of first building, packaging and extracting before running benchbase, it is possible to execute benchmarks (e.g. workloads) directly against the source code using Maven. Once you have the project cloned you can run any benchmark from the root project directory using the Maven `exec:java` goal. For example, the following command executes the `tpcc` workload against a `postgres` database:
 
 ```
-mvn clean compile exec:java -P postgres -Dexec.args="-b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true" 
+mvn clean compile exec:java -P postgres -Dexec.args="-w config/workload/tpcc.xml -d config/db/postgres.xml --create=true --load=true --execute=true" 
 ```
 
 this is equivalent to the steps above but eliminates the need to first package and then extract the distribution.

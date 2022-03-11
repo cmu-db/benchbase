@@ -272,7 +272,7 @@ public class DBWorkload {
     private static Options buildOptions() {
         Options options = new Options();
         options.addOption("d", "database", true, "[required] Database configuration file");
-        options.addOption("w", "workloads", true, "[required] Workload configuration file");
+        options.addOption("w", "workload", true, "[required] Workload configuration file");
         options.addOption(null, "create", true, "Initialize the database for this benchmark");
         options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
