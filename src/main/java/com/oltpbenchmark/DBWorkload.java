@@ -30,7 +30,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
@@ -244,7 +244,7 @@ public class DBWorkload {
 
                 // Get the weights for this grouping and make sure that there
                 // is an appropriate number of them.
-                List<String> groupingWeights = xmlConfig.getList(String.class, key + "/weights");
+                List<String> groupingWeights = Arrays.asList(xmlConfig.getString(key + "/weights").split("\\s*,\\s*"));
                 if (groupingWeights.size() != numTxnTypes) {
                     LOG.error(String.format("Grouping \"%s\" has %d weights," + " but there are %d transactions in this" + " benchmark.", groupingName, groupingWeights.size(), numTxnTypes));
                     System.exit(-1);
@@ -268,9 +268,9 @@ public class DBWorkload {
                 // use a workaround if there are multiple workloads or single
                 // attributed workload
                 if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
-                    weight_strings = work.getList(String.class, "weights" + pluginTest);
+                    weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
                 } else {
-                    weight_strings = work.getList(String.class, "weights[not(@bench)]");
+                    weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
                 }
 
                 int rate = 1;
@@ -498,7 +498,7 @@ public class DBWorkload {
         FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
                 .configure(params.xml()
                         .setFileName(filename)
-                        .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+                        .setListDelimiterHandler(new DisabledListDelimiterHandler())
                         .setExpressionEngine(new XPathExpressionEngine()));
         return builder.getConfiguration();
 
