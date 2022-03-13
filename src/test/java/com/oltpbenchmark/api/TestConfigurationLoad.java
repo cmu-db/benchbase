@@ -45,72 +45,28 @@ public class TestConfigurationLoad extends TestCase {
                     </phases>
                         
                     <transactions>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1">
-                            <name>Q1</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q2">
-                            <name>Q2</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q3">
-                            <name>Q3</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q4">
-                            <name>Q4</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q5">
-                            <name>Q5</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q6">
-                            <name>Q6</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q7">
-                            <name>Q7</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q8">
-                            <name>Q8</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q9">
-                            <name>Q9</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q10">
-                            <name>Q10</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q11">
-                            <name>Q11</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q12">
-                            <name>Q12</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q13">
-                            <name>Q13</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q14">
-                            <name>Q14</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q15">
-                            <name>Q15</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q16">
-                            <name>Q16</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q17">
-                            <name>Q17</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q18">
-                            <name>Q18</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q19">
-                            <name>Q19</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q20">
-                            <name>Q20</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q21">
-                            <name>Q21</name>
-                        </transaction>
-                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q22">
-                            <name>Q22</name>
-                        </transaction>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q2"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q3"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q4"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q5"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q6"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q7"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q8"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q9"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q10"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q11"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q12"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q13"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q14"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q15"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q16"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q17"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q18"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q19"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q20"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q21"/>
+                        <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q22"/>
                     </transactions>
                         
                 </workload>
@@ -154,7 +110,7 @@ public class TestConfigurationLoad extends TestCase {
             <?xml version="1.0" encoding="utf-8"?>
             <dialect type="POSTGRES">
                 <procedures>
-                    <procedure name="CloseAuctions">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.CloseAuctions">
                         <statements>
                             <statement name="updateItemStatus">UPDATE item SET i_status = ?, i_updated = ? WHERE i_id = ? AND i_u_id = ?</statement>
                             <statement name="getDueItems">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM item WHERE (i_start_date BETWEEN ? AND ?) AND i_status = 0 ORDER BY i_id ASC LIMIT 100</statement>
@@ -162,13 +118,13 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="insertUserItem">INSERT INTO useracct_item(ui_u_id, ui_i_id, ui_i_u_id, ui_created) VALUES(?, ?, ?, ?)</statement>
                         </statements>
                     </procedure>
-                    <procedure name="GetItem">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.GetItem">
                         <statements>
                             <statement name="getUser">SELECT u_id, u_rating, u_created, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name FROM useracct, region WHERE u_id = ? AND u_r_id = r_id</statement>
                             <statement name="getItem">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status FROM item WHERE i_id = ? AND i_u_id = ?</statement>
                         </statements>
                     </procedure>
-                    <procedure name="GetUserInfo">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.GetUserInfo">
                         <statements>
                             <statement name="getUser">SELECT u_id, u_rating, u_created, u_balance, u_sattr0, u_sattr1, u_sattr2, u_sattr3, u_sattr4, r_name FROM useracct, region WHERE u_id = ? AND u_r_id = r_id</statement>
                             <statement name="getUserFeedback">SELECT u_id, u_rating, u_sattr0, u_sattr1, uf_rating, uf_date, uf_sattr0 FROM useracct, useracct_feedback WHERE u_id = ? AND uf_u_id = u_id ORDER BY uf_date DESC LIMIT 25</statement>
@@ -178,7 +134,7 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="getItemComments">SELECT i_id, i_u_id, i_name, i_current_price, i_num_bids, i_end_date, i_status, ic_id, ic_i_id, ic_u_id, ic_buyer_id, ic_question, ic_created FROM item, item_comment WHERE i_u_id = ? AND i_status = ? AND i_id = ic_i_id AND i_u_id = ic_u_id AND ic_response IS NULL ORDER BY ic_created DESC LIMIT 25</statement>
                         </statements>
                     </procedure>
-                    <procedure name="LoadConfig">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.LoadConfig">
                         <statements>
                             <statement name="getConfigProfile">SELECT * FROM config_profile</statement>
                             <statement name="getPendingComments">SELECT ic_id, ic_i_id, ic_u_id, ic_buyer_id FROM item_comment WHERE ic_response IS NULL</statement>
@@ -188,7 +144,7 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="getFutureItems">SELECT i_id, i_current_price, i_end_date, i_num_bids, i_status FROM item, config_profile WHERE i_status = ? AND i_end_date &gt; cfp_loader_start ORDER BY i_end_date ASC LIMIT 5000</statement>
                         </statements>
                     </procedure>
-                    <procedure name="NewBid">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewBid">
                         <statements>
                             <statement name="updateItemMaxBid">UPDATE item_max_bid SET imb_ib_id = ?, imb_ib_i_id = ?, imb_ib_u_id = ?, imb_updated = ? WHERE imb_i_id = ? AND imb_u_id = ?</statement>
                             <statement name="getMaxBidId">SELECT MAX(ib_id) FROM item_bid WHERE ib_i_id = ? AND ib_u_id = ?</statement>
@@ -200,7 +156,7 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="updateItem">UPDATE item SET i_num_bids = i_num_bids + 1, i_current_price = ?, i_updated = ? WHERE i_id = ? AND i_u_id = ?</statement>
                         </statements>
                     </procedure>
-                    <procedure name="NewComment">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewComment">
                         <statements>
                             <statement name="insertItemComment">INSERT INTO item_comment(ic_id,ic_i_id,ic_u_id,ic_buyer_id,ic_question, ic_created,ic_updated ) VALUES (?,?,?,?,?,?,?)</statement>
                             <statement name="updateItemComments">UPDATE item SET i_num_comments = i_num_comments + 1 WHERE i_id = ? AND i_u_id = ?</statement>
@@ -208,20 +164,20 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="updateUser">UPDATE useracct SET u_comments = u_comments + 1, u_updated = ? WHERE u_id = ?</statement>
                         </statements>
                     </procedure>
-                    <procedure name="NewCommentResponse">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewCommentResponse">
                         <statements>
                             <statement name="updateComment">UPDATE item_comment SET ic_response = ?, ic_updated = ? WHERE ic_id = ? AND ic_i_id = ? AND ic_u_id = ?</statement>
                             <statement name="updateUser">UPDATE useracct SET u_comments = u_comments - 1, u_updated = ? WHERE u_id = ?</statement>
                         </statements>
                     </procedure>
-                    <procedure name="NewFeedback">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewFeedback">
                         <statements>
                             <statement name="checkUserFeedback">SELECT uf_i_id, uf_i_u_id, uf_from_id FROM useracct_feedback WHERE uf_u_id = ? AND uf_i_id = ? AND uf_i_u_id = ? AND uf_from_id = ?</statement>
                             <statement name="insertFeedback">INSERT INTO useracct_feedback( uf_u_id, uf_i_id,uf_i_u_id,uf_from_id,uf_rating,uf_date,uf_sattr0) VALUES (?,?,?,?,?,?,?)</statement>
                             <statement name="updateUser">UPDATE useracct SET u_rating = u_rating + ?, u_updated = ? WHERE u_id = ?</statement>
                         </statements>
                     </procedure>
-                    <procedure name="NewItem">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewItem">
                         <statements>
                             <statement name="insertImage">INSERT INTO item_image(ii_id,ii_i_id,ii_u_id,ii_sattr0) VALUES(?, ?, ?, ?)</statement>
                             <statement name="getCategory">SELECT * FROM category WHERE c_id = ?</statement>
@@ -232,7 +188,7 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="insertItem">INSERT INTO item(i_id,i_u_id,i_c_id,i_name,i_description,i_user_attributes,i_initial_price,i_current_price,i_num_bids,i_num_images,i_num_global_attrs,i_start_date,i_end_date,i_status,i_created,i_updated,i_iattr0) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)</statement>
                         </statements>
                     </procedure>
-                    <procedure name="NewPurchase">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewPurchase">
                         <statements>
                             <statement name="getItemMaxBid">SELECT * FROM item_max_bid WHERE imb_i_id = ? AND imb_u_id = ?</statement>
                             <statement name="insertItemMaxBid">INSERT INTO item_max_bid (imb_i_id, imb_u_id, imb_ib_id, imb_ib_i_id, imb_ib_u_id, imb_created, imb_updated ) VALUES (?, ?, ?, ?, ?, ?, ? )</statement>
@@ -246,14 +202,14 @@ public class TestConfigurationLoad extends TestCase {
                             <statement name="updateItem">UPDATE item SET i_status = 3, i_updated = ? WHERE i_id = ? AND i_u_id = ?</statement>
                         </statements>
                     </procedure>
-                    <procedure name="ResetDatabase">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.ResetDatabase">
                         <statements>
                             <statement name="deleteItemPurchases">DELETE FROM item_purchase WHERE ip_date &gt; ?</statement>
                             <statement name="resetItems">UPDATE item SET i_status = ?, i_updated = ? WHERE i_status != ? AND i_updated &gt; ?</statement>
                             <statement name="getLoaderStop">SELECT cfp_loader_stop FROM config_profile</statement>
                         </statements>
                     </procedure>
-                    <procedure name="UpdateItem">
+                    <procedure procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.UpdateItem">
                         <statements>
                             <statement name="getMaxItemAttributeId">SELECT MAX(ia_id) FROM item_attribute WHERE ia_i_id = ? AND ia_u_id = ?</statement>
                             <statement name="insertItemAttribute">INSERT INTO item_attribute(ia_id,ia_i_id,ia_u_id,ia_gav_id,ia_gag_id) VALUES (?, ?, ?, ?, ?)</statement>

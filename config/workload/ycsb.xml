@@ -16,24 +16,12 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ReadRecord">
-                    <name>ReadRecord</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord">
-                    <name>InsertRecord</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ScanRecord">
-                    <name>ScanRecord</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.UpdateRecord">
-                    <name>UpdateRecord</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.DeleteRecord">
-                    <name>DeleteRecord</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ReadModifyWriteRecord">
-                    <name>ReadModifyWriteRecord</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ReadRecord"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ScanRecord"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.UpdateRecord"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.DeleteRecord"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ReadModifyWriteRecord"/>
             </transactions>
         </workload>
     </workloads>

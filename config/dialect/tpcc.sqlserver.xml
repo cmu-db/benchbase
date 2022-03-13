@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="Delivery">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery">
             <statements>
                 <statement name="delivGetOrderIdSQL">
                     SELECT TOP 1 NO_O_ID
@@ -10,7 +10,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="NewOrder">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder">
             <statements>
                 <statement name="stmtGetDistSQL">
                     SELECT D_NEXT_O_ID,D_TAX
@@ -25,7 +25,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="OrderStatus">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus">
             <statements>
                 <statement name="ordStatGetNewestOrdSQL">
                     SELECT TOP 1 O_ID, O_CARRIER_ID, O_ENTRY_D

@@ -16,24 +16,12 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.Amalgamate">
-                    <name>Amalgamate</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.Balance">
-                    <name>Balance</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.DepositChecking">
-                    <name>DepositChecking</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.SendPayment">
-                    <name>SendPayment</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.TransactSavings">
-                    <name>TransactSavings</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.WriteCheck">
-                    <name>WriteCheck</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.Amalgamate"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.Balance"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.DepositChecking"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.SendPayment"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.TransactSavings"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.smallbank.procedures.WriteCheck"/>
             </transactions>
         </workload>
     </workloads>

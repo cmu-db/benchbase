@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="GetReviewItemById">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById">
             <statements>
                 <statement name="getReviewItem">
                     SELECT TOP 10 * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=?
@@ -9,7 +9,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetReviewsByUser">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser">
             <statements>
                 <statement name="getReviewUser">
                     SELECT TOP 10 * FROM review r, [useracct] u WHERE u.u_id = r.u_id AND r.u_id=?
@@ -17,7 +17,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="UpdateUserName">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName">
             <statements>
                 <statement name="updateUser">
                     UPDATE [useracct] SET name = ? WHERE u_id=?;

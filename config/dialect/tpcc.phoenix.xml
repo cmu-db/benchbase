@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="PHOENIX" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="NewOrder">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder">
             <statements>
                 <statement name="stmtGetDistSQL">
                     SELECT D_NEXT_O_ID, D_TAX
@@ -37,7 +37,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="Delivery">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery">
             <statements>
                 <statement name="delivUpdateCarrierIdSQL">
                     UPSERT INTO OORDER(O_CARRIER_ID,O_ID,O_D_ID,O_W_ID) SELECT ?,O_ID,O_D_ID,O_W_ID FROM OORDER WHERE O_ID = ? AND O_D_ID = ? AND O_W_ID = ?
@@ -50,7 +50,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="Payment">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Payment">
             <statements>
                 <statement name="payUpdateWhseSQL">
                     UPSERT INTO WAREHOUSE(W_YTD,W_ID) SELECT W_YTD + ?,W_ID FROM WAREHOUSE WHERE W_ID=?

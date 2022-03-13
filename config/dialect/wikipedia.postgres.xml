@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="POSTGRES" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="UpdatePage">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage">
             <statements>
                 <statement name="insertRevision">INSERT INTO revision (rev_page, rev_text_id, rev_comment, rev_minor_edit, rev_user, rev_user_text, rev_timestamp, rev_deleted, rev_len, rev_parent_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING rev_id</statement>
                 <statement name="insertText">INSERT INTO text (old_page,old_text,old_flags) VALUES (?,?,?) RETURNING old_id</statement>

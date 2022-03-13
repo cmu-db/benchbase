@@ -16,27 +16,13 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding">
-                    <name>DeleteCallForwarding</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetAccessData">
-                    <name>GetAccessData</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetNewDestination">
-                    <name>GetNewDestination</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetSubscriberData">
-                    <name>GetSubscriberData</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.InsertCallForwarding">
-                    <name>InsertCallForwarding</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation">
-                    <name>UpdateLocation</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData">
-                    <name>UpdateSubscriberData</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.DeleteCallForwarding"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetAccessData"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetNewDestination"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.GetSubscriberData"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.InsertCallForwarding"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.UpdateLocation"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tatp.procedures.UpdateSubscriberData"/>
             </transactions>
         </workload>
     </workloads>

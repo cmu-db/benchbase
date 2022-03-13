@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="COCKROACHDB" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="Contention1">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1">
             <statements>
                 <statement name="lockSleep">
                     SELECT PG_SLEEP(?)
                 </statement>
             </statements>
         </procedure>
-        <procedure name="Contention2">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2">
             <statements>
                 <statement name="lockSleep">
                     SELECT PG_SLEEP(?)

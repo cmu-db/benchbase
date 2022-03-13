@@ -16,24 +16,12 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation">
-                    <name>DeleteReservation</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.FindFlights">
-                    <name>FindFlights</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.FindOpenSeats">
-                    <name>FindOpenSeats</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.NewReservation">
-                    <name>NewReservation</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.UpdateCustomer">
-                    <name>UpdateCustomer</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.UpdateReservation">
-                    <name>UpdateReservation</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.DeleteReservation"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.FindFlights"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.FindOpenSeats"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.NewReservation"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.UpdateCustomer"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.UpdateReservation"/>
             </transactions>
         </workload>
     </workloads>

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="GetTweet">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet">
             <statements>
                 <statement name="getTweet">
                     SELECT * FROM "tweets" WHERE id = ?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetTweetsFromFollowing">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing">
             <statements>
                 <statement name="getFollowing">
                     SELECT TOP 20 f2 FROM "follows" WHERE f1 = ?
@@ -18,7 +18,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetFollowers">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers">
             <statements>
                 <statement name="getFollowers">
                     SELECT TOP 20 f2 FROM "followers" WHERE f1 = ?
@@ -28,7 +28,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetUserTweets">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets">
             <statements>
                 <statement name="getTweets">
                     SELECT TOP 10 * FROM "tweets" WHERE uid = ?

@@ -16,21 +16,11 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList">
-                    <name>AddWatchList</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList">
-                    <name>RemoveWatchList</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage">
-                    <name>UpdatePage</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous">
-                    <name>GetPageAnonymous</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated">
-                    <name>GetPageAuthenticated</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated"/>
             </transactions>
         </workload>
     </workloads>

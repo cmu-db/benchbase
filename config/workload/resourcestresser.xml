@@ -16,24 +16,12 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1">
-                    <name>CPU1</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2">
-                    <name>CPU2</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1">
-                    <name>IO1</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2">
-                    <name>IO2</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1">
-                    <name>Contention1</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2">
-                    <name>Contention2</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO1"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.IO2"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2"/>
             </transactions>
         </workload>
     </workloads>

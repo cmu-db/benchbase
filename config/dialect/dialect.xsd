@@ -17,7 +17,7 @@
         <xs:sequence>
             <xs:element type="statementsType" name="statements"/>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="procedureClass" use="required"/>
     </xs:complexType>
     <xs:complexType name="proceduresType">
         <xs:sequence>

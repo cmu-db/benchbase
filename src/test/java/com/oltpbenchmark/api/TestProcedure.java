@@ -30,14 +30,6 @@ public class TestProcedure extends TestCase {
     }
 
     /**
-     * testGetProcedureName
-     */
-    public void testGetProcedureName() throws Exception {
-        DeleteCallForwarding proc = new DeleteCallForwarding();
-        assertEquals(DeleteCallForwarding.class.getSimpleName(), proc.getProcedureName());
-    }
-
-    /**
      * testGetStatements
      */
     public void testGetStatements() throws Exception {

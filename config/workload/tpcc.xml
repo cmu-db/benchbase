@@ -17,21 +17,11 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder">
-                    <name>NewOrder</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Payment">
-                    <name>Payment</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus">
-                    <name>OrderStatus</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery">
-                    <name>Delivery</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel">
-                    <name>StockLevel</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Payment"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel"/>
             </transactions>
         </workload>
     </workloads>

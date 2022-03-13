@@ -15,12 +15,8 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.sibench.procedures.MinRecord">
-                    <name>MinRecord</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord">
-                    <name>UpdateRecord</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.sibench.procedures.MinRecord"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.sibench.procedures.UpdateRecord"/>
             </transactions>
         </workload>
     </workloads>

@@ -16,9 +16,7 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.noop.procedures.NoOp">
-                    <name>NoOp</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.noop.procedures.NoOp"/>
             </transactions>
         </workload>
     </workloads>

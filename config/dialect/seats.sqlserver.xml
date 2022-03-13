@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="LoadConfig">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.seats.procedures.LoadConfig">
             <statements>
                 <statement name="getFlights">
                     SELECT TOP 10000 f_id FROM FLIGHT ORDER BY F_DEPART_TIME DESC

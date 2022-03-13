@@ -19,21 +19,11 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet">
-                    <name>GetTweet</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing">
-                    <name>GetTweetsFromFollowing</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers">
-                    <name>GetFollowers</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets">
-                    <name>GetUserTweets</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet">
-                    <name>InsertTweet</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.GetUserTweets"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet"/>
             </transactions>
         </workload>
     </workloads>

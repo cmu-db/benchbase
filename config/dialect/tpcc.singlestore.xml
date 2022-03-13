@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SINGLESTORE" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="NewOrder">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder">
             <statements>
                 <statement name="stmtGetDistSQL">
                     SELECT D_NEXT_O_ID, D_TAX

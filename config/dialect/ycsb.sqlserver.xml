@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="ReadModifyWriteRecord">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ReadModifyWriteRecord">
             <statements>
                 <statement name="selectStmt">
                     Select * from USERTABLE where YCSB_KEY=?

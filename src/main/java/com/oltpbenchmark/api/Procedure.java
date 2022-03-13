@@ -35,16 +35,8 @@ import java.util.Map;
 public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
 
-    private final String procName;
     private DatabaseType dbType;
     private Map<String, SQLStmt> name_stmt_xref;
-
-    /**
-     * Constructor
-     */
-    protected Procedure() {
-        this.procName = this.getClass().getSimpleName();
-    }
 
     /**
      * Initialize all of the SQLStmt handles. This must be called separately from
@@ -63,13 +55,6 @@ public abstract class Procedure {
                     this, this.name_stmt_xref.size(), this.name_stmt_xref.keySet()));
         }
         return ((T) this);
-    }
-
-    /**
-     * Return the name of this Procedure
-     */
-    protected final String getProcedureName() {
-        return (this.procName);
     }
 
     /**
@@ -131,18 +116,17 @@ public abstract class Procedure {
      * @param dialects
      */
     protected final void loadSQLDialect(StatementDialects dialects) {
-        Collection<String> stmtNames = dialects.getStatementNames(this.procName);
+        Collection<String> stmtNames = dialects.getStatementNames(this.getClass());
         if (stmtNames == null) {
             return;
         }
         for (String stmtName : stmtNames) {
-            String sql = dialects.getSQL(this.procName, stmtName);
-
+            String sql = dialects.getSQL(this.getClass(), stmtName);
 
             SQLStmt stmt = this.name_stmt_xref.get(stmtName);
 
             if (stmt == null) {
-                throw new RuntimeException(String.format("Dialect file contains an unknown statement: Procedure %s, Statement %s", this.procName, stmtName));
+                throw new RuntimeException(String.format("Dialect file contains an unknown statement: Procedure %s, Statement %s", this.getClass(), stmtName));
             }
             stmt.setSQL(sql);
         }
@@ -180,7 +164,7 @@ public abstract class Procedure {
 
     @Override
     public String toString() {
-        return (this.procName);
+        return (this.getClass().getSimpleName());
     }
 
     /**

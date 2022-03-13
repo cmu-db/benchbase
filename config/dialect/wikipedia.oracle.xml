@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="ORACLE" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="AddWatchList">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList">
             <statements>
                 <statement name="insertWatchList">
                     INSERT /*+ ignore_row_on_dupkey_index(watchlist(wl_user,wl_namespace,wl_title)) */ INTO watchlist (wl_user,wl_namespace,wl_title,wl_notificationtimestamp) VALUES (?,?,?,NULL)
@@ -11,7 +11,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="RemoveWatchList">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.RemoveWatchList">
             <statements>
                 <statement name="removeWatchList">
                     DELETE FROM watchlist WHERE wl_user = ? AND wl_namespace = ? AND wl_title = ?
@@ -21,7 +21,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetPageAnonymous">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous">
             <statements>
                 <statement name="selectPage">
                     SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
@@ -34,7 +34,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="UpdatePage">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.UpdatePage">
             <statements>
                 <statement name="insertText">
                     INSERT INTO text (old_id,old_page,old_text,old_flags) VALUES (text_seq.NEXTVAL,?,?,'utf-8')
@@ -63,7 +63,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetPageAuthenticated">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAuthenticated">
             <statements>
                 <statement name="selectUser">
                     SELECT * FROM useracct WHERE user_id = ? AND ROWNUM = 1

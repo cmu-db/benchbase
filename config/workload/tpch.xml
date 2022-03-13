@@ -28,72 +28,28 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q1">
-                    <name>Q1</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q2">
-                    <name>Q2</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q3">
-                    <name>Q3</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q4">
-                    <name>Q4</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q5">
-                    <name>Q5</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q6">
-                    <name>Q6</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q7">
-                    <name>Q7</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q8">
-                    <name>Q8</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q9">
-                    <name>Q9</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q10">
-                    <name>Q10</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q11">
-                    <name>Q11</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q12">
-                    <name>Q12</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q13">
-                    <name>Q13</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q14">
-                    <name>Q14</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q15">
-                    <name>Q15</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q16">
-                    <name>Q16</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q17">
-                    <name>Q17</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q18">
-                    <name>Q18</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q19">
-                    <name>Q19</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q20">
-                    <name>Q20</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q21">
-                    <name>Q21</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q22">
-                    <name>Q22</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q1"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q2"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q3"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q4"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q5"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q6"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q7"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q8"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q9"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q10"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q11"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q12"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q13"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q14"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q15"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q16"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q17"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q18"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q19"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q20"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q21"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q22"/>
             </transactions>
         </workload>
     </workloads>

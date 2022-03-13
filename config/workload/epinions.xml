@@ -16,33 +16,15 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById">
-                    <name>GetReviewItemById</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser">
-                    <name>GetReviewsByUser</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser">
-                    <name>GetAverageRatingByTrustedUser</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating">
-                    <name>GetItemAverageRating</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemReviewsByTrustedUser">
-                    <name>GetItemReviewsByTrustedUser</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName">
-                    <name>UpdateUserName</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle">
-                    <name>UpdateItemTitle</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating">
-                    <name>UpdateReviewRating</name>
-                </transaction>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating">
-                    <name>UpdateTrustRating</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemReviewsByTrustedUser"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating"/>
             </transactions>
         </workload>
     </workloads>

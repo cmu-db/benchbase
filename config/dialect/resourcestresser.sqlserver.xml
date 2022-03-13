@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="CPU1">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1">
             <statements>
                 <statement name="cpuSelect">
                     SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
@@ -19,7 +19,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="CPU2">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2">
             <statements>
                 <statement name="cpuSelect">
                     SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
@@ -37,14 +37,14 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="Contention1">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1">
             <statements>
                 <statement name="lockSleep">
                     WAITFOR DELAY ?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="Contention2">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2">
             <statements>
                 <statement name="lockSleep">
                     WAITFOR DELAY ?

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SPANNER" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="ReadModifyWriteRecord">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.ReadModifyWriteRecord">
             <statements>
                 <statement name="selectStmt">
                     SELECT * FROM usertable WHERE ycsb_key=?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="InsertRecord">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.ycsb.procedures.InsertRecord">
             <statements>
                 <statement name="insertStmt">
                     INSERT INTO usertable (ycsb_key, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10) VALUES (?,?,?,?,?,?,?,?,?,?,?)

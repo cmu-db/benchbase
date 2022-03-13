@@ -2,7 +2,7 @@
 
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SINGLESTORE" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="Q1">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q1">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -28,7 +28,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q3">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q3">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -58,7 +58,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q4">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q4">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -86,7 +86,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q5">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q5">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -117,7 +117,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q6">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q6">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -133,7 +133,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q7">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q7">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -179,7 +179,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q8">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q8">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -223,7 +223,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q10">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q10">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -262,7 +262,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q12">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q12">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -295,7 +295,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q14">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q14">
             <statements>
                 <statement name="query_stmt">
                     select
@@ -315,7 +315,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q15">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q15">
             <statements>
                 <!-- createview_stmt adapted from that provided by robbie from MemSQL -->
                 <statement name="createview_stmt">
@@ -338,7 +338,7 @@
             </statements>
         </procedure>
 
-        <procedure name="Q20">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.tpch.procedures.Q20">
             <statements>
                 <statement name="query_stmt">
                     select

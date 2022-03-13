@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="ORACLE" xsi:noNamespaceSchemaLocation="dialect.xsd">
     <procedures>
-        <procedure name="GetAverageRatingByTrustedUser">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser">
             <statements>
                 <statement name="getAverageRating">
                     SELECT avg(rating) FROM "review" r, "trust" t WHERE r.u_id=t.target_u_id AND r.i_id=? AND t.source_u_id=?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetItemAverageRating">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating">
             <statements>
                 <statement name="getAverageRating">
                     SELECT avg(rating) FROM "review" r WHERE r.i_id=?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetItemReviewsByTrustedUser">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemReviewsByTrustedUser">
             <statements>
                 <statement name="getReview">
                     SELECT * FROM "review" r WHERE r.i_id=?
@@ -25,7 +25,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetReviewItemById">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById">
             <statements>
                 <statement name="getReviewItem">
                     SELECT * FROM "review" r, "item" i WHERE i.i_id = r.i_id and r.i_id=? AND ROWNUM &lt;= 10
@@ -33,7 +33,7 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="GetReviewsByUser">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser">
             <statements>
                 <statement name="getReviewUser">
                     SELECT * FROM "review" r, "useracct" u WHERE u.u_id = r.u_id AND r.u_id=? AND ROWNUM &lt;= 10
@@ -41,28 +41,28 @@
                 </statement>
             </statements>
         </procedure>
-        <procedure name="UpdateItemTitle">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle">
             <statements>
                 <statement name="updateItem">
                     UPDATE "item" SET title = ? WHERE i_id=?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="UpdateReviewRating">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating">
             <statements>
                 <statement name="updateReview">
                     UPDATE "review" SET rating = ? WHERE i_id=? AND u_id=?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="UpdateTrustRating">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating">
             <statements>
                 <statement name="updateTrust">
                     UPDATE "trust" SET trust = ? WHERE source_u_id=? AND target_u_id=?
                 </statement>
             </statements>
         </procedure>
-        <procedure name="UpdateUserName">
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName">
             <statements>
                 <statement name="updateUser">
                     UPDATE "useracct" SET name = ? WHERE u_id=?

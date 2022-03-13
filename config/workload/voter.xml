@@ -17,9 +17,7 @@
             </phases>
 
             <transactions>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.voter.procedures.Vote">
-                    <name>Vote</name>
-                </transaction>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.voter.procedures.Vote"/>
             </transactions>
         </workload>
     </workloads>

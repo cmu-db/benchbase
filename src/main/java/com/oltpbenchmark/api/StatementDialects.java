@@ -40,7 +40,7 @@ public class StatementDialects {
     /**
      * ProcName -> StmtName -> SQL
      */
-    private final Map<String, Map<String, String>> dialectsMap = new HashMap<>();
+    private final Map<Class<? extends com.oltpbenchmark.api.Procedure>, Map<String, String>> dialectsMap = new HashMap<>();
 
     public StatementDialects(String benchmarkName, DatabaseType databaseType) {
         this.load(benchmarkName, databaseType);
@@ -71,18 +71,18 @@ public class StatementDialects {
 
                 for (com.oltpbenchmark.api.config.Procedure procedure : dialect.procedures()) {
 
-                    String procName = procedure.name();
-                    Map<String, String> procDialects = this.dialectsMap.get(procName);
+                    Class<? extends com.oltpbenchmark.api.Procedure> procedureClass = procedure.procedureClass();
+                    Map<String, String> procDialects = this.dialectsMap.get(procedureClass);
 
                     for (Statement statement : procedure.statements()) {
                         String stmtName = statement.name();
                         String stmtSQL = statement.sql();
                         if (procDialects == null) {
                             procDialects = new HashMap<>();
-                            this.dialectsMap.put(procName, procDialects);
+                            this.dialectsMap.put(procedureClass, procDialects);
                         }
                         procDialects.put(stmtName, stmtSQL);
-                        LOG.debug(String.format("%s.%s.%s\n%s\n", databaseType, procName, stmtName, stmtSQL));
+                        LOG.debug(String.format("%s.%s.%s\n%s\n", databaseType, procedureClass, stmtName, stmtSQL));
                     }
 
                 }
@@ -100,23 +100,23 @@ public class StatementDialects {
      * for the given Procedure name. If there are SQL dialects for the given
      * Procedure, then the result will be null.
      *
-     * @param procName
+     * @param procedureClass
      * @return
      */
-    protected Collection<String> getStatementNames(String procName) {
-        Map<String, String> procDialects = this.dialectsMap.get(procName);
+    protected Collection<String> getStatementNames(Class<? extends com.oltpbenchmark.api.Procedure> procedureClass) {
+        Map<String, String> procDialects = this.dialectsMap.get(procedureClass);
         return (procDialects != null ? procDialects.keySet() : null);
     }
 
     /**
      * Return the SQL dialect for the given Statement in the Procedure
      *
-     * @param procName
+     * @param procedureClass
      * @param stmtName
      * @return
      */
-    public String getSQL(String procName, String stmtName) {
-        Map<String, String> procDialects = this.dialectsMap.get(procName);
+    public String getSQL(Class<? extends com.oltpbenchmark.api.Procedure> procedureClass, String stmtName) {
+        Map<String, String> procDialects = this.dialectsMap.get(procedureClass);
         if (procDialects != null) {
             return (procDialects.get(stmtName));
         }
@@ -126,7 +126,7 @@ public class StatementDialects {
     /**
      * @return The list of Procedure names that we have dialect information for.
      */
-    protected Collection<String> getProcedureNames() {
+    protected Collection<Class<? extends com.oltpbenchmark.api.Procedure>> getProcedures() {
         return (this.dialectsMap.keySet());
     }
 
