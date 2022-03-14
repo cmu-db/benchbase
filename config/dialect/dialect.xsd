@@ -4,29 +4,53 @@
     <xs:complexType name="statementType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="name" use="optional"/>
+                <xs:attribute type="xs:string" name="name" use="required">
+                    <xs:annotation>
+                        <xs:documentation>the name of the instance of com.oltpbenchmark.api.SQLStmt on owning Procedure</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
     <xs:complexType name="statementsType">
         <xs:sequence>
-            <xs:element type="statementType" name="statement" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="statementType" name="statement" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>overrides the value for of the sql statement with the given "name" on the owning Procedure</xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="procedureType">
         <xs:sequence>
-            <xs:element type="statementsType" name="statements"/>
+            <xs:element type="statementsType" name="statements">
+                <xs:annotation>
+                    <xs:documentation>the instances of com.oltpbenchmark.api.SQLStmt that exist on this com.oltpbenchmark.api.Procedure</xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="procedureClass" use="required"/>
+        <xs:attribute type="xs:string" name="procedureClass" use="required">
+            <xs:annotation>
+                <xs:documentation>the fully qualified class name of the com.oltpbenchmark.api.Procedure implementation</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
     <xs:complexType name="proceduresType">
         <xs:sequence>
-            <xs:element type="procedureType" name="procedure" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="procedureType" name="procedure" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>an instances of com.oltpbenchmark.api.Procedure</xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="dialectType">
         <xs:sequence>
-            <xs:element type="proceduresType" name="procedures"/>
+            <xs:element type="proceduresType" name="procedures">
+                <xs:annotation>
+                    <xs:documentation>the instances of com.oltpbenchmark.api.Procedure that define this workload</xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="type"/>
     </xs:complexType>
