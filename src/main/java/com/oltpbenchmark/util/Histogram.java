@@ -49,35 +49,35 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         KEEP_ZERO_ENTRIES,
     }
 
-    protected final SortedMap<X, Integer> histogram = new TreeMap<>();
-    protected int num_samples = 0;
+    private final SortedMap<X, Integer> histogram = new TreeMap<>();
+    private int num_samples = 0;
     private transient boolean dirty = false;
 
     /**
      *
      */
-    protected transient Map<Object, String> debug_names;
+    private transient Map<Object, String> debug_names;
 
     /**
      * The Min/Max values are the smallest/greatest values we have seen based
      * on some natural ordering
      */
-    protected Comparable<X> min_value;
-    protected Comparable<X> max_value;
+    private Comparable<X> min_value;
+    private Comparable<X> max_value;
 
     /**
      * The Min/Max counts are the values that have the smallest/greatest number of
      * occurences in the histogram
      */
-    protected int min_count = 0;
-    protected List<X> min_count_values;
-    protected int max_count = 0;
-    protected List<X> max_count_values;
+    private int min_count = 0;
+    private List<X> min_count_values;
+    private int max_count = 0;
+    private List<X> max_count_values;
 
     /**
      * A switchable flag that determines whether non-zero entries are kept or removed
      */
-    protected boolean keep_zero_entries = false;
+    private boolean keep_zero_entries = false;
 
     /**
      * Constructor
