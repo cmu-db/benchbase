@@ -23,7 +23,7 @@
                 <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewCommentResponse"/>
                 <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewFeedback"/>
                 <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewItem"/>
-                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewPurchase">
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.NewPurchase"/>
                 <transaction procedureClass="com.oltpbenchmark.benchmarks.auctionmark.procedures.UpdateItem"/>
             </transactions>
         </workload>
