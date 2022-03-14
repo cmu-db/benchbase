@@ -17,12 +17,9 @@
 
 package com.oltpbenchmark.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import junit.framework.TestCase;
-import org.json.JSONObject;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -237,50 +234,13 @@ public class TestHistogram extends TestCase {
      * testToJSONString
      */
     public void testToJSONString() throws Exception {
-        String json = h.toJSONString();
-        assertNotNull(json);
-        for (Histogram.Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.KEEP_ZERO_ENTRIES) {
-                continue;
-            }
-            assertTrue(json.indexOf(element.name()) != -1);
-        }
+
     }
 
     /**
      * testFromJSON
      */
     public void testFromJSON() throws Exception {
-        String json = h.toJSONString();
-        assertNotNull(json);
-        JSONObject jsonObject = new JSONObject(json);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json2 = mapper.writeValueAsString(h);
-
-
-        Histogram<Integer> copy = new Histogram<Integer>();
-        copy.fromJSON(jsonObject);
-        assertEquals(h.getValueCount(), copy.getValueCount());
-        for (Histogram.Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.VALUE_TYPE) {
-                continue;
-            }
-            String field_name = element.toString().toLowerCase();
-            Field field = Histogram.class.getDeclaredField(field_name);
-            assertNotNull(field);
-
-            Object orig_value = field.get(h);
-            Object copy_value = field.get(copy);
-
-            if (element == Histogram.Members.HISTOGRAM) {
-                for (Integer value : h.values()) {
-                    assertNotNull(value);
-                    assertEquals(h.get(value), copy.get(value));
-                }
-            } else {
-                assertEquals(orig_value.toString(), copy_value.toString());
-            }
-        }
     }
 }
