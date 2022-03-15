@@ -54,11 +54,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
     private transient boolean dirty = false;
 
     /**
-     *
-     */
-    private transient Map<Object, String> debug_names;
-
-    /**
      * The Min/Max values are the smallest/greatest values we have seen based
      * on some natural ordering
      */
@@ -67,7 +62,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
 
     /**
      * The Min/Max counts are the values that have the smallest/greatest number of
-     * occurences in the histogram
+     * occurrences in the histogram
      */
     private int min_count = 0;
     private List<X> min_count_values;
@@ -104,11 +99,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         return (false);
     }
 
-    public boolean hasDebugLabels() {
-        return (this.debug_names != null && !this.debug_names.isEmpty());
-    }
-
-
     /**
      * Set whether this histogram is allowed to retain zero count entries
      * If the flag switches from true to false, then all zero count entries will be removed
@@ -117,7 +107,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      * @param flag
      */
     public void setKeepZeroEntries(boolean flag) {
-        // When this option is disabled, we need to remove all of the zeroed entries
+        // When this option is disabled, we need to remove all the zeroed entries
         if (!flag && this.keep_zero_entries) {
             synchronized (this) {
                 Iterator<X> it = this.histogram.keySet().iterator();
@@ -468,7 +458,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
 
     /**
      * Returns the current count for the given value.
-     * If that value was nevered entered in the histogram, then the value returned will be value_if_null
+     * If that value was never entered in the histogram, then the value returned will be value_if_null
      *
      * @param value
      * @param value_if_null
@@ -524,18 +514,11 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         // Don't let anything go longer than MAX_VALUE_LENGTH chars
         String f = "%-" + max_length + "s [%" + max_ctr_length + "d] ";
         boolean first = true;
-        boolean has_labels = this.hasDebugLabels();
         for (Object value : this.histogram.keySet()) {
             if (!first) {
                 s.append("\n");
             }
-            String str = null;
-            if (has_labels) {
-                str = this.debug_names.get(value);
-            }
-            if (str == null) {
-                str = (value != null ? value.toString() : "null");
-            }
+            String str = (value != null ? value.toString() : "null");
             int value_str_len = str.length();
             if (value_str_len > max_length) {
                 str = str.substring(0, max_length - 3) + "...";

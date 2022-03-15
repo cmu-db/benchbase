@@ -64,7 +64,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         super.setUp();
 
         Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION + this.dbName + ";sql.syntax_mys=true", null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
-        Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, DB_TERMINALS, null, null, null, null, null, null);
+        Workload workload = new Workload(clazz, DB_SCALE_FACTOR, null, DB_TERMINALS, null, null, null, null);
 
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
         for (int i = 0; i < procClasses.length; i++) {

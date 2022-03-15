@@ -104,23 +104,6 @@
                     <xs:documentation>the number terminals for this workload. this value usually dictates the number of parallel threads executed during this benchmark.</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element type="xs:string" name="dataDirectory" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>todo</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="fileFormat" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>todo</xs:documentation>
-                </xs:annotation>
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="TBL"/>
-                        <xs:enumeration value="CSV"/>
-                        <xs:enumeration value="DAT"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
             <xs:element type="xs:string" name="traceFile1" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>todo</xs:documentation>

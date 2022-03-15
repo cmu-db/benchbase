@@ -6,9 +6,6 @@
             <scaleFactor>.01</scaleFactor>
             <terminals>1</terminals>
 
-            <dataDirectory>data/tpch-sf0.01</dataDirectory>
-            <fileFormat>TBL</fileFormat>
-
             <phases>
                 <phase>
                     <serial>true</serial>

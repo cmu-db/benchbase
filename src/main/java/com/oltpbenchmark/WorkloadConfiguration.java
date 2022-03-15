@@ -20,7 +20,6 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.config.Database;
-import com.oltpbenchmark.api.config.FileFormat;
 import com.oltpbenchmark.api.config.TransactionIsolation;
 import com.oltpbenchmark.api.config.Workload;
 import com.oltpbenchmark.types.DatabaseType;
@@ -87,10 +86,6 @@ public class WorkloadConfiguration {
         this.workloadState = new WorkloadState(benchmarkState, phases, getTerminals());
     }
 
-
-
-
-
     /**
      * The number of loader threads that the framework is allowed to use.
      *
@@ -123,14 +118,6 @@ public class WorkloadConfiguration {
         return phases.size();
     }
 
-    /**
-     * Return the directory in which we can find the data files (for example, CSV
-     * files) for loading the database.
-     */
-    public String getDataDir() {
-        return workload.dataDirectory();
-    }
-
     public int getTerminals() {
         return workload.terminals();
     }
@@ -153,10 +140,6 @@ public class WorkloadConfiguration {
 
     public String getTraceFile2() {
         return workload.traceFile2();
-    }
-
-    public FileFormat getFileFormat() {
-        return workload.fileFormat();
     }
 
 }
