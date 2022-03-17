@@ -34,7 +34,7 @@ tar xvzf benchbase-postgres.tgz
 cd benchbase-postgres
 ```
 
-Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark (workload) against a `postgres`...
+Inside this folder, you can run BenchBase. For example, to execute the `tpcc` benchmark (workload) against a `postgres` database:
 
 ```bash
 java -jar benchbase.jar -w config/workload/tpcc.xml -d config/db/postgres.xml --create=true --load=true --execute=true
