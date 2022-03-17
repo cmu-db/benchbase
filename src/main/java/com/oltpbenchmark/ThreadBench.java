@@ -419,7 +419,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             long endNanoseconds = nextStartNanosecond + (windowSizeSeconds * 1000000000L);
             while (sample != null && sample.getStartNanosecond() < endNanoseconds) {
 
-                // Check if a TX Type filter is set, in the default case,
+                // Check if a TxType filter is set, in the default case,
                 // null TxType means all should be reported, if a filter is
                 // set, only this specific transaction
                 if (txType == null || txType.getId() == sample.getTransactionId()) {
