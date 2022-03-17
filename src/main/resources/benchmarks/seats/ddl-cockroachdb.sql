@@ -257,7 +257,7 @@ CREATE TABLE flight (
     FOREIGN KEY (f_depart_ap_id) REFERENCES airport (ap_id),
     FOREIGN KEY (f_arrive_ap_id) REFERENCES airport (ap_id)
 );
-CREATE INDEX f_depart_time_idx ON flight (f_depart_time);
+CREATE INDEX f_compound_idx ON flight (f_depart_time, f_al_id, f_depart_ap_id, f_arrive_ap_id);
 
 --
 -- RESERVATION
