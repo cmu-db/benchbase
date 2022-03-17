@@ -101,7 +101,7 @@
             </xs:element>
             <xs:element type="xs:int" name="terminals">
                 <xs:annotation>
-                    <xs:documentation>the number terminals for this workload. this value usually dictates the number of parallel threads executed during this benchmark.</xs:documentation>
+                    <xs:documentation>the number of terminals for this workload. this value usually dictates the number of parallel threads executed during this benchmark.</xs:documentation>
                 </xs:annotation>
             </xs:element>
             <xs:element type="xs:string" name="traceFile1" minOccurs="0" maxOccurs="1">
