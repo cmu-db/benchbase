@@ -8,10 +8,13 @@
     <username>root</username>
     <password></password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>128</batchsize>
+    <batchsize>4</batchsize>
 
     <!-- Scale factor is the number of wikipages *1000 -->
     <scalefactor>1</scalefactor>
+
+    <!-- Limit on the size of the string inserted into the OLD_TEXT column -->
+    <oldtextmaxlen>1048576</oldtextmaxlen>
 
     <!-- The workload -->
     <terminals>1</terminals>
