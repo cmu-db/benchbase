@@ -489,6 +489,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         Random rand = new Random();
 
+
         WikipediaBenchmark b = this.benchmark;
         int batchSize = 1;
         Zipf h_users = new Zipf(rand, 1, this.num_users, WikipediaConstants.REVISION_USER_SIGMA);
@@ -497,7 +498,6 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         FlatHistogram<Integer> h_minorEdit = b.minorEdit;
         FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rand, UserHistograms.NAME_LENGTH);
         FlatHistogram<Integer> h_numRevisions = new FlatHistogram<>(rand, PageHistograms.REVISIONS_PER_PAGE);
-        final int oldTextMaxLen = b.getWorkloadConfiguration().getOldTextMaxLen();
 
         final int rev_comment_max = revTable.getColumnByName("rev_comment").getSize();
         int rev_id = 1;
@@ -541,8 +541,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     // Insert the text
                     int col = 1;
                     textInsert.setInt(col++, rev_id); // old_id
-                    int maxLen = old_text.length > oldTextMaxLen ? oldTextMaxLen : old_text.length;
-                    textInsert.setString(col++, new String(old_text, 0, maxLen)); // old_text
+                    textInsert.setString(col++, new String(old_text)); // old_text
                     textInsert.setString(col++, "utf-8"); // old_flags
                     textInsert.setInt(col++, page_id); // old_page
                     textInsert.addBatch();

@@ -47,7 +47,6 @@ public class WorkloadConfiguration {
     private TransactionTypes transTypes = null;
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
-    private int oldTextMaxLen = Integer.MAX_VALUE;
 
     public String getBenchmarkName() {
         return benchmarkName;
@@ -216,14 +215,6 @@ public class WorkloadConfiguration {
 
     public void setTerminals(int terminals) {
         this.terminals = terminals;
-    }
-
-    public int getOldTextMaxLen() {
-        return oldTextMaxLen;
-    }
-
-    public void setOldTextMaxLen(int m) {
-        this.oldTextMaxLen = m;
     }
 
     public TransactionTypes getTransTypes() {
