@@ -90,7 +90,7 @@ public class DBWorkload {
 
             TransactionTypes transactionTypes = getTransactionTypes(workload);
 
-            List<Phase> phaseList = getPhases(workload);
+            List<Phase> phaseList = getPhases(workload, transactionTypes);
 
             WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, transactionTypes, phaseList);
 
@@ -207,10 +207,22 @@ public class DBWorkload {
         }
     }
 
-    private static List<Phase> getPhases(Workload workload) {
+    private static List<Phase> getPhases(Workload workload, TransactionTypes transactionTypes) {
         List<Phase> phaseList = new ArrayList<>();
         int phaseId = 1;
         for (com.oltpbenchmark.api.config.Phase phase : workload.phases()) {
+
+            List<Double> weights = phase.weights();
+
+            if (weights.size() != transactionTypes.size()) {
+                throw new RuntimeException("the number of weights does not equal the number of transactions");
+            }
+
+            double sum = Math.round(weights.stream().mapToDouble(Double::doubleValue).sum());
+
+            if (sum != 100) {
+                LOG.warn("this sum of all weights does not equal 100 but rather [{}]", sum);
+            }
 
             PhaseRateType phaseRateType = phase.rateType();
 
