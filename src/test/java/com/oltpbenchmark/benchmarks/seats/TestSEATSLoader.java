@@ -17,17 +17,23 @@
 package com.oltpbenchmark.benchmarks.seats;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(SEATSBenchmark.class, null, TestSEATSBenchmark.PROC_CLASSES);
-        SEATSProfile.clearCachedProfile();
+    public HashSet<Class<? extends Procedure>> procedures() {
+        return TestSEATSBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<SEATSBenchmark> benchmarkClass() {
+        return SEATSBenchmark.class;
     }
 
     /**

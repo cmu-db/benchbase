@@ -17,6 +17,10 @@
 package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
+
+import java.util.HashSet;
+import java.util.List;
 
 public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
 
@@ -25,9 +29,18 @@ public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
     };
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(TwitterBenchmark.class, IGNORED_TABLES, TestTwitterBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.1);
+    public HashSet<Class<? extends Procedure>> procedures() {
+        return TestTwitterBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<TwitterBenchmark> benchmarkClass() {
+        return TwitterBenchmark.class;
+    }
+
+    @Override
+    public List<String> ignorableTables() {
+        return List.of(IGNORED_TABLES);
     }
 
 }

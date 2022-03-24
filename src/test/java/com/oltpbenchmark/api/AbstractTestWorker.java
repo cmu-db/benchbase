@@ -19,8 +19,7 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 
-import java.sql.Connection;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
@@ -29,24 +28,17 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
 
     protected List<Worker<? extends BenchmarkModule>> workers;
 
-    @SuppressWarnings("rawtypes")
-    protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
-        super.setUp(clazz, procClasses);
+    public AbstractTestWorker() {
+        super(true, true);
+    }
 
-        List<TransactionType> txnList = new ArrayList<TransactionType>();
-        int id = 1;
-        for (Class<? extends Procedure> procClass : this.procClasses) {
-            assertNotNull(procClass);
-            String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
-            assertNotNull(txnType);
-            assertEquals(procClass, txnType.getProcedureClass());
-            txnList.add(txnType);
-        } // FOR
-        TransactionTypes txnTypes = new TransactionTypes(txnList);
-        this.workConf.setTransTypes(txnTypes);
-        this.workConf.setBatchSize(128);
-        this.workConf.setTerminals(NUM_TERMINALS);
+    @Override
+    public List<String> ignorableTables() {
+        return null;
+    }
+
+    @Override
+    protected void postCreateDatabaseSetup() throws IOException {
         this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
         assertEquals(NUM_TERMINALS, this.workers.size());
@@ -55,11 +47,11 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     /**
      * testGetProcedure
      */
-    public void testGetProcedure() throws Exception {
+    public void testGetProcedure() {
         // Make sure that we can get a Procedure handle for each TransactionType
         Worker<?> w = workers.get(0);
         assertNotNull(w);
-        for (Class<? extends Procedure> procClass : this.procClasses) {
+        for (Class<? extends Procedure> procClass : this.procedures()) {
             assertNotNull(procClass);
             Procedure proc = w.getProcedure(procClass);
             assertNotNull("Failed to get procedure " + procClass.getSimpleName(), proc);
@@ -71,9 +63,6 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
      * testExecuteWork
      */
     public void testExecuteWork() throws Exception {
-        this.benchmark.createDatabase();
-        this.benchmark.loadDatabase();
-        this.conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
         Worker<?> w = workers.get(0);
         assertNotNull(w);

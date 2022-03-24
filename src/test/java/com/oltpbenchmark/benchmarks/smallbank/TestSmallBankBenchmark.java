@@ -18,22 +18,31 @@
 package com.oltpbenchmark.benchmarks.smallbank;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.smallbank.procedures.*;
+
+import java.util.HashSet;
+import java.util.List;
 
 public class TestSmallBankBenchmark extends AbstractTestBenchmarkModule<SmallBankBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
+    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
             Amalgamate.class,
             Balance.class,
             DepositChecking.class,
             SendPayment.class,
             TransactSavings.class,
-            WriteCheck.class,
-    };
+            WriteCheck.class
+    ));
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(SmallBankBenchmark.class, PROC_CLASSES);
+    public HashSet<Class<? extends Procedure>> procedures() {
+        return TestSmallBankBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<SmallBankBenchmark> benchmarkClass() {
+        return SmallBankBenchmark.class;
     }
 
 }

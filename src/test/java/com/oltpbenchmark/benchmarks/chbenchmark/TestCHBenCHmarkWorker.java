@@ -14,23 +14,23 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.benchmarks.tatp;
+package com.oltpbenchmark.benchmarks.chbenchmark;
 
-import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
 
 import java.util.HashSet;
 
-public class TestTATPLoader extends AbstractTestLoader<TATPBenchmark> {
+public class TestCHBenCHmarkWorker extends AbstractTestWorker<CHBenCHmark> {
 
     @Override
     public HashSet<Class<? extends Procedure>> procedures() {
-        return TestTATPBenchmark.PROCEDURE_CLASSES;
+        return TestCHBenCHmark.PROCEDURE_CLASSES;
     }
 
     @Override
-    public Class<TATPBenchmark> benchmarkClass() {
-        return TATPBenchmark.class;
+    public Class<CHBenCHmark> benchmarkClass() {
+        return CHBenCHmark.class;
     }
 
 }

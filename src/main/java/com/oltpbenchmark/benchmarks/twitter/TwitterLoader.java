@@ -287,7 +287,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
                         total++;
                         batchSize++;
-                        f++;
+
 
                         if ((batchSize % workConf.getBatchSize()) == 0) {
                             followsInsert.executeBatch();
@@ -300,6 +300,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                             }
                         }
                     }
+
+                    f++;
                 }
             }
             if (batchSize > 0) {

@@ -18,22 +18,31 @@
 package com.oltpbenchmark.benchmarks.resourcestresser;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.resourcestresser.procedures.*;
+
+import java.util.HashSet;
+import java.util.List;
 
 public class TestResourceStresserBenchmark extends AbstractTestBenchmarkModule<ResourceStresserBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
+    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
             Contention1.class,
             Contention2.class,
             CPU1.class,
             CPU2.class,
             IO1.class,
-            IO2.class,
-    };
+            IO2.class
+    ));
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(ResourceStresserBenchmark.class, PROC_CLASSES);
+    public HashSet<Class<? extends Procedure>> procedures() {
+        return TestResourceStresserBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<ResourceStresserBenchmark> benchmarkClass() {
+        return ResourceStresserBenchmark.class;
     }
 
 }

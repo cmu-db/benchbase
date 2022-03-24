@@ -14,23 +14,29 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.benchmarks.tatp;
+
+package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 
 import java.util.HashSet;
+import java.util.List;
 
-public class TestTATPLoader extends AbstractTestLoader<TATPBenchmark> {
+public class TestEpinionsLoader extends AbstractTestLoader<EpinionsBenchmark> {
 
     @Override
     public HashSet<Class<? extends Procedure>> procedures() {
-        return TestTATPBenchmark.PROCEDURE_CLASSES;
+        return TestEpinionsBenchmark.PROCEDURE_CLASSES;
     }
 
     @Override
-    public Class<TATPBenchmark> benchmarkClass() {
-        return TATPBenchmark.class;
+    public Class<EpinionsBenchmark> benchmarkClass() {
+        return EpinionsBenchmark.class;
     }
 
+    @Override
+    public List<String> ignorableTables() {
+        return List.of("review_rating");
+    }
 }

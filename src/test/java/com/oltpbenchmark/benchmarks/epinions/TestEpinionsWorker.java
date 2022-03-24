@@ -14,45 +14,24 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.api;
 
-import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.types.DatabaseType;
+package com.oltpbenchmark.benchmarks.epinions;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
+import com.oltpbenchmark.api.AbstractTestWorker;
+import com.oltpbenchmark.api.Procedure;
 
-public class MockBenchmark extends BenchmarkModule {
-    public MockBenchmark() {
-        super(new WorkloadConfiguration());
+import java.util.HashSet;
+
+public class TestEpinionsWorker extends AbstractTestWorker<EpinionsBenchmark> {
+
+    @Override
+    public HashSet<Class<? extends Procedure>> procedures() {
+        return TestEpinionsBenchmark.PROCEDURE_CLASSES;
     }
 
     @Override
-    protected Package getProcedurePackageImpl() {
-        // TODO Auto-generated method stub
-        return null;
+    public Class<EpinionsBenchmark> benchmarkClass() {
+        return EpinionsBenchmark.class;
     }
 
-    @Override
-    protected Loader<MockBenchmark> makeLoaderImpl() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public URL getDatabaseDDL(DatabaseType db_type) {
-        // Get our sample DDL file
-        URL testDDLURL = MockBenchmark.class.getResource("test-ddl.sql");
-        assert (testDDLURL != null) : "Unable to get " + MockBenchmark.class.getSimpleName() + " DDL file";
-        File testDDL = new File(testDDLURL.getPath());
-        assert (testDDL.exists()) : testDDL.getAbsolutePath();
-        return (testDDLURL);
-    }
-} // END CLASS
+}

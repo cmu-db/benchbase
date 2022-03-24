@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright 2015 by OLTPBenchmark Project                                   *
+ *  Copyright 2016 by OLTPBenchmark Project                                   *
  *                                                                            *
  *  Licensed under the Apache License, Version 2.0 (the "License");           *
  *  you may not use this file except in compliance with the License.          *
@@ -14,23 +14,28 @@
  *  limitations under the License.                                            *
  ******************************************************************************/
 
-package com.oltpbenchmark.benchmarks.tatp;
+package com.oltpbenchmark.benchmarks.noop;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 
 import java.util.HashSet;
+import java.util.List;
 
-public class TestTATPLoader extends AbstractTestLoader<TATPBenchmark> {
+public class TestNoOpLoader extends AbstractTestLoader<NoOpBenchmark> {
 
     @Override
     public HashSet<Class<? extends Procedure>> procedures() {
-        return TestTATPBenchmark.PROCEDURE_CLASSES;
+        return TestNoOpBenchmark.PROCEDURE_CLASSES;
     }
 
     @Override
-    public Class<TATPBenchmark> benchmarkClass() {
-        return TATPBenchmark.class;
+    public Class<NoOpBenchmark> benchmarkClass() {
+        return NoOpBenchmark.class;
     }
 
+    @Override
+    public List<String> ignorableTables() {
+        return List.of("FAKE");
+    }
 }
