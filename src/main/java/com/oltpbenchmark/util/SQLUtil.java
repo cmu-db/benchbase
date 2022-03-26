@@ -283,6 +283,26 @@ public abstract class SQLUtil {
     }
 
     /**
+     * Returns true if the given sqlType identifier is an Integer data type
+     *
+     * @param sqlType
+     * @return
+     * @see java.sql.Types
+     */
+    public static boolean isIntegerType(int sqlType) {
+        switch (sqlType) {
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT: {
+                return (true);
+            }
+            default:
+                return (false);
+        }
+    }
+
+    /**
      * Return the COUNT(*) SQL to calculate the number of records
      *
      * @param dbType
@@ -420,7 +440,7 @@ public abstract class SQLUtil {
      * @return
      * @throws SQLException
      */
-    private static AbstractCatalog getCatalogHSQLDB(BenchmarkModule benchmarkModule) throws SQLException {
+    private static AbstractCatalog getCatalogHSQLDB(BenchmarkModule benchmarkModule) {
         return new HSQLDBCatalog(benchmarkModule);
     }
 

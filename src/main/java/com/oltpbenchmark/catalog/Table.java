@@ -98,6 +98,10 @@ public class Table extends AbstractCatalogObject {
         return (null);
     }
 
+    public List<Index> getIndexes() {
+        return this.indexes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
