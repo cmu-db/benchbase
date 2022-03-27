@@ -54,7 +54,7 @@ public class TestHSQLDBCatalog extends TestCase {
         for (Entry<String, String> e : origTableNames.entrySet()) {
             assertFalse(e.toString(), e.getKey().equals(e.getValue()));
             assertTrue(e.toString(), e.getKey().equalsIgnoreCase(e.getValue()));
-        } // FOR
+        }
     }
 
     /**
