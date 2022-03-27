@@ -438,7 +438,6 @@ public abstract class SQLUtil {
      * This supports databases that may not support all of the SQL standard just yet.
      *
      * @return
-     * @throws SQLException
      */
     private static AbstractCatalog getCatalogHSQLDB(BenchmarkModule benchmarkModule) {
         return new HSQLDBCatalog(benchmarkModule);
