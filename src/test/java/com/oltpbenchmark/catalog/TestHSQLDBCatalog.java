@@ -85,7 +85,7 @@ public class TestHSQLDBCatalog extends TestCase {
                 Table catalog_tbl = this.catalog.getTable(table_name);
                 assertNotNull(catalog_tbl);
                 assertEquals(table_name, catalog_tbl.getName());
-            } // FOR
+            }
         }
     }
 
