@@ -74,7 +74,7 @@ public class TestHSQLDBCatalog extends TestCase {
                 if (offset == -1) break;
                 num_tables++;
                 offset++;
-            } // FOR
+            }
             assertEquals(num_tables, 3);
 
             // Make sure that CatalogUtil returns the same number of tables
