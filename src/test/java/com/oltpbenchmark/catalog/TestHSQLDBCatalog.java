@@ -142,7 +142,7 @@ public class TestHSQLDBCatalog extends TestCase {
                     boolean actual = SQLUtil.isIntegerType(catalog_col.getType());
                     assertTrue(catalog_col.getName() + " -> " + catalog_col.getType(), actual);
                 }
-            } // FOR (col)
+            }
         } // FOR (table)
     }
 }
