@@ -124,7 +124,7 @@ public class TestHSQLDBCatalog extends TestCase {
                     assertNotNull(catalog_idx.getColumns().get(i).getName());
                     assertNotNull(catalog_idx.getColumns().get(i).getDir());
                 }
-            } // FOR
+            }
         }
     }
 
