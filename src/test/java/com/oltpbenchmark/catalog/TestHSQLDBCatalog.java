@@ -143,6 +143,6 @@ public class TestHSQLDBCatalog extends TestCase {
                     assertTrue(catalog_col.getName() + " -> " + catalog_col.getType(), actual);
                 }
             }
-        } // FOR (table)
+        }
     }
 }
