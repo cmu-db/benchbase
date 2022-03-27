@@ -201,7 +201,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
      *
      * @return A map from the original table names to the uppercase HSQLDB table names.
      */
-    private Map<String, String> getOriginalTableNames() {
+    Map<String, String> getOriginalTableNames() {
         // Get the contents of the HSQLDB DDL for the current benchmark.
         String ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;
