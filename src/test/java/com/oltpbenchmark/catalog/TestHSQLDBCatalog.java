@@ -123,7 +123,7 @@ public class TestHSQLDBCatalog extends TestCase {
                 for (int i = 0; i < catalog_idx.getColumns().size(); i++) {
                     assertNotNull(catalog_idx.getColumns().get(i).getName());
                     assertNotNull(catalog_idx.getColumns().get(i).getDir());
-                } // FOR
+                }
             } // FOR
         }
     }
