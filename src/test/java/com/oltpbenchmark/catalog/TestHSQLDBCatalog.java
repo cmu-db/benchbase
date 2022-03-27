@@ -104,7 +104,7 @@ public class TestHSQLDBCatalog extends TestCase {
                 assertNotEquals(fkey_col.getTable(), catalog_tbl);
                 found++;
             }
-        } // FOR
+        }
         assertEquals(2, found);
     }
 
