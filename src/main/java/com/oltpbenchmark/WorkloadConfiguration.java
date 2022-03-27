@@ -38,6 +38,7 @@ public class WorkloadConfiguration {
     private String driverClass;
     private int batchSize;
     private int maxRetries;
+    private int randomSeed = -1;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
     private int terminals;
@@ -151,6 +152,17 @@ public class WorkloadConfiguration {
         this.selectivity = selectivity;
     }
 
+    /**
+     * The random seed for this benchmark
+     * @return
+     */
+    public int getRandomSeed() { return this.randomSeed; }
+
+    /**
+     * Set the random seed for this benchmark
+     * @param randomSeed
+     */
+    public void setRandomSeed(int randomSeed) { this.randomSeed = randomSeed; }
 
     /**
      * Return the scale factor of the database size

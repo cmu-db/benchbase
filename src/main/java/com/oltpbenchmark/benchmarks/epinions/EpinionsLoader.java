@@ -28,9 +28,8 @@ import com.oltpbenchmark.util.TextGenerator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 public class EpinionsLoader extends Loader<EpinionsBenchmark> {
@@ -105,39 +104,49 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
         }
 
         // TRUST depends on USERACCT
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadTrust(conn);
-            }
+        for (int i = 0; i < numItemThreads; i++) {
+            final int lo = i * loadPerThread;
+            final int hi = Math.min(this.num_users, (i + 1) * loadPerThread);
 
-            @Override
-            public void beforeLoad() {
-                try {
-                    userLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+            threads.add(new LoaderThread(this.benchmark) {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    loadTrust(conn, lo, hi);
                 }
-            }
-        });
+
+                @Override
+                public void beforeLoad() {
+                    try {
+                        userLatch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
 
         // REVIEWS depends on USERACCT, ITEM
-        threads.add(new LoaderThread(this.benchmark) {
-            @Override
-            public void load(Connection conn) throws SQLException {
-                loadReviews(conn);
-            }
+        for (int i = 0; i < numItemThreads; i++) {
+            final int lo = i * loadPerThread;
+            final int hi = Math.min(this.num_items, (i + 1) * loadPerThread);
 
-            @Override
-            public void beforeLoad() {
-                try {
-                    userLatch.await();
-                    itemLatch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+            threads.add(new LoaderThread(this.benchmark) {
+                @Override
+                public void load(Connection conn) throws SQLException {
+                    loadReviews(conn, lo, hi);
                 }
-            }
-        });
+
+                @Override
+                public void beforeLoad() {
+                    try {
+                        userLatch.await();
+                        itemLatch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
 
         return threads;
     }
@@ -148,17 +157,20 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      */
     private void loadUsers(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getCatalog().getTable("useracct");
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         int total = 0;
         int batch = 0;
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
-
+            long timestamp = System.currentTimeMillis();
             for (int i = lo; i < hi; i++) {
                 String name = TextGenerator.randomStr(rng(), EpinionsConstants.NAME_LENGTH);
+                String email = TextGenerator.randomStr(rng(), EpinionsConstants.EMAIL_LENGTH);
+
                 userInsert.setInt(1, i);
                 userInsert.setString(2, name);
+                userInsert.setString(3, email);
+                userInsert.setTimestamp(4, new Timestamp(timestamp));
                 userInsert.addBatch();
                 total++;
 
@@ -187,18 +199,22 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      */
     private void loadItems(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getCatalog().getTable("item");
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         int total = 0;
         int batch = 0;
         try (PreparedStatement itemInsert = conn.prepareStatement(sql)) {
-
+            ZipfianGenerator descLength = new ZipfianGenerator(rng(), EpinionsConstants.DESCRIPTION_LENGTH);
+            long timestamp = System.currentTimeMillis();
 
             for (int i = lo; i < hi; i++) {
                 String title = TextGenerator.randomStr(rng(), EpinionsConstants.TITLE_LENGTH);
+                String desc = TextGenerator.randomStr(rng(), descLength.nextInt());
+
                 itemInsert.setInt(1, i);
                 itemInsert.setString(2, title);
+                itemInsert.setString(3, desc);
+                itemInsert.setTimestamp(4, new Timestamp(timestamp));
                 itemInsert.addBatch();
                 total++;
 
@@ -229,38 +245,39 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * num_users and added to reviewers list. Note: the selection is
      * based on Zipfian distribution.
      */
-    private void loadReviews(Connection conn) throws SQLException {
+    private void loadReviews(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getCatalog().getTable("review");
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         int total = 0;
         int batch = 0;
 
         try (PreparedStatement reviewInsert = conn.prepareStatement(sql)) {
+            ZipfianGenerator numReviews = new ZipfianGenerator(rng(), num_reviews, 1.8);
+            ZipfianGenerator reviewer = new ZipfianGenerator(rng(), num_users);
+            ZipfianGenerator commentLength = new ZipfianGenerator(rng(), EpinionsConstants.COMMENT_LENGTH - EpinionsConstants.COMMENT_MIN_LENGTH);
+            Set<Integer> reviewers = new HashSet<>();
 
-            ZipfianGenerator numReviews = new ZipfianGenerator(num_reviews, 1.8);
-            ZipfianGenerator reviewer = new ZipfianGenerator(num_users);
+            for (int i = lo; i < hi; i++) {
+                // make sure each item has at least one review
+                int review_count = numReviews.nextInt() + 1;
+                long timestamp = System.currentTimeMillis();
 
-            for (int i = 0; i < num_items; i++) {
-                List<Integer> reviewers = new ArrayList<>();
-                int review_count = numReviews.nextInt();
-                if (review_count == 0) {
-                    review_count = 1; // make sure at least each item has a review
-                }
                 for (int rc = 0; rc < review_count; ) {
                     int u_id = reviewer.nextInt();
                     if (!reviewers.contains(u_id)) {
-                        rc++;
+                        String comment = TextGenerator.randomStr(rng(), commentLength.nextInt() + EpinionsConstants.COMMENT_MIN_LENGTH);
                         reviewInsert.setInt(1, total);
                         reviewInsert.setInt(2, u_id);
                         reviewInsert.setInt(3, i);
-                        reviewInsert.setInt(4, new Random().nextInt(5));// rating
+                        reviewInsert.setInt(4, rng().nextInt(5));// rating
                         reviewInsert.setNull(5, java.sql.Types.INTEGER);
+                        reviewInsert.setString(6, comment);
+                        reviewInsert.setTimestamp(7, new Timestamp(timestamp));
                         reviewInsert.addBatch();
                         reviewers.add(u_id);
                         total++;
-
+                        rc++;
                         if ((++batch % workConf.getBatchSize()) == 0) {
                             reviewInsert.executeBatch();
                             batch = 0;
@@ -271,6 +288,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         }
                     }
                 }
+                reviewers.clear();
             }
             if (batch > 0) {
                 reviewInsert.executeBatch();
@@ -291,23 +309,20 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
      * Zipfian distribution Trusted users are not correlated to heavy
      * reviewers (drawn using a scrambled distribution)
      */
-    public void loadTrust(Connection conn) throws SQLException {
+    public void loadTrust(Connection conn, int lo, int hi) throws SQLException {
         Table catalog_tbl = this.benchmark.getCatalog().getTable("trust");
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         int total = 0;
         int batch = 0;
 
         try (PreparedStatement trustInsert = conn.prepareStatement(sql)) {
-
-            //
-
-            ZipfianGenerator numTrust = new ZipfianGenerator(num_trust, 1.95);
+            ZipfianGenerator numTrust = new ZipfianGenerator(rng(), num_trust, 1.95);
             ScrambledZipfianGenerator reviewed = new ScrambledZipfianGenerator(num_users);
-            Random isTrusted = new Random(System.currentTimeMillis());
-            for (int i = 0; i < num_users; i++) {
-                List<Integer> trusted = new ArrayList<>();
+            Set<Integer> trusted = new HashSet<>();
+
+            for (int i = lo; i < hi; i++) {
+                long timestamp = System.currentTimeMillis();
                 int trust_count = numTrust.nextInt();
                 for (int tc = 0; tc < trust_count; ) {
                     int u_id = reviewed.nextInt();
@@ -315,8 +330,8 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         tc++;
                         trustInsert.setInt(1, i);
                         trustInsert.setInt(2, u_id);
-                        trustInsert.setInt(3, isTrusted.nextInt(2));
-                        trustInsert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+                        trustInsert.setInt(3, rng().nextInt(2));
+                        trustInsert.setDate(4, new java.sql.Date(timestamp));
                         trustInsert.addBatch();
                         trusted.add(u_id);
                         total++;
@@ -332,6 +347,7 @@ public class EpinionsLoader extends Loader<EpinionsBenchmark> {
                         }
                     }
                 }
+                trusted.clear();
             }
             if (batch > 0) {
                 trustInsert.executeBatch();

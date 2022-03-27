@@ -29,7 +29,7 @@ public class GetReviewItemById extends Procedure {
 
     public final SQLStmt getReviewItem = new SQLStmt(
             "SELECT * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=? " +
-                    "ORDER BY rating LIMIT 10;"
+                    "ORDER BY rating DESC, r.creation_date DESC LIMIT 10;"
     );
 
     public void run(Connection conn, long iid) throws SQLException {
