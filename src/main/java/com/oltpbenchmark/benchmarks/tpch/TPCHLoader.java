@@ -36,21 +36,13 @@ import com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator;
 import com.oltpbenchmark.benchmarks.tpch.util.CustomerGenerator;
 import com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator;
 import com.oltpbenchmark.benchmarks.tpch.util.SupplierGenerator;
-import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.catalog.Table;
-import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
     public TPCHLoader(TPCHBenchmark benchmark) {
