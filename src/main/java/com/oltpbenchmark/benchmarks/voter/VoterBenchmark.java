@@ -33,7 +33,7 @@ public class VoterBenchmark extends BenchmarkModule {
     public VoterBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
 
-        int contestants = Math.min(1, (int) Math.round(VoterConstants.NUM_CONTESTANTS * workConf.getScaleFactor()));
+        int contestants = Math.max(1, (int) Math.round(VoterConstants.NUM_CONTESTANTS * workConf.getScaleFactor()));
         if (contestants > VoterConstants.CONTESTANT_NAMES.length) {
             contestants = VoterConstants.CONTESTANT_NAMES.length;
         }
