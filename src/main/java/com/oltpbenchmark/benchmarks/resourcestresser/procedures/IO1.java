@@ -49,7 +49,7 @@ public class IO1 extends Procedure {
         int startingKey = myId * keyRange;
 
         for (int up = 0; up < howManyUpdatesPerTransaction; ++up) {
-            int leftKey = ResourceStresserWorker.gen.nextInt(keyRange - howManyRowsPerUpdate) + startingKey;
+            int leftKey = ResourceStresserWorker.gen.nextInt(Math.max(1, keyRange - howManyRowsPerUpdate)) + startingKey;
             int rightKey = leftKey + howManyRowsPerUpdate;
 
             try (PreparedStatement stmt = this.getPreparedStatement(conn, ioUpdate)) {

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="HSQLDB">
+        <procedure name="CPU1">
+            <statement name="cpuSelect">
+                <![CDATA[SELECT count(*) FROM (SELECT concat(concat(concat(concat(concat(passwd,?),?),?),?),?) FROM cputable WHERE empid >= 0 AND empid < 100) AS T1]]>
+            </statement>
+        </procedure>
+        <procedure name="CPU2">
+            <statement name="cpuSelect">
+                <![CDATA[SELECT count(*) FROM (SELECT concat(concat(concat(concat(concat(passwd,?),?),?),?),?) FROM cputable WHERE empid >= 0 AND empid < 100) AS T2]]>
+            </statement>
+        </procedure>
+        <procedure name="Contention1">
+            <statement name="lockSleep">
+                select 1 from locktable where empid = ?
+            </statement>
+        </procedure>
+        <procedure name="Contention2">
+            <statement name="lockSleep">
+                select 1 from locktable where empid = ?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

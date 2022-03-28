@@ -18,9 +18,11 @@ package com.oltpbenchmark.benchmarks.chbenchmark;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
+import org.junit.Ignore;
 
 import java.util.HashSet;
 
+@Ignore("the testcase is under development")
 public class TestCHBenCHmarkLoader extends AbstractTestLoader<CHBenCHmark> {
 
     @Override

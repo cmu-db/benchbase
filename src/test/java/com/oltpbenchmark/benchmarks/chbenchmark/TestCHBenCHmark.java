@@ -19,10 +19,12 @@ package com.oltpbenchmark.benchmarks.chbenchmark;
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.*;
+import org.junit.Ignore;
 
 import java.util.HashSet;
 import java.util.List;
 
+@Ignore("the testcase is under development")
 public class TestCHBenCHmark extends AbstractTestBenchmarkModule<CHBenCHmark> {
 
     public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
