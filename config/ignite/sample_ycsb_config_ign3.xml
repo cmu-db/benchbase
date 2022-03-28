@@ -2,9 +2,8 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>ignite3</type>
+    <type>IGNITE3</type>
     <driver>org.apache.ignite.jdbc.IgniteJdbcDriver</driver>
-<!--    <driver>java.sql.Driver</driver>-->
     <url>jdbc:ignite:thin://127.0.0.1:10800</url>
 
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
@@ -15,6 +14,7 @@
     <works>
         <work>
             <time>60</time>
+            <warmup>10</warmup>
             <rate>10000</rate>
             <weights>50,15,15,10,10</weights>
         </work>

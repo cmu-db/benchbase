@@ -160,9 +160,9 @@ public class OrderStatus extends TPCCProcedure {
             // find the newest order for the customer
             // retrieve the carrier & order date for the most recent order.
 
-            ordStatGetNewestOrd.setInt(1, w_id);
-            ordStatGetNewestOrd.setInt(2, d_id);
-            ordStatGetNewestOrd.setInt(3, c.c_id);
+            ordStatGetNewestOrd.setLong(1, w_id);
+            ordStatGetNewestOrd.setLong(2, d_id);
+            ordStatGetNewestOrd.setLong(3, c.c_id);
 
             try (ResultSet rs = ordStatGetNewestOrd.executeQuery()) {
 
@@ -184,9 +184,9 @@ public class OrderStatus extends TPCCProcedure {
         List<String> orderLines = new ArrayList<>();
 
         try (PreparedStatement ordStatGetOrderLines = this.getPreparedStatement(conn, ordStatGetOrderLinesSQL)) {
-            ordStatGetOrderLines.setInt(1, o_id);
-            ordStatGetOrderLines.setInt(2, d_id);
-            ordStatGetOrderLines.setInt(3, w_id);
+            ordStatGetOrderLines.setLong(1, o_id);
+            ordStatGetOrderLines.setLong(2, d_id);
+            ordStatGetOrderLines.setLong(3, w_id);
 
             try (ResultSet rs = ordStatGetOrderLines.executeQuery()) {
 
@@ -227,9 +227,9 @@ public class OrderStatus extends TPCCProcedure {
 
         try (PreparedStatement payGetCust = this.getPreparedStatement(conn, payGetCustSQL)) {
 
-            payGetCust.setInt(1, c_w_id);
-            payGetCust.setInt(2, c_d_id);
-            payGetCust.setInt(3, c_id);
+            payGetCust.setLong(1, c_w_id);
+            payGetCust.setLong(2, c_d_id);
+            payGetCust.setLong(3, c_id);
 
             try (ResultSet rs = payGetCust.executeQuery()) {
 
@@ -254,8 +254,8 @@ public class OrderStatus extends TPCCProcedure {
 
         try (PreparedStatement customerByName = this.getPreparedStatement(conn, customerByNameSQL)) {
 
-            customerByName.setInt(1, c_w_id);
-            customerByName.setInt(2, c_d_id);
+            customerByName.setLong(1, c_w_id);
+            customerByName.setLong(2, c_d_id);
             customerByName.setString(3, c_last);
 
             try (ResultSet rs = customerByName.executeQuery()) {

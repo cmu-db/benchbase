@@ -23,6 +23,7 @@ import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Random;
 
 import static com.oltpbenchmark.benchmarks.tpcc.TPCCConfig.*;
@@ -55,7 +56,7 @@ public class TPCCUtil {
         c.c_balance = rs.getFloat("c_balance");
         c.c_ytd_payment = rs.getFloat("c_ytd_payment");
         c.c_payment_cnt = rs.getInt("c_payment_cnt");
-        c.c_since = rs.getTimestamp("c_since");
+        c.c_since = new Timestamp(rs.getLong("c_since"));
         return c;
     }
 

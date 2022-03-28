@@ -48,7 +48,7 @@ public class NewOrder extends TPCCProcedure {
     public final SQLStmt stmtGetDistSQL = new SQLStmt(
             "SELECT D_NEXT_O_ID, D_TAX " +
             "  FROM " + TPCCConstants.TABLENAME_DISTRICT +
-            " WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE");
+            " WHERE D_W_ID = ? AND D_ID = ?");
 
     public final SQLStmt stmtInsertNewOrderSQL = new SQLStmt(
             "INSERT INTO " + TPCCConstants.TABLENAME_NEWORDER +
@@ -76,7 +76,7 @@ public class NewOrder extends TPCCProcedure {
             "       S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10" +
             "  FROM " + TPCCConstants.TABLENAME_STOCK +
             " WHERE S_I_ID = ? " +
-            "   AND S_W_ID = ? FOR UPDATE");
+            "   AND S_W_ID = ?");
 
     public final SQLStmt stmtUpdateStockSQL = new SQLStmt(
             "UPDATE " + TPCCConstants.TABLENAME_STOCK +
@@ -162,13 +162,13 @@ public class NewOrder extends TPCCProcedure {
 
                 String ol_dist_info = getDistInfo(d_id, s);
 
-                stmtInsertOrderLine.setInt(1, d_next_o_id);
-                stmtInsertOrderLine.setInt(2, d_id);
-                stmtInsertOrderLine.setInt(3, w_id);
+                stmtInsertOrderLine.setLong(1, d_next_o_id);
+                stmtInsertOrderLine.setLong(2, d_id);
+                stmtInsertOrderLine.setLong(3, w_id);
                 stmtInsertOrderLine.setInt(4, ol_number);
-                stmtInsertOrderLine.setInt(5, ol_i_id);
-                stmtInsertOrderLine.setInt(6, ol_supply_w_id);
-                stmtInsertOrderLine.setInt(7, ol_quantity);
+                stmtInsertOrderLine.setLong(5, ol_i_id);
+                stmtInsertOrderLine.setLong(6, ol_supply_w_id);
+                stmtInsertOrderLine.setDouble(7, ol_quantity);
                 stmtInsertOrderLine.setDouble(8, ol_amount);
                 stmtInsertOrderLine.setString(9, ol_dist_info);
                 stmtInsertOrderLine.addBatch();
@@ -181,11 +181,11 @@ public class NewOrder extends TPCCProcedure {
                     s_remote_cnt_increment = 1;
                 }
 
-                stmtUpdateStock.setInt(1, s.s_quantity);
-                stmtUpdateStock.setInt(2, ol_quantity);
-                stmtUpdateStock.setInt(3, s_remote_cnt_increment);
-                stmtUpdateStock.setInt(4, ol_i_id);
-                stmtUpdateStock.setInt(5, ol_supply_w_id);
+                stmtUpdateStock.setLong(1, s.s_quantity);
+                stmtUpdateStock.setDouble(2, ol_quantity);
+                stmtUpdateStock.setLong(3, s_remote_cnt_increment);
+                stmtUpdateStock.setLong(4, ol_i_id);
+                stmtUpdateStock.setLong(5, ol_supply_w_id);
                 stmtUpdateStock.addBatch();
 
             }
@@ -229,8 +229,8 @@ public class NewOrder extends TPCCProcedure {
 
     private Stock getStock(Connection conn, int ol_supply_w_id, int ol_i_id, int ol_quantity) throws SQLException {
         try (PreparedStatement stmtGetStock = this.getPreparedStatement(conn, stmtGetStockSQL)) {
-            stmtGetStock.setInt(1, ol_i_id);
-            stmtGetStock.setInt(2, ol_supply_w_id);
+            stmtGetStock.setLong(1, ol_i_id);
+            stmtGetStock.setLong(2, ol_supply_w_id);
             try (ResultSet rs = stmtGetStock.executeQuery()) {
                 if (!rs.next()) {
                     throw new RuntimeException("S_I_ID=" + ol_i_id + " not found!");
@@ -261,7 +261,7 @@ public class NewOrder extends TPCCProcedure {
 
     private float getItemPrice(Connection conn, int ol_i_id) throws SQLException {
         try (PreparedStatement stmtGetItem = this.getPreparedStatement(conn, stmtGetItemSQL)) {
-            stmtGetItem.setInt(1, ol_i_id);
+            stmtGetItem.setLong(1, ol_i_id);
             try (ResultSet rs = stmtGetItem.executeQuery()) {
                 if (!rs.next()) {
                     // This is (hopefully) an expected error: this is an expected new order rollback
@@ -275,9 +275,9 @@ public class NewOrder extends TPCCProcedure {
 
     private void insertNewOrder(Connection conn, int w_id, int d_id, int o_id) throws SQLException {
         try (PreparedStatement stmtInsertNewOrder = this.getPreparedStatement(conn, stmtInsertNewOrderSQL);) {
-            stmtInsertNewOrder.setInt(1, o_id);
-            stmtInsertNewOrder.setInt(2, d_id);
-            stmtInsertNewOrder.setInt(3, w_id);
+            stmtInsertNewOrder.setLong(1, o_id);
+            stmtInsertNewOrder.setLong(2, d_id);
+            stmtInsertNewOrder.setLong(3, w_id);
             int result = stmtInsertNewOrder.executeUpdate();
 
             if (result == 0) {
@@ -288,11 +288,11 @@ public class NewOrder extends TPCCProcedure {
 
     private void insertOpenOrder(Connection conn, int w_id, int d_id, int c_id, int o_ol_cnt, int o_all_local, int o_id) throws SQLException {
         try (PreparedStatement stmtInsertOOrder = this.getPreparedStatement(conn, stmtInsertOOrderSQL);) {
-            stmtInsertOOrder.setInt(1, o_id);
-            stmtInsertOOrder.setInt(2, d_id);
-            stmtInsertOOrder.setInt(3, w_id);
-            stmtInsertOOrder.setInt(4, c_id);
-            stmtInsertOOrder.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+            stmtInsertOOrder.setLong(1, o_id);
+            stmtInsertOOrder.setLong(2, d_id);
+            stmtInsertOOrder.setLong(3, w_id);
+            stmtInsertOOrder.setLong(4, c_id);
+            stmtInsertOOrder.setLong(5, new Timestamp(System.currentTimeMillis()).getTime());
             stmtInsertOOrder.setInt(6, o_ol_cnt);
             stmtInsertOOrder.setInt(7, o_all_local);
 
@@ -306,8 +306,8 @@ public class NewOrder extends TPCCProcedure {
 
     private void updateDistrict(Connection conn, int w_id, int d_id) throws SQLException {
         try (PreparedStatement stmtUpdateDist = this.getPreparedStatement(conn, stmtUpdateDistSQL)) {
-            stmtUpdateDist.setInt(1, w_id);
-            stmtUpdateDist.setInt(2, d_id);
+            stmtUpdateDist.setLong(1, w_id);
+            stmtUpdateDist.setLong(2, d_id);
             int result = stmtUpdateDist.executeUpdate();
             if (result == 0) {
                 throw new RuntimeException("Error!! Cannot update next_order_id on district for D_ID=" + d_id + " D_W_ID=" + w_id);
@@ -317,8 +317,8 @@ public class NewOrder extends TPCCProcedure {
 
     private int getDistrict(Connection conn, int w_id, int d_id) throws SQLException {
         try (PreparedStatement stmtGetDist = this.getPreparedStatement(conn, stmtGetDistSQL)) {
-            stmtGetDist.setInt(1, w_id);
-            stmtGetDist.setInt(2, d_id);
+            stmtGetDist.setLong(1, w_id);
+            stmtGetDist.setLong(2, d_id);
             try (ResultSet rs = stmtGetDist.executeQuery()) {
                 if (!rs.next()) {
                     throw new RuntimeException("D_ID=" + d_id + " D_W_ID=" + w_id + " not found!");
@@ -330,7 +330,7 @@ public class NewOrder extends TPCCProcedure {
 
     private void getWarehouse(Connection conn, int w_id) throws SQLException {
         try (PreparedStatement stmtGetWhse = this.getPreparedStatement(conn, stmtGetWhseSQL)) {
-            stmtGetWhse.setInt(1, w_id);
+            stmtGetWhse.setLong(1, w_id);
             try (ResultSet rs = stmtGetWhse.executeQuery()) {
                 if (!rs.next()) {
                     throw new RuntimeException("W_ID=" + w_id + " not found!");
@@ -341,9 +341,9 @@ public class NewOrder extends TPCCProcedure {
 
     private void getCustomer(Connection conn, int w_id, int d_id, int c_id) throws SQLException {
         try (PreparedStatement stmtGetCust = this.getPreparedStatement(conn, stmtGetCustSQL)) {
-            stmtGetCust.setInt(1, w_id);
-            stmtGetCust.setInt(2, d_id);
-            stmtGetCust.setInt(3, c_id);
+            stmtGetCust.setLong(1, w_id);
+            stmtGetCust.setLong(2, d_id);
+            stmtGetCust.setLong(3, c_id);
             try (ResultSet rs = stmtGetCust.executeQuery()) {
                 if (!rs.next()) {
                     throw new RuntimeException("C_D_ID=" + d_id + " C_ID=" + c_id + " not found!");

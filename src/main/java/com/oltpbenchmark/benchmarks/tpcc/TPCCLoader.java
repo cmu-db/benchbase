@@ -29,15 +29,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TPC-C Benchmark Loader
  */
 public class TPCCLoader extends Loader<TPCCBenchmark> {
 
-    private static final int FIRST_UNPROCESSED_O_ID = 2101;
+    private static final int FIRST_UNPROCESSED_O_ID = 22;//2101;
 
     private final long numWarehouses;
+
+    private final AtomicLong custHistIdGen = new AtomicLong(0L);
 
     public TPCCLoader(TPCCBenchmark benchmark) {
         super(benchmark);
@@ -412,7 +415,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                     custPrepStmt.setString(idx++, customer.c_state);
                     custPrepStmt.setString(idx++, customer.c_zip);
                     custPrepStmt.setString(idx++, customer.c_phone);
-                    custPrepStmt.setTimestamp(idx++, customer.c_since);
+                    custPrepStmt.setLong(idx++, customer.c_since.getTime());
                     custPrepStmt.setString(idx++, customer.c_middle);
                     custPrepStmt.setString(idx, customer.c_data);
                     custPrepStmt.addBatch();
@@ -457,12 +460,13 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 
                     int idx = 1;
-                    histPrepStmt.setInt(idx++, history.h_c_id);
-                    histPrepStmt.setInt(idx++, history.h_c_d_id);
-                    histPrepStmt.setInt(idx++, history.h_c_w_id);
-                    histPrepStmt.setInt(idx++, history.h_d_id);
-                    histPrepStmt.setInt(idx++, history.h_w_id);
-                    histPrepStmt.setTimestamp(idx++, history.h_date);
+                    histPrepStmt.setLong(idx++, custHistIdGen.getAndIncrement());
+                    histPrepStmt.setLong(idx++, history.h_c_id);
+                    histPrepStmt.setLong(idx++, history.h_c_d_id);
+                    histPrepStmt.setLong(idx++, history.h_c_w_id);
+                    histPrepStmt.setLong(idx++, history.h_d_id);
+                    histPrepStmt.setLong(idx++, history.h_w_id);
+                    histPrepStmt.setLong(idx++, history.h_date.getTime());
                     histPrepStmt.setDouble(idx++, history.h_amount);
                     histPrepStmt.setString(idx, history.h_data);
                     histPrepStmt.addBatch();
@@ -528,18 +532,18 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 
                     int idx = 1;
-                    openOrderStatement.setInt(idx++, oorder.o_w_id);
-                    openOrderStatement.setInt(idx++, oorder.o_d_id);
-                    openOrderStatement.setInt(idx++, oorder.o_id);
-                    openOrderStatement.setInt(idx++, oorder.o_c_id);
+                    openOrderStatement.setLong(idx++, oorder.o_w_id);
+                    openOrderStatement.setLong(idx++, oorder.o_d_id);
+                    openOrderStatement.setLong(idx++, oorder.o_id);
+                    openOrderStatement.setLong(idx++, oorder.o_c_id);
                     if (oorder.o_carrier_id != null) {
-                        openOrderStatement.setInt(idx++, oorder.o_carrier_id);
+                        openOrderStatement.setLong(idx++, oorder.o_carrier_id);
                     } else {
                         openOrderStatement.setNull(idx++, Types.INTEGER);
                     }
                     openOrderStatement.setInt(idx++, oorder.o_ol_cnt);
                     openOrderStatement.setInt(idx++, oorder.o_all_local);
-                    openOrderStatement.setTimestamp(idx, oorder.o_entry_d);
+                    openOrderStatement.setLong(idx, oorder.o_entry_d.getTime());
                     openOrderStatement.addBatch();
 
                     k++;
@@ -593,9 +597,9 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         new_order.no_o_id = c;
 
                         int idx = 1;
-                        newOrderStatement.setInt(idx++, new_order.no_w_id);
-                        newOrderStatement.setInt(idx++, new_order.no_d_id);
-                        newOrderStatement.setInt(idx, new_order.no_o_id);
+                        newOrderStatement.setLong(idx++, new_order.no_w_id);
+                        newOrderStatement.setLong(idx++, new_order.no_d_id);
+                        newOrderStatement.setLong(idx, new_order.no_o_id);
                         newOrderStatement.addBatch();
 
                         k++;
@@ -651,13 +655,13 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         order_line.ol_dist_info = TPCCUtil.randomStr(24);
 
                         int idx = 1;
-                        orderLineStatement.setInt(idx++, order_line.ol_w_id);
-                        orderLineStatement.setInt(idx++, order_line.ol_d_id);
-                        orderLineStatement.setInt(idx++, order_line.ol_o_id);
+                        orderLineStatement.setLong(idx++, order_line.ol_w_id);
+                        orderLineStatement.setLong(idx++, order_line.ol_d_id);
+                        orderLineStatement.setLong(idx++, order_line.ol_o_id);
                         orderLineStatement.setInt(idx++, order_line.ol_number);
                         orderLineStatement.setLong(idx++, order_line.ol_i_id);
                         if (order_line.ol_delivery_d != null) {
-                            orderLineStatement.setTimestamp(idx++, order_line.ol_delivery_d);
+                            orderLineStatement.setLong(idx++, order_line.ol_delivery_d.getTime());
                         } else {
                             orderLineStatement.setNull(idx++, 0);
                         }
