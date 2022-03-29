@@ -58,7 +58,7 @@ public class Q7 extends GenericQuery {
                     + "(n1.n_name = ? and n2.n_name = ?) "
                     + "or (n1.n_name = ? and n2.n_name = ?) "
                     + ") "
-                    + "and l_shipdate between date '1995-01-01' and date '1996-12-31' "
+                    + "and l_shipdate between 788904000000 and 851972400000 "//between date '1995-01-01' and date '1996-12-31' "
                     + ") as shipping "
                     + "group by "
                     + "supp_nation, "

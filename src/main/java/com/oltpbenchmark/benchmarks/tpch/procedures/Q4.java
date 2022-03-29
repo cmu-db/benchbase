@@ -35,7 +35,7 @@ public class Q4 extends GenericQuery {
                     + "orders "
                     + "where "
                     + "o_orderdate >= date ? "
-                    + "and o_orderdate < date ? + interval '3' month "
+                    + "and o_orderdate < ? + 3 * 30 * 86400000"//date ? + interval '3' month "
                     + "and exists ( "
                     + "select "
                     + "* "
@@ -58,8 +58,8 @@ public class Q4 extends GenericQuery {
         String date = String.format("%d-%02d-01", year, month);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setDate(1, Date.valueOf(date));
-        stmt.setDate(2, Date.valueOf(date));
+        stmt.setLong(1, Date.valueOf(date).getTime());
+        stmt.setLong(2, Date.valueOf(date).getTime());
         return stmt;
     }
 }

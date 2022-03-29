@@ -515,7 +515,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                             } else {
                                 throw new RuntimeException("Unrecognized date \"" + field + "\" in CSV file: " + file.getPath());
                             }
-                            prepStmt.setDate(i + 1, fieldAsDate, null);
+                            prepStmt.setLong(i + 1, fieldAsDate.getTime());
                             break;
                         default:
                             throw new RuntimeException("Unrecognized type for prepared statement");

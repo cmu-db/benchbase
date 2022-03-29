@@ -43,8 +43,8 @@ public class Q3 extends GenericQuery {
                     + "c_mktsegment = ? "
                     + "and c_custkey = o_custkey "
                     + "and l_orderkey = o_orderkey "
-                    + "and o_orderdate < date ? "
-                    + "and l_shipdate > date ? "
+                    + "and o_orderdate < ?"//date ? "
+                    + "and l_shipdate > ?"//date ? "
                     + "group by "
                     + "l_orderkey, "
                     + "o_orderdate, "
@@ -68,5 +68,11 @@ public class Q3 extends GenericQuery {
         stmt.setDate(2, Date.valueOf(date));
         stmt.setDate(3, Date.valueOf(date));
         return stmt;
+    }
+
+    public static void main(String[] args) {
+        int day = 22;
+        String date = String.format("1995-03-%02d", day);
+        System.out.println(Date.valueOf(date).getTime());
     }
 }

@@ -39,8 +39,8 @@ public class Q14 extends GenericQuery {
                     + "part "
                     + "where "
                     + "l_partkey = p_partkey "
-                    + "and l_shipdate >= date ? "
-                    + "and l_shipdate < date ? + interval '1' month"
+                    + "and l_shipdate >= ? " //date ? "
+                    + "and l_shipdate < ? + 30 * 86400000 " //date ? + interval '1' month"
     );
 
     @Override
@@ -51,8 +51,8 @@ public class Q14 extends GenericQuery {
         String date = String.format("%d-%02d-01", year, month);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setDate(1, Date.valueOf(date));
-        stmt.setDate(2, Date.valueOf(date));
+        stmt.setLong(1, Date.valueOf(date).getTime());
+        stmt.setLong(2, Date.valueOf(date).getTime());
         return stmt;
     }
 }

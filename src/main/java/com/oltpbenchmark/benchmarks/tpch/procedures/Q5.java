@@ -48,8 +48,8 @@ public class Q5 extends GenericQuery {
                     + "and s_nationkey = n_nationkey "
                     + "and n_regionkey = r_regionkey "
                     + "and r_name = ? "
-                    + "and o_orderdate >= date ? "
-                    + "and o_orderdate < date ? + interval '1' year "
+                    + "and o_orderdate >= ?"//date ? "
+                    + "and o_orderdate < ? + 365 * 86400000"//date ? + interval '1' year "
                     + "group by "
                     + "n_name "
                     + "order by "
@@ -65,8 +65,8 @@ public class Q5 extends GenericQuery {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, region);
-        stmt.setDate(2, Date.valueOf(date));
-        stmt.setDate(3, Date.valueOf(date));
+        stmt.setLong(2, Date.valueOf(date).getTime());
+        stmt.setLong(3, Date.valueOf(date).getTime());
         return stmt;
     }
 }

@@ -59,8 +59,8 @@ public class Q20 extends GenericQuery {
                     + "where "
                     + "l_partkey = ps_partkey "
                     + "and l_suppkey = ps_suppkey "
-                    + "and l_shipdate >= date ? "
-                    + "and l_shipdate < date ? + interval '1' year "
+                    + "and l_shipdate >= ? " //date ? "
+                    + "and l_shipdate < ? + 365 * 86400000 " //date ? + interval '1' year "
                     + ") "
                     + ") "
                     + "and s_nationkey = n_nationkey "
@@ -83,8 +83,8 @@ public class Q20 extends GenericQuery {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, color);
-        stmt.setDate(2, Date.valueOf(date));
-        stmt.setDate(3, Date.valueOf(date));
+        stmt.setLong(2, Date.valueOf(date).getTime());
+        stmt.setLong(3, Date.valueOf(date).getTime());
         stmt.setString(4, nation);
         return stmt;
     }

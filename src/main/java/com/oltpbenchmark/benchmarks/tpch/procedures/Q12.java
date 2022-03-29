@@ -52,8 +52,8 @@ public class Q12 extends GenericQuery {
                     + "and l_shipmode in (?, ?) "
                     + "and l_commitdate < l_receiptdate "
                     + "and l_shipdate < l_commitdate "
-                    + "and l_receiptdate >= date ? "
-                    + "and l_receiptdate < date ? + interval '1' year "
+                    + "and l_receiptdate >= ? " //date ? "
+                    + "and l_receiptdate < ? + 365 * 86400000 " //date ? + interval '1' year "
                     + "group by "
                     + "l_shipmode "
                     + "order by "
@@ -79,8 +79,8 @@ public class Q12 extends GenericQuery {
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, shipMode1);
         stmt.setString(2, shipMode2);
-        stmt.setDate(3, Date.valueOf(date));
-        stmt.setDate(4, Date.valueOf(date));
+        stmt.setLong(3, Date.valueOf(date).getTime());
+        stmt.setLong(4, Date.valueOf(date).getTime());
         return stmt;
     }
 }

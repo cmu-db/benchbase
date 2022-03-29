@@ -41,7 +41,7 @@ public class Q1 extends GenericQuery {
                     + "from "
                     + "lineitem "
                     + "where "
-                    + "l_shipdate <= date '1998-12-01' - interval ? day "
+                    + "l_shipdate <=  912456000000 - ? * 86400000 "//date '1998-12-01' - interval ? day "
                     + "group by "
                     + "l_returnflag, "
                     + "l_linestatus "
@@ -52,10 +52,11 @@ public class Q1 extends GenericQuery {
 
     @Override
     protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
-        String delta = String.valueOf(rand.number(60, 120));
+        //String delta = String.valueOf(rand.number(60, 120));
+        int delta = rand.number(60, 120);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setString(1, delta);
+        stmt.setInt(1, delta);
         return stmt;
     }
 }

@@ -33,8 +33,8 @@ public class Q6 extends GenericQuery {
                     + "from "
                     + "lineitem "
                     + "where "
-                    + "l_shipdate >= date ? "
-                    + "and l_shipdate < date ? + interval '1' year "
+                    + "l_shipdate >= ?"//date ? "
+                    + "and l_shipdate < ? + 365 * 86400000"//date ? + interval '1' year "
                     + "and l_discount between ? - 0.01 and ? + 0.01 "
                     + "and l_quantity < ?"
     );
@@ -52,8 +52,8 @@ public class Q6 extends GenericQuery {
         int quantity = rand.number(24, 25);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setDate(1, Date.valueOf(date));
-        stmt.setDate(2, Date.valueOf(date));
+        stmt.setLong(1, Date.valueOf(date).getTime());
+        stmt.setLong(2, Date.valueOf(date).getTime());
         stmt.setString(3, discount);
         stmt.setString(4, discount);
         stmt.setInt(5, quantity);
