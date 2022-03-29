@@ -9,6 +9,13 @@
                 ]]>
             </statement>
         </procedure>
+        <procedure name="Q3">
+            <statement name="query_stmt">
+                <![CDATA[
+                select l_orderkey, sum(l_extendedprice * (1 - l_discount)) as revenue, o_orderdate, o_shippriority from customer, orders, lineitem where c_mktsegment = ? and c_custkey = o_custkey and l_orderkey = o_orderkey and o_orderdate < cast(? as date) and l_shipdate > cast(? as date) group by l_orderkey, o_orderdate, o_shippriority order by revenue desc, o_orderdate limit 10
+                ]]>
+            </statement>
+        </procedure>
         <procedure name="Q4">
             <statement name="query_stmt">
                 <![CDATA[
@@ -40,7 +47,7 @@
         <procedure name="Q12">
             <statement name="query_stmt">
                 <![CDATA[
-                select l_shipmode, sum(case when o_orderpriority = '1-URGENT' or o_orderpriority = '2-HIGH' then 1 else 0 end) as high_line_count, sum(case when o_orderpriority <> '1-URGENT' and o_orderpriority <> '2-HIGH' then 1 else 0 end) as low_line_count fromorders,lineitem where o_orderkey = l_orderkey and l_shipmode in (?, ?) and l_commitdate < l_receiptdate and l_shipdate < l_commitdate and l_receiptdate >= cast(? as date) and l_receiptdate < cast(? as date) + interval '1' year group by l_shipmode order by l_shipmode
+                select l_shipmode, sum(case when o_orderpriority = '1-URGENT' or o_orderpriority = '2-HIGH' then 1 else 0 end) as high_line_count, sum(case when o_orderpriority <> '1-URGENT' and o_orderpriority <> '2-HIGH' then 1 else 0 end) as low_line_count from orders,lineitem where o_orderkey = l_orderkey and l_shipmode in (?, ?) and l_commitdate < l_receiptdate and l_shipdate < l_commitdate and l_receiptdate >= cast(? as date) and l_receiptdate < cast(? as date) + interval '1' year group by l_shipmode order by l_shipmode
                 ]]>
             </statement>
         </procedure>
