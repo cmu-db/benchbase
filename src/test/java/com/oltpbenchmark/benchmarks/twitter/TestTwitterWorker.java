@@ -2,9 +2,11 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
+import org.junit.Ignore;
 
 import java.util.HashSet;
 
+@Ignore("the testcase is under development")
 public class TestTwitterWorker extends AbstractTestWorker<TwitterBenchmark> {
 
     @Override
