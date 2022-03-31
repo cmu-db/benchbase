@@ -19,12 +19,12 @@ package com.oltpbenchmark.benchmarks.smallbank;
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
+import java.util.List;
 
 public class TestSmallBankWorker extends AbstractTestWorker<SmallBankBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestSmallBankBenchmark.PROCEDURE_CLASSES;
     }
 

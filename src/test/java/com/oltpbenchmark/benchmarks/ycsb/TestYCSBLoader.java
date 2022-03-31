@@ -19,12 +19,12 @@ package com.oltpbenchmark.benchmarks.ycsb;
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
+import java.util.List;
 
 public class TestYCSBLoader extends AbstractTestLoader<YCSBBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestYCSBBenchmark.PROCEDURE_CLASSES;
     }
 

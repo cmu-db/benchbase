@@ -21,22 +21,21 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.*;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestYCSBBenchmark extends AbstractTestBenchmarkModule<YCSBBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             DeleteRecord.class,
             InsertRecord.class,
             ReadModifyWriteRecord.class,
             ReadRecord.class,
             ScanRecord.class,
             UpdateRecord.class
-    ));
+    );
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestYCSBBenchmark.PROCEDURE_CLASSES;
     }
 

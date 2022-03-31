@@ -21,6 +21,7 @@ import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import junit.framework.TestCase;
+import org.hsqldb.Database;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.slf4j.Logger;
@@ -29,12 +30,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractTestCase.class);
+    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     // -----------------------------------------------------------------
 
@@ -66,7 +66,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.loadDatabase = loadDatabase;
     }
 
-    public abstract HashSet<Class<? extends Procedure>> procedures();
+    public abstract List<Class<? extends Procedure>> procedures();
 
     public abstract Class<T> benchmarkClass();
 
@@ -161,11 +161,16 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     private void cleanupServer() {
         if (server != null) {
+
+            LOG.info("shutting down catalogs...");
+            server.shutdownCatalogs(Database.CLOSEMODE_NORMAL);
+
             LOG.info("stopping server...");
             server.stop();
 
             LOG.info("shutting down server...");
             server.shutdown();
+
         }
     }
 }

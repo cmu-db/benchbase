@@ -23,22 +23,21 @@ import com.oltpbenchmark.benchmarks.seats.procedures.*;
 import com.oltpbenchmark.catalog.Table;
 
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.List;
 
 public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             DeleteReservation.class,
             FindFlights.class,
             FindOpenSeats.class,
             NewReservation.class,
             UpdateCustomer.class,
             UpdateReservation.class
-    ));
+    );
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestSEATSBenchmark.PROCEDURE_CLASSES;
     }
 

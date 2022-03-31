@@ -21,12 +21,11 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.tpch.procedures.*;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestTPCHBenchmark extends AbstractTestBenchmarkModule<TPCHBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             Q1.class,
             Q2.class,
             Q3.class,
@@ -48,10 +47,10 @@ public class TestTPCHBenchmark extends AbstractTestBenchmarkModule<TPCHBenchmark
             Q19.class,
             Q20.class,
             Q21.class,
-            Q22.class));
+            Q22.class);
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestTPCHBenchmark.PROCEDURE_CLASSES;
     }
 

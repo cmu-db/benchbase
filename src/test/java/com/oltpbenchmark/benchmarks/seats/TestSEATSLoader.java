@@ -21,13 +21,12 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.util.RandomGenerator;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestSEATSBenchmark.PROCEDURE_CLASSES;
     }
 

@@ -20,7 +20,6 @@ import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 import org.junit.Ignore;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Ignore("the testcase is under development")
@@ -31,7 +30,7 @@ public class TestTwitterLoader extends AbstractTestLoader<TwitterBenchmark> {
     };
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestTwitterBenchmark.PROCEDURE_CLASSES;
     }
 

@@ -31,7 +31,7 @@ import java.util.Set;
 public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestAuctionMarkBenchmark.PROCEDURE_CLASSES;
     }
 

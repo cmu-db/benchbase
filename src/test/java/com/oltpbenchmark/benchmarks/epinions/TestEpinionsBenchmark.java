@@ -21,12 +21,11 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.epinions.procedures.*;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestEpinionsBenchmark extends AbstractTestBenchmarkModule<EpinionsBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             GetAverageRatingByTrustedUser.class,
             GetItemAverageRating.class,
             GetItemReviewsByTrustedUser.class,
@@ -35,10 +34,10 @@ public class TestEpinionsBenchmark extends AbstractTestBenchmarkModule<EpinionsB
             UpdateItemTitle.class,
             UpdateTrustRating.class,
             UpdateUserName.class
-    ));
+    );
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestEpinionsBenchmark.PROCEDURE_CLASSES;
     }
 

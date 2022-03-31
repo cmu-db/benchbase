@@ -21,13 +21,12 @@ import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.chbenchmark.queries.*;
 import org.junit.Ignore;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Ignore("the testcase is under development")
 public class TestCHBenCHmark extends AbstractTestBenchmarkModule<CHBenCHmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             Q1.class,
             Q2.class,
             Q3.class,
@@ -49,10 +48,10 @@ public class TestCHBenCHmark extends AbstractTestBenchmarkModule<CHBenCHmark> {
             Q19.class,
             Q20.class,
             Q21.class,
-            Q22.class));
+            Q22.class);
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestCHBenCHmark.PROCEDURE_CLASSES;
     }
 

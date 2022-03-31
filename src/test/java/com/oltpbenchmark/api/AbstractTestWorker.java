@@ -18,9 +18,11 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -56,7 +58,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
             Procedure proc = w.getProcedure(procClass);
             assertNotNull("Failed to get procedure " + procClass.getSimpleName(), proc);
             assertEquals(procClass, proc.getClass());
-        } // FOR
+        }
     }
 
     /**
@@ -69,17 +71,28 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         w.initialize();
         assertFalse(this.conn.isReadOnly());
         for (TransactionType txnType : this.workConf.getTransTypes()) {
-            if (txnType.isSupplemental()) { continue; }
+            if (txnType.isSupplemental()) {
+                continue;
+            }
+
+            StopWatch sw = new StopWatch(txnType.toString());
+
             try {
-                // Bombs away!
+                LOG.info("starting execution of [{}]", txnType);
+                sw.start();
                 w.executeWork(this.conn, txnType);
+                sw.stop();
+
+
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored
                 // Anything else is a serious error
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to execute " + txnType, ex);
+            } finally {
+
+                LOG.info("completed execution of [{}] in {} ms", txnType.toString(), sw.getTime(TimeUnit.MILLISECONDS));
             }
-            conn.commit();
-        } // FOR
+        }
     }
 }

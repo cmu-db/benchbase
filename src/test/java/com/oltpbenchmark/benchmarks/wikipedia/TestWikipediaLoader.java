@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.wikipedia;
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> {
@@ -37,7 +36,7 @@ public class TestWikipediaLoader extends AbstractTestLoader<WikipediaBenchmark> 
     };
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestWikipediaBenchmark.PROCEDURE_CLASSES;
     }
 

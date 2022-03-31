@@ -19,12 +19,12 @@ package com.oltpbenchmark.benchmarks.tpcc;
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
+import java.util.List;
 
 public class TestTPCCLoader extends AbstractTestLoader<TPCCBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestTPCCBenchmark.PROCEDURE_CLASSES;
     }
 

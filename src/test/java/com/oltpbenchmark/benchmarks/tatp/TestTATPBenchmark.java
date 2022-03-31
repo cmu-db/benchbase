@@ -21,12 +21,11 @@ import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.tatp.procedures.*;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestTATPBenchmark extends AbstractTestBenchmarkModule<TATPBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             DeleteCallForwarding.class,
             GetAccessData.class,
             GetNewDestination.class,
@@ -34,10 +33,10 @@ public class TestTATPBenchmark extends AbstractTestBenchmarkModule<TATPBenchmark
             InsertCallForwarding.class,
             UpdateLocation.class,
             UpdateSubscriberData.class
-    ));
+    );
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestTATPBenchmark.PROCEDURE_CLASSES;
     }
 

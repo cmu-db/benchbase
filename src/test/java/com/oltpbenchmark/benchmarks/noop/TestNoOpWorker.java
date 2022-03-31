@@ -19,12 +19,12 @@ package com.oltpbenchmark.benchmarks.noop;
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
+import java.util.List;
 
 public class TestNoOpWorker extends AbstractTestWorker<NoOpBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestNoOpBenchmark.PROCEDURE_CLASSES;
     }
 

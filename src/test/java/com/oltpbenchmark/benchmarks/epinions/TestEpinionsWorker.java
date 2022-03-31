@@ -20,12 +20,12 @@ package com.oltpbenchmark.benchmarks.epinions;
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
+import java.util.List;
 
 public class TestEpinionsWorker extends AbstractTestWorker<EpinionsBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestEpinionsBenchmark.PROCEDURE_CLASSES;
     }
 

@@ -24,20 +24,19 @@ import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweet;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetTweetsFromFollowing;
 import com.oltpbenchmark.benchmarks.twitter.procedures.InsertTweet;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestTwitterBenchmark extends AbstractTestBenchmarkModule<TwitterBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             GetFollowers.class,
             GetTweet.class,
             GetTweetsFromFollowing.class,
             InsertTweet.class
-    ));
+    );
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestTwitterBenchmark.PROCEDURE_CLASSES;
     }
 

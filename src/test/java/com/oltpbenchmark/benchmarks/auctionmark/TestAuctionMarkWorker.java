@@ -23,13 +23,14 @@ import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchmark> {
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestAuctionMarkBenchmark.PROCEDURE_CLASSES;
     }
 

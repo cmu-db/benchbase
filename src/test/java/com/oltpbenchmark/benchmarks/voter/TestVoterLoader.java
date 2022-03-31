@@ -19,7 +19,6 @@ package com.oltpbenchmark.benchmarks.voter;
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
@@ -29,7 +28,7 @@ public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
     };
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return TestVoterBenchmark.PROCEDURE_CLASSES;
     }
 

@@ -24,13 +24,12 @@ import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 
-    public static final HashSet<Class<? extends Procedure>> PROCEDURE_CLASSES = new HashSet<>(List.of(GetItem.class,
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(GetItem.class,
             GetUserInfo.class,
             NewBid.class,
             NewComment.class,
@@ -38,10 +37,10 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
             NewFeedback.class,
             NewItem.class,
             NewPurchase.class,
-            UpdateItem.class));
+            UpdateItem.class);
 
     @Override
-    public HashSet<Class<? extends Procedure>> procedures() {
+    public List<Class<? extends Procedure>> procedures() {
         return PROCEDURE_CLASSES;
     }
 
