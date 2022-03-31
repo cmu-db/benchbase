@@ -8,7 +8,7 @@
     <username>admin</username>
     <password>password</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>128</batchsize>
+    <batchsize>1024</batchsize>
 
     <!-- Control scale factor to generate different amount of data -->
     <scalefactor>0.1</scalefactor>
