@@ -168,13 +168,13 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     private void cleanupServer() {
         if (server != null) {
 
-            LOG.info("shutting down catalogs...");
+            LOG.trace("shutting down catalogs...");
             server.shutdownCatalogs(Database.CLOSEMODE_NORMAL);
 
-            LOG.info("stopping server...");
+            LOG.trace("stopping server...");
             server.stop();
 
-            LOG.info("shutting down server...");
+            LOG.trace("shutting down server...");
             server.shutdown();
 
         }
