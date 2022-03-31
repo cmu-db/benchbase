@@ -103,6 +103,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.workConf.setBatchSize(128);
         this.workConf.setBenchmarkName(BenchmarkModule.convertBenchmarkClassToBenchmarkName(benchmarkClass()));
 
+        customWorkloadConfiguration(this.workConf);
+
         this.benchmark = ClassUtil.newInstance(benchmarkClass(),
                 new Object[]{this.workConf},
                 new Class<?>[]{WorkloadConfiguration.class});
@@ -142,6 +144,10 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
             cleanupServer();
             fail("postCreateDatabaseSetup() failed");
         }
+    }
+
+    protected void customWorkloadConfiguration(WorkloadConfiguration workConf) {
+
     }
 
     protected void postCreateDatabaseSetup() throws IOException {
