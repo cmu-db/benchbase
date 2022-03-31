@@ -21,9 +21,11 @@ import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import junit.framework.TestCase;
+import org.apache.commons.lang3.RandomUtils;
 import org.hsqldb.Database;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
+import org.hsqldb.server.ServerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,6 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
      * This should always be one of the embedded java databases
      */
     private static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
-    private static final String DB_CONNECTION = "jdbc:hsqldb:hsql://localhost:9001/benchbase";
 
 
     // -----------------------------------------------------------------
@@ -76,15 +77,17 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected final void setUp() throws Exception {
         HsqlProperties props = new HsqlProperties();
         //props.setProperty("server.remote_open", true);
+
+        int port = RandomUtils.nextInt(9001, 10000);
+
         server = new Server();
         server.setProperties(props);
         server.setDatabasePath(0, "mem:benchbase;sql.syntax_mys=true");
         server.setDatabaseName(0, "benchbase");
         server.setAddress("localhost");
-        server.setPort(9001);
+        server.setPort(port);
         server.setSilent(true);
         server.start();
-
 
         this.workConf = new WorkloadConfiguration();
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
@@ -94,6 +97,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
             TransactionType tt = new TransactionType(procedureClass, id++, false, 0, 0);
             txnTypes.add(tt);
         }
+
+        String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://localhost:%d/benchbase", server.getPort());
 
         this.workConf.setTransTypes(txnTypes);
         this.workConf.setDatabaseType(DB_TYPE);
@@ -173,6 +178,13 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
             LOG.trace("stopping server...");
             server.stop();
+
+            while (server.getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignore) {
+                }
+            }
 
             LOG.trace("shutting down server...");
             server.shutdown();
