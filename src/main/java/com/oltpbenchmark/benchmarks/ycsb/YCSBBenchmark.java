@@ -45,7 +45,12 @@ public class YCSBBenchmark extends BenchmarkModule {
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
-        this.fieldSize = Math.min(workConf.getXmlConfig().getInt("fieldSize", YCSBConstants.MAX_FIELD_SIZE), YCSBConstants.MAX_FIELD_SIZE);
+
+        int fieldSize = YCSBConstants.MAX_FIELD_SIZE;
+        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("fieldSize")) {
+            fieldSize = Math.min(workConf.getXmlConfig().getInt("fieldSize"), YCSBConstants.MAX_FIELD_SIZE);
+        }
+        this.fieldSize = fieldSize;
         if (this.fieldSize <= 0) {
             throw new RuntimeException("Invalid YCSB fieldSize '" + this.fieldSize + "'");
         }
