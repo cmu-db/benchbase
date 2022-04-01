@@ -19,8 +19,8 @@ package com.oltpbenchmark.benchmarks.seats;
 import com.oltpbenchmark.api.AbstractTestLoader;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.util.RandomGenerator;
 
+import java.io.IOException;
 import java.util.List;
 
 public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
@@ -33,6 +33,12 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
     @Override
     public Class<SEATSBenchmark> benchmarkClass() {
         return SEATSBenchmark.class;
+    }
+
+    @Override
+    protected void postCreateDatabaseSetup() throws IOException {
+        super.postCreateDatabaseSetup();
+        SEATSProfile.clearCachedProfile();
     }
 
     /**
@@ -49,7 +55,7 @@ public class TestSEATSLoader extends AbstractTestLoader<SEATSBenchmark> {
         // Make sure there is something in our profile after loading the database
         assertFalse("Empty Profile: airport_max_customer_id", orig.airport_max_customer_id.isEmpty());
 
-        SEATSProfile copy = new SEATSProfile(this.benchmark, new RandomGenerator(0));
+        SEATSProfile copy = new SEATSProfile(this.benchmark, benchmark.getRandomGenerator());
         assert (copy.airport_histograms.isEmpty());
 
         List<Worker<?>> workers = this.benchmark.makeWorkers();

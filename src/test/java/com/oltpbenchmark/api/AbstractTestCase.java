@@ -21,7 +21,6 @@ import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import junit.framework.TestCase;
-import org.apache.commons.lang3.RandomUtils;
 import org.hsqldb.Database;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
@@ -33,6 +32,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
 
@@ -61,6 +61,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     protected final boolean createDatabase;
     protected final boolean loadDatabase;
 
+    private static final AtomicInteger portCounter = new AtomicInteger(9001);
+
 
     public AbstractTestCase(boolean createDatabase, boolean loadDatabase) {
         this.createDatabase = createDatabase;
@@ -78,7 +80,9 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         HsqlProperties props = new HsqlProperties();
         //props.setProperty("server.remote_open", true);
 
-        int port = RandomUtils.nextInt(9001, 10000);
+        int port = portCounter.incrementAndGet();
+
+        LOG.info("starting HSQLDB server for test [{}] on port [{}]", this.getClass().getSimpleName(), port);
 
         server = new Server();
         server.setProperties(props);
@@ -87,6 +91,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         server.setAddress("localhost");
         server.setPort(port);
         server.setSilent(true);
+        server.setLogWriter(null);
         server.start();
 
         this.workConf = new WorkloadConfiguration();
