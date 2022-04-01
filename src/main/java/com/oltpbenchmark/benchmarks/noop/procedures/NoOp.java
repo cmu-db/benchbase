@@ -38,7 +38,7 @@ public class NoOp extends Procedure {
 
     // The query only contains a semi-colon
     // That is enough for the DBMS to have to parse it and do something
-    public final SQLStmt noopStmt = new SQLStmt("select 1");
+    public final SQLStmt noopStmt = new SQLStmt(";");
 
     public void run(Connection conn) {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, noopStmt)) {
