@@ -82,7 +82,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
         int port = portCounter.incrementAndGet();
 
-        LOG.info("starting HSQLDB server for test [{}] on port [{}]", this.getClass().getSimpleName(), port);
+        LOG.info("starting HSQLDB server for test [{}] on port [{}]", this.getName(), port);
 
         server = new Server();
         server.setProperties(props);
