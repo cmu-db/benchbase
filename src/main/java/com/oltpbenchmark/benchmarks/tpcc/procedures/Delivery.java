@@ -219,7 +219,7 @@ public class Delivery extends TPCCProcedure {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         try (PreparedStatement delivUpdateDeliveryDate = this.getPreparedStatement(conn, delivUpdateDeliveryDateSQL)) {
-            delivUpdateDeliveryDate.setTimestamp(1, timestamp);
+            delivUpdateDeliveryDate.setLong(1, timestamp.getTime());
             delivUpdateDeliveryDate.setLong(2, no_o_id);
             delivUpdateDeliveryDate.setLong(3, d_id);
             delivUpdateDeliveryDate.setLong(4, w_id);

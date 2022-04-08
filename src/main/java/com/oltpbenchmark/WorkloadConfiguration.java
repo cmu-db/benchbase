@@ -202,6 +202,7 @@ public class WorkloadConfiguration {
      * A utility method that init the phaseIterator and dialectMap
      */
     public void init() {
+        //org.apache.ignite.jdbc.IgniteJdbcDriver s;
         try {
             Class.forName(this.driverClass);
         } catch (ClassNotFoundException ex) {

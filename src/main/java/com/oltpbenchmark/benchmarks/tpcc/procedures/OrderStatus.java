@@ -23,6 +23,7 @@ import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Oorder;
+import java.sql.Timestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +175,7 @@ public class OrderStatus extends TPCCProcedure {
                 Oorder o = new Oorder();
                 o.o_id=rs.getInt("O_ID");
                 o.o_carrier_id = rs.getInt("O_CARRIER_ID");
-                o.o_entry_d = rs.getTimestamp("O_ENTRY_D");
+                o.o_entry_d = new Timestamp(rs.getLong("O_ENTRY_D"));
                 return o;
             }
         }
@@ -201,8 +202,8 @@ public class OrderStatus extends TPCCProcedure {
                     sb.append(" - ");
                     sb.append(TPCCUtil.formattedDouble(rs.getDouble("OL_AMOUNT")));
                     sb.append(" - ");
-                    if (rs.getTimestamp("OL_DELIVERY_D") != null) {
-                        sb.append(rs.getTimestamp("OL_DELIVERY_D"));
+                    if (rs.getObject("OL_DELIVERY_D") != null) {
+                        sb.append(new Timestamp(rs.getLong("OL_DELIVERY_D")));
                     } else {
                         sb.append("99-99-9999");
                     }

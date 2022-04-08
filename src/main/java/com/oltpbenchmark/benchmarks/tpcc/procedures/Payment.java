@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.tpcc.procedures;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConfig;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCConstants;
+import com.oltpbenchmark.benchmarks.tpcc.TPCCLoader;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCUtil;
 import com.oltpbenchmark.benchmarks.tpcc.TPCCWorker;
 import com.oltpbenchmark.benchmarks.tpcc.pojo.Customer;
@@ -96,8 +97,8 @@ public class Payment extends TPCCProcedure {
 
     public SQLStmt payInsertHistSQL = new SQLStmt(
             "INSERT INTO " + TPCCConstants.TABLENAME_HISTORY +
-            " (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) " +
-            " VALUES (?,?,?,?,?,?,?,?)");
+            " (H_ID, H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) " +
+            " VALUES (?,?,?,?,?,?,?,?,?)");
 
     public SQLStmt customerByNameSQL = new SQLStmt(
             "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " +
@@ -413,14 +414,15 @@ public class Payment extends TPCCProcedure {
         String h_data = w_name + "    " + d_name;
 
         try (PreparedStatement payInsertHist = this.getPreparedStatement(conn, payInsertHistSQL)) {
-            payInsertHist.setLong(1, customerDistrictID);
-            payInsertHist.setLong(2, customerWarehouseID);
-            payInsertHist.setLong(3, c.c_id);
-            payInsertHist.setLong(4, districtID);
-            payInsertHist.setLong(5, w_id);
-            payInsertHist.setLong(6, new Timestamp(System.currentTimeMillis()).getTime());
-            payInsertHist.setDouble(7, paymentAmount);
-            payInsertHist.setString(8, h_data);
+            payInsertHist.setLong(1, TPCCLoader.CUST_HIST_ID_GEN.getAndIncrement());
+            payInsertHist.setLong(2, customerDistrictID);
+            payInsertHist.setLong(3, customerWarehouseID);
+            payInsertHist.setLong(4, c.c_id);
+            payInsertHist.setLong(5, districtID);
+            payInsertHist.setLong(6, w_id);
+            payInsertHist.setLong(7, new Timestamp(System.currentTimeMillis()).getTime());
+            payInsertHist.setDouble(8, paymentAmount);
+            payInsertHist.setString(9, h_data);
             payInsertHist.executeUpdate();
         }
     }

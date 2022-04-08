@@ -36,11 +36,11 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class TPCCLoader extends Loader<TPCCBenchmark> {
 
-    private static final int FIRST_UNPROCESSED_O_ID = 22;//2101;
+    private static final int FIRST_UNPROCESSED_O_ID = 2101;
 
     private final long numWarehouses;
 
-    private final AtomicLong custHistIdGen = new AtomicLong(0L);
+    public static final AtomicLong CUST_HIST_ID_GEN = new AtomicLong(0L);
 
     public TPCCLoader(TPCCBenchmark benchmark) {
         super(benchmark);
@@ -460,7 +460,7 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
 
 
                     int idx = 1;
-                    histPrepStmt.setLong(idx++, custHistIdGen.getAndIncrement());
+                    histPrepStmt.setLong(idx++, CUST_HIST_ID_GEN.getAndIncrement());
                     histPrepStmt.setLong(idx++, history.h_c_id);
                     histPrepStmt.setLong(idx++, history.h_c_d_id);
                     histPrepStmt.setLong(idx++, history.h_c_w_id);
@@ -599,7 +599,8 @@ public class TPCCLoader extends Loader<TPCCBenchmark> {
                         int idx = 1;
                         newOrderStatement.setLong(idx++, new_order.no_w_id);
                         newOrderStatement.setLong(idx++, new_order.no_d_id);
-                        newOrderStatement.setLong(idx, new_order.no_o_id);
+                        newOrderStatement.setLong(idx++, new_order.no_o_id);
+                        newOrderStatement.setByte(idx, (byte)1);
                         newOrderStatement.addBatch();
 
                         k++;
