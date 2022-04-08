@@ -30,37 +30,39 @@ import java.util.Set;
 
 public class Q16 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt(
-            "select "
-                    + "p_brand, "
-                    + "p_type, "
-                    + "p_size, "
-                    + "count(distinct ps_suppkey) as supplier_cnt "
-                    + "from "
-                    + "partsupp, "
-                    + "part "
-                    + "where "
-                    + "p_partkey = ps_partkey "
-                    + "and p_brand <> ? "
-                    + "and p_type not like ? "
-                    + "and p_size in (?, ?, ?, ?, ?, ?, ?, ?) "
-                    + "and ps_suppkey not in ( "
-                    + "select "
-                    + "s_suppkey "
-                    + "from "
-                    + "supplier "
-                    + "where "
-                    + "s_comment like '%Customer%Complaints%' "
-                    + ") "
-                    + "group by "
-                    + "p_brand, "
-                    + "p_type, "
-                    + "p_size "
-                    + "order by "
-                    + "supplier_cnt desc, "
-                    + "p_brand, "
-                    + "p_type, "
-                    + "p_size"
+    public final SQLStmt query_stmt = new SQLStmt("""      
+            SELECT
+               p_brand,
+               p_type,
+               p_size,
+               COUNT(DISTINCT ps_suppkey) AS supplier_cnt
+            FROM
+               partsupp,
+               part
+            WHERE
+               p_partkey = ps_partkey
+               AND p_brand <> ?
+               AND p_type NOT LIKE ?
+               AND p_size IN (?, ?, ?, ?, ?, ?, ?, ?)
+               AND ps_suppkey NOT IN
+               (
+                  SELECT
+                     s_suppkey
+                  FROM
+                     supplier
+                  WHERE
+                     s_comment LIKE '%Customer%Complaints%'
+               )
+            GROUP BY
+               p_brand,
+               p_type,
+               p_size
+            ORDER BY
+               supplier_cnt DESC,
+               p_brand,
+               p_type,
+               p_size
+            """
     );
 
     @Override
