@@ -1,3 +1,4 @@
+-- Adapted from the Postgres schema
 DROP TABLE IF EXISTS lineitem;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS customer;
