@@ -19,23 +19,6 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark;
-import com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark;
-import com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark;
-import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark;
-import com.oltpbenchmark.benchmarks.noop.NoOpBenchmark;
-import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark;
-import com.oltpbenchmark.benchmarks.seats.SEATSBenchmark;
-import com.oltpbenchmark.benchmarks.sibench.SIBenchmark;
-import com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark;
-import com.oltpbenchmark.benchmarks.tatp.TATPBenchmark;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
-import com.oltpbenchmark.benchmarks.tpcds.TPCDSBenchmark;
-import com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark;
-import com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark;
-import com.oltpbenchmark.benchmarks.voter.VoterBenchmark;
-import com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark;
-import com.oltpbenchmark.benchmarks.ycsb.YCSBBenchmark;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
@@ -79,10 +62,14 @@ public abstract class BenchmarkModule {
     /**
      * A single Random object that should be re-used by all a benchmark's components
      */
-    private final Random rng = new Random();
+    private static final ThreadLocal<Random> rng = new ThreadLocal<>();
 
     private AbstractCatalog catalog = null;
 
+    /**
+     * Constructor!
+     * @param workConf
+     */
     public BenchmarkModule(WorkloadConfiguration workConf) {
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
@@ -131,10 +118,21 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
-     * Return the Random generator that should be used by all this benchmark's components
+     * Return the Random generator that should be used by all this benchmark's components.
+     * We are using ThreadLocal to make this support multiple threads better.
+     * This will set the seed if one is specified in the workload config file
      */
     public Random rng() {
-        return (this.rng);
+        Random ret = rng.get();
+        if (ret == null) {
+            if (this.workConf.getRandomSeed() != -1) {
+                ret = new Random(this.workConf.getRandomSeed());
+            } else {
+                ret = new Random();
+            }
+            rng.set(ret);
+        }
+        return ret;
     }
 
     private String convertBenchmarkClassToBenchmarkName() {
@@ -142,43 +140,13 @@ public abstract class BenchmarkModule {
     }
 
     protected static <T> String convertBenchmarkClassToBenchmarkName(Class<T> clazz) {
-        if (clazz == AuctionMarkBenchmark.class) {
-            return "auctionmark";
-        } else if (clazz == CHBenCHmark.class) {
-            return "chbenchmark";
-        } else if (clazz == EpinionsBenchmark.class) {
-            return "epinions";
-        } else if (clazz == HYADAPTBenchmark.class) {
-            return "hyadapt";
-        } else if (clazz == NoOpBenchmark.class) {
-            return "noop";
-        } else if (clazz == ResourceStresserBenchmark.class) {
-            return "resourcestresser";
-        } else if (clazz == SEATSBenchmark.class) {
-            return "seats";
-        } else if (clazz == SIBenchmark.class) {
-            return "sibench";
-        } else if (clazz == SmallBankBenchmark.class) {
-            return "smallbank";
-        } else if (clazz == TATPBenchmark.class) {
-            return "tatp";
-        } else if (clazz == TPCCBenchmark.class) {
-            return "tpcc";
-        } else if (clazz == TPCDSBenchmark.class) {
-            return "tpcds";
-        } else if (clazz == TPCHBenchmark.class) {
-            return "tpch";
-        } else if (clazz == TwitterBenchmark.class) {
-            return "twitter";
-        } else if (clazz == VoterBenchmark.class) {
-            return "voter";
-        } else if (clazz == WikipediaBenchmark.class) {
-            return "wikipedia";
-        } else if (clazz == YCSBBenchmark.class) {
-            return "ycsb";
+        assert(clazz != null);
+        String name = clazz.getSimpleName().toLowerCase();
+        // Special case for "CHBenCHmark"
+        if (!name.equals("chbenchmark") && name.endsWith("benchmark")) {
+            name = name.replace("benchmark", "");
         }
-
-        throw new RuntimeException("Sorry, this is a hack. You need to add your new benchmark class here.");
+        return (name);
     }
 
     /**
@@ -193,6 +161,7 @@ public abstract class BenchmarkModule {
         List<String> names = new ArrayList<>();
         if (db_type != null) {
             DatabaseType ddl_db_type = db_type;
+            // HACK: Use MySQL if we're given MariaDB
             if (ddl_db_type == DatabaseType.MARIADB) ddl_db_type = DatabaseType.MYSQL;
             names.add("ddl-" + ddl_db_type.name().toLowerCase() + ".sql");
         }
