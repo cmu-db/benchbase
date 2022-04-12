@@ -18,11 +18,14 @@
 package com.oltpbenchmark.benchmarks.epinions;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.epinions.procedures.*;
+
+import java.util.List;
 
 public class TestEpinionsBenchmark extends AbstractTestBenchmarkModule<EpinionsBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             GetAverageRatingByTrustedUser.class,
             GetItemAverageRating.class,
             GetItemReviewsByTrustedUser.class,
@@ -31,11 +34,16 @@ public class TestEpinionsBenchmark extends AbstractTestBenchmarkModule<EpinionsB
             UpdateItemTitle.class,
             UpdateTrustRating.class,
             UpdateUserName.class
-    };
+    );
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(EpinionsBenchmark.class, PROC_CLASSES);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestEpinionsBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<EpinionsBenchmark> benchmarkClass() {
+        return EpinionsBenchmark.class;
     }
 
 }

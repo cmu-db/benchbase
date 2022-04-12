@@ -17,6 +17,9 @@
 package com.oltpbenchmark.benchmarks.voter;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
+
+import java.util.List;
 
 public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
 
@@ -25,9 +28,18 @@ public class TestVoterLoader extends AbstractTestLoader<VoterBenchmark> {
     };
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(VoterBenchmark.class, IGNORE, TestVoterBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.0001);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestVoterBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<VoterBenchmark> benchmarkClass() {
+        return VoterBenchmark.class;
+    }
+
+    @Override
+    public List<String> ignorableTables() {
+        return List.of(IGNORE);
     }
 
 }

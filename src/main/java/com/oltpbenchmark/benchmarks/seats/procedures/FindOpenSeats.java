@@ -83,23 +83,26 @@ public class FindOpenSeats extends Procedure {
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 
-        double base_price;
-        long seats_total;
-        long seats_left;
-        double seat_price;
+        double base_price = 0.0;
+        long seats_total = 0;
+        long seats_left = 0;
+        double seat_price = 0.0;
 
         // First calculate the seat price using the flight's base price
         // and the number of seats that remaining
         try (PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight)) {
             f_stmt.setString(1, f_id);
             try (ResultSet f_results = f_stmt.executeQuery()) {
-                f_results.next();
+                if (f_results.next()) {
 
-                // long status = results[0].getLong(0);
-                base_price = f_results.getDouble(2);
-                seats_total = f_results.getLong(3);
-                seats_left = f_results.getLong(4);
-                seat_price = f_results.getDouble(5);
+                    // long status = results[0].getLong(0);
+                    base_price = f_results.getDouble(2);
+                    seats_total = f_results.getLong(3);
+                    seats_left = f_results.getLong(4);
+                    seat_price = f_results.getDouble(5);
+                } else {
+                    LOG.warn("flight {} had no seats; this may be a data problem or a code problem.  previously this threw an unhandled exception.", f_id);
+                }
             }
         }
 

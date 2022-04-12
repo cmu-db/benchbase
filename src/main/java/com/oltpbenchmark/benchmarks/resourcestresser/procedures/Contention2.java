@@ -42,7 +42,7 @@ public class Contention2 extends Procedure {
 
 
         for (int sel = 0; sel < howManyUpdates; ++sel) {
-            int leftKey = ResourceStresserWorker.gen.nextInt(numKeys - howManyKeys);
+            int leftKey = ResourceStresserWorker.gen.nextInt(Math.max(1, numKeys - howManyKeys));
             int rightKey = leftKey + howManyKeys;
             int salary = ResourceStresserWorker.gen.nextInt();
 

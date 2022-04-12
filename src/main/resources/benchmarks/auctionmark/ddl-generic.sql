@@ -23,7 +23,7 @@ CREATE TABLE config_profile (
                                 cfp_scale_factor            FLOAT NOT NULL,
                                 cfp_loader_start            TIMESTAMP NOT NULL,
                                 cfp_loader_stop             TIMESTAMP NOT NULL,
-                                cfp_user_item_histogram     TEXT NOT NULL
+                                cfp_user_item_histogram VARCHAR(1024) NOT NULL
 );
 
 -- ================================================================

@@ -1,21 +1,27 @@
-DROP TABLE IF EXISTS nation;
-DROP TABLE IF EXISTS region;
-DROP TABLE IF EXISTS part;
-DROP TABLE IF EXISTS supplier;
-DROP TABLE IF EXISTS partsupp;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS customer;
-DROP TABLE IF EXISTS lineitem;
+DROP TABLE IF EXISTS nation CASCADE;
+DROP TABLE IF EXISTS region CASCADE;
+DROP TABLE IF EXISTS part CASCADE;
+DROP TABLE IF EXISTS supplier CASCADE;
+DROP TABLE IF EXISTS partsupp CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS lineitem CASCADE;
 
 -- Sccsid:     @(#)dss.ddl  2.1.8.1
-CREATE TABLE nation  ( n_nationkey  INTEGER NOT NULL,
-                       n_name       CHAR(25) NOT NULL,
-                       n_regionkey  INTEGER NOT NULL,
-                       n_comment    VARCHAR(152));
+CREATE TABLE nation
+(
+    n_nationkey INTEGER  NOT NULL,
+    n_name      CHAR(25) NOT NULL,
+    n_regionkey INTEGER  NOT NULL,
+    n_comment   VARCHAR(152)
+);
 
-CREATE TABLE region  ( r_regionkey  INTEGER NOT NULL,
-                       r_name       CHAR(25) NOT NULL,
-                       r_comment    VARCHAR(152));
+CREATE TABLE region
+(
+    r_regionkey INTEGER  NOT NULL,
+    r_name      CHAR(25) NOT NULL,
+    r_comment   VARCHAR(152)
+);
 
 CREATE TABLE part  ( p_partkey     INTEGER NOT NULL,
                      p_name        VARCHAR(55) NOT NULL,
