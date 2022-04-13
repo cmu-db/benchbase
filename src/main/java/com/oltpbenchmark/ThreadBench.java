@@ -188,8 +188,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // Latency runs (serial run through each query) have their own
                 // state to mark completion
                 {
-                    phaseComplete = testState.getState()
-                            == State.LATENCY_COMPLETE;
+                    phaseComplete = testState.getState() == State.LATENCY_COMPLETE;
                 } else {
                     phaseComplete = testState.getState() == State.MEASURE
                             && (start + delta <= now);

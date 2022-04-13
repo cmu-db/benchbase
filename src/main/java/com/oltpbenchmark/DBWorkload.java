@@ -235,10 +235,11 @@ public class DBWorkload {
                 // Get the name for the grouping and make sure it's valid.
                 String groupingName = xmlConfig.getString(key + "/name").toLowerCase();
                 if (!groupingName.matches("^[a-z]\\w*$")) {
-                    LOG.error(String.format("Grouping name \"%s\" is invalid." + " Must begin with a letter and contain only" + " alphanumeric characters.", groupingName));
+                    LOG.error(String.format("Grouping name \"%s\" is invalid. Must begin with a letter and contain only alphanumeric "
+                            + "characters.", groupingName));
                     System.exit(-1);
                 } else if (groupingName.equals("all")) {
-                    LOG.error("Grouping name \"all\" is reserved." + " Please pick a different name.");
+                    LOG.error("Grouping name \"all\" is reserved. Please pick a different name.");
                     System.exit(-1);
                 }
 
@@ -246,7 +247,8 @@ public class DBWorkload {
                 // is an appropriate number of them.
                 List<String> groupingWeights = xmlConfig.getList(String.class, key + "/weights");
                 if (groupingWeights.size() != numTxnTypes) {
-                    LOG.error(String.format("Grouping \"%s\" has %d weights," + " but there are %d transactions in this" + " benchmark.", groupingName, groupingWeights.size(), numTxnTypes));
+                    LOG.error(String.format("Grouping \"%s\" has %d weights, but there are %d transactions in this benchmark.",
+                            groupingName, groupingWeights.size(), numTxnTypes));
                     System.exit(-1);
                 }
 
@@ -321,7 +323,8 @@ public class DBWorkload {
                     activeTerminals = 1;
                 }
                 if (activeTerminals > terminals) {
-                    LOG.error(String.format("Configuration error in work %d: " + "Number of active terminals is bigger than the total number of terminals", i));
+                    LOG.error(String.format("Configuration error in work %d: Number of active terminals is bigger than the total number of "
+                            + "terminals", i));
                     System.exit(-1);
                 }
 
@@ -330,16 +333,17 @@ public class DBWorkload {
                 timed = (time > 0);
                 if (!timed) {
                     if (serial) {
-                        LOG.info("Timer disabled for serial run; will execute" + " all queries exactly once.");
+                        LOG.info("Timer disabled for serial run; will execute all queries exactly once.");
                     } else {
-                        LOG.error("Must provide positive time bound for" + " non-serial executions. Either provide" + " a valid time or enable serial mode.");
+                        LOG.error("Must provide positive time bound for non-serial executions. Either provide a valid time or enable serial"
+                                + " mode.");
                         System.exit(-1);
                     }
                 } else if (serial) {
-                    LOG.info("Timer enabled for serial run; will run queries" + " serially in a loop until the timer expires.");
+                    LOG.info("Timer enabled for serial run; will run queries serially in a loop until the timer expires.");
                 }
                 if (warmup < 0) {
-                    LOG.error("Must provide non-negative time bound for" + " warmup.");
+                    LOG.error("Must provide non-negative time bound for warmup.");
                     System.exit(-1);
                 }
 

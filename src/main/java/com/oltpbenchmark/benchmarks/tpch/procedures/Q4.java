@@ -34,8 +34,8 @@ public class Q4 extends GenericQuery {
                     + "from "
                     + "orders "
                     + "where "
-                    + "o_orderdate >= date ? "
-                    + "and o_orderdate < ? + 3 * 30 * 86400000"//date ? + interval '3' month "
+                    + "o_orderdate >= cast (? as bigint) " // date ?
+                    + "and o_orderdate < cast (? as bigint) + cast (3 as bigint) * 30 * 86400000"//date ? + interval '3' month "
                     + "and exists ( "
                     + "select "
                     + "* "

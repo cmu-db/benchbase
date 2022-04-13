@@ -65,14 +65,8 @@ public class Q3 extends GenericQuery {
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, segment);
-        stmt.setDate(2, Date.valueOf(date));
-        stmt.setDate(3, Date.valueOf(date));
+        stmt.setLong(2, Date.valueOf(date).getTime());
+        stmt.setLong(3, Date.valueOf(date).getTime());
         return stmt;
-    }
-
-    public static void main(String[] args) {
-        int day = 22;
-        String date = String.format("1995-03-%02d", day);
-        System.out.println(Date.valueOf(date).getTime());
     }
 }

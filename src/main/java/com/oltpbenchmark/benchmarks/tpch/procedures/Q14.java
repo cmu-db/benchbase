@@ -39,8 +39,8 @@ public class Q14 extends GenericQuery {
                     + "part "
                     + "where "
                     + "l_partkey = p_partkey "
-                    + "and l_shipdate >= ? " //date ? "
-                    + "and l_shipdate < ? + 30 * 86400000 " //date ? + interval '1' month"
+                    + "and l_shipdate >= cast (? as bigint) " //date ? "
+                    + "and l_shipdate < cast (? as bigint) + cast (30 as bigint) * 86400000 " //date ? + interval '1' month"
     );
 
     @Override

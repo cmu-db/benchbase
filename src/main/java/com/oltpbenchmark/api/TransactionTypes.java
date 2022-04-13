@@ -36,7 +36,6 @@ public class TransactionTypes implements Collection<TransactionType> {
             }
         });
         for (TransactionType tt : transactiontypes) {
-            // System.err.println("Adding " + tt + " - " + this.types + " / " + transactiontypes);
             String key = tt.getName().toUpperCase();
             this.types.put(key, tt);
         }

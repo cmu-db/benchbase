@@ -86,6 +86,6 @@ public class Q2 extends GenericQuery {
         stmt.setString(2, "%" + type);
         stmt.setString(3, region);
         stmt.setString(4, region);
-        return stmt;
+         return stmt;
     }
 }

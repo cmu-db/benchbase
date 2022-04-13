@@ -33,8 +33,8 @@ public class Q6 extends GenericQuery {
                     + "from "
                     + "lineitem "
                     + "where "
-                    + "l_shipdate >= ?"//date ? "
-                    + "and l_shipdate < ? + 365 * 86400000"//date ? + interval '1' year "
+                    + "l_shipdate >= cast (? as bigint)"//date ? "
+                    + "and l_shipdate < cast (? as bigint) + cast (365 as bigint) * 86400000"//date ? + interval '1' year "
                     + "and l_discount between ? - 0.01 and ? + 0.01 "
                     + "and l_quantity < ?"
     );

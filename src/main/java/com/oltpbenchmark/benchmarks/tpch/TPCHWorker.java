@@ -41,13 +41,14 @@ public class TPCHWorker extends Worker<TPCHBenchmark> {
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
         try {
             GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
+//            if (proc.getClass().getName().endsWith("Q11") || proc.getClass().getName().endsWith("Q15"))
+//                return TransactionStatus.SUCCESS;
             proc.run(conn, rand);
-            System.out.println("Finish " + proc);
         } catch (ClassCastException e) {
             throw new RuntimeException(e);
         }
 
-        return (TransactionStatus.SUCCESS);
+        return TransactionStatus.SUCCESS;
 
     }
 }

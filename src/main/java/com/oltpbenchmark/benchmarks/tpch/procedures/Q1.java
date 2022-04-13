@@ -41,7 +41,7 @@ public class Q1 extends GenericQuery {
                     + "from "
                     + "lineitem "
                     + "where "
-                    + "l_shipdate <=  912456000000 - ? * 86400000 "//date '1998-12-01' - interval ? day "
+                    + "l_shipdate <=  912456000000 - cast(? as bigint) * 86400000 "//date '1998-12-01' - interval ? day "
                     + "group by "
                     + "l_returnflag, "
                     + "l_linestatus "

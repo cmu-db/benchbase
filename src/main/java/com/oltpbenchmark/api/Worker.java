@@ -231,7 +231,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             // waited.
 
             SubmittedProcedure pieceOfWork = workloadState.fetchWork();
-
+            
             prePhase = workloadState.getCurrentPhase();
             if (prePhase == null) {
                 continue;
