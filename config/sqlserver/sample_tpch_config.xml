@@ -2,13 +2,13 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>SQLSERVER</type>
+    <type>sqlserver</type>
     <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-    <url>jdbc:sqlserver://localhost:1433;encrypt=false;</url>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase_tpch;</url>
     <username>benchuser01</username>
     <password>P@ssw0rd</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>128</batchsize>
+    <batchsize>1024</batchsize>
 
     <scalefactor>0.1</scalefactor>
 

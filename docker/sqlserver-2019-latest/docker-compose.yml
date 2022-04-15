@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+
+  sqlserver:
+    container_name: sqlserver
+    hostname: sqlserver
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: SApassword1
+    ports:
+      - "1433:1433"
+
+  # No sqlserver web UI provided for now.
+  # See Also: Azure Data Studio
