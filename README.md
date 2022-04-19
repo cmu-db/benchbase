@@ -167,6 +167,28 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 ./mvnw -B release:perform
 ```
 
+### How use with Docker
+
+- Build the full image:
+
+  ```sh
+  # build an image with all profiles
+  ./docker/benchbase/build-full-image.sh
+
+  # or if you only want to build some of them
+  BENCHBASE_PROFILES='postgres mysql' ./docker/benchbase/build-full-image.sh
+  ```
+
+- Run the image for a given profile:
+
+  ```sh
+  BENCHBASE_PROFILE='postgres' ./docker/benchbase/run-full-image.sh --help # or other benchbase args as before
+  ```
+
+> See [scripts](./docker/benchbase/) for further details.
+
+[Github Codespaces](https://github.com/features/codespaces) and [VSCode devcontainer](https://code.visualstudio.com/docs/remote/containers) support is also available.
+
 ### How to Add Support for a New Database
 
 Please see the existing MySQL and PostgreSQL code for an example.
