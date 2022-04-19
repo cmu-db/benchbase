@@ -27,19 +27,22 @@ package com.oltpbenchmark.benchmarks.tpch;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
-import com.oltpbenchmark.benchmarks.tpch.util.*;
-import com.oltpbenchmark.catalog.Table;
+import static com.oltpbenchmark.benchmarks.tpch.TPCHConstants.*;
+import com.oltpbenchmark.benchmarks.tpch.util.RegionGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.NationGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.PartGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.PartSupplierGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.OrderGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.CustomerGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.LineItemGenerator;
+import com.oltpbenchmark.benchmarks.tpch.util.SupplierGenerator;
 import com.oltpbenchmark.util.SQLUtil;
+import com.oltpbenchmark.catalog.Table;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import static com.oltpbenchmark.benchmarks.tpch.TPCHConstants.*;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
     public TPCHLoader(TPCHBenchmark benchmark) {

@@ -263,8 +263,8 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
             int batchSize = 0;
 
-            ZipfianGenerator zipfFollowee = new ZipfianGenerator(1, this.num_users, 1.75);
-            ZipfianGenerator zipfFollows = new ZipfianGenerator(this.num_follows, 1.75);
+            ZipfianGenerator zipfFollowee = new ZipfianGenerator(rng(),1, this.num_users, 1.75);
+            ZipfianGenerator zipfFollows = new ZipfianGenerator(rng(), this.num_follows, 1.75);
             List<Integer> followees = new ArrayList<>();
             for (int follower = lo; follower <= hi; follower++) {
                 followees.clear();

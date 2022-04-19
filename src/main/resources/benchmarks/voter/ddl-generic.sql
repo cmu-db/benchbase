@@ -7,12 +7,9 @@ DROP TABLE IF EXISTS CONTESTANTS CASCADE;
 -- contestants table holds the contestants numbers (for voting) and names
 CREATE TABLE CONTESTANTS
 (
-  contestant_number integer     NOT NULL
-, contestant_name   varchar(50) NOT NULL
-, PRIMARY KEY
-  (
-    contestant_number
-  )
+    contestant_number integer     NOT NULL,
+    contestant_name   varchar(50) NOT NULL,
+    PRIMARY KEY (contestant_number)
 );
 
 -- Map of Area Codes and States for geolocation classification of incoming calls

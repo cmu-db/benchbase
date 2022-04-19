@@ -17,18 +17,31 @@
 package com.oltpbenchmark.benchmarks.auctionmark;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.util.UserId;
 
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchmark> {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(AuctionMarkBenchmark.class, TestAuctionMarkBenchmark.PROC_CLASSES);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestAuctionMarkBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<AuctionMarkBenchmark> benchmarkClass() {
+        return AuctionMarkBenchmark.class;
+    }
+
+    @Override
+    protected void postCreateDatabaseSetup() throws IOException {
+        super.postCreateDatabaseSetup();
         AuctionMarkProfile.clearCachedProfile();
         AuctionMarkConstants.CLOSE_AUCTIONS_ENABLE = false;
     }
@@ -37,16 +50,6 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
      * testUniqueSellers
      */
     public void testUniqueSellers() throws Exception {
-        int num_workers = DB_TERMINALS;
-        this.benchmark.createDatabase();
-        this.benchmark.loadDatabase();
-
-        // Make a bunch of workers and then loop through all of them to
-        // make sure that they don't generate a seller id that was
-        // generated from another worker
-        this.workers = this.benchmark.makeWorkers();
-        assertNotNull(this.workers);
-        assertEquals(num_workers, this.workers.size());
 
         Set<UserId> all_users = new HashSet<UserId>();
         Set<UserId> worker_users = new TreeSet<UserId>();
@@ -77,11 +80,11 @@ public class TestAuctionMarkWorker extends AbstractTestWorker<AuctionMarkBenchma
                 assertFalse(worker.getId() + " -> " + user_id.toString() + " / " + user_id.encode(),
                         all_users.contains(user_id));
                 worker_users.add(user_id);
-            }
+            } // FOR
             assertFalse(worker_users.isEmpty());
             all_users.addAll(worker_users);
             last_num_users = num_users;
-        }
+        } // FOR
     }
 
 }

@@ -17,13 +17,20 @@
 package com.oltpbenchmark.benchmarks.seats;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
+import com.oltpbenchmark.api.Procedure;
+
+import java.util.List;
 
 public class TestSEATSWorker extends AbstractTestWorker<SEATSBenchmark> {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(SEATSBenchmark.class, TestSEATSBenchmark.PROC_CLASSES);
-        SEATSProfile.clearCachedProfile();
+    public List<Class<? extends Procedure>> procedures() {
+        return TestSEATSBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<SEATSBenchmark> benchmarkClass() {
+        return SEATSBenchmark.class;
     }
 
 }

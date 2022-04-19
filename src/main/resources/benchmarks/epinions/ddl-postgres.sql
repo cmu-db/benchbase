@@ -6,13 +6,17 @@ DROP TABLE IF EXISTS item CASCADE;
 
 CREATE TABLE useracct (
     u_id int NOT NULL,
-    name varchar(128) DEFAULT NULL,
+    name varchar(128) NOT NULL,
+    email varchar(128) NOT NULL,
+    creation_date timestamp DEFAULT NULL,
     PRIMARY KEY (u_id)
 );
 
 CREATE TABLE item (
     i_id  int NOT NULL,
-    title varchar(20) DEFAULT NULL,
+    title varchar(128) NOT NULL,
+    description varchar(512) DEFAULT NULL,
+    creation_date timestamp DEFAULT NULL,
     PRIMARY KEY (i_id)
 );
 
@@ -22,6 +26,8 @@ CREATE TABLE review (
     i_id   int NOT NULL,
     rating int DEFAULT NULL,
     rank   int DEFAULT NULL,
+    comment varchar(256) DEFAULT NULL,
+    creation_date timestamp DEFAULT NULL,
     FOREIGN KEY (u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
     FOREIGN KEY (i_id) REFERENCES item (i_id) ON DELETE CASCADE
 );
@@ -47,9 +53,7 @@ CREATE TABLE trust (
     source_u_id   int NOT NULL,
     target_u_id   int NOT NULL,
     trust         int NOT NULL,
-    creation_date timestamp DEFAULT NULL,
-    FOREIGN KEY (source_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE,
-    FOREIGN KEY (target_u_id) REFERENCES useracct (u_id) ON DELETE CASCADE
+    creation_date timestamp DEFAULT NULL
 );
 CREATE INDEX idx_trust_sid ON trust (source_u_id);
 CREATE INDEX idx_trust_tid ON trust (target_u_id);

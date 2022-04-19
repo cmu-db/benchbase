@@ -90,15 +90,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         this.keep_zero_entries = keepZeroEntries;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Histogram<?>) {
-            Histogram<?> other = (Histogram<?>) obj;
-            return (this.histogram.equals(other.histogram));
-        }
-        return (false);
-    }
-
     /**
      * Set whether this histogram is allowed to retain zero count entries
      * If the flag switches from true to false, then all zero count entries will be removed
@@ -194,7 +185,9 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
             // Is this value the new min/max values?
             if (this.min_value == null || this.min_value.compareTo(value) > 0) {
                 this.min_value = value;
-            } else if (this.max_value == null || this.max_value.compareTo(value) < 0) {
+            }
+
+            if (this.max_value == null || this.max_value.compareTo(value) < 0) {
                 this.max_value = value;
             }
 
@@ -205,6 +198,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
                 this.min_count_values.add(value);
                 this.min_count = cnt;
             }
+
             if (cnt >= this.max_count) {
                 if (cnt > this.max_count) {
                     this.max_count_values.clear();
@@ -336,17 +330,13 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         if (this.keep_zero_entries) {
             for (Entry<X, Integer> e : this.histogram.entrySet()) {
                 this.histogram.put(e.getKey(), 0);
-            }
+            } // FOR
             this.num_samples = 0;
             this.min_count = 0;
-            if (this.min_count_values != null) {
-                this.min_count_values.clear();
-            }
+            if (this.min_count_values != null) this.min_count_values.clear();
             this.min_value = null;
             this.max_count = 0;
-            if (this.max_count_values != null) {
-                this.max_count_values.clear();
-            }
+            if (this.max_count_values != null) this.max_count_values.clear();
             this.max_value = null;
         } else {
             this.clear();
@@ -458,7 +448,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
 
     /**
      * Returns the current count for the given value.
-     * If that value was never entered in the histogram, then the value returned will be value_if_null
+     * If that value was nevered entered in the histogram, then the value returned will be value_if_null
      *
      * @param value
      * @param value_if_null
@@ -477,6 +467,23 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      */
     public boolean contains(X value) {
         return (this.histogram.containsKey(value));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Histogram<?> histogram1 = (Histogram<?>) o;
+        return Objects.equals(histogram, histogram1.histogram);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(histogram);
     }
 
     // ----------------------------------------------------------------------------

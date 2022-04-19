@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLSERVER">
+        <procedure name="GetReviewItemById">
+            <statement name="getReviewItem">
+                SELECT TOP 10 * FROM review r, item i WHERE i.i_id = r.i_id and r.i_id=?
+                ORDER BY rating DESC, r.creation_date DESC;
+            </statement>
+        </procedure>
+        <procedure name="GetReviewsByUser">
+            <statement name="getReviewUser">
+                SELECT TOP 10 * FROM review r, [useracct] u WHERE u.u_id = r.u_id AND r.u_id=?
+                ORDER BY rating DESC, r.creation_date DESC;
+            </statement>
+        </procedure>
+        <procedure name="UpdateUserName">
+            <statement name="updateUser">
+                UPDATE [useracct] SET name = ? WHERE u_id=?;
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

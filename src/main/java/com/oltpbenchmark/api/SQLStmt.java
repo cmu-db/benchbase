@@ -62,9 +62,8 @@ public final class SQLStmt {
      * @param sql
      */
     public final void setSQL(String sql) {
-        this.orig_sql = sql;
+        this.orig_sql = sql.trim();
         for (int ctr : this.substitutions) {
-
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < ctr; i++) {
                 sb.append(i > 0 ? ", " : "").append("?");

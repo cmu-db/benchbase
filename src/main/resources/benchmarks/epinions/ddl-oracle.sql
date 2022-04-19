@@ -12,13 +12,17 @@ BEGIN EXECUTE IMMEDIATE 'DROP TABLE "useracct"'; EXCEPTION WHEN OTHERS THEN IF S
 
 CREATE TABLE "useracct" (
   u_id number(11,0) NOT NULL,
-  name varchar(128) DEFAULT NULL,
+  name varchar(128) NOT NULL,
+  email varchar(128) NOT NULL,
+  creation_date date DEFAULT NULL,
   PRIMARY KEY (u_id)
 );
 
 CREATE TABLE "item" (
   i_id number(11,0) NOT NULL,
-  title varchar(20) DEFAULT NULL,
+  title varchar(128) NOT NULL,
+  description varchar(512) DEFAULT NULL,
+  creation_date date DEFAULT NULL,
   PRIMARY KEY (i_id)
 );
 
@@ -27,7 +31,9 @@ CREATE TABLE "review" (
   u_id number(11,0) NOT NULL REFERENCES "useracct" (u_id),
   i_id number(11,0) NOT NULL REFERENCES "item" (i_id),
   rating number(11,0) DEFAULT NULL,
-  rank number(11,0) DEFAULT NULL
+  rank number(11,0) DEFAULT NULL,
+  comment varchar(256) DEFAULT NULL,
+  creation_date date DEFAULT NULL
 );
 
 CREATE TABLE "review_rating" (
