@@ -17,12 +17,20 @@
 package com.oltpbenchmark.benchmarks.ycsb;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
+
+import java.util.List;
 
 public class TestYCSBLoader extends AbstractTestLoader<YCSBBenchmark> {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(YCSBBenchmark.class, null, TestYCSBBenchmark.PROC_CLASSES);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestYCSBBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<YCSBBenchmark> benchmarkClass() {
+        return YCSBBenchmark.class;
     }
 
 }

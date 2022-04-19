@@ -17,13 +17,20 @@
 package com.oltpbenchmark.benchmarks.smallbank;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
+
+import java.util.List;
 
 public class TestSmallBankLoader extends AbstractTestLoader<SmallBankBenchmark> {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(SmallBankBenchmark.class, null, TestSmallBankBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.0001);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestSmallBankBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<SmallBankBenchmark> benchmarkClass() {
+        return SmallBankBenchmark.class;
     }
 
 }

@@ -95,15 +95,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         this.keep_zero_entries = keepZeroEntries;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Histogram<?>) {
-            Histogram<?> other = (Histogram<?>) obj;
-            return (this.histogram.equals(other.histogram));
-        }
-        return (false);
-    }
-
     public boolean hasDebugLabels() {
         return (this.debug_names != null && !this.debug_names.isEmpty());
     }
@@ -204,7 +195,9 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
             // Is this value the new min/max values?
             if (this.min_value == null || this.min_value.compareTo(value) > 0) {
                 this.min_value = value;
-            } else if (this.max_value == null || this.max_value.compareTo(value) < 0) {
+            }
+
+            if (this.max_value == null || this.max_value.compareTo(value) < 0) {
                 this.max_value = value;
             }
 
@@ -215,6 +208,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
                 this.min_count_values.add(value);
                 this.min_count = cnt;
             }
+
             if (cnt >= this.max_count) {
                 if (cnt > this.max_count) {
                     this.max_count_values.clear();
@@ -483,6 +477,23 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      */
     public boolean contains(X value) {
         return (this.histogram.containsKey(value));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Histogram<?> histogram1 = (Histogram<?>) o;
+        return Objects.equals(histogram, histogram1.histogram);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(histogram);
     }
 
     // ----------------------------------------------------------------------------
