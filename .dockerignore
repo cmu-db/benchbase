@@ -1,3 +1,10 @@
-.git/
+.dockerignore
+docker/
+!docker/benchbase/entrypoint.sh
+#.git/
 .mvn/
+mvnw.cmd
+mvnw
 target/
+results/
+profiles/

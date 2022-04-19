@@ -7,7 +7,13 @@
     "context": "..",
 
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-    "dockerFile": "../Dockerfile",
+    "dockerFile": "../docker/benchbase/Dockerfile",
+    "build": {
+        "target": "devcontainer",
+        "args": {
+            "--tag": "benchbase-dev:latest"
+        }
+    },
 
     // Set *default* container specific settings.json values on container create.
     "settings": {},
