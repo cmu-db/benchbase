@@ -266,10 +266,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Docker image build
-        run: docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
-      - name: Run test suite while building docker image
-        run: docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" -f ./docker/benchbase/Dockerfile --target test .
+      - name: Build docker image with all packages and run test suite
+        run: docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
 
       - name: Setup postgres test DB
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
