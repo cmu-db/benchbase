@@ -243,3 +243,40 @@ jobs:
       - name: Run benchmark
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+
+  docker-build-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres: # https://hub.docker.com/_/postgres
+        image: postgres:latest
+        env:
+          POSTGRES_DB: benchbase
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Docker image build
+        run: docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
+      - name: Run test suite while building docker image
+        run: docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" -f ./docker/benchbase/Dockerfile --target test .
+
+      - name: Setup postgres test DB
+          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin benchbase
+      - name: Run basic benchbase test from the docker image against postgres test DB
+        uses: docker://benchbase:latest
+        with:
+          env:
+            BENCHBASE_PROFILE: postgres
+          args: -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true

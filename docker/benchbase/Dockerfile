@@ -44,31 +44,37 @@ ENTRYPOINT ["/bin/bash", "-l"]
 # Preload some dependencies.
 COPY --chown=containeruser:containergroup pom.xml /benchbase/pom.xml
 COPY --chown=containeruser:containergroup .git/ /benchbase/.git/
-RUN mvn initialize
+ARG MAVEN_OPTS
+RUN mvn -B --file pom.xml initialize
 
 # Add an additional layer that also includes a built copy of the source.
-FROM devcontainer AS fullimage
+FROM devcontainer AS buildpackages
 
-ARG MAVEN_OPTS
 USER containeruser
 
 VOLUME /benchbase/results
 
 COPY --chown=containeruser:containergroup ./ /benchbase/
 # Uncomment for slightly faster incremental testing at the expense of additional docker image layers.
-RUN mvn process-resources compile test-compile # test
+RUN mvn -B --file pom.xml process-resources compile test-compile # test
 # Build all of the profiles into the image.
 ARG BENCHBASE_PROFILES="cockroachdb mariadb mysql postgres spanner phoenix"
 RUN for profile in ${BENCHBASE_PROFILES}; do \
-        mvn --file pom.xml package -P $profile -D skipTests || exit 1; \
+        mvn -B --file pom.xml package -P $profile -D skipTests || exit 1; \
         mkdir -p profiles/$profile; \
         tar -C profiles/$profile/ --strip-components=1 -xvzf target/benchbase-$profile.tgz || exit 1; \
         rm -rf profiles/$profile/data/ && ln -s ../../data profiles/$profile/data; \
     done \
-    && mvn clean \
     && test -d data \
     && test "`readlink -f profiles/postgres/data`" = "/benchbase/data"
 
 ENV BENCHBASE_PROFILE=postgres
 ENTRYPOINT ["/benchbase/docker/benchbase/entrypoint.sh"]
 CMD ["--help"]
+
+FROM buildpackages AS test
+USER containeruser
+RUN mvn -B --file pom.xml test
+
+FROM buildpackages AS fullimage
+RUN mvn -B --file pom.xml clean

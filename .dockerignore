@@ -2,6 +2,7 @@
 docker/
 !docker/benchbase/entrypoint.sh
 #.git/
+.github/
 .mvn/
 mvnw.cmd
 mvnw
