@@ -246,20 +246,6 @@ jobs:
 
   docker-build-test:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_BUILDKIT: 1
-      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix'
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-      - name: Build docker image with all packages and run test suite
-        run: |
-          docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test --build-arg UID=$UID --build-arg GID=$UID \
-            -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
-
-  docker-run-test:
-    needs: docker-build-test
-    runs-on: ubuntu-latest
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
@@ -279,9 +265,18 @@ jobs:
         run:
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
-      - name: Run basic benchbase test from the docker image against postgres test DB
-        uses: docker://benchbase:latest
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build docker image with all packages and run test suite
         env:
-          BENCHBASE_PROFILE: postgres
-        with:
-          args: -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
+          DOCKER_BUILDKIT: 1
+          BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix'
+        run: |
+          docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test --build-arg UID=$UID --build-arg GID=$UID \
+            -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
+      - name: Run basic benchbase test from the docker image against postgres test DB
+        run: |
+          cat config/postgres/sample_noop_config.xml | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
+          docker run -it --rm --name benchbase-postgres --network=$(docker ps --filter expose=5432 --format '{{.Networks}}')" \
+            --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml \
+            benchbase:latest -b noop -c /tmp/config.xml --create=true --load=true --execute=true
