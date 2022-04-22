@@ -247,6 +247,7 @@ jobs:
   docker-build-test:
     runs-on: ubuntu-latest
     env:
+      DOCKER_BUILDKIT: 1
       BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix'
     steps:
       - name: Checkout repo
