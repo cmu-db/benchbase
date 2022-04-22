@@ -262,7 +262,7 @@ jobs:
           - 5432:5432
     steps:
       - name: Setup postgres test DB
-        run:
+        run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Checkout repo
