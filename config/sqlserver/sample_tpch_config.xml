@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <type>sqlserver</type>
     <driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
-    <url>jdbc:sqlserver://sqlserver:1433;encrypt=false;database=benchbase_tpch;</url>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase_tpch;</url>
     <username>benchuser01</username>
     <password>P@ssw0rd</password>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
