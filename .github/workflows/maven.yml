@@ -277,5 +277,5 @@ jobs:
         uses: docker://benchbase:latest
         with:
           env:
-            BENCHBASE_PROFILE: postgres
+            - BENCHBASE_PROFILE: postgres
           args: -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
