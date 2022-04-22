@@ -270,6 +270,7 @@ jobs:
         run: docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
 
       - name: Setup postgres test DB
+        run:
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Run basic benchbase test from the docker image against postgres test DB
