@@ -47,7 +47,8 @@ ENTRYPOINT ["/bin/bash", "-l"]
 COPY --chown=containeruser:containergroup pom.xml /benchbase/pom.xml
 COPY --chown=containeruser:containergroup .git/ /benchbase/.git/
 ARG MAVEN_OPTS
-RUN mvn -B --file pom.xml initialize
+RUN mvn -B --file pom.xml initialize \
+    && rm -rf /benchbase/.git /benchbase/target /benchbase/pom.xml
 
 # Add an additional layer that also includes a built copy of the source.
 FROM devcontainer AS fullimage
@@ -72,7 +73,8 @@ RUN for profile in ${BENCHBASE_PROFILES}; do \
     && test -d data \
     && test "`readlink -f profiles/postgres/data`" = "/benchbase/data" \
     && mvn -B --file pom.xml clean \
-    && rm -rf ~/.m2/repository/*
+    && rm -rf ~/.m2/repository/* \
+    && rm -rf .git/
 
 ENV BENCHBASE_PROFILE=postgres
 ENTRYPOINT ["/benchbase/docker/benchbase/entrypoint.sh"]
