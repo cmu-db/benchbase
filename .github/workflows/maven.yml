@@ -271,6 +271,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+    steps:
       - name: Setup postgres test DB
         run:
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
