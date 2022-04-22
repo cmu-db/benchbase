@@ -1,6 +1,6 @@
 -- Adapted from the Postgres schema
 
--- Note: To use different storage layouts during --create,
+-- Note: To use different storage layouts during --create
 -- switch row/column store commented lines and rebuild.
 
 DROP TABLE IF EXISTS lineitem;
@@ -16,8 +16,11 @@ CREATE TABLE region (
     r_regionkey integer  NOT NULL,
     r_name      char(25) NOT NULL,
     r_comment   varchar(152),
-    -- INDEX region_cstore CLUSTERED COLUMNSTORE,           -- column store
-    PRIMARY KEY (r_regionkey),                              -- row store
+    -- column store:
+    -- INDEX region_cstore CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (r_regionkey),
+    -- secondary indices:
     INDEX r_rk UNIQUE (r_regionkey ASC)
 );
 
@@ -26,8 +29,11 @@ CREATE TABLE nation (
     n_name      char(25) NOT NULL,
     n_regionkey integer  NOT NULL,
     n_comment   varchar(152),
-    -- INDEX nation_cstore CLUSTERED COLUMNSTORE,           -- column store
-    PRIMARY KEY (n_nationkey),                              -- row store
+    -- column store:
+    -- INDEX nation_cstore CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (n_nationkey),
+    -- secondary indicies:
     INDEX n_nk UNIQUE (n_nationkey ASC),
     INDEX n_rk (n_regionkey ASC),
     FOREIGN KEY (n_regionkey) REFERENCES region (r_regionkey)
@@ -43,8 +49,11 @@ CREATE TABLE part (
     p_container   char(10)       NOT NULL,
     p_retailprice decimal(15, 2) NOT NULL,
     p_comment     varchar(23)    NOT NULL,
-    -- INDEX part_cstore CLUSTERED COLUMNSTORE,             -- column store
-    PRIMARY KEY (p_partkey),                                -- row store
+    -- column store:
+    -- INDEX part_cstore CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (p_partkey),
+    -- secondary indicies:
     INDEX p_pk UNIQUE (p_partkey ASC)
 );
 
@@ -56,8 +65,11 @@ CREATE TABLE supplier (
     s_phone     char(15)       NOT NULL,
     s_acctbal   decimal(15, 2) NOT NULL,
     s_comment   varchar(101)   NOT NULL,
-    -- INDEX supplier_cstore CLUSTERED COLUMNSTORE,         -- column store
-    PRIMARY KEY (s_suppkey),                                -- row store
+    -- column store:
+    -- INDEX supplier_cstore CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (s_suppkey),
+    -- secondary indicies:
     INDEX s_sk UNIQUE (s_suppkey ASC),
     INDEX s_nk (s_nationkey ASC),
     FOREIGN KEY (s_nationkey) REFERENCES nation (n_nationkey)
@@ -69,8 +81,11 @@ CREATE TABLE partsupp (
     ps_availqty   integer        NOT NULL,
     ps_supplycost decimal(15, 2) NOT NULL,
     ps_comment    varchar(199)   NOT NULL,
-    -- INDEX partsupp_cstore CLUSTERED COLUMNSTORE,         -- column store
-    PRIMARY KEY (ps_partkey, ps_suppkey),                   -- row store
+    -- column store:
+    -- INDEX partsupp_cstore CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (ps_partkey, ps_suppkey),
+    -- secondary indices:
     INDEX ps_pk (ps_partkey ASC),
     INDEX ps_sk (ps_suppkey ASC),
     INDEX ps_pk_sk UNIQUE (ps_partkey ASC, ps_suppkey ASC),
@@ -88,8 +103,11 @@ CREATE TABLE customer (
     c_acctbal    decimal(15, 2) NOT NULL,
     c_mktsegment char(10)       NOT NULL,
     c_comment    varchar(117)   NOT NULL,
-    -- INDEX customer_cstore CLUSTERED COLUMNSTORE,         -- column store
-    PRIMARY KEY (c_custkey),                                -- row store
+    -- column store:
+    -- INDEX customer_cstore CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (c_custkey),
+    -- secondary indices:
     INDEX c_ck UNIQUE (c_custkey ASC),
     INDEX c_nk (c_nationkey ASC),
     FOREIGN KEY (c_nationkey) REFERENCES nation (n_nationkey)
@@ -105,8 +123,11 @@ CREATE TABLE orders (
     o_clerk         char(15)       NOT NULL,
     o_shippriority  integer        NOT NULL,
     o_comment       varchar(79)    NOT NULL,
-    -- INDEX o_orderdate_idx CLUSTERED COLUMNSTORE,         -- column store
-    PRIMARY KEY (o_orderkey),                               -- row store
+    -- column store:
+    -- INDEX o_orderdate_idx CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (o_orderkey),
+    -- secondary indices:
     INDEX o_ok UNIQUE (o_orderkey ASC),
     INDEX o_ck (o_custkey ASC),
     INDEX o_od (o_orderdate ASC),
@@ -130,8 +151,11 @@ CREATE TABLE lineitem (
     l_shipinstruct  char(25)       NOT NULL,
     l_shipmode      char(10)       NOT NULL,
     l_comment       varchar(44)    NOT NULL,
-    -- INDEX l_shipdate_idx CLUSTERED COLUMNSTORE,          -- column store
-    PRIMARY KEY (l_orderkey, l_linenumber),                 -- row store
+    -- column store:
+    -- INDEX l_shipdate_idx CLUSTERED COLUMNSTORE,
+    -- row store:
+    PRIMARY KEY (l_orderkey, l_linenumber),
+    -- secondary indices:
     INDEX l_ok (l_orderkey ASC),
     INDEX l_pk (l_partkey ASC),
     INDEX l_sk (l_suppkey ASC),
