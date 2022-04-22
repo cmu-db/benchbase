@@ -275,7 +275,7 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Run basic benchbase test from the docker image against postgres test DB
         uses: docker://benchbase:latest
+        env:
+          BENCHBASE_PROFILE: postgres
         with:
-          env:
-            - BENCHBASE_PROFILE: postgres
           args: -b noop -c config/postgres/sample_noop_config.xml --create=true --load=true --execute=true
