@@ -18,7 +18,7 @@ CREATE TABLE region (
     r_comment   varchar(152),
     -- INDEX region_cstore CLUSTERED COLUMNSTORE,           -- column store
     PRIMARY KEY (r_regionkey),                              -- row store
-    INDEX r_rk UNIQUE (r_regionkey ASC),
+    INDEX r_rk UNIQUE (r_regionkey ASC)
 );
 
 CREATE TABLE nation (
