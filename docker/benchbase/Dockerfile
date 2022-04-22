@@ -28,8 +28,10 @@ FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
 
 # Add a containeruser that allows vscode/codespaces to map the local host user
 # (often uid 1000) to some non-root user inside the container.
-RUN addgroup --gid 1000 containergroup \
-    && adduser --disabled-password --gecos 'Container User' --uid 1000 --gid 1000 containeruser
+ARG UID=1000
+ARG GID=1000
+RUN addgroup --gid ${GID} containergroup \
+    && adduser --disabled-password --gecos 'Container User' --uid ${UID} --gid ${GID} containeruser
 USER containeruser
 
 WORKDIR /benchbase
