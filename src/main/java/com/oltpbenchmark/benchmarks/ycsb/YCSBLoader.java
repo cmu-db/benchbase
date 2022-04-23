@@ -72,7 +72,7 @@ class YCSBLoader extends Loader<YCSBBenchmark> {
             for (int i = start; i < stop; i++) {
                 stmt.setInt(1, i);
                 for (int j = 0; j < YCSBConstants.NUM_FIELDS; j++) {
-                    stmt.setString(j + 2, TextGenerator.randomStr(rng(), YCSBConstants.FIELD_SIZE));
+                    stmt.setString(j + 2, TextGenerator.randomStr(rng(), benchmark.fieldSize));
                 }
                 stmt.addBatch();
                 total++;

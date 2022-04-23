@@ -13,6 +13,9 @@
 
     <!-- Scale facto is the numbe of waehouses in TPCC -->
     <scalefacto>2</scalefacto>
+    
+    <!-- Optional: Override the field size for each column in USERTABLE -->
+    <!-- <fieldSize>8</fieldSize> -->
 
     <!-- The wokload -->
    <teminals>2</teminals>
