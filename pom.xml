@@ -47,6 +47,19 @@
             </dependencies>
         </profile>
         <profile>
+            <id>postgres</id>
+            <properties>
+                <classifier>postgres</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.postgresql</groupId>
+                    <artifactId>postgresql</artifactId>
+                    <version>42.3.3</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>mysql</id>
             <properties>
                 <classifier>mysql</classifier>
