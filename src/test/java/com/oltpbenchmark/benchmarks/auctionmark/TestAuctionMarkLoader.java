@@ -17,6 +17,7 @@
 package com.oltpbenchmark.benchmarks.auctionmark;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.auctionmark.util.ItemInfo;
 import com.oltpbenchmark.util.Histogram;
@@ -29,14 +30,14 @@ import java.util.Set;
 
 public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchmark> {
 
-    private static String IGNORE[] = {
-//        AuctionMarkConstants.TABLENAME_CONFIG_PROFILE,
-    };
+    @Override
+    public List<Class<? extends Procedure>> procedures() {
+        return TestAuctionMarkBenchmark.PROCEDURE_CLASSES;
+    }
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(AuctionMarkBenchmark.class, IGNORE, TestAuctionMarkBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.1);
+    public Class<AuctionMarkBenchmark> benchmarkClass() {
+        return AuctionMarkBenchmark.class;
     }
 
     /**

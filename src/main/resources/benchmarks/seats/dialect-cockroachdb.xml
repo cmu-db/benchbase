@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="DeleteReservation">
+            <statement name="UpdateCustomer">UPDATE customer SET C_BALANCE = C_BALANCE + ?, C_IATTR00 = ?, C_IATTR10 = C_IATTR10 - 1, C_IATTR11 = C_IATTR10 - 1 WHERE C_ID = ?</statement>
+            <statement name="GetCustomerByIdStr">SELECT C_ID FROM customer WHERE C_ID_STR = ?</statement>
+            <statement name="GetCustomerReservation">SELECT C_SATTR00, C_SATTR02, C_SATTR04, C_IATTR00, C_IATTR02, C_IATTR04, C_IATTR06, F_SEATS_LEFT, R_ID, R_SEAT, R_PRICE, R_IATTR00 FROM customer, flight, reservation WHERE C_ID = ? AND C_ID = R_C_ID AND F_ID = ? AND F_ID = R_F_ID</statement>
+            <statement name="UpdateFrequentFlyer">UPDATE frequent_flyer SET FF_IATTR10 = FF_IATTR10 - 1 WHERE FF_C_ID = ? AND FF_AL_ID = ?</statement>
+            <statement name="DeleteReservation">DELETE FROM reservation WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?</statement>
+            <statement name="UpdateFlight">UPDATE flight SET F_SEATS_LEFT = F_SEATS_LEFT + 1  WHERE F_ID = ?</statement>
+            <statement name="GetCustomerByFFNumber">SELECT C_ID, FF_AL_ID FROM customer, frequent_flyer WHERE FF_C_ID_STR = ? AND FF_C_ID = C_ID</statement>
+        </procedure>
+        <procedure name="FindFlights">
+            <statement name="GetFlights1">SELECT F_ID, F_AL_ID, F_SEATS_LEFT, F_DEPART_AP_ID, F_DEPART_TIME, F_ARRIVE_AP_ID, F_ARRIVE_TIME, AL_NAME, AL_IATTR00, AL_IATTR01 FROM flight, airline WHERE F_DEPART_AP_ID = ? AND F_DEPART_TIME &gt;= ? AND F_DEPART_TIME &lt;= ? AND F_AL_ID = AL_ID AND F_ARRIVE_AP_ID IN (??)</statement>
+            <statement name="GetFlights2">SELECT F_ID, F_AL_ID, F_SEATS_LEFT, F_DEPART_AP_ID, F_DEPART_TIME, F_ARRIVE_AP_ID, F_ARRIVE_TIME, AL_NAME, AL_IATTR00, AL_IATTR01 FROM flight, airline WHERE F_DEPART_AP_ID = ? AND F_DEPART_TIME &gt;= ? AND F_DEPART_TIME &lt;= ? AND F_AL_ID = AL_ID AND F_ARRIVE_AP_ID IN (??)</statement>
+            <statement name="GetFlights3">SELECT F_ID, F_AL_ID, F_SEATS_LEFT, F_DEPART_AP_ID, F_DEPART_TIME, F_ARRIVE_AP_ID, F_ARRIVE_TIME, AL_NAME, AL_IATTR00, AL_IATTR01 FROM flight, airline WHERE F_DEPART_AP_ID = ? AND F_DEPART_TIME &gt;= ? AND F_DEPART_TIME &lt;= ? AND F_AL_ID = AL_ID AND F_ARRIVE_AP_ID IN (??)</statement>
+            <statement name="GetAirportInfo">SELECT AP_CODE, AP_NAME, AP_CITY, AP_LONGITUDE, AP_LATITUDE, CO_ID, CO_NAME, CO_CODE_2, CO_CODE_3 FROM airport, country WHERE AP_ID = ? AND AP_CO_ID = CO_ID</statement>
+            <statement name="GetNearbyAirports">SELECT * FROM airport_distance WHERE D_AP_ID0 = ? AND D_DISTANCE &lt;= ? ORDER BY D_DISTANCE ASC </statement>
+        </procedure>
+        <procedure name="FindOpenSeats">
+            <statement name="GetFlight">SELECT F_STATUS, F_BASE_PRICE, F_SEATS_TOTAL, F_SEATS_LEFT, (F_BASE_PRICE + (F_BASE_PRICE * (1 - (F_SEATS_LEFT / F_SEATS_TOTAL)))) AS F_PRICE FROM flight WHERE F_ID = ?</statement>
+            <statement name="GetSeats">SELECT R_ID, R_F_ID, R_SEAT FROM reservation WHERE R_F_ID = ?</statement>
+        </procedure>
+        <procedure name="LoadConfig">
+            <statement name="getConfigProfile">SELECT * FROM config_profile</statement>
+            <statement name="getFlights">SELECT f_id FROM flight ORDER BY F_DEPART_TIME DESC LIMIT 10000</statement>
+            <statement name="getAirlineCodes">SELECT AL_ID, AL_IATA_CODE FROM airline WHERE AL_IATA_CODE != ''</statement>
+            <statement name="getAirportCodes">SELECT AP_ID, AP_CODE FROM airport</statement>
+            <statement name="getConfigHistogram">SELECT * FROM config_histograms</statement>
+            <statement name="getCountryCodes">SELECT CO_ID, CO_CODE_3 FROM country</statement>
+        </procedure>
+        <procedure name="NewReservation">
+            <statement name="InsertReservation">INSERT INTO reservation (R_ID, R_C_ID, R_F_ID, R_SEAT, R_PRICE, R_IATTR00, R_IATTR01, R_IATTR02, R_IATTR03, R_IATTR04, R_IATTR05, R_IATTR06, R_IATTR07, R_IATTR08) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)</statement>
+            <statement name="UpdateCustomer">UPDATE customer SET C_IATTR10 = C_IATTR10 + 1, C_IATTR11 = C_IATTR11 + 1, C_IATTR12 = ?, C_IATTR13 = ?, C_IATTR14 = ?, C_IATTR15 = ? WHERE C_ID = ?</statement>
+            <statement name="CheckCustomer">SELECT R_ID FROM reservation WHERE R_F_ID = ? AND R_C_ID = ?</statement>
+            <statement name="GetFlight">SELECT F_AL_ID, F_SEATS_LEFT, airline.* FROM flight, airline WHERE F_ID = ? AND F_AL_ID = AL_ID</statement>
+            <statement name="GetCustomer">SELECT C_BASE_AP_ID, C_BALANCE, C_SATTR00 FROM customer WHERE C_ID = ?</statement>
+            <statement name="UpdateFrequentFlyer">UPDATE frequent_flyer SET FF_IATTR10 = FF_IATTR10 + 1, FF_IATTR11 = ?, FF_IATTR12 = ?, FF_IATTR13 = ?, FF_IATTR14 = ? WHERE FF_C_ID = ? AND FF_AL_ID = ?</statement>
+            <statement name="CheckSeat">SELECT R_ID FROM reservation WHERE R_F_ID = ? and R_SEAT = ?</statement>
+            <statement name="UpdateFlight">UPDATE flight SET F_SEATS_LEFT = F_SEATS_LEFT - 1 WHERE F_ID = ?</statement>
+        </procedure>
+        <procedure name="UpdateCustomer">
+            <statement name="UpdateCustomer">UPDATE customer SET C_IATTR00 = ?, C_IATTR01 = ? WHERE C_ID = ?</statement>
+            <statement name="GetCustomer">SELECT * FROM customer WHERE C_ID = ? </statement>
+            <statement name="GetCustomerIdStr">SELECT C_ID FROM customer WHERE C_ID_STR = ? </statement>
+            <statement name="UpdatFrequentFlyers">UPDATE frequent_flyer SET FF_IATTR00 = ?, FF_IATTR01 = ? WHERE FF_C_ID = ? AND FF_AL_ID = ?</statement>
+            <statement name="GetFrequentFlyers">SELECT * FROM frequent_flyer WHERE FF_C_ID = ?</statement>
+            <statement name="GetBaseAirport">SELECT * FROM airport, country WHERE AP_ID = ? AND AP_CO_ID = CO_ID </statement>
+        </procedure>
+        <procedure name="UpdateReservation">
+            <statement name="ReserveSeat2">UPDATE reservation SET R_SEAT = ?, R_IATTR02 = ? WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?</statement>
+            <statement name="ReserveSeat1">UPDATE reservation SET R_SEAT = ?, R_IATTR01 = ? WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?</statement>
+            <statement name="ReserveSeat3">UPDATE reservation SET R_SEAT = ?, R_IATTR03 = ? WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?</statement>
+            <statement name="CheckCustomer">SELECT R_ID FROM reservation WHERE R_F_ID = ? AND R_C_ID = ?</statement>
+            <statement name="CheckSeat">SELECT R_ID FROM reservation WHERE R_F_ID = ? and R_SEAT = ?</statement>
+            <statement name="ReserveSeat0">UPDATE reservation SET R_SEAT = ?, R_IATTR00 = ? WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?</statement>
+        </procedure>
+    </dialect>
+</dialects>
+

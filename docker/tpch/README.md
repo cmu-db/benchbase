@@ -1,6 +1,6 @@
 # How to generate data for TPC-H
 
-To generate data files download the latest TPC-H tools distribution from http://www.tpc.org/tpc_documents_current_versions/current_specifications.asp
+To generate data files download the latest TPC-H tools distribution from https://www.tpc.org/tpc_documents_current_versions/current_specifications5.asp
 
 Place the zip file in this directory and rename it to `tpc-h-tool.zip` then execute the following commands.
 

@@ -138,9 +138,12 @@ public class HSQLDBCatalog implements AbstractCatalog {
             // INDEXES
             try (ResultSet idxRS = md.getIndexInfo(null, null, internalTableName, false, false)) {
                 while (idxRS.next()) {
+                    int idxType = idxRS.getShort(7);
+                    if (idxType == DatabaseMetaData.tableIndexStatistic) {
+                        continue;
+                    }
                     boolean idxUnique = !idxRS.getBoolean(4);
                     String idxName = idxRS.getString(6);
-                    int idxType = idxRS.getShort(7);
                     int idxColPos = idxRS.getInt(8) - 1;
                     String idxColName = idxRS.getString(9);
                     String sort = idxRS.getString(10);
@@ -201,12 +204,12 @@ public class HSQLDBCatalog implements AbstractCatalog {
      *
      * @return A map from the original table names to the uppercase HSQLDB table names.
      */
-    private Map<String, String> getOriginalTableNames() {
+    Map<String, String> getOriginalTableNames() {
         // Get the contents of the HSQLDB DDL for the current benchmark.
         String ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;
         try {
-            ddlContents = IOUtils.toString(Objects.requireNonNull(this.getClass().getClassLoader().getResource(ddlPath)), Charset.defaultCharset());
+            ddlContents = IOUtils.toString(Objects.requireNonNull(this.getClass().getResource(ddlPath)), Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

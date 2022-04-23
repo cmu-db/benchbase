@@ -95,7 +95,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             LOG.debug("threadbench calling teardown");
 
-            workers.get(i).tearDown(false);
+            workers.get(i).tearDown();
         }
 
         return requests;
@@ -150,7 +150,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         // Main Loop
         while (true) {
-            // posting new work... and reseting the queue in case we have new
+            // posting new work... and resetting the queue in case we have new
             // portion of the workload...
 
             for (WorkloadState workState : workStates) {
@@ -297,7 +297,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Compute stats on all the latencies
             int[] latencies = new int[samples.size()];
             for (int i = 0; i < samples.size(); ++i) {
-                latencies[i] = samples.get(i).latencyUs;
+                latencies[i] = samples.get(i).getLatencyMicrosecond();
             }
             DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
 
@@ -359,32 +359,25 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     }
 
-    /*
-     * public static Results runRateLimitedBenchmark(List<Worker> workers, File
-     * profileFile) throws QueueLimitException, IOException { ThreadBench bench
-     * = new ThreadBench(workers, profileFile); return
-     * bench.runRateLimitedFromFile(); }
-     */
-
     public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {
         private final Iterable<Sample> samples;
         private final int windowSizeSeconds;
-        private final TransactionType txType;
+        private final TransactionType transactionType;
 
         /**
          * @param samples
          * @param windowSizeSeconds
-         * @param txType            Allows to filter transactions by type
+         * @param transactionType            Allows to filter transactions by type
          */
-        public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType txType) {
+        public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType transactionType) {
             this.samples = samples;
             this.windowSizeSeconds = windowSizeSeconds;
-            this.txType = txType;
+            this.transactionType = transactionType;
         }
 
         @Override
         public Iterator<DistributionStatistics> iterator() {
-            return new TimeBucketIterator(samples.iterator(), windowSizeSeconds, txType);
+            return new TimeBucketIterator(samples.iterator(), windowSizeSeconds, transactionType);
         }
     }
 
@@ -394,7 +387,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         private final TransactionType txType;
 
         private Sample sample;
-        private long nextStartNs;
+        private long nextStartNanosecond;
 
         private DistributionStatistics next;
 
@@ -413,7 +406,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // TODO: To be totally correct, we would want this to be the
                 // timestamp of the start
                 // of the measurement interval. In most cases this won't matter.
-                nextStartNs = sample.startNs;
+                nextStartNanosecond = sample.getStartNanosecond();
                 calculateNext();
             }
         }
@@ -423,14 +416,14 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // Collect all samples in the time window
             ArrayList<Integer> latencies = new ArrayList<>();
-            long endNs = nextStartNs + windowSizeSeconds * 1000000000L;
-            while (sample != null && sample.startNs < endNs) {
+            long endNanoseconds = nextStartNanosecond + (windowSizeSeconds * 1000000000L);
+            while (sample != null && sample.getStartNanosecond() < endNanoseconds) {
 
                 // Check if a TX Type filter is set, in the default case,
                 // INVALID TXType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.tranType) {
-                    latencies.add(sample.latencyUs);
+                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.getTransactionType()) {
+                    latencies.add(sample.getLatencyMicrosecond());
                 }
 
                 if (samples.hasNext()) {
@@ -442,7 +435,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // Set up the next time window
 
-            nextStartNs = endNs;
+            nextStartNanosecond = endNanoseconds;
 
             int[] l = new int[latencies.size()];
             for (int i = 0; i < l.length; ++i) {

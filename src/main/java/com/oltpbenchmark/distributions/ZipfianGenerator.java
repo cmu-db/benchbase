@@ -20,6 +20,8 @@ package com.oltpbenchmark.distributions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Random;
+
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such that some items are more popular than others, according
  * to a zipfian distribution. When you construct an instance of this class, you specify the number of items in the set to draw from, either
@@ -43,6 +45,7 @@ public class ZipfianGenerator extends IntegerGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZipfianGenerator.class);
 
+    final Random rng;
 
     /**
      * Number of items.
@@ -79,14 +82,13 @@ public class ZipfianGenerator extends IntegerGenerator {
      */
     boolean allowitemcountdecrease = false;
 
-
     /**
      * Create a zipfian generator for the specified number of items.
-     *
-     * @param _items The number of items in the distribution.
+     * @param rng
+     * @param _items
      */
-    public ZipfianGenerator(long _items) {
-        this(0, _items - 1);
+    public ZipfianGenerator(Random rng, long _items) {
+        this(rng,0, _items - 1, ZIPFIAN_CONSTANT);
     }
 
     /**
@@ -95,8 +97,8 @@ public class ZipfianGenerator extends IntegerGenerator {
      * @param _min The smallest integer to generate in the sequence.
      * @param _max The largest integer to generate in the sequence.
      */
-    public ZipfianGenerator(long _min, long _max) {
-        this(_min, _max, ZIPFIAN_CONSTANT);
+    public ZipfianGenerator(Random rng, long _min, long _max) {
+        this(rng, _min, _max, ZIPFIAN_CONSTANT);
     }
 
     /**
@@ -105,8 +107,8 @@ public class ZipfianGenerator extends IntegerGenerator {
      * @param _items           The number of items in the distribution.
      * @param _zipfianconstant The zipfian constant to use.
      */
-    public ZipfianGenerator(long _items, double _zipfianconstant) {
-        this(0, _items - 1, _zipfianconstant);
+    public ZipfianGenerator(Random rng, long _items, double _zipfianconstant) {
+        this(rng, 0, _items - 1, _zipfianconstant);
     }
 
     /**
@@ -116,8 +118,8 @@ public class ZipfianGenerator extends IntegerGenerator {
      * @param max              The largest integer to generate in the sequence.
      * @param _zipfianconstant The zipfian constant to use.
      */
-    public ZipfianGenerator(long min, long max, double _zipfianconstant) {
-        this(min, max, _zipfianconstant, zetastatic(max - min + 1, _zipfianconstant));
+    public ZipfianGenerator(Random rng, long min, long max, double _zipfianconstant) {
+        this(rng, min, max, _zipfianconstant, zetastatic(max - min + 1, _zipfianconstant));
     }
 
     /**
@@ -128,8 +130,8 @@ public class ZipfianGenerator extends IntegerGenerator {
      * @param _zipfianconstant The zipfian constant to use.
      * @param _zetan           The precomputed zeta constant.
      */
-    public ZipfianGenerator(long min, long max, double _zipfianconstant, double _zetan) {
-
+    public ZipfianGenerator(Random rng, long min, long max, double _zipfianconstant, double _zetan) {
+        this.rng = rng;
         items = max - min + 1;
         base = min;
         zipfianconstant = _zipfianconstant;
@@ -258,7 +260,7 @@ public class ZipfianGenerator extends IntegerGenerator {
             }
         }
 
-        double u = Utils.random().nextDouble();
+        double u = this.rng.nextDouble();
         double uz = u * zetan;
 
         if (uz < 1.0) {

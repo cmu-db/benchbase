@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="HSQLDB">
+        <procedure name="NoOp">
+            <statement name="noopStmt">
+                <![CDATA[SELECT 1]]>
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

@@ -48,8 +48,8 @@ public class ResourceStresserBenchmark extends BenchmarkModule {
         int keyRange = numKeys / workConf.getTerminals();
         LOG.warn("numkeys={}, keyRange={}", numKeys, keyRange);
         // TODO: check ranges
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new ResourceStresserWorker(this, i, numKeys, keyRange));
+        for (int i = 0; i < workConf.getTerminals(); i++) {
+            workers.add(new ResourceStresserWorker(this, i + 1, numKeys, keyRange));
         }
 
         return workers;

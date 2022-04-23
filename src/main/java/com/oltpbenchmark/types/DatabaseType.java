@@ -36,6 +36,7 @@ public enum DatabaseType {
     H2(true, false),
     HSQLDB(false, false),
     POSTGRES(false, false),
+    MARIADB(true, false),
     MONETDB(false, false),
     MYROCKS(true, false),
     MYSQL(true, false),
@@ -47,7 +48,9 @@ public enum DatabaseType {
     SQLAZURE(true, false),
     SQLITE(true, false),
     SQLSERVER(true, false),
-    TIMESTEN(true, false);
+    TIMESTEN(true, false),
+    PHOENIX(true, true);
+
 
     DatabaseType(boolean escapeNames, boolean includeColNames) {
         this.escapeNames = escapeNames;

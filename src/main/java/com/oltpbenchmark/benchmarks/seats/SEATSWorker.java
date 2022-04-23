@@ -692,7 +692,7 @@ public class SEATSWorker extends Worker<SEATSBenchmark> {
             // Nothing
         }
         if (r == null) {
-            LOG.warn(String.format("Failed to find Reservation to update [cache=%d]", cache.size()));
+            LOG.debug(String.format("Failed to find Reservation to update [cache=%d]", cache.size()));
             return (false);
         }
         if (LOG.isTraceEnabled()) {

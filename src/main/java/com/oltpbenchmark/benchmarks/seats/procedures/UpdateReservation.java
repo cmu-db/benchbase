@@ -57,17 +57,17 @@ public class UpdateReservation extends Procedure {
 
     public final SQLStmt CheckSeat = new SQLStmt(
             "SELECT R_ID " +
-                    "  FROM " + SEATSConstants.TABLENAME_RESERVATION +
-                    " WHERE R_F_ID = ? and R_SEAT = ?");
+            "  FROM " + SEATSConstants.TABLENAME_RESERVATION +
+            " WHERE R_F_ID = ? and R_SEAT = ?");
 
     public final SQLStmt CheckCustomer = new SQLStmt(
             "SELECT R_ID " +
-                    "  FROM " + SEATSConstants.TABLENAME_RESERVATION +
-                    " WHERE R_F_ID = ? AND R_C_ID = ?");
+            "  FROM " + SEATSConstants.TABLENAME_RESERVATION +
+            " WHERE R_F_ID = ? AND R_C_ID = ?");
 
     private static final String BASE_SQL = "UPDATE " + SEATSConstants.TABLENAME_RESERVATION +
-            "   SET R_SEAT = ?, %s = ? " +
-            " WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?";
+                                           "   SET R_SEAT = ?, %s = ? " +
+                                           " WHERE R_ID = ? AND R_C_ID = ? AND R_F_ID = ?";
 
     public final SQLStmt ReserveSeat0 = new SQLStmt(String.format(BASE_SQL, "R_IATTR00"));
     public final SQLStmt ReserveSeat1 = new SQLStmt(String.format(BASE_SQL, "R_IATTR01"));
@@ -94,8 +94,8 @@ public class UpdateReservation extends Procedure {
         }
 
         if (found) {
-            throw new UserAbortException(ErrorType.SEAT_ALREADY_RESERVED +
-                    String.format(" Seat %d is already reserved on flight #%s", seatnum, f_id));
+            LOG.debug("Error Type [{}]: Seat {} is already reserved on flight {}", ErrorType.SEAT_ALREADY_RESERVED, seatnum, f_id);
+            return;
         }
 
         // Check if the Customer already has a seat on this flight
@@ -106,8 +106,8 @@ public class UpdateReservation extends Procedure {
         }
 
         if (!found) {
-            throw new UserAbortException(ErrorType.CUSTOMER_ALREADY_HAS_SEAT +
-                    String.format(" Customer %s does not have an existing reservation on flight #%s", c_id, f_id));
+            LOG.debug("Error Type [{}]: Customer {} does not have an existing reservation on flight {}", ErrorType.CUSTOMER_ALREADY_HAS_SEAT, c_id, f_id);
+            return;
         }
 
         // Update the seat reservation for the customer
@@ -117,13 +117,11 @@ public class UpdateReservation extends Procedure {
         }
 
         if (updated != 1) {
-            String msg = String.format("Failed to update reservation on flight %s for customer #%s - Updated %d records", f_id, c_id, updated);
-                LOG.warn(msg);
-            throw new UserAbortException(ErrorType.VALIDITY_ERROR + " " + msg);
+            throw new UserAbortException(String.format("Error Type [%s]: Failed to update reservation on flight %s for customer #%s - Updated %d records", ErrorType.VALIDITY_ERROR, f_id, c_id, updated));
         }
 
 
-            LOG.debug(String.format("Updated reservation on flight %s for customer %s", f_id, c_id));
+        LOG.debug(String.format("Updated reservation on flight %s for customer %s", f_id, c_id));
 
     }
 }

@@ -63,7 +63,7 @@ public class TableDataIterable implements Iterable<Object[]>, AutoCloseable {
             this.nullable[i] = catalog_col.isNullable();
         }
 
-        in = this.getClass().getClassLoader().getResourceAsStream(filePath);
+        in = this.getClass().getResourceAsStream(filePath);
         this.reader = new CSVReader(new InputStreamReader(in));
 
 

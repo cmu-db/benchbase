@@ -38,6 +38,7 @@ public class WorkloadConfiguration {
     private String driverClass;
     private int batchSize;
     private int maxRetries;
+    private int randomSeed = -1;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
     private int terminals;
@@ -56,11 +57,9 @@ public class WorkloadConfiguration {
         this.benchmarkName = benchmarkName;
     }
 
-
     public WorkloadState getWorkloadState() {
         return workloadState;
     }
-
 
     public DatabaseType getDatabaseType() {
         return databaseType;
@@ -153,6 +152,17 @@ public class WorkloadConfiguration {
         this.selectivity = selectivity;
     }
 
+    /**
+     * The random seed for this benchmark
+     * @return
+     */
+    public int getRandomSeed() { return this.randomSeed; }
+
+    /**
+     * Set the random seed for this benchmark
+     * @param randomSeed
+     */
+    public void setRandomSeed(int randomSeed) { this.randomSeed = randomSeed; }
 
     /**
      * Return the scale factor of the database size
@@ -277,23 +287,23 @@ public class WorkloadConfiguration {
     @Override
     public String toString() {
         return "WorkloadConfiguration{" +
-                "phases=" + phases +
-                ", databaseType=" + databaseType +
-                ", benchmarkName='" + benchmarkName + '\'' +
-                ", url='" + url + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", driverClass='" + driverClass + '\'' +
-                ", batchSize=" + batchSize +
-                ", maxRetries=" + maxRetries +
-                ", scaleFactor=" + scaleFactor +
-                ", selectivity=" + selectivity +
-                ", terminals=" + terminals +
-                ", loaderThreads=" + loaderThreads +
-                ", workloadState=" + workloadState +
-                ", transTypes=" + transTypes +
-                ", isolationMode=" + isolationMode +
-                ", dataDir='" + dataDir + '\'' +
-                '}';
+               "phases=" + phases +
+               ", databaseType=" + databaseType +
+               ", benchmarkName='" + benchmarkName + '\'' +
+               ", url='" + url + '\'' +
+               ", username='" + username + '\'' +
+               ", password='" + password + '\'' +
+               ", driverClass='" + driverClass + '\'' +
+               ", batchSize=" + batchSize +
+               ", maxRetries=" + maxRetries +
+               ", scaleFactor=" + scaleFactor +
+               ", selectivity=" + selectivity +
+               ", terminals=" + terminals +
+               ", loaderThreads=" + loaderThreads +
+               ", workloadState=" + workloadState +
+               ", transTypes=" + transTypes +
+               ", isolationMode=" + isolationMode +
+               ", dataDir='" + dataDir + '\'' +
+               '}';
     }
 }

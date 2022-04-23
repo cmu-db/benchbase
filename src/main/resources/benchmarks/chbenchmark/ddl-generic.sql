@@ -1,16 +1,18 @@
-DROP TABLE IF EXISTS region;
-DROP TABLE IF EXISTS nation;
-DROP TABLE IF EXISTS supplier;
+DROP TABLE IF EXISTS region CASCADE;
+DROP TABLE IF EXISTS nation CASCADE;
+DROP TABLE IF EXISTS supplier CASCADE;
 
-create table region (
-   r_regionkey int not null,
-   r_name char(55) not null,
-   r_comment char(152) not null,
-   PRIMARY KEY ( r_regionkey )
+create table region
+(
+    r_regionkey int       not null,
+    r_name      char(55)  not null,
+    r_comment   char(152) not null,
+    PRIMARY KEY (r_regionkey)
 );
 
-create table nation (
-   n_nationkey int not null,
+create table nation
+(
+    n_nationkey int    not null,
    n_name char(25) not null,
    n_regionkey int not null references region(r_regionkey) ON DELETE CASCADE,
    n_comment char(152) not null,

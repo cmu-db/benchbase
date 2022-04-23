@@ -17,42 +17,28 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.types.DatabaseType;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 public class MockBenchmark extends BenchmarkModule {
     public MockBenchmark() {
         super(new WorkloadConfiguration());
+        this.workConf.setBenchmarkName("mockbenchmark");
     }
 
     @Override
     protected Package getProcedurePackageImpl() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     protected Loader<MockBenchmark> makeLoaderImpl() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        // TODO Auto-generated method stub
         return null;
     }
-
-    public URL getDatabaseDDL(DatabaseType db_type) {
-        // Get our sample DDL file
-        URL testDDLURL = MockBenchmark.class.getResource("test-ddl.sql");
-        assert (testDDLURL != null) : "Unable to get " + MockBenchmark.class.getSimpleName() + " DDL file";
-        File testDDL = new File(testDDLURL.getPath());
-        assert (testDDL.exists()) : testDDL.getAbsolutePath();
-        return (testDDLURL);
-    }
-} // END CLASS
+}

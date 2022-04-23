@@ -29,7 +29,7 @@ public class GetItemReviewsByTrustedUser extends Procedure {
 
     //FIXME: CARLO, does this make sense?
     public final SQLStmt getReview = new SQLStmt(
-            "SELECT * FROM review r WHERE r.i_id=?"
+            "SELECT * FROM review r WHERE r.i_id=? ORDER BY creation_date DESC"
     );
 
     public final SQLStmt getTrust = new SQLStmt(

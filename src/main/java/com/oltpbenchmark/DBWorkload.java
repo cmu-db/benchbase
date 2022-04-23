@@ -30,7 +30,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
@@ -122,6 +122,7 @@ public class DBWorkload {
             wrkld.setUrl(xmlConfig.getString("url"));
             wrkld.setUsername(xmlConfig.getString("username"));
             wrkld.setPassword(xmlConfig.getString("password"));
+            wrkld.setRandomSeed(xmlConfig.getInt("randomSeed", -1));
             wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
             wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
 
@@ -200,7 +201,17 @@ public class DBWorkload {
                     txnId = xmlConfig.getInt(key + "/id");
                 }
 
-                TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset);
+                long preExecutionWait = 0;
+                if (xmlConfig.containsKey(key + "/preExecutionWait")) {
+                    preExecutionWait = xmlConfig.getLong(key + "/preExecutionWait");
+                }
+
+                long postExecutionWait = 0;
+                if (xmlConfig.containsKey(key + "/postExecutionWait")) {
+                    postExecutionWait = xmlConfig.getLong(key + "/postExecutionWait");
+                }
+
+                TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset, preExecutionWait, postExecutionWait);
 
                 // Keep a reference for filtering
                 activeTXTypes.add(tmpType);
@@ -234,7 +245,7 @@ public class DBWorkload {
 
                 // Get the weights for this grouping and make sure that there
                 // is an appropriate number of them.
-                List<String> groupingWeights = xmlConfig.getList(String.class, key + "/weights");
+                List<String> groupingWeights = Arrays.asList(xmlConfig.getString(key + "/weights").split("\\s*,\\s*"));
                 if (groupingWeights.size() != numTxnTypes) {
                     LOG.error(String.format("Grouping \"%s\" has %d weights," + " but there are %d transactions in this" + " benchmark.", groupingName, groupingWeights.size(), numTxnTypes));
                     System.exit(-1);
@@ -255,12 +266,12 @@ public class DBWorkload {
                 final HierarchicalConfiguration<ImmutableNode> work = xmlConfig.configurationAt("works/work[" + i + "]");
                 List<String> weight_strings;
 
-                // use a workaround if there multiple workloads or single
+                // use a workaround if there are multiple workloads or single
                 // attributed workload
                 if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
-                    weight_strings = work.getList(String.class, "weights" + pluginTest);
+                    weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
                 } else {
-                    weight_strings = work.getList(String.class, "weights[not(@bench)]");
+                    weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
                 }
 
                 int rate = 1;
@@ -293,7 +304,7 @@ public class DBWorkload {
                 }
                 Phase.Arrival arrival = Phase.Arrival.REGULAR;
                 String arrive = work.getString("@arrival", "regular");
-                if (arrive.toUpperCase().equals("POISSON")) {
+                if (arrive.equalsIgnoreCase("POISSON")) {
                     arrival = Phase.Arrival.POISSON;
                 }
 
@@ -329,7 +340,7 @@ public class DBWorkload {
                     LOG.info("Timer enabled for serial run; will run queries" + " serially in a loop until the timer expires.");
                 }
                 if (warmup < 0) {
-                    LOG.error("Must provide nonnegative time bound for" + " warmup.");
+                    LOG.error("Must provide non-negative time bound for" + " warmup.");
                     System.exit(-1);
                 }
 
@@ -488,7 +499,7 @@ public class DBWorkload {
         FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
                 .configure(params.xml()
                         .setFileName(filename)
-                        .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+                        .setListDelimiterHandler(new DisabledListDelimiterHandler())
                         .setExpressionEngine(new XPathExpressionEngine()));
         return builder.getConfiguration();
 
@@ -515,7 +526,7 @@ public class DBWorkload {
         }
 
         LOG.info(SINGLE_LINE);
-        LOG.info("Workload Histograms:\n{}", sb.toString());
+        LOG.info("Workload Histograms:\n{}", sb);
         LOG.info(SINGLE_LINE);
     }
 
@@ -548,7 +559,7 @@ public class DBWorkload {
 
 
         FileUtil.makeDirIfNotExists(outputDirectory);
-        ResultUploader ru = new ResultUploader(r, xmlConfig, argsLine);
+        ResultWriter rw = new ResultWriter(r, xmlConfig, argsLine);
 
         String name = StringUtils.join(StringUtils.split(argsLine.getOptionValue("b"), ','), '-');
 
@@ -557,51 +568,53 @@ public class DBWorkload {
         int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
 
         String rawFileName = baseFileName + ".raw.csv";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, rawFileName)))) {
+        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, rawFileName))) {
             LOG.info("Output Raw data into file: {}", rawFileName);
-            r.writeAllCSVAbsoluteTiming(activeTXTypes, ps);
+            rw.writeRaw(activeTXTypes, ps);
         }
 
         String sampleFileName = baseFileName + ".samples.csv";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, sampleFileName)))) {
+        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, sampleFileName))) {
             LOG.info("Output samples into file: {}", sampleFileName);
-            r.writeCSV2(ps);
+            rw.writeSamples(ps);
         }
 
         String summaryFileName = baseFileName + ".summary.json";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, summaryFileName)))) {
+        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, summaryFileName))) {
             LOG.info("Output summary data into file: {}", summaryFileName);
-            ru.writeSummary(ps);
+            rw.writeSummary(ps);
         }
 
         String paramsFileName = baseFileName + ".params.json";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, paramsFileName)))) {
+        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, paramsFileName))) {
             LOG.info("Output DBMS parameters into file: {}", paramsFileName);
-            ru.writeDBParameters(ps);
+            rw.writeParams(ps);
         }
 
-        String metricsFileName = baseFileName + ".metrics.json";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, metricsFileName)))) {
-            LOG.info("Output DBMS metrics into file: {}", metricsFileName);
-            ru.writeDBMetrics(ps);
+        if (rw.hasMetrics()) {
+            String metricsFileName = baseFileName + ".metrics.json";
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, metricsFileName))) {
+                LOG.info("Output DBMS metrics into file: {}", metricsFileName);
+                rw.writeMetrics(ps);
+            }
         }
 
         String configFileName = baseFileName + ".config.xml";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, configFileName)))) {
+        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
             LOG.info("Output benchmark config into file: {}", configFileName);
-            ru.writeBenchmarkConf(ps);
+            rw.writeConfig(ps);
         }
 
         String resultsFileName = baseFileName + ".results.csv";
-        try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, resultsFileName)))) {
+        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, resultsFileName))) {
             LOG.info("Output results into file: {} with window size {}", resultsFileName, windowSize);
-            r.writeCSV(windowSize, ps);
+            rw.writeResults(windowSize, ps);
         }
 
         for (TransactionType t : activeTXTypes) {
             String fileName = baseFileName + ".results." + t.getName() + ".csv";
-            try (PrintStream ps = new PrintStream(new File(FileUtil.joinPath(outputDirectory, fileName)))) {
-                r.writeCSV(windowSize, ps, t);
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
+                rw.writeResults(windowSize, ps, t);
             }
         }
 
@@ -637,7 +650,7 @@ public class DBWorkload {
 
     private static void printUsage(Options options) {
         HelpFormatter hlpfrmt = new HelpFormatter();
-        hlpfrmt.printHelp("oltpbenchmark", options);
+        hlpfrmt.printHelp("benchbase", options);
     }
 
     /**

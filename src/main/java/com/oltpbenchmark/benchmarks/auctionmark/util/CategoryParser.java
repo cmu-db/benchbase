@@ -43,9 +43,9 @@ public class CategoryParser {
         _nextCategoryID = 0;
 
 
-        final String path = "benchmarks" + File.separator + "auctionmark" + File.separator + "table.category";
+        final String path = "/benchmarks/auctionmark/table.category";
 
-        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+        try (InputStream resourceAsStream = this.getClass().getResourceAsStream(path)) {
 
             List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
             for (String line : lines) {
