@@ -23,8 +23,11 @@ public abstract class YCSBConstants {
 
     public static final int NUM_FIELDS = 10;
 
-    public static final int FIELD_SIZE = 100; // chars
-
+    /**
+     * The max size of each field in the USERTABLE.
+     * NOTE: If you increase this value here in the code, then you must update all the DDL files.
+     */
+    public static final int MAX_FIELD_SIZE = 100; // chars
 
     /**
      * How many records will each thread load.
