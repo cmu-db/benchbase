@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="SQLITE">
+        <procedure name="ReadModifyWriteRecord">
+            <statement name="selectStmt">
+                SELECT * FROM usertable WHERE ycsb_key=?
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
