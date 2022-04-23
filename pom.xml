@@ -34,15 +34,15 @@
 
     <profiles>
         <profile>
-            <id>postgres</id>
+            <id>sqlite</id>
             <properties>
-                <classifier>postgres</classifier>
+                <classifier>sqlite</classifier>
             </properties>
             <dependencies>
                 <dependency>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <version>42.3.3</version>
+                    <groupId>org.xerial</groupId>
+                    <artifactId>sqlite-jdbc</artifactId>
+                    <version>3.36.0.3</version>
                 </dependency>
             </dependencies>
         </profile>
