@@ -20,7 +20,6 @@ package com.oltpbenchmark.api;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,14 +28,8 @@ public class TransactionTypes implements Collection<TransactionType> {
     private final ListOrderedMap<String, TransactionType> types = new ListOrderedMap<>();
 
     public TransactionTypes(List<TransactionType> transactiontypes) {
-        transactiontypes.sort(new Comparator<TransactionType>() {
-            @Override
-            public int compare(TransactionType o1, TransactionType o2) {
-                return o1.compareTo(o2);
-            }
-        });
+        transactiontypes.sort(TransactionType::compareTo);
         for (TransactionType tt : transactiontypes) {
-            // System.err.println("Adding " + tt + " - " + this.types + " / " + transactiontypes);
             String key = tt.getName().toUpperCase();
             this.types.put(key, tt);
         }
@@ -68,7 +61,6 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     @Override
     public boolean addAll(Collection<? extends TransactionType> c) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -79,7 +71,6 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     @Override
     public boolean contains(Object o) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -100,19 +91,16 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     @Override
     public boolean remove(Object o) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        // TODO Auto-generated method stub
         return false;
     }
 

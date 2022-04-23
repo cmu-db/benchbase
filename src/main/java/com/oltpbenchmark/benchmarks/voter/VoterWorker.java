@@ -20,7 +20,8 @@ package com.oltpbenchmark.benchmarks.voter;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.voter.PhoneCallGenerator.PhoneCall;
+import com.oltpbenchmark.benchmarks.voter.util.PhoneCallGenerator;
+import com.oltpbenchmark.benchmarks.voter.util.PhoneCallGenerator.PhoneCall;
 import com.oltpbenchmark.benchmarks.voter.procedures.Vote;
 import com.oltpbenchmark.types.TransactionStatus;
 
@@ -33,7 +34,7 @@ public class VoterWorker extends Worker<VoterBenchmark> {
 
     public VoterWorker(VoterBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
-        switchboard = new PhoneCallGenerator(0, benchmarkModule.numContestants);
+        switchboard = new PhoneCallGenerator(rng(),0, benchmarkModule.numContestants);
     }
 
     @Override

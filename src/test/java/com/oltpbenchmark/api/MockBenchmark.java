@@ -17,11 +17,8 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.types.DatabaseType;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 public class MockBenchmark extends BenchmarkModule {
@@ -32,19 +29,16 @@ public class MockBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     protected Loader<MockBenchmark> makeLoaderImpl() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        // TODO Auto-generated method stub
         return null;
     }
-} // END CLASS
+}

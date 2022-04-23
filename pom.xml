@@ -111,6 +111,19 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>sqlserver</id>
+            <properties>
+                <classifier>sqlserver</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.microsoft.sqlserver</groupId>
+                    <artifactId>mssql-jdbc</artifactId>
+                    <version>10.2.0.jre17</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <dependencies>

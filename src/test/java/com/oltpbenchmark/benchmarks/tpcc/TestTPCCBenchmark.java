@@ -18,21 +18,29 @@
 package com.oltpbenchmark.benchmarks.tpcc;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.tpcc.procedures.*;
+
+import java.util.List;
 
 public class TestTPCCBenchmark extends AbstractTestBenchmarkModule<TPCCBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             Delivery.class,
             NewOrder.class,
             OrderStatus.class,
             Payment.class,
-            StockLevel.class,
-    };
+            StockLevel.class
+    );
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(TPCCBenchmark.class, PROC_CLASSES);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestTPCCBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<TPCCBenchmark> benchmarkClass() {
+        return TPCCBenchmark.class;
     }
 
 }

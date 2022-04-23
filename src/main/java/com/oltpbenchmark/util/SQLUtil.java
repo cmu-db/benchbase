@@ -495,9 +495,12 @@ public abstract class SQLUtil {
 
                 try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
                     while (idx_rs.next()) {
+                        int idx_type = idx_rs.getShort("TYPE");
+                        if (idx_type == DatabaseMetaData.tableIndexStatistic) {
+                            continue;
+                        }
                         boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
                         String idx_name = idx_rs.getString("INDEX_NAME");
-                        int idx_type = idx_rs.getShort("TYPE");
                         int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
                         String idx_col_name = idx_rs.getString("COLUMN_NAME");
                         String sort = idx_rs.getString("ASC_OR_DESC");

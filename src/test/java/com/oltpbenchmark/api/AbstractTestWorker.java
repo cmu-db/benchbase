@@ -18,10 +18,11 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.api.Procedure.UserAbortException;
+import org.apache.commons.lang3.time.StopWatch;
 
-import java.sql.Connection;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractTestWorker<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
@@ -29,24 +30,17 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
 
     protected List<Worker<? extends BenchmarkModule>> workers;
 
-    @SuppressWarnings("rawtypes")
-    protected void setUp(Class<T> clazz, Class... procClasses) throws Exception {
-        super.setUp(clazz, procClasses);
+    public AbstractTestWorker() {
+        super(true, true);
+    }
 
-        List<TransactionType> txnList = new ArrayList<TransactionType>();
-        int id = 1;
-        for (Class<? extends Procedure> procClass : this.procClasses) {
-            assertNotNull(procClass);
-            String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
-            assertNotNull(txnType);
-            assertEquals(procClass, txnType.getProcedureClass());
-            txnList.add(txnType);
-        } // FOR
-        TransactionTypes txnTypes = new TransactionTypes(txnList);
-        this.workConf.setTransTypes(txnTypes);
-        this.workConf.setBatchSize(128);
-        this.workConf.setTerminals(NUM_TERMINALS);
+    @Override
+    public List<String> ignorableTables() {
+        return null;
+    }
+
+    @Override
+    protected void postCreateDatabaseSetup() throws IOException {
         this.workers = this.benchmark.makeWorkers();
         assertNotNull(this.workers);
         assertEquals(NUM_TERMINALS, this.workers.size());
@@ -55,42 +49,50 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
     /**
      * testGetProcedure
      */
-    public void testGetProcedure() throws Exception {
+    public void testGetProcedure() {
         // Make sure that we can get a Procedure handle for each TransactionType
         Worker<?> w = workers.get(0);
         assertNotNull(w);
-        for (Class<? extends Procedure> procClass : this.procClasses) {
+        for (Class<? extends Procedure> procClass : this.procedures()) {
             assertNotNull(procClass);
             Procedure proc = w.getProcedure(procClass);
             assertNotNull("Failed to get procedure " + procClass.getSimpleName(), proc);
             assertEquals(procClass, proc.getClass());
-        } // FOR
+        }
     }
 
     /**
      * testExecuteWork
      */
     public void testExecuteWork() throws Exception {
-        this.benchmark.createDatabase();
-        this.benchmark.loadDatabase();
-        this.conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
         Worker<?> w = workers.get(0);
         assertNotNull(w);
         w.initialize();
         assertFalse(this.conn.isReadOnly());
         for (TransactionType txnType : this.workConf.getTransTypes()) {
-            if (txnType.isSupplemental()) { continue; }
+            if (txnType.isSupplemental()) {
+                continue;
+            }
+
+            StopWatch sw = new StopWatch(txnType.toString());
+
             try {
-                // Bombs away!
+                LOG.info("starting execution of [{}]", txnType);
+                sw.start();
                 w.executeWork(this.conn, txnType);
+                sw.stop();
+
+
             } catch (UserAbortException ex) {
                 // These are expected, so they can be ignored
                 // Anything else is a serious error
             } catch (Throwable ex) {
                 throw new RuntimeException("Failed to execute " + txnType, ex);
+            } finally {
+
+                LOG.info("completed execution of [{}] in {} ms", txnType.toString(), sw.getTime(TimeUnit.MILLISECONDS));
             }
-            conn.commit();
-        } // FOR
+        }
     }
 }

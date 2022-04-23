@@ -18,22 +18,30 @@
 package com.oltpbenchmark.benchmarks.ycsb;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.ycsb.procedures.*;
+
+import java.util.List;
 
 public class TestYCSBBenchmark extends AbstractTestBenchmarkModule<YCSBBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             DeleteRecord.class,
             InsertRecord.class,
             ReadModifyWriteRecord.class,
             ReadRecord.class,
             ScanRecord.class,
-            UpdateRecord.class,
-    };
+            UpdateRecord.class
+    );
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(YCSBBenchmark.class, PROC_CLASSES);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestYCSBBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<YCSBBenchmark> benchmarkClass() {
+        return YCSBBenchmark.class;
     }
 
 }

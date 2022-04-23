@@ -17,13 +17,20 @@
 package com.oltpbenchmark.benchmarks.tpcc;
 
 import com.oltpbenchmark.api.AbstractTestLoader;
+import com.oltpbenchmark.api.Procedure;
+
+import java.util.List;
 
 public class TestTPCCLoader extends AbstractTestLoader<TPCCBenchmark> {
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(TPCCBenchmark.class, null, TestTPCCBenchmark.PROC_CLASSES);
-        this.workConf.setScaleFactor(0.1);
+    public List<Class<? extends Procedure>> procedures() {
+        return TestTPCCBenchmark.PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<TPCCBenchmark> benchmarkClass() {
+        return TPCCBenchmark.class;
     }
 
 }

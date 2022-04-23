@@ -1,14 +1,18 @@
 DROP TABLE IF EXISTS useracct CASCADE;
 CREATE TABLE useracct (
   u_id int NOT NULL,
-  name string DEFAULT NULL,
+  name string NOT NULL,
+  email string NOT NULL,
+  creation_date datetime DEFAULT NULL,
   PRIMARY KEY (u_id)
 );
 
 DROP TABLE IF EXISTS item CASCADE;
 CREATE TABLE item (
   i_id int NOT NULL,
-  title string DEFAULT NULL,
+  title string NOT NULL,
+  description string DEFAULT NULL,
+  creation_date datetime DEFAULT NULL,
   PRIMARY KEY (i_id)
 );
 
@@ -18,7 +22,9 @@ CREATE TABLE review (
   u_id int NOT NULL REFERENCES useracct (u_id),
   i_id int NOT NULL REFERENCES item (i_id),
   rating int DEFAULT NULL,
-  rank int DEFAULT NULL
+  rank int DEFAULT NULL,
+  comment varchar(256) DEFAULT NULL,
+  creation_date datetime DEFAULT NULL
 );
 CREATE INDEX IDX_RATING_UID ON review (u_id);
 CREATE INDEX IDX_RATING_AID ON review (a_id);

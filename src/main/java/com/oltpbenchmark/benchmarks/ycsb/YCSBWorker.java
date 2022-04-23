@@ -58,8 +58,8 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
     public YCSBWorker(YCSBBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
         this.data = new char[benchmarkModule.fieldSize];
-        this.readRecord = new ZipfianGenerator(init_record_count);// pool for read keys
-        this.randScan = new ZipfianGenerator(YCSBConstants.MAX_SCAN);
+        this.readRecord = new ZipfianGenerator(rng(), init_record_count);// pool for read keys
+        this.randScan = new ZipfianGenerator(rng(), YCSBConstants.MAX_SCAN);
 
         synchronized (YCSBWorker.class) {
             // We must know where to start inserting

@@ -122,6 +122,7 @@ public class DBWorkload {
             wrkld.setUrl(xmlConfig.getString("url"));
             wrkld.setUsername(xmlConfig.getString("username"));
             wrkld.setPassword(xmlConfig.getString("password"));
+            wrkld.setRandomSeed(xmlConfig.getInt("randomSeed", -1));
             wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
             wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
 

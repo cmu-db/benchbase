@@ -26,8 +26,7 @@ import static com.oltpbenchmark.benchmarks.tpch.util.GenerateUtils.calculateStar
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
-public class CustomerGenerator
-        implements Iterable<List<Object>> {
+public class CustomerGenerator implements Iterable<List<Object>> {
     public static final int SCALE_BASE = 150_000;
     private static final int ACCOUNT_BALANCE_MIN = -99999;
     private static final int ACCOUNT_BALANCE_MAX = 999999;

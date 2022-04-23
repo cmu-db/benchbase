@@ -26,40 +26,42 @@ import java.sql.SQLException;
 
 public class Q18 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt(
-            "select "
-                    + "c_name, "
-                    + "c_custkey, "
-                    + "o_orderkey, "
-                    + "o_orderdate, "
-                    + "o_totalprice, "
-                    + "sum(l_quantity) "
-                    + "from "
-                    + "customer, "
-                    + "orders, "
-                    + "lineitem "
-                    + "where "
-                    + "o_orderkey in ( "
-                    + "select "
-                    + "l_orderkey "
-                    + "from "
-                    + "lineitem "
-                    + "group by "
-                    + "l_orderkey having "
-                    + "sum(l_quantity) > ? "
-                    + ") "
-                    + "and c_custkey = o_custkey "
-                    + "and o_orderkey = l_orderkey "
-                    + "group by "
-                    + "c_name, "
-                    + "c_custkey, "
-                    + "o_orderkey, "
-                    + "o_orderdate, "
-                    + "o_totalprice "
-                    + "order by "
-                    + "o_totalprice desc, "
-                    + "o_orderdate "
-                    + "limit 100"
+    public final SQLStmt query_stmt = new SQLStmt("""
+            SELECT
+               c_name,
+               c_custkey,
+               o_orderkey,
+               o_orderdate,
+               o_totalprice,
+               SUM(l_quantity)
+            FROM
+               customer,
+               orders,
+               lineitem
+            WHERE
+               o_orderkey IN
+               (
+                  SELECT
+                     l_orderkey
+                  FROM
+                     lineitem
+                  GROUP BY
+                     l_orderkey
+                  HAVING
+                     SUM(l_quantity) > ?
+               )
+               AND c_custkey = o_custkey
+               AND o_orderkey = l_orderkey
+            GROUP BY
+               c_name,
+               c_custkey,
+               o_orderkey,
+               o_orderdate,
+               o_totalprice
+            ORDER BY
+               o_totalprice DESC,
+               o_orderdate LIMIT 100
+            """
     );
 
     @Override
