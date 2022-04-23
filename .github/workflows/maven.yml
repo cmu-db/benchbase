@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix' ]
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver' ]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
@@ -243,3 +243,66 @@ jobs:
       - name: Run benchmark
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+
+  sqlserver:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # TODO: add more benchmarks
+        benchmark: [ 'tpcc', 'tpch' ]
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: SApassword1
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 1433:1433
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-sqlserver
+
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-sqlserver.tgz --strip-components=1
+
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-sqlserver.tgz
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
+
+      - name: Setup database
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "CREATE DATABASE benchbase_${{ matrix.benchmark }};"
+
+      - name: Setup login
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -Q "CREATE LOGIN benchuser01 WITH PASSWORD='P@ssw0rd';"
+
+      - name: Setup access
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "USE benchbase_${{ matrix.benchmark }}; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
+
+      - name: Run benchmark
+        # Note: user/pass should match those used in sample configs.
+        run: |
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
