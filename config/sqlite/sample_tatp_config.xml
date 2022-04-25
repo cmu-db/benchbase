@@ -6,10 +6,10 @@
     <driver>org.sqlite.JDBC</driver>
     <url>jdbc:sqlite:tatp.db</url>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>128</batchsize>
+    <batchsize>500</batchsize>
 
     <!-- Scalefactor increases the number of subscribers -->
-    <scalefactor>1</scalefactor>
+    <scalefactor>0.1</scalefactor>
     
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>
