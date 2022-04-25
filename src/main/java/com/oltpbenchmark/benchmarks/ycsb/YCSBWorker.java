@@ -44,7 +44,7 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
     private static CounterGenerator insertRecord;
     private final ZipfianGenerator randScan;
 
-    private final char[] data = new char[YCSBConstants.FIELD_SIZE];
+    private final char[] data;
     private final String[] params = new String[YCSBConstants.NUM_FIELDS];
     private final String[] results = new String[YCSBConstants.NUM_FIELDS];
 
@@ -57,8 +57,9 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
 
     public YCSBWorker(YCSBBenchmark benchmarkModule, int id, int init_record_count) {
         super(benchmarkModule, id);
-        readRecord = new ZipfianGenerator(rng(), init_record_count);// pool for read keys
-        randScan = new ZipfianGenerator(rng(), YCSBConstants.MAX_SCAN);
+        this.data = new char[benchmarkModule.fieldSize];
+        this.readRecord = new ZipfianGenerator(rng(), init_record_count);// pool for read keys
+        this.randScan = new ZipfianGenerator(rng(), YCSBConstants.MAX_SCAN);
 
         synchronized (YCSBWorker.class) {
             // We must know where to start inserting
@@ -139,9 +140,8 @@ class YCSBWorker extends Worker<YCSBBenchmark> {
     }
 
     private void buildParameters() {
-        Random rng = rng();
         for (int i = 0; i < this.params.length; i++) {
-            this.params[i] = new String(TextGenerator.randomFastChars(rng, this.data));
+            this.params[i] = new String(TextGenerator.randomFastChars(rng(), this.data));
         }
     }
 }
