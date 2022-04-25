@@ -3,6 +3,7 @@
 DROP TABLE IF EXISTS added_tweets;
 DROP TABLE IF EXISTS tweets;
 DROP TABLE IF EXISTS followers;
+DROP TABLE IF EXISTS follows;
 DROP TABLE IF EXISTS user_profiles;
 
 CREATE TABLE user_profiles
@@ -25,7 +26,6 @@ CREATE TABLE followers
     PRIMARY KEY (f1, f2)
 );
 
-DROP TABLE IF EXISTS follows CASCADE;
 CREATE TABLE follows
 (
     f1 int NOT NULL REFERENCES user_profiles (uid),
