@@ -221,15 +221,17 @@ public abstract class BenchmarkModule {
      */
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException, IOException {
 
-            String ddlPath = this.getDatabaseDDLPath(dbType);
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
-            if (LOG.isDebugEnabled()) {
+            if (workConf.getDdlPath() != null) {
+                String ddlPath = workConf.getDdlPath();
                 LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+                runner.runExternalScript(ddlPath);
+            } else {
+                String ddlPath = this.getDatabaseDDLPath(dbType);
+                LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+                runner.runScript(ddlPath);
             }
-
-            runner.runScript(ddlPath);
-
     }
 
 
