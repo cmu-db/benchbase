@@ -52,7 +52,7 @@ java -jar benchbase.jar -h
 
 Benchmarking is incredibly useful, yet endlessly painful. This benchmark suite is the result of a group of
 PhDs/post-docs/professors getting together and combining their workloads/frameworks/experiences/efforts. We hope this
-will save other people's time, and will provide an extensible platform, that can be grown in an open-source fashion. 
+will save other people's time, and will provide an extensible platform, that can be grown in an open-source fashion.
 
 BenchBase is a multi-threaded load generator. The framework is designed to be able to produce variable rate,
 variable mixture load against any JDBC-enabled relational database. The framework also provides data collection
@@ -145,7 +145,7 @@ usage: benchbase
 Instead of first building, packaging and extracting before running benchbase, it is possible to execute benchmarks directly against the source code using Maven. Once you have the project cloned you can run any benchmark from the root project directory using the Maven `exec:java` goal. For example, the following command executes the `tpcc` benchmark against `postgres`:
 
 ```
-mvn clean compile exec:java -P postgres -Dexec.args="-b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true" 
+mvn clean compile exec:java -P postgres -Dexec.args="-b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true"
 ```
 
 this is equivalent to the steps above but eliminates the need to first package and then extract the distribution.

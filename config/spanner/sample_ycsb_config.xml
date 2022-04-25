@@ -10,6 +10,9 @@
 
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
     <scalefactor>1</scalefactor>
+    
+    <!-- Optional: Override the field size for each column in USERTABLE -->
+    <!-- <fieldSize>8</fieldSize> -->
 
     <!-- The workload -->
     <terminals>1</terminals>

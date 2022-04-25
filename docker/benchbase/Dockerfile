@@ -63,7 +63,7 @@ COPY --chown=containeruser:containergroup ./ /benchbase/
 ARG TEST_TARGET=
 RUN mvn -B --file pom.xml process-resources compile ${TEST_TARGET}
 # Build all of the profiles into the image.
-ARG BENCHBASE_PROFILES="cockroachdb mariadb mysql postgres spanner phoenix"
+ARG BENCHBASE_PROFILES="cockroachdb mariadb mysql postgres spanner phoenix sqlserver"
 RUN for profile in ${BENCHBASE_PROFILES}; do \
         mvn -B --file pom.xml package -P $profile -D skipTests || exit 1; \
         mkdir -p profiles/$profile; \

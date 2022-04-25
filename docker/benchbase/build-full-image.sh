@@ -2,7 +2,7 @@
 
 set -eu
 
-BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix}"
+BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver}"
 
 scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/../../")
