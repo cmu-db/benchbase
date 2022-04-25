@@ -348,6 +348,6 @@ jobs:
           # Map the adjusted config into the container and use it to run the test.
           mkdir -p results
           docker run --rm --name benchbase-postgres --network "$docker_network" \
-            --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/basebench/results" \
+            --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
             benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
           ls results/${benchmark}_*.csv
