@@ -32,7 +32,7 @@ ARG UID=1000
 ARG GID=1000
 RUN addgroup --gid ${GID} containergroup \
     && adduser --disabled-password --gecos 'Container User' --uid ${UID} --gid ${GID} containeruser
-RUN mkdir -p /benchbase/results && chown containeruser:containergroup /benchbase/
+RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
 USER containeruser
 ENV MAVEN_CONFIG=/home/containeruser/.m2
 WORKDIR /benchbase
