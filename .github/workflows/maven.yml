@@ -73,7 +73,7 @@ jobs:
     strategy:
       matrix:
         #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-        benchmark: [ 'epinions', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tpcc', 'twitter', 'voter', 'ycsb' ]
+        benchmark: [ 'epinions', 'noop', 'resourcestresser', 'seats', 'sibench', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
