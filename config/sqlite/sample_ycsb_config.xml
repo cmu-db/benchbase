@@ -10,6 +10,9 @@
 
     <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
     <scalefactor>1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
 
     <!-- The workload -->
     <terminals>1</terminals>

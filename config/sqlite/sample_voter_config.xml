@@ -9,6 +9,9 @@
     <batchsize>128</batchsize>
 
     <scalefactor>1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
 
     <!-- The workload -->
     <terminals>1</terminals>
