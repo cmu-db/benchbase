@@ -279,7 +279,7 @@ jobs:
             benchmark: noop
         run: |
           # Adjust the sample config to talk to the container service instead of localhost.
-          cat config/postgres/sample_${benchmark}_config.xml | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
+          cat "config/postgres/sample_${benchmark}_config.xml" | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
           # Lookup the service container's docker network so we can place the benchbase container in it too.
           docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
           # Map the adjusted config into the container and use it to run the test.
