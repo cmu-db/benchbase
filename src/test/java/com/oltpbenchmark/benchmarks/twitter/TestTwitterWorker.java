@@ -2,11 +2,10 @@ package com.oltpbenchmark.benchmarks.twitter;
 
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
-import org.junit.Ignore;
 
 import java.util.List;
 
-@Ignore("the testcase is under development")
+//@Ignore("the testcase is under development")
 public class TestTwitterWorker extends AbstractTestWorker<TwitterBenchmark> {
 
     @Override
@@ -17,5 +16,15 @@ public class TestTwitterWorker extends AbstractTestWorker<TwitterBenchmark> {
     @Override
     public Class<TwitterBenchmark> benchmarkClass() {
         return TwitterBenchmark.class;
+    }
+
+    @Override
+    protected String traceFile1() {
+        return "data/twitter/twitter_tweetids.txt";
+    }
+
+    @Override
+    protected String traceFile2() {
+        return "data/twitter/twitter_user_ids.txt";
     }
 }

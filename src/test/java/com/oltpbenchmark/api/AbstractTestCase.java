@@ -41,6 +41,7 @@ import static org.hsqldb.Database.CLOSEMODE_NORMAL;
 
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
 
+
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     // -----------------------------------------------------------------
@@ -53,8 +54,15 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     // -----------------------------------------------------------------
 
-    private static final double DB_SCALE_FACTOR = 0.01;
-    private static final int DB_TERMINALS = 1;
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "password";
+    public static final String ADDRESS = "localhost";
+    public static final String DATABASE_NAME = "benchbase";
+
+    private static final double DEFAULT_SCALE_FACTOR = 0.01;
+    private static final int DEFAULT_TERMINALS = 1;
+    private static final int DEFAULT_RETRIES = 3;
+    private static final int DEFAULT_BATCH_SIZE = 128;
 
     private Server server = null;
 
@@ -82,27 +90,31 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     @Override
     protected final void setUp() throws Exception {
-        HsqlProperties props = new HsqlProperties();
 
         int port = portCounter.incrementAndGet();
 
         LOG.info("starting HSQLDB server for test [{}] on port [{}]", this.getName(), port);
 
+        HsqlProperties props = new HsqlProperties();
+        props.setProperty("server.remote_open", false);
+
         server = new Server();
         server.setProperties(props);
-        server.setDatabasePath(0, "mem:benchbase;sql.syntax_mys=true");
-        server.setDatabaseName(0, "benchbase");
-        server.setAddress("localhost");
+        server.setDatabasePath(0, String.format("mem:%s;sql.syntax_mys=true;user=%s;password=%s", DATABASE_NAME, USERNAME, PASSWORD));
+        server.setDatabaseName(0, DATABASE_NAME);
+        server.setAddress(ADDRESS);
         server.setPort(port);
+        server.setDaemon(false);
+        server.setTrace(false);
         server.setSilent(true);
         server.setLogWriter(null);
         server.start();
 
-        String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://%s:%d/%s", server.getAddress(), server.getPort(), server.getDatabaseName(0, true));
+        String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://%s:%d/%s", ADDRESS, port, DATABASE_NAME);
 
 
-        Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION, null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
-        Workload workload = new Workload(benchmarkClass(), scaleFactor(), null, terminals(), null, null, null, null);
+        Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION, USERNAME, PASSWORD, TransactionIsolation.TRANSACTION_SERIALIZABLE, batchSize(), retries());
+        Workload workload = new Workload(benchmarkClass(), scaleFactor(), selectivity(), terminals(), traceFile1(), traceFile2(), null, null);
 
 
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
@@ -157,11 +169,31 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     }
 
     protected double scaleFactor() {
-        return DB_SCALE_FACTOR;
+        return DEFAULT_SCALE_FACTOR;
+    }
+
+    protected Double selectivity() {
+        return null;
     }
 
     protected int terminals() {
-        return DB_TERMINALS;
+        return DEFAULT_TERMINALS;
+    }
+
+    protected int batchSize() {
+        return DEFAULT_BATCH_SIZE;
+    }
+
+    protected int retries() {
+        return DEFAULT_RETRIES;
+    }
+
+    protected String traceFile1() {
+        return null;
+    }
+
+    protected String traceFile2() {
+        return null;
     }
 
     protected void postCreateDatabaseSetup() throws IOException {
@@ -197,6 +229,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
             LOG.trace("shutting down server...");
             server.shutdown();
+
+            server = null;
 
         }
     }
