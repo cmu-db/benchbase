@@ -288,7 +288,7 @@ jobs:
         uses: docker://mcr.microsoft.com/mssql-tools:latest
         with:
           entrypoint: /opt/mssql-tools/bin/sqlcmd
-          args: -U sa -P SApassword1 -S sqlserver -b -Q "CREATE DATABASE benchbase_${{ matrix.benchmark }};"
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "CREATE DATABASE benchbase;"
 
       - name: Setup login
         uses: docker://mcr.microsoft.com/mssql-tools:latest
@@ -300,7 +300,7 @@ jobs:
         uses: docker://mcr.microsoft.com/mssql-tools:latest
         with:
           entrypoint: /opt/mssql-tools/bin/sqlcmd
-          args: -U sa -P SApassword1 -S sqlserver -b -Q "USE benchbase_${{ matrix.benchmark }}; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "USE benchbase; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
 
       - name: Run benchmark
         # Note: user/pass should match those used in sample configs.

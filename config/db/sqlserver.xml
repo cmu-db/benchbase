@@ -2,7 +2,7 @@
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
     <type>SQLSERVER</type>
     <driverClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</driverClass>
-    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase_tpcc;</url>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase;</url>
     <username>benchuser01</username>
     <password>P@ssw0rd</password>
     <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
