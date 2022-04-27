@@ -112,10 +112,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
         String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://%s:%d/%s", ADDRESS, port, DATABASE_NAME);
 
-
         Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION, USERNAME, PASSWORD, TransactionIsolation.TRANSACTION_SERIALIZABLE, batchSize(), retries());
-        Workload workload = new Workload(benchmarkClass(), scaleFactor(), selectivity(), terminals(), traceFile1(), traceFile2(), null, null);
-
+        Workload workload = new Workload(benchmarkClass(), scaleFactor(), selectivity(), terminals(), traceFile1(), traceFile2(), fieldSize(), null, null);
 
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
 
@@ -193,6 +191,10 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     }
 
     protected String traceFile2() {
+        return null;
+    }
+
+    protected Integer fieldSize() {
         return null;
     }
 

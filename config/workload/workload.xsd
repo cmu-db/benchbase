@@ -93,7 +93,7 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="workloadType">
-        <xs:sequence>
+        <xs:all>
             <xs:element type="xs:double" name="scaleFactor">
                 <xs:annotation>
                     <xs:documentation>the scale factor of this workload. this value usually dictates the size of the data generated for this benchmark.</xs:documentation>
@@ -124,7 +124,12 @@
                     <xs:documentation>the list of Procedures, known here as transactions, that define this workload.</xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:sequence>
+            <xs:element type="xs:int" name="fieldSize"  minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>can be used to configure max field size in some workloads.  See YCSB for example.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
         <xs:attribute type="xs:string" name="benchmarkClass" use="required">
             <xs:annotation>
                 <xs:documentation>the fully qualified class name of the Benchmark that defines this workload. It must extend com.oltpbenchmark.api.BenchmarkModule.</xs:documentation>

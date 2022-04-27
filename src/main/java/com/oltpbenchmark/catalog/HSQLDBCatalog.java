@@ -138,9 +138,12 @@ public class HSQLDBCatalog implements AbstractCatalog {
             // INDEXES
             try (ResultSet idxRS = md.getIndexInfo(null, null, internalTableName, false, false)) {
                 while (idxRS.next()) {
+                    int idxType = idxRS.getShort(7);
+                    if (idxType == DatabaseMetaData.tableIndexStatistic) {
+                        continue;
+                    }
                     boolean idxUnique = !idxRS.getBoolean(4);
                     String idxName = idxRS.getString(6);
-                    int idxType = idxRS.getShort(7);
                     int idxColPos = idxRS.getInt(8) - 1;
                     String idxColName = idxRS.getString(9);
                     String sort = idxRS.getString(10);

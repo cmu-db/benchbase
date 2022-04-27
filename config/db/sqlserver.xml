@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
+    <type>SQLSERVER</type>
+    <driverClass>com.microsoft.sqlserver.jdbc.SQLServerDriver</driverClass>
+    <url>jdbc:sqlserver://localhost:1433;encrypt=false;database=benchbase_tpcc;</url>
+    <username>benchuser01</username>
+    <password>P@ssw0rd</password>
+    <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+    <batchSize>128</batchSize>
+    <retries>3</retries>
+</database>

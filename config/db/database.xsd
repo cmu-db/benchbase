@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
     <xs:element name="database" type="databaseType"/>
     <xs:complexType name="databaseType">
-        <xs:sequence>
+        <xs:all>
             <xs:element type="xs:string" name="type">
                 <xs:annotation>
                     <xs:documentation>the Database Type as specified in com.oltpbenchmark.types.DatabaseType</xs:documentation>
@@ -17,6 +17,7 @@
                         <xs:enumeration value="POSTGRES"/>
                         <xs:enumeration value="SPANNER"/>
                         <xs:enumeration value="HSQLDB"/>
+                        <xs:enumeration value="SQLSERVER"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
@@ -63,7 +64,7 @@
                     <xs:documentation>the number of times to retryable transactions will be retried before failing</xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:sequence>
+        </xs:all>
     </xs:complexType>
 
 </xs:schema>

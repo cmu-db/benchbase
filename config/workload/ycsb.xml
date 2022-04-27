@@ -6,6 +6,9 @@
             <scaleFactor>1</scaleFactor>
             <terminals>1</terminals>
 
+            <!-- Optional: Override the field size for each column in USERTABLE -->
+            <fieldSize>8</fieldSize>
+
             <phases>
                 <phase>
                     <time>60</time>

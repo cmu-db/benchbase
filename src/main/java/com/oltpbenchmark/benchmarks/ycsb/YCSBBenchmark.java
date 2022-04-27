@@ -39,21 +39,29 @@ public class YCSBBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
     public static final String NAME = "ycsb";
 
+    /**
+     * The length in characters of each field
+     */
+    protected final int fieldSize;
+
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(NAME, workConf);
+
+        if (workConf.getFieldSize() != null && workConf.getFieldSize() > 0) {
+            fieldSize = Math.min(workConf.getFieldSize(), YCSBConstants.MAX_FIELD_SIZE);
+        } else {
+            fieldSize = YCSBConstants.MAX_FIELD_SIZE;
+        }
+
     }
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         try {
-
-
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
-
             Table t = this.getCatalog().getTable("USERTABLE");
-
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDatabaseType(), t, "ycsb_key");
 
             try (Connection metaConn = this.makeConnection();
@@ -81,7 +89,6 @@ public class YCSBBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-        // TODO Auto-generated method stub
         return InsertRecord.class.getPackage();
     }
 

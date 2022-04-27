@@ -42,7 +42,7 @@ public class TestHSQLDBCatalog extends TestCase {
     @Override
     protected void setUp() throws Exception {
         Database database = new Database(DatabaseType.HSQLDB, JDBCDriver.class, null, null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
-        Workload workload = new Workload(MockBenchmark.class, 1.0, null, 1, null, null, null, null);
+        Workload workload = new Workload(MockBenchmark.class, 1.0, null, 1, null, null, null, null, null);
 
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
 

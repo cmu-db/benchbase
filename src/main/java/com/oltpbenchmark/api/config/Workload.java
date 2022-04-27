@@ -12,6 +12,7 @@ public record Workload(Class<? extends BenchmarkModule> benchmarkClass,
                        Integer terminals,
                        String traceFile1,
                        String traceFile2,
+                       Integer fieldSize,
                        List<Phase> phases,
                        List<Transaction> transactions) {
 }

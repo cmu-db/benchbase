@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Tool to run database scripts
@@ -88,44 +86,72 @@ public class ScriptRunner {
         try (LineNumberReader lineReader = new LineNumberReader(reader)) {
             String line = null;
             while ((line = lineReader.readLine()) != null) {
-
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(line);
+                }
                 if (command == null) {
                     command = new StringBuffer();
                 }
                 String trimmedLine = line.trim();
-                if ((!trimmedLine.startsWith("--") && !trimmedLine.startsWith("//")) && trimmedLine.length() >= 1) {
-                    if (trimmedLine.endsWith(getDelimiter())) {
-                        command.append(line, 0, line.lastIndexOf(getDelimiter()));
-                        command.append(" ");
+                line = line.replaceAll("\\-\\-.*$", ""); // remove comments in line;
 
-                        try (Statement statement = conn.createStatement()) {
+                if (trimmedLine.startsWith("--") || trimmedLine.startsWith("//")) {
+                    LOG.debug(trimmedLine);
+                } else if (trimmedLine.length() < 1) {
+                    // Do nothing
+                } else if (trimmedLine.endsWith(getDelimiter())) {
+                    command.append(line, 0, line.lastIndexOf(getDelimiter()));
+                    command.append(" ");
 
-                            final String sql = command.toString().trim();
-                            if (stopOnError) {
+                    try (Statement statement = conn.createStatement()) {
+
+                        boolean hasResults = false;
+                        final String sql = command.toString().trim();
+                        if (stopOnError) {
+                            hasResults = statement.execute(sql);
+                        } else {
+                            try {
                                 statement.execute(sql);
-                            } else {
-                                try {
-                                    statement.execute(sql);
-                                } catch (SQLException e) {
-                                    LOG.error(e.getMessage(), e);
+                            } catch (SQLException e) {
+                                LOG.error(e.getMessage(), e);
+                            }
+                        }
+
+                        if (autoCommit && !conn.getAutoCommit()) {
+                            conn.commit();
+                        }
+
+                        // HACK
+                        if (hasResults && !sql.toUpperCase().startsWith("CREATE")) {
+                            try (ResultSet rs = statement.getResultSet()) {
+                                if (hasResults && rs != null) {
+                                    ResultSetMetaData md = rs.getMetaData();
+                                    int cols = md.getColumnCount();
+                                    for (int i = 0; i < cols; i++) {
+                                        String name = md.getColumnLabel(i);
+                                        LOG.debug(name);
+                                    }
+
+                                    while (rs.next()) {
+                                        for (int i = 0; i < cols; i++) {
+                                            String value = rs.getString(i);
+                                            LOG.debug(value);
+                                        }
+                                    }
+
                                 }
                             }
-
-                            if (autoCommit && !conn.getAutoCommit()) {
-                                conn.commit();
-                            }
-
-                            command = null;
-                        } finally {
-
-                            Thread.yield();
                         }
-                    } else {
-                        command.append(line);
-                        command.append(" ");
-                    }
-                }  // do nothing
 
+                        command = null;
+                    } finally {
+
+                        Thread.yield();
+                    }
+                } else {
+                    command.append(line);
+                    command.append(" ");
+                }
             }
             if (!autoCommit) {
                 conn.commit();

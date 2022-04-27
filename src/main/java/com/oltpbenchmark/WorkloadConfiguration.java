@@ -34,9 +34,7 @@ public class WorkloadConfiguration {
     private final Workload workload;
     private final TransactionTypes transactionTypes;
     private final List<Phase> phases;
-
     private final int loaderThreads = ThreadUtil.availableProcessors();
-
     private WorkloadState workloadState;
 
 
@@ -140,6 +138,10 @@ public class WorkloadConfiguration {
 
     public String getTraceFile2() {
         return workload.traceFile2();
+    }
+
+    public Integer getFieldSize() {
+        return workload.fieldSize();
     }
 
 }
