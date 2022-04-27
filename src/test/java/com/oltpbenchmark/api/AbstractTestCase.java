@@ -56,8 +56,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "password";
-    public static final String ADDRESS = "localhost";
-    public static final String DATABASE_NAME = "benchbase";
+    private static final String ADDRESS = "localhost";
+    private static final String DATABASE_NAME = "benchbase";
 
     private static final double DEFAULT_SCALE_FACTOR = 0.01;
     private static final int DEFAULT_TERMINALS = 1;
