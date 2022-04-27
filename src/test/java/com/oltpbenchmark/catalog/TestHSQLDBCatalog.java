@@ -16,12 +16,19 @@
 
 package com.oltpbenchmark.catalog;
 
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.api.MockBenchmark;
+import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.config.Database;
+import com.oltpbenchmark.api.config.TransactionIsolation;
+import com.oltpbenchmark.api.config.Workload;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.SQLUtil;
 import junit.framework.TestCase;
+import org.hsqldb.jdbc.JDBCDriver;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,9 +41,14 @@ public class TestHSQLDBCatalog extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
+        Database database = new Database(DatabaseType.HSQLDB, JDBCDriver.class, null, null, null, TransactionIsolation.TRANSACTION_SERIALIZABLE, 128, 3);
+        Workload workload = new Workload(MockBenchmark.class, 1.0, null, 1, null, null, null, null);
 
-        this.benchmark = new MockBenchmark();
+        TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
+
+        ArrayList<Phase> phases = new ArrayList<>();
+
+        this.benchmark = new MockBenchmark(database, workload, txnTypes, phases);
         this.catalog = new HSQLDBCatalog(benchmark);
         assertNotNull(this.catalog);
     }

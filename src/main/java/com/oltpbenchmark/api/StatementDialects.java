@@ -22,6 +22,7 @@ import com.oltpbenchmark.api.config.Dialect;
 import com.oltpbenchmark.api.config.Statement;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.FileUtil;
+import com.oltpbenchmark.util.SQLUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class StatementDialects {
 
                     for (Statement statement : procedure.statements()) {
                         String stmtName = statement.name();
-                        String stmtSQL = statement.sql();
+                        String stmtSQL = SQLUtil.clean(statement.sql());
                         if (procDialects == null) {
                             procDialects = new HashMap<>();
                             this.dialectsMap.put(procedureClass, procDialects);

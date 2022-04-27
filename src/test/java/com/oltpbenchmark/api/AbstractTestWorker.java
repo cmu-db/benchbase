@@ -70,7 +70,7 @@ public abstract class AbstractTestWorker<T extends BenchmarkModule> extends Abst
         assertNotNull(w);
         w.initialize();
         assertFalse(this.conn.isReadOnly());
-        for (TransactionType txnType : this.workConf.getTransTypes()) {
+        for (TransactionType txnType : this.workConf.getTransactionTypes()) {
             if (txnType.isSupplemental()) {
                 continue;
             }

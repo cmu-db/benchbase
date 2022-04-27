@@ -23,6 +23,7 @@ import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -95,7 +96,9 @@ public class GetPageAnonymous extends Procedure {
         // user_name
 
         try (PreparedStatement st = this.getPreparedStatement(conn, selectIpBlocks)) {
-            st.setString(1, userIp);
+            byte[] ipBytes = userIp.getBytes(StandardCharsets.UTF_8);
+            st.setBytes(1, ipBytes);
+
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     rs.getBytes(11);

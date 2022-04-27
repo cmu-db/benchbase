@@ -71,8 +71,7 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
         // We don't have to reload our cached profile here
         // We just want to make sure that each client's profile contains a unique
         // set of ItemInfo records that are not found in any other profile's lists
-        int num_clients = 9;
-        this.workConf.setTerminals(num_clients);
+        int num_clients = terminals();
         AuctionMarkLoader loader = (AuctionMarkLoader) super.testLoadWithReturn();
         assertNotNull(loader);
 
@@ -94,12 +93,12 @@ public class TestAuctionMarkLoader extends AbstractTestLoader<AuctionMarkBenchma
                     assertFalse(itemInfo.toString(), clientItemInfos.contains(itemInfo));
                     // Nor that we have seen it in any other client
                     assertFalse(itemInfo.toString(), allItemInfos.contains(itemInfo));
-                } // FOR
+                }
                 clientItemInfos.addAll(items);
-            } // FOR
+            }
             clientItemCtr.put(i, clientItemInfos.size());
             allItemInfos.addAll(clientItemInfos);
-        } // FOR
+        }
     }
 
 }

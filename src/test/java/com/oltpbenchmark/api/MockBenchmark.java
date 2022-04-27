@@ -16,15 +16,17 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.Phase;
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.config.Database;
+import com.oltpbenchmark.api.config.Workload;
 
 import java.io.IOException;
 import java.util.List;
 
 public class MockBenchmark extends BenchmarkModule {
-    public MockBenchmark() {
-        super(new WorkloadConfiguration());
-        this.workConf.setBenchmarkName("mockbenchmark");
+    public MockBenchmark(Database database, Workload workload, TransactionTypes transactionTypes, List<Phase> phases) {
+        super("mockbenchmark", new WorkloadConfiguration(database, workload, transactionTypes, phases));
     }
 
     @Override
