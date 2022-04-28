@@ -121,8 +121,7 @@ public class GetPageAuthenticated extends Procedure {
             st.setInt(1, pageId);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    byte[] pr_type = rs.getBytes(1);
-
+                    rs.getString(1);
                 }
             }
         }
@@ -133,8 +132,7 @@ public class GetPageAuthenticated extends Procedure {
             st.setInt(1, userId);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    byte[] ipb_expiry = rs.getBytes(11);
-
+                   rs.getString(11);
                 }
             }
         }
