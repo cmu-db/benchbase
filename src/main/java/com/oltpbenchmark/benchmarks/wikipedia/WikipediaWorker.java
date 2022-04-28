@@ -40,7 +40,7 @@ import java.util.Set;
 public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaWorker.class);
 
-    private final Set<Integer> addedWatchlistPages = new HashSet<>();
+    private final Set<String> addedWatchlistPages = new HashSet<>();
     private final int num_users;
     private final int num_pages;
 
@@ -80,10 +80,13 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         // Figure out what page they're going to update
         int page_id = z_pages.nextInt();
         if (procClass.equals(AddWatchList.class)) {
-            while (addedWatchlistPages.contains(page_id)) {
+
+            String key = userId + "|" + page_id;
+
+            while (addedWatchlistPages.contains(key)) {
                 page_id = z_pages.nextInt();
             }
-            addedWatchlistPages.add(page_id);
+            addedWatchlistPages.add(key);
         }
 
         SimplePage simplePage = SimplePageUtil.getSimplePage(conn, page_id);
