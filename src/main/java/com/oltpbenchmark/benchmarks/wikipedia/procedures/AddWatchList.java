@@ -51,7 +51,7 @@ public class AddWatchList extends Procedure {
     // -----------------------------------------------------------------
 
     public void run(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
-        if (userId > 0) {
+        if (userId > WikipediaConstants.ANONYMOUS_USER_ID) {
 
             try (PreparedStatement ps = this.getPreparedStatement(conn, insertWatchList)) {
                 ps.setInt(1, userId);

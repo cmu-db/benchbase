@@ -77,7 +77,7 @@ public class GetPageAuthenticated extends Procedure {
         // FIXME TOO FREQUENTLY SELECTING BY USER_ID
         String userText = userIp;
         try (PreparedStatement st = this.getPreparedStatement(conn, selectUser)) {
-            if (userId > 0) {
+            if (userId > WikipediaConstants.ANONYMOUS_USER_ID) {
                 st.setInt(1, userId);
                 try (ResultSet rs = st.executeQuery()) {
                     if (rs.next()) {
