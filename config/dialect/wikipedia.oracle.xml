@@ -23,9 +23,6 @@
         </procedure>
         <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous">
             <statements>
-                <statement name="selectPage">
-                    SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
-                </statement>
                 <statement name="selectPageRevision">
                     SELECT * FROM page,revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest) AND ROWNUM = 1
                 </statement>
@@ -67,9 +64,6 @@
             <statements>
                 <statement name="selectUser">
                     SELECT * FROM useracct WHERE user_id = ? AND ROWNUM = 1
-                </statement>
-                <statement name="selectPage">
-                    SELECT * FROM page WHERE page_namespace = ? AND page_title = ? AND ROWNUM = 1
                 </statement>
                 <statement name="selectPageRevision">
                     SELECT * FROM page, revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest) AND ROWNUM = 1

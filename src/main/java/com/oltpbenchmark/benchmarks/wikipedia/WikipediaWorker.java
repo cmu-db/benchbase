@@ -23,6 +23,8 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.*;
 import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
+import com.oltpbenchmark.benchmarks.wikipedia.util.SimplePage;
+import com.oltpbenchmark.benchmarks.wikipedia.util.SimplePageUtil;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomDistribution.Flat;
 import com.oltpbenchmark.util.RandomDistribution.Zipf;
@@ -67,7 +69,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             if (this.rng().nextInt(100) < WikipediaConstants.ANONYMOUS_PAGE_UPDATE_PROB) {
                 userId = WikipediaConstants.ANONYMOUS_USER_ID;
             }
-            // Otherwise figure out what user is updating this page
+            // Otherwise, figure out what user is updating this page
             else {
                 userId = z_users.nextInt();
             }
@@ -84,37 +86,34 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             addedWatchlistPages.add(page_id);
         }
 
-        int nameSpace = getBenchmarkModule().util.getNamespace();
-        String pageTitle = getBenchmarkModule().util.getExistingPageTitle(nameSpace);
+        SimplePage simplePage = SimplePageUtil.getSimplePage(conn, page_id);
 
-        while (pageTitle == null) {
-            nameSpace = getBenchmarkModule().util.getNamespace();
-            pageTitle = getBenchmarkModule().util.getExistingPageTitle(nameSpace);
+        if (simplePage == null) {
+            LOG.warn("No existing page found for page_id [{}];  Setting TransactionStatus to USER_ABORTED", page_id);
+            return TransactionStatus.USER_ABORTED;
         }
 
-        // AddWatchList
-        try {
-            if (procClass.equals(AddWatchList.class)) {
 
-                this.addToWatchlist(conn, userId, nameSpace, pageTitle);
+        try {
+            // AddWatchList
+            if (procClass.equals(AddWatchList.class)) {
+                this.addToWatchlist(conn, userId, simplePage);
             }
             // RemoveWatchList
             else if (procClass.equals(RemoveWatchList.class)) {
-
-                this.removeFromWatchlist(conn, userId, nameSpace, pageTitle);
+                this.removeFromWatchlist(conn, userId, simplePage);
             }
             // UpdatePage
             else if (procClass.equals(UpdatePage.class)) {
-                this.updatePage(conn, this.generateUserIP(), userId, nameSpace, pageTitle);
+                this.updatePage(conn, this.generateUserIP(), userId, simplePage);
             }
             // GetPageAnonymous
             else if (procClass.equals(GetPageAnonymous.class)) {
-                this.getPageAnonymous(conn, true, this.generateUserIP(), nameSpace, pageTitle);
+                this.getPageAnonymous(conn, true, this.generateUserIP(), simplePage);
             }
             // GetPageAuthenticated
             else if (procClass.equals(GetPageAuthenticated.class)) {
-
-                this.getPageAuthenticated(conn, true, this.generateUserIP(), userId, nameSpace, pageTitle);
+                this.getPageAuthenticated(conn, true, this.generateUserIP(), userId, simplePage);
             }
         } catch (SQLException esql) {
             LOG.error("Caught SQL Exception in WikipediaWorker for procedure{}:{}", procClass.getName(), esql, esql);
@@ -127,32 +126,32 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
      * Implements wikipedia selection of last version of an article (with and
      * without the user being logged in)
      */
-    public Article getPageAnonymous(Connection conn, boolean forSelect, String userIp, int nameSpace, String pageTitle) throws SQLException {
+    public Article getPageAnonymous(Connection conn, boolean forSelect, String userIp, SimplePage simplePage) throws SQLException {
         GetPageAnonymous proc = this.getProcedure(GetPageAnonymous.class);
 
-        return proc.run(conn, forSelect, userIp, nameSpace, pageTitle);
+        return proc.run(conn, forSelect, userIp, simplePage.pageId());
     }
 
-    public Article getPageAuthenticated(Connection conn, boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
+    public Article getPageAuthenticated(Connection conn, boolean forSelect, String userIp, int userId, SimplePage simplePage) throws SQLException {
         GetPageAuthenticated proc = this.getProcedure(GetPageAuthenticated.class);
 
-        return proc.run(conn, forSelect, userIp, userId, nameSpace, pageTitle);
+        return proc.run(conn, forSelect, userIp, userId, simplePage.pageId());
     }
 
-    public void addToWatchlist(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
+    public void addToWatchlist(Connection conn, int userId, SimplePage simplePage) throws SQLException {
         AddWatchList proc = this.getProcedure(AddWatchList.class);
 
-        proc.run(conn, userId, nameSpace, pageTitle);
+        proc.run(conn, userId, simplePage.namespace(), simplePage.pageTitle());
     }
 
-    public void removeFromWatchlist(Connection conn, int userId, int nameSpace, String pageTitle) throws SQLException {
+    public void removeFromWatchlist(Connection conn, int userId, SimplePage simplePage) throws SQLException {
         RemoveWatchList proc = this.getProcedure(RemoveWatchList.class);
 
-        proc.run(conn, userId, nameSpace, pageTitle);
+        proc.run(conn, userId, simplePage.namespace(), simplePage.pageTitle());
     }
 
-    public void updatePage(Connection conn, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
-        Article a = this.getPageAnonymous(conn, false, userIp, nameSpace, pageTitle);
+    public void updatePage(Connection conn, String userIp, int userId, SimplePage simplePage) throws SQLException {
+        Article a = this.getPageAnonymous(conn, false, userIp, simplePage);
 
         // TODO: If the Article is null, then we want to insert a new page.
         // But we don't support that right now.
@@ -169,13 +168,11 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         // Important: We have to make sure that we fill in the entire array
         char[] newText = b.generateRevisionText(a.oldText().toCharArray());
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("UPDATING: Page: id:{} ns:{} title{}", a.pageId(), nameSpace, pageTitle);
-        }
+
         UpdatePage proc = this.getProcedure(UpdatePage.class);
 
 
-        proc.run(conn, a.textId(), a.pageId(), pageTitle, new String(newText), nameSpace, userId, userIp, a.userText(), a.revisionId(), revComment, revMinorEdit);
+        proc.run(conn, a.textId(), a.pageId(), simplePage.pageTitle(), new String(newText), simplePage.namespace(), userId, userIp, a.userText(), a.revisionId(), revComment, revMinorEdit);
 
     }
 

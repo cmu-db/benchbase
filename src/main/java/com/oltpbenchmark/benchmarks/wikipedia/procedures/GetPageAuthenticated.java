@@ -34,10 +34,6 @@ public class GetPageAuthenticated extends Procedure {
     // STATEMENTS
     // -----------------------------------------------------------------
 
-    public SQLStmt selectPage = new SQLStmt(
-            "SELECT * FROM " + WikipediaConstants.TABLENAME_PAGE +
-                    " WHERE page_namespace = ? AND page_title = ? LIMIT 1"
-    );
     public SQLStmt selectPageRestriction = new SQLStmt(
             "SELECT * FROM " + WikipediaConstants.TABLENAME_PAGE_RESTRICTIONS +
                     " WHERE pr_page = ?"
@@ -72,7 +68,7 @@ public class GetPageAuthenticated extends Procedure {
     // RUN
     // -----------------------------------------------------------------
 
-    public Article run(Connection conn, boolean forSelect, String userIp, int userId, int nameSpace, String pageTitle) throws SQLException {
+    public Article run(Connection conn, boolean forSelect, String userIp, int userId, int pageId) throws SQLException {
         // =======================================================
         // LOADING BASIC DATA: txn1
         // =======================================================
@@ -103,19 +99,6 @@ public class GetPageAuthenticated extends Procedure {
             }
         }
 
-        int pageId;
-        try (PreparedStatement st = this.getPreparedStatement(conn, selectPage)) {
-            st.setInt(1, nameSpace);
-            st.setString(2, pageTitle);
-            try (ResultSet rs = st.executeQuery()) {
-
-                if (!rs.next()) {
-                    throw new UserAbortException("INVALID page namespace/title:" + nameSpace + "/" + pageTitle);
-                }
-                pageId = rs.getInt("page_id");
-
-            }
-        }
 
         try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRestriction)) {
             st.setInt(1, pageId);
@@ -145,7 +128,7 @@ public class GetPageAuthenticated extends Procedure {
             st.setInt(2, pageId);
             try (ResultSet rs = st.executeQuery()) {
                 if (!rs.next()) {
-                    throw new UserAbortException("no such revision: page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
+                    throw new UserAbortException(String.format("Unable to find revision for pageId = [%s]", pageId));
                 }
 
                 revisionId = rs.getLong("rev_id");
@@ -154,18 +137,12 @@ public class GetPageAuthenticated extends Procedure {
             }
         }
 
-        // NOTE: the following is our variation of wikipedia... the original did
-        // not contain old_page column!
-        // sql =
-        // "SELECT old_text,old_flags FROM `text` WHERE old_id = '"+textId+"' AND old_page = '"+pageId+"' LIMIT 1";
-
-
         Article a = null;
         try (PreparedStatement st = this.getPreparedStatement(conn, selectText)) {
             st.setLong(1, textId);
             try (ResultSet rs = st.executeQuery()) {
                 if (!rs.next()) {
-                    throw new UserAbortException("no such text: " + textId + " for page_id:" + pageId + " page_namespace: " + nameSpace + " page_title:" + pageTitle);
+                    throw new UserAbortException(String.format("Unable to find text for textId = [%s]", textId));
                 }
 
                 if (!forSelect) {

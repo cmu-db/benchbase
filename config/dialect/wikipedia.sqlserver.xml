@@ -23,9 +23,6 @@
         </procedure>
         <procedure procedureClass="com.oltpbenchmark.benchmarks.wikipedia.procedures.GetPageAnonymous">
             <statements>
-                <statement name="selectPage">
-                    SELECT TOP 1 * FROM page WHERE page_namespace = ? AND page_title = ?
-                </statement>
                 <statement name="selectPageRevision">
                     SELECT TOP 1 * FROM page,revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest)
                 </statement>
@@ -51,9 +48,6 @@
             <statements>
                 <statement name="selectUser">
                     SELECT TOP 1 * FROM [useracct] WHERE user_id = ?
-                </statement>
-                <statement name="selectPage">
-                    SELECT TOP 1 * FROM page WHERE page_namespace = ? AND page_title = ?
                 </statement>
                 <statement name="selectPageRevision">
                     SELECT TOP 1 * FROM page, revision WHERE (page_id=rev_page) AND rev_page = ? AND page_id = ? AND (rev_id=page_latest)
