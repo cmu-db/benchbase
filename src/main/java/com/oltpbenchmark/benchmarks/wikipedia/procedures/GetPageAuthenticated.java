@@ -21,7 +21,6 @@ package com.oltpbenchmark.benchmarks.wikipedia.procedures;
 import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.api.SQLStmt;
 import com.oltpbenchmark.benchmarks.wikipedia.WikipediaConstants;
-import com.oltpbenchmark.benchmarks.wikipedia.util.Article;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -68,31 +67,29 @@ public class GetPageAuthenticated extends Procedure {
     // RUN
     // -----------------------------------------------------------------
 
-    public Article run(Connection conn, boolean forSelect, String userIp, int userId, int pageId) throws SQLException {
+    public void run(Connection conn, int userId, int pageId) throws SQLException {
         // =======================================================
         // LOADING BASIC DATA: txn1
         // =======================================================
         // Retrieve the user data, if the user is logged in
 
         // FIXME TOO FREQUENTLY SELECTING BY USER_ID
-        String userText = userIp;
         try (PreparedStatement st = this.getPreparedStatement(conn, selectUser)) {
             if (userId > WikipediaConstants.ANONYMOUS_USER_ID) {
                 st.setInt(1, userId);
                 try (ResultSet rs = st.executeQuery()) {
                     if (rs.next()) {
-                        userText = rs.getString("user_name");
+                        rs.getString("user_name");
                     } else {
                         throw new UserAbortException("Invalid UserId: " + userId);
                     }
                 }
-                // Fetch all groups the user might belong to (access control
-                // information)
+                // Fetch all groups the user might belong to (access control information)
                 try (PreparedStatement selectGroupsStatement = this.getPreparedStatement(conn, selectGroup)) {
                     selectGroupsStatement.setInt(1, userId);
                     try (ResultSet rs = st.executeQuery()) {
                         while (rs.next()) {
-                            String userGroupName = rs.getString(1);
+                            rs.getString(1);
                         }
                     }
                 }
@@ -109,8 +106,7 @@ public class GetPageAuthenticated extends Procedure {
             }
         }
 
-        // check using blocking of a user by either the IP address or the
-        // user_name
+        // check using blocking of a user by either the IP address or the user_name
         try (PreparedStatement st = this.getPreparedStatement(conn, selectIpBlocks)) {
             st.setInt(1, userId);
             try (ResultSet rs = st.executeQuery()) {
@@ -120,7 +116,6 @@ public class GetPageAuthenticated extends Procedure {
             }
         }
 
-        long revisionId;
         long textId;
 
         try (PreparedStatement st = this.getPreparedStatement(conn, selectPageRevision)) {
@@ -131,13 +126,12 @@ public class GetPageAuthenticated extends Procedure {
                     throw new UserAbortException(String.format("Unable to find revision for pageId = [%s]", pageId));
                 }
 
-                revisionId = rs.getLong("rev_id");
+                rs.getLong("rev_id");
                 textId = rs.getLong("rev_text_id");
 
             }
         }
 
-        Article a = null;
         try (PreparedStatement st = this.getPreparedStatement(conn, selectText)) {
             st.setLong(1, textId);
             try (ResultSet rs = st.executeQuery()) {
@@ -145,14 +139,11 @@ public class GetPageAuthenticated extends Procedure {
                     throw new UserAbortException(String.format("Unable to find text for textId = [%s]", textId));
                 }
 
-                if (!forSelect) {
-                    a = new Article(userText, pageId, rs.getString("old_text"), textId, revisionId);
-                }
+                rs.getString("old_text");
 
             }
         }
 
-        return a;
     }
 
 }

@@ -89,7 +89,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         SimplePage simplePage = SimplePageUtil.getSimplePage(conn, page_id);
 
         if (simplePage == null) {
-            LOG.warn("No existing page found for page_id [{}];  Setting TransactionStatus to USER_ABORTED", page_id);
+            LOG.warn("No existing page found for page_id [{}];  Setting TransactionStatus to USER_ABORTED.", page_id);
             return TransactionStatus.USER_ABORTED;
         }
 
@@ -113,7 +113,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             }
             // GetPageAuthenticated
             else if (procClass.equals(GetPageAuthenticated.class)) {
-                this.getPageAuthenticated(conn, true, this.generateUserIP(), userId, simplePage);
+                this.getPageAuthenticated(conn, userId, simplePage);
             }
         } catch (SQLException esql) {
             LOG.error("Caught SQL Exception in WikipediaWorker for procedure{}:{}", procClass.getName(), esql, esql);
@@ -132,10 +132,10 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         return proc.run(conn, forSelect, userIp, simplePage.pageId());
     }
 
-    public Article getPageAuthenticated(Connection conn, boolean forSelect, String userIp, int userId, SimplePage simplePage) throws SQLException {
+    public void getPageAuthenticated(Connection conn, int userId, SimplePage simplePage) throws SQLException {
         GetPageAuthenticated proc = this.getProcedure(GetPageAuthenticated.class);
 
-        return proc.run(conn, forSelect, userIp, userId, simplePage.pageId());
+        proc.run(conn, userId, simplePage.pageId());
     }
 
     public void addToWatchlist(Connection conn, int userId, SimplePage simplePage) throws SQLException {
