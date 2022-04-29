@@ -85,6 +85,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
             while (addedWatchlistPages.contains(key)) {
                 page_id = z_pages.nextInt();
+                key = userId + "|" + page_id;
             }
             addedWatchlistPages.add(key);
         }
