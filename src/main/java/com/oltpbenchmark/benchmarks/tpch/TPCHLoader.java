@@ -25,6 +25,7 @@
 
 package com.oltpbenchmark.benchmarks.tpch;
 
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import static com.oltpbenchmark.benchmarks.tpch.TPCHConstants.*;
@@ -45,8 +46,11 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
+    private WorkloadConfiguration configuration;
+
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
+        this.configuration = benchmark.getWorkloadConfiguration();
     }
 
     private enum CastTypes {
@@ -342,6 +346,9 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
 
     private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators,
             CastTypes[] types, String tableName) {
+        
+        int maxRetryCount = this.configuration.getMaxRetries();
+
         for (Iterable<List<Object>> generator : generators) {
             try {
                 int recordsRead = 0;
@@ -369,11 +376,29 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     ++recordsRead;
                     prepStmt.addBatch();
                     if ((recordsRead % workConf.getBatchSize()) == 0) {
-
-                        LOG.debug("writing batch {} for table {}", recordsRead, tableName);
-
-                        prepStmt.executeBatch();
-                        prepStmt.clearBatch();
+                        int retryCount = 0;
+                        while (retryCount < maxRetryCount){
+                            try {
+                                LOG.debug("writing batch {} for table {}", recordsRead, tableName);
+                                prepStmt.executeBatch();
+                                prepStmt.clearBatch();
+                                break;
+                            }catch (Exception e) {
+                                LOG.error(e.getMessage(), e);
+                                
+                                retryCount++;
+                                if (retryCount == maxRetryCount){
+                                    LOG.error("Failed batch {} for table {}", recordsRead, tableName);
+                                }
+                                else{
+                                    if (conn.isClosed()) {
+                                        conn = this.benchmark.makeConnection();
+                                    }
+                                    LOG.debug("retrying {} batch {} for table {}", retryCount, recordsRead, tableName);
+                                    Thread.sleep((long) (500+500*Math.random()));
+                                }
+                            }
+                        }
                     }
                 }
 
