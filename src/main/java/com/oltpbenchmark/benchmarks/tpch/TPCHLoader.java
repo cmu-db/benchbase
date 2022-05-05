@@ -42,15 +42,14 @@ import com.oltpbenchmark.catalog.Table;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
-    private WorkloadConfiguration configuration;
 
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
-        this.configuration = benchmark.getWorkloadConfiguration();
     }
 
     private enum CastTypes {
@@ -344,36 +343,41 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         return threads;
     }
 
+    private void addElems(PreparedStatement prepStmt, List<Object> elems, CastTypes[] types) throws SQLException{
+        for (int idx = 0; idx < types.length; idx++) {
+            final CastTypes type = types[idx];
+            switch (type) {
+                case DOUBLE:
+                    prepStmt.setDouble(idx + 1, (Double) elems.get(idx));
+                    break;
+                case LONG:
+                    prepStmt.setLong(idx + 1, (Long) elems.get(idx));
+                    break;
+                case STRING:
+                    prepStmt.setString(idx + 1, (String) elems.get(idx));
+                    break;
+                case DATE:
+                    prepStmt.setDate(idx + 1, (Date) elems.get(idx));
+                    break;
+                default:
+                    throw new RuntimeException("Unrecognized type for prepared statement");
+            }
+        }
+    }
     private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators,
             CastTypes[] types, String tableName) {
         
-        int maxRetryCount = this.configuration.getMaxRetries();
+        int maxRetryCount = workConf.getMaxRetries();
 
         for (Iterable<List<Object>> generator : generators) {
             try {
                 int recordsRead = 0;
+                List<List<Object>> currentBatch = new LinkedList<>();
                 for (List<Object> elems : generator) {
-                    for (int idx = 0; idx < types.length; idx++) {
-                        final CastTypes type = types[idx];
-                        switch (type) {
-                            case DOUBLE:
-                                prepStmt.setDouble(idx + 1, (Double) elems.get(idx));
-                                break;
-                            case LONG:
-                                prepStmt.setLong(idx + 1, (Long) elems.get(idx));
-                                break;
-                            case STRING:
-                                prepStmt.setString(idx + 1, (String) elems.get(idx));
-                                break;
-                            case DATE:
-                                prepStmt.setDate(idx + 1, (Date) elems.get(idx));
-                                break;
-                            default:
-                                throw new RuntimeException("Unrecognized type for prepared statement");
-                        }
-                    }
-
+                    
+                    addElems(prepStmt, elems, types);
                     ++recordsRead;
+                    currentBatch.add(elems);
                     prepStmt.addBatch();
                     if ((recordsRead % workConf.getBatchSize()) == 0) {
                         int retryCount = 0;
@@ -382,6 +386,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                                 LOG.debug("writing batch {} for table {}", recordsRead, tableName);
                                 prepStmt.executeBatch();
                                 prepStmt.clearBatch();
+                                currentBatch.clear();
                                 break;
                             }catch (Exception e) {
                                 LOG.error(e.getMessage(), e);
@@ -391,8 +396,12 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                                     LOG.error("Failed batch {} for table {}", recordsRead, tableName);
                                 }
                                 else{
-                                    if (conn.isClosed()) {
+                                    if (!prepStmt.getConnection().isValid(1000)) {
                                         conn = this.benchmark.makeConnection();
+                                        for (List<Object> retryElems : currentBatch){
+                                            addElems(prepStmt, elems, types);
+                                            prepStmt.addBatch();
+                                        }
                                     }
                                     LOG.debug("retrying {} batch {} for table {}", retryCount, recordsRead, tableName);
                                     Thread.sleep((long) (500+500*Math.random()));
