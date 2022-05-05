@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
@@ -67,6 +68,10 @@ public abstract class LoaderThread implements Runnable {
 
     public void afterLoad() {
         // useful for counting down latches
+    }
+
+    public PreparedStatement getPreparedStatement(Connection conn) throws SQLException {
+        return null;
     }
 
 
