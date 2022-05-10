@@ -125,6 +125,7 @@ public class DBWorkload {
             wrkld.setRandomSeed(xmlConfig.getInt("randomSeed", -1));
             wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
             wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
+            wrkld.setNewConnections(xmlConfig.getBoolean("newConnections", false));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
             terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);

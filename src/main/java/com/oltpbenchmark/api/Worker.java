@@ -50,7 +50,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     private final int id;
     private final T benchmark;
-    protected final Connection conn;
+    protected Connection conn = null;
     protected final WorkloadConfiguration configuration;
     protected final TransactionTypes transactionTypes;
     protected final Map<TransactionType, Procedure> procedures = new HashMap<>();
@@ -74,12 +74,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.currStatement = null;
         this.transactionTypes = this.configuration.getTransTypes();
 
-        try {
-            this.conn = this.benchmark.makeConnection();
-            this.conn.setAutoCommit(false);
-            this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to connect to database", ex);
+        if (!this.configuration.getNewConnections()) {
+            try {
+                this.conn = this.benchmark.makeConnection();
+                this.conn.setAutoCommit(false);
+                this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
+            } catch (SQLException ex) {
+                throw new RuntimeException("Failed to connect to database", ex);
+            }
         }
 
         // Generate all the Procedures that we're going to need
@@ -370,7 +372,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param databaseType TODO
+     * @param databaseType    TODO
      * @param transactionType TODO
      */
     protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {
@@ -382,6 +384,20 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             while (retryCount < maxRetryCount && this.workloadState.getGlobalState() != State.DONE) {
 
                 TransactionStatus status = TransactionStatus.UNKNOWN;
+
+                if (this.conn == null) {
+                    try {
+                        this.conn = this.benchmarkModule.makeConnection();
+                        this.conn.setAutoCommit(false);
+                        this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
+                    } catch (SQLException ex) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(String.format("%s failed to open a connection...", this));
+                        }
+                        retryCount++;
+                        continue;
+                    }
+                }
 
                 try {
 
@@ -430,6 +446,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     }
 
                 } finally {
+                    if (this.configuration.getNewConnections()) {
+                        try {
+                            this.conn.close();
+                            this.conn = null;
+                        } catch (SQLException e) {
+                            LOG.error("Connection couldn't be closed.", e);
+                        }
+                    }
 
                     switch (status) {
                         case UNKNOWN -> this.txnUnknown.put(transactionType);
@@ -503,10 +527,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * Called at the end of the test to do any clean up that may be required.
      */
     public void tearDown() {
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            LOG.error("Connection couldn't be closed.", e);
+        if (!this.configuration.getNewConnections()) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                LOG.error("Connection couldn't be closed.", e);
+            }
         }
     }
 

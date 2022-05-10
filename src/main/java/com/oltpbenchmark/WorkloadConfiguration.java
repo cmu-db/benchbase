@@ -49,6 +49,8 @@ public class WorkloadConfiguration {
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
 
+    private boolean newConnections = false;
+
     public String getBenchmarkName() {
         return benchmarkName;
     }
@@ -116,6 +118,10 @@ public class WorkloadConfiguration {
     public void setMaxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
     }
+
+    public boolean getNewConnections() { return newConnections; }
+
+    public void setNewConnections(boolean newConnections) { this.newConnections = newConnections; }
 
     /**
      * Initiate a new benchmark and workload state
@@ -303,7 +309,8 @@ public class WorkloadConfiguration {
                ", workloadState=" + workloadState +
                ", transTypes=" + transTypes +
                ", isolationMode=" + isolationMode +
-               ", dataDir='" + dataDir + '\'' +
+               ", dataDir='" + dataDir + '\'' + 
+               ", newConnections='" + newConnections + '\'' +
                '}';
     }
 }
