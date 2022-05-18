@@ -470,7 +470,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
         try {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
-
             try (FixedDataIterable iterable = this.getFixedIterable(catalog_tbl)) {
                 this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
             }
@@ -490,7 +489,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     protected void loadScalingTable(Connection conn, String table_name) {
         try {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
-
             Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl);
             this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
         } catch (Throwable ex) {
@@ -837,27 +835,32 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                 @Override
                 public Object[] next() {
+                    // For every column for this table, generate the random data that
+                    // we need to populate for the new tuple that we will return with next()
                     for (int i = 0; i < ScalingDataIterable.this.data.length; i++) {
                         Column catalog_col = ScalingDataIterable.this.catalog_tbl.getColumn(i);
-
 
                         // Special Value Column
                         if (ScalingDataIterable.this.special[i]) {
                             ScalingDataIterable.this.data[i] = ScalingDataIterable.this.specialValue(ScalingDataIterable.this.last_id, i);
 
-                            // Id column (always first unless overridden in
-                            // special)
+                        // Id column (always first unless overridden in
+                        // special)
                         } else if (i == 0) {
                             ScalingDataIterable.this.data[i] = ScalingDataIterable.this.last_id;
 
-                            // Strings
+                        // Strings
                         } else if (SQLUtil.isStringType(ScalingDataIterable.this.types[i])) {
-                            int size = catalog_col.getSize();
-                            ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.astring(SEATSLoader.this.rng.nextInt(size - 1), size);
+                            // WARN: If you ever have problems with running out of memory because of this block
+                            // of code here, check that the length of the column from the catalog matches the DDL.
+                            // SQLite incorrectly reports that the size of the column was massive for the customer
+                            // table, so then we would allocate 2GB strings.
+                            int max_len = catalog_col.getSize();
+                            int min_len = SEATSLoader.this.rng.nextInt(max_len - 1);
+                            ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.astring(min_len, max_len);
 
-                            // Ints/Longs
+                        // Ints/Longs
                         } else {
-
                             ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.number(0, 1 << 30);
                         }
                     }
