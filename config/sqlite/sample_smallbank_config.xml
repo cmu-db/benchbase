@@ -6,9 +6,9 @@
     <driver>org.sqlite.JDBC</driver>
     <url>jdbc:sqlite:smallbank.db</url>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>500</batchsize>
+    <batchsize>10000</batchsize>
 
-    <scalefactor>0.1</scalefactor>
+    <scalefactor>0.01</scalefactor>
     
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>
