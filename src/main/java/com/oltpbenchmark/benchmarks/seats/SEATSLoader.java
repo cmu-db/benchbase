@@ -548,8 +548,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             int[] sqlTypes = catalog_tbl.getColumnTypes();
 
             for (Object[] tuple : iterable) {
-
-
                 // AIRPORT
                 if (is_airport) {
                     // Skip any airport that does not have flights
@@ -569,7 +567,14 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     // Store Locations
                     int col_lat_idx = catalog_tbl.getColumnByName("AP_LATITUDE").getIndex();
                     int col_lon_idx = catalog_tbl.getColumnByName("AP_LONGITUDE").getIndex();
-                    Pair<Double, Double> coords = Pair.of((Double) tuple[col_lat_idx], (Double) tuple[col_lon_idx]);
+
+                    // HACK: We need to cast floats to doubles for SQLite
+                    Pair<Double, Double> coords;
+                    if (tuple[col_lat_idx] instanceof Float) {
+                        coords = Pair.of(Double.valueOf(tuple[col_lat_idx].toString()), Double.valueOf(tuple[col_lon_idx].toString()));
+                    } else {
+                        coords = Pair.of((Double) tuple[col_lat_idx], (Double) tuple[col_lon_idx]);
+                    }
                     if (coords.first == null || coords.second == null) {
                         LOG.error(Arrays.toString(tuple));
                     }
