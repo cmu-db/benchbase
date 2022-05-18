@@ -11,6 +11,9 @@
     <!-- Control scale factor to generate different amount of data -->
     <scalefactor>0.01</scalefactor>
 
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
     <!-- The workload -->
     <terminals>1</terminals>
     <works>

@@ -10,6 +10,9 @@
 
     <scalefactor>0.1</scalefactor>
 
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
     <terminals>1</terminals>
     <works>
         <work>
