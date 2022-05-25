@@ -36,12 +36,13 @@ import java.util.List;
 public class AuctionMarkBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuctionMarkBenchmark.class);
+    public static final String NAME = "auctionmark";
 
 
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
     public AuctionMarkBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
 
         this.registerSupplementalProcedure(LoadConfig.class);
         this.registerSupplementalProcedure(CloseAuctions.class);

@@ -21,14 +21,12 @@ import com.oltpbenchmark.DistributionStatistics;
 import com.oltpbenchmark.LatencyRecord;
 import com.oltpbenchmark.Results;
 import com.oltpbenchmark.ThreadBench;
+import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.collectors.DBParameterCollector;
 import com.oltpbenchmark.api.collectors.DBParameterCollectorGen;
+import com.oltpbenchmark.api.config.Database;
 import com.oltpbenchmark.types.DatabaseType;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.configuration2.XMLConfiguration;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.configuration2.io.FileHandler;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -37,38 +35,20 @@ public class ResultWriter {
 
     public static final double MILLISECONDS_FACTOR = 1e3;
 
-
-    private static final String[] IGNORE_CONF = {
-            "type",
-            "driver",
-            "url",
-            "username",
-            "password"
-    };
-
-    private static final String[] BENCHMARK_KEY_FIELD = {
-            "isolation",
-            "scalefactor",
-            "terminals"
-    };
-
-    private final XMLConfiguration expConf;
     private final DBParameterCollector collector;
     private final Results results;
     private final DatabaseType dbType;
-    private final String benchType;
+    private final List<BenchmarkModule> benchmarkModules;
 
 
-    public ResultWriter(Results r, XMLConfiguration conf, CommandLine argsLine) {
-        this.expConf = conf;
+    public ResultWriter(Results r, Database database, List<BenchmarkModule> benchmarkModules) {
         this.results = r;
-        this.dbType = DatabaseType.valueOf(expConf.getString("type").toUpperCase());
-        this.benchType = argsLine.getOptionValue("b");
+        this.dbType = database.type();
+        this.benchmarkModules = benchmarkModules;
 
-        String dbUrl = expConf.getString("url");
-        String username = expConf.getString("username");
-        String password = expConf.getString("password");
-
+        String dbUrl = database.url();
+        String username = database.username();
+        String password = database.password();
 
         this.collector = DBParameterCollectorGen.getCollector(dbType, dbUrl, username, password);
 
@@ -87,16 +67,6 @@ public class ResultWriter {
         return collector.hasMetrics();
     }
 
-    public void writeConfig(PrintStream os) throws ConfigurationException {
-
-        XMLConfiguration outputConf = (XMLConfiguration) expConf.clone();
-        for (String key : IGNORE_CONF) {
-            outputConf.clearProperty(key);
-        }
-
-        FileHandler handler = new FileHandler(outputConf);
-        handler.save(os);
-    }
 
     public void writeSummary(PrintStream os) {
         Map<String, Object> summaryMap = new TreeMap<>();
@@ -105,18 +75,18 @@ public class ResultWriter {
         summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
         summaryMap.put("DBMS Type", dbType);
         summaryMap.put("DBMS Version", collector.collectVersion());
-        summaryMap.put("Benchmark Type", benchType);
+        for (BenchmarkModule benchmarkModule : benchmarkModules) {
+            summaryMap.put("Benchmark Module", benchmarkModule.getBenchmarkName());
+        }
         summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
         summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
         summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
-        for (String field : BENCHMARK_KEY_FIELD) {
-            summaryMap.put(field, expConf.getString(field));
-        }
+
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }
 
     public void writeResults(int windowSizeSeconds, PrintStream out) {
-        writeResults(windowSizeSeconds, out, TransactionType.INVALID);
+        writeResults(windowSizeSeconds, out, null);
     }
 
     public void writeResults(int windowSizeSeconds, PrintStream out, TransactionType txType) {
@@ -155,7 +125,7 @@ public class ResultWriter {
     }
 
     public void writeSamples(PrintStream out) {
-        writeSamples(1, out, TransactionType.INVALID);
+        writeSamples(1, out, null);
     }
 
     public void writeSamples(int windowSizeSeconds, PrintStream out, TransactionType txType) {
@@ -214,10 +184,10 @@ public class ResultWriter {
         for (LatencyRecord.Sample s : results.getLatencySamples()) {
             double startUs = ((double) s.getStartNanosecond() / (double) 1000000000);
             String[] row = {
-                    Integer.toString(s.getTransactionType()),
+                    Integer.toString(s.getTransactionId()),
                     // Important!
                     // The TxnType offsets start at 1!
-                    activeTXTypes.get(s.getTransactionType() - 1).getName(),
+                    activeTXTypes.get(s.getTransactionId() - 1).getName(),
                     String.format("%10.6f", startUs - offset),
                     Integer.toString(s.getLatencyMicrosecond()),
                     Integer.toString(s.getWorkerId()),

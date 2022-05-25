@@ -49,35 +49,30 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         KEEP_ZERO_ENTRIES,
     }
 
-    protected final SortedMap<X, Integer> histogram = new TreeMap<>();
-    protected int num_samples = 0;
+    private final SortedMap<X, Integer> histogram = new TreeMap<>();
+    private int num_samples = 0;
     private transient boolean dirty = false;
-
-    /**
-     *
-     */
-    protected transient Map<Object, String> debug_names;
 
     /**
      * The Min/Max values are the smallest/greatest values we have seen based
      * on some natural ordering
      */
-    protected Comparable<X> min_value;
-    protected Comparable<X> max_value;
+    private Comparable<X> min_value;
+    private Comparable<X> max_value;
 
     /**
      * The Min/Max counts are the values that have the smallest/greatest number of
-     * occurences in the histogram
+     * occurrences in the histogram
      */
-    protected int min_count = 0;
-    protected List<X> min_count_values;
-    protected int max_count = 0;
-    protected List<X> max_count_values;
+    private int min_count = 0;
+    private List<X> min_count_values;
+    private int max_count = 0;
+    private List<X> max_count_values;
 
     /**
      * A switchable flag that determines whether non-zero entries are kept or removed
      */
-    protected boolean keep_zero_entries = false;
+    private boolean keep_zero_entries = false;
 
     /**
      * Constructor
@@ -95,11 +90,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         this.keep_zero_entries = keepZeroEntries;
     }
 
-    public boolean hasDebugLabels() {
-        return (this.debug_names != null && !this.debug_names.isEmpty());
-    }
-
-
     /**
      * Set whether this histogram is allowed to retain zero count entries
      * If the flag switches from true to false, then all zero count entries will be removed
@@ -108,7 +98,7 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
      * @param flag
      */
     public void setKeepZeroEntries(boolean flag) {
-        // When this option is disabled, we need to remove all of the zeroed entries
+        // When this option is disabled, we need to remove all the zeroed entries
         if (!flag && this.keep_zero_entries) {
             synchronized (this) {
                 Iterator<X> it = this.histogram.keySet().iterator();
@@ -531,18 +521,11 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
         // Don't let anything go longer than MAX_VALUE_LENGTH chars
         String f = "%-" + max_length + "s [%" + max_ctr_length + "d] ";
         boolean first = true;
-        boolean has_labels = this.hasDebugLabels();
         for (Object value : this.histogram.keySet()) {
             if (!first) {
                 s.append("\n");
             }
-            String str = null;
-            if (has_labels) {
-                str = this.debug_names.get(value);
-            }
-            if (str == null) {
-                str = (value != null ? value.toString() : "null");
-            }
+            String str = (value != null ? value.toString() : "null");
             int value_str_len = str.length();
             if (value_str_len > max_length) {
                 str = str.substring(0, max_length - 3) + "...";
@@ -569,11 +552,6 @@ public class Histogram<X extends Comparable<X>> implements JSONSerializable {
     @Override
     public void load(String input_path) throws IOException {
         JSONUtil.load(this, input_path);
-    }
-
-    @Override
-    public void save(String output_path) throws IOException {
-        JSONUtil.save(this, output_path);
     }
 
     @Override

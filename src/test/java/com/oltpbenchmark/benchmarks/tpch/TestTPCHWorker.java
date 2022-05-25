@@ -1,6 +1,5 @@
 package com.oltpbenchmark.benchmarks.tpch;
 
-import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.AbstractTestWorker;
 import com.oltpbenchmark.api.Procedure;
 
@@ -16,9 +15,8 @@ public class TestTPCHWorker extends AbstractTestWorker<TPCHBenchmark> {
     }
 
     @Override
-    protected void customWorkloadConfiguration(WorkloadConfiguration workConf) {
-        // let's set the SF even lower than .01 for actual worker tests
-        this.workConf.setScaleFactor(SCALE_FACTOR);
+    protected double scaleFactor() {
+        return SCALE_FACTOR;
     }
 
     @Override

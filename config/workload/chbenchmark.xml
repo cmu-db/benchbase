@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>200</rate>
+                    <weight>3, 2, 3, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q1"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q2"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q3"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q4"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q5"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q6"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q7"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q8"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q9"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q10"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q11"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q12"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q13"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q14"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q15"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q16"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q17"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q18"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q19"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q20"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q21"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.chbenchmark.queries.Q22"/>
+            </transactions>
+
+        </workload>
+
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>200</rate>
+                    <weight>45,43,4,4,4</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.NewOrder"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Payment"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.OrderStatus"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.Delivery"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.tpcc.procedures.StockLevel"/>
+            </transactions>
+        </workload>
+    </workloads>
+
+
+</configuration>

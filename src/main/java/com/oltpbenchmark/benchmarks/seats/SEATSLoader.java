@@ -1124,8 +1124,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                     // Stop here if these two airports are within range
                     if (this.distance > 0 && this.distance <= this.max_distance) {
-                        // System.err.println(this.outer_airport + "->" +
-                        // this.inner_airport + ": " + distance);
                         this.last_inner_ctr = inner_ctr + 1;
                         return (true);
                     }
@@ -1481,8 +1479,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     try {
                         ReservationIterable.this.generateData();
                     } catch (Throwable ex) {
-                        // System.err.println("Airport Customers:\n" +
-                        // getAirportCustomerHistogram());
                         ReservationIterable.this.error = ex;
                     } finally {
                         if (LOG.isDebugEnabled()) {

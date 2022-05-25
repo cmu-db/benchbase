@@ -21,6 +21,7 @@ import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.config.PhaseArrival;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
@@ -318,9 +319,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Compute transaction histogram
             Set<TransactionType> txnTypes = new HashSet<>();
             for (WorkloadConfiguration workConf : workConfs) {
-                txnTypes.addAll(workConf.getTransTypes());
+                txnTypes.addAll(workConf.getTransactionTypes());
             }
-            txnTypes.remove(TransactionType.INVALID);
 
             results.getUnknown().putAll(txnTypes, 0);
             results.getSuccess().putAll(txnTypes, 0);
@@ -344,9 +344,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    private long getInterval(int lowestRate, Phase.Arrival arrival) {
+    private long getInterval(int lowestRate, PhaseArrival arrival) {
         // TODO Auto-generated method stub
-        if (arrival == Phase.Arrival.POISSON) {
+        if (arrival == PhaseArrival.POISSON) {
             return (long) ((-Math.log(1 - Math.random()) / lowestRate) * 1000000000.);
         } else {
             return (long) (1000000000. / (double) lowestRate + 0.5);
@@ -430,10 +430,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             long endNanoseconds = nextStartNanosecond + (windowSizeSeconds * 1000000000L);
             while (sample != null && sample.getStartNanosecond() < endNanoseconds) {
 
-                // Check if a TX Type filter is set, in the default case,
-                // INVALID TXType means all should be reported, if a filter is
+                // Check if a TxType filter is set, in the default case,
+                // null TxType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.getTransactionType()) {
+                if (txType == null || txType.getId() == sample.getTransactionId()) {
                     latencies.add(sample.getLatencyMicrosecond());
                 }
 

@@ -18,22 +18,16 @@
 
 package com.oltpbenchmark;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.api.config.*;
 import com.oltpbenchmark.util.*;
 import org.apache.commons.cli.*;
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.apache.commons.configuration2.HierarchicalConfiguration;
-import org.apache.commons.configuration2.XMLConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.configuration2.tree.ImmutableNode;
-import org.apache.commons.configuration2.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,359 +36,79 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
-
     private static final String SINGLE_LINE = StringUtil.repeat("=", 70);
 
-    private static final String RATE_DISABLED = "disabled";
-    private static final String RATE_UNLIMITED = "unlimited";
-
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
 
-        // create the command line parser
         CommandLineParser parser = new DefaultParser();
 
-        XMLConfiguration pluginConfig = buildConfiguration("config/plugin.xml");
-
-        Options options = buildOptions(pluginConfig);
+        Options options = buildOptions();
 
         CommandLine argsLine = parser.parse(options, args);
 
         if (argsLine.hasOption("h")) {
             printUsage(options);
             return;
-        } else if (!argsLine.hasOption("c")) {
-            LOG.error("Missing Configuration file");
+        } else if (!argsLine.hasOption("d")) {
+            LOG.error("Missing Database Configuration file");
             printUsage(options);
             return;
-        } else if (!argsLine.hasOption("b")) {
-            LOG.error("Missing Benchmark Class to load");
+        } else if (!argsLine.hasOption("w")) {
+            LOG.error("Missing Workload Configuration file");
             printUsage(options);
             return;
         }
 
-
-        // Seconds
-        int intervalMonitor = 0;
-        if (argsLine.hasOption("im")) {
-            intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
-        }
-
-        // -------------------------------------------------------------------
-        // GET PLUGIN LIST
-        // -------------------------------------------------------------------
-
-        String targetBenchmarks = argsLine.getOptionValue("b");
-
-        String[] targetList = targetBenchmarks.split(",");
         List<BenchmarkModule> benchList = new ArrayList<>();
 
-        // Use this list for filtering of the output
-        List<TransactionType> activeTXTypes = new ArrayList<>();
+        String databaseConfigFile = argsLine.getOptionValue("d");
+        String workloadConfigFile = argsLine.getOptionValue("w");
 
-        String configFile = argsLine.getOptionValue("c");
+        XmlMapper xmlMapper = new XmlMapper();
+        Database database = xmlMapper.readValue(FileUtils.getFile(databaseConfigFile), Database.class);
+        Configuration configuration = xmlMapper.readValue(FileUtils.getFile(workloadConfigFile), Configuration.class);
 
-        XMLConfiguration xmlConfig = buildConfiguration(configFile);
+        Map<String, Object> debugMap = new ListOrderedMap<>();
+        debugMap.put("Type", database.type());
+        debugMap.put("Driver", database.driverClass());
+        debugMap.put("URL", database.url());
+        debugMap.put("Isolation", database.transactionIsolation());
+        debugMap.put("Batch Size", database.batchSize());
+        debugMap.put("Retries", database.retries());
 
-        // Load the configuration for each benchmark
-        int lastTxnId = 0;
-        for (String plugin : targetList) {
-            String pluginTest = "[@bench='" + plugin + "']";
+        int benchmarkCount = 1;
+        for (Workload workload : configuration.workloads()) {
 
-            // ----------------------------------------------------------------
-            // BEGIN LOADING WORKLOAD CONFIGURATION
-            // ----------------------------------------------------------------
+            debugMap.put(String.format("Benchmark (%d)", benchmarkCount), workload.benchmarkClass());
 
-            WorkloadConfiguration wrkld = new WorkloadConfiguration();
-            wrkld.setBenchmarkName(plugin);
-            wrkld.setXmlConfig(xmlConfig);
+            TransactionTypes transactionTypes = getTransactionTypes(workload);
 
-            // Pull in database configuration
-            wrkld.setDatabaseType(DatabaseType.get(xmlConfig.getString("type")));
-            wrkld.setDriverClass(xmlConfig.getString("driver"));
-            wrkld.setUrl(xmlConfig.getString("url"));
-            wrkld.setUsername(xmlConfig.getString("username"));
-            wrkld.setPassword(xmlConfig.getString("password"));
-            wrkld.setRandomSeed(xmlConfig.getInt("randomSeed", -1));
-            wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
-            wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
+            List<Phase> phaseList = getPhases(workload, transactionTypes);
 
-            int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
-            terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
-            wrkld.setTerminals(terminals);
+            WorkloadConfiguration workloadConfiguration = new WorkloadConfiguration(database, workload, transactionTypes, phaseList);
 
-            if (xmlConfig.containsKey("loaderThreads")) {
-                int loaderThreads = xmlConfig.getInt("loaderThreads");
-                wrkld.setLoaderThreads(loaderThreads);
-            }
+            debugMap.put(String.format("Terminals (%d)", benchmarkCount), workloadConfiguration.getTerminals());
+            debugMap.put(String.format("Scale Factor (%d)", benchmarkCount), workloadConfiguration.getScaleFactor());
+            debugMap.put(String.format("Selectivity (%d)", benchmarkCount), workloadConfiguration.getSelectivity());
 
-            String isolationMode = xmlConfig.getString("isolation[not(@bench)]", "TRANSACTION_SERIALIZABLE");
-            wrkld.setIsolationMode(xmlConfig.getString("isolation" + pluginTest, isolationMode));
-            wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
-            wrkld.setDataDir(xmlConfig.getString("datadir", "."));
+            BenchmarkModule benchmarkModule = ClassUtil.newInstance(workload.benchmarkClass(), new Object[]{workloadConfiguration}, new Class<?>[]{WorkloadConfiguration.class});
 
-            double selectivity = -1;
-            try {
-                selectivity = xmlConfig.getDouble("selectivity");
-                wrkld.setSelectivity(selectivity);
-            } catch (NoSuchElementException nse) {
-                // Nothing to do here !
-            }
+            benchList.add(benchmarkModule);
 
-            // ----------------------------------------------------------------
-            // CREATE BENCHMARK MODULE
-            // ----------------------------------------------------------------
-
-            String classname = pluginConfig.getString("/plugin[@name='" + plugin + "']");
-
-            if (classname == null) {
-                throw new ParseException("Plugin " + plugin + " is undefined in config/plugin.xml");
-            }
-
-            BenchmarkModule bench = ClassUtil.newInstance(classname, new Object[]{wrkld}, new Class<?>[]{WorkloadConfiguration.class});
-            Map<String, Object> initDebug = new ListOrderedMap<>();
-            initDebug.put("Benchmark", String.format("%s {%s}", plugin.toUpperCase(), classname));
-            initDebug.put("Configuration", configFile);
-            initDebug.put("Type", wrkld.getDatabaseType());
-            initDebug.put("Driver", wrkld.getDriverClass());
-            initDebug.put("URL", wrkld.getUrl());
-            initDebug.put("Isolation", wrkld.getIsolationString());
-            initDebug.put("Batch Size", wrkld.getBatchSize());
-            initDebug.put("Scale Factor", wrkld.getScaleFactor());
-            initDebug.put("Terminals", wrkld.getTerminals());
-
-            if (selectivity != -1) {
-                initDebug.put("Selectivity", selectivity);
-            }
-
-            LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
-            LOG.info(SINGLE_LINE);
-
-            // ----------------------------------------------------------------
-            // LOAD TRANSACTION DESCRIPTIONS
-            // ----------------------------------------------------------------
-            int numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
-            if (numTxnTypes == 0 && targetList.length == 1) {
-                //if it is a single workload run, <transactiontypes /> w/o attribute is used
-                pluginTest = "[not(@bench)]";
-                numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
-            }
-
-
-            List<TransactionType> ttypes = new ArrayList<>();
-            ttypes.add(TransactionType.INVALID);
-            int txnIdOffset = lastTxnId;
-            for (int i = 1; i <= numTxnTypes; i++) {
-                String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
-                String txnName = xmlConfig.getString(key + "/name");
-
-                // Get ID if specified; else increment from last one.
-                int txnId = i;
-                if (xmlConfig.containsKey(key + "/id")) {
-                    txnId = xmlConfig.getInt(key + "/id");
-                }
-
-                long preExecutionWait = 0;
-                if (xmlConfig.containsKey(key + "/preExecutionWait")) {
-                    preExecutionWait = xmlConfig.getLong(key + "/preExecutionWait");
-                }
-
-                long postExecutionWait = 0;
-                if (xmlConfig.containsKey(key + "/postExecutionWait")) {
-                    postExecutionWait = xmlConfig.getLong(key + "/postExecutionWait");
-                }
-
-                TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset, preExecutionWait, postExecutionWait);
-
-                // Keep a reference for filtering
-                activeTXTypes.add(tmpType);
-
-                // Add a ref for the active TTypes in this benchmark
-                ttypes.add(tmpType);
-                lastTxnId = i;
-            }
-
-            // Wrap the list of transactions and save them
-            TransactionTypes tt = new TransactionTypes(ttypes);
-            wrkld.setTransTypes(tt);
-            LOG.debug("Using the following transaction types: {}", tt);
-
-            // Read in the groupings of transactions (if any) defined for this
-            // benchmark
-            int numGroupings = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/groupings/grouping").size();
-            LOG.debug("Num groupings: {}", numGroupings);
-            for (int i = 1; i < numGroupings + 1; i++) {
-                String key = "transactiontypes" + pluginTest + "/groupings/grouping[" + i + "]";
-
-                // Get the name for the grouping and make sure it's valid.
-                String groupingName = xmlConfig.getString(key + "/name").toLowerCase();
-                if (!groupingName.matches("^[a-z]\\w*$")) {
-                    LOG.error(String.format("Grouping name \"%s\" is invalid." + " Must begin with a letter and contain only" + " alphanumeric characters.", groupingName));
-                    System.exit(-1);
-                } else if (groupingName.equals("all")) {
-                    LOG.error("Grouping name \"all\" is reserved." + " Please pick a different name.");
-                    System.exit(-1);
-                }
-
-                // Get the weights for this grouping and make sure that there
-                // is an appropriate number of them.
-                List<String> groupingWeights = Arrays.asList(xmlConfig.getString(key + "/weights").split("\\s*,\\s*"));
-                if (groupingWeights.size() != numTxnTypes) {
-                    LOG.error(String.format("Grouping \"%s\" has %d weights," + " but there are %d transactions in this" + " benchmark.", groupingName, groupingWeights.size(), numTxnTypes));
-                    System.exit(-1);
-                }
-
-                LOG.debug("Creating grouping with name, weights: {}, {}", groupingName, groupingWeights);
-            }
-
-
-            benchList.add(bench);
-
-            // ----------------------------------------------------------------
-            // WORKLOAD CONFIGURATION
-            // ----------------------------------------------------------------
-
-            int size = xmlConfig.configurationsAt("/works/work").size();
-            for (int i = 1; i < size + 1; i++) {
-                final HierarchicalConfiguration<ImmutableNode> work = xmlConfig.configurationAt("works/work[" + i + "]");
-                List<String> weight_strings;
-
-                // use a workaround if there are multiple workloads or single
-                // attributed workload
-                if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
-                    weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
-                } else {
-                    weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
-                }
-
-                int rate = 1;
-                boolean rateLimited = true;
-                boolean disabled = false;
-                boolean timed;
-
-                // can be "disabled", "unlimited" or a number
-                String rate_string;
-                rate_string = work.getString("rate[not(@bench)]", "");
-                rate_string = work.getString("rate" + pluginTest, rate_string);
-                if (rate_string.equals(RATE_DISABLED)) {
-                    disabled = true;
-                } else if (rate_string.equals(RATE_UNLIMITED)) {
-                    rateLimited = false;
-                } else if (rate_string.isEmpty()) {
-                    LOG.error(String.format("Please specify the rate for phase %d and workload %s", i, plugin));
-                    System.exit(-1);
-                } else {
-                    try {
-                        rate = Integer.parseInt(rate_string);
-                        if (rate < 1) {
-                            LOG.error("Rate limit must be at least 1. Use unlimited or disabled values instead.");
-                            System.exit(-1);
-                        }
-                    } catch (NumberFormatException e) {
-                        LOG.error(String.format("Rate string must be '%s', '%s' or a number", RATE_DISABLED, RATE_UNLIMITED));
-                        System.exit(-1);
-                    }
-                }
-                Phase.Arrival arrival = Phase.Arrival.REGULAR;
-                String arrive = work.getString("@arrival", "regular");
-                if (arrive.equalsIgnoreCase("POISSON")) {
-                    arrival = Phase.Arrival.POISSON;
-                }
-
-                // We now have the option to run all queries exactly once in
-                // a serial (rather than random) order.
-                boolean serial = Boolean.parseBoolean(work.getString("serial", Boolean.FALSE.toString()));
-
-
-                int activeTerminals;
-                activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
-                activeTerminals = work.getInt("active_terminals" + pluginTest, activeTerminals);
-                // If using serial, we should have only one terminal
-                if (serial && activeTerminals != 1) {
-                    LOG.warn("Serial ordering is enabled, so # of active terminals is clamped to 1.");
-                    activeTerminals = 1;
-                }
-                if (activeTerminals > terminals) {
-                    LOG.error(String.format("Configuration error in work %d: " + "Number of active terminals is bigger than the total number of terminals", i));
-                    System.exit(-1);
-                }
-
-                int time = work.getInt("/time", 0);
-                int warmup = work.getInt("/warmup", 0);
-                timed = (time > 0);
-                if (!timed) {
-                    if (serial) {
-                        LOG.info("Timer disabled for serial run; will execute" + " all queries exactly once.");
-                    } else {
-                        LOG.error("Must provide positive time bound for" + " non-serial executions. Either provide" + " a valid time or enable serial mode.");
-                        System.exit(-1);
-                    }
-                } else if (serial) {
-                    LOG.info("Timer enabled for serial run; will run queries" + " serially in a loop until the timer expires.");
-                }
-                if (warmup < 0) {
-                    LOG.error("Must provide non-negative time bound for" + " warmup.");
-                    System.exit(-1);
-                }
-
-                ArrayList<Double> weights = new ArrayList<>();
-
-                double totalWeight = 0;
-
-                for (String weightString : weight_strings) {
-                    double weight = Double.parseDouble(weightString);
-                    totalWeight += weight;
-                    weights.add(weight);
-                }
-
-                long roundedWeight = Math.round(totalWeight);
-
-                if (roundedWeight != 100) {
-                    LOG.warn("rounded weight [{}] does not equal 100.  Original weight is [{}]", roundedWeight, totalWeight);
-                }
-
-
-                wrkld.addPhase(i, time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
-            }
-
-            // CHECKING INPUT PHASES
-            int j = 0;
-            for (Phase p : wrkld.getPhases()) {
-                j++;
-                if (p.getWeightCount() != numTxnTypes) {
-                    LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(), numTxnTypes));
-                    if (p.isSerial()) {
-                        LOG.error("However, note that since this a serial phase, the weights are irrelevant (but still must be included---sorry).");
-                    }
-                    System.exit(-1);
-                }
-            }
-
-            // Generate the dialect map
-            wrkld.init();
-
+            benchmarkCount++;
 
         }
 
+        LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(debugMap));
+        LOG.info(SINGLE_LINE);
 
-        // Export StatementDialects
-        if (isBooleanOptionSet(argsLine, "dialects-export")) {
-            BenchmarkModule bench = benchList.get(0);
-            if (bench.getStatementDialects() != null) {
-                LOG.info("Exporting StatementDialects for {}", bench);
-                String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDatabaseType(), bench.getProcedures().values());
-                LOG.debug(xml);
-                System.exit(0);
-            }
-            throw new RuntimeException("No StatementDialects is available for " + bench);
-        }
 
         // Create the Benchmark's Database
         if (isBooleanOptionSet(argsLine, "create")) {
@@ -456,8 +170,25 @@ public class DBWorkload {
         if (isBooleanOptionSet(argsLine, "execute")) {
             // Bombs away!
             try {
+
+
+                int intervalMonitor = 0;
+                if (argsLine.hasOption("im")) {
+                    intervalMonitor = Integer.parseInt(argsLine.getOptionValue("im"));
+                }
+
                 Results r = runWorkload(benchList, intervalMonitor);
-                writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
+
+                String outputDirectory = "results";
+
+                if (argsLine.hasOption("directory")) {
+                    outputDirectory = argsLine.getOptionValue("directory");
+                }
+
+                int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
+
+                writeOutputs(outputDirectory, windowSize, r, benchList, database);
+
                 writeHistograms(r);
 
                 if (argsLine.hasOption("json-histograms")) {
@@ -476,33 +207,96 @@ public class DBWorkload {
         }
     }
 
-    private static Options buildOptions(XMLConfiguration pluginConfig) {
+    private static List<Phase> getPhases(Workload workload, TransactionTypes transactionTypes) {
+        List<Phase> phaseList = new ArrayList<>();
+        int phaseId = 1;
+        for (com.oltpbenchmark.api.config.Phase phase : workload.phases()) {
+
+            List<Double> weights = phase.weights();
+
+            if (weights.size() != transactionTypes.size()) {
+                throw new RuntimeException("the number of weights does not equal the number of transactions");
+            }
+
+            double sum = Math.round(weights.stream().mapToDouble(Double::doubleValue).sum());
+
+            if (sum != 100) {
+                LOG.warn("this sum of all weights does not equal 100 but rather [{}]", sum);
+            }
+
+            PhaseRateType phaseRateType = phase.rateType();
+
+            boolean isRateLimited = phaseRateType.equals(PhaseRateType.LIMITED);
+            boolean isDisabled = phaseRateType.equals(PhaseRateType.DISABLED);
+            boolean isSerial = phase.serial() != null && phase.serial().equals(Boolean.TRUE);
+
+            int time = 0;
+            if (phase.time() != null) {
+                time = phase.time();
+            }
+
+            int warmup = 0;
+            if (phase.warmup() != null) {
+                warmup = phase.warmup();
+            }
+
+            boolean isTimed = time > 0;
+
+            PhaseArrival arrival = PhaseArrival.REGULAR;
+            if (phase.arrival() != null) {
+                arrival = phase.arrival();
+            }
+
+            int rate = 1;
+            if (isRateLimited && phase.rate() != null) {
+                rate = phase.rate();
+            }
+
+            int activeTerminals = workload.terminals();
+            if (phase.activeTerminals() != null) {
+                activeTerminals = phase.activeTerminals();
+            }
+
+            phaseList.add(new Phase(phaseId, time, warmup, rate, phase.weights(), isRateLimited, isDisabled, isSerial, isTimed, activeTerminals, arrival));
+
+            phaseId++;
+
+        }
+        return phaseList;
+    }
+
+    private static TransactionTypes getTransactionTypes(Workload workload) {
+        List<TransactionType> transactionTypeList = new ArrayList<>();
+        int transactionId = 1;
+        for (Transaction transaction : workload.transactions()) {
+
+            long preExecutionWait = transaction.preExecutionWait() != null ? transaction.preExecutionWait() : 0;
+            long postExecutionWait = transaction.postExecutionWait() != null ? transaction.postExecutionWait() : 0;
+
+            TransactionType type = new TransactionType(transactionId, transaction.procedureClass(), false, preExecutionWait, postExecutionWait);
+            transactionTypeList.add(type);
+
+            transactionId++;
+        }
+        return new TransactionTypes(transactionTypeList);
+    }
+
+    private static Options buildOptions() {
         Options options = new Options();
-        options.addOption("b", "bench", true, "[required] Benchmark class. Currently supported: " + pluginConfig.getList("/plugin//@name"));
-        options.addOption("c", "config", true, "[required] Workload configuration file");
+        options.addOption("d", "database", true, "[required] Database configuration file");
+        options.addOption("w", "workload", true, "[required] Workload configuration file");
         options.addOption(null, "create", true, "Initialize the database for this benchmark");
         options.addOption(null, "clear", true, "Clear all records in the database for this benchmark");
         options.addOption(null, "load", true, "Load data using the benchmark's data loader");
         options.addOption(null, "execute", true, "Execute the benchmark workload");
         options.addOption("h", "help", false, "Print this help");
-        options.addOption("s", "sample", true, "Sampling window");
+        // todo verify unit of measure for -s
+        options.addOption("s", "sample", true, "Sampling window size");
+        // todo verify unit of measure for -im
         options.addOption("im", "interval-monitor", true, "Throughput Monitoring Interval in milliseconds");
-        options.addOption("d", "directory", true, "Base directory for the result files, default is current directory");
-        options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
+        options.addOption(null, "directory", true, "Base directory for the result files, default is current directory");
         options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
         return options;
-    }
-
-    private static XMLConfiguration buildConfiguration(String filename) throws ConfigurationException {
-
-        Parameters params = new Parameters();
-        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
-                .configure(params.xml()
-                        .setFileName(filename)
-                        .setListDelimiterHandler(new DisabledListDelimiterHandler())
-                        .setExpressionEngine(new XPathExpressionEngine()));
-        return builder.getConfiguration();
-
     }
 
     private static void writeHistograms(Results r) {
@@ -539,38 +333,31 @@ public class DBWorkload {
         return JSONUtil.toJSONString(map);
     }
 
-    /**
-     * Write out the results for a benchmark run to a bunch of files
-     *
-     * @param r
-     * @param activeTXTypes
-     * @param argsLine
-     * @param xmlConfig
-     * @throws Exception
-     */
-    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine, XMLConfiguration xmlConfig) throws Exception {
 
-        // If an output directory is used, store the information
-        String outputDirectory = "results";
-
-        if (argsLine.hasOption("d")) {
-            outputDirectory = argsLine.getOptionValue("d");
-        }
+    private static void writeOutputs(String outputDirectory, int windowSize, Results r, List<BenchmarkModule> benchList, Database database) throws Exception {
 
 
         FileUtil.makeDirIfNotExists(outputDirectory);
-        ResultWriter rw = new ResultWriter(r, xmlConfig, argsLine);
 
-        String name = StringUtils.join(StringUtils.split(argsLine.getOptionValue("b"), ','), '-');
+        ResultWriter rw = new ResultWriter(r, database, benchList);
+
+        List<String> names = new ArrayList<>();
+        List<TransactionType> allTransactionTypes = new ArrayList<>();
+        for (BenchmarkModule module : benchList) {
+            names.add(module.getBenchmarkName());
+            List<TransactionType> transactionTypes = module.getWorkloadConfiguration().getTransactionTypes().stream().toList();
+            allTransactionTypes.addAll(transactionTypes);
+        }
+
+        String name = StringUtils.join(names, '-');
 
         String baseFileName = name + "_" + TimeUtil.getCurrentTimeString();
 
-        int windowSize = Integer.parseInt(argsLine.getOptionValue("s", "5"));
 
         String rawFileName = baseFileName + ".raw.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, rawFileName))) {
             LOG.info("Output Raw data into file: {}", rawFileName);
-            rw.writeRaw(activeTXTypes, ps);
+            rw.writeRaw(allTransactionTypes, ps);
         }
 
         String sampleFileName = baseFileName + ".samples.csv";
@@ -599,11 +386,11 @@ public class DBWorkload {
             }
         }
 
-        String configFileName = baseFileName + ".config.xml";
-        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
-            LOG.info("Output benchmark config into file: {}", configFileName);
-            rw.writeConfig(ps);
-        }
+//        String configFileName = baseFileName + ".config.xml";
+//        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
+//            LOG.info("Output benchmark config into file: {}", configFileName);
+//            rw.writeConfig(ps);
+//        }
 
         String resultsFileName = baseFileName + ".results.csv";
         try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, resultsFileName))) {
@@ -611,7 +398,7 @@ public class DBWorkload {
             rw.writeResults(windowSize, ps);
         }
 
-        for (TransactionType t : activeTXTypes) {
+        for (TransactionType t : allTransactionTypes) {
             String fileName = baseFileName + ".results." + t.getName() + ".csv";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
                 rw.writeResults(windowSize, ps, t);
@@ -670,4 +457,5 @@ public class DBWorkload {
         }
         return (false);
     }
+
 }

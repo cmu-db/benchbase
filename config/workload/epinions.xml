@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xsi:noNamespaceSchemaLocation="workload.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <workloads>
+        <workload benchmarkClass="com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark">
+            <scaleFactor>1</scaleFactor>
+            <terminals>1</terminals>
+
+            <phases>
+                <phase>
+                    <time>60</time>
+                    <rateType>LIMITED</rateType>
+                    <rate>10000</rate>
+                    <weight>10,10,10,10,10,10,10,10,20</weight>
+                </phase>
+            </phases>
+
+            <transactions>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewItemById"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetReviewsByUser"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetAverageRatingByTrustedUser"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemAverageRating"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.GetItemReviewsByTrustedUser"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateUserName"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateItemTitle"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateReviewRating"/>
+                <transaction procedureClass="com.oltpbenchmark.benchmarks.epinions.procedures.UpdateTrustRating"/>
+            </transactions>
+        </workload>
+    </workloads>
+
+</configuration>

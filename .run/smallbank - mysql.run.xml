@@ -2,7 +2,7 @@
   <configuration default="false" name="smallbank - mysql" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
     <module name="benchbase" />
-    <option name="PROGRAM_PARAMETERS" value="-b smallbank -c config/mysql/sample_smallbank_config.xml --create=true --load=true --execute=true" />
+    <option name="PROGRAM_PARAMETERS" value="-d config/db/mysql.xml -w config/workload/smallbank.xml --create=true --load=true --execute=true"/>
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.oltpbenchmark.*" />

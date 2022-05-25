@@ -31,9 +31,10 @@ import java.util.List;
 
 public class CHBenCHmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(CHBenCHmark.class);
+    public static final String NAME = "chbenchmark";
 
     public CHBenCHmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     protected Package getProcedurePackageImpl() {

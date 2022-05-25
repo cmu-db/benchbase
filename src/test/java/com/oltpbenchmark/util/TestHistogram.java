@@ -18,10 +18,8 @@
 package com.oltpbenchmark.util;
 
 import junit.framework.TestCase;
-import org.json.JSONObject;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -55,18 +53,23 @@ public class TestHistogram extends TestCase {
         Histogram<Integer> h = new Histogram<Integer>();
         int expected = 10;
         for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < expected; j++) h.put(i);
-        } // FOR
+            for (int j = 0; j < expected; j++) {
+                h.put(i);
+            }
+        }
         long min_count = h.getMinCount();
         assertEquals(expected, min_count);
         long max_count = h.getMaxCount();
         assertEquals(expected, max_count);
 
         for (int i = 9; i >= 0; i--) {
-            if (i == 5) continue;
-            for (int j = 0; j < expected; j++) h.put(i);
-        } // FOR
-//        System.err.println(h);
+            if (i == 5) {
+                continue;
+            }
+            for (int j = 0; j < expected; j++) {
+                h.put(i);
+            }
+        }
         min_count = h.getMinCount();
         assertEquals(expected, min_count);
         max_count = h.getMaxCount();
@@ -82,7 +85,7 @@ public class TestHistogram extends TestCase {
         h.put(expected);
         for (int i = 0; i < 1000; i++) {
             h.put((long) 99999);
-        } // FOR
+        }
         Collection<Long> min_values = h.getMinCountValues();
         assertNotNull(min_values);
         assertEquals(1, min_values.size());
@@ -110,7 +113,7 @@ public class TestHistogram extends TestCase {
         int count = 1000;
         for (int i = 0; i < count; i++) {
             h.put(expected);
-        } // FOR
+        }
         Collection<Integer> max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(1, max_values.size());
@@ -123,8 +126,7 @@ public class TestHistogram extends TestCase {
         int expected2 = -99999;
         for (int i = 0; i < count; i++) {
             h.put(expected2);
-        } // FOR
-
+        }
         max_values = h.getMaxCountValues();
         assertNotNull(max_values);
         assertEquals(2, max_values.size());
@@ -148,8 +150,7 @@ public class TestHistogram extends TestCase {
         for (Object o : keys) {
             Integer k = (Integer) o;
             assertEquals(0, h.get(k).intValue());
-        } // FOR
-
+        }
         // Now make sure they get wiped out
         h.setKeepZeroEntries(false);
         h.clearValues();
@@ -159,7 +160,7 @@ public class TestHistogram extends TestCase {
         for (Object o : keys) {
             Integer k = (Integer) o;
             assertNull(h.get(k));
-        } // FOR
+        }
     }
 
     /**
@@ -177,15 +178,15 @@ public class TestHistogram extends TestCase {
             int key = 0;
             do {
                 key = rand.nextInt();
-            } while (h.contains(key) || attempted.contains(key));
+            }
+            while (h.contains(key) || attempted.contains(key));
             h.put(key, 0);
             attempted.add(key);
-        } // FOR
+        }
         for (Integer key : attempted) {
             assertFalse(h.contains(key));
             assertNull(h.get(key));
-        } // FOR
-
+        }
         // Now enable zero entries and make sure that our entries make it in there
         h.setKeepZeroEntries(true);
         assert (h.isZeroEntriesEnabled());
@@ -193,15 +194,14 @@ public class TestHistogram extends TestCase {
             h.put(key, 0);
             assert (h.contains(key));
             assertEquals(0, h.get(key).longValue());
-        } // FOR
-
+        }
         // Disable zero entries again and make sure that our entries from the last step are removed
         h.setKeepZeroEntries(false);
         assertFalse(h.isZeroEntriesEnabled());
         for (Integer key : attempted) {
             assertFalse(h.contains(key));
             assertNull(h.get(key));
-        } // FOR
+        }
     }
 
     /**
@@ -214,8 +214,9 @@ public class TestHistogram extends TestCase {
         hist.put(50);
 
         List<Integer> partitions = new ArrayList<Integer>();
-        for (int i = 0; i < NUM_PARTITIONS; i++)
+        for (int i = 0; i < NUM_PARTITIONS; i++) {
             partitions.add(i);
+        }
 
         hist.putAll(partitions);
         assertEquals(partitions.size(), hist.getValueCount());
@@ -226,50 +227,20 @@ public class TestHistogram extends TestCase {
             int cnt = hist.get(i).intValue();
             int expected = (i == 49 || i == 50 ? 2 : 1);
             assertEquals(expected, cnt);
-        } // FOR
+        }
     }
 
     /**
      * testToJSONString
      */
     public void testToJSONString() throws Exception {
-        String json = h.toJSONString();
-        assertNotNull(json);
-        for (Histogram.Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.KEEP_ZERO_ENTRIES) continue;
-            assertTrue(json.indexOf(element.name()) != -1);
-        } // FOR
+
     }
 
     /**
      * testFromJSON
      */
     public void testFromJSON() throws Exception {
-        String json = h.toJSONString();
-        assertNotNull(json);
-        JSONObject jsonObject = new JSONObject(json);
-//        System.err.println(jsonObject.toString(1));
 
-        Histogram<Integer> copy = new Histogram<Integer>();
-        copy.fromJSON(jsonObject);
-        assertEquals(h.getValueCount(), copy.getValueCount());
-        for (Histogram.Members element : Histogram.Members.values()) {
-            if (element == Histogram.Members.VALUE_TYPE) continue;
-            String field_name = element.toString().toLowerCase();
-            Field field = Histogram.class.getDeclaredField(field_name);
-            assertNotNull(field);
-
-            Object orig_value = field.get(h);
-            Object copy_value = field.get(copy);
-
-            if (element == Histogram.Members.HISTOGRAM) {
-                for (Integer value : h.values()) {
-                    assertNotNull(value);
-                    assertEquals(h.get(value), copy.get(value));
-                } // FOR
-            } else {
-                assertEquals(orig_value.toString(), copy_value.toString());
-            }
-        } // FOR
     }
 }

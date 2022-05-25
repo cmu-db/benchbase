@@ -91,8 +91,8 @@ public class RandomDistribution {
             long total = 0l;
             for (int i = 0; i < num_samples; i++) {
                 total += this.nextLong();
-            } // FOR
-            return (total / (double)num_samples);
+            }
+            return (total / (double) num_samples);
         }
 
         /**

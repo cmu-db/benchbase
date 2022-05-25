@@ -30,21 +30,12 @@ public class TestProcedure extends TestCase {
     }
 
     /**
-     * testGetProcedureName
-     */
-    public void testGetProcedureName() throws Exception {
-        DeleteCallForwarding proc = new DeleteCallForwarding();
-        assertEquals(DeleteCallForwarding.class.getSimpleName(), proc.getProcedureName());
-    }
-
-    /**
      * testGetStatements
      */
     public void testGetStatements() throws Exception {
         Map<String, SQLStmt> stmts = Procedure.getStatements(new DeleteCallForwarding());
         assertNotNull(stmts);
         assertEquals(2, stmts.size());
-//        System.err.println(stmts);
     }
 
     /**
@@ -58,11 +49,9 @@ public class TestProcedure extends TestCase {
         // SQLStmts as what we get back from the static method
         Map<String, SQLStmt> expected = Procedure.getStatements(proc);
         assertNotNull(expected);
-//        System.err.println("EXPECTED:" + expected);
 
         Map<String, SQLStmt> actual = proc.getStatements();
         assertNotNull(actual);
-//        System.err.println("ACTUAL:" + actual);
 
         assertEquals(expected.size(), actual.size());
         assertEquals(expected, actual);

@@ -35,7 +35,7 @@ public class TestCustomerIdIterable extends TestCase {
 
         for (long airport = 0; airport <= 285; airport++) {
             this.airport_max_customer_id.put(airport, rand.nextInt(100));
-        } // FOR
+        }
         this.customer_id_iterable = new CustomerIdIterable(this.airport_max_customer_id);
     }
 
@@ -52,7 +52,7 @@ public class TestCustomerIdIterable extends TestCase {
             assertFalse(seen_ids.contains(encoded));
             seen_ids.add(encoded);
             airport_ids.put(c_id.getDepartAirportId());
-        } // FOR
+        }
         assertEquals(this.airport_max_customer_id.getSampleCount(), seen_ids.size());
         assertEquals(this.airport_max_customer_id, airport_ids);
     }

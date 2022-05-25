@@ -31,10 +31,11 @@ import java.util.List;
 
 public class SEATSBenchmark extends BenchmarkModule {
 
+    public static final String NAME = "seats";
     private final RandomGenerator rng = new RandomGenerator((int) System.currentTimeMillis());
 
     public SEATSBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
         this.registerSupplementalProcedure(LoadConfig.class);
     }
 

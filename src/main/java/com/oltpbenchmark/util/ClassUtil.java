@@ -58,11 +58,9 @@ public abstract class ClassUtil {
         // list the actual type arguments
         for (Type t : ptype.getActualTypeArguments()) {
             if (t instanceof Class) {
-//                System.err.println("C: " + t);
                 classes.add((Class<?>) t);
             } else if (t instanceof ParameterizedType) {
                 ParameterizedType next = (ParameterizedType) t;
-//                System.err.println("PT: " + next);
                 classes.add((Class<?>) next.getRawType());
                 getGenericTypesImpl(next, classes);
             }

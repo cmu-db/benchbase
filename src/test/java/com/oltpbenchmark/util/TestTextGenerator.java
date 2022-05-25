@@ -38,7 +38,7 @@ public class TestTextGenerator extends TestCase {
             char[] text = TextGenerator.randomChars(rng, strLen);
             assertNotNull(text);
             assertEquals(strLen, text.length);
-        } // FOR
+        }
     }
 
     /**
@@ -51,7 +51,7 @@ public class TestTextGenerator extends TestCase {
             TextGenerator.randomChars(rng, text);
             assertNotNull(text);
             assertEquals(strLen, text.length);
-        } // FOR
+        }
     }
 
     /**
@@ -64,7 +64,7 @@ public class TestTextGenerator extends TestCase {
             TextGenerator.randomFastChars(rng, text);
             assertNotNull(text);
             assertEquals(strLen, text.length);
-        } // FOR
+        }
     }
 
     /**
@@ -82,7 +82,7 @@ public class TestTextGenerator extends TestCase {
         // Make sure the first portion is the same
         for (int i = 0; i < text.length; i++) {
             assertEquals(text[i], newText[i]);
-        } // FOR
+        }
     }
 
     /**
@@ -117,7 +117,7 @@ public class TestTextGenerator extends TestCase {
                 valid = true;
                 break;
             }
-        } // FOR
+        }
         assertTrue(valid);
     }
 

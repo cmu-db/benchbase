@@ -19,42 +19,30 @@
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.api.TransactionTypes;
+import com.oltpbenchmark.api.config.Database;
+import com.oltpbenchmark.api.config.TransactionIsolation;
+import com.oltpbenchmark.api.config.Workload;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ThreadUtil;
-import org.apache.commons.configuration2.XMLConfiguration;
 
-import java.sql.Connection;
-import java.util.ArrayList;
+import java.sql.Driver;
 import java.util.List;
 
 public class WorkloadConfiguration {
 
-    private final List<Phase> phases = new ArrayList<>();
-    private DatabaseType databaseType;
-    private String benchmarkName;
-    private String url;
-    private String username;
-    private String password;
-    private String driverClass;
-    private int batchSize;
-    private int maxRetries;
-    private int randomSeed = -1;
-    private double scaleFactor = 1.0;
-    private double selectivity = -1.0;
-    private int terminals;
-    private int loaderThreads = ThreadUtil.availableProcessors();
-    private XMLConfiguration xmlConfig = null;
+    private final Database database;
+    private final Workload workload;
+    private final TransactionTypes transactionTypes;
+    private final List<Phase> phases;
+    private final int loaderThreads = ThreadUtil.availableProcessors();
     private WorkloadState workloadState;
-    private TransactionTypes transTypes = null;
-    private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
-    private String dataDir = null;
 
-    public String getBenchmarkName() {
-        return benchmarkName;
-    }
 
-    public void setBenchmarkName(String benchmarkName) {
-        this.benchmarkName = benchmarkName;
+    public WorkloadConfiguration(Database database, Workload workload, TransactionTypes transactionTypes, List<Phase> phases) {
+        this.database = database;
+        this.workload = workload;
+        this.transactionTypes = transactionTypes;
+        this.phases = phases;
     }
 
     public WorkloadState getWorkloadState() {
@@ -62,74 +50,39 @@ public class WorkloadConfiguration {
     }
 
     public DatabaseType getDatabaseType() {
-        return databaseType;
-    }
-
-    public void setDatabaseType(DatabaseType databaseType) {
-        this.databaseType = databaseType;
+        return database.type();
     }
 
     public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
+        return database.url();
     }
 
     public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+        return database.username();
     }
 
     public String getPassword() {
-        return password;
+        return database.password();
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDriverClass() {
-        return driverClass;
-    }
-
-    public void setDriverClass(String driverClass) {
-        this.driverClass = driverClass;
+    public Class<? extends Driver> getDriverClass() {
+        return database.driverClass();
     }
 
     public int getBatchSize() {
-        return batchSize;
-    }
-
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
+        return database.batchSize() != null ? database.batchSize() : 128;
     }
 
     public int getMaxRetries() {
-        return maxRetries;
-    }
-
-    public void setMaxRetries(int maxRetries) {
-        this.maxRetries = maxRetries;
+        return database.retries() != null ? database.retries() : 3;
     }
 
     /**
      * Initiate a new benchmark and workload state
      */
     public void initializeState(BenchmarkState benchmarkState) {
-        this.workloadState = new WorkloadState(benchmarkState, phases, terminals);
+        this.workloadState = new WorkloadState(benchmarkState, phases, getTerminals());
     }
-
-    public void addPhase(int id, int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
-        phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
-    }
-
-
-
 
     /**
      * The number of loader threads that the framework is allowed to use.
@@ -140,29 +93,6 @@ public class WorkloadConfiguration {
         return this.loaderThreads;
     }
 
-    public void setLoaderThreads(int loaderThreads) {
-        this.loaderThreads = loaderThreads;
-    }
-
-    public double getSelectivity() {
-        return this.selectivity;
-    }
-
-    public void setSelectivity(double selectivity) {
-        this.selectivity = selectivity;
-    }
-
-    /**
-     * The random seed for this benchmark
-     * @return
-     */
-    public int getRandomSeed() { return this.randomSeed; }
-
-    /**
-     * Set the random seed for this benchmark
-     * @param randomSeed
-     */
-    public void setRandomSeed(int randomSeed) { this.randomSeed = randomSeed; }
 
     /**
      * Return the scale factor of the database size
@@ -170,19 +100,11 @@ public class WorkloadConfiguration {
      * @return
      */
     public double getScaleFactor() {
-        return this.scaleFactor;
+        return workload.scaleFactor() != null ? workload.scaleFactor() : 1;
     }
 
-    /**
-     * Set the scale factor for the database
-     * A value of 1 means the default size.
-     * A value greater than 1 means the database is larger
-     * A value less than 1 means the database is smaller
-     *
-     * @param scaleFactor
-     */
-    public void setScaleFactor(double scaleFactor) {
-        this.scaleFactor = scaleFactor;
+    public double getSelectivity() {
+        return workload.selectivity() != null ? workload.selectivity() : -1;
     }
 
     /**
@@ -194,116 +116,32 @@ public class WorkloadConfiguration {
         return phases.size();
     }
 
-    /**
-     * Return the directory in which we can find the data files (for example, CSV
-     * files) for loading the database.
-     */
-    public String getDataDir() {
-        return this.dataDir;
-    }
-
-    /**
-     * Set the directory in which we can find the data files (for example, CSV
-     * files) for loading the database.
-     */
-    public void setDataDir(String dir) {
-        this.dataDir = dir;
-    }
-
-    /**
-     * A utility method that init the phaseIterator and dialectMap
-     */
-    public void init() {
-        try {
-            Class.forName(this.driverClass);
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("Failed to initialize JDBC driver '" + this.driverClass + "'", ex);
-        }
-    }
-
     public int getTerminals() {
-        return terminals;
+        return workload.terminals();
     }
 
-    public void setTerminals(int terminals) {
-        this.terminals = terminals;
-    }
-
-    public TransactionTypes getTransTypes() {
-        return transTypes;
-    }
-
-    public void setTransTypes(TransactionTypes transTypes) {
-        this.transTypes = transTypes;
+    public TransactionTypes getTransactionTypes() {
+        return transactionTypes;
     }
 
     public List<Phase> getPhases() {
         return phases;
     }
 
-    public XMLConfiguration getXmlConfig() {
-        return xmlConfig;
+    public TransactionIsolation getIsolationMode() {
+        return database.transactionIsolation();
     }
 
-    public void setXmlConfig(XMLConfiguration xmlConfig) {
-        this.xmlConfig = xmlConfig;
+    public String getTraceFile1() {
+        return workload.traceFile1();
     }
 
-    public int getIsolationMode() {
-        return isolationMode;
+    public String getTraceFile2() {
+        return workload.traceFile2();
     }
 
-    public void setIsolationMode(String mode) {
-        switch (mode) {
-            case "TRANSACTION_SERIALIZABLE":
-                this.isolationMode = Connection.TRANSACTION_SERIALIZABLE;
-                break;
-            case "TRANSACTION_READ_COMMITTED":
-                this.isolationMode = Connection.TRANSACTION_READ_COMMITTED;
-                break;
-            case "TRANSACTION_REPEATABLE_READ":
-                this.isolationMode = Connection.TRANSACTION_REPEATABLE_READ;
-                break;
-            case "TRANSACTION_READ_UNCOMMITTED":
-                this.isolationMode = Connection.TRANSACTION_READ_UNCOMMITTED;
-                break;
-        }
+    public Integer getFieldSize() {
+        return workload.fieldSize();
     }
 
-    public String getIsolationString() {
-        if (this.isolationMode == Connection.TRANSACTION_SERIALIZABLE) {
-            return "TRANSACTION_SERIALIZABLE";
-        } else if (this.isolationMode == Connection.TRANSACTION_READ_COMMITTED) {
-            return "TRANSACTION_READ_COMMITTED";
-        } else if (this.isolationMode == Connection.TRANSACTION_REPEATABLE_READ) {
-            return "TRANSACTION_REPEATABLE_READ";
-        } else if (this.isolationMode == Connection.TRANSACTION_READ_UNCOMMITTED) {
-            return "TRANSACTION_READ_UNCOMMITTED";
-        } else {
-            return "TRANSACTION_SERIALIZABLE";
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "WorkloadConfiguration{" +
-               "phases=" + phases +
-               ", databaseType=" + databaseType +
-               ", benchmarkName='" + benchmarkName + '\'' +
-               ", url='" + url + '\'' +
-               ", username='" + username + '\'' +
-               ", password='" + password + '\'' +
-               ", driverClass='" + driverClass + '\'' +
-               ", batchSize=" + batchSize +
-               ", maxRetries=" + maxRetries +
-               ", scaleFactor=" + scaleFactor +
-               ", selectivity=" + selectivity +
-               ", terminals=" + terminals +
-               ", loaderThreads=" + loaderThreads +
-               ", workloadState=" + workloadState +
-               ", transTypes=" + transTypes +
-               ", isolationMode=" + isolationMode +
-               ", dataDir='" + dataDir + '\'' +
-               '}';
-    }
 }

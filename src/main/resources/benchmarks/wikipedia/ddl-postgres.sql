@@ -38,7 +38,6 @@ CREATE TABLE user_groups (
 );
 CREATE INDEX idx_ug_group ON user_groups (ug_group);
 
-
 CREATE TABLE ipblocks (
     ipb_id               serial,
     ipb_address          varchar     NOT NULL,

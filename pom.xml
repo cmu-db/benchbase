@@ -141,18 +141,6 @@
 
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-configuration2</artifactId>
-            <version>2.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-jxpath</groupId>
-            <artifactId>commons-jxpath</artifactId>
-            <version>1.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
         </dependency>
@@ -188,21 +176,10 @@
         </dependency>
 
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>2.6.1</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -212,6 +189,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.13.1</version>
+        </dependency>
 
     </dependencies>
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="HSQLDB" xsi:noNamespaceSchemaLocation="dialect.xsd">
+    <procedures>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.noop.procedures.NoOp">
+            <statements>
+                <statement name="noopStmt">
+                    <![CDATA[SELECT 1]]>
+                </statement>
+            </statements>
+        </procedure>
+    </procedures>
+</dialect>
+

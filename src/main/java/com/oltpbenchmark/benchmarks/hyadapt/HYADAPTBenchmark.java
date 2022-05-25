@@ -36,9 +36,10 @@ import java.util.List;
 
 public class HYADAPTBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(HYADAPTBenchmark.class);
+    public static final String NAME = "hyadapt";
 
     public HYADAPTBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

@@ -25,7 +25,6 @@ import org.json.JSONStringer;
 import java.io.IOException;
 
 public interface JSONSerializable extends JSONString {
-    void save(String output_path) throws IOException;
 
     void load(String input_path) throws IOException;
 

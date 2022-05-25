@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
+    <type>SPANNER</type>
+    <driverClass>com.google.cloud.spanner.jdbc.JdbcDriver</driverClass>
+    <url>jdbc:cloudspanner://localhost:9010/projects/benchbase-project/instances/benchbase-instance/databases/benchbase;usePlainText=true</url>
+    <transactionIsolation>TRANSACTION_SERIALIZABLE</transactionIsolation>
+    <batchSize>128</batchSize>
+    <retries>3</retries>
+</database>

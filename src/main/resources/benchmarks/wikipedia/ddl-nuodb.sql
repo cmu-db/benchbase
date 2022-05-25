@@ -2,19 +2,19 @@
 DROP TABLE IF EXISTS ipblocks CASCADE;
 CREATE TABLE ipblocks (
   ipb_id int NOT NULL,
-  ipb_address varbinary(1024) NOT NULL,
+  ipb_address varchar(1024) NOT NULL,
   ipb_user int NOT NULL,
   ipb_by int NOT NULL,
-  ipb_by_text varbinary(255) NOT NULL,
-  ipb_reason varbinary(1024) NOT NULL,
+  ipb_by_text varchar(255) NOT NULL,
+  ipb_reason varchar(1024) NOT NULL,
   ipb_timestamp binary(14) NOT NULL,
   ipb_auto smallint NOT NULL,
   ipb_anon_only smallint NOT NULL,
   ipb_create_account smallint NOT NULL ,
   ipb_enable_autoblock smallint NOT NULL ,
-  ipb_expiry varbinary(14) NOT NULL,
-  ipb_range_start varbinary(1024) NOT NULL,
-  ipb_range_end varbinary(1024) NOT NULL,
+  ipb_expiry varchar(14) NOT NULL,
+  ipb_range_start varchar(1024) NOT NULL,
+  ipb_range_end varchar(1024) NOT NULL,
   ipb_deleted smallint NOT NULL ,
   ipb_block_email smallint NOT NULL ,
   ipb_allow_usertalk smallint NOT NULL ,
@@ -54,16 +54,16 @@ CREATE INDEX IDX_USER_EMAIL_TOKEN ON useracct (user_email_token);
 DROP TABLE IF EXISTS logging CASCADE;
 CREATE TABLE logging (
   log_id int NOT NULL,
-  log_type varbinary(32) NOT NULL,
-  log_action varbinary(32) NOT NULL,
+  log_type varchar(32) NOT NULL,
+  log_action varchar(32) NOT NULL,
   log_timestamp binary(14) NOT NULL,
   log_user int NOT NULL,
   log_namespace int NOT NULL,
-  log_title varbinary(255) NOT NULL,
-  log_comment varbinary(255) NOT NULL,
-  log_params varbinary(1024) NOT NULL,
+  log_title varchar(255) NOT NULL,
+  log_comment varchar(255) NOT NULL,
+  log_params varchar(1024) NOT NULL,
   log_deleted smallint NOT NULL,
-  log_user_text varbinary(255) NOT NULL,
+  log_user_text varchar(255) NOT NULL,
   log_page int DEFAULT NULL,
   PRIMARY KEY (log_id)
 );
@@ -117,11 +117,11 @@ CREATE INDEX IDX_PAGE_BACKUP_LEN ON page_backup (page_len);
 DROP TABLE IF EXISTS page_restrictions CASCADE;
 CREATE TABLE page_restrictions (
   pr_page int NOT NULL,
-  pr_type varbinary(60) NOT NULL,
-  pr_level varbinary(60) NOT NULL,
+  pr_type varchar(60) NOT NULL,
+  pr_level varchar(60) NOT NULL,
   pr_cascade smallint NOT NULL,
   pr_user int DEFAULT NULL,
-  pr_expiry varbinary(14) DEFAULT NULL,
+  pr_expiry varchar(14) DEFAULT NULL,
   pr_id int NOT NULL,
   PRIMARY KEY (pr_id),
   UNIQUE (pr_page,pr_type)
@@ -134,13 +134,13 @@ CREATE INDEX IDX_PR_CASCADE ON page_restrictions (pr_cascade);
 DROP TABLE IF EXISTS recentchanges CASCADE;
 CREATE TABLE recentchanges (
   rc_id int NOT NULL,
-  rc_timestamp varbinary(14) NOT NULL,
-  rc_cur_time varbinary(14) NOT NULL,
+  rc_timestamp varchar(14) NOT NULL,
+  rc_cur_time varchar(14) NOT NULL,
   rc_user int NOT NULL,
-  rc_user_text varbinary(255) NOT NULL,
+  rc_user_text varchar(255) NOT NULL,
   rc_namespace int NOT NULL,
-  rc_title varbinary(255) NOT NULL,
-  rc_comment varbinary(255) NOT NULL,
+  rc_title varchar(255) NOT NULL,
+  rc_comment varchar(255) NOT NULL,
   rc_minor smallint NOT NULL,
   rc_bot smallint NOT NULL,
   rc_new smallint NOT NULL,
@@ -149,16 +149,16 @@ CREATE TABLE recentchanges (
   rc_last_oldid int NOT NULL,
   rc_type smallint NOT NULL,
   rc_moved_to_ns smallint NOT NULL,
-  rc_moved_to_title varbinary(255) NOT NULL,
+  rc_moved_to_title varchar(255) NOT NULL,
   rc_patrolled smallint NOT NULL,
-  rc_ip varbinary(40) NOT NULL,
+  rc_ip varchar(40) NOT NULL,
   rc_old_len int DEFAULT NULL,
   rc_new_len int DEFAULT NULL,
   rc_deleted smallint NOT NULL,
   rc_logid int NOT NULL,
-  rc_log_type varbinary(255) DEFAULT NULL,
-  rc_log_action varbinary(255) DEFAULT NULL,
-  rc_params varbinary(1024),
+  rc_log_type varchar(255) DEFAULT NULL,
+  rc_log_action varchar(255) DEFAULT NULL,
+  rc_params varchar(1024),
   PRIMARY KEY (rc_id)
 );
 CREATE INDEX IDX_RC_TIMESTAMP ON recentchanges (rc_timestamp);
@@ -204,7 +204,7 @@ CREATE TABLE text (
 DROP TABLE IF EXISTS user_groups CASCADE;
 CREATE TABLE user_groups (
   ug_user int NOT NULL REFERENCES useracct (user_id),
-  ug_group varbinary(16) NOT NULL,
+  ug_group varchar(16) NOT NULL,
   UNIQUE (ug_user,ug_group)
 );
 CREATE INDEX IDX_UG_GROUP ON user_groups (ug_group);

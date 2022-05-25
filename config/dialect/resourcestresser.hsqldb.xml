@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="HSQLDB" xsi:noNamespaceSchemaLocation="dialect.xsd">
+    <procedures>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1">
+            <statements>
+                <statement name="cpuSelect">
+                    <![CDATA[SELECT count(*) FROM (SELECT concat(concat(concat(concat(concat(passwd,?),?),?),?),?) FROM cputable WHERE empid >= 0 AND empid < 100) AS T1]]>
+                </statement>
+            </statements>
+        </procedure>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2">
+            <statements>
+                <statement name="cpuSelect">
+                    <![CDATA[SELECT count(*) FROM (SELECT concat(concat(concat(concat(concat(passwd,?),?),?),?),?) FROM cputable WHERE empid >= 0 AND empid < 100) AS T2]]>
+                </statement>
+            </statements>
+        </procedure>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1">
+            <statements>
+                <statement name="lockSleep">
+                    select 1 from locktable where empid = ?
+                </statement>
+            </statements>
+        </procedure>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2">
+            <statements>
+                <statement name="lockSleep">
+                    select 1 from locktable where empid = ?
+                </statement>
+            </statements>
+        </procedure>
+    </procedures>
+</dialect>
+

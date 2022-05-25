@@ -72,12 +72,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.configuration = this.benchmarkModule.getWorkloadConfiguration();
         this.workloadState = this.configuration.getWorkloadState();
         this.currStatement = null;
-        this.transactionTypes = this.configuration.getTransTypes();
+        this.transactionTypes = this.configuration.getTransactionTypes();
 
         try {
             this.conn = this.benchmarkModule.makeConnection();
             this.conn.setAutoCommit(false);
-            this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
+            this.conn.setTransactionIsolation(this.configuration.getIsolationMode().getJdbcValue());
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to connect to database", ex);
         }
@@ -255,7 +255,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
             TransactionType transactionType = getTransactionType(pieceOfWork, prePhase, preState, workloadState);
 
-            if (!transactionType.equals(TransactionType.INVALID)) {
+            if (transactionType != null) {
 
                 // TODO: Measuring latency when not rate limited is ... a little
                 // weird because if you add more simultaneous clients, you will
@@ -328,6 +328,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             }
 
             workloadState.finishedWork();
+
         }
 
         LOG.debug("worker calling teardown");
@@ -336,10 +337,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
 
     private TransactionType getTransactionType(SubmittedProcedure pieceOfWork, Phase phase, State state, WorkloadState workloadState) {
-        TransactionType type = TransactionType.INVALID;
+        TransactionType type = null;
 
         try {
-            type = transactionTypes.getType(pieceOfWork.getType());
+            type = transactionTypes.getTypeByIndex(pieceOfWork.getTransactionIndex());
         } catch (IndexOutOfBoundsException e) {
             if (phase.isThroughputRun()) {
                 LOG.error("Thread tried executing disabled phase!");
@@ -370,7 +371,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param databaseType TODO
+     * @param databaseType    TODO
      * @param transactionType TODO
      */
     protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {

@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -43,6 +42,7 @@ import java.util.*;
 public abstract class BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkModule.class);
 
+    private final String benchmarkName;
 
     /**
      * The workload configuration for this benchmark invocation
@@ -62,17 +62,14 @@ public abstract class BenchmarkModule {
     /**
      * A single Random object that should be re-used by all a benchmark's components
      */
-    private static final ThreadLocal<Random> rng = new ThreadLocal<>();
+    private final Random rng = new Random();
 
     private AbstractCatalog catalog = null;
 
-    /**
-     * Constructor!
-     * @param workConf
-     */
-    public BenchmarkModule(WorkloadConfiguration workConf) {
+    public BenchmarkModule(String benchmarkName, WorkloadConfiguration workConf) {
+        this.benchmarkName = benchmarkName;
         this.workConf = workConf;
-        this.dialects = new StatementDialects(workConf);
+        this.dialects = new StatementDialects(benchmarkName, workConf.getDatabaseType());
     }
 
     // --------------------------------------------------------------------------
@@ -118,36 +115,12 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
-     * Return the Random generator that should be used by all this benchmark's components.
-     * We are using ThreadLocal to make this support multiple threads better.
-     * This will set the seed if one is specified in the workload config file
+     * Return the Random generator that should be used by all this benchmark's components
      */
     public Random rng() {
-        Random ret = rng.get();
-        if (ret == null) {
-            if (this.workConf.getRandomSeed() != -1) {
-                ret = new Random(this.workConf.getRandomSeed());
-            } else {
-                ret = new Random();
-            }
-            rng.set(ret);
-        }
-        return ret;
+        return (this.rng);
     }
 
-    private String convertBenchmarkClassToBenchmarkName() {
-        return convertBenchmarkClassToBenchmarkName(this.getClass());
-    }
-
-    protected static <T> String convertBenchmarkClassToBenchmarkName(Class<T> clazz) {
-        assert(clazz != null);
-        String name = clazz.getSimpleName().toLowerCase();
-        // Special case for "CHBenCHmark"
-        if (!name.equals("chbenchmark") && name.endsWith("benchmark")) {
-            name = name.replace("benchmark", "");
-        }
-        return (name);
-    }
 
     /**
      * Return the URL handle to the DDL used to load the benchmark's database
@@ -161,7 +134,6 @@ public abstract class BenchmarkModule {
         List<String> names = new ArrayList<>();
         if (db_type != null) {
             DatabaseType ddl_db_type = db_type;
-            // HACK: Use MySQL if we're given MariaDB
             if (ddl_db_type == DatabaseType.MARIADB) ddl_db_type = DatabaseType.MYSQL;
             names.add("ddl-" + ddl_db_type.name().toLowerCase() + ".sql");
         }
@@ -282,8 +254,7 @@ public abstract class BenchmarkModule {
      * Return the unique identifier for this benchmark
      */
     public final String getBenchmarkName() {
-        String workConfName = this.workConf.getBenchmarkName();
-        return workConfName != null ? workConfName : convertBenchmarkClassToBenchmarkName();
+        return benchmarkName;
     }
 
     /**
@@ -312,27 +283,7 @@ public abstract class BenchmarkModule {
     }
 
 
-    /**
-     * Initialize a TransactionType handle for the get procedure name and id
-     * This should only be invoked a start-up time
-     *
-     * @param procName
-     * @param id
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public final TransactionType initTransactionType(String procName, int id, long preExecutionWait, long postExecutionWait) {
-        if (id == TransactionType.INVALID_ID) {
-            throw new RuntimeException(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
-        }
 
-        Package pkg = this.getProcedurePackageImpl();
-
-        String fullName = pkg.getName() + "." + procName;
-        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
-
-        return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
-    }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
         return (this.workConf);
@@ -345,14 +296,16 @@ public abstract class BenchmarkModule {
      */
     public Map<TransactionType, Procedure> getProcedures() {
         Map<TransactionType, Procedure> proc_xref = new HashMap<>();
-        TransactionTypes txns = this.workConf.getTransTypes();
+        TransactionTypes txns = this.workConf.getTransactionTypes();
 
         if (txns != null) {
+            int id = txns.size() + 1;
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode(), true, 0, 0);
+                    txn = new TransactionType(id, procClass, true, 0, 0);
                     txns.add(txn);
+                    id++;
                 }
             }
 

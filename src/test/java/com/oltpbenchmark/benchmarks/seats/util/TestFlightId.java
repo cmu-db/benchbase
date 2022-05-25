@@ -39,7 +39,7 @@ public class TestFlightId extends TestCase {
         for (int i = 0; i < this.flight_dates.length; i++) {
             int day = this.flight_offset_days[i];
             this.flight_dates[i] = new Timestamp(this.start_date.getTime() + (day * SEATSConstants.MILLISECONDS_PER_DAY));
-        } // FOR
+        }
     }
 
     /**
@@ -99,7 +99,7 @@ public class TestFlightId extends TestCase {
                         assertEquals(values.length, new_values.length);
                         for (int i = 0; i < new_values.length; i++) {
                             assertEquals(values[i], new_values[i]);
-                        } // FOR
+                        }
                     } // FOR (time_code)
                 } // FOR (arrive_airport_id)
             } // FOR (depart_airport_id)

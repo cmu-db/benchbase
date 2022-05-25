@@ -2,7 +2,7 @@
   <configuration default="false" name="tatp - postgres" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
     <module name="benchbase" />
-    <option name="PROGRAM_PARAMETERS" value="-b tatp -c config/postgres/sample_tatp_config.xml --create=true --load=true --execute=true" />
+    <option name="PROGRAM_PARAMETERS" value="-d config/db/postgres.xml -w config/workload/tatp.xml --create=true --load=true --execute=true"/>
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="com.oltpbenchmark.*" />

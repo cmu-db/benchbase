@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="configuration" type="configurationType"/>
+    <xs:complexType name="phaseType">
+        <xs:sequence>
+            <xs:element type="xs:boolean" name="serial" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="warmup " minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="time" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="rateType" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="DISABLED"/>
+                        <xs:enumeration value="LIMITED"/>
+                        <xs:enumeration value="UNLIMITED"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element type="xs:int" name="rate" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="weight">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="activeTerminals" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="arrival" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="REGULAR"/>
+                        <xs:enumeration value="POISSON"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="phasesType">
+        <xs:sequence>
+            <xs:element type="phaseType" name="phase" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="transactionType">
+        <xs:sequence>
+            <xs:element type="xs:boolean" name="supplemental" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="preExecutionWait" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="postExecutionWait" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="procedureClass" use="required">
+            <xs:annotation>
+                <xs:documentation>the fully qualified class name of the Procedure that defines this transaction. It must extend com.oltpbenchmark.api.Procedure.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="transactionsType">
+        <xs:sequence>
+            <xs:element type="transactionType" name="transaction" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="workloadType">
+        <xs:all>
+            <xs:element type="xs:double" name="scaleFactor">
+                <xs:annotation>
+                    <xs:documentation>the scale factor of this workload. this value usually dictates the size of the data generated for this benchmark.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="terminals">
+                <xs:annotation>
+                    <xs:documentation>the number of terminals for this workload. this value usually dictates the number of parallel threads executed during this benchmark.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="traceFile1" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="traceFile2" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>todo</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="phasesType" name="phases">
+                <xs:annotation>
+                    <xs:documentation>the list of Phases supported by this workload</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="transactionsType" name="transactions">
+                <xs:annotation>
+                    <xs:documentation>the list of Procedures, known here as transactions, that define this workload.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="fieldSize"  minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>can be used to configure max field size in some workloads.  See YCSB for example.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute type="xs:string" name="benchmarkClass" use="required">
+            <xs:annotation>
+                <xs:documentation>the fully qualified class name of the Benchmark that defines this workload. It must extend com.oltpbenchmark.api.BenchmarkModule.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="workloadsType">
+        <xs:sequence>
+            <xs:element type="workloadType" name="workload" maxOccurs="unbounded" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="configurationType">
+        <xs:sequence>
+            <xs:element type="workloadsType" name="workloads" maxOccurs="1" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

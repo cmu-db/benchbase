@@ -18,7 +18,6 @@
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
 import junit.framework.TestCase;
-import org.junit.Test;
 
 import java.util.Random;
 
@@ -41,8 +40,8 @@ public class TestItemId extends TestCase {
                 assertNotNull(customer_id);
                 assertEquals(user_id, customer_id.getSellerId());
                 assertEquals(item_ctr, customer_id.getItemCtr());
-            } // FOR
-        } // FOR
+            }
+        }
     }
 
     /**
@@ -58,7 +57,7 @@ public class TestItemId extends TestCase {
                 assertNotNull(customer_id);
                 assertEquals(user_id, customer_id.getSellerId());
                 assertEquals(item_ctr, customer_id.getItemCtr());
-            } // FOR
-        } // FOR
+            }
+        }
     }
 }

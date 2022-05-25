@@ -20,6 +20,7 @@ package com.oltpbenchmark.api;
 import org.apache.commons.collections4.map.ListOrderedMap;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,9 +28,14 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     private final ListOrderedMap<String, TransactionType> types = new ListOrderedMap<>();
 
-    public TransactionTypes(List<TransactionType> transactiontypes) {
-        transactiontypes.sort(TransactionType::compareTo);
-        for (TransactionType tt : transactiontypes) {
+    public TransactionTypes(List<TransactionType> transactionTypes) {
+        transactionTypes.sort(new Comparator<TransactionType>() {
+            @Override
+            public int compare(TransactionType o1, TransactionType o2) {
+                return o1.compareTo(o2);
+            }
+        });
+        for (TransactionType tt : transactionTypes) {
             String key = tt.getName().toUpperCase();
             this.types.put(key, tt);
         }
@@ -44,7 +50,17 @@ public class TransactionTypes implements Collection<TransactionType> {
     }
 
     public TransactionType getType(int id) {
-        return (this.types.getValue(id));
+        for (TransactionType transactionType : this.types.values()) {
+            if (transactionType.getId() == id) {
+                return transactionType;
+            }
+        }
+
+        return null;
+    }
+
+    public TransactionType getTypeByIndex(int index) {
+        return this.types.getValue(index);
     }
 
     @Override
@@ -61,7 +77,7 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     @Override
     public boolean addAll(Collection<? extends TransactionType> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -71,7 +87,7 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     @Override
     public boolean contains(Object o) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -91,17 +107,17 @@ public class TransactionTypes implements Collection<TransactionType> {
 
     @Override
     public boolean remove(Object o) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override

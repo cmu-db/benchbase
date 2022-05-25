@@ -23,6 +23,7 @@ import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.wikipedia.data.RevisionHistograms;
 import com.oltpbenchmark.benchmarks.wikipedia.procedures.AddWatchList;
+import com.oltpbenchmark.benchmarks.wikipedia.util.WikipediaUtil;
 import com.oltpbenchmark.util.RandomDistribution.FlatHistogram;
 import com.oltpbenchmark.util.TextGenerator;
 import org.slf4j.Logger;
@@ -33,14 +34,16 @@ import java.util.List;
 
 public class WikipediaBenchmark extends BenchmarkModule {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaBenchmark.class);
+    public static final String NAME = "wikipedia";
 
     protected final FlatHistogram<Integer> commentLength;
     protected final FlatHistogram<Integer> minorEdit;
     private final FlatHistogram<Integer>[] revisionDeltas;
+    protected final WikipediaUtil util;
 
     @SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
 
         this.commentLength = new FlatHistogram<>(this.rng(), RevisionHistograms.COMMENT_LENGTH);
         this.minorEdit = new FlatHistogram<>(this.rng(), RevisionHistograms.MINOR_EDIT);
@@ -48,6 +51,9 @@ public class WikipediaBenchmark extends BenchmarkModule {
         for (int i = 0; i < this.revisionDeltas.length; i++) {
             this.revisionDeltas[i] = new FlatHistogram<>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
         }
+
+        util = new WikipediaUtil(this.rng());
+
     }
 
     /**

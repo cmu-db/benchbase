@@ -39,9 +39,10 @@ import java.util.List;
 public class EpinionsBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(EpinionsBenchmark.class);
+    public static final String NAME = "epinions";
 
     public EpinionsBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
     }
 
     @Override

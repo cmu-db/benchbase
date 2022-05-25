@@ -559,4 +559,15 @@ public abstract class SQLUtil {
         }
         return (false);
     }
+
+    public static String clean(String originalSql) {
+
+        if (originalSql == null || originalSql.isEmpty()) {
+            return null;
+        }
+        originalSql = StringUtils.replace(originalSql, "\n", " ");
+        originalSql = StringUtils.trimToNull(originalSql);
+
+        return originalSql;
+    }
 }

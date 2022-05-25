@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark;
 
+import com.oltpbenchmark.api.config.PhaseArrival;
 import com.oltpbenchmark.util.StringUtil;
 
 import java.util.ArrayList;
@@ -24,17 +25,13 @@ import java.util.List;
 import java.util.Random;
 
 public class Phase {
-    public enum Arrival {
-        REGULAR, POISSON,
-    }
 
     private final Random gen = new Random();
-    private final String benchmarkName;
     private final int id;
     private final int time;
     private final int warmupTime;
     private final int rate;
-    private final Arrival arrival;
+    private final PhaseArrival arrival;
 
 
     private final boolean rateLimited;
@@ -47,8 +44,7 @@ public class Phase {
     private int nextSerial;
 
 
-    Phase(String benchmarkName, int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, Arrival a) {
-        this.benchmarkName = benchmarkName;
+    Phase(int id, int t, int wt, int r, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int activeTerminals, PhaseArrival a) {
         this.id = id;
         this.time = t;
         this.warmupTime = wt;
@@ -63,7 +59,6 @@ public class Phase {
         this.activeTerminals = activeTerminals;
         this.arrival = a;
     }
-
 
 
     public boolean isRateLimited() {
@@ -118,7 +113,7 @@ public class Phase {
         return rate;
     }
 
-    public Arrival getArrival() {
+    public PhaseArrival getArrival() {
         return arrival;
     }
 
@@ -145,11 +140,11 @@ public class Phase {
      *
      * @return
      */
-    public int chooseTransaction() {
-        return chooseTransaction(false);
+    public int chooseTransactionIndex() {
+        return chooseTransactionIndex(false);
     }
 
-    public int chooseTransaction(boolean isColdQuery) {
+    public int chooseTransactionIndex(boolean isColdQuery) {
         if (isDisabled()) {
             return -1;
         }
@@ -187,7 +182,7 @@ public class Phase {
             for (int i = 0; i < this.weightCount; i++) {
                 weight += weights.get(i);
                 if (randomPercentage <= weight) {
-                    return i + 1;
+                    return i;
                 }
             }
         }
@@ -200,7 +195,6 @@ public class Phase {
      */
     public String currentPhaseString() {
         List<String> inner = new ArrayList<>();
-        inner.add("[Workload=" + benchmarkName.toUpperCase() + "]");
         if (isDisabled()) {
             inner.add("[Disabled=true]");
         } else {
@@ -214,11 +208,12 @@ public class Phase {
             inner.add("[WarmupTime=" + warmupTime + "]");
             inner.add("[Rate=" + (isRateLimited() ? rate : "unlimited") + "]");
             inner.add("[Arrival=" + arrival + "]");
-            inner.add("[Ratios=" + getWeights() + "]");
-            inner.add("[ActiveWorkers=" + getActiveTerminals() + "]");
+            inner.add("[Weights=" + getWeights() + "]");
+            inner.add("[ActiveTerminals=" + getActiveTerminals() + "]");
         }
 
         return StringUtil.bold("PHASE START") + " :: " + StringUtil.join(" ", inner);
     }
+
 
 }

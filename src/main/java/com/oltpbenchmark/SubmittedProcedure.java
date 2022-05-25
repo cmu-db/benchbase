@@ -24,16 +24,16 @@ package com.oltpbenchmark;
  * @author breilly
  */
 public class SubmittedProcedure {
-    private final int type;
+    private final int transactionIndex;
     private final long startTime;
 
-    SubmittedProcedure(int type) {
-        this.type = type;
+    SubmittedProcedure(int transactionIndex) {
+        this.transactionIndex = transactionIndex;
         this.startTime = System.nanoTime();
     }
 
-    public int getType() {
-        return type;
+    public int getTransactionIndex() {
+        return transactionIndex;
     }
 
     public long getStartTime() {

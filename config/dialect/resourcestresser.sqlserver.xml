@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dialect xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="SQLSERVER" xsi:noNamespaceSchemaLocation="dialect.xsd">
+    <procedures>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU1">
+            <statements>
+                <statement name="cpuSelect">
+                    SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',passwd+?)
+                    )
+                    +?))
+                    +?))
+                    +?))
+                    +?))
+                    Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
+                </statement>
+            </statements>
+        </procedure>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.CPU2">
+            <statements>
+                <statement name="cpuSelect">
+                    SELECT count(*) FROM (SELECT CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',CONVERT(VARCHAR(32),
+                    HashBytes('MD5',passwd+?)
+                    )
+                    +?))
+                    +?))
+                    +?))
+                    +?))
+                    Z FROM cputable WHERE empid &gt;= 1 AND empid &lt;= 100) cputemp
+                </statement>
+            </statements>
+        </procedure>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention1">
+            <statements>
+                <statement name="lockSleep">
+                    WAITFOR DELAY ?
+                </statement>
+            </statements>
+        </procedure>
+        <procedure procedureClass="com.oltpbenchmark.benchmarks.resourcestresser.procedures.Contention2">
+            <statements>
+                <statement name="lockSleep">
+                    WAITFOR DELAY ?
+                </statement>
+            </statements>
+        </procedure>
+    </procedures>
+</dialect>

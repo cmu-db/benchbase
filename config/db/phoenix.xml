@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="database.xsd">
+    <type>PHOENIX</type>
+    <driverClass>org.apache.phoenix.jdbc.PhoenixDive</driverClass>
+    <url>jdbc:phoenix:localhost:2181/benchbase</url>
+    <username>oot</username>
+    <password></password>
+    <transactionIsolation>TRANSACTION_READ_COMMITTED</transactionIsolation>
+    <batchSize>128</batchSize>
+    <retries>3</retries>
+</database>

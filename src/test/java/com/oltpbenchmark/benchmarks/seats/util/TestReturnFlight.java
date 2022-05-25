@@ -49,7 +49,7 @@ public class TestReturnFlight extends TestCase {
             assertEquals(this.customer_id, return_flight.getCustomerId());
             assertEquals(this.depart_airport_id, return_flight.getReturnAirportId());
             assertTrue(this.flight_date.getTime() < return_flight.getReturnDate().getTime());
-        } // FOR
+        }
     }
 
     /**
@@ -60,6 +60,6 @@ public class TestReturnFlight extends TestCase {
             Timestamp return_flight_date = ReturnFlight.calculateReturnDate(this.flight_date, return_day);
             assertNotNull(return_flight_date);
             assertTrue(this.flight_date.getTime() < return_flight_date.getTime());
-        } // FOR
+        }
     }
 }

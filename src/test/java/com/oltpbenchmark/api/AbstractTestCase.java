@@ -17,11 +17,14 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
+import com.oltpbenchmark.api.config.Database;
+import com.oltpbenchmark.api.config.TransactionIsolation;
+import com.oltpbenchmark.api.config.Workload;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import junit.framework.TestCase;
-import org.hsqldb.Database;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerConstants;
@@ -34,7 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hsqldb.Database.CLOSEMODE_NORMAL;
+
 public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCase {
+
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
@@ -46,10 +52,17 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
      */
     private static final DatabaseType DB_TYPE = DatabaseType.HSQLDB;
 
-
     // -----------------------------------------------------------------
 
-    protected static final double DB_SCALE_FACTOR = 0.01;
+    private static final String USERNAME = "admin";
+    private static final String PASSWORD = "password";
+    private static final String ADDRESS = "localhost";
+    private static final String DATABASE_NAME = "benchbase";
+
+    private static final double DEFAULT_SCALE_FACTOR = 0.01;
+    private static final int DEFAULT_TERMINALS = 1;
+    private static final int DEFAULT_RETRIES = 3;
+    private static final int DEFAULT_BATCH_SIZE = 128;
 
     private Server server = null;
 
@@ -77,43 +90,40 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     @Override
     protected final void setUp() throws Exception {
-        HsqlProperties props = new HsqlProperties();
-        //props.setProperty("server.remote_open", true);
 
         int port = portCounter.incrementAndGet();
 
         LOG.info("starting HSQLDB server for test [{}] on port [{}]", this.getName(), port);
 
+        HsqlProperties props = new HsqlProperties();
+        props.setProperty("server.remote_open", false);
+
         server = new Server();
         server.setProperties(props);
-        server.setDatabasePath(0, "mem:benchbase;sql.syntax_mys=true");
-        server.setDatabaseName(0, "benchbase");
-        server.setAddress("localhost");
+        server.setDatabasePath(0, String.format("mem:%s;sql.syntax_mys=true;user=%s;password=%s", DATABASE_NAME, USERNAME, PASSWORD));
+        server.setDatabaseName(0, DATABASE_NAME);
+        server.setAddress(ADDRESS);
         server.setPort(port);
+        server.setDaemon(false);
+        server.setTrace(false);
         server.setSilent(true);
         server.setLogWriter(null);
         server.start();
 
-        this.workConf = new WorkloadConfiguration();
+        String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://%s:%d/%s", ADDRESS, port, DATABASE_NAME);
+
+        Database database = new Database(DB_TYPE, JDBCDriver.class, DB_CONNECTION, USERNAME, PASSWORD, TransactionIsolation.TRANSACTION_SERIALIZABLE, batchSize(), retries());
+        Workload workload = new Workload(benchmarkClass(), scaleFactor(), selectivity(), terminals(), traceFile1(), traceFile2(), fieldSize(), null, null);
+
         TransactionTypes txnTypes = new TransactionTypes(new ArrayList<>());
 
         int id = 0;
         for (Class<? extends Procedure> procedureClass : procedures()) {
-            TransactionType tt = new TransactionType(procedureClass, id++, false, 0, 0);
+            TransactionType tt = new TransactionType(id++, procedureClass, false, 0, 0);
             txnTypes.add(tt);
         }
 
-        String DB_CONNECTION = String.format("jdbc:hsqldb:hsql://localhost:%d/benchbase", server.getPort());
-
-        this.workConf.setTransTypes(txnTypes);
-        this.workConf.setDatabaseType(DB_TYPE);
-        this.workConf.setUrl(DB_CONNECTION);
-        this.workConf.setScaleFactor(DB_SCALE_FACTOR);
-        this.workConf.setTerminals(1);
-        this.workConf.setBatchSize(128);
-        this.workConf.setBenchmarkName(BenchmarkModule.convertBenchmarkClassToBenchmarkName(benchmarkClass()));
-
-        customWorkloadConfiguration(this.workConf);
+        this.workConf = new WorkloadConfiguration(database, workload, txnTypes, new ArrayList<>());
 
         this.benchmark = ClassUtil.newInstance(benchmarkClass(),
                 new Object[]{this.workConf},
@@ -156,8 +166,36 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         }
     }
 
-    protected void customWorkloadConfiguration(WorkloadConfiguration workConf) {
+    protected double scaleFactor() {
+        return DEFAULT_SCALE_FACTOR;
+    }
 
+    protected Double selectivity() {
+        return null;
+    }
+
+    protected int terminals() {
+        return DEFAULT_TERMINALS;
+    }
+
+    protected int batchSize() {
+        return DEFAULT_BATCH_SIZE;
+    }
+
+    protected int retries() {
+        return DEFAULT_RETRIES;
+    }
+
+    protected String traceFile1() {
+        return null;
+    }
+
+    protected String traceFile2() {
+        return null;
+    }
+
+    protected Integer fieldSize() {
+        return null;
     }
 
     protected void postCreateDatabaseSetup() throws IOException {
@@ -179,7 +217,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         if (server != null) {
 
             LOG.trace("shutting down catalogs...");
-            server.shutdownCatalogs(Database.CLOSEMODE_NORMAL);
+            server.shutdownCatalogs(CLOSEMODE_NORMAL);
 
             LOG.trace("stopping server...");
             server.stop();
@@ -193,6 +231,8 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
             LOG.trace("shutting down server...");
             server.shutdown();
+
+            server = null;
 
         }
     }

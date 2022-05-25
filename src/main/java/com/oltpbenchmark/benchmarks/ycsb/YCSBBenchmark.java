@@ -37,6 +37,7 @@ import java.util.List;
 public class YCSBBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
+    public static final String NAME = "ycsb";
 
     /**
      * The length in characters of each field
@@ -44,16 +45,14 @@ public class YCSBBenchmark extends BenchmarkModule {
     protected final int fieldSize;
 
     public YCSBBenchmark(WorkloadConfiguration workConf) {
-        super(workConf);
+        super(NAME, workConf);
 
-        int fieldSize = YCSBConstants.MAX_FIELD_SIZE;
-        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("fieldSize")) {
-            fieldSize = Math.min(workConf.getXmlConfig().getInt("fieldSize"), YCSBConstants.MAX_FIELD_SIZE);
+        if (workConf.getFieldSize() != null && workConf.getFieldSize() > 0) {
+            fieldSize = Math.min(workConf.getFieldSize(), YCSBConstants.MAX_FIELD_SIZE);
+        } else {
+            fieldSize = YCSBConstants.MAX_FIELD_SIZE;
         }
-        this.fieldSize = fieldSize;
-        if (this.fieldSize <= 0) {
-            throw new RuntimeException("Invalid YCSB fieldSize '" + this.fieldSize + "'");
-        }
+
     }
 
     @Override
