@@ -58,13 +58,9 @@ public class Q7 extends GenericQuery {
                      AND c_nationkey = n2.n_nationkey
                      AND
                      (
-            (n1.n_name = ?
-                        AND n2.n_name = ? )
+                        (n1.n_name = ? AND n2.n_name = ?)
                         OR
-                        (
-                           n1.n_name = ?
-                           AND n2.n_name = ?
-                        )
+                        (n1.n_name = ? AND n2.n_name = ?)
                      )
                      AND l_shipdate BETWEEN DATE '1995-01-01' AND DATE '1996-12-31'
                )

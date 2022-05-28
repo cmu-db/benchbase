@@ -6,7 +6,7 @@
     <driver>org.sqlite.JDBC</driver>
     <url>jdbc:sqlite:tpch.db</url>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>1024</batchsize>
+    <batchsize>1000</batchsize>
 
     <!-- Control scale factor to generate different amount of data -->
     <scalefactor>0.01</scalefactor>
