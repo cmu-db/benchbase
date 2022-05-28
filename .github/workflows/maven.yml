@@ -42,8 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        #profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
-        profile: [ 'sqlite' ]
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
@@ -99,261 +98,261 @@ jobs:
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
         
         
-  ### ----------------------------------------------------------------------------------
-  ### MARIADB
-  ### ----------------------------------------------------------------------------------
-  #mariadb:
-    #needs: package-and-upload
-    #runs-on: ubuntu-latest
-    #strategy:
-      #matrix:
-        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-    #services:
-      #mariadb: # https://hub.docker.com/_/mariadb
-        #image: mariadb:latest
-        #env:
-          #MARIADB_ROOT_PASSWORD: rootyMcRooty
-          #MARIADB_DATABASE: benchbase
-          #MARIADB_USER: admin
-          #MARIADB_PASSWORD: password
-        #options: >-
-          #--health-cmd "mysqladmin ping"
-          #--health-interval 10s
-          #--health-timeout 5s
-          #--health-retries 5
-        #ports:
-          #- 3306:3306
-    #steps:
-      #- name: Download artifact
-        #uses: actions/download-artifact@v2
-        #with:
-          #name: benchbase-mariadb
+  ## ----------------------------------------------------------------------------------
+  ## MARIADB
+  ## ----------------------------------------------------------------------------------
+  mariadb:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+    services:
+      mariadb: # https://hub.docker.com/_/mariadb
+        image: mariadb:latest
+        env:
+          MARIADB_ROOT_PASSWORD: rootyMcRooty
+          MARIADB_DATABASE: benchbase
+          MARIADB_USER: admin
+          MARIADB_PASSWORD: password
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-mariadb
 
-      #- name: Extract artifact
-        #run: |
-          #tar xvzf benchbase-mariadb.tgz --strip-components=1
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-mariadb.tgz --strip-components=1
 
-      #- name: Delete artifact
-        #run: |
-          #rm -rf benchbase-mariadb.tgz
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-mariadb.tgz
 
-      #- name: Set up JDK
-        #uses: actions/setup-java@v2
-        #with:
-          #java-version: ${{env.JAVA_VERSION}}
-          #distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
 
-      #- name: Run benchmark
-        #env:
-          #MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
-        #run: |
-          #mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          #java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+      - name: Run benchmark
+        env:
+          MARIADB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
-  ### ----------------------------------------------------------------------------------
-  ### MYSQL
-  ### ----------------------------------------------------------------------------------
-  #mysql:
-    #needs: package-and-upload
-    #runs-on: ubuntu-latest
-    #strategy:
-      #matrix:
-        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-    #services:
-      #mysql: # https://hub.docker.com/_/mysql
-        #image: mysql:latest
-        #env:
-          #MYSQL_ROOT_PASSWORD: rootyMcRooty
-          #MYSQL_DATABASE: benchbase
-          #MYSQL_USER: admin
-          #MYSQL_PASSWORD: password
-        #options: >-
-          #--health-cmd "mysqladmin ping"
-          #--health-interval 10s
-          #--health-timeout 5s
-          #--health-retries 5
-        #ports:
-          #- 3306:3306
-    #steps:
-      #- name: Download artifact
-        #uses: actions/download-artifact@v2
-        #with:
-          #name: benchbase-mysql
+  ## ----------------------------------------------------------------------------------
+  ## MYSQL
+  ## ----------------------------------------------------------------------------------
+  mysql:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+    services:
+      mysql: # https://hub.docker.com/_/mysql
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: rootyMcRooty
+          MYSQL_DATABASE: benchbase
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: password
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-mysql
 
-      #- name: Extract artifact
-        #run: |
-          #tar xvzf benchbase-mysql.tgz --strip-components=1
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-mysql.tgz --strip-components=1
 
-      #- name: Delete artifact
-        #run: |
-          #rm -rf benchbase-mysql.tgz
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-mysql.tgz
 
-      #- name: Set up JDK
-        #uses: actions/setup-java@v2
-        #with:
-          #java-version: ${{env.JAVA_VERSION}}
-          #distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
 
-      #- name: Run benchmark
-        #env:
-          #MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
-        #run: |
-          #mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
-          #java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+      - name: Run benchmark
+        env:
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
-  ### ----------------------------------------------------------------------------------
-  ### POSTGRESQL
-  ### ----------------------------------------------------------------------------------
-  #postgresql:
-    #needs: package-and-upload
-    #runs-on: ubuntu-latest
-    #strategy:
-      #matrix:
-        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-    #services:
-      #postgres: # https://hub.docker.com/_/postgres
-        #image: postgres:latest
-        #env:
-          #POSTGRES_DB: benchbase
-          #POSTGRES_USER: admin
-          #POSTGRES_PASSWORD: password
-        #options: >-
-          #--health-cmd pg_isready
-          #--health-interval 10s
-          #--health-timeout 5s
-          #--health-retries 5
-        #ports:
-          #- 5432:5432
-    #steps:
-      #- name: Download artifact
-        #uses: actions/download-artifact@v2
-        #with:
-          #name: benchbase-postgres
+  ## ----------------------------------------------------------------------------------
+  ## POSTGRESQL
+  ## ----------------------------------------------------------------------------------
+  postgresql:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+    services:
+      postgres: # https://hub.docker.com/_/postgres
+        image: postgres:latest
+        env:
+          POSTGRES_DB: benchbase
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-postgres
 
-      #- name: Extract artifact
-        #run: |
-          #tar xvzf benchbase-postgres.tgz --strip-components=1
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-postgres.tgz --strip-components=1
 
-      #- name: Delete artifact
-        #run: |
-          #rm -rf benchbase-postgres.tgz
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-postgres.tgz
 
-      #- name: Set up JDK
-        #uses: actions/setup-java@v2
-        #with:
-          #java-version: ${{env.JAVA_VERSION}}
-          #distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
 
-      #- name: Run benchmark
-        #run: |
-          #PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          #PGPASSWORD=password createdb -h localhost -U admin benchbase
-          #java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+      - name: Run benchmark
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin benchbase
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
-  ### ----------------------------------------------------------------------------------
-  ### COCKROACHDB
-  ### ----------------------------------------------------------------------------------
-  #cockroachdb:
-    #needs: package-and-upload
-    #runs-on: ubuntu-latest
-    #strategy:
-      #matrix:
-        #benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
-    #services:
-      #cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
-        #image: timveil/cockroachdb-single-node:latest
-        #env:
-          #DATABASE_NAME: benchbase
-          #MEMORY_SIZE: .75
-        #ports:
-          #- 26257:26257
-    #steps:
-      #- name: Download artifact
-        #uses: actions/download-artifact@v2
-        #with:
-          #name: benchbase-cockroachdb
+  ## ----------------------------------------------------------------------------------
+  ## COCKROACHDB
+  ## ----------------------------------------------------------------------------------
+  cockroachdb:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+    services:
+      cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
+        image: timveil/cockroachdb-single-node:latest
+        env:
+          DATABASE_NAME: benchbase
+          MEMORY_SIZE: .75
+        ports:
+          - 26257:26257
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-cockroachdb
 
-      #- name: Extract artifact
-        #run: |
-          #tar xvzf benchbase-cockroachdb.tgz --strip-components=1
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-cockroachdb.tgz --strip-components=1
 
-      #- name: Delete artifact
-        #run: |
-          #rm -rf benchbase-cockroachdb.tgz
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-cockroachdb.tgz
 
-      #- name: Set up JDK
-        #uses: actions/setup-java@v2
-        #with:
-          #java-version: ${{env.JAVA_VERSION}}
-          #distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
 
-      #- name: Run benchmark
-        #run: |
-          #java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+      - name: Run benchmark
+        run: |
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
-  ### ----------------------------------------------------------------------------------
-  ### MSSQL
-  ### ----------------------------------------------------------------------------------
-  #sqlserver:
-    #needs: package-and-upload
-    #runs-on: ubuntu-latest
-    #strategy:
-      #matrix:
-        ## TODO: add more benchmarks
-        #benchmark: [ 'tpcc', 'tpch' ]
-    #services:
-      #sqlserver:
-        #image: mcr.microsoft.com/mssql/server:2019-latest
-        #env:
-          #ACCEPT_EULA: Y
-          #SA_PASSWORD: SApassword1
-        #options: >-
-          #--health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;'"
-          #--health-interval 10s
-          #--health-timeout 5s
-          #--health-retries 5
-        #ports:
-          #- 1433:1433
-    #steps:
-      #- name: Download artifact
-        #uses: actions/download-artifact@v2
-        #with:
-          #name: benchbase-sqlserver
+  ## ----------------------------------------------------------------------------------
+  ## MSSQL
+  ## ----------------------------------------------------------------------------------
+  sqlserver:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # TODO: add more benchmarks
+        benchmark: [ 'tpcc', 'tpch' ]
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: SApassword1
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SApassword1 -b -Q 'SELECT 1;'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 1433:1433
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-sqlserver
 
-      #- name: Extract artifact
-        #run: |
-          #tar xvzf benchbase-sqlserver.tgz --strip-components=1
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-sqlserver.tgz --strip-components=1
 
-      #- name: Delete artifact
-        #run: |
-          #rm -rf benchbase-sqlserver.tgz
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-sqlserver.tgz
 
-      #- name: Set up JDK
-        #uses: actions/setup-java@v2
-        #with:
-          #java-version: ${{env.JAVA_VERSION}}
-          #distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
 
-      #- name: Setup database
-        #uses: docker://mcr.microsoft.com/mssql-tools:latest
-        #with:
-          #entrypoint: /opt/mssql-tools/bin/sqlcmd
-          #args: -U sa -P SApassword1 -S sqlserver -b -Q "CREATE DATABASE benchbase_${{ matrix.benchmark }};"
+      - name: Setup database
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "CREATE DATABASE benchbase_${{ matrix.benchmark }};"
 
-      #- name: Setup login
-        #uses: docker://mcr.microsoft.com/mssql-tools:latest
-        #with:
-          #entrypoint: /opt/mssql-tools/bin/sqlcmd
-          #args: -U sa -P SApassword1 -S sqlserver -Q "CREATE LOGIN benchuser01 WITH PASSWORD='P@ssw0rd';"
+      - name: Setup login
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -Q "CREATE LOGIN benchuser01 WITH PASSWORD='P@ssw0rd';"
 
-      #- name: Setup access
-        #uses: docker://mcr.microsoft.com/mssql-tools:latest
-        #with:
-          #entrypoint: /opt/mssql-tools/bin/sqlcmd
-          #args: -U sa -P SApassword1 -S sqlserver -b -Q "USE benchbase_${{ matrix.benchmark }}; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
+      - name: Setup access
+        uses: docker://mcr.microsoft.com/mssql-tools:latest
+        with:
+          entrypoint: /opt/mssql-tools/bin/sqlcmd
+          args: -U sa -P SApassword1 -S sqlserver -b -Q "USE benchbase_${{ matrix.benchmark }}; CREATE USER benchuser01 FROM LOGIN benchuser01; EXEC sp_addrolemember 'db_owner', 'benchuser01';"
 
-      #- name: Run benchmark
-        ## Note: user/pass should match those used in sample configs.
-        #run: |
-          #java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+      - name: Run benchmark
+        # Note: user/pass should match those used in sample configs.
+        run: |
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 

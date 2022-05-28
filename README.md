@@ -86,7 +86,7 @@ benchmark, leveraging all the system features (logging, controlled speed, contro
 ## Usage Guide
 
 ### How to Build
-Run the following command to build the distribution for a given database specified as the profile name (`-P`).  The following profiles are currently supported: `postgres`, `mysql`, `mariadb`, `cockroachdb`, `phoenix` and `spanner`.
+Run the following command to build the distribution for a given database specified as the profile name (`-P`).  The following profiles are currently supported: `postgres`, `mysql`, `mariadb`, `sqlite`, `cockroachdb`, `phoenix`, and `spanner`.
 
 ```bash
 ./mvnw clean package -P <profile name>
@@ -237,5 +237,5 @@ The BibTeX is provided below for convenience.
   year = {2013},
   pages = {277--288},
   url = {http://www.vldb.org/pvldb/vol7/p277-difallah.pdf},
- }
- ```
+}
+```
