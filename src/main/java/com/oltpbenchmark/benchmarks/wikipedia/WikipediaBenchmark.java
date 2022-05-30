@@ -38,6 +38,9 @@ public class WikipediaBenchmark extends BenchmarkModule {
     protected final FlatHistogram<Integer> minorEdit;
     private final FlatHistogram<Integer>[] revisionDeltas;
 
+    protected final int num_users;
+    protected final int num_pages;
+
     @SuppressWarnings("unchecked")
     public WikipediaBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
@@ -48,6 +51,9 @@ public class WikipediaBenchmark extends BenchmarkModule {
         for (int i = 0; i < this.revisionDeltas.length; i++) {
             this.revisionDeltas[i] = new FlatHistogram<>(this.rng(), RevisionHistograms.REVISION_DELTAS[i]);
         }
+
+        this.num_users = (int) Math.ceil(WikipediaConstants.USERS * this.getWorkloadConfiguration().getScaleFactor());
+        this.num_pages = (int) Math.ceil(WikipediaConstants.PAGES * this.getWorkloadConfiguration().getScaleFactor());
     }
 
     /**

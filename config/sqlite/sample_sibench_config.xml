@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:sibench.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>unlimited</rate>
+            <weights>50,50</weights>
+        </work>
+    </works>
+
+    <!-- SIBENCH Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>MinRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

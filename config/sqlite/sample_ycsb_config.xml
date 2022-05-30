@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:ycsb.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
+    <scalefactor>1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>50,5,15,10,10,10</weights>
+        </work>
+    </works>
+
+    <!-- YCSB Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>ReadRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>InsertRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ScanRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DeleteRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadModifyWriteRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
