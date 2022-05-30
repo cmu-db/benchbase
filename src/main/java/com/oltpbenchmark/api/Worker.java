@@ -49,7 +49,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private final AtomicInteger intervalRequests = new AtomicInteger(0);
 
     private final int id;
-    private final T benchmarkModule;
+    private final T benchmark;
     protected final Connection conn;
     protected final WorkloadConfiguration configuration;
     protected final TransactionTypes transactionTypes;
@@ -66,16 +66,16 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
     private boolean seenDone = false;
 
-    public Worker(T benchmarkModule, int id) {
+    public Worker(T benchmark, int id) {
         this.id = id;
-        this.benchmarkModule = benchmarkModule;
-        this.configuration = this.benchmarkModule.getWorkloadConfiguration();
+        this.benchmark = benchmark;
+        this.configuration = this.benchmark.getWorkloadConfiguration();
         this.workloadState = this.configuration.getWorkloadState();
         this.currStatement = null;
         this.transactionTypes = this.configuration.getTransTypes();
 
         try {
-            this.conn = this.benchmarkModule.makeConnection();
+            this.conn = this.benchmark.makeConnection();
             this.conn.setAutoCommit(false);
             this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
         } catch (SQLException ex) {
@@ -83,7 +83,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
 
         // Generate all the Procedures that we're going to need
-        this.procedures.putAll(this.benchmarkModule.getProcedures());
+        this.procedures.putAll(this.benchmark.getProcedures());
         for (Entry<TransactionType, Procedure> e : this.procedures.entrySet()) {
             Procedure proc = e.getValue();
             this.name_procedures.put(e.getKey().getName(), proc);
@@ -94,8 +94,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     /**
      * Get the BenchmarkModule managing this Worker
      */
-    public final T getBenchmarkModule() {
-        return (this.benchmarkModule);
+    public final T getBenchmark() {
+        return (this.benchmark);
     }
 
     /**
@@ -111,11 +111,11 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
-        return (this.benchmarkModule.getWorkloadConfiguration());
+        return (this.benchmark.getWorkloadConfiguration());
     }
 
     public final Random rng() {
-        return (this.benchmarkModule.rng());
+        return (this.benchmark.rng());
     }
 
     public final int getRequests() {

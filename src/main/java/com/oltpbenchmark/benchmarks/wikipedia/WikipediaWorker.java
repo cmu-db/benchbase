@@ -52,8 +52,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
-        Flat z_users = new Flat(this.rng(), 1, this.getBenchmarkModule().num_users);
-        Zipf z_pages = new Zipf(this.rng(), 1, this.getBenchmarkModule().num_pages, WikipediaConstants.USER_ID_SIGMA);
+        Flat z_users = new Flat(this.rng(), 1, this.getBenchmark().num_users);
+        Zipf z_pages = new Zipf(this.rng(), 1, this.getBenchmark().num_pages, WikipediaConstants.USER_ID_SIGMA);
 
         Class<? extends Procedure> procClass = nextTransaction.getProcedureClass();
         boolean needUser = (procClass.equals(AddWatchList.class) || procClass.equals(RemoveWatchList.class) || procClass.equals(GetPageAuthenticated.class));
@@ -155,7 +155,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             return;
         }
 
-        WikipediaBenchmark b = this.getBenchmarkModule();
+        WikipediaBenchmark b = this.getBenchmark();
         int revCommentLen = b.commentLength.nextValue();
         String revComment = TextGenerator.randomStr(this.rng(), revCommentLen + 1);
         int revMinorEdit = b.minorEdit.nextValue();
