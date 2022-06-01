@@ -6,8 +6,8 @@
     <driver>org.sqlite.JDBC</driver>
     <url>jdbc:sqlite:otmetrics.db</url>
     <isolation>TRANSACTION_SERIALIZABLE</isolation>
-    <batchsize>128</batchsize>
-    <scalefactor>0.1</scalefactor>
+    <batchsize>10000</batchsize>
+    <scalefactor>0.01</scalefactor>
 
     <!-- SQLITE only supports one writer thread -->
     <loaderThreads>1</loaderThreads>

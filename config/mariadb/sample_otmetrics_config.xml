@@ -8,8 +8,8 @@
     <username>admin</username>
     <password>password</password>
 
-    <batchsize>2048</batchsize>
-    <scalefactor>1</scalefactor>
+    <batchsize>10000</batchsize>
+    <scalefactor>0.1</scalefactor>
 
     <!-- The workload -->
     <terminals>1</terminals>

@@ -9,7 +9,7 @@
     <password>password</password>
 
     <batchsize>2048</batchsize>
-    <scalefactor>1</scalefactor>
+    <scalefactor>0.1</scalefactor>
 
     <!-- The workload -->
     <terminals>1</terminals>
