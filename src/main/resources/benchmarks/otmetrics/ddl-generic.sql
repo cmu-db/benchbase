@@ -36,4 +36,4 @@ CREATE TABLE observations (
   value DOUBLE PRECISION NOT NULL,
   created_time TIMESTAMP NOT NULL
 );
-CREATE INDEX idx_observations_source_session ON observations (source_id, session_id);
+CREATE INDEX idx_observations_source_session ON observations (source_id, session_id, type_id);
