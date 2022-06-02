@@ -65,6 +65,7 @@ The BenchBase framework has the following benchmarks:
 * [Epinions.com](https://github.com/cmu-db/benchbase/wiki/epinions)
 * hyadapt -- pending configuration files
 * [NoOp](https://github.com/cmu-db/benchbase/wiki/NoOp)
+* [OT-Metrics](https://github.com/cmu-db/benchbase/wiki/OT-Metrics)
 * [Resource Stresser](https://github.com/cmu-db/benchbase/wiki/Resource-Stresser)
 * [SEATS](https://github.com/cmu-db/benchbase/wiki/Seats)
 * [SIBench](https://github.com/cmu-db/benchbase/wiki/SIBench)
@@ -86,7 +87,7 @@ benchmark, leveraging all the system features (logging, controlled speed, contro
 ## Usage Guide
 
 ### How to Build
-Run the following command to build the distribution for a given database specified as the profile name (`-P`).  The following profiles are currently supported: `postgres`, `mysql`, `mariadb`, `cockroachdb`, `phoenix` and `spanner`.
+Run the following command to build the distribution for a given database specified as the profile name (`-P`).  The following profiles are currently supported: `postgres`, `mysql`, `mariadb`, `sqlite`, `cockroachdb`, `phoenix`, and `spanner`.
 
 ```bash
 ./mvnw clean package -P <profile name>
@@ -123,7 +124,7 @@ usage: benchbase
                                 supported: [tpcc, tpch, tatp, wikipedia,
                                 resourcestresser, twitter, epinions, ycsb,
                                 seats, auctionmark, chbenchmark, voter,
-                                sibench, noop, smallbank, hyadapt]
+                                sibench, noop, smallbank, hyadapt, otmetrics]
  -c,--config <arg>              [required] Workload configuration file
     --clear <arg>               Clear all records in the database for this
                                 benchmark
@@ -237,5 +238,5 @@ The BibTeX is provided below for convenience.
   year = {2013},
   pages = {277--288},
   url = {http://www.vldb.org/pvldb/vol7/p277-difallah.pdf},
- }
- ```
+}
+```

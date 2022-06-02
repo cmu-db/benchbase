@@ -40,13 +40,10 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(WikipediaWorker.class);
 
     private Set<Integer> addedWatchlistPages = new HashSet<>();
-    private final int num_users;
-    private final int num_pages;
 
     public WikipediaWorker(WikipediaBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
-        this.num_users = (int) Math.round(WikipediaConstants.USERS * this.getWorkloadConfiguration().getScaleFactor());
-        this.num_pages = (int) Math.round(WikipediaConstants.PAGES * this.getWorkloadConfiguration().getScaleFactor());
+
     }
 
     private String generateUserIP() {
@@ -55,8 +52,8 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
-        Flat z_users = new Flat(this.rng(), 1, this.num_users);
-        Zipf z_pages = new Zipf(this.rng(), 1, this.num_pages, WikipediaConstants.USER_ID_SIGMA);
+        Flat z_users = new Flat(this.rng(), 1, this.getBenchmark().num_users);
+        Zipf z_pages = new Zipf(this.rng(), 1, this.getBenchmark().num_pages, WikipediaConstants.USER_ID_SIGMA);
 
         Class<? extends Procedure> procClass = nextTransaction.getProcedureClass();
         boolean needUser = (procClass.equals(AddWatchList.class) || procClass.equals(RemoveWatchList.class) || procClass.equals(GetPageAuthenticated.class));
@@ -79,9 +76,11 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
         // Figure out what page they're going to update
         int page_id = z_pages.nextInt();
         if (procClass.equals(AddWatchList.class)) {
-            while (addedWatchlistPages.contains(page_id)) {
-                page_id = z_pages.nextInt();
-            }
+            // This while loop gets stuck in an infinite loop for small scale factors.
+            // So we're just going to let it throw whatever it wants in the set from now on
+            // while (addedWatchlistPages.contains(page_id)) {
+            //    page_id = z_pages.nextInt();
+            // }
             addedWatchlistPages.add(page_id);
         }
 
@@ -156,7 +155,7 @@ public class WikipediaWorker extends Worker<WikipediaBenchmark> {
             return;
         }
 
-        WikipediaBenchmark b = this.getBenchmarkModule();
+        WikipediaBenchmark b = this.getBenchmark();
         int revCommentLen = b.commentLength.nextValue();
         String revComment = TextGenerator.randomStr(this.rng(), revCommentLen + 1);
         int revMinorEdit = b.minorEdit.nextValue();

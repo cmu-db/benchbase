@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>SQLITE</type>
+    <driver>org.sqlite.JDBC</driver>
+    <url>jdbc:sqlite:seats.db</url>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
+    <scalefactor>0.1</scalefactor>
+    
+    <!-- SQLITE only supports one writer thread -->
+    <loaderThreads>1</loaderThreads>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>10, 10, 35, 20, 10, 15</weights>
+        </work>
+    </works>
+
+    <!-- SEATS Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>DeleteReservation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>FindFlights</name>
+        </transactiontype>
+        <transactiontype>
+            <name>FindOpenSeats</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewReservation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateCustomer</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateReservation</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

@@ -34,10 +34,10 @@ import java.util.ArrayList;
 //import ch.ethz.ssh2.log.Logger;
 public class UpdatePage extends Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(UpdatePage.class);
+
     // -----------------------------------------------------------------
     // STATEMENTS
     // -----------------------------------------------------------------
-
     public SQLStmt insertText = new SQLStmt("INSERT INTO " + WikipediaConstants.TABLENAME_TEXT + " (" + "old_page,old_text,old_flags" + ") VALUES (" + "?,?,?" + ")");
     public SQLStmt insertRevision = new SQLStmt("INSERT INTO " + WikipediaConstants.TABLENAME_REVISION + " (" + "rev_page, " + "rev_text_id, " + "rev_comment, " + "rev_minor_edit, " + "rev_user, " + "rev_user_text, " + "rev_timestamp, " + "rev_deleted, " + "rev_len, " + "rev_parent_id" + ") VALUES (" + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?" + ")");
     public SQLStmt updatePage = new SQLStmt("UPDATE " + WikipediaConstants.TABLENAME_PAGE + "   SET page_latest = ?, page_touched = ?, page_is_new = 0, page_is_redirect = 0, page_len = ? " + " WHERE page_id = ?");
