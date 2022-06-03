@@ -46,8 +46,6 @@ import java.util.concurrent.CountDownLatch;
  * @author djellel
  */
 public class WikipediaLoader extends Loader<WikipediaBenchmark> {
-    private final int num_users;
-    private final int num_pages;
 
     /**
      * UserId -> # of Revisions
@@ -71,20 +69,18 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
      */
     public WikipediaLoader(WikipediaBenchmark benchmark) {
         super(benchmark);
-        this.num_users = (int) Math.round(WikipediaConstants.USERS * this.scaleFactor);
-        this.num_pages = (int) Math.round(WikipediaConstants.PAGES * this.scaleFactor);
 
-        this.user_revision_ctr = new int[this.num_users];
+        this.user_revision_ctr = new int[this.benchmark.num_users];
         Arrays.fill(this.user_revision_ctr, 0);
 
-        this.page_last_rev_id = new int[this.num_pages];
+        this.page_last_rev_id = new int[this.benchmark.num_pages];
         Arrays.fill(this.page_last_rev_id, -1);
-        this.page_last_rev_length = new int[this.num_pages];
+        this.page_last_rev_length = new int[this.benchmark.num_pages];
         Arrays.fill(this.page_last_rev_length, -1);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("# of USERS:  {}", this.num_users);
-            LOG.debug("# of PAGES: {}", this.num_pages);
+            LOG.debug("# of USERS:  {}", this.benchmark.num_users);
+            LOG.debug("# of PAGES: {}", this.benchmark.num_pages);
         }
     }
 
@@ -92,10 +88,10 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
     public List<LoaderThread> createLoaderThreads() {
         List<LoaderThread> threads = new ArrayList<>();
         final int numLoaders = this.benchmark.getWorkloadConfiguration().getLoaderThreads();
-        final int numItems = this.num_pages + this.num_users;
+        final int numItems = this.benchmark.num_pages + this.benchmark.num_users;
         final int itemsPerThread = Math.max(numItems / numLoaders, 1);
-        final int numUserThreads = (int) Math.ceil((double) this.num_users / itemsPerThread);
-        final int numPageThreads = (int) Math.ceil((double) this.num_pages / itemsPerThread);
+        final int numUserThreads = (int) Math.ceil((double) this.benchmark.num_users / itemsPerThread);
+        final int numPageThreads = (int) Math.ceil((double) this.benchmark.num_pages / itemsPerThread);
 
         final CountDownLatch userPageLatch = new CountDownLatch(numUserThreads + numPageThreads);
 
@@ -142,7 +138,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         for (int i = 0; i < numUserThreads; i++) {
             // load USERS[lo, hi]
             final int lo = i * itemsPerThread + 1;
-            final int hi = Math.min(this.num_users, (i + 1) * itemsPerThread);
+            final int hi = Math.min(this.benchmark.num_users, (i + 1) * itemsPerThread);
 
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
@@ -172,7 +168,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         for (int i = 0; i < numPageThreads; i++) {
             // load PAGES[lo, hi]
             final int lo = i * itemsPerThread + 1;
-            final int hi = Math.min(this.num_pages, (i + 1) * itemsPerThread);
+            final int hi = Math.min(this.benchmark.num_pages, (i + 1) * itemsPerThread);
 
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
@@ -247,12 +243,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
-
-            Random rand = new Random();
-
-            FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rand, UserHistograms.NAME_LENGTH);
-            FlatHistogram<Integer> h_realNameLength = new FlatHistogram<>(rand, UserHistograms.REAL_NAME_LENGTH);
-            FlatHistogram<Integer> h_revCount = new FlatHistogram<>(rand, UserHistograms.REVISION_COUNT);
+            FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rng(), UserHistograms.NAME_LENGTH);
+            FlatHistogram<Integer> h_realNameLength = new FlatHistogram<>(rng(), UserHistograms.REAL_NAME_LENGTH);
+            FlatHistogram<Integer> h_revCount = new FlatHistogram<>(rng(), UserHistograms.REVISION_COUNT);
 
             int[] types = catalog_tbl.getColumnTypes();
             int batchSize = 0;
@@ -261,16 +254,16 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 // The name will be prefixed with their UserId. This increases
                 // the likelihood that all of our usernames are going to be unique
                 // It's not a guarantee, but it's good enough...
-                String name = i + TextGenerator.randomStr(rand, h_nameLength.nextValue());
-                String realName = TextGenerator.randomStr(rand, h_realNameLength.nextValue());
+                String name = i + TextGenerator.randomStr(rng(), h_nameLength.nextValue());
+                String realName = TextGenerator.randomStr(rng(), h_realNameLength.nextValue());
                 int revCount = h_revCount.nextValue();
-                String password = StringUtil.repeat("*", rand.nextInt(32) + 1);
+                String password = StringUtil.repeat("*", rng().nextInt(32) + 1);
 
-                char[] eChars = TextGenerator.randomChars(rand, rand.nextInt(32) + 5);
-                eChars[4 + rand.nextInt(eChars.length - 4)] = '@';
+                char[] eChars = TextGenerator.randomChars(rng(), rng().nextInt(32) + 5);
+                eChars[4 + rng().nextInt(eChars.length - 4)] = '@';
                 String email = new String(eChars);
 
-                String token = TextGenerator.randomStr(rand, WikipediaConstants.TOKEN_LENGTH);
+                String token = TextGenerator.randomStr(rng(), WikipediaConstants.TOKEN_LENGTH);
                 String userOptions = "fake_longoptionslist";
                 String newPassTime = TimeUtil.getCurrentTimeString14();
                 String touched = TimeUtil.getCurrentTimeString14();
@@ -299,7 +292,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     this.addToTableCount(catalog_tbl.getName(), batchSize);
                     batchSize = 0;
                     if (LOG.isDebugEnabled()) {
-                        int percent = (int) (((double) i / (double) this.num_users) * 100);
+                        int percent = (int) (((double) i / (double) this.benchmark.num_users) * 100);
                         if (percent != lastPercent) {
                             LOG.debug("USERACCT ({}%)", percent);
                         }
@@ -314,10 +307,10 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             }
         }
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
-            this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.num_users);
+            this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_users);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Users  % {}", this.num_users);
+            LOG.debug("Users  % {}", this.benchmark.num_users);
         }
     }
 
@@ -330,19 +323,16 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement pageInsert = conn.prepareStatement(sql)) {
-
-            Random rand = new Random();
-
-            FlatHistogram<String> h_restrictions = new FlatHistogram<>(rand, PageHistograms.RESTRICTIONS);
+            FlatHistogram<String> h_restrictions = new FlatHistogram<>(rng(), PageHistograms.RESTRICTIONS);
 
             int batchSize = 0;
             int lastPercent = -1;
 
             for (int i = lo; i <= hi; i++) {
-                String title = WikipediaUtil.generatePageTitle(rand, i);
-                int namespace = WikipediaUtil.generatePageNamespace(rand, i);
+                String title = WikipediaUtil.generatePageTitle(rng(), i);
+                int namespace = WikipediaUtil.generatePageNamespace(rng(), i);
                 String restrictions = h_restrictions.nextValue();
-                double pageRandom = rand.nextDouble();
+                double pageRandom = rng().nextDouble();
                 String pageTouched = TimeUtil.getCurrentTimeString14();
 
                 int param = 1;
@@ -365,7 +355,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     this.addToTableCount(catalog_tbl.getName(), batchSize);
                     batchSize = 0;
                     if (LOG.isDebugEnabled()) {
-                        int percent = (int) (((double) i / (double) this.num_pages) * 100);
+                        int percent = (int) (((double) i / (double) this.benchmark.num_pages) * 100);
                         if (percent != lastPercent) {
                             LOG.debug("PAGE ({}%)", percent);
                         }
@@ -380,10 +370,10 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             }
         }
         if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
-            this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.num_pages);
+            this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_pages);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Users  % {}", this.num_pages);
+            LOG.debug("Users  % {}", this.benchmark.num_pages);
         }
     }
 
@@ -396,12 +386,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
         try (PreparedStatement watchInsert = conn.prepareStatement(sql)) {
-
-            Random rand = new Random();
-
-            int max_watches_per_user = Math.min(this.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
-            Zipf h_numWatches = new Zipf(rand, 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
-            Zipf h_pageId = new Zipf(rand, 1, this.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
+            int max_watches_per_user = Math.min(this.benchmark.num_pages, WikipediaConstants.MAX_WATCHES_PER_USER);
+            Zipf h_numWatches = new Zipf(rng(), 0, max_watches_per_user, WikipediaConstants.NUM_WATCHES_PER_USER_SIGMA);
+            Zipf h_pageId = new Zipf(rng(), 1, this.benchmark.num_pages, WikipediaConstants.WATCHLIST_PAGE_SIGMA);
 
             // Use a large max batch size for tables with smaller tuples
             int maxBatchSize = workConf.getBatchSize() * 5;
@@ -410,7 +397,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
             int lastPercent = -1;
             Set<Integer> userPages = new HashSet<>();
 
-            for (int user_id = 1; user_id <= this.num_users; user_id++) {
+            for (int user_id = 1; user_id <= this.benchmark.num_users; user_id++) {
                 int num_watches = h_numWatches.nextInt();
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("{} => {}", user_id, num_watches);
@@ -434,8 +421,8 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
                     userPages.add(pageId);
 
-                    Integer namespace = WikipediaUtil.generatePageNamespace(rand, pageId);
-                    String title = WikipediaUtil.generatePageTitle(rand, pageId);
+                    Integer namespace = WikipediaUtil.generatePageNamespace(rng(), pageId);
+                    String title = WikipediaUtil.generatePageTitle(rng(), pageId);
 
                     int param = 1;
                     watchInsert.setInt(param++, user_id); // wl_user
@@ -452,7 +439,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     this.addToTableCount(catalog_tbl.getName(), batchSize);
                     batchSize = 0;
                     if (LOG.isDebugEnabled()) {
-                        int percent = (int) (((double) user_id / (double) this.num_users) * 100);
+                        int percent = (int) (((double) user_id / (double) this.benchmark.num_users) * 100);
                         if (percent != lastPercent) {
                             LOG.debug("WATCHLIST ({}%)", percent);
                         }
@@ -486,18 +473,14 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         Table revTable = benchmark.getCatalog().getTable(WikipediaConstants.TABLENAME_REVISION);
         String revSQL = SQLUtil.getInsertSQL(revTable, this.getDatabaseType());
 
-
-        Random rand = new Random();
-
-
         WikipediaBenchmark b = this.benchmark;
         int batchSize = 1;
-        Zipf h_users = new Zipf(rand, 1, this.num_users, WikipediaConstants.REVISION_USER_SIGMA);
-        FlatHistogram<Integer> h_textLength = new FlatHistogram<>(rand, TextHistograms.TEXT_LENGTH);
+        Zipf h_users = new Zipf(rng(), 1, this.benchmark.num_users, WikipediaConstants.REVISION_USER_SIGMA);
+        FlatHistogram<Integer> h_textLength = new FlatHistogram<>(rng(), TextHistograms.TEXT_LENGTH);
         FlatHistogram<Integer> h_commentLength = b.commentLength;
         FlatHistogram<Integer> h_minorEdit = b.minorEdit;
-        FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rand, UserHistograms.NAME_LENGTH);
-        FlatHistogram<Integer> h_numRevisions = new FlatHistogram<>(rand, PageHistograms.REVISIONS_PER_PAGE);
+        FlatHistogram<Integer> h_nameLength = new FlatHistogram<>(rng(), UserHistograms.NAME_LENGTH);
+        FlatHistogram<Integer> h_numRevisions = new FlatHistogram<>(rng(), PageHistograms.REVISIONS_PER_PAGE);
 
         final int rev_comment_max = revTable.getColumnByName("rev_comment").getSize();
         int rev_id = 1;
@@ -506,14 +489,14 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         try (PreparedStatement textInsert = conn.prepareStatement(textSQL);
              PreparedStatement revisionInsert = conn.prepareStatement(revSQL)) {
 
-            for (int page_id = 1; page_id <= this.num_pages; page_id++) {
+            for (int page_id = 1; page_id <= this.benchmark.num_pages; page_id++) {
                 // There must be at least one revision per page
                 int num_revised = h_numRevisions.nextValue();
 
                 // Generate what the new revision is going to be
                 int old_text_length = h_textLength.nextValue();
 
-                char[] old_text = TextGenerator.randomChars(rand, old_text_length);
+                char[] old_text = TextGenerator.randomChars(rng(), old_text_length);
 
                 for (int i = 0; i < num_revised; i++) {
                     // Generate the User who's doing the revision and the Page
@@ -530,13 +513,13 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     }
 
                     int rev_comment_len = Math.min(rev_comment_max, h_commentLength.nextValue() + 1); // HACK
-                    String rev_comment = TextGenerator.randomStr(rand, rev_comment_len);
+                    String rev_comment = TextGenerator.randomStr(rng(), rev_comment_len);
 
 
                     // The REV_USER_TEXT field is usually the username, but we'll
                     // just
                     // put in gibberish for now
-                    String user_text = TextGenerator.randomStr(rand, h_nameLength.nextValue() + 1);
+                    String user_text = TextGenerator.randomStr(rng(), h_nameLength.nextValue() + 1);
 
                     // Insert the text
                     int col = 1;
@@ -575,7 +558,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                     batchSize = 0;
 
                     if (LOG.isDebugEnabled()) {
-                        int percent = (int) (((double) page_id / (double) this.num_pages) * 100);
+                        int percent = (int) (((double) page_id / (double) this.benchmark.num_pages) * 100);
                         if (percent != lastPercent) {
                             LOG.debug("REVISIONS ({}%)", percent);
                         }
@@ -597,7 +580,7 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
         String updateUserSql = "UPDATE " + revTableName + "   SET user_editcount = ?, " + "       user_touched = ? " + " WHERE user_id = ?";
         try (PreparedStatement userUpdate = conn.prepareStatement(updateUserSql)) {
             batchSize = 0;
-            for (int i = 0; i < this.num_users; i++) {
+            for (int i = 0; i < this.benchmark.num_users; i++) {
                 int col = 1;
                 userUpdate.setInt(col++, this.user_revision_ctr[i]);
                 userUpdate.setString(col++, TimeUtil.getCurrentTimeString14());
@@ -620,10 +603,16 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
 
         revTableName = (this.getDatabaseType().shouldEscapeNames()) ? revTable.getEscapedName() : revTable.getName();
 
-        String updatePageSql = "UPDATE " + revTableName + "   SET page_latest = ?, " + "       page_touched = ?, " + "       page_is_new = 0, " + "       page_is_redirect = 0, " + "       page_len = ? " + " WHERE page_id = ?";
+        String updatePageSql = "UPDATE " + revTableName +
+                               "   SET page_latest = ?, " +
+                               "       page_touched = ?, " +
+                               "       page_is_new = 0, " +
+                               "       page_is_redirect = 0, " +
+                               "       page_len = ? " +
+                               " WHERE page_id = ?";
         try (PreparedStatement pageUpdate = conn.prepareStatement(updatePageSql)) {
             batchSize = 0;
-            for (int i = 0; i < this.num_pages; i++) {
+            for (int i = 0; i < this.benchmark.num_pages; i++) {
                 if (this.page_last_rev_id[i] == -1) {
                     continue;
                 }

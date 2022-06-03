@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
@@ -33,7 +32,6 @@ import java.util.*;
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadBench.class);
 
-
     private final BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
@@ -41,7 +39,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
     private final int intervalMonitor;
 
-    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
+    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers,
+            List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         this.workers = workers;
         this.workConfs = workConfs;
         this.workerThreads = new ArrayList<>(workers.size());
@@ -49,7 +48,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         this.testState = new BenchmarkState(workers.size() + 1);
     }
 
-    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
+    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers,
+            List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
         return bench.runRateLimitedMultiPhase();
     }
@@ -110,7 +110,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
 
         this.createWorkerThreads();
-        testState.blockForStart();
 
         // long measureStart = start;
 
@@ -132,6 +131,15 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
         }
 
+        // Change testState to cold query if execution is serial, since we don't
+        // have a warm-up phase for serial execution but execute a cold and a
+        // measured query in sequence.
+        if (phase != null && phase.isLatencyRun()) {
+            synchronized (testState) {
+                testState.startColdQuery();
+            }
+        }
+
         long intervalNs = getInterval(lowestRate, phase.getArrival());
 
         long nextInterval = start + intervalNs;
@@ -147,6 +155,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         if (this.intervalMonitor > 0) {
             new MonitorThread(this.intervalMonitor).start();
         }
+
+        // Allow workers to start work.
+        testState.blockForStart();
 
         // Main Loop
         while (true) {
@@ -181,15 +192,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 diff = nextInterval - now;
             }
 
-
             boolean phaseComplete = false;
             if (phase != null) {
                 if (phase.isLatencyRun())
                 // Latency runs (serial run through each query) have their own
                 // state to mark completion
                 {
-                    phaseComplete = testState.getState()
-                            == State.LATENCY_COMPLETE;
+                    phaseComplete = testState.getState() == State.LATENCY_COMPLETE;
                 } else {
                     phaseComplete = testState.getState() == State.MEASURE
                             && (start + delta <= now);
@@ -221,7 +230,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                                 measureEnd = now;
                                 LOG.info("{} :: Waiting for all terminals to finish ..", StringUtil.bold("TERMINATE"));
                             } else if (phase != null) {
-                                phase.resetSerial();
+                                // Reset serial execution parameters.
+                                if (phase.isLatencyRun()) {
+                                    phase.resetSerial();
+                                    testState.startColdQuery();
+                                }
                                 LOG.info(phase.currentPhaseString());
                                 if (phase.getRate() < lowestRate) {
                                     lowestRate = phase.getRate();
@@ -248,8 +261,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 do {
                     intervalNs += getInterval(lowestRate, phase.getArrival());
                     nextToAdd++;
-                }
-                while ((-diff) > intervalNs && !lastEntry);
+                } while ((-diff) > intervalNs && !lastEntry);
                 nextInterval += intervalNs;
             }
 
@@ -344,7 +356,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
 
-
         // HERE WE HANDLE THE CASE IN WHICH ONE OF OUR WOKERTHREADS DIED
         LOG.error(e.getMessage(), e);
         System.exit(-1);
@@ -367,7 +378,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         /**
          * @param samples
          * @param windowSizeSeconds
-         * @param transactionType            Allows to filter transactions by type
+         * @param transactionType   Allows to filter transactions by type
          */
         public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType transactionType) {
             this.samples = samples;
@@ -396,7 +407,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
          * @param windowSizeSeconds
          * @param txType            Allows to filter transactions by type
          */
-        public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds, TransactionType txType) {
+        public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds,
+                TransactionType txType) {
             this.samples = samples;
             this.windowSizeSeconds = windowSizeSeconds;
             this.txType = txType;
@@ -412,7 +424,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
 
         private void calculateNext() {
-
 
             // Collect all samples in the time window
             ArrayList<Integer> latencies = new ArrayList<>();
