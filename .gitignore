@@ -49,3 +49,6 @@ build/
 ### VS Code ###
 .vscode/
 *.log
+
+# vim swap files
+.*.swp
