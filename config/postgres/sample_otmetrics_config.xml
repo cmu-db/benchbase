@@ -4,9 +4,9 @@
     <!-- Connection details -->
     <type>POSTGRES</type>
     <driver>org.postgresql.Driver</driver>
-    <url>jdbc:postgresql://localhost:5432/benchbase?sslmode=disable&amp;ApplicationName=otmetrics&amp;reWriteBatchedInserts=true</url>
-    <username>admin</username>
-    <password>password</password>
+    <url>jdbc:postgresql://192.168.1.173:5433/benchbase?sslmode=disable&amp;ApplicationName=otmetrics&amp;reWriteBatchedInserts=true</url>
+    <username>test</username>
+    <password>ottertune</password>
 
     <batchsize>2048</batchsize>
     <scalefactor>0.1</scalefactor>
@@ -17,7 +17,7 @@
         <work>
             <time>60</time>
             <rate>unlimited</rate>
-            <weights>100</weights>
+            <weights>10, 90</weights>
         </work>
     </works>
 
@@ -25,6 +25,9 @@
     <transactiontypes>
         <transactiontype>
             <name>GetSessionRange</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewObservation</name>
         </transactiontype>
     </transactiontypes>
 </parameters>
