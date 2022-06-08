@@ -1,0 +1,21 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Makefiles need tab indentation
+[{Makefile,*.mk}]
+indent_style = tab
+tab_width = 8
+end_of_line = lf
+
+[{*.ps1,*.cmd,*.bat}]
+end_of_line = crlf
+
+[*.sh]
+end_of_line = lf
+
+[*.yml]
+indent_size = 2

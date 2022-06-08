@@ -52,7 +52,7 @@ java -jar benchbase.jar -h
 
 Benchmarking is incredibly useful, yet endlessly painful. This benchmark suite is the result of a group of
 PhDs/post-docs/professors getting together and combining their workloads/frameworks/experiences/efforts. We hope this
-will save other people's time, and will provide an extensible platform, that can be grown in an open-source fashion. 
+will save other people's time, and will provide an extensible platform, that can be grown in an open-source fashion.
 
 BenchBase is a multi-threaded load generator. The framework is designed to be able to produce variable rate,
 variable mixture load against any JDBC-enabled relational database. The framework also provides data collection
@@ -65,6 +65,7 @@ The BenchBase framework has the following benchmarks:
 * [Epinions.com](https://github.com/cmu-db/benchbase/wiki/epinions)
 * hyadapt -- pending configuration files
 * [NoOp](https://github.com/cmu-db/benchbase/wiki/NoOp)
+* [OT-Metrics](https://github.com/cmu-db/benchbase/wiki/OT-Metrics)
 * [Resource Stresser](https://github.com/cmu-db/benchbase/wiki/Resource-Stresser)
 * [SEATS](https://github.com/cmu-db/benchbase/wiki/Seats)
 * [SIBench](https://github.com/cmu-db/benchbase/wiki/SIBench)
@@ -123,7 +124,7 @@ usage: benchbase
                                 supported: [tpcc, tpch, tatp, wikipedia,
                                 resourcestresser, twitter, epinions, ycsb,
                                 seats, auctionmark, chbenchmark, voter,
-                                sibench, noop, smallbank, hyadapt]
+                                sibench, noop, smallbank, hyadapt, otmetrics]
  -c,--config <arg>              [required] Workload configuration file
     --clear <arg>               Clear all records in the database for this
                                 benchmark
@@ -145,7 +146,7 @@ usage: benchbase
 Instead of first building, packaging and extracting before running benchbase, it is possible to execute benchmarks directly against the source code using Maven. Once you have the project cloned you can run any benchmark from the root project directory using the Maven `exec:java` goal. For example, the following command executes the `tpcc` benchmark against `postgres`:
 
 ```
-mvn clean compile exec:java -P postgres -Dexec.args="-b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true" 
+mvn clean compile exec:java -P postgres -Dexec.args="-b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true"
 ```
 
 this is equivalent to the steps above but eliminates the need to first package and then extract the distribution.
@@ -166,6 +167,28 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 ./mvnw -B release:prepare
 ./mvnw -B release:perform
 ```
+
+### How use with Docker
+
+- Build the full image:
+
+  ```sh
+  # build an image with all profiles
+  ./docker/benchbase/build-full-image.sh
+
+  # or if you only want to build some of them
+  BENCHBASE_PROFILES='postgres mysql' ./docker/benchbase/build-full-image.sh
+  ```
+
+- Run the image for a given profile:
+
+  ```sh
+  BENCHBASE_PROFILE='postgres' ./docker/benchbase/run-full-image.sh --help # or other benchbase args as before
+  ```
+
+> See [scripts](./docker/benchbase/) for further details.
+
+[Github Codespaces](https://github.com/features/codespaces) and [VSCode devcontainer](https://code.visualstudio.com/docs/remote/containers) support is also available.
 
 ### How to Add Support for a New Database
 
