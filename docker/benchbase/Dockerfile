@@ -71,7 +71,7 @@ RUN for profile in ${BENCHBASE_PROFILES}; do \
         rm -rf profiles/$profile/data/ && ln -s ../../data profiles/$profile/data; \
     done \
     && test -d data \
-    && test "`readlink -f profiles/postgres/data`" = "/benchbase/data" \
+    && test "`readlink -f profiles/$(echo $BENCHBASE_PROFILES | awk '{ print $1 }')/data`" = "/benchbase/data" \
     && mvn -B --file pom.xml clean \
     && rm -rf ~/.m2/repository/* \
     && rm -rf .git/
