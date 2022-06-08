@@ -40,7 +40,7 @@ fi
 GID=$(getent passwd $UID | cut -d: -f4)
 
 set -x
-docker build --build-arg=http_proxy=${http_proxy:-} --build-arg=https_proxy=${https_proxy:-} \
+docker build --progress=plain --build-arg=http_proxy=${http_proxy:-} --build-arg=https_proxy=${https_proxy:-} \
     --build-arg MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
     --build-arg BENCHBASE_PROFILES="${BENCHBASE_PROFILES}" \
     --build-arg UID=$UID --build-arg GID=$GID \
