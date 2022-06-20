@@ -59,27 +59,29 @@ public class WorkloadState {
      * Add a request to do work.
      */
     public void addToQueue(int amount, boolean resetQueues) {
+        int workAdded = 0;
+        
         synchronized (this) {
             if (resetQueues) {
                 workQueue.clear();
             }
 
-
             // Only use the work queue if the phase is enabled and rate limited.
             if (currentPhase == null || currentPhase.isDisabled()
                     || !currentPhase.isRateLimited() || currentPhase.isSerial()) {
                 return;
-            } else {
-                // Add the specified number of procedures to the end of the queue.
-                // If we can't keep up with current rate, truncate transactions
-                for (int i = 0; i < amount && workQueue.size() <= RATE_QUEUE_LIMIT; ++i) {
-                    workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
-                }
+            }
+            
+            // Add the specified number of procedures to the end of the queue.
+            // If we can't keep up with current rate, truncate transactions
+            for (int i = 0; i < amount && workQueue.size() <= RATE_QUEUE_LIMIT; ++i) {
+                workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
+                workAdded++;
             }
 
             // Wake up sleeping workers to deal with the new work.
-            int numToWake = Math.min(amount, workersWaiting);
-            for (int i = 0; i < numToWake; ++i) {
+            int numToWake = Math.min(workAdded, workersWaiting);
+            while (numToWake-- > 0) {
                 this.notify();
             }
         }
