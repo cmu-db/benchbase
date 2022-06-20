@@ -71,21 +71,10 @@ public class WorkloadState {
                 return;
             } else {
                 // Add the specified number of procedures to the end of the queue.
+                // If we can't keep up with current rate, truncate transactions
                 for (int i = 0; i < amount && workQueue.size() <= RATE_QUEUE_LIMIT; ++i) {
                     workQueue.add(new SubmittedProcedure(currentPhase.chooseTransaction()));
                 }
-            }
-
-            // The following approach has 2 issues. 
-			// 1. If the rate is very high, it unnecessarily enqueues and dequeues for the excessive amount 
-			//    every time the work is added to the queue.
-			// 2. If the rate is very high, the memory overflow occurs. Even if we increase the Java heap size,
-            //    if the rate is also raised, the memory error will occur again. 
-			//    We can elminitate this memory error entirely with a simple fix of the algorithm.
-            // Can't keep up with current rate? Remove the oldest transactions
-            // (from the front of the queue).
-            while (workQueue.size() > RATE_QUEUE_LIMIT) {
-                workQueue.remove();
             }
 
             // Wake up sleeping workers to deal with the new work.
