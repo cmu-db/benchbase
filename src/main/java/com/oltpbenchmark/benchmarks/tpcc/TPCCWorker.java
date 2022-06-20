@@ -85,7 +85,7 @@ public class TPCCWorker extends Worker<TPCCBenchmark> {
         // TPC-C 5.2.5.4: For think times for each type of transaction.
         long mean = type.getPostExecutionWait();
 
-        float c = this.getBenchmarkModule().rng().nextFloat();
+        float c = this.getBenchmark().rng().nextFloat();
         long thinkTime = (long) (-1 * Math.log(c) * mean);
         if (thinkTime > 10 * mean) {
             thinkTime = 10 * mean;

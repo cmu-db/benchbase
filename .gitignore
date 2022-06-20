@@ -36,6 +36,7 @@ buildNumber.properties
 *.iws
 *.iml
 *.ipr
+java_*.hprof*
 
 ### NetBeans ###
 /nbproject/private/
@@ -48,3 +49,6 @@ build/
 ### VS Code ###
 .vscode/
 *.log
+
+# vim swap files
+.*.swp

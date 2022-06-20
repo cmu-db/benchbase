@@ -107,6 +107,8 @@ public class ScriptRunner {
                     command = new StringBuffer();
                 }
                 String trimmedLine = line.trim();
+                line = line.replaceAll("\\-\\-.*$", ""); // remove comments in line;
+
                 if (trimmedLine.startsWith("--") || trimmedLine.startsWith("//")) {
                     LOG.debug(trimmedLine);
                 } else if (trimmedLine.length() < 1) {
@@ -116,8 +118,6 @@ public class ScriptRunner {
                     command.append(" ");
 
                     try (Statement statement = conn.createStatement()) {
-
-                        // println(command);
 
                         boolean hasResults = false;
                         final String sql = command.toString().trim();
