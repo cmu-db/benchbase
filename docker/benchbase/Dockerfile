@@ -31,7 +31,7 @@ FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
 ARG UID=1000
 ARG GID=1000
 RUN addgroup --gid ${GID} containergroup \
-    && adduser --disabled-password --gecos 'Container User' --uid ${UID} --gid ${GID} containeruser
+    && adduser --disabled-password --gecos 'Container User' --uid ${UID} --gid ${GID} containeruser || true
 RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
 USER containeruser
 ENV MAVEN_CONFIG=/home/containeruser/.m2

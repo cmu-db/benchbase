@@ -13,12 +13,12 @@ http_proxy_port=''
 https_proxy_host=''
 https_proxy_port=''
 
-if echo "$http_proxy" | egrep -q 'http[s]?://[^:]+:[0-9]+[/]?$'; then
+if echo "${http_proxy:-}" | egrep -q 'http[s]?://[^:]+:[0-9]+[/]?$'; then
     http_proxy_host=$(echo "$http_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\1|')
     http_proxy_port=$(echo "$http_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\2|')
 fi
 
-if echo "$https_proxy" | egrep -q 'http[s]?://[^:]+:[0-9]+[/]?$'; then
+if echo "${https_proxy:-}" | egrep -q 'http[s]?://[^:]+:[0-9]+[/]?$'; then
     https_proxy_host=$(echo "$https_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\1|')
     https_proxy_port=$(echo "$https_proxy" | sed -r -e 's|^http[s]?://([^:]+):([0-9]+)[/]?$|\2|')
 fi
