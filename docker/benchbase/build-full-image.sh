@@ -37,11 +37,18 @@ else
     exit 1
 fi
 
-GID=$(getent passwd $UID | cut -d: -f4)
+CONTAINERUSER_UID="${CONTAINERUSER_UID:-$UID}"
+if [ "$CONTAINERUSER_UID" -eq 0 ] && [ -n "$SUDO_UID" ]; then
+    CONTAINERUSER_UID="$SUDO_UID"
+fi
+CONTAINERUSER_GID=${CONTAINERUSER_GID:-$(getent passwd "$CONTAINERUSER_UID" | cut -d: -f4)}
+if [ -z "$CONTAINERUSER_GID" ]; then
+    echo "WARNING: missing CONTAINERUSER_GID." >&2
+fi
 
 set -x
 docker build --progress=plain --build-arg=http_proxy=${http_proxy:-} --build-arg=https_proxy=${https_proxy:-} \
     --build-arg MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
     --build-arg BENCHBASE_PROFILES="${BENCHBASE_PROFILES}" \
-    --build-arg UID=$UID --build-arg GID=$GID \
+    --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
     -t $tag -f ./docker/benchbase/Dockerfile --target $target .
