@@ -19,8 +19,6 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.util.SQLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
 import java.sql.ResultSet;
@@ -42,7 +40,7 @@ public abstract class AbstractTestCreator<T extends BenchmarkModule> extends Abs
     public void testCreate() throws Exception {
         this.destroyDatabase();
 
-        this.benchmark.workConf.setDdlPath(null);
+        this.benchmark.workConf.setDDLPath(null);
         this.benchmark.createDatabase();
 
         validateCreate();
@@ -54,7 +52,7 @@ public abstract class AbstractTestCreator<T extends BenchmarkModule> extends Abs
         String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
         String resourcePath = Paths.get("src","main","resources").toAbsolutePath().toString();
         ddlPath = resourcePath + ddlPath;
-        this.benchmark.workConf.setDdlPath(ddlPath);
+        this.benchmark.workConf.setDDLPath(ddlPath);
         this.benchmark.createDatabase();
 
         validateCreate();

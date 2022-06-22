@@ -214,14 +214,14 @@ public class WorkloadConfiguration {
     /**
      * Return the path in which we can find the ddl script.
      */
-    public String getDdlPath() {
+    public String getDDLPath() {
         return this.ddlPath;
     }
 
     /**
      * Set the path in which we can find the ddl script.
      */
-    public void setDdlPath(String ddlPath) {
+    public void setDDLPath(String ddlPath) {
         this.ddlPath = ddlPath;
     }
 
