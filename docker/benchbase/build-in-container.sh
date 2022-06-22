@@ -4,7 +4,7 @@
 
 set -eu -o pipefail
 
-BENCHBASE_PROFILES=${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver}
+BENCHBASE_PROFILES=${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}
 
 cd /benchbase
 

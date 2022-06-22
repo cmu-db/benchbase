@@ -384,7 +384,7 @@ jobs:
       - name: Build docker image with all packages and run test suite
         env:
           DOCKER_BUILDKIT: 1
-          BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver'
+          BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
         run: |
           docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test --build-arg UID=$UID --build-arg GID=$UID \
             -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .

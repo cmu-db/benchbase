@@ -64,7 +64,7 @@ COPY --chown=containeruser:containergroup ./ /benchbase/
 ARG TEST_TARGET=
 RUN mvn -T 2C -B --file pom.xml process-resources compile ${TEST_TARGET}
 # Build all of the profiles into the image (in parallel).
-ARG BENCHBASE_PROFILES="cockroachdb mariadb mysql postgres spanner phoenix sqlserver"
+ARG BENCHBASE_PROFILES="cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite"
 RUN /benchbase/docker/benchbase/build-in-container.sh \
     && test -d data \
     && test "`readlink -f profiles/$(echo $BENCHBASE_PROFILES | awk '{ print $1 }')/data`" = "/benchbase/data" \
