@@ -387,7 +387,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
 
                 if (this.conn == null) {
                     try {
-                        this.conn = this.benchmarkModule.makeConnection();
+                        this.conn = this.benchmark.makeConnection();
                         this.conn.setAutoCommit(false);
                         this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
                     } catch (SQLException ex) {
