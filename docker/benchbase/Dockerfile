@@ -30,8 +30,9 @@ FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
 # (often uid 1000) to some non-root user inside the container.
 ARG CONTAINERUSER_UID=1000
 ARG CONTAINERUSER_GID=1000
-RUN addgroup --gid ${CONTAINERUSER_GID} containergroup \
-    && adduser --disabled-password --gecos 'Container User' --uid ${CONTAINERUSER_UID} --gid ${CONTAINERUSER_GID} containeruser || true
+RUN groupadd --non-unique --gid ${CONTAINERUSER_GID} containergroup \
+    && useradd --non-unique --create-home --no-user-group --comment 'Container User' \
+        --uid ${CONTAINERUSER_UID} --gid ${CONTAINERUSER_GID} containeruser
 RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
 USER containeruser
 ENV MAVEN_CONFIG=/home/containeruser/.m2
