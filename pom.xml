@@ -15,6 +15,7 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <buildDirectory>${project.basedir}/target</buildDirectory>
     </properties>
 
     <scm>
@@ -229,6 +230,7 @@
     </dependencies>
 
     <build>
+        <directory>${buildDirectory}</directory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

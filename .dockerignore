@@ -1,6 +1,7 @@
 .dockerignore
 docker/
 !docker/benchbase/entrypoint.sh
+!docker/benchbase/build-in-container.sh
 #.git/
 .github/
 .mvn/

@@ -47,7 +47,7 @@ ENTRYPOINT ["/bin/bash", "-l"]
 COPY --chown=containeruser:containergroup pom.xml /benchbase/pom.xml
 COPY --chown=containeruser:containergroup .git/ /benchbase/.git/
 ARG MAVEN_OPTS
-RUN mvn -B --file pom.xml initialize \
+RUN mvn -T2C -B --file pom.xml initialize \
     && rm -rf /benchbase/.git /benchbase/target /benchbase/pom.xml
 
 # Add an additional layer that also includes a built copy of the source.
@@ -60,16 +60,12 @@ VOLUME /benchbase/results
 COPY --chown=containeruser:containergroup ./ /benchbase/
 # Uncomment for slightly faster incremental testing (since intermediate layers can be cached)
 # at the expense of additional docker image layers.
+# Set TEST_TARGET=test to also run the test suite (once, rather than once per profile).
 ARG TEST_TARGET=
-RUN mvn -B --file pom.xml process-resources compile ${TEST_TARGET}
-# Build all of the profiles into the image.
+RUN mvn -T 2C -B --file pom.xml process-resources compile ${TEST_TARGET}
+# Build all of the profiles into the image (in parallel).
 ARG BENCHBASE_PROFILES="cockroachdb mariadb mysql postgres spanner phoenix sqlserver"
-RUN for profile in ${BENCHBASE_PROFILES}; do \
-        mvn -B --file pom.xml package -P $profile -D skipTests || exit 1; \
-        mkdir -p profiles/$profile; \
-        tar -C profiles/$profile/ --strip-components=1 -xvzf target/benchbase-$profile.tgz || exit 1; \
-        rm -rf profiles/$profile/data/ && ln -s ../../data profiles/$profile/data; \
-    done \
+RUN /benchbase/docker/benchbase/build-in-container.sh \
     && test -d data \
     && test "`readlink -f profiles/$(echo $BENCHBASE_PROFILES | awk '{ print $1 }')/data`" = "/benchbase/data" \
     && mvn -B --file pom.xml clean \
