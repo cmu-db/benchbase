@@ -38,7 +38,7 @@ else
 fi
 
 CONTAINERUSER_UID="${CONTAINERUSER_UID:-$UID}"
-if [ "$CONTAINERUSER_UID" -eq 0 ] && [ -n "$SUDO_UID" ]; then
+if [ "$CONTAINERUSER_UID" -eq 0 ] && [ -n "${SUDO_UID:-}" ]; then
     CONTAINERUSER_UID="$SUDO_UID"
 fi
 CONTAINERUSER_GID=${CONTAINERUSER_GID:-$(getent passwd "$CONTAINERUSER_UID" | cut -d: -f4)}
