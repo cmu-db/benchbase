@@ -170,6 +170,7 @@ public class DBWorkload {
             initDebug.put("Batch Size", wrkld.getBatchSize());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
             initDebug.put("Terminals", wrkld.getTerminals());
+            initDebug.put("New Connections", wrkld.getNewConnections());
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);
