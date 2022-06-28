@@ -51,6 +51,16 @@ public class ScriptRunner {
     }
 
 
+    public void runExternalScript(String path) throws IOException, SQLException {
+
+        LOG.debug("trying to find external file by path {}", path);
+
+        try (FileReader reader = new FileReader(path)) {
+
+            runScript(reader);
+        }
+    }
+
     public void runScript(String path) throws IOException, SQLException {
 
         LOG.debug("trying to find file by path {}", path);
@@ -58,16 +68,20 @@ public class ScriptRunner {
         try (InputStream in = this.getClass().getResourceAsStream(path);
              Reader reader = new InputStreamReader(in)) {
 
-            boolean originalAutoCommit = connection.getAutoCommit();
+            runScript(reader);
+        }
+    }
 
-            try {
-                if (originalAutoCommit != this.autoCommit) {
-                    connection.setAutoCommit(this.autoCommit);
-                }
-                runScript(connection, reader);
-            } finally {
-                connection.setAutoCommit(originalAutoCommit);
+    private void runScript(Reader reader) throws IOException, SQLException {
+        boolean originalAutoCommit = connection.getAutoCommit();
+
+        try {
+            if (originalAutoCommit != this.autoCommit) {
+                connection.setAutoCommit(this.autoCommit);
             }
+            runScript(connection, reader);
+        } finally {
+            connection.setAutoCommit(originalAutoCommit);
         }
     }
 

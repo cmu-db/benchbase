@@ -48,6 +48,7 @@ public class WorkloadConfiguration {
     private TransactionTypes transTypes = null;
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
+    private String ddlPath = null;
 
     public String getBenchmarkName() {
         return benchmarkName;
@@ -208,6 +209,20 @@ public class WorkloadConfiguration {
      */
     public void setDataDir(String dir) {
         this.dataDir = dir;
+    }
+
+    /**
+     * Return the path in which we can find the ddl script.
+     */
+    public String getDDLPath() {
+        return this.ddlPath;
+    }
+
+    /**
+     * Set the path in which we can find the ddl script.
+     */
+    public void setDDLPath(String ddlPath) {
+        this.ddlPath = ddlPath;
     }
 
     /**
