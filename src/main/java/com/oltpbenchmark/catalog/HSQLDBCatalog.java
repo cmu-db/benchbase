@@ -46,8 +46,8 @@ public class HSQLDBCatalog implements AbstractCatalog {
         }
         this.conn = conn;
 
+        this.originalTableNames = this.getOriginalTableNames();
         try {
-            this.originalTableNames = this.getOriginalTableNames();
             this.init();
         } catch (SQLException | IOException e) {
             throw new RuntimeException(String.format("Failed to initialize %s database catalog.", this.benchmarkModule.getBenchmarkName()), e);
