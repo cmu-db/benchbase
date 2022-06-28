@@ -22,7 +22,6 @@ import com.oltpbenchmark.util.SQLUtil;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -45,7 +44,7 @@ public class TestHSQLDBCatalog extends TestCase {
     /**
      * testGetOriginalTableNames
      */
-    public void testGetOriginalTableNames() throws URISyntaxException {
+    public void testGetOriginalTableNames() {
         // Make sure that the key and values in this map are not
         // equal unless we ignore their case
         Map<String, String> origTableNames = this.catalog.getOriginalTableNames();

@@ -7,11 +7,9 @@ import com.oltpbenchmark.util.Pair;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -51,7 +49,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         try {
             this.originalTableNames = this.getOriginalTableNames();
             this.init();
-        } catch (SQLException | IOException | URISyntaxException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(String.format("Failed to initialize %s database catalog.", this.benchmarkModule.getBenchmarkName()), e);
         }
     }
@@ -208,16 +206,19 @@ public class HSQLDBCatalog implements AbstractCatalog {
      *
      * @return A map from the original table names to the uppercase HSQLDB table names.
      */
-    Map<String, String> getOriginalTableNames() throws URISyntaxException {
+    Map<String, String> getOriginalTableNames() {
         // Get the contents of the HSQLDB DDL for the current benchmark.
-        String ddlPath = this.benchmarkModule.getWorkloadConfiguration().getDDLPath();
-        if (ddlPath == null) {
-            ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
-            ddlPath = Paths.get(Objects.requireNonNull(this.getClass().getResource(ddlPath)).toURI()).toString();
-        }
         String ddlContents;
         try {
-            ddlContents = Files.readString(Path.of(ddlPath), Charset.defaultCharset());
+            String ddlPath = this.benchmarkModule.getWorkloadConfiguration().getDDLPath();
+            URL ddlURL;
+            if (ddlPath == null) {
+                ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
+                ddlURL = Objects.requireNonNull(this.getClass().getResource(ddlPath));
+            } else {
+                ddlURL = Path.of(ddlPath).toUri().toURL();
+            }
+            ddlContents = IOUtils.toString(ddlURL, Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
