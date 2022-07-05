@@ -30,7 +30,7 @@ import java.util.Set;
 
 public class Q16 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""      
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                p_brand,
                p_type,
@@ -67,11 +67,7 @@ public class Q16 extends GenericQuery {
 
     @Override
     protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
-        // BRAND = Brand#MN where M and N are two single character strings representing two numbers randomly and
-        // independently selected within [1 .. 5];
-        int M = rand.number(1, 5);
-        int N = rand.number(1, 5);
-        String brand = String.format("BRAND#%d%d", M, N);
+        String brand = TPCHUtil.randomBrand(rand);
 
         // TYPE is made of the first 2 syllables of a string randomly selected within the
         // list of 3-syllable strings defined for Types in Clause 4.2.2.13
