@@ -17,6 +17,7 @@
 
 package com.oltpbenchmark.api;
 
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.jdbc.AutoIncrementPreparedStatement;
 import com.oltpbenchmark.types.DatabaseType;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public abstract class Procedure {
     private static final Logger LOG = LoggerFactory.getLogger(Procedure.class);
 
     private final String procName;
-    private DatabaseType dbType;
+    protected WorkloadConfiguration workConf;
     private Map<String, SQLStmt> name_stmt_xref;
 
     /**
@@ -51,11 +52,12 @@ public abstract class Procedure {
      * the constructor, otherwise we can't get access to all of our SQLStmts.
      *
      * @param <T>
+     * @param workConf Workload configuration
      * @return
      */
     @SuppressWarnings("unchecked")
-    protected final <T extends Procedure> T initialize(DatabaseType dbType) {
-        this.dbType = dbType;
+    protected final <T extends Procedure> T initialize(WorkloadConfiguration workConf) {
+        this.workConf = workConf;
         this.name_stmt_xref = Procedure.getStatements(this);
 
         if (LOG.isDebugEnabled()) {
@@ -109,8 +111,9 @@ public abstract class Procedure {
 
         // HACK: If the target system is Postgres, wrap the PreparedStatement in a special
         //       one that fakes the getGeneratedKeys().
-        if (is != null && (this.dbType == DatabaseType.POSTGRES || this.dbType == DatabaseType.COCKROACHDB)) {
-            pStmt = new AutoIncrementPreparedStatement(this.dbType, conn.prepareStatement(stmt.getSQL()));
+        DatabaseType dbType = this.workConf.getDatabaseType();
+        if (is != null && (dbType == DatabaseType.POSTGRES || dbType == DatabaseType.COCKROACHDB)) {
+            pStmt = new AutoIncrementPreparedStatement(dbType, conn.prepareStatement(stmt.getSQL()));
         }
         // Everyone else can use the regular getGeneratedKeys() method
         else if (is != null) {
