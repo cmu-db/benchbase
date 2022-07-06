@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
+    <username>admin</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in YCSB is *1000 the number of rows in the USERTABLE-->
+    <scalefactor>1</scalefactor>
+    
+    <!-- Optional: Override the field size for each column in USERTABLE -->
+    <!-- <fieldSize>8</fieldSize> -->
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>50,5,15,10,10,10</weights>
+        </work>
+    </works>
+
+    <!-- YCSB Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>ReadRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>InsertRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ScanRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>DeleteRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>ReadModifyWriteRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

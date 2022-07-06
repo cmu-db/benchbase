@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
@@ -33,7 +32,6 @@ import java.util.*;
 public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ThreadBench.class);
 
-
     private final BenchmarkState testState;
     private final List<? extends Worker<? extends BenchmarkModule>> workers;
     private final ArrayList<Thread> workerThreads;
@@ -41,7 +39,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
     private final int intervalMonitor;
 
-    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
+    private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers,
+            List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         this.workers = workers;
         this.workConfs = workConfs;
         this.workerThreads = new ArrayList<>(workers.size());
@@ -49,7 +48,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         this.testState = new BenchmarkState(workers.size() + 1);
     }
 
-    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers, List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
+    public static Results runRateLimitedBenchmark(List<Worker<? extends BenchmarkModule>> workers,
+            List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
         ThreadBench bench = new ThreadBench(workers, workConfs, intervalMonitoring);
         return bench.runRateLimitedMultiPhase();
     }
@@ -95,7 +95,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             LOG.debug("threadbench calling teardown");
 
-            workers.get(i).tearDown(false);
+            workers.get(i).tearDown();
         }
 
         return requests;
@@ -110,7 +110,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         }
 
         this.createWorkerThreads();
-        testState.blockForStart();
 
         // long measureStart = start;
 
@@ -132,6 +131,15 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
         }
 
+        // Change testState to cold query if execution is serial, since we don't
+        // have a warm-up phase for serial execution but execute a cold and a
+        // measured query in sequence.
+        if (phase != null && phase.isLatencyRun()) {
+            synchronized (testState) {
+                testState.startColdQuery();
+            }
+        }
+
         long intervalNs = getInterval(lowestRate, phase.getArrival());
 
         long nextInterval = start + intervalNs;
@@ -148,9 +156,12 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             new MonitorThread(this.intervalMonitor).start();
         }
 
+        // Allow workers to start work.
+        testState.blockForStart();
+
         // Main Loop
         while (true) {
-            // posting new work... and reseting the queue in case we have new
+            // posting new work... and resetting the queue in case we have new
             // portion of the workload...
 
             for (WorkloadState workState : workStates) {
@@ -181,15 +192,13 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 diff = nextInterval - now;
             }
 
-
             boolean phaseComplete = false;
             if (phase != null) {
                 if (phase.isLatencyRun())
                 // Latency runs (serial run through each query) have their own
                 // state to mark completion
                 {
-                    phaseComplete = testState.getState()
-                            == State.LATENCY_COMPLETE;
+                    phaseComplete = testState.getState() == State.LATENCY_COMPLETE;
                 } else {
                     phaseComplete = testState.getState() == State.MEASURE
                             && (start + delta <= now);
@@ -221,7 +230,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                                 measureEnd = now;
                                 LOG.info("{} :: Waiting for all terminals to finish ..", StringUtil.bold("TERMINATE"));
                             } else if (phase != null) {
-                                phase.resetSerial();
+                                // Reset serial execution parameters.
+                                if (phase.isLatencyRun()) {
+                                    phase.resetSerial();
+                                    testState.startColdQuery();
+                                }
                                 LOG.info(phase.currentPhaseString());
                                 if (phase.getRate() < lowestRate) {
                                     lowestRate = phase.getRate();
@@ -248,8 +261,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 do {
                     intervalNs += getInterval(lowestRate, phase.getArrival());
                     nextToAdd++;
-                }
-                while ((-diff) > intervalNs && !lastEntry);
+                } while ((-diff) > intervalNs && !lastEntry);
                 nextInterval += intervalNs;
             }
 
@@ -297,7 +309,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             // Compute stats on all the latencies
             int[] latencies = new int[samples.size()];
             for (int i = 0; i < samples.size(); ++i) {
-                latencies[i] = samples.get(i).latencyUs;
+                latencies[i] = samples.get(i).getLatencyMicrosecond();
             }
             DistributionStatistics stats = DistributionStatistics.computeStatistics(latencies);
 
@@ -344,7 +356,6 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread t, Throwable e) {
 
-
         // HERE WE HANDLE THE CASE IN WHICH ONE OF OUR WOKERTHREADS DIED
         LOG.error(e.getMessage(), e);
         System.exit(-1);
@@ -359,32 +370,25 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
     }
 
-    /*
-     * public static Results runRateLimitedBenchmark(List<Worker> workers, File
-     * profileFile) throws QueueLimitException, IOException { ThreadBench bench
-     * = new ThreadBench(workers, profileFile); return
-     * bench.runRateLimitedFromFile(); }
-     */
-
     public static final class TimeBucketIterable implements Iterable<DistributionStatistics> {
         private final Iterable<Sample> samples;
         private final int windowSizeSeconds;
-        private final TransactionType txType;
+        private final TransactionType transactionType;
 
         /**
          * @param samples
          * @param windowSizeSeconds
-         * @param txType            Allows to filter transactions by type
+         * @param transactionType   Allows to filter transactions by type
          */
-        public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType txType) {
+        public TimeBucketIterable(Iterable<Sample> samples, int windowSizeSeconds, TransactionType transactionType) {
             this.samples = samples;
             this.windowSizeSeconds = windowSizeSeconds;
-            this.txType = txType;
+            this.transactionType = transactionType;
         }
 
         @Override
         public Iterator<DistributionStatistics> iterator() {
-            return new TimeBucketIterator(samples.iterator(), windowSizeSeconds, txType);
+            return new TimeBucketIterator(samples.iterator(), windowSizeSeconds, transactionType);
         }
     }
 
@@ -394,7 +398,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
         private final TransactionType txType;
 
         private Sample sample;
-        private long nextStartNs;
+        private long nextStartNanosecond;
 
         private DistributionStatistics next;
 
@@ -403,7 +407,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
          * @param windowSizeSeconds
          * @param txType            Allows to filter transactions by type
          */
-        public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds, TransactionType txType) {
+        public TimeBucketIterator(Iterator<LatencyRecord.Sample> samples, int windowSizeSeconds,
+                TransactionType txType) {
             this.samples = samples;
             this.windowSizeSeconds = windowSizeSeconds;
             this.txType = txType;
@@ -413,24 +418,23 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // TODO: To be totally correct, we would want this to be the
                 // timestamp of the start
                 // of the measurement interval. In most cases this won't matter.
-                nextStartNs = sample.startNs;
+                nextStartNanosecond = sample.getStartNanosecond();
                 calculateNext();
             }
         }
 
         private void calculateNext() {
 
-
             // Collect all samples in the time window
             ArrayList<Integer> latencies = new ArrayList<>();
-            long endNs = nextStartNs + windowSizeSeconds * 1000000000L;
-            while (sample != null && sample.startNs < endNs) {
+            long endNanoseconds = nextStartNanosecond + (windowSizeSeconds * 1000000000L);
+            while (sample != null && sample.getStartNanosecond() < endNanoseconds) {
 
                 // Check if a TX Type filter is set, in the default case,
                 // INVALID TXType means all should be reported, if a filter is
                 // set, only this specific transaction
-                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.tranType) {
-                    latencies.add(sample.latencyUs);
+                if (txType.equals(TransactionType.INVALID) || txType.getId() == sample.getTransactionType()) {
+                    latencies.add(sample.getLatencyMicrosecond());
                 }
 
                 if (samples.hasNext()) {
@@ -442,7 +446,7 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
             // Set up the next time window
 
-            nextStartNs = endNs;
+            nextStartNanosecond = endNanoseconds;
 
             int[] l = new int[latencies.size()];
             for (int i = 0; i < l.length; ++i) {

@@ -67,7 +67,7 @@ public class FindOpenSeats extends Procedure {
                     " WHERE R_F_ID = ?"
     );
 
-    public Object[][] run(Connection conn, long f_id) throws SQLException {
+    public Object[][] run(Connection conn, String f_id) throws SQLException {
 
         // 150 seats
         final long[] seatmap = new long[]
@@ -83,23 +83,26 @@ public class FindOpenSeats extends Procedure {
                         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 
-        double base_price;
-        long seats_total;
-        long seats_left;
-        double seat_price;
+        double base_price = 0.0;
+        long seats_total = 0;
+        long seats_left = 0;
+        double seat_price = 0.0;
 
         // First calculate the seat price using the flight's base price
         // and the number of seats that remaining
         try (PreparedStatement f_stmt = this.getPreparedStatement(conn, GetFlight)) {
-            f_stmt.setLong(1, f_id);
+            f_stmt.setString(1, f_id);
             try (ResultSet f_results = f_stmt.executeQuery()) {
-                f_results.next();
+                if (f_results.next()) {
 
-                // long status = results[0].getLong(0);
-                base_price = f_results.getDouble(2);
-                seats_total = f_results.getLong(3);
-                seats_left = f_results.getLong(4);
-                seat_price = f_results.getDouble(5);
+                    // long status = results[0].getLong(0);
+                    base_price = f_results.getDouble(2);
+                    seats_total = f_results.getLong(3);
+                    seats_left = f_results.getLong(4);
+                    seat_price = f_results.getDouble(5);
+                } else {
+                    LOG.warn("flight {} had no seats; this may be a data problem or a code problem.  previously this threw an unhandled exception.", f_id);
+                }
             }
         }
 
@@ -111,19 +114,19 @@ public class FindOpenSeats extends Procedure {
         //                         more-or-less equivalent to java.math.BigDecimal.)
         double _seat_price = base_price + (base_price * (1.0 - (seats_left / (double) seats_total)));
 
-        LOG.debug(String.format("Flight %d - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
+        LOG.debug(String.format("Flight %s - SQL[%.2f] <-> JAVA[%.2f] [basePrice=%f, total=%d, left=%d]",
                 f_id, seat_price, _seat_price, base_price, seats_total, seats_left));
 
 
         // Then build the seat map of the remaining seats
         try (PreparedStatement s_stmt = this.getPreparedStatement(conn, GetSeats)) {
-            s_stmt.setLong(1, f_id);
+            s_stmt.setString(1, f_id);
             try (ResultSet s_results = s_stmt.executeQuery()) {
                 while (s_results.next()) {
                     long r_id = s_results.getLong(1);
                     int seatnum = s_results.getInt(3);
 
-                    LOG.debug(String.format("Reserved Seat: fid %d / rid %d / seat %d", f_id, r_id, seatnum));
+                    LOG.debug(String.format("Reserved Seat: fid %s / rid %d / seat %d", f_id, r_id, seatnum));
 
 
                     seatmap[seatnum] = 1;

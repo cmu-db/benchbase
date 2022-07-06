@@ -4,6 +4,10 @@ docker/**/*.zip
 docker/**/output
 results
 
+### SQLite ###
+**/*.db
+**/*.db-journal
+
 HELP.md
 PRIVATE.md
 target/
@@ -32,6 +36,7 @@ buildNumber.properties
 *.iws
 *.iml
 *.ipr
+java_*.hprof*
 
 ### NetBeans ###
 /nbproject/private/
@@ -43,3 +48,7 @@ build/
 
 ### VS Code ###
 .vscode/
+*.log
+
+# vim swap files
+.*.swp

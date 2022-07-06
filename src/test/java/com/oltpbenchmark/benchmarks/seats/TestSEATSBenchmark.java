@@ -18,27 +18,34 @@
 package com.oltpbenchmark.benchmarks.seats;
 
 import com.oltpbenchmark.api.AbstractTestBenchmarkModule;
+import com.oltpbenchmark.api.Procedure;
 import com.oltpbenchmark.benchmarks.seats.procedures.*;
 import com.oltpbenchmark.catalog.Table;
 
 import java.io.InputStream;
+import java.util.List;
 
 public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(
             DeleteReservation.class,
             FindFlights.class,
             FindOpenSeats.class,
             NewReservation.class,
             UpdateCustomer.class,
             UpdateReservation.class
-    };
+    );
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(SEATSBenchmark.class, PROC_CLASSES);
-        SEATSProfile.clearCachedProfile();
+    public List<Class<? extends Procedure>> procedures() {
+        return TestSEATSBenchmark.PROCEDURE_CLASSES;
     }
+
+    @Override
+    public Class<SEATSBenchmark> benchmarkClass() {
+        return SEATSBenchmark.class;
+    }
+
 
     /**
      * testGetDataDir
@@ -48,7 +55,7 @@ public class TestSEATSBenchmark extends AbstractTestBenchmarkModule<SEATSBenchma
         Table countryTable = this.benchmark.getCatalog().getTable(SEATSConstants.TABLENAME_COUNTRY);
         String countryFilePath = SEATSBenchmark.getTableDataFilePath(this.benchmark.getDataDir(), countryTable);
         assertNotNull(countryFilePath);
-        InputStream countryFile = this.getClass().getClassLoader().getResourceAsStream(countryFilePath);
+        InputStream countryFile = this.getClass().getResourceAsStream(countryFilePath);
         assertNotNull(countryFile);
     }
 

@@ -23,12 +23,13 @@ import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.benchmarks.auctionmark.procedures.*;
 import com.oltpbenchmark.benchmarks.auctionmark.util.CategoryParser;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<AuctionMarkBenchmark> {
 
-    public static final Class<?>[] PROC_CLASSES = {
-            GetItem.class,
+    public static final List<Class<? extends Procedure>> PROCEDURE_CLASSES = List.of(GetItem.class,
             GetUserInfo.class,
             NewBid.class,
             NewComment.class,
@@ -36,12 +37,21 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
             NewFeedback.class,
             NewItem.class,
             NewPurchase.class,
-            UpdateItem.class
-    };
+            UpdateItem.class);
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp(AuctionMarkBenchmark.class, PROC_CLASSES);
+    public List<Class<? extends Procedure>> procedures() {
+        return PROCEDURE_CLASSES;
+    }
+
+    @Override
+    public Class<AuctionMarkBenchmark> benchmarkClass() {
+        return AuctionMarkBenchmark.class;
+    }
+
+    @Override
+    protected void postCreateDatabaseSetup() throws IOException {
+        super.postCreateDatabaseSetup();
         AuctionMarkProfile.clearCachedProfile();
     }
 
@@ -62,5 +72,4 @@ public class TestAuctionMarkBenchmark extends AbstractTestBenchmarkModule<Auctio
         Map<TransactionType, Procedure> procs = this.benchmark.getProcedures();
         assertNotNull(procs);
     }
-
 }

@@ -20,13 +20,27 @@ package com.oltpbenchmark.api;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.catalog.Table;
 import com.oltpbenchmark.types.DatabaseType;
+import com.oltpbenchmark.util.ClassUtil;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> extends AbstractTestCase<T> {
 
-    protected static final int NUM_TERMINALS = 10;
+
+    public AbstractTestBenchmarkModule() {
+        super(false, false);
+    }
+
+    @Override
+    public List<String> ignorableTables() {
+        return null;
+    }
 
     /**
      * testGetDatabaseDDLPath
@@ -34,7 +48,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
     public void testGetDatabaseDDLPath() throws Exception {
         String ddlPath = this.benchmark.getDatabaseDDLPath(this.workConf.getDatabaseType());
         assertNotNull(ddlPath);
-        try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(ddlPath)) {
+        try (InputStream stream = this.getClass().getResourceAsStream(ddlPath)) {
             assertNotNull(stream);
         }
     }
@@ -54,49 +68,36 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
         // Just make sure that there are no empty tables
         for (Table catalog_tbl : catalog.getTables()) {
             assert (catalog_tbl.getColumnCount() > 0) : "Missing columns for " + catalog_tbl;
-//            System.err.println(catalog_tbl);
-        } // FOR
+        }
     }
 
     /**
      * testGetTransactionType
      */
-    public void testGetTransactionType() throws Exception {
+    public void testGetTransactionType() {
         int id = 1;
-        for (Class<? extends Procedure> procClass : this.procClasses) {
+        for (Class<? extends Procedure> procClass : procedures()) {
             assertNotNull(procClass);
             String procName = procClass.getSimpleName();
-            TransactionType txnType = this.benchmark.initTransactionType(procName, id++);
+            TransactionType txnType = this.benchmark.initTransactionType(procName, id++, 0, 0);
             assertNotNull(txnType);
             assertEquals(procClass, txnType.getProcedureClass());
-//            System.err.println(procClass + " -> " + txnType);
-        } // FOR
+        }
     }
 
-    /**
-     * testGetTransactionTypeInvalidId
-     */
-    public void testGetTransactionTypeInvalidId() throws Exception {
-        Class<? extends Procedure> procClass = this.procClasses.get(0);
-        assertNotNull(procClass);
-        String procName = procClass.getSimpleName();
-        TransactionType txnType = null;
-        try {
-            txnType = this.benchmark.initTransactionType(procName, TransactionType.INVALID_ID);
-        } catch (Throwable ex) {
-            // Ignore
-        }
-        assertNull(txnType);
-    }
 
     /**
      * testGetSQLDialectPath
      */
     public void testGetSQLDialectPath() throws Exception {
-        String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(DB_TYPE);
-        if (xmlFilePath != null) {
-            File xmlFile = new File(xmlFilePath);
-            assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+        for (DatabaseType dbType : DatabaseType.values()) {
+            String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(dbType);
+            if (xmlFilePath != null) {
+                URL xmlUrl = this.getClass().getResource(xmlFilePath);
+                assertNotNull(xmlUrl);
+                File xmlFile = new File(xmlUrl.toURI());
+                assertTrue(xmlFile.getAbsolutePath(), xmlFile.exists());
+            }
         }
     }
 
@@ -104,38 +105,88 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
      * testLoadSQLDialect
      */
     public void testLoadSQLDialect() throws Exception {
-        String xmlFilePath = this.benchmark.getStatementDialects().getSQLDialectPath(DB_TYPE);
-        if (xmlFilePath == null) return;
-
-        File xmlFile = new File(xmlFilePath);
         for (DatabaseType dbType : DatabaseType.values()) {
             this.workConf.setDatabaseType(dbType);
 
             // Just make sure that we can load it
             StatementDialects dialects = new StatementDialects(this.workConf);
-            dialects.load();
+            if (dialects.load()) {
 
-            for (String procName : dialects.getProcedureNames()) {
-                for (String stmtName : dialects.getStatementNames(procName)) {
-                    String sql = dialects.getSQL(procName, stmtName);
-                    assertNotNull(sql);
-                    assertFalse(sql.isEmpty());
-                    // System.err.printf("%s.%s:\n%s\n\n", procName, stmtName, sql);
-                } // FOR
-            } // FOR
+                for (String procName : dialects.getProcedureNames()) {
+                    for (String stmtName : dialects.getStatementNames(procName)) {
+                        String sql = dialects.getSQL(procName, stmtName);
+                        assertNotNull(sql);
+                        assertFalse(sql.isEmpty());
+                    }
+                }
 
-            // TODO: We should XSD to validate the SQL
-        } // FOR (dbtype)
+            }
+        }
     }
 
+
     /**
-     * testMakeWorkers
+     * testDumpSQLDialect
      */
-//    public void testMakeWorkers() throws Exception {
-//        this.workConf.setTerminals(NUM_TERMINALS);
-//        List<Worker> workers = this.benchmark.makeWorkers(false);
-//        assertNotNull(workers);
-//        assertEquals(NUM_TERMINALS, workers.size());
-//        assertNotNull(workers.get(0));
-//    }
+    public void testDumpSQLDialect() throws Exception {
+        for (DatabaseType dbType : DatabaseType.values()) {
+            this.workConf.setDatabaseType(dbType);
+
+            StatementDialects dialects = new StatementDialects(this.workConf);
+            if (dialects.load()) {
+                String dump = dialects.export(dbType, this.benchmark.getProcedures().values());
+                assertNotNull(dump);
+                assertFalse(dump.isEmpty());
+                Set<String> benchmarkProcedureNames = this.benchmark.getProcedures().values()
+                        .stream()
+                        .map(Procedure::getProcedureName)
+                        .collect(Collectors.toSet());
+                for (String procName : dialects.getProcedureNames()) {
+                    if (benchmarkProcedureNames.contains(procName)) {
+                        assertTrue(procName, dump.contains(procName));
+                        for (String stmtName : dialects.getStatementNames(procName)) {
+                            assertTrue(procName + "." + stmtName, dump.contains(stmtName));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * testSetSQLDialect
+     */
+    public void testSetSQLDialect() throws Exception {
+        for (DatabaseType dbType : DatabaseType.values()) {
+            this.workConf.setDatabaseType(dbType);
+
+            StatementDialects dialects = new StatementDialects(this.workConf);
+            if (dialects.load()) {
+
+                for (Procedure proc : this.benchmark.getProcedures().values()) {
+                    if (dialects.getProcedureNames().contains(proc.getProcedureName())) {
+                        // Need a new proc because the dialect gets loaded in BenchmarkModule::getProcedureName
+                        Procedure testProc = ClassUtil.newInstance(proc.getClass().getName(),
+                                new Object[0], new Class<?>[0]);
+                        assertNotNull(testProc);
+                        testProc.initialize(dbType);
+                        testProc.loadSQLDialect(dialects);
+
+                        Collection<String> dialectStatementNames = dialects.getStatementNames(
+                                testProc.getProcedureName());
+
+                        for (String statementName : dialectStatementNames) {
+                            SQLStmt stmt = testProc.getStatements().get(statementName);
+                            assertNotNull(stmt);
+                            String dialectSQL = dialects.getSQL(testProc.getProcedureName(),
+                                    statementName);
+                            assertEquals(dialectSQL, stmt.getOriginalSQL());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

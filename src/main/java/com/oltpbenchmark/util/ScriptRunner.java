@@ -51,23 +51,37 @@ public class ScriptRunner {
     }
 
 
+    public void runExternalScript(String path) throws IOException, SQLException {
+
+        LOG.debug("trying to find external file by path {}", path);
+
+        try (FileReader reader = new FileReader(path)) {
+
+            runScript(reader);
+        }
+    }
+
     public void runScript(String path) throws IOException, SQLException {
 
         LOG.debug("trying to find file by path {}", path);
 
-        try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(path);
+        try (InputStream in = this.getClass().getResourceAsStream(path);
              Reader reader = new InputStreamReader(in)) {
 
-            boolean originalAutoCommit = connection.getAutoCommit();
+            runScript(reader);
+        }
+    }
 
-            try {
-                if (originalAutoCommit != this.autoCommit) {
-                    connection.setAutoCommit(this.autoCommit);
-                }
-                runScript(connection, reader);
-            } finally {
-                connection.setAutoCommit(originalAutoCommit);
+    private void runScript(Reader reader) throws IOException, SQLException {
+        boolean originalAutoCommit = connection.getAutoCommit();
+
+        try {
+            if (originalAutoCommit != this.autoCommit) {
+                connection.setAutoCommit(this.autoCommit);
             }
+            runScript(connection, reader);
+        } finally {
+            connection.setAutoCommit(originalAutoCommit);
         }
     }
 
@@ -93,6 +107,8 @@ public class ScriptRunner {
                     command = new StringBuffer();
                 }
                 String trimmedLine = line.trim();
+                line = line.replaceAll("\\-\\-.*$", ""); // remove comments in line;
+
                 if (trimmedLine.startsWith("--") || trimmedLine.startsWith("//")) {
                     LOG.debug(trimmedLine);
                 } else if (trimmedLine.length() < 1) {
@@ -102,8 +118,6 @@ public class ScriptRunner {
                     command.append(" ");
 
                     try (Statement statement = conn.createStatement()) {
-
-                        // println(command);
 
                         boolean hasResults = false;
                         final String sql = command.toString().trim();

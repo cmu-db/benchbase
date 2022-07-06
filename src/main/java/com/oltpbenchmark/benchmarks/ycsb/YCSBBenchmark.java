@@ -38,24 +38,34 @@ public class YCSBBenchmark extends BenchmarkModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(YCSBBenchmark.class);
 
+    /**
+     * The length in characters of each field
+     */
+    protected final int fieldSize;
+
     public YCSBBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
+
+        int fieldSize = YCSBConstants.MAX_FIELD_SIZE;
+        if (workConf.getXmlConfig() != null && workConf.getXmlConfig().containsKey("fieldSize")) {
+            fieldSize = Math.min(workConf.getXmlConfig().getInt("fieldSize"), YCSBConstants.MAX_FIELD_SIZE);
+        }
+        this.fieldSize = fieldSize;
+        if (this.fieldSize <= 0) {
+            throw new RuntimeException("Invalid YCSB fieldSize '" + this.fieldSize + "'");
+        }
     }
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         try {
-
-
             // LOADING FROM THE DATABASE IMPORTANT INFORMATION
             // LIST OF USERS
-
             Table t = this.getCatalog().getTable("USERTABLE");
-
             String userCount = SQLUtil.getMaxColSQL(this.workConf.getDatabaseType(), t, "ycsb_key");
 
-            try (Connection metaConn = this.getConnection();
+            try (Connection metaConn = this.makeConnection();
                  Statement stmt = metaConn.createStatement();
                  ResultSet res = stmt.executeQuery(userCount)) {
                 int init_record_count = 0;
@@ -80,7 +90,6 @@ public class YCSBBenchmark extends BenchmarkModule {
 
     @Override
     protected Package getProcedurePackageImpl() {
-        // TODO Auto-generated method stub
         return InsertRecord.class.getPackage();
     }
 

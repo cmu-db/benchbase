@@ -18,8 +18,8 @@
 package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.tpch.util.TPCHConstants;
-import com.oltpbenchmark.benchmarks.tpch.util.TPCHUtil;
+import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
+import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
@@ -29,35 +29,33 @@ import java.sql.SQLException;
 
 public class Q12 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt(
-            "select "
-                    + "l_shipmode, "
-                    + "sum(case "
-                    + "when o_orderpriority = '1-URGENT' "
-                    + "or o_orderpriority = '2-HIGH' "
-                    + "then 1 "
-                    + "else 0 "
-                    + "end) as high_line_count, "
-                    + "sum(case "
-                    + "when o_orderpriority <> '1-URGENT' "
-                    + "and o_orderpriority <> '2-HIGH' "
-                    + "then 1 "
-                    + "else 0 "
-                    + "end) as low_line_count "
-                    + "from "
-                    + "orders, "
-                    + "lineitem "
-                    + "where "
-                    + "o_orderkey = l_orderkey "
-                    + "and l_shipmode in (?, ?) "
-                    + "and l_commitdate < l_receiptdate "
-                    + "and l_shipdate < l_commitdate "
-                    + "and l_receiptdate >= date ? "
-                    + "and l_receiptdate < date ? + interval '1' year "
-                    + "group by "
-                    + "l_shipmode "
-                    + "order by "
-                    + "l_shipmode"
+    public final SQLStmt query_stmt = new SQLStmt("""            
+            SELECT
+               ps_partkey,
+               SUM(ps_supplycost * ps_availqty) AS VALUE
+            FROM
+               partsupp,
+               supplier,
+               nation
+            WHERE
+               ps_suppkey = s_suppkey
+               AND s_nationkey = n_nationkey
+               AND n_name = 'ETHIOPIA'
+            GROUP BY
+               ps_partkey
+            HAVING
+               SUM(ps_supplycost * ps_availqty) > (
+               SELECT
+                  SUM(ps_supplycost * ps_availqty) * ?
+               FROM
+                  partsupp, supplier, nation
+               WHERE
+                  ps_suppkey = s_suppkey
+                  AND s_nationkey = n_nationkey
+                  AND n_name = ? )
+               ORDER BY
+                  VALUE DESC
+            """
     );
 
     @Override

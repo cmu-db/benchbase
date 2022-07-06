@@ -18,8 +18,8 @@
 package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
-import com.oltpbenchmark.benchmarks.tpch.util.TPCHConstants;
-import com.oltpbenchmark.benchmarks.tpch.util.TPCHUtil;
+import com.oltpbenchmark.benchmarks.tpch.TPCHConstants;
+import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
@@ -29,30 +29,30 @@ import java.sql.SQLException;
 
 public class Q3 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt(
-            "select "
-                    + "l_orderkey, "
-                    + "sum(l_extendedprice * (1 - l_discount)) as revenue, "
-                    + "o_orderdate, "
-                    + "o_shippriority "
-                    + "from "
-                    + "customer, "
-                    + "orders, "
-                    + "lineitem "
-                    + "where "
-                    + "c_mktsegment = ? "
-                    + "and c_custkey = o_custkey "
-                    + "and l_orderkey = o_orderkey "
-                    + "and o_orderdate < date ? "
-                    + "and l_shipdate > date ? "
-                    + "group by "
-                    + "l_orderkey, "
-                    + "o_orderdate, "
-                    + "o_shippriority "
-                    + "order by "
-                    + "revenue desc, "
-                    + "o_orderdate "
-                    + "limit 10"
+    public final SQLStmt query_stmt = new SQLStmt("""   
+            SELECT
+               l_orderkey,
+               SUM(l_extendedprice * (1 - l_discount)) AS revenue,
+               o_orderdate,
+               o_shippriority
+            FROM
+               customer,
+               orders,
+               lineitem
+            WHERE
+               c_mktsegment = ?
+               AND c_custkey = o_custkey
+               AND l_orderkey = o_orderkey
+               AND o_orderdate < DATE ?
+               AND l_shipdate > DATE ?
+            GROUP BY
+               l_orderkey,
+               o_orderdate,
+               o_shippriority
+            ORDER BY
+               revenue DESC,
+               o_orderdate LIMIT 10
+            """
     );
 
     @Override

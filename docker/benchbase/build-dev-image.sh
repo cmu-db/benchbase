@@ -1,0 +1,1 @@
+build-full-image.sh

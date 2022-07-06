@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MARIADB</type>
+    <driver>org.mariadb.jdbc.Driver</driver>
+    <url>jdbc:mariadb://localhost:3306/benchbase?useServerPrepStmts</url>
+    <username>admin</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- Scalefactor in SEATS scales by *1000 the number of customers-->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>10000</rate>
+            <weights>10, 10, 35, 20, 10, 15</weights>
+        </work>
+    </works>
+
+    <!-- SEATS Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>DeleteReservation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>FindFlights</name>
+        </transactiontype>
+        <transactiontype>
+            <name>FindOpenSeats</name>
+        </transactiontype>
+        <transactiontype>
+            <name>NewReservation</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateCustomer</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateReservation</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

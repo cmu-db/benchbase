@@ -19,38 +19,20 @@
 package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.WorkloadConfiguration;
-import com.oltpbenchmark.benchmarks.auctionmark.AuctionMarkBenchmark;
-import com.oltpbenchmark.benchmarks.chbenchmark.CHBenCHmark;
-import com.oltpbenchmark.benchmarks.epinions.EpinionsBenchmark;
-import com.oltpbenchmark.benchmarks.hyadapt.HYADAPTBenchmark;
-import com.oltpbenchmark.benchmarks.noop.NoOpBenchmark;
-import com.oltpbenchmark.benchmarks.resourcestresser.ResourceStresserBenchmark;
-import com.oltpbenchmark.benchmarks.seats.SEATSBenchmark;
-import com.oltpbenchmark.benchmarks.sibench.SIBenchmark;
-import com.oltpbenchmark.benchmarks.smallbank.SmallBankBenchmark;
-import com.oltpbenchmark.benchmarks.tatp.TATPBenchmark;
-import com.oltpbenchmark.benchmarks.tpcc.TPCCBenchmark;
-import com.oltpbenchmark.benchmarks.tpcds.TPCDSBenchmark;
-import com.oltpbenchmark.benchmarks.tpch.TPCHBenchmark;
-import com.oltpbenchmark.benchmarks.twitter.TwitterBenchmark;
-import com.oltpbenchmark.benchmarks.voter.VoterBenchmark;
-import com.oltpbenchmark.benchmarks.wikipedia.WikipediaBenchmark;
-import com.oltpbenchmark.benchmarks.ycsb.YCSBBenchmark;
 import com.oltpbenchmark.catalog.AbstractCatalog;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.util.ClassUtil;
 import com.oltpbenchmark.util.SQLUtil;
 import com.oltpbenchmark.util.ScriptRunner;
 import com.oltpbenchmark.util.ThreadUtil;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -79,36 +61,33 @@ public abstract class BenchmarkModule {
     /**
      * A single Random object that should be re-used by all a benchmark's components
      */
-    private final Random rng = new Random();
-
-    private final HikariDataSource dataSource;
+    private static final ThreadLocal<Random> rng = new ThreadLocal<>();
 
     private AbstractCatalog catalog = null;
 
+    /**
+     * Constructor!
+     * @param workConf
+     */
     public BenchmarkModule(WorkloadConfiguration workConf) {
-
         this.workConf = workConf;
         this.dialects = new StatementDialects(workConf);
-
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(workConf.getUrl());
-        config.setUsername(workConf.getUsername());
-        config.setPassword(workConf.getPassword());
-        config.setMaximumPoolSize(workConf.getPoolSize());
-
-        dataSource = new HikariDataSource(config);
     }
 
     // --------------------------------------------------------------------------
     // DATABASE CONNECTION
     // --------------------------------------------------------------------------
 
-    /**
-     * @return
-     * @throws SQLException
-     */
-    public final Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+    public final Connection makeConnection() throws SQLException {
+
+        if (StringUtils.isEmpty(workConf.getUsername())) {
+            return DriverManager.getConnection(workConf.getUrl());
+        } else {
+            return DriverManager.getConnection(
+                    workConf.getUrl(),
+                    workConf.getUsername(),
+                    workConf.getPassword());
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -138,51 +117,35 @@ public abstract class BenchmarkModule {
     // --------------------------------------------------------------------------
 
     /**
-     * Return the Random generator that should be used by all this benchmark's components
+     * Return the Random generator that should be used by all this benchmark's components.
+     * We are using ThreadLocal to make this support multiple threads better.
+     * This will set the seed if one is specified in the workload config file
      */
     public Random rng() {
-        return (this.rng);
+        Random ret = rng.get();
+        if (ret == null) {
+            if (this.workConf.getRandomSeed() != -1) {
+                ret = new Random(this.workConf.getRandomSeed());
+            } else {
+                ret = new Random();
+            }
+            rng.set(ret);
+        }
+        return ret;
     }
 
     private String convertBenchmarkClassToBenchmarkName() {
-        Object benchmarkClass = this;
-        if (benchmarkClass instanceof AuctionMarkBenchmark) {
-            return "auctionmark";
-        } else if (benchmarkClass instanceof CHBenCHmark) {
-            return "chbenchmark";
-        } else if (benchmarkClass instanceof EpinionsBenchmark) {
-            return "epinions";
-        } else if (benchmarkClass instanceof HYADAPTBenchmark) {
-            return "hyadapt";
-        } else if (benchmarkClass instanceof NoOpBenchmark) {
-            return "noop";
-        } else if (benchmarkClass instanceof ResourceStresserBenchmark) {
-            return "resourcestresser";
-        } else if (benchmarkClass instanceof SEATSBenchmark) {
-            return "seats";
-        } else if (benchmarkClass instanceof SIBenchmark) {
-            return "sibench";
-        } else if (benchmarkClass instanceof SmallBankBenchmark) {
-            return "smallbank";
-        } else if (benchmarkClass instanceof TATPBenchmark) {
-            return "tatp";
-        } else if (benchmarkClass instanceof TPCCBenchmark) {
-            return "tpcc";
-        } else if (benchmarkClass instanceof TPCDSBenchmark) {
-            return "tpcds";
-        } else if (benchmarkClass instanceof TPCHBenchmark) {
-            return "tpch";
-        } else if (benchmarkClass instanceof TwitterBenchmark) {
-            return "twitter";
-        } else if (benchmarkClass instanceof VoterBenchmark) {
-            return "voter";
-        } else if (benchmarkClass instanceof WikipediaBenchmark) {
-            return "wikipedia";
-        } else if (benchmarkClass instanceof YCSBBenchmark) {
-            return "ycsb";
-        }
+        return convertBenchmarkClassToBenchmarkName(this.getClass());
+    }
 
-        throw new RuntimeException("Sorry, this is a hack. You need to add your new benchmark class here.");
+    protected static <T> String convertBenchmarkClassToBenchmarkName(Class<T> clazz) {
+        assert(clazz != null);
+        String name = clazz.getSimpleName().toLowerCase();
+        // Special case for "CHBenCHmark"
+        if (!name.equals("chbenchmark") && name.endsWith("benchmark")) {
+            name = name.replace("benchmark", "");
+        }
+        return (name);
     }
 
     /**
@@ -196,16 +159,18 @@ public abstract class BenchmarkModule {
         // The order matters!
         List<String> names = new ArrayList<>();
         if (db_type != null) {
-            names.add("ddl-" + db_type.name().toLowerCase() + ".sql");
+            DatabaseType ddl_db_type = db_type;
+            // HACK: Use MySQL if we're given MariaDB
+            if (ddl_db_type == DatabaseType.MARIADB) ddl_db_type = DatabaseType.MYSQL;
+            names.add("ddl-" + ddl_db_type.name().toLowerCase() + ".sql");
         }
         names.add("ddl-generic.sql");
 
         for (String fileName : names) {
             final String benchmarkName = getBenchmarkName();
-            final String path = "benchmarks" + File.separator + benchmarkName + File.separator + fileName;
+            final String path = "/benchmarks/" + benchmarkName + "/" + fileName;
 
-            try (InputStream stream = this.getClass().getClassLoader().getResourceAsStream(path)) {
-
+            try (InputStream stream = this.getClass().getResourceAsStream(path)) {
                 if (stream != null) {
                     return path;
                 }
@@ -224,18 +189,16 @@ public abstract class BenchmarkModule {
         return (this.makeWorkersImpl());
     }
 
-    public final void refreshCatalog() {
+    public final void refreshCatalog() throws SQLException {
         if (this.catalog != null) {
             try {
                 this.catalog.close();
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                LOG.error(throwables.getMessage(), throwables);
             }
         }
-        try {
-            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), dataSource.getConnection());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Connection conn = this.makeConnection()) {
+            this.catalog = SQLUtil.getCatalog(this, this.getWorkloadConfiguration().getDatabaseType(), conn);
         }
     }
 
@@ -244,11 +207,9 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase() {
-        try (Connection conn = this.getConnection()) {
+    public final void createDatabase() throws SQLException, IOException {
+        try (Connection conn = this.makeConnection()) {
             this.createDatabase(this.workConf.getDatabaseType(), conn);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -257,73 +218,61 @@ public abstract class BenchmarkModule {
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
      */
-    public final void createDatabase(DatabaseType dbType, Connection conn) {
-        try {
-            String ddlPath = this.getDatabaseDDLPath(dbType);
-            ScriptRunner runner = new ScriptRunner(conn, false, true);
+    public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException, IOException {
 
-            if (LOG.isDebugEnabled()) {
+            ScriptRunner runner = new ScriptRunner(conn, true, true);
+
+            if (workConf.getDDLPath() != null) {
+                String ddlPath = workConf.getDDLPath();
+                LOG.warn("Overriding default DDL script path");
                 LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+                runner.runExternalScript(ddlPath);
+            } else {
+                String ddlPath = this.getDatabaseDDLPath(dbType);
+                LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+                runner.runScript(ddlPath);
             }
-
-            runner.runScript(ddlPath);
-        } catch (Exception ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to create the %s database", getBenchmarkName()), ex);
-        }
     }
 
 
     /**
      * Invoke this benchmark's database loader
      */
-    public final Loader<? extends BenchmarkModule> loadDatabase() {
+    public final Loader<? extends BenchmarkModule> loadDatabase() throws SQLException, InterruptedException {
         Loader<? extends BenchmarkModule> loader;
-        try {
-            loader = this.makeLoaderImpl();
-            if (loader != null) {
+
+        loader = this.makeLoaderImpl();
+        if (loader != null) {
 
 
-                // PAVLO: 2016-12-23
-                // We are going to eventually migrate everything over to use the
-                // same API for creating multi-threaded loaders. For now we will support
-                // both. So if createLoaderTheads() returns null, we will use the old load()
-                // method.
-                List<? extends LoaderThread> loaderThreads = loader.createLoaderThreads();
+            try {
+                List<LoaderThread> loaderThreads = loader.createLoaderThreads();
                 int maxConcurrent = workConf.getLoaderThreads();
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Starting %d %s.LoaderThreads [maxConcurrent=%d]", loaderThreads.size(), loader.getClass().getSimpleName(), maxConcurrent));
-                }
-
-                ThreadUtil.runNewPool(loaderThreads, maxConcurrent);
-
+                ThreadUtil.runLoaderThreads(loaderThreads, maxConcurrent);
 
                 if (!loader.getTableCounts().isEmpty()) {
                     LOG.debug("Table Counts:\n{}", loader.getTableCounts());
                 }
-
+            } finally {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
+                }
             }
-        } catch (SQLException ex) {
-            String msg = String.format("Unexpected error when trying to load the %s database", getBenchmarkName());
-            throw new RuntimeException(msg, ex);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("Finished loading the %s database", this.getBenchmarkName().toUpperCase()));
-        }
+
         return loader;
     }
 
-    public final void clearDatabase() {
+    public final void clearDatabase() throws SQLException {
 
-        try (Connection conn = this.getConnection()) {
+        try (Connection conn = this.makeConnection()) {
             Loader<? extends BenchmarkModule> loader = this.makeLoaderImpl();
             if (loader != null) {
                 conn.setAutoCommit(false);
                 loader.unload(conn, this.catalog);
                 conn.commit();
             }
-        } catch (SQLException ex) {
-            throw new RuntimeException(String.format("Unexpected error when trying to delete the %s database", getBenchmarkName()), ex);
         }
     }
 
@@ -374,7 +323,7 @@ public abstract class BenchmarkModule {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public final TransactionType initTransactionType(String procName, int id) {
+    public final TransactionType initTransactionType(String procName, int id, long preExecutionWait, long postExecutionWait) {
         if (id == TransactionType.INVALID_ID) {
             throw new RuntimeException(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
         }
@@ -384,7 +333,7 @@ public abstract class BenchmarkModule {
         String fullName = pkg.getName() + "." + procName;
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
 
-        return new TransactionType(procClass, id, false);
+        return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {
@@ -404,7 +353,7 @@ public abstract class BenchmarkModule {
             for (Class<? extends Procedure> procClass : this.supplementalProcedures) {
                 TransactionType txn = txns.getType(procClass);
                 if (txn == null) {
-                    txn = new TransactionType(procClass, procClass.hashCode(), true);
+                    txn = new TransactionType(procClass, procClass.hashCode(), true, 0, 0);
                     txns.add(txn);
                 }
             }

@@ -19,107 +19,54 @@
 package com.oltpbenchmark.util;
 
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONStringer;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
-import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Pack multiple values into a single long using bit-shifting
  *
  * @author pavlo
  */
-public abstract class CompositeId implements JSONSerializable {
+public abstract class CompositeId {
 
-    private transient int hashCode = -1;
+    private static final String PAD_STRING = "0";
+    public static final int INT_MAX_DIGITS = 10;
+    public static final int LONG_MAX_DIGITS = 19;
 
-    protected static long[] compositeBitsPreCompute(int[] offset_bits) {
-        long[] pows = new long[offset_bits.length];
-        for (int i = 0; i < offset_bits.length; i++) {
-            pows[i] = (long) (Math.pow(2, offset_bits[i]) - 1L);
+    protected final String encode(int[] offset_bits) {
+        int encodedStringSize = IntStream.of(offset_bits).sum();
+        StringBuilder compositeBuilder = new StringBuilder(encodedStringSize);
+
+        String[] decodedValues = this.toArray();
+        for (int i = 0; i < decodedValues.length; i++) {
+            String value = decodedValues[i];
+            int valueLength = offset_bits[i];
+            String encodedValue = StringUtils.leftPad(value, valueLength, PAD_STRING);
+            compositeBuilder.append(encodedValue);
         }
-        return (pows);
+
+        return compositeBuilder.toString();
     }
 
-    protected final long encode(int[] offset_bits, long[] offset_pows) {
-        long[] values = this.toArray();
+    protected final String[] decode(String composite_id, int[] offset_bits) {
+        String[] decodedValues = new String[offset_bits.length];
 
-        long id = 0;
-        int offset = 0;
-        for (int i = 0; i < values.length; i++) {
-            long max_value = offset_pows[i];
-
-            if (values[i] < 0) {
-                throw new IllegalArgumentException(String.format("%s value at position %d is %d %s",
-                        this.getClass().getSimpleName(), i,
-                        values[i], Arrays.toString(values)));
-            }
-            if (values[i] >= max_value) {
-                throw new IllegalArgumentException(String.format("%s value at position %d is %d. Max value is %d\n",
-                        this.getClass().getSimpleName(), i,
-                        values[i], max_value));
-            }
-
-            id = (i == 0 ? values[i] : id | values[i] << offset);
-            offset += offset_bits[i];
+        int start = 0;
+        for (int i = 0; i < decodedValues.length; i++) {
+            int valueLength = offset_bits[i];
+            int end = start + valueLength;
+            decodedValues[i] = StringUtils.substring(composite_id, start, end);
+            start = end;
         }
-        this.hashCode = (int) (id ^ (id >>> 32)); // From Long.hashCode()
-        return (id);
+        return decodedValues;
     }
 
-    protected final long[] decode(long composite_id, int[] offset_bits, long[] offset_pows) {
-        long[] values = new long[offset_bits.length];
-        int offset = 0;
-        for (int i = 0; i < values.length; i++) {
-            values[i] = (composite_id >> offset & offset_pows[i]);
-            offset += offset_bits[i];
-        }
-        return (values);
-    }
+    public abstract String encode();
 
-    public abstract long encode();
+    public abstract void decode(String composite_id);
 
-    public abstract void decode(long composite_id);
+    public abstract String[] toArray();
 
-    public abstract long[] toArray();
 
-    @Override
-    public int hashCode() {
-        if (this.hashCode == -1) {
-            this.encode();
-
-        }
-        return (this.hashCode);
-    }
-
-    // -----------------------------------------------------------------
-    // SERIALIZATION
-    // -----------------------------------------------------------------
-
-    @Override
-    public void load(String input_path) throws IOException {
-        JSONUtil.load(this, input_path);
-    }
-
-    @Override
-    public void save(String output_path) throws IOException {
-        JSONUtil.save(this, output_path);
-    }
-
-    @Override
-    public String toJSONString() {
-        return (JSONUtil.toJSONString(this));
-    }
-
-    @Override
-    public void toJSON(JSONStringer stringer) throws JSONException {
-        stringer.key("ID").value(this.encode());
-    }
-
-    @Override
-    public void fromJSON(JSONObject json_object) throws JSONException {
-        this.decode(json_object.getLong("ID"));
-    }
 }

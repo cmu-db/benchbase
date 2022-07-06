@@ -7,7 +7,9 @@ import com.oltpbenchmark.util.Pair;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -38,7 +40,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         Connection conn;
         try {
             Class.forName(DB_JDBC);
-            conn = DriverManager.getConnection(DB_CONNECTION + dbName, null, null);
+            conn = DriverManager.getConnection(DB_CONNECTION + dbName + ";sql.syntax_mys=true", null, null);
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -47,7 +49,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         this.originalTableNames = this.getOriginalTableNames();
         try {
             this.init();
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(String.format("Failed to initialize %s database catalog.", this.benchmarkModule.getBenchmarkName()), e);
         }
     }
@@ -67,7 +69,7 @@ public class HSQLDBCatalog implements AbstractCatalog {
         return tables.get(originalTableNames.get(tableName.toUpperCase()));
     }
 
-    private void init() throws SQLException {
+    private void init() throws SQLException, IOException {
         // Load the database DDL.
         this.benchmarkModule.createDatabase(DB_TYPE, this.conn);
 
@@ -138,9 +140,12 @@ public class HSQLDBCatalog implements AbstractCatalog {
             // INDEXES
             try (ResultSet idxRS = md.getIndexInfo(null, null, internalTableName, false, false)) {
                 while (idxRS.next()) {
+                    int idxType = idxRS.getShort(7);
+                    if (idxType == DatabaseMetaData.tableIndexStatistic) {
+                        continue;
+                    }
                     boolean idxUnique = !idxRS.getBoolean(4);
                     String idxName = idxRS.getString(6);
-                    int idxType = idxRS.getShort(7);
                     int idxColPos = idxRS.getInt(8) - 1;
                     String idxColName = idxRS.getString(9);
                     String sort = idxRS.getString(10);
@@ -201,15 +206,23 @@ public class HSQLDBCatalog implements AbstractCatalog {
      *
      * @return A map from the original table names to the uppercase HSQLDB table names.
      */
-    private Map<String, String> getOriginalTableNames() {
+    Map<String, String> getOriginalTableNames() {
         // Get the contents of the HSQLDB DDL for the current benchmark.
-        String ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;
         try {
-            ddlContents = IOUtils.toString(Objects.requireNonNull(this.getClass().getClassLoader().getResource(ddlPath)), Charset.defaultCharset());
+            String ddlPath = this.benchmarkModule.getWorkloadConfiguration().getDDLPath();
+            URL ddlURL;
+            if (ddlPath == null) {
+                ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
+                ddlURL = Objects.requireNonNull(this.getClass().getResource(ddlPath));
+            } else {
+                ddlURL = Path.of(ddlPath).toUri().toURL();
+            }
+            ddlContents = IOUtils.toString(ddlURL, Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         // Extract and map the original table names to their uppercase versions.
         Map<String, String> originalTableNames = new HashMap<>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);

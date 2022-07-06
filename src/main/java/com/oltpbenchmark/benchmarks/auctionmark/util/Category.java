@@ -18,6 +18,8 @@
 
 package com.oltpbenchmark.benchmarks.auctionmark.util;
 
+import java.util.Objects;
+
 public class Category {
     private final int categoryID;
     private final Integer parentCategoryID;
@@ -51,5 +53,22 @@ public class Category {
 
     public boolean isLeaf() {
         return this.isLeaf;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Category category = (Category) o;
+        return categoryID == category.categoryID && itemCount == category.itemCount && isLeaf == category.isLeaf && Objects.equals(parentCategoryID, category.parentCategoryID) && Objects.equals(name, category.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(categoryID, parentCategoryID, itemCount, name, isLeaf);
     }
 }

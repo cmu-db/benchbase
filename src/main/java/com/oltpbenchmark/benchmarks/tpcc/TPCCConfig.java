@@ -22,11 +22,6 @@ import java.text.SimpleDateFormat;
 
 public final class TPCCConfig {
 
-    public enum TransactionType {
-        INVALID, // Exists so the order is the same as the constants below
-        NEW_ORDER, PAYMENT, ORDER_STATUS, DELIVERY, STOCK_LEVEL
-    }
-
     public final static String[] nameTokens = {"BAR", "OUGHT", "ABLE", "PRI",
             "PRES", "ESE", "ANTI", "CALLY", "ATION", "EING"};
 

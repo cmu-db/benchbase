@@ -123,7 +123,7 @@ public class SmallBankWorker extends Worker<SmallBankBenchmark> {
             // SendPayment
         } else if (procClass.equals(SendPayment.class)) {
             this.generateCustIds(true);
-            this.procSendPayment.run(conn, this.custIdsBuffer[0], this.custIdsBuffer[0], SmallBankConstants.PARAM_SEND_PAYMENT_AMOUNT);
+            this.procSendPayment.run(conn, this.custIdsBuffer[0], this.custIdsBuffer[1], SmallBankConstants.PARAM_SEND_PAYMENT_AMOUNT);
 
             // TransactSavings
         } else if (procClass.equals(TransactSavings.class)) {

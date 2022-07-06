@@ -470,7 +470,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         LOG.debug(String.format("Loading table '%s' from fixed file", table_name));
         try {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
-
             try (FixedDataIterable iterable = this.getFixedIterable(catalog_tbl)) {
                 this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
             }
@@ -490,7 +489,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
     protected void loadScalingTable(Connection conn, String table_name) {
         try {
             Table catalog_tbl = this.benchmark.getCatalog().getTable(table_name);
-
             Iterable<Object[]> iterable = this.getScalingIterable(catalog_tbl);
             this.loadTable(conn, catalog_tbl, iterable, workConf.getBatchSize());
         } catch (Throwable ex) {
@@ -548,8 +546,6 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
             int[] sqlTypes = catalog_tbl.getColumnTypes();
 
             for (Object[] tuple : iterable) {
-
-
                 // AIRPORT
                 if (is_airport) {
                     // Skip any airport that does not have flights
@@ -569,7 +565,14 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                     // Store Locations
                     int col_lat_idx = catalog_tbl.getColumnByName("AP_LATITUDE").getIndex();
                     int col_lon_idx = catalog_tbl.getColumnByName("AP_LONGITUDE").getIndex();
-                    Pair<Double, Double> coords = Pair.of((Double) tuple[col_lat_idx], (Double) tuple[col_lon_idx]);
+
+                    // HACK: We need to cast floats to doubles for SQLite
+                    Pair<Double, Double> coords;
+                    if (tuple[col_lat_idx] instanceof Float) {
+                        coords = Pair.of(Double.valueOf(tuple[col_lat_idx].toString()), Double.valueOf(tuple[col_lon_idx].toString()));
+                    } else {
+                        coords = Pair.of((Double) tuple[col_lat_idx], (Double) tuple[col_lon_idx]);
+                    }
                     if (coords.first == null || coords.second == null) {
                         LOG.error(Arrays.toString(tuple));
                     }
@@ -622,7 +625,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 row_idx++;
 
                 if (++row_batch >= batch_size) {
-                    LOG.debug(String.format("Loading %s batch [total=%d]", catalog_tbl.getName().toLowerCase(), row_idx));
+                    LOG.trace(String.format("Loading %s batch [total=%d]", catalog_tbl.getName().toLowerCase(), row_idx));
                     insert_stmt.executeBatch();
                     insert_stmt.clearBatch();
                     row_batch = 0;
@@ -832,27 +835,32 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
                 @Override
                 public Object[] next() {
+                    // For every column for this table, generate the random data that
+                    // we need to populate for the new tuple that we will return with next()
                     for (int i = 0; i < ScalingDataIterable.this.data.length; i++) {
                         Column catalog_col = ScalingDataIterable.this.catalog_tbl.getColumn(i);
-
 
                         // Special Value Column
                         if (ScalingDataIterable.this.special[i]) {
                             ScalingDataIterable.this.data[i] = ScalingDataIterable.this.specialValue(ScalingDataIterable.this.last_id, i);
 
-                            // Id column (always first unless overridden in
-                            // special)
+                        // Id column (always first unless overridden in
+                        // special)
                         } else if (i == 0) {
                             ScalingDataIterable.this.data[i] = ScalingDataIterable.this.last_id;
 
-                            // Strings
+                        // Strings
                         } else if (SQLUtil.isStringType(ScalingDataIterable.this.types[i])) {
-                            int size = catalog_col.getSize();
-                            ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.astring(SEATSLoader.this.rng.nextInt(size - 1), size);
+                            // WARN: If you ever have problems with running out of memory because of this block
+                            // of code here, check that the length of the column from the catalog matches the DDL.
+                            // SQLite incorrectly reports that the size of the column was massive for the customer
+                            // table, so then we would allocate 2GB strings.
+                            int max_len = catalog_col.getSize();
+                            int min_len = SEATSLoader.this.rng.nextInt(max_len - 1);
+                            ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.astring(min_len, max_len);
 
-                            // Ints/Longs
+                        // Ints/Longs
                         } else {
-
                             ScalingDataIterable.this.data[i] = SEATSLoader.this.rng.number(0, 1 << 30);
                         }
                     }
@@ -919,7 +927,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 // CUSTOMER ID STR
                 case (1): {
 
-                    value = Long.toString(this.last_id.encode());
+                    value = this.last_id.encode();
                     this.last_id = null;
                     break;
                 }
@@ -945,7 +953,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         protected void callbackFinished() {
             if (LOG.isTraceEnabled()) {
                 Histogram<String> h = this.rand.getHistogramHistory();
-                LOG.trace(String.format("Customer Local Airports Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h.toString()));
+                LOG.trace(String.format("Customer Local Airports Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h));
             }
         }
     }
@@ -1009,7 +1017,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
 
         @Override
         protected Object specialValue(long id, int columnIdx) {
-            Object value = null;
+            String value = null;
             switch (columnIdx) {
                 // CUSTOMER ID
                 case (0): {
@@ -1033,7 +1041,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                         value = this.airline_rand.nextValue();
                     }
                     while (this.customer_airlines.contains(value));
-                    this.customer_airlines.add((String) value);
+                    this.customer_airlines.add(value);
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("{} => {}", this.last_customer_id, value);
                     }
@@ -1041,7 +1049,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 }
                 // CUSTOMER_ID_STR
                 case (2): {
-                    value = Long.toString(this.last_customer_id.encode());
+                    value = this.last_customer_id.encode();
                     break;
                 }
                 // BAD MOJO!
@@ -1055,7 +1063,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         protected void callbackFinished() {
             if (LOG.isTraceEnabled()) {
                 Histogram<String> h = this.airline_rand.getHistogramHistory();
-                LOG.trace(String.format("Airline Flights Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h.toString()));
+                LOG.trace(String.format("Airline Flights Histogram [valueCount=%d, sampleCount=%d]\n%s", h.getValueCount(), h.getSampleCount(), h));
             }
         }
     }
@@ -1508,7 +1516,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
                 String depart_airport_code = SEATSLoader.this.profile.getAirportCode(depart_airport_id);
                 long arrive_airport_id = flight_id.getArriveAirportId();
                 String arrive_airport_code = SEATSLoader.this.profile.getAirportCode(arrive_airport_id);
-                Timestamp depart_time = flight_id.getDepartDate(SEATSLoader.this.profile.getFlightStartDate());
+                Timestamp depart_time = flight_id.getDepartDateAsTimestamp(SEATSLoader.this.profile.getFlightStartDate());
                 Timestamp arrive_time = SEATSLoader.this.calculateArrivalTime(depart_airport_code, arrive_airport_code, depart_time);
                 flight_customer_ids.clear();
 
@@ -1603,7 +1611,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
          * @return
          */
         private void getReturningCustomers(Collection<ReturnFlight> returning_customers, FlightId flight_id) {
-            Timestamp flight_date = flight_id.getDepartDate(SEATSLoader.this.profile.getFlightStartDate());
+            Timestamp flight_date = flight_id.getDepartDateAsTimestamp(SEATSLoader.this.profile.getFlightStartDate());
             returning_customers.clear();
             Set<ReturnFlight> returns = this.airport_returns.get(flight_id.getDepartAirportId());
             if (!returns.isEmpty()) {
@@ -1725,7 +1733,7 @@ public class SEATSLoader extends Loader<SEATSBenchmark> {
         this.seats_remaining.put(flight_id, (short) SEATSConstants.FLIGHTS_NUM_SEATS);
 
         // XXX
-        if (this.profile.flight_upcoming_offset == null && this.profile.flight_upcoming_date.compareTo(flight_id.getDepartDate(this.profile.flight_start_date)) < 0) {
+        if (this.profile.flight_upcoming_offset == null && this.profile.flight_upcoming_date.compareTo(flight_id.getDepartDateAsTimestamp(this.profile.flight_start_date)) < 0) {
             this.profile.flight_upcoming_offset = (long) (this.seats_remaining.size() - 1);
         }
         return (true);

@@ -117,9 +117,9 @@ CREATE TABLE oorder (
     o_ol_cnt     int       NOT NULL,
     o_all_local  int       NOT NULL,
     o_entry_d    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (o_w_id, o_d_id, o_id DESC),
     FOREIGN KEY (o_w_id, o_d_id, o_c_id) REFERENCES customer (c_w_id, c_d_id, c_id) ON DELETE CASCADE,
-    UNIQUE INDEX order_idx (o_w_id, o_d_id, o_c_id, o_id DESC) STORING (o_entry_d, o_carrier_id)
+    UNIQUE INDEX order_idx (o_w_id, o_d_id, o_c_id, o_id DESC) STORING (o_entry_d, o_carrier_id),
+    PRIMARY KEY (o_w_id, o_d_id, o_id DESC)
 );
 
 CREATE TABLE new_order (
@@ -147,7 +147,3 @@ CREATE TABLE order_line (
 );
 
 CREATE INDEX idx_customer_name ON customer (c_w_id, c_d_id, c_last, c_first);
-CREATE INDEX idx_customer ON history (h_c_w_id, h_c_d_id, h_c_id);
-CREATE INDEX idx_district ON history (h_w_id, h_d_id);
-CREATE INDEX idx_stock ON order_line (ol_supply_w_id, ol_i_id);
-CREATE INDEX idx_item ON stock (s_i_id);

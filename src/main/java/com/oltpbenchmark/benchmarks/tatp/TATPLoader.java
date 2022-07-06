@@ -293,12 +293,13 @@ public class TATPLoader extends Loader<TATPBenchmark> {
                 }
                 int[] results = spe_pstmt.executeBatch();
 
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
+                if (cal_added) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(String.format("%s: %d", TATPConstants.TABLENAME_CALL_FORWARDING, cal_total));
+                    }
+                    results = cal_pstmt.executeBatch();
+                    cal_added = false;
                 }
-                results = cal_pstmt.executeBatch();
-
 
             }
         }

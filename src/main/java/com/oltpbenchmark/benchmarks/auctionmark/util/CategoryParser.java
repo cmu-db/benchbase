@@ -43,9 +43,9 @@ public class CategoryParser {
         _nextCategoryID = 0;
 
 
-        final String path = "benchmarks" + File.separator + "auctionmark" + File.separator + "table.category";
+        final String path = "/benchmarks/auctionmark/table.category";
 
-        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(path)) {
+        try (InputStream resourceAsStream = this.getClass().getResourceAsStream(path)) {
 
             List<String> lines = IOUtils.readLines(resourceAsStream, Charset.defaultCharset());
             for (String line : lines) {
@@ -89,7 +89,7 @@ public class CategoryParser {
         if (categoryName.indexOf('/') != -1) {
             int separatorIndex = fullCategoryName.lastIndexOf('/');
             parentCategoryName = fullCategoryName.substring(0, separatorIndex);
-            categoryName = fullCategoryName.substring(separatorIndex + 1, fullCategoryName.length());
+            categoryName = fullCategoryName.substring(separatorIndex + 1);
         }
 		/*
 		System.out.println("parentCat name = " + parentCategoryName);

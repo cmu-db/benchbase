@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="phoenix">
+        <procedure name="NewOrder">
+            <statement name="stmtGetDistSQL">
+                SELECT D_NEXT_O_ID, D_TAX
+                FROM DISTRICT
+                WHERE D_W_ID = ? AND D_ID = ?
+            </statement>
+            <statement name="stmtGetStockSQL">
+                SELECT
+                S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05,
+                S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10
+                FROM STOCK
+                WHERE
+                S_I_ID = ?
+                AND S_W_ID = ?
+            </statement>
+            <statement name="stmtInsertOOrderSQL">
+                UPSERT INTO OORDER (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL) VALUES (?, ?, ?, ?, ?, ?, ?)")
+            </statement>
+            <statement name="stmtInsertNewOrderSQL">
+                UPSERT INTO NEW_ORDER(NO_O_ID, NO_D_ID, NO_W_ID) VALUES ( ?, ?, ?)
+            </statement>
+            <statement name="stmtUpdateDistSQL">
+                UPSERT INTO DISTRICT(D_NEXT_O_ID,D_W_ID,D_ID) SELECT D_NEXT_O_ID + 1,D_W_ID,D_ID FROM DISTRICT WHERE D_W_ID = ?  AND D_ID = ?
+            </statement>
+            <statement name="stmtInsertOOrderSQL">
+                UPSERT INTO OORDER(O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL) VALUES (?, ?, ?, ?, ?, ?, ?)
+            </statement>
+            <statement name="stmtUpdateStockSQL">
+                UPSERT INTO STOCK(S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_I_ID,S_W_ID) SELECT ?,S_YTD + ?,S_ORDER_CNT + 1,S_REMOTE_CNT + ?,S_I_ID,S_W_ID FROM STOCK WHERE S_I_ID = ? AND S_W_ID = ?
+            </statement>
+            <statement name="stmtInsertOrderLineSQL">
+                UPSERT INTO ORDER_LINE(OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO) VALUES (?,?,?,?,?,?,?,?,?)
+            </statement>
+        </procedure>
+        <procedure name="Delivery">
+            <statement name="delivUpdateCarrierIdSQL">
+                UPSERT INTO OORDER(O_CARRIER_ID,O_ID,O_D_ID,O_W_ID) SELECT ?,O_ID,O_D_ID,O_W_ID FROM OORDER WHERE O_ID = ? AND O_D_ID = ? AND O_W_ID = ?
+            </statement>
+            <statement name="delivUpdateDeliveryDateSQL">
+                UPSERT INTO ORDER_LINE(OL_DELIVERY_D,OL_O_ID,OL_D_ID,OL_W_ID,OL_NUMBER) SELECT ?,OL_O_ID,OL_D_ID,OL_W_ID,OL_NUMBER FROM ORDER_LINE WHERE OL_O_ID = ? AND OL_D_ID = ? AND OL_W_ID = ?
+            </statement>
+            <statement name="delivUpdateCustBalDelivCntSQL">
+                UPSERT INTO CUSTOMER(C_BALANCE,C_DELIVERY_CNT,C_W_ID,C_D_ID,C_ID) SELECT C_BALANCE + ?, C_DELIVERY_CNT + 1, C_W_ID,C_D_ID,C_ID FROM CUSTOMER WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?
+            </statement>
+        </procedure>
+        <procedure name="Payment">
+            <statement name="payUpdateWhseSQL">
+                UPSERT INTO WAREHOUSE(W_YTD,W_ID) SELECT W_YTD + ?,W_ID FROM WAREHOUSE WHERE W_ID=?
+            </statement>
+            <statement name="payUpdateDistSQL">
+                UPSERT INTO DISTRICT(D_YTD,D_W_ID,D_ID) SELECT D_YTD + ?,D_W_ID,D_ID FROM DISTRICT WHERE D_W_ID = ? AND D_ID = ?
+            </statement>
+            <statement name="payUpdateCustBalCdataSQL">
+                UPSERT INTO CUSTOMER(C_BALANCE,C_YTD_PAYMENT,C_PAYMENT_CNT,C_DATA,C_W_ID,C_D_ID,C_ID) SELECT ?,?,?,?,C_W_ID,C_D_ID,C_ID FROM CUSTOMER WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?
+            </statement>
+            <statement name="payUpdateCustBalSQL">
+                UPSERT INTO CUSTOMER(C_BALANCE,C_YTD_PAYMENT,C_PAYMENT_CNT,C_W_ID,C_D_ID,C_ID) SELECT ?,?,?,C_W_ID,C_D_ID,C_ID FROM CUSTOMER WHERE C_W_ID = ? AND C_D_ID = ? AND C_ID = ?
+            </statement>
+            <statement name="payInsertHistSQL">
+                UPSERT INTO HISTORY(H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) VALUES (?,?,?,?,?,?,?,?)
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

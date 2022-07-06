@@ -283,6 +283,26 @@ public abstract class SQLUtil {
     }
 
     /**
+     * Returns true if the given sqlType identifier is an Integer data type
+     *
+     * @param sqlType
+     * @return
+     * @see java.sql.Types
+     */
+    public static boolean isIntegerType(int sqlType) {
+        switch (sqlType) {
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT: {
+                return (true);
+            }
+            default:
+                return (false);
+        }
+    }
+
+    /**
      * Return the COUNT(*) SQL to calculate the number of records
      *
      * @param dbType
@@ -335,7 +355,12 @@ public abstract class SQLUtil {
         boolean escape_names = db_type.shouldEscapeNames();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO ")
+        if(db_type.equals(DatabaseType.PHOENIX)) {
+            sb.append("UPSERT");
+        } else {
+            sb.append("INSERT");
+        }
+        sb.append(" INTO ")
                 .append(escape_names ? catalog_tbl.getEscapedName() : catalog_tbl.getName());
 
         StringBuilder values = new StringBuilder();
@@ -400,6 +425,7 @@ public abstract class SQLUtil {
     public static AbstractCatalog getCatalog(BenchmarkModule benchmarkModule, DatabaseType databaseType, Connection connection) throws SQLException {
         switch (databaseType) {
             case NOISEPAGE: // fall-through
+            case SQLITE:
             case HSQLDB:
                 return getCatalogHSQLDB(benchmarkModule);
             default:
@@ -413,9 +439,8 @@ public abstract class SQLUtil {
      * This supports databases that may not support all of the SQL standard just yet.
      *
      * @return
-     * @throws SQLException
      */
-    private static AbstractCatalog getCatalogHSQLDB(BenchmarkModule benchmarkModule) throws SQLException {
+    private static AbstractCatalog getCatalogHSQLDB(BenchmarkModule benchmarkModule) {
         return new HSQLDBCatalog(benchmarkModule);
     }
 
@@ -471,9 +496,12 @@ public abstract class SQLUtil {
 
                 try (ResultSet idx_rs = md.getIndexInfo(catalog, schema, table_name, false, false)) {
                     while (idx_rs.next()) {
+                        int idx_type = idx_rs.getShort("TYPE");
+                        if (idx_type == DatabaseMetaData.tableIndexStatistic) {
+                            continue;
+                        }
                         boolean idx_unique = (!idx_rs.getBoolean("NON_UNIQUE"));
                         String idx_name = idx_rs.getString("INDEX_NAME");
-                        int idx_type = idx_rs.getShort("TYPE");
                         int idx_col_pos = idx_rs.getInt("ORDINAL_POSITION") - 1;
                         String idx_col_name = idx_rs.getString("COLUMN_NAME");
                         String sort = idx_rs.getString("ASC_OR_DESC");
@@ -516,5 +544,20 @@ public abstract class SQLUtil {
         }
 
         return new Catalog(tables);
+    }
+
+    public static boolean isDuplicateKeyException(Exception ex) {
+        // MYSQL
+        if (ex instanceof SQLIntegrityConstraintViolationException) {
+            return (true);
+        } else if (ex instanceof SQLException) {
+            SQLException sqlEx = (SQLException) ex;
+
+            // POSTGRES
+            if (sqlEx.getSQLState().contains("23505")) {
+                return (true);
+            }
+        }
+        return (false);
     }
 }

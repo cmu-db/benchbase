@@ -53,7 +53,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
 
         String userCount = SQLUtil.getCountSQL(this.workConf.getDatabaseType(), t);
         int init_record_count = 0;
-        try (Connection metaConn = this.getConnection()) {
+        try (Connection metaConn = this.makeConnection()) {
 
             try (Statement stmt = metaConn.createStatement()) {
                 try (ResultSet res = stmt.executeQuery(userCount)) {
@@ -65,7 +65,7 @@ public class HYADAPTBenchmark extends BenchmarkModule {
             }
             //
             for (int i = 0; i < workConf.getTerminals(); ++i) {
-//                Connection conn = this.getConnection();
+//                Connection conn = this.makeConnection();
 //                conn.setAutoCommit(false);
                 workers.add(new HYADAPTWorker(this, i, init_record_count + 1));
             }

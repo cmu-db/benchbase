@@ -18,8 +18,6 @@
 
 package com.oltpbenchmark.benchmarks.seats.util;
 
-import java.util.regex.Pattern;
-
 /**
  * Internal Error Codes
  *
@@ -35,7 +33,6 @@ public enum ErrorType {
     UNKNOWN;
 
     private final String errorCode;
-    private final static Pattern p = Pattern.compile("^(USER ABORT:[\\s]+)?E([\\d]{4})");
 
     ErrorType() {
         this.errorCode = String.format("E%04d", this.ordinal());
