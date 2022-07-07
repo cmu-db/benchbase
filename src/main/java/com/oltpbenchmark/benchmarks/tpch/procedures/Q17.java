@@ -49,7 +49,7 @@ public class Q17 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         String brand = TPCHUtil.randomBrand(rand);
 
         // CONTAINER is randomly selected within the list of 2-syllable strings defined for Containers in Clause

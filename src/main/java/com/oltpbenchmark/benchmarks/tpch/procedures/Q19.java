@@ -70,7 +70,7 @@ public class Q19 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // QUANTITY1 is randomly selected within [1..10]
         int quantity1 = rand.number(1, 10);
 

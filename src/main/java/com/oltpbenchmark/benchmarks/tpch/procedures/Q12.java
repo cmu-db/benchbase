@@ -70,7 +70,7 @@ public class Q12 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // SHIPMODE1 is randomly selected within the list of values defined for Modes in Clause 4.2.2.13
         String shipMode1 = TPCHUtil.choice(TPCHConstants.MODES, rand);
 

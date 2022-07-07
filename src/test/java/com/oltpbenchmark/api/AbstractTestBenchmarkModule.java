@@ -170,7 +170,7 @@ public abstract class AbstractTestBenchmarkModule<T extends BenchmarkModule> ext
                         Procedure testProc = ClassUtil.newInstance(proc.getClass().getName(),
                                 new Object[0], new Class<?>[0]);
                         assertNotNull(testProc);
-                        testProc.initialize(this.workConf);
+                        testProc.initialize(dbType);
                         testProc.loadSQLDialect(dialects);
 
                         Collection<String> dialectStatementNames = dialects.getStatementNames(

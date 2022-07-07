@@ -66,7 +66,7 @@ public class Q16 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         String brand = TPCHUtil.randomBrand(rand);
 
         // TYPE is made of the first 2 syllables of a string randomly selected within the

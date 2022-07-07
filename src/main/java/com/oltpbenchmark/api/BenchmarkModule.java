@@ -360,7 +360,7 @@ public abstract class BenchmarkModule {
 
             for (TransactionType txn : txns) {
                 Procedure proc = ClassUtil.newInstance(txn.getProcedureClass(), new Object[0], new Class<?>[0]);
-                proc.initialize(this.workConf);
+                proc.initialize(this.workConf.getDatabaseType());
                 proc_xref.put(txn, proc);
                 proc.loadSQLDialect(this.dialects);
             }
