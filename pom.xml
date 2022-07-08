@@ -133,7 +133,7 @@
                 <dependency>
                     <groupId>com.microsoft.sqlserver</groupId>
                     <artifactId>mssql-jdbc</artifactId>
-                    <version>10.2.0.jre17</version>
+                    <version>11.1.2.jre17-preview</version>
                 </dependency>
             </dependencies>
         </profile>
