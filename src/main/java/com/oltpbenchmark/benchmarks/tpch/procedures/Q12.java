@@ -29,37 +29,48 @@ import java.sql.SQLException;
 
 public class Q12 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""            
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
-               ps_partkey,
-               SUM(ps_supplycost * ps_availqty) AS VALUE
+                l_shipmode,
+                SUM(
+                    CASE
+                        WHEN
+                            o_orderpriority = '1-URGENT' OR o_orderpriority = '2-HIGH'
+                        THEN
+                            1
+                        ELSE
+                            0
+                    END
+                ) AS high_line_count,
+                SUM(
+                    CASE
+                        WHEN
+                            o_orderpriority <> '1-URGENT' AND o_orderpriority <> '2-HIGH'
+                        THEN
+                            1
+                        ELSE
+                            0
+                    END
+                ) AS low_line_count
             FROM
-               partsupp,
-               supplier,
-               nation
+                orders,
+                lineitem
             WHERE
-               ps_suppkey = s_suppkey
-               AND s_nationkey = n_nationkey
-               AND n_name = 'ETHIOPIA'
+                o_orderkey = l_orderkey
+                AND l_shipmode IN (?, ?)
+                AND l_commitdate < l_receiptdate
+                AND l_shipdate < l_commitdate
+                AND l_receiptdate >= DATE ?
+                AND l_receiptdate < DATE ? + INTERVAL '1' YEAR
             GROUP BY
-               ps_partkey
-            HAVING
-               SUM(ps_supplycost * ps_availqty) > (
-               SELECT
-                  SUM(ps_supplycost * ps_availqty) * ?
-               FROM
-                  partsupp, supplier, nation
-               WHERE
-                  ps_suppkey = s_suppkey
-                  AND s_nationkey = n_nationkey
-                  AND n_name = ? )
-               ORDER BY
-                  VALUE DESC
+                l_shipmode
+            ORDER BY
+                l_shipmode
             """
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // SHIPMODE1 is randomly selected within the list of values defined for Modes in Clause 4.2.2.13
         String shipMode1 = TPCHUtil.choice(TPCHConstants.MODES, rand);
 

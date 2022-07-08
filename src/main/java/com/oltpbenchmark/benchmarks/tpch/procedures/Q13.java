@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 public class Q13 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""                        
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                c_count,
                COUNT(*) AS custdist
@@ -55,7 +55,7 @@ public class Q13 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // WORD1 is randomly selected from 4 possible values: special, pending, unusual, express
         String word1 = TPCHUtil.choice(new String[]{"special", "pending", "unusual", "express"}, rand);
 
