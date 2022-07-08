@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class Q22 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""    
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                cntrycode,
                COUNT(*) AS numcust,
@@ -42,7 +42,7 @@ public class Q22 extends GenericQuery {
                      customer
                   WHERE
                      SUBSTRING(c_phone FROM 1 FOR 2) IN (?, ?, ?, ?, ?, ?, ?)
-                     AND c_acctbal > 
+                     AND c_acctbal >
                      (
                          SELECT
                             AVG(c_acctbal)
@@ -71,7 +71,7 @@ public class Q22 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // I1 - I7 are randomly selected without repetition from the possible values
 
 

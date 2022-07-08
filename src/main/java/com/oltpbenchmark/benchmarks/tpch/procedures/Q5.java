@@ -58,7 +58,7 @@ public class Q5 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         String region = TPCHUtil.choice(TPCHConstants.R_NAME, rand);
 
         int year = rand.number(1993, 1997);
