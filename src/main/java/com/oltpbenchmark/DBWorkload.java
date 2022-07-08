@@ -147,6 +147,7 @@ public class DBWorkload {
             wrkld.setIsolationMode(xmlConfig.getString("isolation" + pluginTest, isolationMode));
             wrkld.setScaleFactor(xmlConfig.getDouble("scalefactor", 1.0));
             wrkld.setDataDir(xmlConfig.getString("datadir", "."));
+            wrkld.setDDLPath(xmlConfig.getString("ddlpath", null));
 
             double selectivity = -1;
             try {

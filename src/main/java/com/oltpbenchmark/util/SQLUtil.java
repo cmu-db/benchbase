@@ -425,6 +425,7 @@ public abstract class SQLUtil {
     public static AbstractCatalog getCatalog(BenchmarkModule benchmarkModule, DatabaseType databaseType, Connection connection) throws SQLException {
         switch (databaseType) {
             case NOISEPAGE: // fall-through
+            case SQLITE:
             case HSQLDB:
                 return getCatalogHSQLDB(benchmarkModule);
             default:

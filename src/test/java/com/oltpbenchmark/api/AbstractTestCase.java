@@ -60,6 +60,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
 
     protected final boolean createDatabase;
     protected final boolean loadDatabase;
+    protected final String ddlOverridePath;
 
     private static final AtomicInteger portCounter = new AtomicInteger(9001);
 
@@ -67,6 +68,13 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
     public AbstractTestCase(boolean createDatabase, boolean loadDatabase) {
         this.createDatabase = createDatabase;
         this.loadDatabase = loadDatabase;
+        this.ddlOverridePath = null;
+    }
+
+    public AbstractTestCase(boolean createDatabase, boolean loadDatabase, String ddlOverridePath) {
+        this.createDatabase = createDatabase;
+        this.loadDatabase = loadDatabase;
+        this.ddlOverridePath = ddlOverridePath;
     }
 
     public abstract List<Class<? extends Procedure>> procedures();
@@ -112,6 +120,7 @@ public abstract class AbstractTestCase<T extends BenchmarkModule> extends TestCa
         this.workConf.setTerminals(1);
         this.workConf.setBatchSize(128);
         this.workConf.setBenchmarkName(BenchmarkModule.convertBenchmarkClassToBenchmarkName(benchmarkClass()));
+        this.workConf.setDDLPath(this.ddlOverridePath);
 
         customWorkloadConfiguration(this.workConf);
 

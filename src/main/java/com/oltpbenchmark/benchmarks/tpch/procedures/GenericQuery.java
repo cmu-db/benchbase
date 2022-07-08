@@ -31,11 +31,11 @@ public abstract class GenericQuery extends Procedure {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GenericQuery.class);
 
-    protected abstract PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException;
+    protected abstract PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException;
 
-    public void run(Connection conn, RandomGenerator rand) throws SQLException {
+    public void run(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
 
-        try (PreparedStatement stmt = getStatement(conn, rand); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = getStatement(conn, rand, scaleFactor); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 //do nothing
             }

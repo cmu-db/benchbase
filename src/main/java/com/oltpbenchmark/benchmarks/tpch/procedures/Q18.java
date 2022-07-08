@@ -65,7 +65,7 @@ public class Q18 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // QUANTITY is randomly selected within [312..315]
         int quantity = rand.number(312, 315);
 

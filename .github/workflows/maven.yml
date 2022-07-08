@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver' ]
+        profile: [ 'cockroachdb', 'mariadb', 'mysql', 'postgres', 'spanner', 'phoenix', 'sqlserver', 'sqlite' ]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
@@ -63,12 +63,49 @@ jobs:
         name: benchbase-${{matrix.profile}}
         path: target/benchbase-${{matrix.profile}}.tgz
 
+  ## ----------------------------------------------------------------------------------
+  ## SQLITE
+  ## ----------------------------------------------------------------------------------
+  sqlite:
+    needs: package-and-upload
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # BROKEN: tpch
+        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: benchbase-sqlite
+
+      - name: Extract artifact
+        run: |
+          tar xvzf benchbase-sqlite.tgz --strip-components=1
+
+      - name: Delete artifact
+        run: |
+          rm -rf benchbase-sqlite.tgz
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+          distribution: 'temurin'
+
+      - name: Run benchmark
+        run: |
+          java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+
+  ## ----------------------------------------------------------------------------------
+  ## MARIADB
+  ## ----------------------------------------------------------------------------------
   mariadb:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
         image: mariadb:latest
@@ -111,12 +148,15 @@ jobs:
           mysql -h127.0.0.1 -P$MARIADB_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mariadb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
+  ## ----------------------------------------------------------------------------------
+  ## MYSQL
+  ## ----------------------------------------------------------------------------------
   mysql:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
@@ -159,13 +199,15 @@ jobs:
           mysql -h127.0.0.1 -P$MYSQL_PORT -uadmin -ppassword -e "DROP DATABASE IF EXISTS benchbase; CREATE DATABASE benchbase"
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/mysql/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
-
+  ## ----------------------------------------------------------------------------------
+  ## POSTGRESQL
+  ## ----------------------------------------------------------------------------------
   postgresql:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
@@ -206,12 +248,15 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin benchbase
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/postgres/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
+  ## ----------------------------------------------------------------------------------
+  ## COCKROACHDB
+  ## ----------------------------------------------------------------------------------
   cockroachdb:
     needs: package-and-upload
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
         image: timveil/cockroachdb-single-node:latest
@@ -244,6 +289,9 @@ jobs:
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/cockroachdb/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
+  ## ----------------------------------------------------------------------------------
+  ## MSSQL
+  ## ----------------------------------------------------------------------------------
   sqlserver:
     needs: package-and-upload
     runs-on: ubuntu-latest
@@ -306,3 +354,52 @@ jobs:
         # Note: user/pass should match those used in sample configs.
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
+
+  ## ----------------------------------------------------------------------------------
+  ## Docker Build Test
+  ## ----------------------------------------------------------------------------------
+  docker-build-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres: # https://hub.docker.com/_/postgres
+        image: postgres:latest
+        env:
+          POSTGRES_DB: benchbase
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Setup postgres test DB
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin benchbase
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build docker image with all packages and run test suite
+        env:
+          DOCKER_BUILDKIT: 1
+          BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver'
+        run: |
+          docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test \
+            --build-arg CONTAINERUSER_UID=$UID --build-arg CONTAINERUSER_GID=$UID \
+            -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
+      - name: Run basic benchbase test from the docker image against postgres test DB
+        env:
+            benchmark: noop
+        run: |
+          # Adjust the sample config to talk to the container service instead of localhost.
+          cat "config/postgres/sample_${benchmark}_config.xml" | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
+          # Lookup the service container's docker network so we can place the benchbase container in it too.
+          docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
+          # Map the adjusted config into the container and use it to run the test.
+          mkdir -p results
+          docker run --rm --name benchbase-postgres --network "$docker_network" \
+            --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
+            benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
+          ls results/${benchmark}_*.csv

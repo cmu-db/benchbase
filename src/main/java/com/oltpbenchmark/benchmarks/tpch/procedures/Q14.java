@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 public class Q14 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""        
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                100.00 * SUM(
                CASE
@@ -49,7 +49,7 @@ public class Q14 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // DATE is the first day of a month randomly selected from a random year within [1993 .. 1997]
         int year = rand.number(1993, 1997);
         int month = rand.number(1, 12);
