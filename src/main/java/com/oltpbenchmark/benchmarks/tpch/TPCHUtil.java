@@ -99,4 +99,19 @@ public class TPCHUtil {
         }
     }
 
+    /**
+     * Generates a random brand string of the form 'Brand#MN' where M and N are
+     * two single character strings representing two numbers randomly and
+     * independently selected within [1 .. 5]
+     *
+     * @param rand Random generator to use
+     * @return A random brand conforming to the TPCH specification
+     */
+    public static String randomBrand(RandomGenerator rand) {
+        int M = rand.number(1, 5);
+        int N = rand.number(1, 5);
+
+        return String.format("Brand#%d%d", M, N);
+    }
+
 }
