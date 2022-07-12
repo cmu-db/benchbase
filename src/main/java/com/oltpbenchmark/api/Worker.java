@@ -446,7 +446,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     }
 
                 } finally {
-                    if (this.configuration.getNewConnectionPerTxn()) {
+                    if (this.configuration.getNewConnectionPerTxn() && this.conn != null) {
                         try {
                             this.conn.close();
                             this.conn = null;
@@ -527,7 +527,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * Called at the end of the test to do any clean up that may be required.
      */
     public void tearDown() {
-        if (!this.configuration.getNewConnectionPerTxn()) {
+        if (!this.configuration.getNewConnectionPerTxn() && this.conn != null) {
             try {
                 conn.close();
             } catch (SQLException e) {
