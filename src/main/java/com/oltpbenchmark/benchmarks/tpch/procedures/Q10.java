@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 public class Q10 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""      
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                c_custkey,
                c_name,
@@ -63,7 +63,7 @@ public class Q10 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // DATE is the first day of a randomly selected month from the second month of 1993 to the first month of 1995
         int year = rand.number(1993, 1995);
         int month = rand.number(year == 1993 ? 2 : 1, year == 1995 ? 1 : 12);

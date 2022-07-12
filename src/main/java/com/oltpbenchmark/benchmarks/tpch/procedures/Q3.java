@@ -29,7 +29,7 @@ import java.sql.SQLException;
 
 public class Q3 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""   
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                l_orderkey,
                SUM(l_extendedprice * (1 - l_discount)) AS revenue,
@@ -56,7 +56,7 @@ public class Q3 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         String segment = TPCHUtil.choice(TPCHConstants.SEGMENTS, rand);
 
         // date must be randomly selected between [1995-03-01, 1995-03-31]

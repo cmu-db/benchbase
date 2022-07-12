@@ -386,7 +386,8 @@ jobs:
           DOCKER_BUILDKIT: 1
           BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver'
         run: |
-          docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test --build-arg UID=$UID --build-arg GID=$UID \
+          docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test \
+            --build-arg CONTAINERUSER_UID=$UID --build-arg CONTAINERUSER_GID=$UID \
             -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
       - name: Run basic benchbase test from the docker image against postgres test DB
         env:

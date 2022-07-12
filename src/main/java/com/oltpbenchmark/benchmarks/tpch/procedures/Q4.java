@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 public class Q4 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""      
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                o_orderpriority,
                COUNT(*) AS order_count
@@ -54,7 +54,7 @@ public class Q4 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         int year = rand.number(1993, 1997);
         int month = rand.number(1, 10);
         String date = String.format("%d-%02d-01", year, month);

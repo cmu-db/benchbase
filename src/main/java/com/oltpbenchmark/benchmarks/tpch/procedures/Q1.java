@@ -52,7 +52,7 @@ public class Q1 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         String delta = String.valueOf(rand.number(60, 120));
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
