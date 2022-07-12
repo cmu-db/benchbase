@@ -140,6 +140,8 @@ public class WorkloadConfiguration {
     }
 
 
+
+
     /**
      * The number of loader threads that the framework is allowed to use.
      *
@@ -310,24 +312,24 @@ public class WorkloadConfiguration {
     @Override
     public String toString() {
         return "WorkloadConfiguration{" +
-            "phases=" + phases +
-            ", databaseType=" + databaseType +
-            ", benchmarkName='" + benchmarkName + '\'' +
-            ", url='" + url + '\'' +
-            ", username='" + username + '\'' +
-            ", password='" + password + '\'' +
-            ", driverClass='" + driverClass + '\'' +
-            ", batchSize=" + batchSize +
-            ", maxRetries=" + maxRetries +
-            ", scaleFactor=" + scaleFactor +
-            ", selectivity=" + selectivity +
-            ", terminals=" + terminals +
-            ", loaderThreads=" + loaderThreads +
-            ", workloadState=" + workloadState +
-            ", transTypes=" + transTypes +
-            ", isolationMode=" + isolationMode +
-            ", dataDir='" + dataDir + '\'' +
-            ", newConnectionPerTxn='" + newConnectionPerTxn + '\'' +
-            '}';
+               "phases=" + phases +
+               ", databaseType=" + databaseType +
+               ", benchmarkName='" + benchmarkName + '\'' +
+               ", url='" + url + '\'' +
+               ", username='" + username + '\'' +
+               ", password='" + password + '\'' +
+               ", driverClass='" + driverClass + '\'' +
+               ", batchSize=" + batchSize +
+               ", maxRetries=" + maxRetries +
+               ", scaleFactor=" + scaleFactor +
+               ", selectivity=" + selectivity +
+               ", terminals=" + terminals +
+               ", loaderThreads=" + loaderThreads +
+               ", workloadState=" + workloadState +
+               ", transTypes=" + transTypes +
+               ", isolationMode=" + isolationMode +
+               ", dataDir='" + dataDir + '\'' +
+               ", newConnectionPerTxn='" + newConnectionPerTxn + '\'' +
+               '}';
     }
 }
