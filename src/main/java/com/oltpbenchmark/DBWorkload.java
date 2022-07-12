@@ -125,7 +125,7 @@ public class DBWorkload {
             wrkld.setRandomSeed(xmlConfig.getInt("randomSeed", -1));
             wrkld.setBatchSize(xmlConfig.getInt("batchsize", 128));
             wrkld.setMaxRetries(xmlConfig.getInt("retries", 3));
-            wrkld.setNewConnections(xmlConfig.getBoolean("newConnections", false));
+            wrkld.setNewConnectionPerTxn(xmlConfig.getBoolean("newConnectionPerTxn", false));
 
             int terminals = xmlConfig.getInt("terminals[not(@bench)]", 0);
             terminals = xmlConfig.getInt("terminals" + pluginTest, terminals);
@@ -171,7 +171,7 @@ public class DBWorkload {
             initDebug.put("Batch Size", wrkld.getBatchSize());
             initDebug.put("Scale Factor", wrkld.getScaleFactor());
             initDebug.put("Terminals", wrkld.getTerminals());
-            initDebug.put("New Connections", wrkld.getNewConnections());
+            initDebug.put("New Connection Per Txn", wrkld.getNewConnectionPerTxn());
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);

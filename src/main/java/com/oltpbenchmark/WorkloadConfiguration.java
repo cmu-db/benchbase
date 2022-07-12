@@ -50,7 +50,7 @@ public class WorkloadConfiguration {
     private String dataDir = null;
     private String ddlPath = null;
 
-    private boolean newConnections = false;
+    private boolean newConnectionPerTxn = false;
 
     public String getBenchmarkName() {
         return benchmarkName;
@@ -120,9 +120,13 @@ public class WorkloadConfiguration {
         this.maxRetries = maxRetries;
     }
 
-    public boolean getNewConnections() { return newConnections; }
+    public boolean getNewConnectionPerTxn() {
+        return newConnectionPerTxn;
+    }
 
-    public void setNewConnections(boolean newConnections) { this.newConnections = newConnections; }
+    public void setNewConnectionPerTxn(boolean newConnectionPerTxn) {
+        this.newConnectionPerTxn = newConnectionPerTxn;
+    }
 
     /**
      * Initiate a new benchmark and workload state
@@ -134,8 +138,6 @@ public class WorkloadConfiguration {
     public void addPhase(int id, int time, int warmup, int rate, List<Double> weights, boolean rateLimited, boolean disabled, boolean serial, boolean timed, int active_terminals, Phase.Arrival arrival) {
         phases.add(new Phase(benchmarkName, id, time, warmup, rate, weights, rateLimited, disabled, serial, timed, active_terminals, arrival));
     }
-
-
 
 
     /**
@@ -308,24 +310,24 @@ public class WorkloadConfiguration {
     @Override
     public String toString() {
         return "WorkloadConfiguration{" +
-               "phases=" + phases +
-               ", databaseType=" + databaseType +
-               ", benchmarkName='" + benchmarkName + '\'' +
-               ", url='" + url + '\'' +
-               ", username='" + username + '\'' +
-               ", password='" + password + '\'' +
-               ", driverClass='" + driverClass + '\'' +
-               ", batchSize=" + batchSize +
-               ", maxRetries=" + maxRetries +
-               ", scaleFactor=" + scaleFactor +
-               ", selectivity=" + selectivity +
-               ", terminals=" + terminals +
-               ", loaderThreads=" + loaderThreads +
-               ", workloadState=" + workloadState +
-               ", transTypes=" + transTypes +
-               ", isolationMode=" + isolationMode +
-               ", dataDir='" + dataDir + '\'' + 
-               ", newConnections='" + newConnections + '\'' +
-               '}';
+            "phases=" + phases +
+            ", databaseType=" + databaseType +
+            ", benchmarkName='" + benchmarkName + '\'' +
+            ", url='" + url + '\'' +
+            ", username='" + username + '\'' +
+            ", password='" + password + '\'' +
+            ", driverClass='" + driverClass + '\'' +
+            ", batchSize=" + batchSize +
+            ", maxRetries=" + maxRetries +
+            ", scaleFactor=" + scaleFactor +
+            ", selectivity=" + selectivity +
+            ", terminals=" + terminals +
+            ", loaderThreads=" + loaderThreads +
+            ", workloadState=" + workloadState +
+            ", transTypes=" + transTypes +
+            ", isolationMode=" + isolationMode +
+            ", dataDir='" + dataDir + '\'' +
+            ", newConnectionPerTxn='" + newConnectionPerTxn + '\'' +
+            '}';
     }
 }

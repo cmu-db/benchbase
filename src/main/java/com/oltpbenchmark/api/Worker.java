@@ -74,7 +74,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.currStatement = null;
         this.transactionTypes = this.configuration.getTransTypes();
 
-        if (!this.configuration.getNewConnections()) {
+        if (!this.configuration.getNewConnectionPerTxn()) {
             try {
                 this.conn = this.benchmark.makeConnection();
                 this.conn.setAutoCommit(false);
@@ -446,7 +446,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                     }
 
                 } finally {
-                    if (this.configuration.getNewConnections()) {
+                    if (this.configuration.getNewConnectionPerTxn()) {
                         try {
                             this.conn.close();
                             this.conn = null;
@@ -527,7 +527,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * Called at the end of the test to do any clean up that may be required.
      */
     public void tearDown() {
-        if (!this.configuration.getNewConnections()) {
+        if (!this.configuration.getNewConnectionPerTxn()) {
             try {
                 conn.close();
             } catch (SQLException e) {
