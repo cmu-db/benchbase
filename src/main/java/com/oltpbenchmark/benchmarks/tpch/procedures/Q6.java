@@ -27,7 +27,7 @@ import java.sql.SQLException;
 
 public class Q6 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""                        
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                SUM(l_extendedprice * l_discount) AS revenue
             FROM
@@ -41,7 +41,7 @@ public class Q6 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // DATE is the first of January of a randomly selected year within [1993 .. 1997]
         int year = rand.number(1993, 1997);
         String date = String.format("%d-01-01", year);

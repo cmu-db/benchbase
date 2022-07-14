@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 public class Q11 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""            
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                ps_partkey,
                SUM(ps_supplycost * ps_availqty) AS VALUE
@@ -39,7 +39,7 @@ public class Q11 extends GenericQuery {
             WHERE
                ps_suppkey = s_suppkey
                AND s_nationkey = n_nationkey
-               AND n_name = 'ETHIOPIA'
+               AND n_name = ?
             GROUP BY
                ps_partkey
             HAVING
@@ -58,17 +58,17 @@ public class Q11 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
         String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 
         // FRACTION is chosen as 0.0001 / SF
-        // TODO: we should technically pass dbgen's SF down here somehow
-        double fraction = 0.0001;
+        double fraction = 0.0001 / scaleFactor;
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
-        stmt.setDouble(1, fraction);
-        stmt.setString(2, nation);
+        stmt.setString(1, nation);
+        stmt.setDouble(2, fraction);
+        stmt.setString(3, nation);
         return stmt;
     }
 }
