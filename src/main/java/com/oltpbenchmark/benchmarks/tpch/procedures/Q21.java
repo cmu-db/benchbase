@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 public class Q21 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt(""" 
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                s_name,
                COUNT(*) AS numwait
@@ -74,7 +74,7 @@ public class Q21 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // NATION is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
         String nation = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 

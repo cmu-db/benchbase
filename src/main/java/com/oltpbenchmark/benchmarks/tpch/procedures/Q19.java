@@ -18,6 +18,7 @@
 package com.oltpbenchmark.benchmarks.tpch.procedures;
 
 import com.oltpbenchmark.api.SQLStmt;
+import com.oltpbenchmark.benchmarks.tpch.TPCHUtil;
 import com.oltpbenchmark.util.RandomGenerator;
 
 import java.sql.Connection;
@@ -69,7 +70,7 @@ public class Q19 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // QUANTITY1 is randomly selected within [1..10]
         int quantity1 = rand.number(1, 10);
 
@@ -81,17 +82,9 @@ public class Q19 extends GenericQuery {
 
         // BRAND1, BRAND2, BRAND3 = 'Brand#MN' where each MN is a two character string representing two numbers
         // randomly and independently selected within [1 .. 5]
-        int M;
-        int N;
-        M = rand.number(1, 5);
-        N = rand.number(1, 5);
-        String brand1 = String.format("BRAND#%d%d", M, N);
-        M = rand.number(1, 5);
-        N = rand.number(1, 5);
-        String brand2 = String.format("BRAND#%d%d", M, N);
-        M = rand.number(1, 5);
-        N = rand.number(1, 5);
-        String brand3 = String.format("BRAND#%d%d", M, N);
+        String brand1 = TPCHUtil.randomBrand(rand);
+        String brand2 = TPCHUtil.randomBrand(rand);
+        String brand3 = TPCHUtil.randomBrand(rand);
 
         PreparedStatement stmt = this.getPreparedStatement(conn, query_stmt);
         stmt.setString(1, brand1);
