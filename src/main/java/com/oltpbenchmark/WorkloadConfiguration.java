@@ -50,6 +50,10 @@ public class WorkloadConfiguration {
     private String dataDir = null;
     private String ddlPath = null;
 
+    /**
+     * If true, establish a new connection for each transaction, otherwise use one persistent connection per client
+     * session. This is useful to measure the connection overhead.
+     */
     private boolean newConnectionPerTxn = false;
 
     public String getBenchmarkName() {
@@ -120,10 +124,19 @@ public class WorkloadConfiguration {
         this.maxRetries = maxRetries;
     }
 
+    /**
+     * @return @see newConnectionPerTxn member docs for behavior.
+     */
     public boolean getNewConnectionPerTxn() {
         return newConnectionPerTxn;
     }
 
+    /**
+     * Used by the configuration loader at startup. Changing it any other time is probably dangeroues. @see
+     * newConnectionPerTxn member docs for behavior.
+     *
+     * @param newConnectionPerTxn
+     */
     public void setNewConnectionPerTxn(boolean newConnectionPerTxn) {
         this.newConnectionPerTxn = newConnectionPerTxn;
     }
@@ -329,7 +342,6 @@ public class WorkloadConfiguration {
                ", transTypes=" + transTypes +
                ", isolationMode=" + isolationMode +
                ", dataDir='" + dataDir + '\'' +
-               ", newConnectionPerTxn='" + newConnectionPerTxn + '\'' +
                '}';
     }
 }
