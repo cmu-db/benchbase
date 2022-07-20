@@ -297,7 +297,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         if (postPhase == null) {
                             // Need a null check on postPhase since current phase being null is used in WorkloadState
                             // and BenchmarkState as the indication that the benchmark is over. However, there's a race
-                            // condition with postState not being changes to DONE from MEASURE yet, so we entered the
+                            // condition with postState not being changed from MEASURE to DONE yet, so we entered the
                             // switch. In this scenario, just break from the switch.
                             break;
                         }
