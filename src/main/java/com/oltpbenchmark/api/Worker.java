@@ -293,6 +293,14 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         // that either started during the warmup phase or ended
                         // after the timer went off.
                         Phase postPhase = workloadState.getCurrentPhase();
+
+                        if (postPhase == null) {
+                            // Need a null check on postPhase since current phase being null is used in WorkloadState
+                            // and BenchmarkState as the indication that the benchmark is over. However, there's a race
+                            // condition with postState not being changes to DONE from MEASURE yet, so we entered the
+                            // switch. In this scenario, just break from the switch.
+                            break;
+                        }
                         if (preState == MEASURE && postPhase.getId() == prePhase.getId()) {
                             latencies.addLatency(transactionType.getId(), start, end, this.id, prePhase.getId());
                             intervalRequests.incrementAndGet();
@@ -370,7 +378,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param databaseType TODO
+     * @param databaseType    TODO
      * @param transactionType TODO
      */
     protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {
