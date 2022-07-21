@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>POSTGRES</type>
+    <driver>org.postgresql.Driver</driver>
+    <url>jdbc:postgresql://localhost:5433/yugabyte?sslmode=disable&amp;ApplicationName=featurebench&amp;reWriteBatchedInserts=true</url>
+    <username>yugabyte</username>
+    <password></password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- This parameter has no affect on this benchmark-->
+    <!-- There is no data to load -->
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>1000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <transactiontypes>
+        <transactiontype>
+            <name>FeatureBench</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
