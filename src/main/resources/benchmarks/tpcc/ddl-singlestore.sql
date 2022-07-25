@@ -154,7 +154,7 @@ CREATE TABLE WAREHOUSE (
 CREATE INDEX IDX_CUSTOMER_NAME ON CUSTOMER (C_W_ID,C_D_ID,C_LAST,C_FIRST);
 
 -- woohak, add constraints. MySQL/InnoDB storage engine is kind of IoT.
--- and add constraints and make indexes later aretoo slow when running a single thread.
+-- and add constraints and make indexes later are too slow when running a single thread.
 -- so I just add create index and foreign key constraints before loading data.
 
 -- already created
