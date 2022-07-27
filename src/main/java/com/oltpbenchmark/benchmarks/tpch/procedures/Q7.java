@@ -77,7 +77,7 @@ public class Q7 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // NATION1 is randomly selected within the list of values defined for N_NAME in Clause 4.2.3
         String nation1 = TPCHUtil.choice(TPCHConstants.N_NAME, rand);
 

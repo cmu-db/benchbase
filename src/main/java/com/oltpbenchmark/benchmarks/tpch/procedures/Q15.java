@@ -42,7 +42,7 @@ public class Q15 extends GenericQuery {
             """
     );
 
-    public final SQLStmt query_stmt = new SQLStmt("""                        
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                s_suppkey,
                s_name,
@@ -71,7 +71,7 @@ public class Q15 extends GenericQuery {
     );
 
     @Override
-    public void run(Connection conn, RandomGenerator rand) throws SQLException {
+    public void run(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // With this query, we have to set up a view before we execute the
         // query, then drop it once we're done.
         try (Statement stmt = conn.createStatement()) {
@@ -85,7 +85,7 @@ public class Q15 extends GenericQuery {
                 String sql = createview_stmt.getSQL();
                 sql = sql.replace("?", String.format("'%s'", date));
                 stmt.execute(sql);
-                super.run(conn, rand);
+                super.run(conn, rand, scaleFactor);
             } finally {
                 String sql = dropview_stmt.getSQL();
                 stmt.execute(sql);
@@ -95,7 +95,7 @@ public class Q15 extends GenericQuery {
     }
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         return this.getPreparedStatement(conn, query_stmt);
     }
 }

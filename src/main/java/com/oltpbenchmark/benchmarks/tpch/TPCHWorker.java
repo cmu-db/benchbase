@@ -41,7 +41,7 @@ public class TPCHWorker extends Worker<TPCHBenchmark> {
     protected TransactionStatus executeWork(Connection conn, TransactionType nextTransaction) throws UserAbortException, SQLException {
         try {
             GenericQuery proc = (GenericQuery) this.getProcedure(nextTransaction.getProcedureClass());
-            proc.run(conn, rand);
+            proc.run(conn, rand, this.configuration.getScaleFactor());
         } catch (ClassCastException e) {
             throw new RuntimeException(e);
         }

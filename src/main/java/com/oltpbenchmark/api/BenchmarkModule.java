@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -221,15 +220,18 @@ public abstract class BenchmarkModule {
      */
     public final void createDatabase(DatabaseType dbType, Connection conn) throws SQLException, IOException {
 
-            String ddlPath = this.getDatabaseDDLPath(dbType);
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
-            if (LOG.isDebugEnabled()) {
+            if (workConf.getDDLPath() != null) {
+                String ddlPath = workConf.getDDLPath();
+                LOG.warn("Overriding default DDL script path");
                 LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+                runner.runExternalScript(ddlPath);
+            } else {
+                String ddlPath = this.getDatabaseDDLPath(dbType);
+                LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+                runner.runScript(ddlPath);
             }
-
-            runner.runScript(ddlPath);
-
     }
 
 
