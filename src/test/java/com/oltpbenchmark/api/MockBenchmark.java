@@ -27,6 +27,10 @@ public class MockBenchmark extends BenchmarkModule {
         this.workConf.setBenchmarkName("mockbenchmark");
     }
 
+    public MockBenchmark(WorkloadConfiguration workConf) {
+        super(workConf);
+    }
+
     @Override
     protected Package getProcedurePackageImpl() {
         return null;

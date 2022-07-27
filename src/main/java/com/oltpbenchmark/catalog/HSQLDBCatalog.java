@@ -7,7 +7,9 @@ import com.oltpbenchmark.util.Pair;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -206,13 +208,21 @@ public class HSQLDBCatalog implements AbstractCatalog {
      */
     Map<String, String> getOriginalTableNames() {
         // Get the contents of the HSQLDB DDL for the current benchmark.
-        String ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
         String ddlContents;
         try {
-            ddlContents = IOUtils.toString(Objects.requireNonNull(this.getClass().getResource(ddlPath)), Charset.defaultCharset());
+            String ddlPath = this.benchmarkModule.getWorkloadConfiguration().getDDLPath();
+            URL ddlURL;
+            if (ddlPath == null) {
+                ddlPath = this.benchmarkModule.getDatabaseDDLPath(DatabaseType.HSQLDB);
+                ddlURL = Objects.requireNonNull(this.getClass().getResource(ddlPath));
+            } else {
+                ddlURL = Path.of(ddlPath).toUri().toURL();
+            }
+            ddlContents = IOUtils.toString(ddlURL, Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         // Extract and map the original table names to their uppercase versions.
         Map<String, String> originalTableNames = new HashMap<>();
         Pattern p = Pattern.compile("CREATE[\\s]+TABLE[\\s]+(.*?)[\\s]+", Pattern.CASE_INSENSITIVE);
