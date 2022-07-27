@@ -382,15 +382,14 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Checkout repo
         uses: actions/checkout@v2
-      # TODO: Switch to buildx action with (local) caching.
       - name: Build docker image with all packages and run test suite
         env:
           DOCKER_BUILDKIT: 1
           BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
+          TEST_TARGET: 'test'
+          CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
         run: |
-          docker build --build-arg "BENCHBASE_PROFILES=$BENCHBASE_PROFILES" --build-arg TEST_TARGET=test \
-            --build-arg CONTAINERUSER_UID=$UID --build-arg CONTAINERUSER_GID=$UID \
-            -t benchbase:latest -f ./docker/benchbase/Dockerfile --target fullimage .
+          ./docker/benchbase/build-full-image.sh
       - name: Run basic benchbase test from the docker image against postgres test DB
         env:
             benchmark: noop
@@ -407,24 +406,15 @@ jobs:
           ls results/${benchmark}_*.csv
       # Publish the docker image if the build/test was successful.
       # TODO: Only do this with approved PRs
-      # TODO:
+      # TODO: Check that the login secrets are available.
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.ACR_LOGINURL }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            ${{ secrets.ACR_LOGINURL }}/benchbase/devcontainer
-            ${{ secrets.ACR_LOGINURL }}/benchbase/benchbase
       - name: Push Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+        # TODO: Also push the tagged versions as well.
+        run: |
+        docker push ${{ secrets.ACR_LOGINURL}}/benchbase:latest
+        docker push ${{ secrets.ACR_LOGINURL}}/benchbase-dev:latest

@@ -7,9 +7,9 @@
     "context": "..",
 
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-    "dockerFile": "../docker/benchbase/Dockerfile",
+    "dockerFile": "../docker/benchbase/devcontainer/Dockerfile",
+    // TODO: Use the cachefrom to try and pull a cached version from upstream if possible.
     "build": {
-        "target": "devcontainer",
         "args": {
             "--tag": "benchbase-dev:latest"
         }
