@@ -2,6 +2,8 @@
 
 set -eu
 
+INTERACTIVE="${INTERACTIVE:-true}"
+
 scriptdir=$(dirname "$(readlink -f "$0")")
 rootdir=$(readlink -f "$scriptdir/../../")
 
@@ -13,14 +15,22 @@ if [ "$imagename" != 'benchbase-dev' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
 fi
 
+if [ "$INTERACTIVE" == 'true' ]; then
+    INTERACTIVE_ARGS='-it'
+elif [ "$INTERACTIVE" == 'false' ]; then
+    INTERACTIVE_ARGS=''
+else
+    echo "WARNING: Unhandled INTERACTIVE mode: '$INTERACTIVE'" >&2
+fi
+
 cd "$rootdir"
 set -x
-docker run -it --rm \
+docker run ${INTERACTIVE_ARGS:-} --rm \
     --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
     --env MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
     --env BENCHBASE_PROFILES="$BENCHBASE_PROFILES" \
     --env CLEAN_BUILD="$CLEAN_BUILD" \
-    --env TEST_TARGET="$TEST_TARGET" \
+    --env SKIP_TESTS="$SKIP_TESTS" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
     -v "$PWD:/benchbase" benchbase-dev:latest $*
 set +x

@@ -391,7 +391,7 @@ jobs:
           ./docker/benchbase/build-dev-image.sh
       - name: Build the benchbase docker image with all profiles using the dev image
         env:
-          TEST_TARGET: 'test'
+          SKIP_TESTS: 'false'
         run: |
           ./docker/benchbase/build-full-image.sh
       - name: Setup postgres test DB

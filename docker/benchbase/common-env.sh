@@ -1,12 +1,14 @@
-# The default profiles to build:
+# Try to read some values from the environment or else set some defaults.
+# The profiles to build:
 export BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}"
-# The default profile to run:
+# The profile to run:
 export BENCHBASE_PROFILE="${BENCHBASE_PROFILE:-postgres}"
 # Whether to clean the build before/after/both/never:
 export CLEAN_BUILD="${CLEAN_BUILD:-true}"   # true, pre, post, false
 # Whether to run the test target during build.
-export TEST_TARGET="${TEST_TARGET:-test}"   # or empty
+export SKIP_TESTS="${SKIP_TESTS:-false}"
 
+# Setting this allows us to easily tag and publish the image name in our CI pipelines or locally.
 CONTAINER_REGISTRY_NAME="${CONTAINER_REGISTRY_NAME:-}"
 
 http_proxy_host=''

@@ -10,7 +10,7 @@ cd "$scriptdir"
 
 # Build the requested profiles using the dev image.
 ./build-dev-image.sh
-./run-dev-image.sh /benchbase/docker/benchbase/devcontainer/build-in-container.sh
+INTERACTIVE='false' ./run-dev-image.sh /benchbase/docker/benchbase/devcontainer/build-in-container.sh
 
 cd "$rootdir"
 
