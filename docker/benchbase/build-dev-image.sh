@@ -14,5 +14,5 @@ docker build --progress=plain \
     --build-arg MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
     --build-arg BENCHBASE_PROFILES="${BENCHBASE_PROFILES}" \
     --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
-    -t "$image_tags" -f ./docker/benchbase/devcontainer/Dockerfile .
+    --tag benchbase-dev:latest ${image_tag_args:-} -f ./docker/benchbase/devcontainer/Dockerfile .
 set +x

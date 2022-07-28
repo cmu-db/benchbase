@@ -47,13 +47,13 @@ fi
 git_rev=$(git rev-list -1 --abbrev-commit HEAD)
 git_vers_tag=$(git tag -l --points-at HEAD | grep ^v | sort -V | tail -n1)
 
-image_tags="$imagename:latest"
+image_tag_args="-t $imagename:latest"
 if [ -n "$CONTAINER_REGISTRY_NAME" ]; then
-    image_tags+=",$CONTAINER_REGISTRY_NAME/$imagename:latest"
+    image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:latest"
 fi
 if [ -n "$git_vers_tag" ]; then
-    image_tags+=",$imagename:$git_vers_tag"
+    image_tag_args+=" -t $imagename:$git_vers_tag"
     if [ -n "$CONTAINER_REGISTRY_NAME" ]; then
-        image_tags+=",$CONTAINER_REGISTRY_NAME/$imagename:latest"
+        image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:latest"
     fi
 fi

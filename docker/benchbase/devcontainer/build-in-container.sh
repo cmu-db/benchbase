@@ -2,6 +2,7 @@
 #
 # A simple script for building one or more profiles (in parallel) inside the container.
 
+# Make sure any failure halts the rest of the operation.
 set -eu -o pipefail
 
 BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}"
@@ -9,6 +10,7 @@ CLEAN_BUILD="${CLEAN_BUILD:-true}"    # true, false, pre, post
 SKIP_TESTS="${SKIP_TESTS:-false}"
 
 cd /benchbase
+mkdir -p results
 
 function build_profile() {
     local profile="$1"
@@ -21,12 +23,19 @@ function build_profile() {
     tar -C profiles/$profile/ --strip-components=1 -xvzf target/$profile/benchbase-$profile.tgz
     # Try to save some space by linking to a shared data directory.
     rm -rf profiles/$profile/data/ && ln -s ../../data profiles/$profile/data
+    # Late the container entrypoint will move into this directory to run it, so
+    # save all of the results back to the common volume mapping location.
+    ln -s ../../results profiles/$profile/results
 }
 
 function test_profile_build() {
     local profile="$1"
     if [ "$(readlink -f profiles/$profile/data)" != "/benchbase/data" ]; then
         echo "ERROR: profiles/$profile/data is not /benchbase/data." >&2
+        false
+    fi
+    if [ "$(readlink -f profiles/$profile/results)" != "/benchbase/results" ]; then
+        echo "ERROR: profiles/$profile/results is not /benchbase/results." >&2
         false
     fi
 }

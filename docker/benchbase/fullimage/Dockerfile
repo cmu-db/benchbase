@@ -18,14 +18,11 @@ VOLUME /benchbase/results
 
 # Only copy the content necessary for running (not building) benchbase over to the image.
 # Assumes the context is given as the root of the repo.
-COPY ./docker/benchbase/container-files/entrypoint.sh /entrypoint.sh
+COPY ./docker/benchbase/fullimage/entrypoint.sh /entrypoint.sh
 COPY ./data/ /benchbase/data/
 # These files should have been built using the devcontainer by the
 # build-full-image.sh script.
 COPY ./.docker-build-stage/ /benchbase/profiles/
-
-# DEBUGGING:
-RUN find /benchbase/ /entrypoint.sh -ls
 
 ENV BENCHBASE_PROFILE=postgres
 ENTRYPOINT ["/entrypoint.sh"]
