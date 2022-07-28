@@ -17,9 +17,16 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # TODO: Run these workflows on a schedule so that docker images are regularly updated for security patches.
-  #schedule:
-  #manual ...
+  # Run these workflows on a schedule so that docker images are regularly updated for security patches.
+  schedule:
+    - cron: "1 0 * * *"
+  # Give us a button to allow running the workflow on demand for testing.
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Manual Workflow Run'
+        required: false
+        type: string
 
 env:
   POM_VERSION: 2021-SNAPSHOT
