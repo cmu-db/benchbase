@@ -25,6 +25,7 @@
 
 package com.oltpbenchmark.benchmarks.tpch;
 
+import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
 import static com.oltpbenchmark.benchmarks.tpch.TPCHConstants.*;
@@ -41,10 +42,12 @@ import com.oltpbenchmark.catalog.Table;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class TPCHLoader extends Loader<TPCHBenchmark> {
+
     public TPCHLoader(TPCHBenchmark benchmark) {
         super(benchmark);
     }
@@ -153,11 +156,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_REGION)) {
+                try (PreparedStatement statement = getPreparedStatement(conn)) {
                     List<Iterable<List<Object>>> regionGenerators = new ArrayList<>();
                     regionGenerators.add(new RegionGenerator());
 
-                    genTable(conn, statement, regionGenerators, regionTypes, TABLENAME_REGION);
+                    genTable(conn, this, regionGenerators, regionTypes, TABLENAME_REGION);
                 }
             }
 
@@ -165,16 +168,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 regionLatch.countDown();
             }
+
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_REGION);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_PART)) {
+                try (PreparedStatement statement = getPreparedStatement(conn) ) {
                     List<Iterable<List<Object>>> partGenerators = new ArrayList<>();
                     partGenerators.add(new PartGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, partGenerators, partTypes, TABLENAME_PART);
+                    genTable(conn, this, partGenerators, partTypes, TABLENAME_PART);
                 }
             }
 
@@ -182,16 +190,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 partsLatch.countDown();
             }
+            
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_PART);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_NATION)) {
+                try (PreparedStatement statement = getPreparedStatement(conn)) {
                     List<Iterable<List<Object>>> nationGenerators = new ArrayList<>();
                     nationGenerators.add(new NationGenerator());
 
-                    genTable(conn, statement, nationGenerators, nationTypes, TABLENAME_NATION);
+                    genTable(conn, this, nationGenerators, nationTypes, TABLENAME_NATION);
                 }
             }
 
@@ -208,16 +221,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 nationLatch.countDown();
             }
+
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_NATION);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_SUPPLIER)) {
+                try (PreparedStatement statement = getPreparedStatement(conn) ) {
                     List<Iterable<List<Object>>> supplierGenerators = new ArrayList<>();
                     supplierGenerators.add(new SupplierGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, supplierGenerators, supplierTypes, TABLENAME_SUPPLIER);
+                    genTable(conn, this, supplierGenerators, supplierTypes, TABLENAME_SUPPLIER);
                 }
             }
 
@@ -234,16 +252,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 supplierLatch.countDown();
             }
+
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_SUPPLIER);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_CUSTOMER)) {
+                try (PreparedStatement statement = getPreparedStatement(conn) ) {
                     List<Iterable<List<Object>>> customerGenerators = new ArrayList<>();
                     customerGenerators.add(new CustomerGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, customerGenerators, customerTypes, TABLENAME_CUSTOMER);
+                    genTable(conn, this, customerGenerators, customerTypes, TABLENAME_CUSTOMER);
                 }
             }
 
@@ -260,16 +283,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 customerLatch.countDown();
             }
+            
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_CUSTOMER);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_ORDER)) {
+                try (PreparedStatement statement = getPreparedStatement(conn) ) {
                     List<Iterable<List<Object>>> orderGenerators = new ArrayList<>();
                     orderGenerators.add(new OrderGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, orderGenerators, ordersTypes, TABLENAME_ORDER);
+                    genTable(conn, this, orderGenerators, ordersTypes, TABLENAME_ORDER);
                 }
             }
 
@@ -286,16 +314,21 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 ordersLatch.countDown();
             }
+
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_ORDER);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
             @Override
             public void load(Connection conn) throws SQLException {
-                try (PreparedStatement statement = getInsertStatement(conn, TABLENAME_PARTSUPP)) {
+                try (PreparedStatement statement = getPreparedStatement(conn)) {
                     List<Iterable<List<Object>>> partSuppGenerators = new ArrayList<>();
                     partSuppGenerators.add(new PartSupplierGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, partSuppGenerators, partsuppTypes, TABLENAME_PARTSUPP);
+                    genTable(conn, this, partSuppGenerators, partsuppTypes, TABLENAME_PARTSUPP);
                 }
             }
 
@@ -313,6 +346,11 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
             public void afterLoad() {
                 partsSuppLatch.countDown();
             }
+
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_PARTSUPP);
+            }
         });
 
         threads.add(new LoaderThread(this.benchmark) {
@@ -322,7 +360,7 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     List<Iterable<List<Object>>> lineItemGenerators = new ArrayList<>();
                     lineItemGenerators.add(new LineItemGenerator(scaleFactor, 1, 1));
 
-                    genTable(conn, statement, lineItemGenerators, lineitemTypes, TABLENAME_LINEITEM);
+                    genTable(conn, this, lineItemGenerators, lineitemTypes, TABLENAME_LINEITEM);
                 }
             }
 
@@ -335,49 +373,90 @@ public class TPCHLoader extends Loader<TPCHBenchmark> {
                     throw new RuntimeException(e);
                 }
             }
+
+            @Override
+            public PreparedStatement getPreparedStatement(Connection conn) throws SQLException{
+                return getInsertStatement(conn, TABLENAME_LINEITEM);
+            }
         });
 
         return threads;
     }
 
-    private void genTable(Connection conn, PreparedStatement prepStmt, List<Iterable<List<Object>>> generators,
+    private void addElems(PreparedStatement prepStmt, List<Object> elems, CastTypes[] types) throws SQLException{
+        for (int idx = 0; idx < types.length; idx++) {
+            final CastTypes type = types[idx];
+            switch (type) {
+                case DOUBLE:
+                    prepStmt.setDouble(idx + 1, (Double) elems.get(idx));
+                    break;
+                case LONG:
+                    prepStmt.setLong(idx + 1, (Long) elems.get(idx));
+                    break;
+                case STRING:
+                    prepStmt.setString(idx + 1, (String) elems.get(idx));
+                    break;
+                case DATE:
+                    prepStmt.setDate(idx + 1, (Date) elems.get(idx));
+                    break;
+                default:
+                    throw new RuntimeException("Unrecognized type for prepared statement");
+            }
+        }
+    }
+    private void genTable(Connection conn, LoaderThread loader, List<Iterable<List<Object>>> generators,
             CastTypes[] types, String tableName) {
+        
+        int maxRetryCount = workConf.getMaxRetries();
+
         for (Iterable<List<Object>> generator : generators) {
             try {
                 int recordsRead = 0;
+                PreparedStatement prepStmt = loader.getPreparedStatement(conn);
+                List<List<Object>> currentBatch = new LinkedList<>();
                 for (List<Object> elems : generator) {
-                    for (int idx = 0; idx < types.length; idx++) {
-                        final CastTypes type = types[idx];
-                        switch (type) {
-                            case DOUBLE:
-                                prepStmt.setDouble(idx + 1, (Double) elems.get(idx));
-                                break;
-                            case LONG:
-                                prepStmt.setLong(idx + 1, (Long) elems.get(idx));
-                                break;
-                            case STRING:
-                                prepStmt.setString(idx + 1, (String) elems.get(idx));
-                                break;
-                            case DATE:
-                                prepStmt.setDate(idx + 1, (Date) elems.get(idx));
-                                break;
-                            default:
-                                throw new RuntimeException("Unrecognized type for prepared statement");
-                        }
-                    }
-
+                    
+                    addElems(prepStmt, elems, types);
                     ++recordsRead;
+                    currentBatch.add(elems);
                     prepStmt.addBatch();
                     if ((recordsRead % workConf.getBatchSize()) == 0) {
-
-                        LOG.debug("writing batch {} for table {}", recordsRead, tableName);
-
-                        prepStmt.executeBatch();
-                        prepStmt.clearBatch();
+                        int retryCount = 0;
+                        while (retryCount < maxRetryCount){
+                            try {
+                                LOG.debug("writing batch {} for table {}", recordsRead, tableName);
+                                prepStmt.executeBatch();
+                                prepStmt.clearBatch();
+                                currentBatch.clear();
+                                break;
+                            }catch (Exception e) {
+                                LOG.error(e.getMessage(), e);
+                                
+                                retryCount++;
+                                if (retryCount == maxRetryCount){
+                                    currentBatch.clear();
+                                    LOG.error("Failed batch {} for table {}", recordsRead, tableName);
+                                }
+                                else{
+                                    if (!prepStmt.getConnection().isValid(1000)) {
+                                        prepStmt.close();
+                                        conn = this.benchmark.makeConnection();
+                                        prepStmt = loader.getPreparedStatement(conn);
+                                        for (List<Object> retryElems : currentBatch){
+                                            addElems(prepStmt, retryElems, types);
+                                            prepStmt.addBatch();
+                                        }
+                                    }
+                                    LOG.debug("retrying {} times batch {} for table {}", retryCount, recordsRead, tableName);
+                                    Thread.sleep((long) (500+500*Math.random()));
+                                }
+                            }
+                        }
                     }
                 }
 
                 prepStmt.executeBatch();
+                currentBatch.clear();
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
