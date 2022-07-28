@@ -7,6 +7,8 @@
 # The CI jobs are set up as follows:
 # - One job to build and upload artifacts.
 # - One job per DBMS test suite.
+# - One job to build/test the docker images.
+# - One job to publish the docker image.
 
 name: BenchBase (Java with Maven)
 
@@ -15,6 +17,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  # TODO: Run these workflows on a schedule so that docker images are regularly updated for security patches.
+  #schedule:
+  #manual ...
 
 env:
   POM_VERSION: 2021-SNAPSHOT
@@ -355,12 +360,15 @@ jobs:
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
-  # TODO: Move this to a separate workflow so we can also run it on a schedule and for releases.
   ## ----------------------------------------------------------------------------------
   ## Docker Build Test Publish
   ## ----------------------------------------------------------------------------------
   docker-build-test-publish:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
+      CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
@@ -376,21 +384,21 @@ jobs:
         ports:
           - 5432:5432
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build benchbase-dev image
+        run: |
+          ./docker/benchbase/build-dev-image.sh
+      - name: Build the benchbase docker image with all profiles using the dev image
+        env:
+          TEST_TARGET: 'test'
+        run: |
+          ./docker/benchbase/build-full-image.sh
       - name: Setup postgres test DB
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
-      - name: Checkout repo
-        uses: actions/checkout@v2
-      - name: Build docker image with all packages and run test suite
-        env:
-          DOCKER_BUILDKIT: 1
-          BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
-          TEST_TARGET: 'test'
-          CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
-        run: |
-          ./docker/benchbase/build-full-image.sh
-      - name: Run basic benchbase test from the docker image against postgres test DB
+      - name: Run a basic test from the docker image against postgres test DB
         env:
             benchmark: noop
         run: |
@@ -405,16 +413,18 @@ jobs:
             benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
           ls results/${benchmark}_*.csv
       # Publish the docker image if the build/test was successful.
-      # TODO: Only do this with approved PRs
-      # TODO: Check that the login secrets are available.
+      # Only do this with approved PRs and if the login secrets are available.
+      # Typically we expect to publish to benchbase.azurecr.io,
+      # but setting ACR_LOGINURL to something else allows us to do testing on forks.
       - name: Log in to Docker Hub
+        if: github.ref == 'refs/heads/main' && && ${{ secrets.ACR_LOGINURL != '' }} && ${{ secrets.ACR_USERNAME != '' }}
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.ACR_LOGINURL }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
       - name: Push Docker image
-        # TODO: Also push the tagged versions as well.
+        if: github.ref == 'refs/heads/main' && && ${{ secrets.ACR_LOGINURL != '' }} && ${{ secrets.ACR_USERNAME != '' }}
         run: |
-        docker push ${{ secrets.ACR_LOGINURL}}/benchbase:latest
-        docker push ${{ secrets.ACR_LOGINURL}}/benchbase-dev:latest
+          docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase
+          docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase-dev

@@ -1,5 +1,8 @@
-# TODO: use a smaller base image that only has the jre, not the full jdk.
-FROM --platform=linux maven:3.8.5-eclipse-temurin-17
+# Use a smaller base image that only has the jre, not the full jdk.
+FROM --platform=linux eclipse-temurin:17-jre
+
+# Make sure the image is patched and up to date.
+RUN apt update && apt -y upgrade && apt clean && rm -rf /var/lib/apt/lists/*
 
 # Add a containeruser that allows vscode/codespaces to map the local host user
 # (often uid 1000) to some non-root user inside the container.
@@ -8,20 +11,22 @@ ARG CONTAINERUSER_GID=1000
 RUN groupadd --non-unique --gid ${CONTAINERUSER_GID} containergroup \
     && useradd --non-unique --create-home --no-user-group --comment 'Container User' \
         --uid ${CONTAINERUSER_UID} --gid ${CONTAINERUSER_GID} containeruser
-RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/
-WORKDIR /benchbase
-
-# Copy the full source into the container image.
-# Assumes the context is given as the root of the repo.
-
+RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchbase/results
 USER containeruser
-
+WORKDIR /benchbase
 VOLUME /benchbase/results
 
-COPY --chown=containeruser:containergroup ./ /benchbase/
-# Move the built profiles into place.
-RUN mkdir -p /benchbase/profiles/ && mv /benchbase/.docker-build-stage/* /benchbase/profiles/
+# Only copy the content necessary for running (not building) benchbase over to the image.
+# Assumes the context is given as the root of the repo.
+COPY ./docker/benchbase/container-files/entrypoint.sh /entrypoint.sh
+COPY ./data/ /benchbase/data/
+# These files should have been built using the devcontainer by the
+# build-full-image.sh script.
+COPY ./.docker-build-stage/ /benchbase/profiles/
+
+# DEBUGGING:
+RUN find /benchbase/ /entrypoint.sh -ls
 
 ENV BENCHBASE_PROFILE=postgres
-ENTRYPOINT ["/benchbase/docker/benchbase/container-files/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]

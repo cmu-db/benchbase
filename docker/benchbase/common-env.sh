@@ -33,15 +33,16 @@ if [ -z "$CONTAINERUSER_GID" ]; then
     echo "WARNING: missing CONTAINERUSER_GID." >&2
 fi
 
-if [[ "$0" =~ *-full-image.sh ]]; then
+if [[ "$0" == *-full-image.sh ]]; then
     imagename='benchbase'
-elif [[ "$0" =~ *-dev-image.sh ]]; then
+elif [[ "$0" == *-dev-image.sh ]]; then
     imagename='benchbase-dev'
 else
-    echo "ERROR: Unhandled calling script name: $0!" >&2
+    echo "ERROR: Unhandled calling script name: '$0'!" >&2
+    exit 1
 fi
 
-git_rev=$(git revlist -1 --abbrev-commit HEAD)
+git_rev=$(git rev-list -1 --abbrev-commit HEAD)
 git_vers_tag=$(git tag -l --points-at HEAD | grep ^v | sort -V | tail -n1)
 
 image_tags="$imagename:latest"

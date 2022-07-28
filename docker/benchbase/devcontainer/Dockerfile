@@ -1,5 +1,8 @@
 FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
 
+# Make sure the image is patched and up to date.
+RUN apt update && apt -y upgrade && apt clean && rm -rf /var/lib/apt/lists/*
+
 # Add a containeruser that allows vscode/codespaces to map the local host user
 # (often uid 1000) to some non-root user inside the container.
 ARG CONTAINERUSER_UID=1000
@@ -11,11 +14,8 @@ RUN mkdir -p /benchbase/results && chown -R containeruser:containergroup /benchb
 USER containeruser
 ENV MAVEN_CONFIG=/home/containeruser/.m2
 WORKDIR /benchbase
+VOLUME /benchbase/results
 
-# When running the devcontainer, just launch an interactive shell by default.
-ENTRYPOINT ["/bin/bash", "-l"]
-
-# Copy the full source into the container image.
 # Assumes the context is given as the root of the repo.
 
 # Preload some dependencies.
@@ -24,3 +24,6 @@ COPY --chown=containeruser:containergroup .git/ /benchbase/.git/
 ARG MAVEN_OPTS
 RUN mvn -T2C -B --file pom.xml initialize \
     && rm -rf /benchbase/.git /benchbase/target /benchbase/pom.xml
+
+# When running the devcontainer, just launch an interactive shell by default.
+ENTRYPOINT ["/bin/bash", "-l"]

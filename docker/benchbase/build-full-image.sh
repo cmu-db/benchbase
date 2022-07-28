@@ -16,6 +16,7 @@ cd "$rootdir"
 
 # Make (hard-linked) copies of those results that we can put into the image.
 rm -rf .docker-build-stage/
+mkdir -p .docker-build-stage/
 for profile in $BENCHBASE_PROFILES; do
     cp -al "profiles/$profile" .docker-build-stage/
 done

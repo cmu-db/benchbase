@@ -4,11 +4,12 @@
 
 set -eu -o pipefail
 
-BENCHBASE_PROFILES=${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}
-CLEAN_BUILD=${CLEAN_BUILD:-true}    # true, false, pre, post
-TEST_TARGET=${TEST_TARGET:-test}    # or empty
+BENCHBASE_PROFILES="${BENCHBASE_PROFILES:-cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite}"
+CLEAN_BUILD="${CLEAN_BUILD:-true}"    # true, false, pre, post
+TEST_TARGET="${TEST_TARGET:-test}"    # or empty
 
 cd /benchbase
+ls
 
 function build_profile() {
     local profile="$1"
@@ -46,8 +47,9 @@ if [ "$CLEAN_BUILD" == 'true' ] || [ "$CLEAN_BUILD" == 'pre' ]; then
 fi
 wait
 
-# Make sure that we've build the base stuff first before we start
-mvn -T 2C -B --file pom.xml process-resources compile $TEST_TARGET
+# Make sure that we've built the base stuff first before we start.
+# Detach stdin so that git doesn't prompt us.
+mvn -T 2C -B --file pom.xml process-resources compile $TEST_TARGET </dev/null
 
 for profile in ${BENCHBASE_PROFILES}; do
     build_profile "$profile" &
