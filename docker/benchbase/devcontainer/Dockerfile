@@ -1,5 +1,7 @@
 FROM --platform=linux maven:3.8.5-eclipse-temurin-17 AS devcontainer
 
+LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
+
 # Make sure the image is patched and up to date.
 RUN apt update && apt -y upgrade && apt clean && rm -rf /var/lib/apt/lists/*
 

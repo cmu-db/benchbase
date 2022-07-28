@@ -1,6 +1,8 @@
 # Use a smaller base image that only has the jre, not the full jdk.
 FROM --platform=linux eclipse-temurin:17-jre
 
+LABEL org.opencontainers.image.source = "https://github.com/cmu-db/benchbase/"
+
 # Make sure the image is patched and up to date.
 RUN apt update && apt -y upgrade && apt clean && rm -rf /var/lib/apt/lists/*
 
