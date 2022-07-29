@@ -409,17 +409,20 @@ jobs:
         env:
             benchmark: noop
         run: |
-          # Adjust the sample config to talk to the container service instead of localhost.
-          cat "config/postgres/sample_${benchmark}_config.xml" | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
-          # Lookup the service container's docker network so we can place the benchbase container in it too.
-          docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
-          # Map the adjusted config into the container and use it to run the test.
-          rm -rf results
-          mkdir -p results
-          docker run --rm --name benchbase-postgres --network "$docker_network" \
-            --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
-            benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
-          ls results/${benchmark}_*.csv
+          for image in benchbase benchbase-postgres; do
+            # Adjust the sample config to talk to the container service instead of localhost.
+            cat "config/postgres/sample_${benchmark}_config.xml" | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
+            # Lookup the service container's docker network so we can place the benchbase container in it too.
+            docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
+            # Map the adjusted config into the container and use it to run the test.
+            rm -rf results
+            mkdir -p results
+            docker run --rm --name benchbase-postgres --network "$docker_network" \
+              --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
+              "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
+            # Test that the results files were produced.
+            ls results/${benchmark}_*.csv
+          done
       # Publish the docker image if the build/test was successful.
       # Only do this with approved PRs and if the login secrets are available.
       # Typically we expect to publish to benchbase.azurecr.io,
@@ -434,5 +437,8 @@ jobs:
       - name: Push Docker image
         if: github.ref == 'refs/heads/main' && && ${{ env.CONTAINER_REGISTRY_NAME != '' }}
         run: |
-          docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase
           docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase-dev
+          docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase
+          for profile in $BENCHBASE_PROFILES; do
+            docker push -a ${{ secrets.ACR_LOGINURL }}/benchbase-$profile
+          done
