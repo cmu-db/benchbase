@@ -416,8 +416,9 @@ jobs:
           # Lookup the service container's docker network so we can place the benchbase container in it too.
           docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
           # Map the adjusted config into the container and use it to run the test.
+          id
           mkdir -p results
-          ls -ld results
+          find . -maxdepth 2 -ls
           docker run --rm --name benchbase-postgres --network "$docker_network" --user $UID \
             --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
             benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
