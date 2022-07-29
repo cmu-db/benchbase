@@ -391,6 +391,10 @@ jobs:
         ports:
           - 5432:5432
     steps:
+      - name: Setup postgres test DB
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Build benchbase-dev image
@@ -401,10 +405,6 @@ jobs:
           SKIP_TESTS: 'false'
         run: |
           ./docker/benchbase/build-full-image.sh
-      - name: Setup postgres test DB
-        run: |
-          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
-          PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Run a basic test from the docker image against postgres test DB
         env:
             benchmark: noop
