@@ -18,14 +18,20 @@ ENV MAVEN_CONFIG=/home/containeruser/.m2
 WORKDIR /benchbase
 VOLUME /benchbase/results
 
-# Assumes the context is given as the root of the repo.
-
-# Preload some dependencies.
-COPY --chown=containeruser:containergroup pom.xml /benchbase/pom.xml
-COPY --chown=containeruser:containergroup .git/ /benchbase/.git/
-ARG MAVEN_OPTS
-RUN mvn -T2C -B --file pom.xml initialize \
-    && rm -rf /benchbase/.git /benchbase/target /benchbase/pom.xml
+# At the expense of having to download some of the maven project dependencies
+# at build time (many others we'd have to get for building the different
+# profiles anyways), but for the benefit of not having to rebuild the
+# devcontainer as frequently, we set the context to /dev/null during build and
+# avoid copying any content over now.
+#
+## Assumes the context is given as the root of the repo.
+#
+## Preload some dependencies.
+#COPY --chown=containeruser:containergroup pom.xml /benchbase/pom.xml
+#COPY --chown=containeruser:containergroup .git/ /benchbase/.git/
+#ARG MAVEN_OPTS
+#RUN mvn -T2C -B --file pom.xml initialize \
+#    && rm -rf /benchbase/.git /benchbase/target /benchbase/pom.xml
 
 # When running the devcontainer, just launch an interactive shell by default.
 ENTRYPOINT ["/bin/bash", "-l"]
