@@ -58,6 +58,7 @@ function deduplicate_profile_files() {
 
 function clean_profile_build() {
     local profile="$1"
+    echo "INFO: Cleaning profile $profile"
     if [ -d target/$profile ]; then
         mvn -B --file pom.xml -D buildDirectory=target/$profile clean
         rm -rf target/$profile
