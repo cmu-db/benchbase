@@ -392,21 +392,36 @@ jobs:
         ports:
           - 5432:5432
     steps:
+      - name: Results dir debugging
+        run: |
+          ls -ld results || true
       - name: Checkout repo
         uses: actions/checkout@v2
+      - name: Results dir debugging
+        run: |
+          ls -ld results || true
       - name: Build benchbase-dev image
         run: |
           ./docker/benchbase/build-dev-image.sh
+      - name: Results dir debugging
+        run: |
+          ls -ld results || true
       - name: Build the benchbase docker image with all profiles using the dev image
         env:
           #SKIP_TESTS: 'false'
           SKIP_TESTS: 'true'
         run: |
           ./docker/benchbase/build-full-image.sh
+      - name: Results dir debugging
+        run: |
+          ls -ld results || true
       - name: Setup postgres test DB
         run: |
           PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
           PGPASSWORD=password createdb -h localhost -U admin benchbase
+      - name: Results dir debugging
+        run: |
+          ls -ld results || true
       - name: Run a basic test from the docker image against postgres test DB
         env:
             benchmark: noop
@@ -417,8 +432,10 @@ jobs:
           docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
           # Map the adjusted config into the container and use it to run the test.
           id
+          ls -ld results || true
+          rm -rf results || true
           mkdir -p results
-          find . -maxdepth 2 -ls
+          ls -ld results || true
           docker run --rm --name benchbase-postgres --network "$docker_network" --user $UID \
             --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
             benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
