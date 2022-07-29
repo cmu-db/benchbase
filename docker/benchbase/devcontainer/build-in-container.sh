@@ -49,7 +49,7 @@ function deduplicate_profile_files() {
                 continue
             fi
             if cmp "$dup_file" "$target_file"; then
-                echo "DEBUG: Hardlinking duplicate file $dup_file to $target_file." >&2
+                #echo "DEBUG: Hardlinking duplicate file $dup_file to $target_file." >&2
                 ln -f "$target_file" "$dup_file"
             fi
         done
