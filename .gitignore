@@ -12,6 +12,7 @@ HELP.md
 PRIVATE.md
 target/
 profiles/
+.docker-build-stage/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**
