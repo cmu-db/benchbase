@@ -82,7 +82,11 @@ else
 fi
 
 # Make sure that we've built the base stuff first before we start.
-mvn -T 2C -B --file pom.xml process-resources compile ${TEST_TARGET:-}
+mvn -T 2C -B --file pom.xml process-resources compile # ${TEST_TARGET:-}
+if [ -n "${TEST_TARGET:-}" ]; then
+    # FIXME: Run tests without parallelism to work around some buggy behavior.
+    mvn -B --file pom.xml $TEST_TARGET
+fi
 
 for profile in ${BENCHBASE_PROFILES}; do
     build_profile "$profile" &
