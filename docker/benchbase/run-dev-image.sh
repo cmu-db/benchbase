@@ -26,6 +26,8 @@ else
 fi
 
 cd "$rootdir"
+MAVEN_CONFIG="${MAVEN_CONFIG:-$HOME/.m2}"
+mkdir -p "$MAVEN_CONFIG"
 set -x
 docker run ${INTERACTIVE_ARGS:-} --rm \
     --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
@@ -34,5 +36,6 @@ docker run ${INTERACTIVE_ARGS:-} --rm \
     --env CLEAN_BUILD="$CLEAN_BUILD" \
     --env SKIP_TESTS="$SKIP_TESTS" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
+    -v "$MAVEN_CONFIG:/home/containeruser/.m2" \
     -v "$PWD:/benchbase" benchbase-dev:latest $*
 set +x
