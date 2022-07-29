@@ -18,12 +18,11 @@ USER containeruser
 WORKDIR /benchbase
 VOLUME /benchbase/results
 
-
 # Only copy the content necessary for running (not building) benchbase over to the image.
 # These files should have been built using the devcontainer by the
 # build-full-image.sh script.
-ADD ./docker-build-stage.tar.xz /benchbase/profiles/
 COPY ./entrypoint.sh /entrypoint.sh
+COPY ./docker-build-stage/ /benchbase/profiles/
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]

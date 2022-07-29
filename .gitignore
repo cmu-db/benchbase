@@ -12,7 +12,7 @@ HELP.md
 PRIVATE.md
 target/
 profiles/
-.docker-build-stage/
+docker/benchbase/fullimage/tmp/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**

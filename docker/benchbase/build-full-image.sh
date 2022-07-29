@@ -53,7 +53,6 @@ function create_image() {
         fi
         cp -al "$rootdir/profiles/$profile" tmp/docker-build-stage/
     done
-    tar -C tmp/docker-build-stage -cJvf docker-build-stage.tar.xz .
     # Make a copy of the entrypoint script that changes the default profile to
     # execute for singleton images.
     cp -a entrypoint.sh tmp/entrypoint.sh
@@ -71,18 +70,17 @@ function create_image() {
     docker build --progress=plain \
         --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" \
         --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
-        -t $target_iamge_tag_args -f ./docker/benchbase/fullimage/Dockerfile "$scriptdir/fullimage/tmp/"
+        $target_image_tag_args -f "$scriptdir/fullimage/Dockerfile" "$scriptdir/fullimage/tmp/"
     set +x
 
     # Cleanup the temporary copies.
-    rm -rf .docker-build-stage/
-    rm -rf .docker-build-stage.tar.xz
+    rm -rf "$scriptdir/fullimage/tmp/"
     popd
 }
 
 # Create the combo image.
-create_image "$BASEBENCH_PROFILES"
+create_image "$BENCHBASE_PROFILES"
 # Now create split images as well.
-for profile in $BASEBENCH_PROFILES; do
+for profile in $BENCHBASE_PROFILES; do
     create_image $profile
 done
