@@ -8,9 +8,31 @@ rootdir=$(readlink -f "$scriptdir/../../")
 cd "$scriptdir"
 . ./common-env.sh
 
+logs_child_pid=
+container_id=
+function trap_ctrlc() {
+    docker stop -t 1 $container_id >/dev/null || true
+    if [ -n "$logs_child_pid" ]; then
+        kill $logs_child_pid 2>/dev/null || true
+    fi
+    exit 1
+}
+
 # Build the requested profiles using the dev image.
 ./build-dev-image.sh
-INTERACTIVE='false' ./run-dev-image.sh /benchbase/docker/benchbase/devcontainer/build-in-container.sh
+# Use non-interactive mode so that the build doesn't prompt us to accept git ssh keys.
+# But setup some Ctrl-C handlers as well.
+container_id=$(INTERACTIVE='false' ./run-dev-image.sh /benchbase/docker/benchbase/devcontainer/build-in-container.sh)
+trap trap_ctrlc SIGINT SIGTERM
+echo "INFO: build-devcontainer-id: $container_id"
+docker logs -f $container_id &
+logs_child_pid=$!
+rc=$(docker wait $container_id)
+trap - SIGINT SIGTERM
+if [ "$rc" != 0 ]; then
+    echo "ERROR: Build in devcontainer failed." >&2
+    exit $rc
+fi
 
 cd "$rootdir"
 
@@ -18,6 +40,10 @@ cd "$rootdir"
 rm -rf .docker-build-stage/
 mkdir -p .docker-build-stage/
 for profile in $BENCHBASE_PROFILES; do
+    if ! [ -f "profiles/$profile/benchbase.jar" ]; then
+        echo "ERROR: build for $profile appears to have failed." >&2
+        exit 1
+    fi
     cp -al "profiles/$profile" .docker-build-stage/
 done
 

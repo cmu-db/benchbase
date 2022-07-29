@@ -18,7 +18,9 @@ fi
 if [ "$INTERACTIVE" == 'true' ]; then
     INTERACTIVE_ARGS='-it'
 elif [ "$INTERACTIVE" == 'false' ]; then
-    INTERACTIVE_ARGS=''
+    # NOTE: When this mode is in effect Ctrl-C can't be passed to kill a run.
+    # Instead, use "docker kill {container_id}"
+    INTERACTIVE_ARGS='-d'
 else
     echo "WARNING: Unhandled INTERACTIVE mode: '$INTERACTIVE'" >&2
 fi
