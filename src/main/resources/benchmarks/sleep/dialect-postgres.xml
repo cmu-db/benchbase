@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="Sleep">
+            <statement name="sleepStmt">
+                SELECT pg_sleep(?)
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
