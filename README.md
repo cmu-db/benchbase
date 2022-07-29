@@ -174,12 +174,16 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 
   ```sh
   ./docker/benchbase/build-dev-image.sh
+  ./docker/benchbase/run-dev-image.sh
   ```
 
   or
 
   ```sh
-  docker run -it --rm --pull -v /path/to/benchbase-source:/benchbase benchbase.azure.cr.io/benchbase-dev
+  docker run -it --rm --pull \
+    -v /path/to/benchbase-source:/benchbase \
+    -v $HOME/.m2:/home/containeruser/.m2 \
+    benchbase.azure.cr.io/benchbase-dev
   ```
 
 - Build the full image:

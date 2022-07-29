@@ -1,6 +1,8 @@
 # Benchbase Containers
 
-This directory provides scripts for producing two different containers.
+This directory provides scripts for producing and running two different containers.
+
+## Building Containers
 
 1. `benchbase-dev` which can be used for *building* and *developing* `benchbase`.
 
@@ -25,11 +27,13 @@ This directory provides scripts for producing two different containers.
 
     The test suite can also be skipped during the build phase by setting `SKIP_TESTS='true'`.
 
+    Additionally, an `benchbase-{profile_name}` image with just that profile in it will be created for each of the `BENCHBASE_PROFILES`.
+
     When running the `benchbase` image, results are placed in `/benchbase/results`, which is expected to be mapped back into the host environment (e.g. `docker run -v /place/to/save/results:/benchbase/results benchbase`)
 
     See [`build-full-image.sh`](./build-full-image.sh) and [`run-full-image.sh`](./run-full-image.sh) for further details.
 
-## Publishing Containers
+### Publishing Containers
 
 These scripts are used to publish the images to a container registry for easy consumption with `docker pull` as well.
 
@@ -45,7 +49,22 @@ docker push $CONTAINER_REGISTRY_NAME/benchbase-dev
 docker push $CONTAINER_REGISTRY_NAME/benchbase
 ```
 
-## Prebuilt Containers
+## Running Containers
+
+### With Local Builds
+
+```sh
+# This will build and run a container shell with maven and java preloaded and the current source checkout mapped into it:
+./docker/benchbase/run-dev-image.sh
+```
+
+
+```sh
+# This will build and run a container for running the postgres benchbase profile:
+BENCHBASE_PROFILE='postgres' ./docker/benchbase/run-full-image.sh
+```
+
+### Prebuilt Containers
 
 To use prebuilt containers, the following can be used:
 
@@ -53,12 +72,19 @@ To use prebuilt containers, the following can be used:
 docker pull benchbase.azurecr.io/benchbase-dev
 
 # Provide a build environment for working with the local source code:
-docker run -it --rm -v /src:/benchbase benchbase.azurecr.io/benchbase-dev
+docker run -it --rm -v /path/to/src:/benchbase benchbase.azurecr.io/benchbase-dev
 ```
+
+> Optional: also reuse the local `MAVEN_CONFIG` and it's repository download cache with the following argument:
+>
+> `-v "${MAVEN_CONFIG:-$HOME/.m2}:/home/containeruser/.m2"`
 
 ```sh
 docker pull benchbase.azurecr.io/benchbase
 
 # Run benchbase against a postgres instance and store the results in /results:
-docker run --rm --env BENCHBASE_PROFILE='postgres' -v /results:/benchbase/results benchbase.azurecr.io/benchbase
+docker run --rm --env BENCHBASE_PROFILE='postgres' -v /results:/benchbase/results benchbase.azurecr.io/benchbase --help
+
+# Or by referencing the standalone image for that profile:
+docker run --rm -v /results:/benchbase/results benchbase.azurecr.io/benchbase-postgres --help
 ```
