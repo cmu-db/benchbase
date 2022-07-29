@@ -21,8 +21,7 @@ mkdir -p results/
 set -x
 docker run -it --rm \
     --env=http_proxy="${http_proxy:-}" --env=https_proxy="${https_proxy:-}" \
-    --env MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
     --env BENCHBASE_PROFILE="$BENCHBASE_PROFILE" \
     --user "$CONTAINERUSER_UID:$CONTAINERUSER_GID" \
-    -v "$PWD/results:/benchbase/results" benchbase:latest $*
+    -v "$PWD/results:/benchbase/results" benchbase-$BENCHBASE_PROFILE:latest $*
 set +x
