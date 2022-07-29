@@ -428,14 +428,14 @@ jobs:
       # Typically we expect to publish to benchbase.azurecr.io,
       # but setting ACR_LOGINURL to something else allows us to do testing on forks.
       - name: Log in to Docker Hub
-        if: github.ref == 'refs/heads/main' && && ${{ env.CONTAINER_REGISTRY_NAME != '' }}
+        if: github.ref == 'refs/heads/main' && ${{ env.CONTAINER_REGISTRY_NAME != '' }}
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.ACR_LOGINURL }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
       - name: Push Docker image
-        if: github.ref == 'refs/heads/main' && && ${{ env.CONTAINER_REGISTRY_NAME != '' }}
+        if: github.ref == 'refs/heads/main' && ${{ env.CONTAINER_REGISTRY_NAME != '' }}
         run: |
           docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase-dev
           docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase
