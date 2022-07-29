@@ -35,4 +35,5 @@ VOLUME /benchbase/results
 #    && rm -rf /benchbase/.git /benchbase/target /benchbase/pom.xml
 
 # When running the devcontainer, just launch an interactive shell by default.
+ENV SHELL=/bin/bash
 ENTRYPOINT ["/bin/bash", "-l"]

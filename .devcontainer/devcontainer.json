@@ -3,8 +3,8 @@
 {
     "name": "Workspace Dockerfile",
 
-    // Sets the run context to one level up instead of the .devcontainer folder.
-    "context": "..",
+    // We have no context for the devcontainer.
+    "context": ".",
 
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
     "dockerFile": "../docker/benchbase/devcontainer/Dockerfile",
@@ -35,6 +35,10 @@
 
     // Uncomment to use the Docker CLI from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker.
     // "mounts": [ "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind" ],
+    // Use the local maven cache.
+    "mounts": [
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.m2,target=/home/containeruser/.m2,type=bind,consistency=cached"
+    ],
 
     // Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
     "remoteUser": "containeruser"
