@@ -415,7 +415,6 @@ jobs:
           docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
           # Map the adjusted config into the container and use it to run the test.
           mkdir -p results
-          chmod a+wX results
           docker run --rm --name benchbase-postgres --network "$docker_network" --user $UID \
             --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
             benchbase:latest -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
