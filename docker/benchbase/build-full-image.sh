@@ -40,6 +40,8 @@ function create_image() {
     local profiles="$1"
     local default_profile=$(echo "$profiles" | awk '{ print $1 }')
 
+    # Prepare the build context.
+
     # Make (hard-linked) copies of the build results that we can put into the image.
     pushd "$scriptdir/fullimage/"
     rm -rf tmp/
@@ -52,6 +54,10 @@ function create_image() {
         cp -al "$rootdir/profiles/$profile" tmp/docker-build-stage/
     done
     tar -C tmp/docker-build-stage -cJvf docker-build-stage.tar.xz .
+    # Make a copy of the entrypoint script that changes the default profile to
+    # execute for singleton images.
+    cp -a entrypoint.sh tmp/entrypoint.sh
+    sed -i "s/:-postgres/:-${default_profile}/" tmp/entrypoint.sh
 
     # Adjust the image tags.
     local image_name='benchbase'
@@ -61,14 +67,11 @@ function create_image() {
     fi
     local target_image_tag_args=$(echo "-t benchbase:latest ${image_tag_args:-}" | sed "s/benchbase:/$image_name:/g")
 
-    # Build with just the staged files and entrypoint.sh as the context.
     set -x
     docker build --progress=plain \
         --build-arg="http_proxy=${http_proxy:-}" --build-arg="https_proxy=${https_proxy:-}" \
-        --build-arg MAVEN_OPTS="-Dhttp.proxyHost=${http_proxy_host} -Dhttp.proxyPort=${http_proxy_port} -Dhttps.proxyHost=${https_proxy_host} -Dhttps.proxyPort=${https_proxy_port}" \
         --build-arg CONTAINERUSER_UID="$CONTAINERUSER_UID" --build-arg CONTAINERUSER_GID="$CONTAINERUSER_GID" \
-        --build-arg DEFAULT_BENCHBASE_PROFILE=$profile
-        -t $target_iamge_tag_args -f ./docker/benchbase/fullimage/Dockerfile "$scriptdir/fullimage/"
+        -t $target_iamge_tag_args -f ./docker/benchbase/fullimage/Dockerfile "$scriptdir/fullimage/tmp/"
     set +x
 
     # Cleanup the temporary copies.

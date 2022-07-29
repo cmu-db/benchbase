@@ -18,17 +18,12 @@ USER containeruser
 WORKDIR /benchbase
 VOLUME /benchbase/results
 
-# For singleton images, change the default profile at build time.
-COPY ./entrypoint.sh /entrypoint.sh
-ARG DEFAULT_BENCHBASE_PROFILE=postgres
-RUN sed -i "s/:-postgres/:-${DEFAULT_BENCHBASE_PROFILE}/" /entrypoint.sh \
-    && grep ":-${DEFAULT_BENCHBASE_PROFILE}" /entrypoint.sh
-ENV BENCHBASE_PROFILE=${DEFAULT_BENCHBASE_PROFILE}
 
 # Only copy the content necessary for running (not building) benchbase over to the image.
 # These files should have been built using the devcontainer by the
 # build-full-image.sh script.
-ADD ./tmp/docker-build-stage.tar.xz /benchbase/profiles/
+ADD ./docker-build-stage.tar.xz /benchbase/profiles/
+COPY ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]
