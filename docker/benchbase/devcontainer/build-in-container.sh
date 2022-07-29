@@ -21,23 +21,39 @@ function build_profile() {
     # Extract the resultant package.
     mkdir -p profiles/$profile
     tar -C profiles/$profile/ --strip-components=1 -xvzf target/$profile/benchbase-$profile.tgz
-    # Try to save some space by linking to a shared data directory.
-    rm -rf profiles/$profile/data/ && ln -s ../../data profiles/$profile/data
-    # Late the container entrypoint will move into this directory to run it, so
+    # Later the container entrypoint will move into this directory to run it, so
     # save all of the results back to the common volume mapping location.
     ln -s ../../results profiles/$profile/results
 }
 
 function test_profile_build() {
     local profile="$1"
-    if [ "$(readlink -f profiles/$profile/data)" != "/benchbase/data" ]; then
-        echo "ERROR: profiles/$profile/data is not /benchbase/data." >&2
+    if ! [ -f "profiles/$profile/benchbase.jar" ]; then
+        echo "ERROR: build/packaging failed: profiles/$profile/benchbase.jar does not exist!" >&2
         false
     fi
     if [ "$(readlink -f profiles/$profile/results)" != "/benchbase/results" ]; then
         echo "ERROR: profiles/$profile/results is not /benchbase/results." >&2
         false
     fi
+}
+
+function deduplicate_profile_files() {
+    find /benchbase/profiles/ -type f -print0 | xargs -0 md5sum > /tmp/md5sums
+    dup_md5sums=$(cat /tmp/md5sums | awk '{ print $1 }' | sort | uniq -c | awk '( $1 > 1 ) { print $2 }')
+    for dup_md5sum in $dup_md5sums; do
+        dup_files="$(grep "^$dup_md5sum" /tmp/md5sums | sed -r -e "s/^$dup_md5sum\s+//")"
+        target_file="$(echo -e "$dup_files" | head -n1)"
+        echo -e "$dup_files" | tail -n +2 | while read dup_file; do
+            if [ "$dup_file" == "$target_file" ]; then
+                continue
+            fi
+            if cmp "$dup_file" "$target_file"; then
+                ln -f "$target_file" "$dup_file"
+            fi
+        done
+    done
+    rm -f /tmp/md5sums
 }
 
 function clean_profile_build() {
@@ -71,7 +87,8 @@ for profile in ${BENCHBASE_PROFILES}; do
 done
 wait
 
-test -d data
+deduplicate_profile_files
+
 for profile in ${BENCHBASE_PROFILES}; do
     test_profile_build "$profile" || exit 1
 done
