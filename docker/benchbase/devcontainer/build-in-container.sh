@@ -81,8 +81,14 @@ else
     echo "WARNING: Unhandled SKIP_TESTS mode: '$SKIP_TESTS'" >&2
 fi
 
-# Make sure that we've built the base stuff first before we start.
-mvn -T 2C -B --file pom.xml process-resources compile # ${TEST_TARGET:-}
+# Fetch resources serially to work around mvn races with downloading the same
+# file in multiple processes (mvn uses *.part instead of use tmpfile naming).
+for profile in ${BENCHBASE_PROFILES}; do
+    mvn -T2C -B --file pom.xml -D buildDirectory=target/$profile process-resources dependency:copy-dependencies
+done
+
+# Make sure that we've built the base stuff (and test) before we build individual profiles.
+mvn -T 2C -B --file pom.xml compile # ${TEST_TARGET:-}
 if [ -n "${TEST_TARGET:-}" ]; then
     # FIXME: Run tests without parallelism to work around some buggy behavior.
     mvn -B --file pom.xml $TEST_TARGET
