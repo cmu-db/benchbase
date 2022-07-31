@@ -111,7 +111,7 @@ To execute the `tpcc` benchmark:
 java -jar benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config.xml --create=true --load=true --execute=true
 ```
 
-For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list: `
+For composite benchmarks like `chbenchmark`, which require multiple schemas to be created and loaded, you can provide a comma separated list:
 ```bash
 java -jar benchbase.jar -b tpcc,chbenchmark -c config/postgres/sample_chbenchmark_config.xml --create=true --load=true --execute=true
 ```
