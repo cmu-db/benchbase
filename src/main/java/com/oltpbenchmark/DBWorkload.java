@@ -149,6 +149,14 @@ public class DBWorkload {
                 // Nothing to do here !
             }
 
+            double sleep_time = -1;
+            try {
+                sleep_time = xmlConfig.getDouble("sleep_time");
+                wrkld.setSleepTime(sleep_time);
+            } catch (NoSuchElementException nse) {
+                // Nothing to do here !
+            }
+
             // ----------------------------------------------------------------
             // CREATE BENCHMARK MODULE
             // ----------------------------------------------------------------
@@ -173,6 +181,10 @@ public class DBWorkload {
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);
+            }
+
+            if (sleep_time != -1) {
+                initDebug.put("Sleep Time", sleep_time);
             }
 
             LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));

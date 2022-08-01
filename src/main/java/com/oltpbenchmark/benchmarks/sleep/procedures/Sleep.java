@@ -40,9 +40,9 @@ public class Sleep extends Procedure {
     // That is enough for the DBMS to have to parse it and do something
     public final SQLStmt sleepStmt = new SQLStmt(";");
 
-    public void run(Connection conn) {
+    public void run(Connection conn, double sleepTime) {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, sleepStmt)) {
-            stmt.setDouble(1, 0.5);
+            stmt.setDouble(1, sleepTime);
 
             if (stmt.execute()) {
                 ResultSet r = stmt.getResultSet();
