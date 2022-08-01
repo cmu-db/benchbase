@@ -158,6 +158,14 @@ public class DBWorkload {
                 // Nothing to do here !
             }
 
+            int sleeps_per_txn = -1;
+            try {
+                sleeps_per_txn = xmlConfig.getInt("sleeps_per_txn");
+                wrkld.setSleepsPerTxn(sleeps_per_txn);
+            } catch (NoSuchElementException nse) {
+                // Nothing to do here !
+            }
+
             // ----------------------------------------------------------------
             // CREATE BENCHMARK MODULE
             // ----------------------------------------------------------------
@@ -187,6 +195,10 @@ public class DBWorkload {
 
             if (sleep_time != -1) {
                 initDebug.put("Sleep Time", sleep_time);
+            }
+
+            if (sleeps_per_txn != -1) {
+                initDebug.put("Sleeps Per Txb", sleeps_per_txn);
             }
 
             LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));

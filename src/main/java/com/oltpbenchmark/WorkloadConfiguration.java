@@ -42,6 +42,7 @@ public class WorkloadConfiguration {
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
     private double sleepTime = 0.5;
+    private int sleepsPerTxn = 1;
     private int terminals;
     private int loaderThreads = ThreadUtil.availableProcessors();
     private XMLConfiguration xmlConfig = null;
@@ -183,6 +184,14 @@ public class WorkloadConfiguration {
 
     public void setSleepTime(double sleep_time) {
         this.sleepTime = sleep_time;
+    }
+
+    public int getSleepsPerTxn() {
+        return this.sleepsPerTxn;
+    }
+
+    public void setSleepsPerTxn(int sleepsPerTxn) {
+        this.sleepsPerTxn = sleepsPerTxn;
     }
 
     /**

@@ -37,11 +37,13 @@ public class SleepWorker extends Worker<SleepBenchmark> {
     private final Sleep procSleep;
 
     private final double sleepTime;
+    private final int sleepsPerTxn;
 
     public SleepWorker(SleepBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.procSleep = this.getProcedure(Sleep.class);
         this.sleepTime = this.getWorkloadConfiguration().getSleepTime();
+        this.sleepsPerTxn = this.getWorkloadConfiguration().getSleepsPerTxn();
     }
 
     @Override
@@ -49,7 +51,7 @@ public class SleepWorker extends Worker<SleepBenchmark> {
 
         LOG.debug("Executing {}", this.procSleep);
         try {
-            this.procSleep.run(conn, this.sleepTime);
+            this.procSleep.run(conn, this.sleepTime, this.sleepsPerTxn);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Successfully completed {} execution!", this.procSleep);
             }
