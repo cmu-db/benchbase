@@ -41,6 +41,7 @@ public class WorkloadConfiguration {
     private int randomSeed = -1;
     private double scaleFactor = 1.0;
     private double selectivity = -1.0;
+    private double sleepTime = 0.5;
     private int terminals;
     private int loaderThreads = ThreadUtil.availableProcessors();
     private XMLConfiguration xmlConfig = null;
@@ -174,6 +175,14 @@ public class WorkloadConfiguration {
 
     public void setSelectivity(double selectivity) {
         this.selectivity = selectivity;
+    }
+
+    public double getSleepTime() {
+        return this.sleepTime;
+    }
+
+    public void setSleepTime(double sleep_time) {
+        this.sleepTime = sleep_time;
     }
 
     /**
