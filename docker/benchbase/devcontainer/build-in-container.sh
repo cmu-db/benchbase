@@ -39,6 +39,7 @@ function test_profile_build() {
 }
 
 function deduplicate_profile_files() {
+    echo "INFO: Deduplicating files in /benchbase/profiles/"
     find /benchbase/profiles/ -type f -print0 | xargs -0 md5sum > /tmp/md5sums
     dup_md5sums=$(cat /tmp/md5sums | awk '{ print $1 }' | sort | uniq -c | awk '( $1 > 1 ) { print $2 }')
     for dup_md5sum in $dup_md5sums; do
