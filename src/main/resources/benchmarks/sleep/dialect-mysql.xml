@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="MYSQL">
+        <procedure name="Sleep">
+            <statement name="sleepStmt">
+                SELECT SLEEP(?)
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>

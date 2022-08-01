@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>MYSQL</type>
+    <driver>com.mysql.cj.jdbc.Driver</driver>
+    <url>jdbc:mysql://localhost:3306/benchbase?rewriteBatchedStatements=true&amp;sslMode=DISABLED</url>
+    <username>admin</username>
+    <password>password</password>
+    <isolation>TRANSACTION_SERIALIZABLE</isolation>
+    <batchsize>128</batchsize>
+
+    <!-- This parameter has no affect on this benchmark-->
+    <!-- There is no data to load -->
+    <scalefactor>1</scalefactor>
+    <sleep_time>0.75</sleep_time>
+    <sleeps_per_txn>3</sleeps_per_txn>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>1000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Sleep Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>Sleep</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
