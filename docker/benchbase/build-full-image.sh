@@ -91,7 +91,9 @@ function create_image() {
 }
 
 # Create the combo image.
-create_image "$BENCHBASE_PROFILES"
+if [ $(echo "$BENCHBASE_PROFILES" | wc -w) -gt 1 ]; then
+    create_image "$BENCHBASE_PROFILES"
+fi
 # Now create split images as well.
 for profile in $BENCHBASE_PROFILES; do
     create_image $profile
