@@ -44,16 +44,28 @@ else
     exit 1
 fi
 
-git_rev=$(git rev-list -1 --abbrev-commit HEAD)
+# Determine the tags to apply for the images produced.
+
+git_main_rev=$(git rev-parse --revs-only refs/heads/main)
+git_rev=$(git rev-parse --revs-only HEAD)
 git_vers_tag=$(git tag -l --points-at HEAD | grep ^v | sort -V | tail -n1)
 
+# We could also include a short tag to follow semantic versioning, but it adds
+# cleanup complexity, so we omit it for now.
+#git_rev_short=$(git rev-parse --revs-only --short HEAD)
+
+# Local image gets a :latest tag, always, for local dev/run convenience.
 image_tag_args="-t $imagename:latest"
 if [ -n "$CONTAINER_REGISTRY_NAME" ]; then
-    image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:latest"
+    # Mark the latest main commit as the latest image tag.
+    if [ "$git_rev" == "$git_main_rev" ]; then
+        image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:latest"
+    fi
 fi
+# If this commit was tagged, mark it as such.
 if [ -n "$git_vers_tag" ]; then
     image_tag_args+=" -t $imagename:$git_vers_tag"
     if [ -n "$CONTAINER_REGISTRY_NAME" ]; then
-        image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:latest"
+        image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:$git_vers_tag"
     fi
 fi

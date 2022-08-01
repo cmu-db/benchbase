@@ -15,6 +15,9 @@ name: BenchBase (Java with Maven)
 on:
   push:
     branches: [ main ]
+    # Generate new docker images on release tags.
+    tags:
+      - 'v*'
   pull_request:
     branches: [ main ]
   # Run these workflows on a schedule so that docker images are regularly updated for security patches.
