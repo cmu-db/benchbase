@@ -198,7 +198,7 @@ public class DBWorkload {
             }
 
             if (sleeps_per_txn != -1) {
-                initDebug.put("Sleeps Per Txb", sleeps_per_txn);
+                initDebug.put("Sleeps Per Txn", sleeps_per_txn);
             }
 
             LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
