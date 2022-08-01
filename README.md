@@ -170,6 +170,22 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
 
 ### How use with Docker
 
+- Build or pull a dev image to help building from source:
+
+  ```sh
+  ./docker/benchbase/build-dev-image.sh
+  ./docker/benchbase/run-dev-image.sh
+  ```
+
+  or
+
+  ```sh
+  docker run -it --rm --pull \
+    -v /path/to/benchbase-source:/benchbase \
+    -v $HOME/.m2:/home/containeruser/.m2 \
+    benchbase.azure.cr.io/benchbase-dev
+  ```
+
 - Build the full image:
 
   ```sh
@@ -186,7 +202,14 @@ To modify the logging level you can update [`logging.properties`](src/main/resou
   BENCHBASE_PROFILE='postgres' ./docker/benchbase/run-full-image.sh --help # or other benchbase args as before
   ```
 
-> See [scripts](./docker/benchbase/) for further details.
+  or
+
+  ```sh
+  docker run -it --rm --env BENCHBASE_PROFILE='postgres' \
+    -v results:/benchbase/results benchbase.azurecr.io/benchbase --help # or other benchbase args as before
+  ```
+
+> See the [docker/benchbase/README.md](./docker/benchbase/) for further details.
 
 [Github Codespaces](https://github.com/features/codespaces) and [VSCode devcontainer](https://code.visualstudio.com/docs/remote/containers) support is also available.
 
