@@ -400,9 +400,18 @@ jobs:
           PGPASSWORD=password createdb -h localhost -U admin benchbase
       - name: Checkout repo
         uses: actions/checkout@v2
+      # https://github.com/actions/cache/blob/master/examples.md#java---maven
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Build benchbase-dev image
         run: |
           ./docker/benchbase/build-dev-image.sh
+      # Note: this script maps the local .m2 cache into the container.
       - name: Build the benchbase docker image with all profiles using the dev image
         env:
           SKIP_TESTS: 'false'
