@@ -150,10 +150,18 @@ public class DBWorkload {
                 // Nothing to do here !
             }
 
-            double sleep_time = -1;
+            double query_sleep_time = -1;
             try {
-                sleep_time = xmlConfig.getDouble("sleep_time");
-                wrkld.setSleepTime(sleep_time);
+                query_sleep_time = xmlConfig.getDouble("query_sleep_time");
+                wrkld.setQuerySleepTime(query_sleep_time);
+            } catch (NoSuchElementException nse) {
+                // Nothing to do here !
+            }
+
+            double sleep_between_queries = -1;
+            try {
+                sleep_between_queries = xmlConfig.getDouble("sleep_between_queries");
+                wrkld.setSleepBetweenQueries(sleep_between_queries);
             } catch (NoSuchElementException nse) {
                 // Nothing to do here !
             }
@@ -193,8 +201,12 @@ public class DBWorkload {
                 initDebug.put("Selectivity", selectivity);
             }
 
-            if (sleep_time != -1) {
-                initDebug.put("Sleep Time", sleep_time);
+            if (query_sleep_time != -1) {
+                initDebug.put("Query Sleep Time", query_sleep_time);
+            }
+
+            if (sleep_between_queries != -1) {
+                initDebug.put("Sleep Between Queries", sleep_between_queries);
             }
 
             if (sleeps_per_txn != -1) {

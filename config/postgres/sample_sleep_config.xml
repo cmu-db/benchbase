@@ -13,7 +13,8 @@
     <!-- This parameter has no affect on this benchmark-->
     <!-- There is no data to load -->
     <scalefactor>1</scalefactor>
-    <sleep_time>0.75</sleep_time>
+    <query_sleep_time>0.75</query_sleep_time>
+    <sleep_between_queries>0.5</sleep_between_queries>
     <sleeps_per_txn>3</sleeps_per_txn>
 
     <!-- The workload -->
