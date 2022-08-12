@@ -41,8 +41,8 @@ public class Egress extends Procedure {
 
     public void run(Connection conn, int tuple_bytes, int num_tuples) {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, egressStmt)) {
-            stmt.setDouble(1, tuple_bytes);
-            stmt.setDouble(2, num_tuples);
+            stmt.setInt(1, tuple_bytes);
+            stmt.setInt(2, num_tuples);
             stmt.executeQuery();
             // We don't care about the ResultSet.
         } catch (Exception ex) {
