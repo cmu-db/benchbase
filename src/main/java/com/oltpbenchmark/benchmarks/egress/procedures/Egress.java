@@ -39,8 +39,10 @@ public class Egress extends Procedure {
     // and dialect as needed.
     public final SQLStmt egressStmt = new SQLStmt(";");
 
-    public void run(Connection conn) {
+    public void run(Connection conn, int tuple_bytes, int num_tuples) {
         try (PreparedStatement stmt = this.getPreparedStatement(conn, egressStmt)) {
+            stmt.setDouble(1, tuple_bytes);
+            stmt.setDouble(2, num_tuples);
             stmt.executeQuery();
             // We don't care about the ResultSet.
         } catch (Exception ex) {

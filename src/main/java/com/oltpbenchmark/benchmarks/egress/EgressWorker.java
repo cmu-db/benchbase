@@ -34,10 +34,14 @@ public class EgressWorker extends Worker<EgressBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(EgressWorker.class);
 
     private final Egress procEgress;
+    private final int tupleBytes;
+    private final int numTuples;
 
     public EgressWorker(EgressBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
         this.procEgress = this.getProcedure(Egress.class);
+        this.tupleBytes = this.getWorkloadConfiguration().getEgressTupleBytes();
+        this.numTuples = this.getWorkloadConfiguration().getEgressNumTuples();
     }
 
     @Override
@@ -45,7 +49,7 @@ public class EgressWorker extends Worker<EgressBenchmark> {
 
         LOG.debug("Executing {}", this.procEgress);
         try {
-            this.procEgress.run(conn);
+            this.procEgress.run(conn, this.tupleBytes, this.numTuples);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Successfully completed {} execution!", this.procEgress);
             }
