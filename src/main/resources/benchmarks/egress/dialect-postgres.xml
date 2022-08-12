@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="POSTGRES">
+        <procedure name="Egress">
+            <statement name="egressStmt">
+                SELECT * FROM egress(?, ?) as egress_results(egress_data text);
+            </statement>
+        </procedure>
+    </dialect>
+</dialects>
