@@ -150,6 +150,23 @@ public class DBWorkload {
                 // Nothing to do here !
             }
 
+
+            int egress_tuple_bytes = -1;
+            try {
+                egress_tuple_bytes = xmlConfig.getInt("egress_tuple_bytes");
+                wrkld.setEgressTupleBytes(egress_tuple_bytes);
+            } catch (NoSuchElementException nse) {
+                // Nothing to do here !
+            }
+
+            int egress_num_tuples = -1;
+            try {
+                egress_num_tuples = xmlConfig.getInt("egress_num_tuples");
+                wrkld.setEgressNumTuples(egress_num_tuples);
+            } catch (NoSuchElementException nse) {
+                // Nothing to do here !
+            }
+
             // ----------------------------------------------------------------
             // CREATE BENCHMARK MODULE
             // ----------------------------------------------------------------
@@ -175,6 +192,12 @@ public class DBWorkload {
 
             if (selectivity != -1) {
                 initDebug.put("Selectivity", selectivity);
+            }
+            if (egress_tuple_bytes != -1) {
+                initDebug.put("Egress Tuple Bytes", egress_tuple_bytes);
+            }
+            if (egress_num_tuples != -1) {
+                initDebug.put("Egress Num Tuples", egress_num_tuples);
             }
 
             LOG.info("{}\n\n{}", SINGLE_LINE, StringUtil.formatMaps(initDebug));
