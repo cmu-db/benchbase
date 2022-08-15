@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * The actual Egress implementation
@@ -45,8 +46,8 @@ public class Egress extends Procedure {
             stmt.setInt(2, num_tuples);
             stmt.executeQuery();
             // We don't care about the ResultSet.
-        } catch (Exception ex) {
-            throw new RuntimeException("Egress statement failed.");
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex.getMessage() + ex.getCause());
         }
     }
 
