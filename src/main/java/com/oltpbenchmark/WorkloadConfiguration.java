@@ -48,6 +48,13 @@ public class WorkloadConfiguration {
     private TransactionTypes transTypes = null;
     private int isolationMode = Connection.TRANSACTION_SERIALIZABLE;
     private String dataDir = null;
+    private String ddlPath = null;
+
+    /**
+     * If true, establish a new connection for each transaction, otherwise use one persistent connection per client
+     * session. This is useful to measure the connection overhead.
+     */
+    private boolean newConnectionPerTxn = false;
 
     public String getBenchmarkName() {
         return benchmarkName;
@@ -115,6 +122,23 @@ public class WorkloadConfiguration {
 
     public void setMaxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
+    }
+
+    /**
+     * @return @see newConnectionPerTxn member docs for behavior.
+     */
+    public boolean getNewConnectionPerTxn() {
+        return newConnectionPerTxn;
+    }
+
+    /**
+     * Used by the configuration loader at startup. Changing it any other time is probably dangeroues. @see
+     * newConnectionPerTxn member docs for behavior.
+     *
+     * @param newConnectionPerTxn
+     */
+    public void setNewConnectionPerTxn(boolean newConnectionPerTxn) {
+        this.newConnectionPerTxn = newConnectionPerTxn;
     }
 
     /**
@@ -208,6 +232,20 @@ public class WorkloadConfiguration {
      */
     public void setDataDir(String dir) {
         this.dataDir = dir;
+    }
+
+    /**
+     * Return the path in which we can find the ddl script.
+     */
+    public String getDDLPath() {
+        return this.ddlPath;
+    }
+
+    /**
+     * Set the path in which we can find the ddl script.
+     */
+    public void setDDLPath(String ddlPath) {
+        this.ddlPath = ddlPath;
     }
 
     /**

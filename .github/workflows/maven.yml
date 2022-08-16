@@ -7,14 +7,29 @@
 # The CI jobs are set up as follows:
 # - One job to build and upload artifacts.
 # - One job per DBMS test suite.
+# - One job to build/test the docker images.
+# - One job to publish the docker image.
 
 name: BenchBase (Java with Maven)
 
 on:
   push:
     branches: [ main ]
+    # Generate new docker images on release tags.
+    tags:
+      - 'v*'
   pull_request:
     branches: [ main ]
+  # Run these workflows on a schedule so that docker images are regularly updated for security patches.
+  schedule:
+    - cron: "1 0 * * *"
+  # Give us a button to allow running the workflow on demand for testing.
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Manual Workflow Run'
+        required: false
+        type: string
 
 env:
   POM_VERSION: 2021-SNAPSHOT
@@ -72,7 +87,7 @@ jobs:
     strategy:
       matrix:
         # BROKEN: tpch
-        benchmark: [ 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -96,8 +111,7 @@ jobs:
       - name: Run benchmark
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlite/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
-        
-        
+
   ## ----------------------------------------------------------------------------------
   ## MARIADB
   ## ----------------------------------------------------------------------------------
@@ -106,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mariadb: # https://hub.docker.com/_/mariadb
         image: mariadb:latest
@@ -157,7 +171,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       mysql: # https://hub.docker.com/_/mysql
         image: mysql:latest
@@ -208,7 +222,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       postgres: # https://hub.docker.com/_/postgres
         image: postgres:latest
@@ -257,7 +271,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
+        benchmark: [ 'auctionmark', 'epinions', 'hyadapt', 'noop', 'otmetrics', 'resourcestresser', 'seats', 'sibench', 'smallbank', 'tatp', 'tpcc', 'tpch', 'twitter', 'voter', 'wikipedia', 'ycsb' ]
     services:
       cockroach: # https://hub.docker.com/repository/docker/timveil/cockroachdb-single-node
         image: timveil/cockroachdb-single-node:latest
@@ -356,3 +370,88 @@ jobs:
         run: |
           java -jar benchbase.jar -b ${{matrix.benchmark}} -c config/sqlserver/sample_${{matrix.benchmark}}_config.xml --create=true --load=true --execute=true
 
+  ## ----------------------------------------------------------------------------------
+  ## Docker Build Test Publish
+  ## ----------------------------------------------------------------------------------
+  docker-build-test-publish:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      BENCHBASE_PROFILES: 'cockroachdb mariadb mysql postgres spanner phoenix sqlserver sqlite'
+      CONTAINER_REGISTRY_NAME: ${{ secrets.ACR_LOGINURL }}
+    services:
+      postgres: # https://hub.docker.com/_/postgres
+        image: postgres:latest
+        env:
+          POSTGRES_DB: benchbase
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Setup postgres test DB
+        run: |
+          PGPASSWORD=password dropdb -h localhost -U admin benchbase --if-exists
+          PGPASSWORD=password createdb -h localhost -U admin benchbase
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      # https://github.com/actions/cache/blob/master/examples.md#java---maven
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          # Try to use the same key as https://github.com/actions/setup-java uses in the steps above.
+          key: setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            setup-java-${{ runner.os }}-maven-
+      - name: Build benchbase-dev image
+        run: |
+          ./docker/benchbase/build-dev-image.sh
+      # Note: this script maps the local .m2 cache into the container.
+      - name: Build the benchbase docker image with all profiles using the dev image
+        env:
+          SKIP_TESTS: 'false'
+        run: |
+          ./docker/benchbase/build-full-image.sh
+      - name: Run a basic test from the docker image against postgres test DB
+        env:
+            benchmark: noop
+        run: |
+          for image in benchbase benchbase-postgres; do
+            # Adjust the sample config to talk to the container service instead of localhost.
+            cat "config/postgres/sample_${benchmark}_config.xml" | sed -e 's/localhost:5432/postgres:5432/g' > /tmp/config.xml
+            # Lookup the service container's docker network so we can place the benchbase container in it too.
+            docker_network="$(docker ps --filter expose=5432 --format '{{.Networks}}')"
+            # Map the adjusted config into the container and use it to run the test.
+            rm -rf results
+            mkdir -p results
+            docker run --rm --name benchbase-postgres --network "$docker_network" \
+              --env BENCHBASE_PROFILE=postgres -v /tmp/config.xml:/tmp/config.xml -v "$PWD/results:/benchbase/results" \
+              "$image" -b "$benchmark" -c /tmp/config.xml --create=true --load=true --execute=true
+            # Test that the results files were produced.
+            ls results/${benchmark}_*.csv
+          done
+      # Publish the docker image if the build/test was successful.
+      # Only do this with approved PRs and if the login secrets are available.
+      # Typically we expect to publish to benchbase.azurecr.io,
+      # but setting ACR_LOGINURL to something else allows us to do testing on forks.
+      - name: Log in to Docker Hub
+        if: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && env.CONTAINER_REGISTRY_NAME != '' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.ACR_LOGINURL }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - name: Push Docker image
+        if: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && env.CONTAINER_REGISTRY_NAME != '' }}
+        run: |
+          docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase-dev
+          docker push -a ${{ secrets.ACR_LOGINURL}}/benchbase
+          for profile in $BENCHBASE_PROFILES; do
+            docker push -a ${{ secrets.ACR_LOGINURL }}/benchbase-$profile
+          done

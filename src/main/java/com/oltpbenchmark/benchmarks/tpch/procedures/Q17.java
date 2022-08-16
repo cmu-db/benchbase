@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 public class Q17 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""      
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                SUM(l_extendedprice) / 7.0 AS avg_yearly
             FROM
@@ -49,12 +49,8 @@ public class Q17 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
-        // BRAND = 'Brand#MN' where MN is a two character string representing two numbers randomly and independently
-        // selected within [1 .. 5]
-        int M = rand.number(1, 5);
-        int N = rand.number(1, 5);
-        String brand = String.format("BRAND#%d%d", M, N);
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
+        String brand = TPCHUtil.randomBrand(rand);
 
         // CONTAINER is randomly selected within the list of 2-syllable strings defined for Containers in Clause
         // 4.2.2.13

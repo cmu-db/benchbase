@@ -29,7 +29,7 @@ import java.sql.SQLException;
 
 public class Q20 extends GenericQuery {
 
-    public final SQLStmt query_stmt = new SQLStmt("""     
+    public final SQLStmt query_stmt = new SQLStmt("""
             SELECT
                s_name,
                s_address
@@ -72,7 +72,7 @@ public class Q20 extends GenericQuery {
     );
 
     @Override
-    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand) throws SQLException {
+    protected PreparedStatement getStatement(Connection conn, RandomGenerator rand, double scaleFactor) throws SQLException {
         // COLOR is randomly selected within the list of values defined for the generation of P_NAME
         String color = TPCHUtil.choice(TPCHConstants.P_NAME_GENERATOR, rand) + "%";
 
