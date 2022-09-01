@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="featurebench - mysql" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
+    <module name="benchbase" />
+    <option name="PROGRAM_PARAMETERS" value="-b featurebench -c config/mysql/sample_featurebench_config.xml --create=true --load=true --execute=true" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.oltpbenchmark.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
