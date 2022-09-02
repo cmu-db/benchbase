@@ -27,6 +27,7 @@ public class DBParameterCollectorGen {
             case MARIADB:
                 return new MySQLCollector(dbUrl, username, password);
             case POSTGRES:
+            case YUGABYTE:
                 return new PostgresCollector(dbUrl, username, password);
             case COCKROACHDB:
                 return new CockroachCollector(dbUrl, username, password);

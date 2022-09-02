@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>YUGABYTE</type>
+    <driver>com.yugabyte.Driver</driver>
+    <url>jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&amp;ApplicationName=otmetrics&amp;reWriteBatchedInserts=true</url>
+    <username>yugabyte</username>
+    <password></password>
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+
+    <batchsize>2048</batchsize>
+    <scalefactor>0.1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>60</time>
+            <rate>unlimited</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Transaction Declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>GetSessionRange</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

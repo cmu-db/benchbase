@@ -36,6 +36,7 @@ public enum DatabaseType {
     H2(true, false),
     HSQLDB(false, false),
     POSTGRES(false, false),
+    YUGABYTE(false, false),
     MARIADB(true, false),
     MONETDB(false, false),
     MYROCKS(true, false),

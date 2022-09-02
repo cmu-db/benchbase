@@ -306,7 +306,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 userInsert.clearBatch();
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        if (this.getDatabaseType() == DatabaseType.POSTGRES ||
+            this.getDatabaseType() == DatabaseType.COCKROACHDB ||
+            this.getDatabaseType() == DatabaseType.YUGABYTE) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_users);
         }
         if (LOG.isDebugEnabled()) {
@@ -369,7 +371,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 this.addToTableCount(catalog_tbl.getName(), batchSize);
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        if (this.getDatabaseType() == DatabaseType.POSTGRES ||
+            this.getDatabaseType() == DatabaseType.COCKROACHDB ||
+            this.getDatabaseType() == DatabaseType.YUGABYTE) {
             this.updateAutoIncrement(conn, catalog_tbl.getColumn(0), this.benchmark.num_pages);
         }
         if (LOG.isDebugEnabled()) {
@@ -567,7 +571,9 @@ public class WikipediaLoader extends Loader<WikipediaBenchmark> {
                 }
             }
         }
-        if (this.getDatabaseType() == DatabaseType.POSTGRES || this.getDatabaseType() == DatabaseType.COCKROACHDB) {
+        if (this.getDatabaseType() == DatabaseType.POSTGRES ||
+            this.getDatabaseType() == DatabaseType.COCKROACHDB ||
+            this.getDatabaseType() == DatabaseType.YUGABYTE) {
             this.updateAutoIncrement(conn, textTable.getColumn(0), rev_id);
             this.updateAutoIncrement(conn, revTable.getColumn(0), rev_id);
         }

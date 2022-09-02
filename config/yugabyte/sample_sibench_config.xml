@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>YUGABYTE</type>
+    <driver>com.yugabyte.Driver</driver>
+    <url>jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&amp;ApplicationName=sibench&amp;reWriteBatchedInserts=true</url>
+    <username>yugabyte</username>
+    <password></password>
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>300</time>
+            <rate>unlimited</rate>
+            <weights>50,50</weights>
+        </work>
+    </works>
+
+    <!-- SIBENCH Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>MinRecord</name>
+        </transactiontype>
+        <transactiontype>
+            <name>UpdateRecord</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>

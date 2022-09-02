@@ -113,6 +113,19 @@
             </dependencies>
         </profile>
         <profile>
+            <id>yugabyte</id>
+            <properties>
+                <classifier>yugabyte</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.yugabyte</groupId>
+                    <artifactId>jdbc-yugabytedb</artifactId>
+                    <version>42.3.4</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>phoenix</id>
             <properties>
                 <classifier>phoenix</classifier>

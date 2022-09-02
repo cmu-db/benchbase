@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<parameters>
+
+    <!-- Connection details -->
+    <type>YUGABYTE</type>
+    <driver>com.yugabyte.Driver</driver>
+    <url>jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&amp;ApplicationName=voter&amp;reWriteBatchedInserts=true</url>
+    <username>yugabyte</username>
+    <password></password>
+    <isolation>TRANSACTION_REPEATABLE_READ</isolation>
+    <batchsize>128</batchsize>
+
+    <scalefactor>1</scalefactor>
+
+    <!-- The workload -->
+    <terminals>1</terminals>
+    <works>
+        <work>
+            <time>300</time>
+            <rate>10000</rate>
+            <weights>100</weights>
+        </work>
+    </works>
+
+    <!-- Voter Procedures declaration -->
+    <transactiontypes>
+        <transactiontype>
+            <name>Vote</name>
+        </transactiontype>
+    </transactiontypes>
+</parameters>
