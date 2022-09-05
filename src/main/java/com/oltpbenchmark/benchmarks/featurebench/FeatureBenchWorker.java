@@ -20,6 +20,7 @@ package com.oltpbenchmark.benchmarks.featurebench;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.featurebench.CustomBenchmark.YBMicroBenchmarkImplementation;
 import com.oltpbenchmark.benchmarks.featurebench.util.*;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RowRandomBoundedInt;
@@ -94,7 +95,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             String YBImplemenationClass = parameter.getChildText("microbenchmarkClass");
             YBImplemenationClass = YBImplemenationClass.substring(YBImplemenationClass.lastIndexOf('.') + 1);
             Class<?> clazz = Class.forName(YBImplemenationClass);
-            Object ybm = clazz.getDeclaredConstructor().newInstance();
+            YBMicroBenchmarkImplementation ybm = (YBMicroBenchmarkImplementation) clazz.getDeclaredConstructor().newInstance();
             ArrayList<ExecuteRule> listOfAllExecuteRules = ybm.executeRule();
 
             // Validating sum of transaction weights =100

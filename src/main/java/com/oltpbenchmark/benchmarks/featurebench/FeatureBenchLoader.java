@@ -19,6 +19,7 @@ package com.oltpbenchmark.benchmarks.featurebench;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
+import com.oltpbenchmark.benchmarks.featurebench.CustomBenchmark.YBMicroBenchmarkImplementation;
 import com.oltpbenchmark.benchmarks.featurebench.util.*;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -60,7 +61,7 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             String YBImplemenationClass = parameter.getChildText("microbenchmarkClass");
             YBImplemenationClass = YBImplemenationClass.substring(YBImplemenationClass.lastIndexOf('.') + 1);
             Class<?> clazz = Class.forName(YBImplemenationClass);
-            Object ybm = clazz.getDeclaredConstructor().newInstance();
+            YBMicroBenchmarkImplementation ybm = (YBMicroBenchmarkImplementation) clazz.getDeclaredConstructor().newInstance();
 
             ArrayList<LoadRule> listOfAllLoadRules = ybm.loadRule();
             ArrayList<LoaderThread> lt = new ArrayList<>();
