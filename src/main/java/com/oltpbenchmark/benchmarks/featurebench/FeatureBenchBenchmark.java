@@ -17,11 +17,16 @@
 
 package com.oltpbenchmark.benchmarks.featurebench;
 
+import com.oltpbenchmark.DBWorkload;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.featurebench.procedures.FeatureBench;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +36,8 @@ import java.util.List;
  */
 public class FeatureBenchBenchmark extends BenchmarkModule {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
+
     public FeatureBenchBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
     }
@@ -38,15 +45,23 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
+        HierarchicalConfiguration<ImmutableNode> conf = workConf.getXmlConfig().configurationAt("microbenchmark");
         for (int i = 0; i < workConf.getTerminals(); ++i) {
-            workers.add(new FeatureBenchWorker(this, i));
+            FeatureBenchWorker worker = new FeatureBenchWorker(this, i);
+            worker.workloadClass = conf.getString("class");
+            worker.config = conf.configurationAt("properties");
+            workers.add(worker);
         }
         return workers;
     }
 
     @Override
     protected Loader<FeatureBenchBenchmark> makeLoaderImpl() {
-        return new FeatureBenchLoader(this);
+        HierarchicalConfiguration<ImmutableNode> conf = workConf.getXmlConfig().configurationAt("microbenchmark");
+        FeatureBenchLoader loader = new FeatureBenchLoader(this);
+        loader.workloadClass = conf.getString("class");
+        loader.config = conf.configurationAt("properties");
+        return loader;
     }
 
     @Override

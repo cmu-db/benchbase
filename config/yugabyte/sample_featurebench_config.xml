@@ -4,21 +4,30 @@
     <!-- Connection details -->
     <type>YUGABYTE</type>
     <driver>com.yugabyte.Driver</driver>
-    <url>jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&amp;ApplicationName=featurebench&amp;reWriteBatchedInserts=true</url>
+    <url>jdbc:yugabytedb://localhost:5433/test_db?sslmode=disable&amp;ApplicationName=featurebench&amp;reWriteBatchedInserts=true</url>
     <username>yugabyte</username>
     <password></password>
     <isolation>TRANSACTION_REPEATABLE_READ</isolation>
     <batchsize>128</batchsize>
+    <microbenchmark>
+        <class>com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation</class>
+        <properties>
+            <rows>100</rows>
+            <columns>10</columns>
+            <indexes>2</indexes>
+            <rowspertransaction>1000</rowspertransaction>
+        </properties>
+    </microbenchmark>
+
 
     <!-- This parameter has no affect on this benchmark-->
     <!-- There is no data to load -->
-    <scalefactor>1</scalefactor>
-
+    <loaderthreads>1</loaderthreads>
     <!-- The workload -->
     <terminals>1</terminals>
     <works>
         <work>
-            <time>60</time>
+            <time>10</time>
             <rate>1000</rate>
             <weights>100</weights>
         </work>

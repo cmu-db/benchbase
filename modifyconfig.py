@@ -16,6 +16,4 @@ for key,value in data.items():
 
 
 tree.write('config/yugabyte/sample_{}_config.xml'.format(sys.argv[2]))
-
-
 # python modifyconfig.py '{"url":"jdbc:postgresql://localhost:5433/yugabyte","username":"yugabyte","password":""}' seats

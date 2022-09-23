@@ -27,6 +27,7 @@ import com.oltpbenchmark.api.collectors.DBParameterCollectorGen;
 import com.oltpbenchmark.types.DatabaseType;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.io.FileHandler;
 
@@ -95,6 +96,14 @@ public class ResultWriter {
         }
 
         FileHandler handler = new FileHandler(outputConf);
+        handler.save(os);
+    }
+
+    public void writeYamlConfig(PrintStream os) throws ConfigurationException {
+
+        XMLConfiguration outputConf = (XMLConfiguration) expConf.clone();
+        YAMLConfiguration outputYaml = new YAMLConfiguration(outputConf);
+        FileHandler handler = new FileHandler(outputYaml);
         handler.save(os);
     }
 

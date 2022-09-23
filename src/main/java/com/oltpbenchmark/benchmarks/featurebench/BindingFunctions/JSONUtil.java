@@ -1,23 +1,9 @@
-/*
- * Copyright 2020 by OLTPBenchmark Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+package com.oltpbenchmark.benchmarks.featurebench.BindingFunctions;
 
-package com.oltpbenchmark.util;
-
-
+import com.oltpbenchmark.util.ClassUtil;
+import com.oltpbenchmark.util.CollectionUtil;
+import com.oltpbenchmark.util.FileUtil;
+import com.oltpbenchmark.util.JSONSerializable;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +25,7 @@ import java.util.Map.Entry;
  * @author pavlo
  */
 public abstract class JSONUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(JSONUtil.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.class.getName());
 
     private static final String JSON_CLASS_SUFFIX = "_class";
     private static final Map<Class<?>, Field[]> SERIALIZABLE_FIELDS = new HashMap<>();
@@ -59,9 +45,9 @@ public abstract class JSONUtil {
                     for (Field f : clazz.getFields()) {
                         int modifiers = f.getModifiers();
                         if (!Modifier.isTransient(modifiers) &&
-                                Modifier.isPublic(modifiers) &&
-                                !Modifier.isStatic(modifiers) &&
-                                !exclude.contains(f.getName())) {
+                            Modifier.isPublic(modifiers) &&
+                            !Modifier.isStatic(modifiers) &&
+                            !exclude.contains(f.getName())) {
                             fields.add(f);
                         }
                     }
@@ -82,7 +68,7 @@ public abstract class JSONUtil {
      */
     public static String format(String json) {
         try {
-            return (JSONUtil.format(new JSONObject(json)));
+            return (com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.format(new JSONObject(json)));
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -112,7 +98,7 @@ public abstract class JSONUtil {
             } else if (object != null) {
                 Class<?> clazz = object.getClass();
 //                stringer.key(clazz.getSimpleName());
-                JSONUtil.writeFieldValue(stringer, clazz, object);
+                com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.writeFieldValue(stringer, clazz, object);
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -167,7 +153,7 @@ public abstract class JSONUtil {
 
         String contents;
 
-        try (InputStream in = JSONUtil.class.getResourceAsStream(input_path)) {
+        try (InputStream in = com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.class.getResourceAsStream(input_path)) {
             contents = IOUtils.toString(in, Charset.defaultCharset());
         }
 
@@ -306,7 +292,7 @@ public abstract class JSONUtil {
 
 
             // KEY
-            Object key = JSONUtil.getPrimitiveValue(json_key, key_class);
+            Object key = com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.getPrimitiveValue(json_key, key_class);
 
             // VALUE
             Object object = null;
@@ -324,7 +310,7 @@ public abstract class JSONUtil {
             } else {
                 String json_string = json_object.getString(json_key);
 
-                object = JSONUtil.getPrimitiveValue(json_string, val_class);
+                object = com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.getPrimitiveValue(json_string, val_class);
 
             }
             map.put(key, object);
@@ -371,7 +357,7 @@ public abstract class JSONUtil {
                 // Values
             } else {
                 String json_string = json_array.getString(i);
-                value = JSONUtil.getPrimitiveValue(json_string, inner_class);
+                value = com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.getPrimitiveValue(json_string, inner_class);
             }
             collection.add(value);
         }
@@ -432,7 +418,7 @@ public abstract class JSONUtil {
 
             // Everything else...
         } else {
-            Class explicit_field_class = JSONUtil.getClassForField(json_object, json_key);
+            Class explicit_field_class = com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.getClassForField(json_object, json_key);
             if (explicit_field_class != null) {
                 field_class = explicit_field_class;
                 if (LOG.isDebugEnabled()) {
@@ -442,7 +428,7 @@ public abstract class JSONUtil {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Field {} is primitive type {}", json_key, field_class.getSimpleName());
             }
-            Object value = JSONUtil.getPrimitiveValue(json_object.getString(json_key), field_class);
+            Object value = com.oltpbenchmark.benchmarks.featurebench.BindingFunctions.JSONUtil.getPrimitiveValue(json_object.getString(json_key), field_class);
             field_handle.set(object, value);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Set field {} to '{}'", json_key, value);

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<parameters>
+<!-- Common properties-->
+   <terminals>1</terminals>
+   <isolation>TRANSACTION_SERIALIZABLE</isolation>
+  <batchsize>128</batchsize>
+   <!-- Connection details -->
+    <type>YUGABYTE</type>
+    <driver>org.yugabyte.Driver</driver>
+    <url>jdbc:yugabytedb://localhost:5433/yugabytesslmode=disable&amp;ApplicationName=copybenchmark</url>
+    <username>yugabyte</username>
+    <password></password>
+    <!-- Specific to benchmark -->
+<!--    Shaharuk and Gargi to figure out-->
+    <microbenchmarkClass>yb.scan.PrimaryKeyScan</microbenchmarkClass>
+    <fieldsize></fieldsize>
+    <fieldcount></fieldcount>
+</parameters>

@@ -28,6 +28,7 @@ import org.apache.commons.cli.*;
 import org.apache.commons.collections4.map.ListOrderedMap;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
@@ -101,12 +102,16 @@ public class DBWorkload {
 
         String configFile = argsLine.getOptionValue("c");
 
-        XMLConfiguration xmlConfig = buildConfiguration(configFile);
+        XMLConfiguration xmlConfig = null;
 
         // Load the configuration for each benchmark
         int lastTxnId = 0;
         for (String plugin : targetList) {
             String pluginTest = "[@bench='" + plugin + "']";
+            if (plugin.equalsIgnoreCase("featurebench"))
+                 xmlConfig = buildConfigurationFromYaml(configFile);
+            else
+                xmlConfig = buildConfiguration(configFile);
 
             // ----------------------------------------------------------------
             // BEGIN LOADING WORKLOAD CONFIGURATION
@@ -508,6 +513,22 @@ public class DBWorkload {
 
     }
 
+    private static XMLConfiguration buildConfigurationFromYaml(String filename) throws ConfigurationException {
+
+        Parameters params = new Parameters();
+        FileBasedConfigurationBuilder<YAMLConfiguration> builder = new FileBasedConfigurationBuilder<>(YAMLConfiguration.class)
+            .configure(params.hierarchical()
+                .setFileName(filename)
+                .setListDelimiterHandler(new DisabledListDelimiterHandler())
+                .setExpressionEngine(new XPathExpressionEngine()));
+
+        XMLConfiguration conf = new XMLConfiguration(builder.getConfiguration());
+        conf.setListDelimiterHandler(new DisabledListDelimiterHandler());
+        conf.setExpressionEngine(new XPathExpressionEngine());
+        return conf;
+
+    }
+
     private static void writeHistograms(Results r) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
@@ -602,10 +623,18 @@ public class DBWorkload {
             }
         }
 
-        String configFileName = baseFileName + ".config.xml";
-        try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
-            LOG.info("Output benchmark config into file: {}", configFileName);
-            rw.writeConfig(ps);
+        if (!name.equalsIgnoreCase("featurebench")) {
+            String configFileName = baseFileName + ".config.xml";
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
+                    LOG.info("Output benchmark config into file: {}", configFileName);
+                    rw.writeConfig(ps);
+            }
+        } else {
+            String configFileName = baseFileName + ".config.yaml";
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
+                LOG.info("Output benchmark config into file: {}", configFileName);
+                rw.writeYamlConfig(ps);
+            }
         }
 
         String resultsFileName = baseFileName + ".results.csv";

@@ -1,0 +1,42 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/test_db?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 6
+terminals: 6
+works:
+    work:
+        time: 10
+        rate: 1000
+        weights: 100
+transactiontypes:
+    transactiontype:
+        name: FeatureBench
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    properties:
+        create:
+            - CREATE TABLE accounts (id int NOT NULL, name varchar(64) NOT NULL, CONSTRAINT pk_accounts PRIMARY KEY (id));
+            - CREATE INDEX idx_accounts_name ON accounts (name);
+        cleanup:
+            - DROP TABLE accounts;
+        loadRules:
+            - table: accounts
+              rows: 1000
+              columns:
+                  id: GetIntPrimaryKey(1, 1000) # providing start and end index
+                  name: NumberToIdString(16) # providing desiredLength of string
+#            - table: orders2
+#              rows: 200
+#              columns:
+#                  oid: GetIntPrimaryKey(1, 200)
+#                  customerId: GetIntPrimaryKey(1, 100)
+        executeRules:
+            - transaction: Account_query
+              weight: 100
+              query: SELECT * FROM accounts WHERE id > ?
+              bindings:
+                  - id: RandomNoWithinRange(1, 100) #startIdx and endIdx

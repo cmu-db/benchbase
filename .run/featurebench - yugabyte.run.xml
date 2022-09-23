@@ -2,7 +2,7 @@
     <configuration default="false" name="featurebench - yugabyte" type="Application" factoryName="Application">
         <option name="MAIN_CLASS_NAME" value="com.oltpbenchmark.DBWorkload" />
         <module name="benchbase" />
-        <option name="PROGRAM_PARAMETERS" value="-b featurebench -c config/yugabyte/sample_featurebench_config.xml --create=true --load=true --execute=true" />
+        <option name="PROGRAM_PARAMETERS" value="-b featurebench -c config/yugabyte/sample_featurebench_config.yaml --create=true --load=true --execute=true" />
         <extension name="coverage">
             <pattern>
                 <option name="PATTERN" value="com.oltpbenchmark.*" />
