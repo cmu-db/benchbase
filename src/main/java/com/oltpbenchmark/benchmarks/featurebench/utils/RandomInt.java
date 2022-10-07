@@ -32,7 +32,8 @@ public class RandomInt extends Random implements BaseUtil {
     }
 
     @Override
-    public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Object run() throws ClassNotFoundException, InvocationTargetException,
+        NoSuchMethodException, InstantiationException, IllegalAccessException {
         int range_size = maximum - minimum + 1;
         int value = this.nextInt(range_size);
         value += minimum;

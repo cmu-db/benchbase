@@ -39,7 +39,8 @@ public class RowRandomBoundedInt
     }
 
     @Override
-    public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Object run() throws ClassNotFoundException, InvocationTargetException,
+        NoSuchMethodException, InstantiationException, IllegalAccessException {
         return nextInt(lowValue, highValue);
     }
 }

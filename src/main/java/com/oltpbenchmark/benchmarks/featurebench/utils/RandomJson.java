@@ -26,7 +26,8 @@ public class RandomJson implements BaseUtil {
     }
 
     @Override
-    public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Object run() throws ClassNotFoundException, InvocationTargetException,
+        NoSuchMethodException, InstantiationException, IllegalAccessException {
         JSONObject outer = new JSONObject();
         for (int i = 0; i < fields; i++) {
             // JSONObject inner = new JSONObject();
@@ -40,14 +41,4 @@ public class RandomJson implements BaseUtil {
         }
         return outer.toString();
     }
-/*
-    public static void main(String args[]) {
-        RandomJson js = new RandomJson(4, 1, "a", 9);
-
-        String json = js.getJsonAsString();
-        System.out.println(json);
-
-    }*/
-
-
 }

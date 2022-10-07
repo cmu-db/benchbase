@@ -22,6 +22,8 @@ import com.oltpbenchmark.api.LoaderThread;
 import com.oltpbenchmark.benchmarks.featurebench.helpers.*;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -32,11 +34,13 @@ import java.util.*;
 
 
 public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
+    private static final Logger LOG = LoggerFactory.getLogger(FeatureBenchLoader.class);
     public String workloadClass = null;
     public HierarchicalConfiguration<ImmutableNode> config = null;
     public YBMicroBenchmark ybm = null;
     public int sizeOfLoadRule = 0;
     PreparedStatement stmt;
+    static int numberOfGeneratorFinished = 0;
 
     public FeatureBenchLoader(FeatureBenchBenchmark benchmark) {
         super(benchmark);
@@ -49,11 +53,9 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
                 .getDeclaredConstructor(HierarchicalConfiguration.class)
                 .newInstance(config);
 
-
             createPhaseAndBeforeLoad();
 
             ArrayList<LoaderThread> loaderThreads = new ArrayList<>();
-
             if (ybm.loadOnceImplemented) {
                 loaderThreads.add(new GeneratorOnce(ybm));
             } else {
@@ -73,7 +75,7 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             Connection conn = benchmark.makeConnection();
             long createStart = System.currentTimeMillis();
             if (config.containsKey("create")) {
-                createYaml(conn);
+                createFromYaml(conn);
             } else {
                 ybm.create(conn);
             }
@@ -89,8 +91,8 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
         }
     }
 
-    private void createYaml(Connection conn) throws SQLException {
-        LOG.info("\n=============Create Phase taking from Yaml============\n");
+    private void createFromYaml(Connection conn) throws SQLException {
+        LOG.info("Using YAML for create phase");
         List<String> ddls = config.getList(String.class, "create");
         try {
             Statement stmtOBj = conn.createStatement();
@@ -104,15 +106,18 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
         }
     }
 
-    private void loadRulesYaml(ArrayList<LoaderThread> loaderThreads) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private void loadRulesYaml(ArrayList<LoaderThread> loaderThreads) throws ClassNotFoundException,
+        InvocationTargetException, NoSuchMethodException, InstantiationException,
+        IllegalAccessException {
 
         List<HierarchicalConfiguration<ImmutableNode>> loadRulesConfig = config.configurationsAt("loadRules");
         if (loadRulesConfig.isEmpty()) {
             throw new RuntimeException("Empty Load Rules");
         }
-        LOG.info("\n=============Load Rules taking from Yaml============\n");
+        LOG.info("Using YAML for load phase");
         for (HierarchicalConfiguration loadRuleConfig : loadRulesConfig) {
-            List<HierarchicalConfiguration<ImmutableNode>> columnsConfigs = loadRuleConfig.configurationsAt("columns");
+            List<HierarchicalConfiguration<ImmutableNode>>
+                columnsConfigs = loadRuleConfig.configurationsAt("columns");
             List<Map<String, Object>> columns = new ArrayList<>();
             for (HierarchicalConfiguration columnsConfig : columnsConfigs) {
                 Iterator columnKeys = columnsConfig.getKeys();
@@ -131,12 +136,13 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             }
             if (loadRuleConfig.containsKey("count")) {
                 for (int i = 0; i < loadRuleConfig.getInt("count"); i++) {
-                    loaderThreads.add(new GeneratorYaml((loadRuleConfig.getString("table") + String.valueOf(i + 1)), loadRuleConfig.getLong("rows"), columns));
+                    loaderThreads.add(new GeneratorYaml((loadRuleConfig.getString("table")
+                        + String.valueOf(i + 1)), loadRuleConfig.getLong("rows"), columns));
                 }
             } else {
-                loaderThreads.add(new GeneratorYaml(loadRuleConfig.getString("table"), loadRuleConfig.getLong("rows"), columns));
+                loaderThreads.add(new GeneratorYaml(loadRuleConfig.getString("table"),
+                    loadRuleConfig.getLong("rows"), columns));
             }
-
         }
     }
 
@@ -154,14 +160,13 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
     }
 
     private class GeneratorYaml extends LoaderThread {
-
-        static int numberOfGeneratorFinished = 0;
         private final List<UtilToMethod> baseutils = new ArrayList<>();
         private final String tableName;
         private final long numberOfRows;
         private final List<Map<String, Object>> columns;
 
-        public GeneratorYaml(String tableName, long numberOfRows, List<Map<String, Object>> columns) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        public GeneratorYaml(String tableName, long numberOfRows,
+                             List<Map<String, Object>> columns) {
             super(benchmark);
             this.tableName = tableName;
             this.numberOfRows = numberOfRows;
@@ -201,7 +206,8 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
                 }
                 columnString.setLength(columnString.length() - 1);
                 valueString.setLength(valueString.length() - 1);
-                String insertStmt = "INSERT INTO " + this.tableName + " (" + columnString + ") VALUES " + "(" + valueString + ")";
+                String insertStmt = "INSERT INTO " + this.tableName + " (" + columnString
+                    + ") VALUES " + "(" + valueString + ")";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 int currentBatchSize = 0;
                 for (int i = 0; i < this.numberOfRows; i++) {
@@ -246,117 +252,14 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
         }
 
         @Override
-        public void load(Connection conn) throws SQLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        public void load(Connection conn) throws SQLException, ClassNotFoundException,
+            InvocationTargetException, NoSuchMethodException,
+            InstantiationException, IllegalAccessException {
             ybm.loadOnce(conn);
         }
 
         @Override
         public void afterLoad() {
-            afterLoadPhase();
-        }
-    }
-
-
-    private class Generator extends LoaderThread {
-        static int numberOfGeneratorFinished = 0;
-        final LoadRule loadRule;
-
-        public Generator(LoadRule loadRule) {
-            super(benchmark);
-            this.loadRule = loadRule;
-        }
-
-
-        @Override
-        public void load(Connection conn) throws SQLException {
-            try {
-                int batchSize = 0;
-                TableInfo t = loadRule.getTableInfo();
-                long no_of_rows = t.getNo_of_rows();
-                String table_name = t.get_table_name();
-                ArrayList<ColumnsDetails> cd = t.getColumn_Det();
-                int no_of_columns = cd.size();
-                StringBuilder columnString = new StringBuilder();
-                StringBuilder valueString = new StringBuilder();
-
-                for (ColumnsDetails columnsDetails : cd) {
-                    columnString.append(columnsDetails.getName()).append(",");
-                    valueString.append("?,");
-                }
-                columnString.setLength(columnString.length() - 1);
-                valueString.setLength(valueString.length() - 1);
-                String insertStmt = "INSERT INTO " + table_name + " (" + columnString + ") VALUES " + "(" + valueString + ")";
-                System.out.println(insertStmt);
-                stmt = conn.prepareStatement(insertStmt);
-                for (int i = 0; i < no_of_rows; i++) {
-                    for (ColumnsDetails columnsDetails : cd) {
-                        UtilityFunc uf = columnsDetails.getUtilFunc();
-                        bindParamBasedOnType(uf);
-                    }
-                }
-
-                for (int i = 0; i < no_of_rows; i++) {
-                    for (int j = 0; j < no_of_columns; j++) {
-                        UtilityFunc uf = cd.get(j).getUtilFunc();
-                        String funcname = findFuncname(uf);
-                        if (Objects.equals(funcname, "get_int_primary_key")) {
-                            stmt.setInt(j + 1, UtilGenerators.get_int_primary_key());
-                        } else if (Objects.equals(funcname, "numberToIdString")) {
-                            stmt.setString(j + 1, UtilGenerators.numberToIdString());
-                        }
-                    }
-                    stmt.addBatch();
-                    if (++batchSize >= workConf.getBatchSize()) {
-                        this.loadTables(conn);
-                        batchSize = 0;
-                    }
-                }
-                stmt.executeBatch();
-                if (batchSize > 0) {
-                    this.loadTables(conn);
-                }
-            } catch (SQLException e) {
-                numberOfGeneratorFinished += 1;
-                throw new RuntimeException(e);
-            }
-            numberOfGeneratorFinished += 1;
-        }
-
-        public void bindParamBasedOnType(UtilityFunc uf) throws SQLException {
-            if (Objects.equals(uf.getName(), "get_int_primary_key")) {
-                ArrayList<ParamsForUtilFunc> ob1 = uf.getParams();
-                ParamsForUtilFunc puf = ob1.get(0);
-                ArrayList<Integer> range = puf.getParameters();
-                int upper_range = range.get(1);
-                int lower_range = range.get(0);
-                UtilGenerators.setUpper_range_for_primary_int_keys(upper_range);
-                UtilGenerators.setLower_range_for_primary_int_keys(lower_range);
-            } else if (Objects.equals(uf.getName(), "numberToIdString")) {
-                ArrayList<ParamsForUtilFunc> ob1 = uf.getParams();
-                ParamsForUtilFunc puf = ob1.get(0);
-                ArrayList<Integer> max_len = puf.getParameters();
-                int desired_len = max_len.get(0);
-                UtilGenerators.setDesired_length_string_pkeys(desired_len);
-            }
-
-        }
-
-        public String findFuncname(UtilityFunc uf) {
-            if (Objects.equals(uf.getName(), "get_int_primary_key")) {
-                return "get_int_primary_key";
-            } else if (Objects.equals(uf.getName(), "numberToIdString")) {
-                return "numberToIdString";
-            } else return null;
-
-        }
-
-        private void loadTables(Connection conn) throws SQLException {
-            stmt.executeBatch();
-        }
-
-        @Override
-        public void afterLoad() {
-            if (numberOfGeneratorFinished != sizeOfLoadRule) return;
             afterLoadPhase();
         }
     }

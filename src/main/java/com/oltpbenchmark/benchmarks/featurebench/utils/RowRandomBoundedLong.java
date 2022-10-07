@@ -20,8 +20,8 @@ import java.util.List;
 
 
 public class RowRandomBoundedLong implements BaseUtil {
-    private final com.oltpbenchmark.benchmarks.featurebench.utils.RowRandomLong randomLong;
-    private final com.oltpbenchmark.benchmarks.featurebench.utils.RowRandomInt randomInt;
+    private final RowRandomLong randomLong;
+    private final RowRandomInt randomInt;
 
     private final long lowValue;
     private final long highValue;

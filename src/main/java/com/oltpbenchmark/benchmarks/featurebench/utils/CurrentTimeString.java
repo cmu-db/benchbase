@@ -22,6 +22,6 @@ public class CurrentTimeString implements BaseUtil {
     }
 
     public Object run() {
-        return com.oltpbenchmark.benchmarks.featurebench.utils.CurrentTimeString.DATE_FORMAT.format(new java.util.Date());
+        return CurrentTimeString.DATE_FORMAT.format(new java.util.Date());
     }
 }

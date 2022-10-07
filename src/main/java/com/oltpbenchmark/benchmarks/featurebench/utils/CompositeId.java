@@ -18,14 +18,14 @@ public abstract class CompositeId {
     public static final int INT_MAX_DIGITS = 10;
     public static final int LONG_MAX_DIGITS = 19;
 
-    protected final String encode(int[] offset_bits) {
-        int encodedStringSize = IntStream.of(offset_bits).sum();
+    protected final String encode(int[] offsetBits) {
+        int encodedStringSize = IntStream.of(offsetBits).sum();
         StringBuilder compositeBuilder = new StringBuilder(encodedStringSize);
 
         String[] decodedValues = this.toArray();
         for (int i = 0; i < decodedValues.length; i++) {
             String value = decodedValues[i];
-            int valueLength = offset_bits[i];
+            int valueLength = offsetBits[i];
             String encodedValue = StringUtils.leftPad(value, valueLength, PAD_STRING);
             compositeBuilder.append(encodedValue);
         }
@@ -33,14 +33,14 @@ public abstract class CompositeId {
         return compositeBuilder.toString();
     }
 
-    protected final String[] decode(String composite_id, int[] offset_bits) {
-        String[] decodedValues = new String[offset_bits.length];
+    protected final String[] decode(String compositeId, int[] offsetBits) {
+        String[] decodedValues = new String[offsetBits.length];
 
         int start = 0;
         for (int i = 0; i < decodedValues.length; i++) {
-            int valueLength = offset_bits[i];
+            int valueLength = offsetBits[i];
             int end = start + valueLength;
-            decodedValues[i] = StringUtils.substring(composite_id, start, end);
+            decodedValues[i] = StringUtils.substring(compositeId, start, end);
             start = end;
         }
         return decodedValues;
@@ -48,7 +48,7 @@ public abstract class CompositeId {
 
     public abstract String encode();
 
-    public abstract void decode(String composite_id);
+    public abstract void decode(String compositeId);
 
     public abstract String[] toArray();
 

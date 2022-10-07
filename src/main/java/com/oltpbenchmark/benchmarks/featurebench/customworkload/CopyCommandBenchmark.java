@@ -148,6 +148,7 @@ public class CopyCommandBenchmark extends YBMicroBenchmark {
                 "COPY %s FROM STDIN (FORMAT CSV, HEADER false, ROWS_PER_TRANSACTION %d)",
                 tableName, rowsPerTransaction
             );
+
             long rowsInserted = new CopyManager((BaseConnection) conn)
                 .copyIn(copyCommand,
                     new BufferedReader(new FileReader(path)));

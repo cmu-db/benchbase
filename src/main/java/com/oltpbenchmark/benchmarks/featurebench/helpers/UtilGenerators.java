@@ -2,42 +2,42 @@ package com.oltpbenchmark.benchmarks.featurebench.helpers;
 
 public abstract class UtilGenerators {
     private static int counter;
-    private static int starter_for_string_counter = 0;
-    private static int upper_range_for_primary_int_keys;
-    private static int lower_range_for_primary_int_keys;
-    private static int desired_length_string_pkeys;
+    private static int starterForStringCounter = 0;
+    private static int upperRangeForPrimaryIntKeys;
+    private static int lowerRangeForPrimaryIntKeys;
+    private static int desiredLengthStringPkeys;
 
-    private static int min_len_string;
-    private static int max_len_string;
+    private static int minLenString;
+    private static int maxLenString;
 
 
-    public static int getUpper_range_for_primary_int_keys() {
-        return upper_range_for_primary_int_keys;
+    public static int getUpperRangeForPrimaryIntKeys() {
+        return upperRangeForPrimaryIntKeys;
     }
 
-    public static void setUpper_range_for_primary_int_keys(int upper_range_for_primary_int_keys) {
-        UtilGenerators.upper_range_for_primary_int_keys = upper_range_for_primary_int_keys;
+    public static void setUpperRangeForPrimaryIntKeys(int upperRangeForPrimaryIntKeys) {
+        UtilGenerators.upperRangeForPrimaryIntKeys = upperRangeForPrimaryIntKeys;
     }
 
-    public static int getLower_range_for_primary_int_keys() {
-        return lower_range_for_primary_int_keys;
+    public static int getLowerRangeForPrimaryIntKeys() {
+        return lowerRangeForPrimaryIntKeys;
     }
 
-    public static void setLower_range_for_primary_int_keys(int lower_range_for_primary_int_keys) {
-        UtilGenerators.lower_range_for_primary_int_keys = lower_range_for_primary_int_keys;
-        counter = lower_range_for_primary_int_keys;
+    public static void setLowerRangeForPrimaryIntKeys(int lowerRangeForPrimaryIntKeys) {
+        UtilGenerators.lowerRangeForPrimaryIntKeys = lowerRangeForPrimaryIntKeys;
+        counter = lowerRangeForPrimaryIntKeys;
     }
 
-    public static int getDesired_length_string_pkeys() {
-        return desired_length_string_pkeys;
+    public static int getDesiredLengthStringPkeys() {
+        return desiredLengthStringPkeys;
     }
 
-    public static void setDesired_length_string_pkeys(int desired_length_string_pkeys) {
-        UtilGenerators.desired_length_string_pkeys = desired_length_string_pkeys;
+    public static void setDesiredLengthStringPkeys(int desiredLengthStringPkeys) {
+        UtilGenerators.desiredLengthStringPkeys = desiredLengthStringPkeys;
     }
 
-    public static int get_int_primary_key() {
-        if (counter > upper_range_for_primary_int_keys) {
+    public static int getIntPrimaryKey() {
+        if (counter > upperRangeForPrimaryIntKeys) {
             throw new RuntimeException("Index out of range");
         } else {
             counter++;
@@ -46,27 +46,27 @@ public abstract class UtilGenerators {
     }
 
     public static String numberToIdString() {
-        StringBuilder baseNumberStr = new StringBuilder(String.valueOf(starter_for_string_counter));
-        while (baseNumberStr.length() < desired_length_string_pkeys) {
+        StringBuilder baseNumberStr = new StringBuilder(String.valueOf(starterForStringCounter));
+        while (baseNumberStr.length() < desiredLengthStringPkeys) {
             baseNumberStr.append('a');
         }
-        starter_for_string_counter++;
+        starterForStringCounter++;
         return baseNumberStr.toString();
     }
 
-    public static int getMin_len_string() {
-        return min_len_string;
+    public static int getMinLenString() {
+        return minLenString;
     }
 
-    public static void setMin_len_string(int min_len_string) {
-        UtilGenerators.min_len_string = min_len_string;
+    public static void setMinLenString(int minLenString) {
+        UtilGenerators.minLenString = minLenString;
     }
 
-    public static int getMax_len_string() {
-        return max_len_string;
+    public static int getMaxLenString() {
+        return maxLenString;
     }
 
-    public static void setMax_len_string(int max_len_string) {
-        UtilGenerators.max_len_string = max_len_string;
+    public static void setMaxLenString(int maxLenString) {
+        UtilGenerators.maxLenString = maxLenString;
     }
 }

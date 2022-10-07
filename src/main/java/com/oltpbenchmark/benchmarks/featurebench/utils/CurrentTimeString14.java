@@ -22,6 +22,6 @@ public class CurrentTimeString14 implements BaseUtil {
     }
 
     public Object run() {
-        return com.oltpbenchmark.benchmarks.featurebench.utils.CurrentTimeString14.DATE_FORMAT_14.format(new java.util.Date());
+        return CurrentTimeString14.DATE_FORMAT_14.format(new java.util.Date());
     }
 }

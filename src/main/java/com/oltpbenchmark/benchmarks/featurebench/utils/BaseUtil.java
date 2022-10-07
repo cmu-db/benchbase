@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public interface BaseUtil {
 
-    public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException;
+    public Object run() throws ClassNotFoundException, InvocationTargetException,
+        NoSuchMethodException, InstantiationException, IllegalAccessException;
 
 }

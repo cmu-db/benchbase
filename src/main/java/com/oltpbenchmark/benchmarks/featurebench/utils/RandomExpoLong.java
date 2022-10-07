@@ -20,8 +20,6 @@ public class RandomExpoLong extends Random implements BaseUtil {
     /**
      * Returns a random normal distribution int value with average equal to center
      *
-     * @param center
-     * @param deviation
      */
     @Override
     public Object run() {

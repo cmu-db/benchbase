@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 public class TransactionDetails {
     private final String name;
-    private final int weight_transaction_type;
+    private final int weightTransactionType;
     private ArrayList<QueryDetails> query;
 
-    public TransactionDetails(String name, int weight_transaction_type, ArrayList<QueryDetails> query) {
+    public TransactionDetails(String name, int weightTransactionType, ArrayList<QueryDetails> query) {
         this.name = name;
-        this.weight_transaction_type = weight_transaction_type;
+        this.weightTransactionType = weightTransactionType;
         this.query = query;
     }
 
@@ -21,8 +21,8 @@ public class TransactionDetails {
         this.query = query;
     }
 
-    public int getWeight_transaction_type() {
-        return weight_transaction_type;
+    public int getWeightTransactionType() {
+        return weightTransactionType;
     }
 
     public String getName() {

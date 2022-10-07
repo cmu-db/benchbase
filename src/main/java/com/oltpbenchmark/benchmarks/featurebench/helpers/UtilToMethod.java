@@ -19,9 +19,11 @@ public class UtilToMethod {
             if (params == null) {
                 params = new ArrayList<>(List.of());
             }
-            this.clsInstance = (BaseUtil) cls.getDeclaredConstructor(List.class).newInstance((List) params);
+            this.clsInstance = (BaseUtil) cls.getDeclaredConstructor(
+                List.class).newInstance((List) params);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
-            throw new RuntimeException(String.format("Oops! Are you sure that you provided the right utility function name: %s ? ", util));
+            throw new RuntimeException(String.format("Oops! Are you sure that " +
+                "you provided the right utility function name: %s ? ", util));
         } catch (InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
             e.printStackTrace();
@@ -29,7 +31,8 @@ public class UtilToMethod {
         }
     }
 
-    public Object get() throws InvocationTargetException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InstantiationException {
+    public Object get() throws InvocationTargetException, IllegalAccessException,
+        ClassNotFoundException, NoSuchMethodException, InstantiationException {
         return this.clsInstance.run();
     }
 }

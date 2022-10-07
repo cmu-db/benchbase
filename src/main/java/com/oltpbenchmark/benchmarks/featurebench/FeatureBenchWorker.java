@@ -55,7 +55,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         super(benchmarkModule, id);
     }
 
-    int get_transaction_id(int no, ArrayList<Integer> weights) {
+    int getTransactionId(int no, ArrayList<Integer> weights) {
         int len = weights.size();
         for (int i = 0; i < len; i++) {
             if (no <= weights.get(i))
@@ -64,7 +64,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         return 0;
     }
 
-    public void bind_params_based_on_func(ArrayList<BindParams> bp, PreparedStatement stmt) throws SQLException {
+    public void bindParamsBasedOnFunc(ArrayList<BindParams> bp, PreparedStatement stmt) throws SQLException {
         for (BindParams ob : bp) {
             ArrayList<UtilityFunc> ufs = ob.getUtilFunc();
             for (int j = 0; j < ufs.size(); j++) {
@@ -108,31 +108,30 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 // Validating sum of transaction weights =100
                 int sum = 0;
                 int weight;
-                ArrayList<Integer> call_acc_to_weight = new ArrayList<>();
+                ArrayList<Integer> callAccToWeight = new ArrayList<>();
                 for (ExecuteRule executeRule : executeRules) {
                     TransactionDetails transaction_det = executeRule.getTransactionDetails();
-                    weight = transaction_det.getWeight_transaction_type();
+                    weight = transaction_det.getWeightTransactionType();
                     sum += weight;
-                    call_acc_to_weight.add(sum);
+                    callAccToWeight.add(sum);
                 }
                 if (sum > 100 || sum <= 0) {
                     throw new RuntimeException("Transaction weights incorrect");
                 }
                 for (int i = 0; i < 100; i++) {
                     int randomNum = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-                    int getId = get_transaction_id(randomNum, call_acc_to_weight);
+                    int getId = getTransactionId(randomNum, callAccToWeight);
                     TransactionDetails transaction_det = executeRules.get(getId).getTransactionDetails();
                     ArrayList<QueryDetails> qd = transaction_det.getQuery();
                     for (QueryDetails queryDetails : qd) {
                         String query = queryDetails.getQuery();
                         PreparedStatement stmt = conn.prepareStatement(query);
                         ArrayList<BindParams> bp = queryDetails.getBindParams();
-                        bind_params_based_on_func(bp, stmt);
+                        bindParamsBasedOnFunc(bp, stmt);
                     }
 
                 }
             }
-
             return TransactionStatus.SUCCESS;
 
         } catch (ClassNotFoundException | InvocationTargetException |

@@ -26,7 +26,8 @@ public class OneStringFromArray implements BaseUtil {
         }
     }
 
-    public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Object run() throws ClassNotFoundException, InvocationTargetException,
+        NoSuchMethodException, InstantiationException, IllegalAccessException {
         try {
             String s = str.get(new Random().nextInt(str.size()));
             return s;

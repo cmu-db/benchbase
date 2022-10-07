@@ -6,8 +6,8 @@ import java.util.Random;
 
 public class RandomString extends Random implements BaseUtil {
 
-    private int minimum_length;
-    private int maximum_length;
+    private int minimumLength;
+    private int maximumLength;
     private char base;
     private int numCharacters;
 
@@ -16,11 +16,11 @@ public class RandomString extends Random implements BaseUtil {
         if (values.size() != 4) {
             throw new RuntimeException("Incorrect number of parameters for util function");
         }
-        this.minimum_length = ((Number) (int) values.get(0)).intValue();
-        this.maximum_length = ((Number) (int) values.get(1)).intValue();
+        this.minimumLength = (int) values.get(0);
+        this.maximumLength = (int) values.get(1);
         this.base = (char) values.get(2);
-        this.numCharacters = ((Number) (int) values.get(3)).intValue();
-        if (maximum_length < minimum_length || numCharacters <= 0)
+        this.numCharacters = (int) values.get(3);
+        if (maximumLength < minimumLength || numCharacters <= 0)
             throw new RuntimeException("Please enter correct min, max and no. of characters for random string");
     }
 
@@ -33,17 +33,10 @@ public class RandomString extends Random implements BaseUtil {
         return value;
     }
 
-    /**
-     * @param minimum_length
-     * @param maximum_length
-     * @param base
-     * @param numCharacters
-     * @return
-     */
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
         InstantiationException, IllegalAccessException {
-        int length = number(minimum_length, maximum_length);
+        int length = number(minimumLength, maximumLength);
         byte baseByte = (byte) base;
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; ++i) {

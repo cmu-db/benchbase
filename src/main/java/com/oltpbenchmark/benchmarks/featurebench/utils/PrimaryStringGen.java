@@ -32,7 +32,7 @@ public class PrimaryStringGen implements BaseUtil {
         }
     }
 
-    public String numberToIdString(int number) {
+    public String numberToIdString(long number) {
         StringBuilder baseNumberStr = new StringBuilder(String.valueOf(currentValue));
         while (baseNumberStr.length() < desiredLength) {
             baseNumberStr.append('a');
@@ -47,5 +47,3 @@ public class PrimaryStringGen implements BaseUtil {
         return key;
     }
 }
-
-

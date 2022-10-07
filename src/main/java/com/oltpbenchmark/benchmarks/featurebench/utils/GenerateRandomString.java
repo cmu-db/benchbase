@@ -25,12 +25,14 @@ public class GenerateRandomString implements BaseUtil {
 
     GenerateRandomString(List<Object> values) {
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters " +
+                "for util function");
         }
         this.desiredLength = ((Number) values.get(0)).intValue();
         this.sizeOfStringArray = ((Number) values.get(1)).intValue();
         if (desiredLength < 0 || sizeOfStringArray <= 0) {
-            throw new RuntimeException("Please enter valid desired Length and size of string array for random picking");
+            throw new RuntimeException("Please enter valid desired Length " +
+                "and size of string array for random picking");
         }
         RandomStringGen = new ArrayList<String>();
         this.generateList();
@@ -45,7 +47,8 @@ public class GenerateRandomString implements BaseUtil {
 
 
     @Override
-    public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Object run() throws ClassNotFoundException, InvocationTargetException,
+        NoSuchMethodException, InstantiationException, IllegalAccessException {
         return RandomStringGen.get(new Random().nextInt(RandomStringGen.size()));
     }
 }
