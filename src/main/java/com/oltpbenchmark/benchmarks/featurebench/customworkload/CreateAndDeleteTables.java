@@ -1,9 +1,8 @@
 package com.oltpbenchmark.benchmarks.featurebench.customworkload;
 
 import com.oltpbenchmark.benchmarks.featurebench.YBMicroBenchmark;
-import com.oltpbenchmark.benchmarks.featurebench.util.ExecuteRule;
-import com.oltpbenchmark.benchmarks.featurebench.util.LoadRule;
-import com.oltpbenchmark.types.State;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.ExecuteRule;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.LoadRule;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 

@@ -28,8 +28,38 @@ microbenchmark:
         rowsPerTransaction: 2000
         create:
             - DROP TABLE IF EXISTS accounts;
-            - CREATE TABLE accounts (id int NOT NULL, name varchar(64) NOT NULL, CONSTRAINT pk_accounts PRIMARY KEY (id));
-            - CREATE INDEX idx_accounts_name ON accounts (name);
+            - CREATE TABLE accounts (id text NOT NULL ,name float,number text, PRIMARY KEY (id));
         cleanup:
             - DROP TABLE accounts;
+        loadRules:
+          - table: accounts
+            rows: 10
+            columns:
+              - name: id
+                util: PrimaryStringGen
+                params:
+                    - 1
+                    - 2
+              - name: name
+                util: RandomFixedPoint
+                params:
+                    - 3
+                    - 5.0
+                    - 5.1
+              - name: number
+                util: RandomNstring
+                params:
+                    - 10
+                    - 10
+
+
+
+#              -   name: name
+#                  util: NumberToIdString
+#                  params:
+#                      - 16
+
+
+
+
 

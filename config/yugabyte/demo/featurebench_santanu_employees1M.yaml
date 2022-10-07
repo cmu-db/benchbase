@@ -1,0 +1,51 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/test_db?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+works:
+    work:
+        time: 10
+        rate: 1000
+        weights: 100
+transactiontypes:
+    transactiontype:
+        name: FeatureBench
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    properties:
+        create:
+            - DROP TABLE IF EXISTS employees1M;
+            - CREATE TABLE employees1M(id BIGINT PRIMARY KEY, name TEXT,email VARCHAR(10) NOT NULL,salary INT,hire_date DATE);
+        loadRules:
+            -   table: employees1M
+                rows: 5
+                columns:
+                    -   name: id
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 1000000
+                    -   name: name
+                        util: RandomAstring
+                        params:
+                            - 4
+                            - 6
+                    -   name: email
+                        util: RandomAstring
+                        params:
+                            - 7
+                            - 10
+                    -   name: salary
+                        util: RandomInt
+                        params:
+                            - 1000000
+                            - 9999999
+                    -   name: hire_date
+                        util: CurrentTime
+        cleanup:
+            - DROP TABLE employees1M;

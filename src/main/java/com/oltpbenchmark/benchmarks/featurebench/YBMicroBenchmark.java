@@ -1,10 +1,11 @@
 package com.oltpbenchmark.benchmarks.featurebench;
 
-import com.oltpbenchmark.benchmarks.featurebench.util.ExecuteRule;
-import com.oltpbenchmark.benchmarks.featurebench.util.LoadRule;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.ExecuteRule;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.LoadRule;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public abstract class YBMicroBenchmark {
     public void cleanUp(Connection conn) throws SQLException {
     }
 
-    public void loadOnce(Connection conn) throws SQLException {
+    public void loadOnce(Connection conn) throws SQLException{
     }
 
     public void executeOnce(Connection conn) throws SQLException {

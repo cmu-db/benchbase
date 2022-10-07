@@ -20,7 +20,7 @@ package com.oltpbenchmark.benchmarks.featurebench;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.featurebench.util.*;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.*;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
 import com.oltpbenchmark.util.RandomGenerator;

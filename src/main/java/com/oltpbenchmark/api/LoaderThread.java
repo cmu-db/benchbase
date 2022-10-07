@@ -20,6 +20,7 @@ package com.oltpbenchmark.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -48,6 +49,9 @@ public abstract class LoaderThread implements Runnable {
             String msg = String.format("Unexpected error when loading %s database", benchmarkModule.getBenchmarkName().toUpperCase());
             LOG.error(msg, next_ex);
             throw new RuntimeException(ex);
+        } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | InstantiationException |
+                 IllegalAccessException e) {
+            throw new RuntimeException(e);
         } finally {
             afterLoad();
         }
@@ -59,7 +63,7 @@ public abstract class LoaderThread implements Runnable {
      * @param conn
      * @throws SQLException
      */
-    public abstract void load(Connection conn) throws SQLException;
+    public abstract void load(Connection conn) throws SQLException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException;
 
     public void beforeLoad() {
         // useful for implementing waits for countdown latches, this ensures we open the connection right before its used to avoid stale connections

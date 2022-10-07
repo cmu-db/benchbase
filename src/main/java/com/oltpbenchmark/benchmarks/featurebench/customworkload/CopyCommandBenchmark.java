@@ -2,7 +2,7 @@ package com.oltpbenchmark.benchmarks.featurebench.customworkload;
 
 
 import com.oltpbenchmark.benchmarks.featurebench.YBMicroBenchmark;
-import com.oltpbenchmark.benchmarks.featurebench.util.*;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.*;
 import com.yugabyte.copy.CopyManager;
 import com.yugabyte.core.BaseConnection;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
