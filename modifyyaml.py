@@ -14,7 +14,7 @@ def main():
             print(key, value)
 
         with open(sys.argv[2], 'w') as fnew:
-            yaml.safe_dump(data, fnew, encoding='utf-8', allow_unicode=True)
+            yaml.safe_dump(doc, fnew, encoding='utf-8', allow_unicode=True)
     return
 
 
