@@ -5,11 +5,9 @@ username: yugabyte
 password:
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
-loaderthreads: 1
 terminals: 1
 works:
     work:
-#        time: 10
         serial: true
         active_terminals: 1
         rate: 1000
@@ -18,14 +16,8 @@ transactiontypes:
     transactiontype:
         name: FeatureBench
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
-        tableName: accounts
-        columns: 10
-        rows: 1000
-        indexes: 2
-        filePath: accounts.csv
-        rowsPerTransaction: 2000
         create:
             - DROP TABLE IF EXISTS accounts;
             - CREATE TABLE accounts (id text NOT NULL ,name float,number text, PRIMARY KEY (id));
@@ -52,12 +44,6 @@ microbenchmark:
                     - 10
                     - 10
 
-
-
-#              -   name: name
-#                  util: NumberToIdString
-#                  params:
-#                      - 16
 
 
 
