@@ -100,38 +100,38 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 .newInstance(config);
 
             System.out.println(this.configuration.getWorkloadState().getGlobalState());
-            if (ybm.executeOnceImplemented) {
-                ybm.executeOnce(conn);
-                conn.close();
-            } else {
-                ArrayList<ExecuteRule> executeRules = ybm.executeRules();
-                // Validating sum of transaction weights =100
-                int sum = 0;
-                int weight;
-                ArrayList<Integer> callAccToWeight = new ArrayList<>();
-                for (ExecuteRule executeRule : executeRules) {
-                    TransactionDetails transaction_det = executeRule.getTransactionDetails();
-                    weight = transaction_det.getWeightTransactionType();
-                    sum += weight;
-                    callAccToWeight.add(sum);
-                }
-                if (sum > 100 || sum <= 0) {
-                    throw new RuntimeException("Transaction weights incorrect");
-                }
-                for (int i = 0; i < 100; i++) {
-                    int randomNum = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-                    int getId = getTransactionId(randomNum, callAccToWeight);
-                    TransactionDetails transaction_det = executeRules.get(getId).getTransactionDetails();
-                    ArrayList<QueryDetails> qd = transaction_det.getQuery();
-                    for (QueryDetails queryDetails : qd) {
-                        String query = queryDetails.getQuery();
-                        PreparedStatement stmt = conn.prepareStatement(query);
-                        ArrayList<BindParams> bp = queryDetails.getBindParams();
-                        bindParamsBasedOnFunc(bp, stmt);
-                    }
-
-                }
-            }
+//            if (ybm.executeOnceImplemented) {
+//                ybm.executeOnce(conn);
+//                conn.close();
+//            } else {
+//                ArrayList<ExecuteRule> executeRules = ybm.executeRules();
+//                // Validating sum of transaction weights =100
+//                int sum = 0;
+//                int weight;
+//                ArrayList<Integer> callAccToWeight = new ArrayList<>();
+//                for (ExecuteRule executeRule : executeRules) {
+//                    TransactionDetails transaction_det = executeRule.getTransactionDetails();
+//                    weight = transaction_det.getWeightTransactionType();
+//                    sum += weight;
+//                    callAccToWeight.add(sum);
+//                }
+//                if (sum > 100 || sum <= 0) {
+//                    throw new RuntimeException("Transaction weights incorrect");
+//                }
+//                for (int i = 0; i < 100; i++) {
+//                    int randomNum = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+//                    int getId = getTransactionId(randomNum, callAccToWeight);
+//                    TransactionDetails transaction_det = executeRules.get(getId).getTransactionDetails();
+//                    ArrayList<QueryDetails> qd = transaction_det.getQuery();
+//                    for (QueryDetails queryDetails : qd) {
+//                        String query = queryDetails.getQuery();
+//                        PreparedStatement stmt = conn.prepareStatement(query);
+//                        ArrayList<BindParams> bp = queryDetails.getBindParams();
+//                        bindParamsBasedOnFunc(bp, stmt);
+//                    }
+//
+//                }
+//            }
             return TransactionStatus.SUCCESS;
 
         } catch (ClassNotFoundException | InvocationTargetException |
