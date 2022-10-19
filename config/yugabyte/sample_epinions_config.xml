@@ -4,7 +4,7 @@
     <!-- Connection details -->
     <type>YUGABYTE</type>
     <driver>com.yugabyte.Driver</driver>
-    <url>jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&amp;ApplicationName=epinions&amp;reWriteBatchedInserts=true</url>
+    <url>jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&amp;load-balance=true&amp;ApplicationName=epinions&amp;reWriteBatchedInserts=true</url>
     <username>yugabyte</username>
     <password></password>
     <isolation>TRANSACTION_REPEATABLE_READ</isolation>
