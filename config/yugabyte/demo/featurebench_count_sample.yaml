@@ -38,7 +38,7 @@ microbenchmark:
                         - 10
                   - name: name
                     count: 2
-                    util: RandomAstring
+                    util: RandomAString
                     params:
                         - 3
                         - 5
