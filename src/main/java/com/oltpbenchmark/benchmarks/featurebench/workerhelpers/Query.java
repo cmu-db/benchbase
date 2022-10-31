@@ -8,9 +8,8 @@ import java.util.List;
 public class Query {
     @JsonProperty("query")
     public String query;
-
     public List<UtilToMethod> baseUtils;
-
+    public boolean isSelectQuery = false;
 
     public List<UtilToMethod> getBaseUtils() {
         return baseUtils;
@@ -28,4 +27,11 @@ public class Query {
         this.query = query;
     }
 
+    public boolean isSelectQuery() {
+        return isSelectQuery;
+    }
+
+    public void setSelectQuery(boolean selectQuery) {
+        isSelectQuery = selectQuery;
+    }
 }

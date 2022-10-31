@@ -67,7 +67,11 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
             List<Query> queries = new ArrayList<>();
             for (HierarchicalConfiguration<ImmutableNode> confquery : confExecuteRule.configurationsAt("queries")) {
                 Query query = new Query();
-                query.setQuery(confquery.getString("query"));
+                String querystmt = confquery.getString("query");
+                query.setQuery(querystmt);
+                if(querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("select")){
+                    query.setSelectQuery(true);
+                };
                 List<UtilToMethod> baseutils = new ArrayList<>();
                 for (HierarchicalConfiguration<ImmutableNode> bindingsList : confquery.configurationsAt("bindings")) {
                     if (bindingsList.containsKey("count")) {
