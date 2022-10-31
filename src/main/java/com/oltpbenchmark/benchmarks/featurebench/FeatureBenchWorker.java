@@ -35,7 +35,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.List;
@@ -135,12 +136,18 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             int executeRuleIndex = txnType.getId() - 1;
             ExecuteRule executeRule = executeRules.get(executeRuleIndex);
             for (Query query : executeRule.getQueries()) {
-                PreparedStatement stmt = conn.prepareStatement(query.getQuery());
+                String querystmt = query.getQuery();
+                PreparedStatement stmt = conn.prepareStatement(querystmt);
                 List<UtilToMethod> baseUtils = query.getBaseUtils();
                 for (int j = 0; j < baseUtils.size(); j++) {
                     stmt.setObject(j + 1, baseUtils.get(j).get());
                 }
-                stmt.execute();
+                if (query.isSelectQuery()) {
+                    ResultSet rs = stmt.executeQuery();
+                    while (rs.next()) ;
+                } else {
+                    stmt.executeUpdate();
+                }
             }
 
         } catch (ClassNotFoundException | InvocationTargetException
