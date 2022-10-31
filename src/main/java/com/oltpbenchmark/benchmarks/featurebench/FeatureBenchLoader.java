@@ -19,7 +19,7 @@ package com.oltpbenchmark.benchmarks.featurebench;
 
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.LoaderThread;
-import com.oltpbenchmark.benchmarks.featurebench.helpers.*;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.UtilToMethod;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.slf4j.Logger;
@@ -29,18 +29,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 
 
 public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(FeatureBenchLoader.class);
+    static int numberOfGeneratorFinished = 0;
     public String workloadClass = null;
     public HierarchicalConfiguration<ImmutableNode> config = null;
     public YBMicroBenchmark ybm = null;
     public int sizeOfLoadRule = 0;
     PreparedStatement stmt;
-    static int numberOfGeneratorFinished = 0;
 
     public FeatureBenchLoader(FeatureBenchBenchmark benchmark) {
         super(benchmark);
@@ -73,36 +72,18 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
     private void createPhaseAndBeforeLoad() {
         try {
             Connection conn = benchmark.makeConnection();
-            long createStart = System.currentTimeMillis();
-            if (config.containsKey("create")) {
-                createFromYaml(conn);
-            } else {
+            if (!config.containsKey("create")) {
+                long createStart = System.currentTimeMillis();
                 ybm.create(conn);
+                long createEnd = System.currentTimeMillis();
+                LOG.info("Elapsed time in create phase: {} milliseconds", createEnd - createStart);
             }
-            long createEnd = System.currentTimeMillis();
-            LOG.info("Elapsed time in create phase: {} milliseconds", createEnd - createStart);
-
             if (ybm.beforeLoadImplemented) {
                 ybm.beforeLoad(conn);
             }
             conn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private void createFromYaml(Connection conn) throws SQLException {
-        LOG.info("Using YAML for create phase");
-        List<String> ddls = config.getList(String.class, "create");
-        try {
-            Statement stmtOBj = conn.createStatement();
-            for (String ddl : ddls) {
-                stmtOBj.execute(ddl);
-            }
-            stmtOBj.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Error Occurred in Create Phase");
         }
     }
 
@@ -115,12 +96,12 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             throw new RuntimeException("Empty Load Rules");
         }
         LOG.info("Using YAML for load phase");
-        for (HierarchicalConfiguration loadRuleConfig : loadRulesConfig) {
+        for (HierarchicalConfiguration<ImmutableNode> loadRuleConfig : loadRulesConfig) {
             List<HierarchicalConfiguration<ImmutableNode>>
                 columnsConfigs = loadRuleConfig.configurationsAt("columns");
             List<Map<String, Object>> columns = new ArrayList<>();
-            for (HierarchicalConfiguration columnsConfig : columnsConfigs) {
-                Iterator columnKeys = columnsConfig.getKeys();
+            for (HierarchicalConfiguration<ImmutableNode> columnsConfig : columnsConfigs) {
+                Iterator<String> columnKeys = columnsConfig.getKeys();
                 Map<String, Object> column = new HashMap<>();
                 while (columnKeys.hasNext()) {
                     String element = (String) columnKeys.next();

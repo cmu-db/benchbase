@@ -1,0 +1,45 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+works:
+    work:
+        time: 5
+        active_terminals: 1
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkWriteImpactWithExtraIndex10
+    properties:
+        setAutoCommit : true
+        create :
+            - DROP PROCEDURE if exists insert_demo;
+            - CREATE PROCEDURE insert_demo(_numRows int)
+                LANGUAGE plpgsql
+                AS $$
+                DECLARE
+                BEGIN
+                insert into demo (id, col1, col2, col3, col4,col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15) select n, n, n+100, (n%100)+1, (n%1000)+1, 'aaa'||(n%1000)+1, '2022-12-10', n%50, n*10, 'bbb'||n, n%10, n*2, 'ccc'||(n%100), RANDOM()::INT::BOOLEAN, n, n from generate_series(1,_numRows) n;
+                END;
+                $$;
+            - drop table if exists demo;
+            - create table demo (id bigint primary key, col1 int, col2 int, col3 int, col4 int, col5 varchar(20), col6 date, col7 int, col8 bigint, col9 varchar(10), col10 int, col11 bigint, col12 varchar(10), col13 boolean, col14 int, col15 int);
+            - create index demo_idx1 on demo(col1);
+            - create index demo_idx2 on demo(col5);
+            - create index demo_idx3 on demo(col6);
+            - create index demo_idx4 on demo(col8);
+            - create index demo_idx5 on demo(col13);
+            - create index demo_idx6 on demo(col9);
+            - create index demo_idx7 on demo(col10);
+            - create index demo_idx8 on demo(col11);
+            - create index demo_idx9 on demo(col12);
+            - create index demo_idx10 on demo(col2);
+
+
+
+

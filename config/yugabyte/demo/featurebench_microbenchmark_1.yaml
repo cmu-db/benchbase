@@ -28,7 +28,7 @@ microbenchmark:
                 rows: 100
                 columns:
                     - name : dname
-                      util : RandomAstring
+                      util : RandomAString
                       params:
                           - 1
                           - 20

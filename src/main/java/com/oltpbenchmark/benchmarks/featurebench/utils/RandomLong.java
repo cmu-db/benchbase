@@ -20,7 +20,8 @@ public class RandomLong extends Random implements BaseUtil {
     public RandomLong(List<Object> values) {
         super((int) System.nanoTime());
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         this.minimum = ((Number) values.get(0)).longValue();
         this.maximum = ((Number) values.get(1)).longValue();

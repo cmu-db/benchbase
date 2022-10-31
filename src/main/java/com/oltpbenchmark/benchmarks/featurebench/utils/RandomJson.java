@@ -17,7 +17,8 @@ public class RandomJson implements BaseUtil {
 
     public RandomJson(List<Object> values) {
         if (values.size() != 4) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         this.fields = ((Number) (int) values.get(0)).intValue();
         this.nestedness = ((Number) (int) values.get(1)).intValue();

@@ -30,8 +30,12 @@ public class TransactionTypes implements Collection<TransactionType> {
     public TransactionTypes(List<TransactionType> transactiontypes) {
         transactiontypes.sort(TransactionType::compareTo);
         for (TransactionType tt : transactiontypes) {
+
             String key = tt.getName().toUpperCase();
-            this.types.put(key, tt);
+            if(key.equalsIgnoreCase("featurebench"))
+                this.types.put(key + tt.getId(), tt);
+            else
+                this.types.put(key, tt);
         }
     }
 

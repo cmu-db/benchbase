@@ -11,10 +11,11 @@ public class RandomNstring extends Random implements BaseUtil {
     public RandomNstring(List<Object> values) {
         super((int) System.nanoTime());
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
-        this.minimumLength = ((Number) (int) values.get(0)).intValue();
-        this.maximumLength = ((Number) (int) values.get(1)).intValue();
+        this.minimumLength = ((Number) values.get(0)).intValue();
+        this.maximumLength = ((Number) values.get(1)).intValue();
         if (minimumLength > maximumLength || minimumLength == 0 && maximumLength == 0 || minimumLength < 0)
             throw new RuntimeException("Please enter correct bounds for max and min length");
     }

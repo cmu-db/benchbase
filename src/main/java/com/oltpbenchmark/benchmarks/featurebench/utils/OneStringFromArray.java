@@ -18,7 +18,8 @@ public class OneStringFromArray implements BaseUtil {
 
     public OneStringFromArray(List<Object> values) {
         if (values.size() == 0) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         str = new ArrayList<>();
         for (Object value : values) {
@@ -29,8 +30,7 @@ public class OneStringFromArray implements BaseUtil {
     public Object run() throws ClassNotFoundException, InvocationTargetException,
         NoSuchMethodException, InstantiationException, IllegalAccessException {
         try {
-            String s = str.get(new Random().nextInt(str.size()));
-            return s;
+            return str.get(new Random().nextInt(str.size()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

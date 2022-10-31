@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 /**
@@ -98,6 +99,10 @@ public abstract class BenchmarkModule {
      * @return
      * @throws IOException
      */
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(int workcount) throws IOException {
+        return null;
+    }
+
     protected abstract List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException;
 
     /**
@@ -185,6 +190,10 @@ public abstract class BenchmarkModule {
     }
 
 
+    public final List<Worker<? extends BenchmarkModule>> makeWorkers(int workcount) throws IOException {
+        return (this.makeWorkersImpl(workcount));
+    }
+
     public final List<Worker<? extends BenchmarkModule>> makeWorkers() throws IOException {
         return (this.makeWorkersImpl());
     }
@@ -214,6 +223,30 @@ public abstract class BenchmarkModule {
     }
 
     /**
+    * Create the benchmark database for "featurebench" using YAML DDls
+    * if provided in the create Phase of YAML.
+    * */
+
+    public final void createFromYaml(WorkloadConfiguration workConf,Connection conn)
+    {
+        long createStart = System.currentTimeMillis();
+        LOG.info("Using YAML for create phase");
+        List<String> createDDLs = workConf.getXmlConfig().getList(String.class, "microbenchmark/properties/create");
+        try {
+            Statement stmtOBj = conn.createStatement();
+            for (String ddl : createDDLs) {
+                stmtOBj.execute(ddl);
+            }
+            stmtOBj.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new RuntimeException("Error Occurred in Create Phase");
+        }
+        long createEnd = System.currentTimeMillis();
+        LOG.info("Elapsed time in create phase: {} milliseconds", createEnd - createStart);
+    }
+
+    /**
      * Create the Benchmark Database
      * This is the main method used to create all the database
      * objects (e.g., table, indexes, etc) needed for this benchmark
@@ -222,16 +255,21 @@ public abstract class BenchmarkModule {
 
             ScriptRunner runner = new ScriptRunner(conn, true, true);
 
-            if (workConf.getDDLPath() != null) {
-                String ddlPath = workConf.getDDLPath();
-                LOG.warn("Overriding default DDL script path");
-                LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
-                runner.runExternalScript(ddlPath);
-            } else {
-                String ddlPath = this.getDatabaseDDLPath(dbType);
-                LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
-                runner.runScript(ddlPath);
-            }
+        if (workConf.getDDLPath() != null) {
+            String ddlPath = workConf.getDDLPath();
+            LOG.warn("Overriding default DDL script path");
+            LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+            runner.runExternalScript(ddlPath);
+        } else if (workConf.getBenchmarkName().equalsIgnoreCase("featurebench")
+                      && workConf.getXmlConfig().containsKey("microbenchmark/properties/create")) {
+
+            createFromYaml(workConf,conn);
+
+        } else {
+            String ddlPath = this.getDatabaseDDLPath(dbType);
+            LOG.debug("Executing script [{}] for database type [{}]", ddlPath, dbType);
+            runner.runScript(ddlPath);
+        }
     }
 
 
@@ -334,6 +372,29 @@ public abstract class BenchmarkModule {
         Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
 
         return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait);
+    }
+
+    /**
+     * Initialize a TransactionType handle for the get procedure name and id
+     * This should only be invoked a start-up time
+     *
+     * @param procName
+     * @param id
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public final TransactionType initTransactionType(String procName, int id, long preExecutionWait,
+                                                     long postExecutionWait, String transactionName) {
+        if (id == TransactionType.INVALID_ID) {
+            throw new RuntimeException(String.format("Procedure %s.%s cannot use the reserved id '%d' for %s", getBenchmarkName(), procName, id, TransactionType.INVALID.getClass().getSimpleName()));
+        }
+
+        Package pkg = this.getProcedurePackageImpl();
+
+        String fullName = pkg.getName() + "." + procName;
+        Class<? extends Procedure> procClass = (Class<? extends Procedure>) ClassUtil.getClass(fullName);
+
+        return new TransactionType(procClass, id, false, preExecutionWait, postExecutionWait, transactionName);
     }
 
     public final WorkloadConfiguration getWorkloadConfiguration() {

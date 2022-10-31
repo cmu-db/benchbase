@@ -291,6 +291,8 @@ public class WorkloadConfiguration {
         return isolationMode;
     }
 
+    public void clearPhase(){ this.phases.clear(); }
+
     public void setIsolationMode(String mode) {
         switch (mode) {
             case "TRANSACTION_SERIALIZABLE":

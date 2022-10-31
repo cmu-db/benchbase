@@ -389,6 +389,12 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
             int retryCount = 0;
             int maxRetryCount = configuration.getMaxRetries();
 
+            boolean autoCommitVal = false;
+            if (this.benchmark.getBenchmarkName().equalsIgnoreCase("featurebench") &&
+                this.benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("microbenchmark/properties/setAutoCommit")) {
+                autoCommitVal = this.benchmark.getWorkloadConfiguration().getXmlConfig().getBoolean("microbenchmark/properties/setAutoCommit");
+            }
+
             while (retryCount < maxRetryCount && this.workloadState.getGlobalState() != State.DONE) {
 
                 TransactionStatus status = TransactionStatus.UNKNOWN;
@@ -396,7 +402,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                 if (this.conn == null) {
                     try {
                         this.conn = this.benchmark.makeConnection();
-                        this.conn.setAutoCommit(false);
+                        this.conn.setAutoCommit(autoCommitVal);
                         this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
                     } catch (SQLException ex) {
                         if (LOG.isDebugEnabled()) {
@@ -423,7 +429,8 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
                         LOG.debug(String.format("%s %s committing...", this, transactionType));
                     }
 
-                    conn.commit();
+                    if (!autoCommitVal)
+                        conn.commit();
 
                     break;
 

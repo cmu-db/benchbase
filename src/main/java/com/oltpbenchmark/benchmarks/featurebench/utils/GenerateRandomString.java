@@ -26,7 +26,7 @@ public class GenerateRandomString implements BaseUtil {
     GenerateRandomString(List<Object> values) {
         if (values.size() != 2) {
             throw new RuntimeException("Incorrect number of parameters " +
-                "for util function");
+                "for util function " + this.getClass());
         }
         this.desiredLength = ((Number) values.get(0)).intValue();
         this.sizeOfStringArray = ((Number) values.get(1)).intValue();

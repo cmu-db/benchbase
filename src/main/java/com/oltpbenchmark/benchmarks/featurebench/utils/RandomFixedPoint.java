@@ -27,7 +27,8 @@ public class RandomFixedPoint extends Random implements BaseUtil {
 
         super((int) System.nanoTime());
         if (values.size() != 3) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         this.decimalPlaces = ((Number) values.get(0)).intValue();
         this.minimum = ((Number) values.get(1)).doubleValue();

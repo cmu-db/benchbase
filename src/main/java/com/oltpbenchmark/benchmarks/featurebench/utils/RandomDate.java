@@ -22,11 +22,12 @@ public class RandomDate implements BaseUtil {
 
     public RandomDate(List<Object> values) {
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         Random rnd = new Random();
-        this.yearlowerBound = ((Number) (int) values.get(0)).intValue();
-        this.yearupperBound = ((Number) (int) values.get(1)).intValue();
+        this.yearlowerBound = ((Number) values.get(0)).intValue();
+        this.yearupperBound = ((Number) values.get(1)).intValue();
         if (yearlowerBound > yearupperBound || yearlowerBound == 0 && yearupperBound == 0 || yearlowerBound < 0)
             throw new RuntimeException("Please enter correct bounds for max and min year");
 

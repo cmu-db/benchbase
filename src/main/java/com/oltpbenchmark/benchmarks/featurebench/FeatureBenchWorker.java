@@ -20,25 +20,28 @@ package com.oltpbenchmark.benchmarks.featurebench;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
-import com.oltpbenchmark.benchmarks.featurebench.helpers.*;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.UtilToMethod;
+import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.ExecuteRule;
+import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.Query;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
-import com.oltpbenchmark.util.RandomGenerator;
-import com.oltpbenchmark.util.RowRandomBoundedInt;
+import com.oltpbenchmark.util.FileUtil;
+import com.oltpbenchmark.util.JSONUtil;
+import com.oltpbenchmark.util.TimeUtil;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
+import java.sql.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -46,108 +49,115 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     private static final Logger LOG = LoggerFactory.getLogger(FeatureBenchWorker.class);
-    static boolean isCleanUpDone = false;
+    static AtomicBoolean isCleanUpDone = new AtomicBoolean(false);
     public String workloadClass = null;
     public HierarchicalConfiguration<ImmutableNode> config = null;
     public YBMicroBenchmark ybm = null;
+    public List<ExecuteRule> executeRules = null;
 
     public FeatureBenchWorker(FeatureBenchBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
     }
 
-    int getTransactionId(int no, ArrayList<Integer> weights) {
-        int len = weights.size();
-        for (int i = 0; i < len; i++) {
-            if (no <= weights.get(i))
-                return i;
-        }
-        return 0;
-    }
+    protected void initialize() {
 
-    public void bindParamsBasedOnFunc(ArrayList<BindParams> bp, PreparedStatement stmt) throws SQLException {
-        for (BindParams ob : bp) {
-            ArrayList<UtilityFunc> ufs = ob.getUtilFunc();
-            for (int j = 0; j < ufs.size(); j++) {
-                if (Objects.equals(ufs.get(j).getName(), "RandomNoWithinRange")) {
-                    ArrayList<ParamsForUtilFunc> pfuf = ufs.get(j).getParams();
-                    int lower_range = pfuf.get(0).getParameters().get(0);
-                    int upper_range = pfuf.get(0).getParameters().get(1);
-                    RowRandomBoundedInt rno = new RowRandomBoundedInt(1, lower_range, upper_range);
-                    stmt.setInt(j + 1, rno.nextValue());
-                } else if (Objects.equals(ufs.get(j).getName(), "astring")) {
-                    ArrayList<ParamsForUtilFunc> pfuf = ufs.get(j).getParams();
-                    int min_len = pfuf.get(0).getParameters().get(0);
-                    int max_len = pfuf.get(0).getParameters().get(1);
-                    int randomNum = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-                    if (randomNum % 2 == 0) {
-                        RandomGenerator rno = new RandomGenerator(1);
-                        String dname = rno.astring(min_len, max_len);
-                        stmt.setString(j + 1, dname);
-                    }
-                }
+        if (this.getBenchmark().getWorkloadConfiguration().getXmlConfig().containsKey("microbenchmark/properties/explain")) {
+
+            try {
+                long createStart = System.currentTimeMillis();
+                LOG.info("Using YAML for EXPLAIN DDL's before execute phase");
+
+                XMLConfiguration config = this.getBenchmark().getWorkloadConfiguration().getXmlConfig();
+                List<String> explainDDLs = config.getList(String.class, "microbenchmark/properties/explain");
+
+                String outputDirectory = "results";
+                FileUtil.makeDirIfNotExists(outputDirectory);
+                String explainDir = "ResultsForExplain";
+                FileUtil.makeDirIfNotExists(outputDirectory + "/" + explainDir);
+                String fileForExplain = "/resultsForExplain/" + TimeUtil.getCurrentTimeString() + ".json";
+                PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileForExplain));
+
+                writeExplain(ps, explainDDLs);
+
+                long createEnd = System.currentTimeMillis();
+                LOG.info("Elapsed time in EXPLAIN ddls: {} milliseconds", createEnd - createStart);
+
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new RuntimeException("Error Occurred in explain DDL's");
             }
         }
-        stmt.executeQuery();
     }
+
+    public void writeExplain(PrintStream os, List<String> explainDDLs) throws SQLException {
+        Map<String, JSONObject> summaryMap = new TreeMap<>();
+        Statement stmtOBj = conn.createStatement();
+        int count = 0;
+        for (String ddl : explainDDLs) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("ddl", ddl);
+            count++;
+            ResultSet rs = stmtOBj.executeQuery(ddl);
+            StringBuilder data = new StringBuilder();
+            while (rs.next()) {
+                data.append(rs.getString(1));
+                data.append(" ");
+            }
+            jsonObject.put("ResultSet", data.toString());
+            summaryMap.put("ExplainDDL" + count, jsonObject);
+        }
+        os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
+    }
+
 
     @Override
     protected TransactionStatus executeWork(Connection conn, TransactionType txnType) throws
         UserAbortException, SQLException {
+
 
         try {
             ybm = (YBMicroBenchmark) Class.forName(workloadClass)
                 .getDeclaredConstructor(HierarchicalConfiguration.class)
                 .newInstance(config);
 
-            System.out.println(this.configuration.getWorkloadState().getGlobalState());
-//            if (ybm.executeOnceImplemented) {
-//                ybm.executeOnce(conn);
-//                conn.close();
-//            } else {
-//                ArrayList<ExecuteRule> executeRules = ybm.executeRules();
-//                // Validating sum of transaction weights =100
-//                int sum = 0;
-//                int weight;
-//                ArrayList<Integer> callAccToWeight = new ArrayList<>();
-//                for (ExecuteRule executeRule : executeRules) {
-//                    TransactionDetails transaction_det = executeRule.getTransactionDetails();
-//                    weight = transaction_det.getWeightTransactionType();
-//                    sum += weight;
-//                    callAccToWeight.add(sum);
-//                }
-//                if (sum > 100 || sum <= 0) {
-//                    throw new RuntimeException("Transaction weights incorrect");
-//                }
-//                for (int i = 0; i < 100; i++) {
-//                    int randomNum = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-//                    int getId = getTransactionId(randomNum, callAccToWeight);
-//                    TransactionDetails transaction_det = executeRules.get(getId).getTransactionDetails();
-//                    ArrayList<QueryDetails> qd = transaction_det.getQuery();
-//                    for (QueryDetails queryDetails : qd) {
-//                        String query = queryDetails.getQuery();
-//                        PreparedStatement stmt = conn.prepareStatement(query);
-//                        ArrayList<BindParams> bp = queryDetails.getBindParams();
-//                        bindParamsBasedOnFunc(bp, stmt);
-//                    }
-//
-//                }
-//            }
-            return TransactionStatus.SUCCESS;
+            if (config.containsKey("execute") && config.getBoolean("execute")) {
+                ybm.execute(conn);
+                return TransactionStatus.SUCCESS;
+            } else if (executeRules == null || executeRules.size() == 0) {
+                if (this.configuration.getWorkloadState().getGlobalState() == State.MEASURE) {
+                    ybm.executeOnce(conn);
+                }
+                return TransactionStatus.SUCCESS;
+            }
 
-        } catch (ClassNotFoundException | InvocationTargetException |
-                 InstantiationException |
-                 IllegalAccessException | NoSuchMethodException e) {
+            int executeRuleIndex = txnType.getId() - 1;
+            ExecuteRule executeRule = executeRules.get(executeRuleIndex);
+            for (Query query : executeRule.getQueries()) {
+                PreparedStatement stmt = conn.prepareStatement(query.getQuery());
+                List<UtilToMethod> baseUtils = query.getBaseUtils();
+                for (int j = 0; j < baseUtils.size(); j++) {
+                    stmt.setObject(j + 1, baseUtils.get(j).get());
+                }
+                stmt.execute();
+            }
+
+        } catch (ClassNotFoundException | InvocationTargetException
+                 | InstantiationException | IllegalAccessException |
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-
+        return TransactionStatus.SUCCESS;
     }
+
 
     @Override
     public void tearDown() {
 
         if (!this.configuration.getNewConnectionPerTxn() && this.conn != null && ybm != null) {
             try {
-                if (this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isCleanUpDone) {
+                if (this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isCleanUpDone.get()) {
                     if (config.containsKey("cleanup")) {
                         LOG.info("\n=================Cleanup Phase taking from Yaml=========\n");
                         List<String> ddls = config.getList(String.class, "cleanup");
@@ -164,9 +174,9 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                     } else {
                         ybm.cleanUp(conn);
                     }
-                    isCleanUpDone = true;
+                    conn.close();
+                    isCleanUpDone.set(true);
                 }
-                conn.close();
             } catch (SQLException e) {
                 LOG.error("Connection couldn't be closed.", e);
             }

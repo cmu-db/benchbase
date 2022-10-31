@@ -23,7 +23,8 @@ public class RandomInt extends Random implements BaseUtil {
     public RandomInt(List<Object> values) {
         super((int) System.nanoTime());
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         this.minimum = ((Number) values.get(0)).intValue();
         this.maximum = ((Number) values.get(1)).intValue();

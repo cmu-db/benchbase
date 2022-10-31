@@ -16,7 +16,8 @@ public class CurrentTimeString implements BaseUtil {
 
     public CurrentTimeString(List<Object> values) {
         if (values.size() != 0) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
         DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     }

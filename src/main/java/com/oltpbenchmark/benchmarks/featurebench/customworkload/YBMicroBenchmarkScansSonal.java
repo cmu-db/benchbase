@@ -39,6 +39,20 @@ public class YBMicroBenchmarkScansSonal extends YBMicroBenchmark {
         }
     }
 
+    public void loadOnce(Connection conn) throws SQLException{
+
+        String insertStmt = "INSERT INTO demoScans SELECT random() * 1000,  generate_series(1, 1000);";
+        Statement stmtOBj = conn.createStatement();
+        stmtOBj.execute(insertStmt);
+
+    }
+    public void executeOnce(Connection conn)throws SQLException{
+        String selectStmt = "SELECT * from demoScans;";
+        Statement stmtOBj = conn.createStatement();
+        stmtOBj.execute(selectStmt);
+
+    }
+
     @Override
     public ArrayList<LoadRule> loadRules() {
         return null;
@@ -47,13 +61,5 @@ public class YBMicroBenchmarkScansSonal extends YBMicroBenchmark {
     @Override
     public ArrayList<ExecuteRule> executeRules() {
         return null;
-    }
-
-    public void loadOnce(Connection conn) throws SQLException{
-
-        String insertStmt = "INSERT INTO demoScans SELECT random() * 1000,  generate_series(1, 1000);";
-        Statement stmtOBj = conn.createStatement();
-        stmtOBj.execute(insertStmt);
-
     }
 }

@@ -22,11 +22,12 @@ public class PrimaryIntGen implements BaseUtil {
 
     public PrimaryIntGen(List<Object> values) {
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
-        this.currentValue = ((Number) (int) values.get(0)).intValue() - 1;
-        this.upperRange = ((Number) (int) values.get(1)).intValue();
-        this.lowerRange = ((Number) (int) values.get(0)).intValue();
+        this.currentValue = ((Number) values.get(0)).intValue() - 1;
+        this.upperRange = ((Number) values.get(1)).intValue();
+        this.lowerRange = ((Number) values.get(0)).intValue();
         if (upperRange < lowerRange) {
             throw new RuntimeException("Upper bound less than lower bound");
         }

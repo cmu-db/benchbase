@@ -63,12 +63,12 @@ microbenchmark:
                     -   name: c6
                         util: RandomBoolean
                     -   name: c7
-                        util: RandomAstring
+                        util: RandomAString
                         params:
                             - 1
                             - 5
                     -   name: c8
-                        util: RandomAstring
+                        util: RandomAString
                         params:
                             - 1
                             - 10
@@ -78,5 +78,16 @@ microbenchmark:
                             - Type1
                             - Type2
                             - Type3
+        executeRules:
+                 -  name: Scan_Query
+                    weight: 100
+                    queries:
+                        -   query: SELECT * FROM t1_10_10k WHERE c2 = ?;
+                            bindings:
+                                - util: RandomInt
+                                  params:
+                                      - 1
+                                      - 2000
+
         cleanup:
             - DROP TABLE t1_10_10k;

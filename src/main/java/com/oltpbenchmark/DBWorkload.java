@@ -43,7 +43,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
@@ -109,7 +112,7 @@ public class DBWorkload {
         for (String plugin : targetList) {
             String pluginTest = "[@bench='" + plugin + "']";
             if (plugin.equalsIgnoreCase("featurebench"))
-                 xmlConfig = buildConfigurationFromYaml(configFile);
+                xmlConfig = buildConfigurationFromYaml(configFile);
             else
                 xmlConfig = buildConfiguration(configFile);
 
@@ -195,292 +198,374 @@ public class DBWorkload {
                 numTxnTypes = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/transactiontype").size();
             }
 
+            List<HierarchicalConfiguration<ImmutableNode>> workloads = xmlConfig.configurationsAt("microbenchmark/properties/executeRules");
 
-            List<TransactionType> ttypes = new ArrayList<>();
-            ttypes.add(TransactionType.INVALID);
-            int txnIdOffset = lastTxnId;
-            for (int i = 1; i <= numTxnTypes; i++) {
-                String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
-                String txnName = xmlConfig.getString(key + "/name");
+            int totalworkcount = plugin.equalsIgnoreCase("featurebench") ? (workloads == null ? 1 : (workloads.size() == 0 ? 1 : workloads.size())) : 1;
 
-                // Get ID if specified; else increment from last one.
-                int txnId = i;
-                if (xmlConfig.containsKey(key + "/id")) {
-                    txnId = xmlConfig.getInt(key + "/id");
-                }
+            boolean createDone = false;
+            boolean loadDone = false;
 
-                long preExecutionWait = 0;
-                if (xmlConfig.containsKey(key + "/preExecutionWait")) {
-                    preExecutionWait = xmlConfig.getLong(key + "/preExecutionWait");
-                }
+            for (int workcount = 1; workcount <= totalworkcount; workcount++) {
 
-                long postExecutionWait = 0;
-                if (xmlConfig.containsKey(key + "/postExecutionWait")) {
-                    postExecutionWait = xmlConfig.getLong(key + "/postExecutionWait");
-                }
-
-                TransactionType tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset, preExecutionWait, postExecutionWait);
-
-                // Keep a reference for filtering
-                activeTXTypes.add(tmpType);
-
-                // Add a ref for the active TTypes in this benchmark
-                ttypes.add(tmpType);
-                lastTxnId = i;
-            }
-
-            // Wrap the list of transactions and save them
-            TransactionTypes tt = new TransactionTypes(ttypes);
-            wrkld.setTransTypes(tt);
-            LOG.debug("Using the following transaction types: {}", tt);
-
-            // Read in the groupings of transactions (if any) defined for this
-            // benchmark
-            int numGroupings = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/groupings/grouping").size();
-            LOG.debug("Num groupings: {}", numGroupings);
-            for (int i = 1; i < numGroupings + 1; i++) {
-                String key = "transactiontypes" + pluginTest + "/groupings/grouping[" + i + "]";
-
-                // Get the name for the grouping and make sure it's valid.
-                String groupingName = xmlConfig.getString(key + "/name").toLowerCase();
-                if (!groupingName.matches("^[a-z]\\w*$")) {
-                    LOG.error(String.format("Grouping name \"%s\" is invalid." + " Must begin with a letter and contain only" + " alphanumeric characters.", groupingName));
-                    System.exit(-1);
-                } else if (groupingName.equals("all")) {
-                    LOG.error("Grouping name \"all\" is reserved." + " Please pick a different name.");
-                    System.exit(-1);
-                }
-
-                // Get the weights for this grouping and make sure that there
-                // is an appropriate number of them.
-                List<String> groupingWeights = Arrays.asList(xmlConfig.getString(key + "/weights").split("\\s*,\\s*"));
-                if (groupingWeights.size() != numTxnTypes) {
-                    LOG.error(String.format("Grouping \"%s\" has %d weights," + " but there are %d transactions in this" + " benchmark.", groupingName, groupingWeights.size(), numTxnTypes));
-                    System.exit(-1);
-                }
-
-                LOG.debug("Creating grouping with name, weights: {}, {}", groupingName, groupingWeights);
-            }
-
-
-            benchList.add(bench);
-
-            // ----------------------------------------------------------------
-            // WORKLOAD CONFIGURATION
-            // ----------------------------------------------------------------
-
-            int size = xmlConfig.configurationsAt("/works/work").size();
-            for (int i = 1; i < size + 1; i++) {
-                final HierarchicalConfiguration<ImmutableNode> work = xmlConfig.configurationAt("works/work[" + i + "]");
-                List<String> weight_strings;
-
-                // use a workaround if there are multiple workloads or single
-                // attributed workload
-                if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
-                    weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
+                List<HierarchicalConfiguration<ImmutableNode>> executeRules = (workloads == null || workloads.size() == 0) ? null : workloads.get(workcount - 1).configurationsAt("run");
+                if (executeRules == null) {
+                    System.out.println("Starting Workload " + workcount);
                 } else {
-                    weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
+                    System.out.println("Starting Workload " + (workloads.get(workcount - 1).containsKey("workload") ? workloads.get(workcount - 1).getString("workload") : workcount));
                 }
 
-                int rate = 1;
-                boolean rateLimited = true;
-                boolean disabled = false;
-                boolean timed;
+                boolean isExecutePresent = xmlConfig.containsKey("microbenchmark/properties/execute");
+                boolean isExecuteTrue = false;
+                if (isExecutePresent) {
+                    isExecuteTrue = xmlConfig.getBoolean("microbenchmark/properties/execute");
+                }
 
-                // can be "disabled", "unlimited" or a number
-                String rate_string;
-                rate_string = work.getString("rate[not(@bench)]", "");
-                rate_string = work.getString("rate" + pluginTest, rate_string);
-                if (rate_string.equals(RATE_DISABLED)) {
-                    disabled = true;
-                } else if (rate_string.equals(RATE_UNLIMITED)) {
-                    rateLimited = false;
-                } else if (rate_string.isEmpty()) {
-                    LOG.error(String.format("Please specify the rate for phase %d and workload %s", i, plugin));
-                    System.exit(-1);
-                } else {
-                    try {
-                        rate = Integer.parseInt(rate_string);
-                        if (rate < 1) {
-                            LOG.error("Rate limit must be at least 1. Use unlimited or disabled values instead.");
+                if (plugin.equalsIgnoreCase("featurebench")) {
+                    if (executeRules == null) {
+                        numTxnTypes = 1;
+
+                    } else if (executeRules.size() == 0) {
+                        executeRules = null;
+                        numTxnTypes = 1;
+                    } else {
+                        if (!executeRules.get(0).containsKey("weight")) {
+                            executeRules = null;
+                            numTxnTypes = 1;
+                        } else {
+                            numTxnTypes = executeRules.size();
+                        }
+                    }
+                }
+
+                List<TransactionType> ttypes = new ArrayList<>();
+                ttypes.add(TransactionType.INVALID);
+
+                int txnIdOffset = lastTxnId;
+                if (plugin.equalsIgnoreCase("featurebench")) {
+                    txnIdOffset = 0;
+                }
+                for (int i = 1; i <= numTxnTypes; i++) {
+                    String key = "transactiontypes" + pluginTest + "/transactiontype[" + i + "]";
+                    String txnName = xmlConfig.getString(key + "/name");
+
+                    // Get ID if specified; else increment from last one.
+                    int txnId = i;
+                    if (xmlConfig.containsKey(key + "/id")) {
+                        txnId = xmlConfig.getInt(key + "/id");
+                    }
+
+                    long preExecutionWait = 0;
+                    if (xmlConfig.containsKey(key + "/preExecutionWait")) {
+                        preExecutionWait = xmlConfig.getLong(key + "/preExecutionWait");
+                    }
+
+                    long postExecutionWait = 0;
+                    if (xmlConfig.containsKey(key + "/postExecutionWait")) {
+                        postExecutionWait = xmlConfig.getLong(key + "/postExecutionWait");
+                    }
+                    TransactionType tmpType;
+                    if (plugin.equalsIgnoreCase("featurebench")) {
+                        if (isExecuteTrue) {
+                            tmpType = bench.initTransactionType("FeatureBench", txnId + txnIdOffset, preExecutionWait,
+                                postExecutionWait, "execute");
+                        } else if (executeRules != null) {
+                            tmpType = bench.initTransactionType("FeatureBench", txnId + txnIdOffset, preExecutionWait,
+                                postExecutionWait, executeRules.get(i - 1).getString("name"));
+                        } else {
+                            tmpType = bench.initTransactionType("FeatureBench", txnId + txnIdOffset, preExecutionWait,
+                                postExecutionWait, "executeOnce");
+                        }
+                    } else {
+                        tmpType = bench.initTransactionType(txnName, txnId + txnIdOffset, preExecutionWait, postExecutionWait);
+                    }
+
+                    // Keep a reference for filtering
+                    activeTXTypes.add(tmpType);
+
+                    // Add a ref for the active TTypes in this benchmark
+                    ttypes.add(tmpType);
+                    lastTxnId = i;
+                }
+
+                // Wrap the list of transactions and save them
+                TransactionTypes tt = new TransactionTypes(ttypes);
+                wrkld.setTransTypes(tt);
+                LOG.debug("Using the following transaction types: {}", tt);
+
+                // Read in the groupings of transactions (if any) defined for this
+                // benchmark
+                int numGroupings = xmlConfig.configurationsAt("transactiontypes" + pluginTest + "/groupings/grouping").size();
+                LOG.debug("Num groupings: {}", numGroupings);
+                for (int i = 1; i < numGroupings + 1; i++) {
+                    String key = "transactiontypes" + pluginTest + "/groupings/grouping[" + i + "]";
+
+                    // Get the name for the grouping and make sure it's valid.
+                    String groupingName = xmlConfig.getString(key + "/name").toLowerCase();
+                    if (!groupingName.matches("^[a-z]\\w*$")) {
+                        LOG.error(String.format("Grouping name \"%s\" is invalid." + " Must begin with a letter and contain only" + " alphanumeric characters.", groupingName));
+                        System.exit(-1);
+                    } else if (groupingName.equals("all")) {
+                        LOG.error("Grouping name \"all\" is reserved." + " Please pick a different name.");
+                        System.exit(-1);
+                    }
+
+                    // Get the weights for this grouping and make sure that there
+                    // is an appropriate number of them.
+                    List<String> groupingWeights = Arrays.asList(xmlConfig.getString(key + "/weights").split("\\s*,\\s*"));
+                    if (groupingWeights.size() != numTxnTypes) {
+                        LOG.error(String.format("Grouping \"%s\" has %d weights," + " but there are %d transactions in this" + " benchmark.", groupingName, groupingWeights.size(), numTxnTypes));
+                        System.exit(-1);
+                    }
+
+                    LOG.debug("Creating grouping with name, weights: {}, {}", groupingName, groupingWeights);
+                }
+
+
+                benchList.add(bench);
+
+                // ----------------------------------------------------------------
+                // WORKLOAD CONFIGURATION
+                // ----------------------------------------------------------------
+
+                int size = xmlConfig.configurationsAt("/works/work").size();
+                for (int i = 1; i < size + 1; i++) {
+                    final HierarchicalConfiguration<ImmutableNode> work = xmlConfig.configurationAt("works/work[" + i + "]");
+                    List<String> weight_strings;
+
+                    // use a workaround if there are multiple workloads or single
+                    // attributed workload
+                    if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
+                        weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
+                    } else if (plugin.equalsIgnoreCase("featurebench")) {
+                        weight_strings = List.of();
+                    } else {
+                        weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
+                    }
+
+                    int rate = 1;
+                    boolean rateLimited = true;
+                    boolean disabled = false;
+                    boolean timed;
+
+                    // can be "disabled", "unlimited" or a number
+                    String rate_string;
+                    rate_string = work.getString("rate[not(@bench)]", "");
+                    rate_string = work.getString("rate" + pluginTest, rate_string);
+                    if (rate_string.equals(RATE_DISABLED)) {
+                        disabled = true;
+                    } else if (rate_string.equals(RATE_UNLIMITED)) {
+                        rateLimited = false;
+                    } else if (rate_string.isEmpty()) {
+                        LOG.error(String.format("Please specify the rate for phase %d and workload %s", i, plugin));
+                        System.exit(-1);
+                    } else {
+                        try {
+                            rate = Integer.parseInt(rate_string);
+                            if (rate < 1) {
+                                LOG.error("Rate limit must be at least 1. Use unlimited or disabled values instead.");
+                                System.exit(-1);
+                            }
+                        } catch (NumberFormatException e) {
+                            LOG.error(String.format("Rate string must be '%s', '%s' or a number", RATE_DISABLED, RATE_UNLIMITED));
                             System.exit(-1);
                         }
-                    } catch (NumberFormatException e) {
-                        LOG.error(String.format("Rate string must be '%s', '%s' or a number", RATE_DISABLED, RATE_UNLIMITED));
+                    }
+                    Phase.Arrival arrival = Phase.Arrival.REGULAR;
+                    String arrive = work.getString("@arrival", "regular");
+                    if (arrive.equalsIgnoreCase("POISSON")) {
+                        arrival = Phase.Arrival.POISSON;
+                    }
+
+                    // We now have the option to run all queries exactly once in
+                    // a serial (rather than random) order.
+                    boolean serial = Boolean.parseBoolean(work.getString("serial", Boolean.FALSE.toString()));
+
+
+                    int activeTerminals;
+                    activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
+                    activeTerminals = work.getInt("active_terminals" + pluginTest, activeTerminals);
+                    // If using serial, we should have only one terminal
+                    if (serial && activeTerminals != 1) {
+                        LOG.warn("Serial ordering is enabled, so # of active terminals is clamped to 1.");
+                        activeTerminals = 1;
+                    }
+                    if (activeTerminals > terminals) {
+                        LOG.error(String.format("Configuration error in work %d: " + "Number of active terminals is bigger than the total number of terminals", i));
                         System.exit(-1);
                     }
-                }
-                Phase.Arrival arrival = Phase.Arrival.REGULAR;
-                String arrive = work.getString("@arrival", "regular");
-                if (arrive.equalsIgnoreCase("POISSON")) {
-                    arrival = Phase.Arrival.POISSON;
-                }
 
-                // We now have the option to run all queries exactly once in
-                // a serial (rather than random) order.
-                boolean serial = Boolean.parseBoolean(work.getString("serial", Boolean.FALSE.toString()));
+                    int time = work.getInt("/time", 0);
+                    int warmup = work.getInt("/warmup", 0);
+                    //----------->
+                    if (plugin.equalsIgnoreCase("featurebench") && executeRules == null && !isExecuteTrue) {
+                        serial = true;
+                        time = 0;
+                    }
+                    timed = (time > 0);
+                    if (!timed) {
+                        if (serial) {
+                            LOG.info("Timer disabled for serial run; will execute" + " all queries exactly once.");
+                        } else {
+                            LOG.error("Must provide positive time bound for" + " non-serial executions. Either provide" + " a valid time or enable serial mode.");
+                            System.exit(-1);
+                        }
+                    } else if (serial) {
+                        LOG.info("Timer enabled for serial run; will run queries" + " serially in a loop until the timer expires.");
+                    }
+                    if (warmup < 0) {
+                        LOG.error("Must provide non-negative time bound for" + " warmup.");
+                        System.exit(-1);
+                    }
 
+                    ArrayList<Double> weights = new ArrayList<>();
 
-                int activeTerminals;
-                activeTerminals = work.getInt("active_terminals[not(@bench)]", terminals);
-                activeTerminals = work.getInt("active_terminals" + pluginTest, activeTerminals);
-                // If using serial, we should have only one terminal
-                if (serial && activeTerminals != 1) {
-                    LOG.warn("Serial ordering is enabled, so # of active terminals is clamped to 1.");
-                    activeTerminals = 1;
-                }
-                if (activeTerminals > terminals) {
-                    LOG.error(String.format("Configuration error in work %d: " + "Number of active terminals is bigger than the total number of terminals", i));
-                    System.exit(-1);
-                }
-
-                int time = work.getInt("/time", 0);
-                int warmup = work.getInt("/warmup", 0);
-                timed = (time > 0);
-                if (!timed) {
-                    if (serial) {
-                        LOG.info("Timer disabled for serial run; will execute" + " all queries exactly once.");
+                    double totalWeight = 0;
+                    if (plugin.equalsIgnoreCase("featurebench")) {
+                        if (executeRules == null) {
+                            totalWeight = 100;
+                            weights.add(100.0);
+                        } else {
+                            for (HierarchicalConfiguration<ImmutableNode> rule : executeRules) {
+                                double weight = rule.getDouble("weight");
+                                totalWeight += weight;
+                                weights.add(weight);
+                            }
+                        }
                     } else {
-                        LOG.error("Must provide positive time bound for" + " non-serial executions. Either provide" + " a valid time or enable serial mode.");
+                        for (String weightString : weight_strings) {
+                            double weight = Double.parseDouble(weightString);
+                            totalWeight += weight;
+                            weights.add(weight);
+                        }
+                    }
+
+                    long roundedWeight = Math.round(totalWeight);
+
+                    if (roundedWeight != 100) {
+                        LOG.warn("rounded weight [{}] does not equal 100.  Original weight is [{}]", roundedWeight, totalWeight);
+                    }
+
+
+                    wrkld.addPhase(i, time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
+                }
+
+                // CHECKING INPUT PHASES
+                int j = 0;
+                for (Phase p : wrkld.getPhases()) {
+                    j++;
+                    if (p.getWeightCount() != numTxnTypes) {
+                        LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(), numTxnTypes));
+                        if (p.isSerial()) {
+                            LOG.error("However, note that since this a serial phase, the weights are irrelevant (but still must be included---sorry).");
+                        }
                         System.exit(-1);
                     }
-                } else if (serial) {
-                    LOG.info("Timer enabled for serial run; will run queries" + " serially in a loop until the timer expires.");
-                }
-                if (warmup < 0) {
-                    LOG.error("Must provide non-negative time bound for" + " warmup.");
-                    System.exit(-1);
                 }
 
-                ArrayList<Double> weights = new ArrayList<>();
-
-                double totalWeight = 0;
-
-                for (String weightString : weight_strings) {
-                    double weight = Double.parseDouble(weightString);
-                    totalWeight += weight;
-                    weights.add(weight);
-                }
-
-                long roundedWeight = Math.round(totalWeight);
-
-                if (roundedWeight != 100) {
-                    LOG.warn("rounded weight [{}] does not equal 100.  Original weight is [{}]", roundedWeight, totalWeight);
-                }
+                // Generate the dialect map
+                wrkld.init();
 
 
-                wrkld.addPhase(i, time, warmup, rate, weights, rateLimited, disabled, serial, timed, activeTerminals, arrival);
-            }
-
-            // CHECKING INPUT PHASES
-            int j = 0;
-            for (Phase p : wrkld.getPhases()) {
-                j++;
-                if (p.getWeightCount() != numTxnTypes) {
-                    LOG.error(String.format("Configuration files is inconsistent, phase %d contains %d weights but you defined %d transaction types", j, p.getWeightCount(), numTxnTypes));
-                    if (p.isSerial()) {
-                        LOG.error("However, note that since this a serial phase, the weights are irrelevant (but still must be included---sorry).");
+                // Export StatementDialects
+                if (isBooleanOptionSet(argsLine, "dialects-export")) {
+                    BenchmarkModule benchtemp = benchList.get(0);
+                    if (benchtemp.getStatementDialects() != null) {
+                        LOG.info("Exporting StatementDialects for {}", benchtemp);
+                        String xml = benchtemp.getStatementDialects().export(benchtemp.getWorkloadConfiguration().getDatabaseType(), benchtemp.getProcedures().values());
+                        LOG.debug(xml);
+                        System.exit(0);
                     }
-                    System.exit(-1);
+                    throw new RuntimeException("No StatementDialects is available for " + benchtemp);
                 }
-            }
 
-            // Generate the dialect map
-            wrkld.init();
-
-
-        }
-
-
-        // Export StatementDialects
-        if (isBooleanOptionSet(argsLine, "dialects-export")) {
-            BenchmarkModule bench = benchList.get(0);
-            if (bench.getStatementDialects() != null) {
-                LOG.info("Exporting StatementDialects for {}", bench);
-                String xml = bench.getStatementDialects().export(bench.getWorkloadConfiguration().getDatabaseType(), bench.getProcedures().values());
-                LOG.debug(xml);
-                System.exit(0);
-            }
-            throw new RuntimeException("No StatementDialects is available for " + bench);
-        }
-
-        // Create the Benchmark's Database
-        if (isBooleanOptionSet(argsLine, "create")) {
-            try {
-                for (BenchmarkModule benchmark : benchList) {
-                    LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
-                    runCreator(benchmark);
-                    LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
+                // Create the Benchmark's Database
+                if (isBooleanOptionSet(argsLine, "create") && !createDone) {
+                    try {
+                        for (BenchmarkModule benchmark : benchList) {
+                            LOG.info("Creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
+                            if (benchmark.getBenchmarkName().equalsIgnoreCase("featurebench") && benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("createdb")) {
+                                String newUrl = runCreatorDB(benchmark, benchmark.getWorkloadConfiguration().getXmlConfig().getString("createdb"));
+                                benchmark.getWorkloadConfiguration().setUrl(newUrl);
+                                benchmark.getWorkloadConfiguration().getXmlConfig().setProperty("url", newUrl);
+                            }
+                            runCreator(benchmark);
+                            LOG.info("Finished creating new {} database...", benchmark.getBenchmarkName().toUpperCase());
+                        }
+                    } catch (Throwable ex) {
+                        LOG.error("Unexpected error when creating benchmark database tables.", ex);
+                        System.exit(1);
+                    }
+                    createDone = true;
+                } else {
+                    LOG.debug("Skipping creating benchmark database tables");
                 }
-            } catch (Throwable ex) {
-                LOG.error("Unexpected error when creating benchmark database tables.", ex);
-                System.exit(1);
-            }
-        } else {
-            LOG.debug("Skipping creating benchmark database tables");
-        }
 
-        // Refresh the catalog.
-        for (BenchmarkModule benchmark : benchList) {
-            benchmark.refreshCatalog();
-        }
-
-        // Clear the Benchmark's Database
-        if (isBooleanOptionSet(argsLine, "clear")) {
-            try {
+                // Refresh the catalog.
                 for (BenchmarkModule benchmark : benchList) {
-                    LOG.info("Clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
                     benchmark.refreshCatalog();
-                    benchmark.clearDatabase();
-                    benchmark.refreshCatalog();
-                    LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
                 }
-            } catch (Throwable ex) {
-                LOG.error("Unexpected error when clearing benchmark database tables.", ex);
-                System.exit(1);
-            }
-        } else {
-            LOG.debug("Skipping clearing benchmark database tables");
-        }
 
-        // Execute Loader
-        if (isBooleanOptionSet(argsLine, "load")) {
-            try {
-                for (BenchmarkModule benchmark : benchList) {
-                    LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
-                    runLoader(benchmark);
-                    LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
+                // Clear the Benchmark's Database
+                if (isBooleanOptionSet(argsLine, "clear")) {
+                    try {
+                        for (BenchmarkModule benchmark : benchList) {
+                            LOG.info("Clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
+                            benchmark.refreshCatalog();
+                            benchmark.clearDatabase();
+                            benchmark.refreshCatalog();
+                            LOG.info("Finished clearing {} database...", benchmark.getBenchmarkName().toUpperCase());
+                        }
+                    } catch (Throwable ex) {
+                        LOG.error("Unexpected error when clearing benchmark database tables.", ex);
+                        System.exit(1);
+                    }
+                } else {
+                    LOG.debug("Skipping clearing benchmark database tables");
                 }
-            } catch (Throwable ex) {
-                LOG.error("Unexpected error when loading benchmark database records.", ex);
-                System.exit(1);
-            }
 
-        } else {
-            LOG.debug("Skipping loading benchmark database records");
-        }
-
-        // Execute Workload
-        if (isBooleanOptionSet(argsLine, "execute")) {
-            // Bombs away!
-            try {
-                Results r = runWorkload(benchList, intervalMonitor);
-                writeOutputs(r, activeTXTypes, argsLine, xmlConfig);
-                writeHistograms(r);
-
-                if (argsLine.hasOption("json-histograms")) {
-                    String histogram_json = writeJSONHistograms(r);
-                    String fileName = argsLine.getOptionValue("json-histograms");
-                    FileUtil.writeStringToFile(new File(fileName), histogram_json);
-                    LOG.info("Histograms JSON Data: " + fileName);
+                // Execute Loader
+                if (isBooleanOptionSet(argsLine, "load") && !loadDone) {
+                    try {
+                        for (BenchmarkModule benchmark : benchList) {
+                            LOG.info("Loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
+                            runLoader(benchmark);
+                            LOG.info("Finished loading data into {} database...", benchmark.getBenchmarkName().toUpperCase());
+                        }
+                    } catch (Throwable ex) {
+                        LOG.error("Unexpected error when loading benchmark database records.", ex);
+                        System.exit(1);
+                    }
+                    loadDone = true;
+                } else {
+                    LOG.debug("Skipping loading benchmark database records");
                 }
-            } catch (Throwable ex) {
-                LOG.error("Unexpected error when executing benchmarks.", ex);
-                System.exit(1);
-            }
 
-        } else {
-            LOG.info("Skipping benchmark workload execution");
+                // Execute Workload
+                if (isBooleanOptionSet(argsLine, "execute")) {
+                    // Bombs away!
+                    try {
+                        Results r = runWorkload(benchList, intervalMonitor, workcount);
+                        writeOutputs(r, activeTXTypes, argsLine, xmlConfig, executeRules == null ? null : workloads.get(workcount - 1).getString("workload"));
+                        writeHistograms(r);
+
+                        if (argsLine.hasOption("json-histograms")) {
+                            String histogram_json = writeJSONHistograms(r);
+                            String fileName = argsLine.getOptionValue("json-histograms");
+                            FileUtil.writeStringToFile(new File(fileName), histogram_json);
+                            LOG.info("Histograms JSON Data: " + fileName);
+                        }
+                    } catch (Throwable ex) {
+                        LOG.error("Unexpected error when executing benchmarks.", ex);
+                        System.exit(1);
+                    }
+
+                } else {
+                    LOG.info("Skipping benchmark workload execution");
+                }
+                benchList.clear();
+                wrkld.clearPhase();
+                activeTXTypes.clear();
+            }
         }
     }
 
@@ -504,11 +589,7 @@ public class DBWorkload {
     private static XMLConfiguration buildConfiguration(String filename) throws ConfigurationException {
 
         Parameters params = new Parameters();
-        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
-                .configure(params.xml()
-                        .setFileName(filename)
-                        .setListDelimiterHandler(new DisabledListDelimiterHandler())
-                        .setExpressionEngine(new XPathExpressionEngine()));
+        FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class).configure(params.xml().setFileName(filename).setListDelimiterHandler(new DisabledListDelimiterHandler()).setExpressionEngine(new XPathExpressionEngine()));
         return builder.getConfiguration();
 
     }
@@ -516,11 +597,7 @@ public class DBWorkload {
     private static XMLConfiguration buildConfigurationFromYaml(String filename) throws ConfigurationException {
 
         Parameters params = new Parameters();
-        FileBasedConfigurationBuilder<YAMLConfiguration> builder = new FileBasedConfigurationBuilder<>(YAMLConfiguration.class)
-            .configure(params.hierarchical()
-                .setFileName(filename)
-                .setListDelimiterHandler(new DisabledListDelimiterHandler())
-                .setExpressionEngine(new XPathExpressionEngine()));
+        FileBasedConfigurationBuilder<YAMLConfiguration> builder = new FileBasedConfigurationBuilder<>(YAMLConfiguration.class).configure(params.hierarchical().setFileName(filename).setListDelimiterHandler(new DisabledListDelimiterHandler()).setExpressionEngine(new XPathExpressionEngine()));
 
         XMLConfiguration conf = new XMLConfiguration(builder.getConfiguration());
         conf.setListDelimiterHandler(new DisabledListDelimiterHandler());
@@ -572,7 +649,7 @@ public class DBWorkload {
      * @param xmlConfig
      * @throws Exception
      */
-    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine, XMLConfiguration xmlConfig) throws Exception {
+    private static void writeOutputs(Results r, List<TransactionType> activeTXTypes, CommandLine argsLine, XMLConfiguration xmlConfig, String workload_name) throws Exception {
 
         // If an output directory is used, store the information
         String outputDirectory = "results";
@@ -580,7 +657,9 @@ public class DBWorkload {
         if (argsLine.hasOption("d")) {
             outputDirectory = argsLine.getOptionValue("d");
         }
-
+        if (activeTXTypes.get(0).getName().equalsIgnoreCase("featurebench")) {
+            outputDirectory = outputDirectory + "/" + (workload_name == null ? TimeUtil.getCurrentTimeString() : workload_name);
+        }
 
         FileUtil.makeDirIfNotExists(outputDirectory);
         ResultWriter rw = new ResultWriter(r, xmlConfig, argsLine);
@@ -626,8 +705,8 @@ public class DBWorkload {
         if (!name.equalsIgnoreCase("featurebench")) {
             String configFileName = baseFileName + ".config.xml";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
-                    LOG.info("Output benchmark config into file: {}", configFileName);
-                    rw.writeConfig(ps);
+                LOG.info("Output benchmark config into file: {}", configFileName);
+                rw.writeConfig(ps);
             }
         } else {
             String configFileName = baseFileName + ".config.yaml";
@@ -642,11 +721,19 @@ public class DBWorkload {
             LOG.info("Output results into file: {} with window size {}", resultsFileName, windowSize);
             rw.writeResults(windowSize, ps);
         }
-
-        for (TransactionType t : activeTXTypes) {
-            String fileName = baseFileName + ".results." + t.getName() + ".csv";
-            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
-                rw.writeResults(windowSize, ps, t);
+        if (name.equalsIgnoreCase("featurebench")) {
+            for (TransactionType t : activeTXTypes) {
+                String fileName = baseFileName + ".results." + t.getTransactionName() + ".csv";
+                try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
+                    rw.writeResults(windowSize, ps, t);
+                }
+            }
+        } else {
+            for (TransactionType t : activeTXTypes) {
+                String fileName = baseFileName + ".results." + t.getName() + ".csv";
+                try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileName))) {
+                    rw.writeResults(windowSize, ps, t);
+                }
             }
         }
 
@@ -657,17 +744,42 @@ public class DBWorkload {
         bench.createDatabase();
     }
 
+    private static String runCreatorDB(BenchmarkModule benchmark, String createDbDDL) throws SQLException {
+        Statement stmtOBj = benchmark.makeConnection().createStatement();
+        stmtOBj.execute(createDbDDL);
+        String[] splitUrl = createDbDDL.split(" ");
+        String dbName = splitUrl[2];
+        String url = benchmark.getWorkloadConfiguration().getUrl();
+        String[] pieces = url.split("\\?", 10);
+        Pattern pattern = Pattern.compile("[a-zA-Z_]+$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(pieces[0]);
+        boolean matchFound = matcher.find();
+        if (matchFound) {
+            LOG.info(matcher.group(0));
+        } else {
+            LOG.info("No match!");
+        }
+        int index = url.indexOf(matcher.group(0), url.indexOf(matcher.group(0)) + 1);
+        String newUrl = url.substring(0, index) + dbName + url.substring(index + matcher.group(0).length());
+        return newUrl;
+    }
+
     private static void runLoader(BenchmarkModule bench) throws SQLException, InterruptedException {
         LOG.debug(String.format("Loading %s Database", bench));
         bench.loadDatabase();
     }
 
-    private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor) throws IOException {
+    private static Results runWorkload(List<BenchmarkModule> benchList, int intervalMonitor, int workcount) throws IOException {
         List<Worker<?>> workers = new ArrayList<>();
         List<WorkloadConfiguration> workConfs = new ArrayList<>();
         for (BenchmarkModule bench : benchList) {
             LOG.info("Creating {} virtual terminals...", bench.getWorkloadConfiguration().getTerminals());
-            workers.addAll(bench.makeWorkers());
+            if (bench.getBenchmarkName().equalsIgnoreCase("featurebench")) {
+                workers.addAll(bench.makeWorkers(workcount));
+            } else {
+                workers.addAll(bench.makeWorkers());
+            }
+
 
             int num_phases = bench.getWorkloadConfiguration().getNumberOfPhases();
             LOG.info(String.format("Launching the %s Benchmark with %s Phase%s...", bench.getBenchmarkName().toUpperCase(), num_phases, (num_phases > 1 ? "s" : "")));

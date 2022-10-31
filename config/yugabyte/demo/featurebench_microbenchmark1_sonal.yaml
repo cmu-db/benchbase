@@ -9,12 +9,14 @@ loaderThreads: 1
 terminals: 1
 works:
     work:
-        time: 10
+        time: 1
+        active_terminals: 1
         rate: 1000
-        weights: 100
-transactiontypes:
-    transactiontype:
-        name: FeatureBench
+        warmup: 0
+#transactiontypes:
+#    transactiontype:
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplSonal
-    properties: {}
+    properties:
+       execute : true
+

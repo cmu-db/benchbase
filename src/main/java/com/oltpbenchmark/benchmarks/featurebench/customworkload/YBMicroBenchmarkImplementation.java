@@ -46,7 +46,7 @@ public class YBMicroBenchmarkImplementation extends YBMicroBenchmark {
         }
     }
 
-    public ArrayList<LoadRule> loadRules() {
+    /*public ArrayList<LoadRule> loadRules() {
         int startIndex = 0;
         int endIndex = 10000;
         int desiredLen = 10;
@@ -74,7 +74,7 @@ public class YBMicroBenchmarkImplementation extends YBMicroBenchmark {
         LoadRule loadRule = new LoadRule(tableInfo);
         return new ArrayList<>(List.of(loadRule));
 
-    }
+    }*/
 
 
     public ArrayList<ExecuteRule> executeRules() {
@@ -100,18 +100,18 @@ public class YBMicroBenchmarkImplementation extends YBMicroBenchmark {
         return new ArrayList<>(List.of(executeRule));
     }
 
-    @Override
-    public void cleanUp(Connection conn) throws SQLException {
-        try {
-            Statement stmtOBj = conn.createStatement();
-            LOG.info("\n=======DROP ALL THE TABLES=======");
-            stmtOBj.executeUpdate("DROP TABLE accounts");
-            LOG.info("\n=======TABLES ARE SUCCESSFULLY DROPPED FROM THE DATABASE=======\n");
-            stmtOBj.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+//    @Override
+//    public void cleanUp(Connection conn) throws SQLException {
+//        try {
+//            Statement stmtOBj = conn.createStatement();
+//            LOG.info("\n=======DROP ALL THE TABLES=======");
+//            stmtOBj.executeUpdate("DROP TABLE accounts");
+//            LOG.info("\n=======TABLES ARE SUCCESSFULLY DROPPED FROM THE DATABASE=======\n");
+//            stmtOBj.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    }
 
     @Override
     public void loadOnce(Connection conn) {
@@ -121,6 +121,11 @@ public class YBMicroBenchmarkImplementation extends YBMicroBenchmark {
     @Override
     public void executeOnce(Connection conn) {
 
+    }
+
+    @Override
+    public ArrayList<LoadRule> loadRules() {
+        return null;
     }
 
 

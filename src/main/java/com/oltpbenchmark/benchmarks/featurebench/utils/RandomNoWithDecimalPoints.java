@@ -11,11 +11,12 @@ public class RandomNoWithDecimalPoints implements BaseUtil {
 
     public RandomNoWithDecimalPoints(List<Object> values) {
         if (values.size() != 3) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
-        this.lowerBound = ((Number) (int) values.get(0)).intValue();
-        this.upperBound = ((Number) (int) values.get(1)).intValue();
-        this.decimalPoints = ((Number) (int) values.get(2)).intValue();
+        this.lowerBound = ((Number) values.get(0)).intValue();
+        this.upperBound = ((Number) values.get(1)).intValue();
+        this.decimalPoints = ((Number) values.get(2)).intValue();
         if (lowerBound < 0 || upperBound < lowerBound || decimalPoints < 0) {
             throw new RuntimeException("Incorrect parameters for random no with decimal points");
         }

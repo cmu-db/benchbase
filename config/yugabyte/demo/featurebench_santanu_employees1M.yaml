@@ -31,12 +31,12 @@ microbenchmark:
                             - 1
                             - 1000000
                     -   name: name
-                        util: RandomAstring
+                        util: RandomAString
                         params:
                             - 4
                             - 6
                     -   name: email
-                        util: RandomAstring
+                        util: RandomAString
                         params:
                             - 7
                             - 10

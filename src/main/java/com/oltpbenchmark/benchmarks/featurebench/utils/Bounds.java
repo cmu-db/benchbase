@@ -24,10 +24,11 @@ public class Bounds implements BaseUtil {
 
     public Bounds(List<Object> values) {
         if (values.size() != 2) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
-        this.currentValue = (long) values.get(0);
-        this.levelsPerMagnitude = (int) values.get(1);
+        this.currentValue = ((Number) values.get(0)).longValue();
+        this.levelsPerMagnitude = ((Number) values.get(1)).intValue();
     }
 
     @Override

@@ -22,12 +22,16 @@ import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.benchmarks.featurebench.helpers.UtilToMethod;
 import com.oltpbenchmark.benchmarks.featurebench.procedures.FeatureBench;
+import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.ExecuteRule;
+import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.Query;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,16 +47,61 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
     }
 
     @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() {
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl(int workcount) {
+
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         HierarchicalConfiguration<ImmutableNode> conf = workConf.getXmlConfig().configurationAt("microbenchmark");
+
+        List<ExecuteRule> executeRules = new ArrayList<>();
+        List<HierarchicalConfiguration<ImmutableNode>> confExecuteRules = conf.configurationsAt("properties/executeRules[" + workcount + "]/run");
+
+        for (HierarchicalConfiguration<ImmutableNode> confExecuteRule : confExecuteRules) {
+
+            if (!confExecuteRule.containsKey("name")) {
+                break;
+            }
+
+            ExecuteRule rule = new ExecuteRule();
+            rule.setName(confExecuteRule.getString("name"));
+            rule.setWeight(confExecuteRule.getInt("weight"));
+            List<Query> queries = new ArrayList<>();
+            for (HierarchicalConfiguration<ImmutableNode> confquery : confExecuteRule.configurationsAt("queries")) {
+                Query query = new Query();
+                query.setQuery(confquery.getString("query"));
+                List<UtilToMethod> baseutils = new ArrayList<>();
+                for (HierarchicalConfiguration<ImmutableNode> bindingsList : confquery.configurationsAt("bindings")) {
+                    if (bindingsList.containsKey("count")) {
+                        int count = bindingsList.getInt("count");
+                        for (int i = 0; i < count; i++) {
+                            UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"));
+                            baseutils.add(obj);
+                        }
+                    } else {
+                        UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"));
+                        baseutils.add(obj);
+                    }
+                }
+                query.setBaseUtils(baseutils);
+                queries.add(query);
+            }
+            rule.setQueries(queries);
+            executeRules.add(rule);
+        }
+
+
         for (int i = 0; i < workConf.getTerminals(); ++i) {
             FeatureBenchWorker worker = new FeatureBenchWorker(this, i);
             worker.workloadClass = conf.getString("class");
             worker.config = conf.configurationAt("properties");
+            worker.executeRules = executeRules;
             workers.add(worker);
         }
         return workers;
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+        return null;
     }
 
     @Override

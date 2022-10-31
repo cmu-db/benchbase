@@ -28,16 +28,6 @@ public class CreateAndDeleteTables extends YBMicroBenchmark {
     }
 
     @Override
-    public ArrayList<LoadRule> loadRules() {
-        return null;
-    }
-
-    @Override
-    public ArrayList<ExecuteRule> executeRules() {
-        return null;
-    }
-
-    @Override
     public void cleanUp(Connection conn) throws SQLException {
         Statement stmtObj = conn.createStatement();
         if (config.getBoolean("/testCreate")) {
@@ -60,6 +50,16 @@ public class CreateAndDeleteTables extends YBMicroBenchmark {
                 stmtObj.execute("drop table a" + i);
             }
         }
+    }
+
+    @Override
+    public ArrayList<LoadRule> loadRules() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<ExecuteRule> executeRules() {
+        return null;
     }
 
 }

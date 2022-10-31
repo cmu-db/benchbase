@@ -33,13 +33,23 @@ public class TransactionType implements Comparable<TransactionType> {
     private final boolean supplemental;
     private final long preExecutionWait;
     private final long postExecutionWait;
-
+    private  String transactionName;
     protected TransactionType(Class<? extends Procedure> procedureClass, int id, boolean supplemental, long preExecutionWait, long postExecutionWait) {
         this.procedureClass = procedureClass;
         this.id = id;
         this.supplemental = supplemental;
         this.preExecutionWait = preExecutionWait;
         this.postExecutionWait = postExecutionWait;
+    }
+
+    protected TransactionType(Class<? extends Procedure> procedureClass, int id, boolean supplemental,
+                              long preExecutionWait, long postExecutionWait, String transactionName) {
+        this.procedureClass = procedureClass;
+        this.id = id;
+        this.supplemental = supplemental;
+        this.preExecutionWait = preExecutionWait;
+        this.postExecutionWait = postExecutionWait;
+        this.transactionName = transactionName;
     }
 
     public Class<? extends Procedure> getProcedureClass() {
@@ -91,6 +101,10 @@ public class TransactionType implements Comparable<TransactionType> {
     @Override
     public String toString() {
         return String.format("%s/%02d", this.procedureClass.getName(), this.id);
+    }
+
+    public String getTransactionName(){
+        return this.transactionName;
     }
 
 }

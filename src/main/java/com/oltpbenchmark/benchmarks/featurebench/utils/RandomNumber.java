@@ -1,6 +1,7 @@
 package com.oltpbenchmark.benchmarks.featurebench.utils;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomNumber implements BaseUtil {
 
@@ -8,17 +9,16 @@ public class RandomNumber implements BaseUtil {
     final private int maximum;
 
     public RandomNumber(List<Object> values) {
-        if (values.size() != 1) {
-            throw new RuntimeException("Incorrect number of parameters for util function");
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
         }
-        this.minimum = (int) values.get(0);
-        this.maximum = (int) values.get(0);
+        this.minimum = ((Number) values.get(0)).intValue();
+        this.maximum = ((Number) values.get(1)).intValue();
     }
 
     @Override
     public Object run() {
-        int range_size = maximum - minimum + 1;
-        int value = minimum;
-        return value;
+        return ThreadLocalRandom.current().nextInt(minimum, maximum + 1);
     }
 }

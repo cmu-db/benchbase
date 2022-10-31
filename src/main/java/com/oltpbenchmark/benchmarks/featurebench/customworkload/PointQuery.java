@@ -26,16 +26,6 @@ public class PointQuery extends YBMicroBenchmark {
     }
 
     @Override
-    public ArrayList<LoadRule> loadRules() {
-        return null;
-    }
-
-    @Override
-    public ArrayList<ExecuteRule> executeRules() {
-        return null;
-    }
-
-    @Override
     public void cleanUp(Connection conn) throws SQLException {
         stmtOBj = conn.createStatement();
         stmtOBj.execute("drop table t1");
@@ -62,6 +52,16 @@ public class PointQuery extends YBMicroBenchmark {
 
 
         }
+    }
+
+    @Override
+    public ArrayList<LoadRule> loadRules() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<ExecuteRule> executeRules() {
+        return null;
     }
 
 }

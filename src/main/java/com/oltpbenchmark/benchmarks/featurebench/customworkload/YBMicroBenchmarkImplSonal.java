@@ -3,16 +3,13 @@ package com.oltpbenchmark.benchmarks.featurebench.customworkload;
 import com.oltpbenchmark.benchmarks.featurebench.YBMicroBenchmark;
 import com.oltpbenchmark.benchmarks.featurebench.helpers.ExecuteRule;
 import com.oltpbenchmark.benchmarks.featurebench.helpers.LoadRule;
-import com.oltpbenchmark.benchmarks.featurebench.utils.RandomAstring;
+import com.oltpbenchmark.benchmarks.featurebench.utils.OneStringFromArray;
+import com.oltpbenchmark.benchmarks.featurebench.utils.RandomAString;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,19 +42,9 @@ public class YBMicroBenchmarkImplSonal extends YBMicroBenchmark {
     }
 
 
-    @Override
-    public ArrayList<LoadRule> loadRules() {
-        return null;
-    }
+    public void loadOnce(Connection conn) throws SQLException {
 
-    @Override
-    public ArrayList<ExecuteRule> executeRules() {
-        return null;
-    }
-
-    public void loadOnce(Connection conn) throws SQLException{
-
-        RandomAstring randomAstring = new RandomAstring(Arrays.asList(1,20));
+        RandomAString randomAstring = new RandomAString(Arrays.asList(1, 20));
         List<String> vals = new ArrayList<>(Arrays.asList("luso films", "Associated Computing, Inc", "XYZ Widgets", "Gizmo Transglobal", "Redline GmbH", "Acme Corporation"));
         int batchSize = 100;
         Random random = new Random();
@@ -76,9 +63,7 @@ public class YBMicroBenchmarkImplSonal extends YBMicroBenchmark {
         for (int i = 0; i < 500; i++) {
             try {
                 stmt.setObject(1, randomAstring.run());
-            }
-            catch(Exception ex)
-            {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
             currentBatchSize += 1;
@@ -92,4 +77,57 @@ public class YBMicroBenchmarkImplSonal extends YBMicroBenchmark {
             stmt.executeBatch();
         }
     }
+
+    public void execute(Connection conn) throws SQLException {
+
+        String insertStmt = "INSERT INTO distributors (dname) VALUES (?);";
+        PreparedStatement stmt = conn.prepareStatement(insertStmt);
+        // Random String insertion
+        RandomAString randomAstring = new RandomAString(Arrays.asList(1, 20));
+        for (int i = 1; i <= 20; i++) {
+            try {
+                stmt.setObject(1, randomAstring.run());
+                stmt.addBatch();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        stmt.executeBatch();
+        // Name in enum insertion
+        OneStringFromArray str = new OneStringFromArray(Arrays.asList("luso films", "Associated Computing, Inc", "XYZ Widgets", "Gizmo Transglobal", "Redline GmbH", "Acme Corporation"));
+        for (int i = 1; i <= 20; i++) {
+            try {
+                stmt.setObject(1, str.run());
+                stmt.addBatch();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        stmt.executeBatch();
+    }
+
+    @Override
+    public ArrayList<LoadRule> loadRules() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<ExecuteRule> executeRules() {
+        return null;
+    }
+
+
+//    public void cleanUp(Connection conn) throws SQLException {
+//        try {
+//            Statement stmtOBj = conn.createStatement();
+//            LOG.info("\n=======DROP ALL THE TABLES=======");
+//            stmtOBj.executeUpdate("DROP TABLE distributors");
+//            LOG.info("\n=======TABLES ARE SUCCESSFULLY DROPPED FROM THE DATABASE=======\n");
+//            stmtOBj.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//    }
 }
+
+
