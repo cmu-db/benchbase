@@ -46,6 +46,10 @@ microbenchmark:
                             - 1000000
                             - 9999999
                     -   name: hire_date
-                        util: CurrentTime
+                        util: RandomDateBtwYears
+                        params:
+                            - 2009
+                            - 2023
+
         cleanup:
             - DROP TABLE employees1M;
