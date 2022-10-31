@@ -9,7 +9,7 @@
 To clone and build BenchBase using the `yugabyte` profile:-
 
 ```bash
-git clone --depth 1 https://github.com/cmu-db/benchbase.git
+git clone --depth 1 https://github.com/yugabyte/benchbase.git
 cd benchbase
 ./mvnw clean package -P yugabyte
 ```
