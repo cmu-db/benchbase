@@ -139,14 +139,17 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 String querystmt = query.getQuery();
                 PreparedStatement stmt = conn.prepareStatement(querystmt);
                 List<UtilToMethod> baseUtils = query.getBaseUtils();
-                for (int j = 0; j < baseUtils.size(); j++) {
-                    stmt.setObject(j + 1, baseUtils.get(j).get());
-                }
-                if (query.isSelectQuery()) {
-                    ResultSet rs = stmt.executeQuery();
-                    while (rs.next()) ;
-                } else {
-                    stmt.executeUpdate();
+                int count = query.getCount();
+                for (int i = 0; i < count; i++) {
+                    for (int j = 0; j < baseUtils.size(); j++) {
+                        stmt.setObject(j + 1, baseUtils.get(j).get());
+                    }
+                    if (query.isSelectQuery()) {
+                        ResultSet rs = stmt.executeQuery();
+                        while (rs.next()) ;
+                    } else {
+                        stmt.executeUpdate();
+                    }
                 }
             }
 

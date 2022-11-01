@@ -69,7 +69,10 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                 Query query = new Query();
                 String querystmt = confquery.getString("query");
                 query.setQuery(querystmt);
-                if(querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("select")){
+                if (confquery.containsKey("count")) {
+                    query.setCount(confquery.getInt("count"));
+                }
+                if (querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("select")) {
                     query.setSelectQuery(true);
                 };
                 List<UtilToMethod> baseutils = new ArrayList<>();

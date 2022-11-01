@@ -8,6 +8,7 @@ import java.util.List;
 public class Query {
     @JsonProperty("query")
     public String query;
+    public int count = 1;
     public List<UtilToMethod> baseUtils;
     public boolean isSelectQuery = false;
 
@@ -21,6 +22,14 @@ public class Query {
 
     public String getQuery() {
         return query;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
     }
 
     public void setQuery(String query) {
