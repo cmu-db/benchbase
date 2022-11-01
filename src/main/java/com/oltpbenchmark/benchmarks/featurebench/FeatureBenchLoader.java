@@ -117,12 +117,18 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
             }
             if (loadRuleConfig.containsKey("count")) {
                 for (int i = 0; i < loadRuleConfig.getInt("count"); i++) {
-                    loaderThreads.add(new GeneratorYaml((loadRuleConfig.getString("table")
-                        + String.valueOf(i + 1)), loadRuleConfig.getLong("rows"), columns));
+                    String[] tableNames = loadRuleConfig.getString("table").split(",");
+                    for (String tableName : tableNames) {
+                        loaderThreads.add(new GeneratorYaml((tableName.strip()
+                            + String.valueOf(i + 1)), loadRuleConfig.getLong("rows"), columns));
+                    }
                 }
             } else {
-                loaderThreads.add(new GeneratorYaml(loadRuleConfig.getString("table"),
-                    loadRuleConfig.getLong("rows"), columns));
+                String[] tableNames = loadRuleConfig.getString("table").split(",");
+                for (String tableName : tableNames) {
+                    loaderThreads.add(new GeneratorYaml(tableName.strip(),
+                        loadRuleConfig.getLong("rows"), columns));
+                }
             }
         }
     }

@@ -1,0 +1,38 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+works:
+    work:
+        time: 5
+        active_terminals: 1
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    properties:
+        setAutoCommit : true
+        create:
+            - DROP Table if exists demo1_1;
+            - create table demo1_1(id int,name text, PRIMARY key (id))
+            - DROP Table if exists demo2_1;
+            - create table demo2_1(id int,name text, PRIMARY key (id))
+        loadRules:
+            -   table: demo1_1 , demo2_1
+                rows: 10
+                columns:
+                    -   name: id
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 10
+                    -   name: name
+                        util: RandomStringNumeric
+                        params:
+                            - 4
+
