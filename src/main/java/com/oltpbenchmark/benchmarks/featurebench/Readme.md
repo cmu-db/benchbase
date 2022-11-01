@@ -112,6 +112,8 @@ Utility functions are present inside the folder :-
 | RandomUUID                | Returns a random String UUID                                                                                                          | None                                    | None                     |
 | RowRandomBoundedInt       | Returns a random int in the range[lowValue,highValue]                                                                                 | lowValue,highValue                      | Integer,Integer          |
 | RowRandomBoundedLong      | Returns a random long in the range[lowValue,highValue]                                                                                | lowValue,highValue                      | Long,Long                |
+| RandomDateBtwYears        | Returns a random date in the range[yearLowerBound,yearUpperBound]                                                                     | yearLowerBound,yearUpperBound           | Integer,Integer          |
+| RandomNumberDefault       | Returns a random number in range [Integer.MIN_VALUE,Integer.MAX_VALUE]                                                                | None                                    | None                     |
 
 
 ### Results:-
