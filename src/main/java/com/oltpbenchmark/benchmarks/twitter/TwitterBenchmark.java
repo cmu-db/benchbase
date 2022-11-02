@@ -30,8 +30,6 @@ import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
 
-    // private final TwitterConfiguration twitterConf;
-
     public final long numUsers;
     public final long numTweets;
 
