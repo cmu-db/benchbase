@@ -16,78 +16,78 @@ transactiontypes:
     transactiontype:
         name: FeatureBench
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         create:
             - DROP TABLE IF EXISTS t1_10_10k;
             - CREATE TABLE t1_10_10k(c1 BIGINT PRIMARY KEY,
-                c2         INT,
-                c3         BIGINT,
-                c4         FLOAT(2),
-                c5         DATE,
-                c6         Boolean,
-                c7         VARCHAR(10) NOT NULL,
-                c8         VARCHAR(100) NOT NULL,
-                c9         text);
+              c2         INT,
+              c3         BIGINT,
+              c4         FLOAT(2),
+              c5         DATE,
+              c6         Boolean,
+              c7         VARCHAR(10) NOT NULL,
+              c8         VARCHAR(100) NOT NULL,
+              c9         text);
             - CREATE INDEX t1_idx_COM ON t1_10_10k(c2, c3);
             - CREATE INDEX t1_idx_ASC ON t1_10_10k(c7 ASC);
             - CREATE INDEX t1_idx_INC ON t1_10_10k(c2) INCLUDE (c4);
             - CREATE INDEX t1_idx_PAR ON t1_10_10k(c2,c5,c6) WHERE c9='Type1';
         loadRules:
-            -   table: t1_10_10k
-                rows: 5
-                columns:
-                    -   name: c1
-                        util: PrimaryIntGen
-                        params:
-                            - 1
-                            - 10000
-                    -   name: c2
-                        util: RandomInt
-                        params:
-                            - 1
-                            - 20000
-                    -   name: c3
-                        util: RandomLong
-                        params:
-                            - 1000000
-                            - 2000000
-                    -   name: c4
-                        util: RandomFixedPoint
-                        params:
-                            - 2
-                            - 1
-                            - 10000
-                    -   name: c5
-                        util: CurrentTime
-                    -   name: c6
-                        util: RandomBoolean
-                    -   name: c7
-                        util: RandomAString
-                        params:
-                            - 1
-                            - 5
-                    -   name: c8
-                        util: RandomAString
-                        params:
-                            - 1
-                            - 10
-                    -   name: c9
-                        util: OneStringFromArray
-                        params:
-                            - Type1
-                            - Type2
-                            - Type3
+            - table: t1_10_10k
+              rows: 5
+              columns:
+                  - name: c1
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 10000
+                  - name: c2
+                    util: RandomInt
+                    params:
+                        - 1
+                        - 20000
+                  - name: c3
+                    util: RandomLong
+                    params:
+                        - 1000000
+                        - 2000000
+                  - name: c4
+                    util: RandomFixedPoint
+                    params:
+                        - 2
+                        - 1
+                        - 10000
+                  - name: c5
+                    util: CurrentTime
+                  - name: c6
+                    util: RandomBoolean
+                  - name: c7
+                    util: RandomAString
+                    params:
+                        - 1
+                        - 5
+                  - name: c8
+                    util: RandomAString
+                    params:
+                        - 1
+                        - 10
+                  - name: c9
+                    util: OneStringFromArray
+                    params:
+                        - Type1
+                        - Type2
+                        - Type3
         executeRules:
-                 -  name: Scan_Query
-                    weight: 100
-                    queries:
-                        -   query: SELECT * FROM t1_10_10k WHERE c2 = ?;
-                            bindings:
-                                - util: RandomInt
-                                  params:
-                                      - 1
-                                      - 2000
+            - name: Scan_Query
+              weight: 100
+              queries:
+                  - query: SELECT * FROM t1_10_10k WHERE c2 = ?;
+                    bindings:
+                        - util: RandomInt
+                          params:
+                              - 1
+                              - 2000
 
         cleanup:
             - DROP TABLE t1_10_10k;

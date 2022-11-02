@@ -14,25 +14,24 @@ works:
         rate: 1000
         warmup: 0
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
-        setAutoCommit : true
+        setAutoCommit: true
         create:
             - DROP Table if exists demo1_1;
             - create table demo1_1(id int,name text, PRIMARY key (id))
             - DROP Table if exists demo2_1;
             - create table demo2_1(id int,name text, PRIMARY key (id))
         loadRules:
-            -   table: demo1_1 , demo2_1
-                rows: 10
-                columns:
-                    -   name: id
-                        util: PrimaryIntGen
-                        params:
-                            - 1
-                            - 10
-                    -   name: name
-                        util: RandomStringNumeric
-                        params:
-                            - 4
-
+            - table: demo1_1 , demo2_1
+              rows: 10
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 10
+                  - name: name
+                    util: RandomStringNumeric
+                    params:
+                        - 4

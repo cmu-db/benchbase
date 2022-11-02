@@ -16,7 +16,7 @@ transactiontypes:
     transactiontype:
         name: FeatureBench
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         create:
             - DROP TABLE IF EXISTS distributors;
@@ -24,13 +24,13 @@ microbenchmark:
             - CREATE SEQUENCE serial_no;
             - CREATE TABLE distributors(did DECIMAL(3) DEFAULT NEXTVAL('serial_no'), dname varchar(40) DEFAULT 'Lusofilms');
         loadRules:
-            -   table: distributors
-                rows: 100
-                columns:
-                    - name : dname
-                      util : RandomAString
-                      params:
-                          - 1
-                          - 20
+            - table: distributors
+              rows: 100
+              columns:
+                  - name: dname
+                    util: RandomAString
+                    params:
+                        - 1
+                        - 20
 #        cleanup:
 #            - DROP TABLE distributors;

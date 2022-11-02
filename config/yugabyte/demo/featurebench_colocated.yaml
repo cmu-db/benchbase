@@ -1,5 +1,5 @@
 type: YUGABYTE
-createdb : create database cyugabyte with colocated=true;
+createdb: create database cyugabyte with colocated=true;
 driver: com.yugabyte.Driver
 url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
 username: yugabyte
@@ -15,56 +15,56 @@ works:
         rate: 1000
         warmup: 0
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         create:
             - DROP TABLE IF EXISTS accounts;
             - CREATE TABLE accounts (id int NOT NULL, name varchar(64) NOT NULL, CONSTRAINT pk_accounts PRIMARY KEY (id));
         loadRules:
-            -   table: accounts
-                rows: 10
-                columns:
-                    -   name: id
-                        util: PrimaryIntGen
-                        params:
-                            - 1
-                            - 10
-                    -   name: name
-                        util: RandomStringNumeric
-                        params:
-                            - 10
+            - table: accounts
+              rows: 10
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 10
+                  - name: name
+                    util: RandomStringNumeric
+                    params:
+                        - 10
         executeRules:
-            -   name: Account_query1
-                weight: 50
-                queries:
-                    -   query: SELECT * FROM accounts WHERE id<? AND id>=?
-                        bindings:
-                            -   util: RandomNumber
-                                params:
-                                    - 8
-                                    - 10
-                            -   util: RandomNumber
-                                params:
-                                    - 1
-                                    - 4
-                    -   query: SELECT * FROM accounts WHERE id<=?
-                        bindings:
-                            -   util: RandomNumber
-                                params:
-                                    - 5
-                                    - 10
-            -   name: Account_query2
-                weight: 50
-                queries:
-                    -   query: SELECT * FROM accounts WHERE id>?
-                        bindings:
-                            -   util: RandomNumber
-                                params:
-                                    - 9
-                                    - 10
-                    -   query: SELECT * FROM accounts WHERE id<=?
-                        bindings:
-                            -   util: RandomNumber
-                                params:
-                                    - 7
-                                    - 9
+            - name: Account_query1
+              weight: 50
+              queries:
+                  - query: SELECT * FROM accounts WHERE id<? AND id>=?
+                    bindings:
+                        - util: RandomNumber
+                          params:
+                              - 8
+                              - 10
+                        - util: RandomNumber
+                          params:
+                              - 1
+                              - 4
+                  - query: SELECT * FROM accounts WHERE id<=?
+                    bindings:
+                        - util: RandomNumber
+                          params:
+                              - 5
+                              - 10
+            - name: Account_query2
+              weight: 50
+              queries:
+                  - query: SELECT * FROM accounts WHERE id>?
+                    bindings:
+                        - util: RandomNumber
+                          params:
+                              - 9
+                              - 10
+                  - query: SELECT * FROM accounts WHERE id<=?
+                    bindings:
+                        - util: RandomNumber
+                          params:
+                              - 7
+                              - 9

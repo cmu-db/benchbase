@@ -10,7 +10,7 @@
     <isolation>TRANSACTION_REPEATABLE_READ</isolation>
     <batchsize>128</batchsize>
     <microbenchmark>
-        <class>com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation</class>
+        <class>com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark</class>
         <properties>
             <rows>100</rows>
             <columns>10</columns>

@@ -17,7 +17,7 @@ transactiontypes:
     transactiontype:
         name: FeatureBench
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         tableName: accounts
         columns: 10
@@ -32,32 +32,26 @@ microbenchmark:
         cleanup:
             - DROP TABLE t1;
         loadRules:
-            -   table: t1
-                rows: 1000
-                columns:
-                    -   name: k1
-                        util: RandomInt
-                        params:
-                            - 100
-                            - 500
-                    -   name: k2
-                        util: RandomAString
-                        params:
-                            - 2
-                            - 5
-                    -   name: v1
-                        util: RandomInt
-                        params:
-                            - 5
-                            - 6
-                    -   name: v2
-                        util: RandomAString
-                        params:
-                            - 2
-                            - 5
-
-
-
-
-
-
+            - table: t1
+              rows: 1000
+              columns:
+                  - name: k1
+                    util: RandomInt
+                    params:
+                        - 100
+                        - 500
+                  - name: k2
+                    util: RandomAString
+                    params:
+                        - 2
+                        - 5
+                  - name: v1
+                    util: RandomInt
+                    params:
+                        - 5
+                        - 6
+                  - name: v2
+                    util: RandomAString
+                    params:
+                        - 2
+                        - 5

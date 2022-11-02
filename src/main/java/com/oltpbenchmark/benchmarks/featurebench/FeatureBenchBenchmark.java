@@ -26,6 +26,7 @@ import com.oltpbenchmark.benchmarks.featurebench.helpers.UtilToMethod;
 import com.oltpbenchmark.benchmarks.featurebench.procedures.FeatureBench;
 import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.ExecuteRule;
 import com.oltpbenchmark.benchmarks.featurebench.workerhelpers.Query;
+import com.oltpbenchmark.util.TimeUtil;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
 
         List<ExecuteRule> executeRules = new ArrayList<>();
         List<HierarchicalConfiguration<ImmutableNode>> confExecuteRules = conf.configurationsAt("properties/executeRules[" + workcount + "]/run");
-
+        String workloadName = conf.getString("properties/executeRules[" + workcount + "]/workload") != null ? conf.getString("properties/executeRules[" + workcount + "]/workload") : TimeUtil.getCurrentTimeString();
         for (HierarchicalConfiguration<ImmutableNode> confExecuteRule : confExecuteRules) {
 
             if (!confExecuteRule.containsKey("name")) {
@@ -101,6 +102,7 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
             worker.workloadClass = conf.getString("class");
             worker.config = conf.configurationAt("properties");
             worker.executeRules = executeRules;
+            worker.workloadName = workloadName;
             workers.add(worker);
         }
         return workers;

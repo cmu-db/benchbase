@@ -9,12 +9,12 @@ loaderthreads: 1
 terminals: 1
 works:
     work:
-        time: 5
+        time: 60
         active_terminals: 1
         rate: 1000
         warmup: 0
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         setAutoCommit : true
         create:
@@ -34,9 +34,6 @@ microbenchmark:
                         util: RandomStringNumeric
                         params:
                             - 128
-        explain:
-            - explain (analyze,verbose,costs,buffers) select * from demo100col;
-            - explain (analyze,verbose,costs,buffers) select * from demo100col limit 5;
         executeRules:
             - workload: RangeScan
               run:
