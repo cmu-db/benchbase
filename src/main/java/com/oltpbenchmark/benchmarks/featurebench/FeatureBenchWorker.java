@@ -62,8 +62,6 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     protected void initialize() {
 
-        if (this.getBenchmark().getWorkloadConfiguration().getXmlConfig().containsKey("microbenchmark/properties/explain") &&
-            this.getBenchmark().getWorkloadConfiguration().getXmlConfig().getBoolean("microbenchmark/properties/explain")) {
 
             String outputDirectory = "results";
             FileUtil.makeDirIfNotExists(outputDirectory);
@@ -110,7 +108,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 throw new RuntimeException(e);
             }
         }
-    }
+
 
 
     public void writeExplain(PrintStream os, List<PreparedStatement> explainDDLs) throws SQLException {

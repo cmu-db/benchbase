@@ -34,37 +34,39 @@ microbenchmark:
                     params:
                         - 10
         executeRules:
-            - name: Account_query1
-              weight: 50
-              queries:
-                  - query: SELECT * FROM accounts WHERE id<? AND id>=?
-                    bindings:
-                        - util: RandomNumber
-                          params:
-                              - 8
-                              - 10
-                        - util: RandomNumber
-                          params:
-                              - 1
-                              - 4
-                  - query: SELECT * FROM accounts WHERE id<=?
-                    bindings:
-                        - util: RandomNumber
-                          params:
-                              - 5
-                              - 10
-            - name: Account_query2
-              weight: 50
-              queries:
-                  - query: SELECT * FROM accounts WHERE id>?
-                    bindings:
-                        - util: RandomNumber
-                          params:
-                              - 9
-                              - 10
-                  - query: SELECT * FROM accounts WHERE id<=?
-                    bindings:
-                        - util: RandomNumber
-                          params:
-                              - 7
-                              - 9
+            - workload: Scan
+              run:
+                - name: Account_query1
+                  weight: 50
+                  queries:
+                      - query: SELECT * FROM accounts WHERE id<? AND id>=?
+                        bindings:
+                            - util: RandomNumber
+                              params:
+                                  - 8
+                                  - 10
+                            - util: RandomNumber
+                              params:
+                                  - 1
+                                  - 4
+                      - query: SELECT * FROM accounts WHERE id<=?
+                        bindings:
+                            - util: RandomNumber
+                              params:
+                                  - 5
+                                  - 10
+                - name: Account_query2
+                  weight: 50
+                  queries:
+                      - query: SELECT * FROM accounts WHERE id>?
+                        bindings:
+                            - util: RandomNumber
+                              params:
+                                  - 9
+                                  - 10
+                      - query: SELECT * FROM accounts WHERE id<=?
+                        bindings:
+                            - util: RandomNumber
+                              params:
+                                  - 7
+                                  - 9

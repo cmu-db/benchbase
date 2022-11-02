@@ -32,5 +32,5 @@ microbenchmark:
                     params:
                         - 1
                         - 20
-#        cleanup:
-#            - DROP TABLE distributors;
+        cleanup:
+            - DROP TABLE distributors;

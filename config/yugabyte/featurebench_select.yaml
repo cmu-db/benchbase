@@ -5,20 +5,19 @@ username: yugabyte
 password:
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
-loaderThreads: 6
-terminals: 6
+loaderThreads: 1
+terminals: 1
 works:
     work:
-        time: 10
+        time: 60
+        active_terminals: 1
         rate: 1000
-        weights: 100
-transactiontypes:
-    transactiontype:
-        name: FeatureBench
+        warmup: 0
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         create:
+            - DROP TABLE IF EXISTS accounts;
             - CREATE TABLE accounts (id int NOT NULL, name varchar(64) NOT NULL, CONSTRAINT pk_accounts PRIMARY KEY (id));
             - CREATE INDEX idx_accounts_name ON accounts (name);
         cleanup:
@@ -27,16 +26,25 @@ microbenchmark:
             - table: accounts
               rows: 1000
               columns:
-                  id: GetIntPrimaryKey(1, 1000) # providing start and end index
-                  name: NumberToIdString(16) # providing desiredLength of string
-#            - table: orders2
-#              rows: 200
-#              columns:
-#                  oid: GetIntPrimaryKey(1, 200)
-#                  customerId: GetIntPrimaryKey(1, 100)
+                  -   name: id
+                      util: PrimaryIntGen
+                      params:
+                          - 1
+                          - 1000
+                  -   name: name
+                      util: RandomStringNumeric
+                      params:
+                          - 16
         executeRules:
-            - transaction: Account_query
-              weight: 100
-              query: SELECT * FROM accounts WHERE id > ?
-              bindings:
-                  - id: RandomNoWithinRange(1, 100) #startIdx and endIdx
+            - workload: AccountQuery
+              run:
+                  -   name: selectQuery
+                      weight: 100
+                      queries:
+                          -   query: SELECT * FROM accounts WHERE id > ?
+                              bindings:
+                                  -   util: RandomNumber
+                                      params:
+                                          - 1
+                                          - 100
+

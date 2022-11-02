@@ -79,15 +79,17 @@ microbenchmark:
                         - Type2
                         - Type3
         executeRules:
-            - name: Scan_Query
-              weight: 100
-              queries:
-                  - query: SELECT * FROM t1_10_10k WHERE c2 = ?;
-                    bindings:
-                        - util: RandomInt
-                          params:
-                              - 1
-                              - 2000
+            -   workload: t1_10_10k
+                run:
+                    - name: Scan_Query
+                      weight: 100
+                      queries:
+                          - query: SELECT * FROM t1_10_10k WHERE c2 = ?;
+                            bindings:
+                                - util: RandomInt
+                                  params:
+                                      - 1
+                                      - 2000
 
         cleanup:
             - DROP TABLE t1_10_10k;

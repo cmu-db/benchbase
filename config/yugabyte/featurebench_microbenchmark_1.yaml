@@ -28,9 +28,9 @@ microbenchmark:
               rows: 10
               columns:
                   - name: dname
-                    util: RandomAstring
+                    util: RandomAString
                     params:
                         - 1
                         - 20
-#        cleanup:
-#            - DROP TABLE distributors;
+        cleanup:
+            - DROP TABLE distributors;
