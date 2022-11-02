@@ -64,7 +64,7 @@ java -jar benchbase.jar -b featurebench -c config/yugabyte/demo/featurebench_mic
 ### YAML Config
 | Key           | Description                                                                                                      |
 |---------------|------------------------------------------------------------------------------------------------------------------|
-| createDB      | To make databases with additional properties. DDL's for database to be written here(eg. for colocated property). |
+| createdb      | To make databases with additional properties. DDL's for database to be written here(eg. for colocated property). |
  | create        | Has DDL's for create phase from YAML.                                                                            |
 | loadRules     | Has key/value for table name, util and parameters for util functions.                                            |
 | executeRules  | Has key/value for workload name and their details (parallel run names,weights and queries+bindings).             |
