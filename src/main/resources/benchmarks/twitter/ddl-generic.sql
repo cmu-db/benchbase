@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS user_profiles;
 
 CREATE TABLE user_profiles
 (
-    uid          int NOT NULL,
+    uid          bigint NOT NULL,
     name         varchar(255) DEFAULT NULL,
     email        varchar(255) DEFAULT NULL,
     partitionid  int          DEFAULT NULL,
@@ -21,15 +21,15 @@ CREATE INDEX IDX_USER_PARTITION ON user_profiles (partitionid);
 
 CREATE TABLE followers
 (
-    f1 int NOT NULL REFERENCES user_profiles (uid),
-    f2 int NOT NULL REFERENCES user_profiles (uid),
+    f1 bigint NOT NULL REFERENCES user_profiles (uid),
+    f2 bigint NOT NULL REFERENCES user_profiles (uid),
     PRIMARY KEY (f1, f2)
 );
 
 CREATE TABLE follows
 (
-    f1 int NOT NULL REFERENCES user_profiles (uid),
-    f2 int NOT NULL REFERENCES user_profiles (uid),
+    f1 bigint NOT NULL REFERENCES user_profiles (uid),
+    f2 bigint NOT NULL REFERENCES user_profiles (uid),
     PRIMARY KEY (f1, f2)
 );
 

@@ -23,15 +23,19 @@ import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
+    private static final Logger LOG = LoggerFactory.getLogger(TwitterBenchmark.class);
 
     public final long numUsers;
     public final long numTweets;
+    public final long numFollows;
 
     public TwitterBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
@@ -39,6 +43,13 @@ public class TwitterBenchmark extends BenchmarkModule {
 
         this.numUsers = Math.round(TwitterConstants.NUM_USERS * workConf.getScaleFactor());
         this.numTweets = Math.round(TwitterConstants.NUM_TWEETS * workConf.getScaleFactor());
+        this.numFollows = Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * workConf.getScaleFactor());
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("# of USERS:  {}", this.numUsers);
+            LOG.debug("# of TWEETS: {}", this.numTweets);
+            LOG.debug("# of FOLLOWS: {}", this.numFollows);
+        }
     }
 
     @Override
