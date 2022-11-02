@@ -209,9 +209,9 @@ public class DBWorkload {
 
                 List<HierarchicalConfiguration<ImmutableNode>> executeRules = (workloads == null || workloads.size() == 0) ? null : workloads.get(workcount - 1).configurationsAt("run");
                 if (executeRules == null) {
-                    System.out.println("Starting Workload " + workcount);
+                    LOG.info("Starting Workload " + workcount);
                 } else {
-                    System.out.println("Starting Workload " + (workloads.get(workcount - 1).containsKey("workload") ? workloads.get(workcount - 1).getString("workload") : workcount));
+                   LOG.info("Starting Workload " + (workloads.get(workcount - 1).containsKey("workload") ? workloads.get(workcount - 1).getString("workload") : workcount));
                 }
 
                 boolean isExecutePresent = xmlConfig.containsKey("microbenchmark/properties/execute");
@@ -228,7 +228,7 @@ public class DBWorkload {
                         executeRules = null;
                         numTxnTypes = 1;
                     } else {
-                        if (!executeRules.get(0).containsKey("weight")) {
+                        if (!executeRules.get(0).containsKey("name")) {
                             executeRules = null;
                             numTxnTypes = 1;
                         } else {
@@ -425,8 +425,22 @@ public class DBWorkload {
                             totalWeight = 100;
                             weights.add(100.0);
                         } else {
+                            double defaultweight = 100.0 / executeRules.size();
+                            boolean containWeight = executeRules.get(0).containsKey("weight");
                             for (HierarchicalConfiguration<ImmutableNode> rule : executeRules) {
-                                double weight = rule.getDouble("weight");
+                                double weight;
+                                if(containWeight){
+                                    if(!rule.containsKey("weight")){
+                                        throw new RuntimeException("Please Provide weight or not to all queries");
+                                    }
+                                    weight = rule.getDouble("weight");
+                                }else{
+                                    if(rule.containsKey("weight")){
+                                        throw new RuntimeException("Please Provide weight or not to all queries");
+                                    }
+                                    weight = defaultweight;
+                                }
+
                                 totalWeight += weight;
                                 weights.add(weight);
                             }
