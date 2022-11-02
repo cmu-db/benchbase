@@ -1,8 +1,6 @@
 package com.oltpbenchmark.benchmarks.featurebench.customworkload;
 
 import com.oltpbenchmark.benchmarks.featurebench.YBMicroBenchmark;
-import com.oltpbenchmark.benchmarks.featurebench.helpers.ExecuteRule;
-import com.oltpbenchmark.benchmarks.featurebench.helpers.LoadRule;
 import com.oltpbenchmark.benchmarks.featurebench.utils.OneStringFromArray;
 import com.oltpbenchmark.benchmarks.featurebench.utils.RandomAString;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
@@ -106,28 +104,17 @@ public class YBMicroBenchmarkImplSonal extends YBMicroBenchmark {
         stmt.executeBatch();
     }
 
-    @Override
-    public ArrayList<LoadRule> loadRules() {
-        return null;
-    }
-
-    @Override
-    public ArrayList<ExecuteRule> executeRules() {
-        return null;
-    }
-
-
-//    public void cleanUp(Connection conn) throws SQLException {
-//        try {
-//            Statement stmtOBj = conn.createStatement();
-//            LOG.info("\n=======DROP ALL THE TABLES=======");
-//            stmtOBj.executeUpdate("DROP TABLE distributors");
-//            LOG.info("\n=======TABLES ARE SUCCESSFULLY DROPPED FROM THE DATABASE=======\n");
-//            stmtOBj.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
+/*    public void cleanUp(Connection conn) throws SQLException {
+        try {
+            Statement stmtOBj = conn.createStatement();
+            LOG.info("\n=======DROP ALL THE TABLES=======");
+            stmtOBj.executeUpdate("DROP TABLE distributors");
+            LOG.info("\n=======TABLES ARE SUCCESSFULLY DROPPED FROM THE DATABASE=======\n");
+            stmtOBj.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }*/
 }
 
 

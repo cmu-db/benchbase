@@ -35,15 +35,17 @@ microbenchmark:
                     util: RandomStringNumeric
                     params:
                         - 10
-#        executeRules:
-#            -   transaction_name: Account_query
-#                weight: 100
-#                queries:
-#                    - query: SELECT * FROM accounts WHERE id > ?
-#                      utils :
-#                          - name:   RowRandomBoundedInt
-#                            params:
-#                                - 5
-#                                - 10
-#        cleanup:
-#            - DROP TABLE accounts;
+        executeRules:
+            -   workload: RangeScan
+                run:
+                    -   name: AccountQuery
+                        weight: 100
+                        queries:
+                            -   query: SELECT * FROM accounts WHERE id > ?
+                                bindings :
+                                    - util:   RowRandomBoundedInt
+                                      params:
+                                          - 5
+                                          - 10
+        cleanup:
+            - DROP TABLE accounts;

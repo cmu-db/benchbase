@@ -16,34 +16,36 @@ transactiontypes:
     transactiontype:
         name: FeatureBench
 microbenchmark:
-    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplementation
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
         create:
             - DROP TABLE IF EXISTS accounts;
             - CREATE TABLE accounts (id int NOT NULL, name varchar(64) NOT NULL, CONSTRAINT pk_accounts PRIMARY KEY (id));
             - CREATE INDEX idx_accounts_name ON accounts (name);
         loadRules:
-            -   table: accounts
-                rows: 10
-                columns:
-                    - name : id
-                      util : PrimaryIntGen
-                      params :
-                          - 1
-                          - 10
-                    - name : name
-                      util : RandomStringNumeric
-                      params:
-                          - 10
-#        executeRules:
-#            -   transaction_name: Account_query
-#                weight: 100
-#                queries:
-#                    - query: SELECT * FROM accounts WHERE id > ?
-#                      utils :
-#                          - name:   RowRandomBoundedInt
-#                            params:
-#                                - 5
-#                                - 10
-#        cleanup:
-#            - DROP TABLE accounts;
+            - table: accounts
+              rows: 100
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 100
+                  - name: name
+                    util: RandomStringNumeric
+                    params:
+                        - 10
+        executeRules:
+            -   workload: RangeScan
+                run:
+                    -   name: AccountQuery
+                        weight: 100
+                        queries:
+                            -   query: SELECT * FROM accounts WHERE id > ?
+                                bindings :
+                                    - util:   RowRandomBoundedInt
+                                      params:
+                                          - 5
+                                          - 10
+        cleanup:
+            - DROP TABLE accounts;
