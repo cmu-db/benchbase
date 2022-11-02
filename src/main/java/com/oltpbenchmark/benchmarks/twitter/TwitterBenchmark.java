@@ -35,7 +35,7 @@ public class TwitterBenchmark extends BenchmarkModule {
 
     public final long numUsers;
     public final long numTweets;
-    public final long numFollows;
+    public final int numFollows;
 
     public TwitterBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
@@ -43,7 +43,7 @@ public class TwitterBenchmark extends BenchmarkModule {
 
         this.numUsers = Math.round(TwitterConstants.NUM_USERS * workConf.getScaleFactor());
         this.numTweets = Math.round(TwitterConstants.NUM_TWEETS * workConf.getScaleFactor());
-        this.numFollows = Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * workConf.getScaleFactor());
+        this.numFollows = (int)Math.round(TwitterConstants.MAX_FOLLOW_PER_USER * workConf.getScaleFactor());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("# of USERS:  {}", this.numUsers);

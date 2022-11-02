@@ -39,8 +39,11 @@ import java.util.concurrent.CountDownLatch;
 
 public class TwitterLoader extends Loader<TwitterBenchmark> {
 
+    private final int followerSeed;
+
     public TwitterLoader(TwitterBenchmark benchmark) {
         super(benchmark);
+        this.followerSeed = rng().nextInt();
     }
 
     @Override
@@ -123,22 +126,30 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
     }
 
     /**
+     * Quick and dirty way to deterministicly get the number of followers to insert
+     * for a given user id
+     * @param uid
+     * @return
+     */
+    private int computeNumFollowers(long uid) {
+        return (Math.round(uid * this.followerSeed) % this.benchmark.numFollows);
+    }
+
+
+    /**
      * @throws SQLException
      * @author Djellel Load num_users users.
      */
     protected void loadUsers(Connection conn, long lo, long hi) throws SQLException {
         Table catalog_tbl = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_USER);
-
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
-        int total = 0;
+        NameHistogram name_h = new NameHistogram();
+        FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
 
+        int total = 0;
         try (PreparedStatement userInsert = conn.prepareStatement(sql)) {
             int batchSize = 0;
-
-            NameHistogram name_h = new NameHistogram();
-            FlatHistogram<Integer> name_len_rng = new FlatHistogram<>(this.rng(), name_h);
-
 
             for (long i = lo; i <= hi; i++) {
                 // Generate a random username for this user
@@ -148,9 +159,9 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                 userInsert.setLong(1, i); // ID
                 userInsert.setString(2, name); // NAME
                 userInsert.setString(3, name + "@tweeter.com"); // EMAIL
-                userInsert.setNull(4, java.sql.Types.INTEGER);
-                userInsert.setNull(5, java.sql.Types.INTEGER);
-                userInsert.setNull(6, java.sql.Types.INTEGER);
+                userInsert.setNull(4, java.sql.Types.INTEGER); // PARTITION1
+                userInsert.setNull(5, java.sql.Types.INTEGER); // PARTITION2
+                userInsert.setInt(6, this.computeNumFollowers(i)); // NUM_FOLLOWERS
                 userInsert.addBatch();
 
                 batchSize++;
@@ -184,14 +195,12 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         Table catalog_tbl = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_TWEETS);
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
-        TweetHistogram tweet_h = new TweetHistogram();
-        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), tweet_h);
+        FlatHistogram<Integer> tweet_len_rng = new FlatHistogram<>(this.rng(), new TweetHistogram());
+        ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.benchmark.numUsers);
 
         int total = 0;
         try (PreparedStatement tweetInsert = conn.prepareStatement(sql)) {
             int batchSize = 0;
-            ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.benchmark.numUsers);
-
             for (long i = lo; i <= hi; i++) {
                 int uid = zy.nextInt();
                 tweetInsert.setLong(1, i);
@@ -230,24 +239,23 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
      * ScrambledZipfianGenerator (describes the heavy tweeters)
      */
     protected void loadFollowData(Connection conn, long lo, long hi) throws SQLException {
-
-        int total = 1;
-
         Table followsTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWS);
-        Table followersTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWERS);
-
         String followsTableSql = SQLUtil.getInsertSQL(followsTable, this.getDatabaseType());
+
+        Table followersTable = benchmark.getCatalog().getTable(TwitterConstants.TABLENAME_FOLLOWERS);
         String followersTableSql = SQLUtil.getInsertSQL(followersTable, this.getDatabaseType());
 
+        ZipfianGenerator zipfFollowee = new ZipfianGenerator(rng(),1, this.benchmark.numUsers, 1.75);
+        ZipfianGenerator zipfFollows = new ZipfianGenerator(rng(), this.benchmark.numFollows, 1.75);
+
+        int total = 1;
         try (PreparedStatement followsInsert = conn.prepareStatement(followsTableSql);
              PreparedStatement followersInsert = conn.prepareStatement(followersTableSql)) {
             int batchSize = 0;
-
-            ZipfianGenerator zipfFollowee = new ZipfianGenerator(rng(),1, this.benchmark.numUsers, 1.75);
-            ZipfianGenerator zipfFollows = new ZipfianGenerator(rng(), this.benchmark.numFollows, 1.75);
             Set<Long> followees = new HashSet<>();
             for (long follower = lo; follower <= hi; follower++) {
                 followees.clear();
+
                 int time = zipfFollows.nextInt();
                 if (time == 0) {
                     time = 1; // At least this follower will follow 1 user
