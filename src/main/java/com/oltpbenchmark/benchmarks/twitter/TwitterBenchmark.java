@@ -21,26 +21,26 @@ package com.oltpbenchmark.benchmarks.twitter;
 import com.oltpbenchmark.WorkloadConfiguration;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.Loader;
-import com.oltpbenchmark.api.TransactionGenerator;
 import com.oltpbenchmark.api.Worker;
 import com.oltpbenchmark.benchmarks.twitter.procedures.GetFollowers;
-import com.oltpbenchmark.benchmarks.twitter.util.TraceTransactionGenerator;
-import com.oltpbenchmark.benchmarks.twitter.util.TwitterOperation;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TwitterBenchmark extends BenchmarkModule {
 
-    private final TwitterConfiguration twitterConf;
+    // private final TwitterConfiguration twitterConf;
+
+    public final long numUsers;
+    public final long numTweets;
 
     public TwitterBenchmark(WorkloadConfiguration workConf) {
         super(workConf);
-        this.twitterConf = new TwitterConfiguration(workConf);
+        // this.twitterConf = new TwitterConfiguration(workConf);
+
+        this.numUsers = Math.round(TwitterConstants.NUM_USERS * workConf.getScaleFactor());
+        this.numTweets = Math.round(TwitterConstants.NUM_TWEETS * workConf.getScaleFactor());
     }
 
     @Override
@@ -50,22 +50,9 @@ public class TwitterBenchmark extends BenchmarkModule {
 
     @Override
     protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        List<String> tweetIds = FileUtils.readLines(new File(twitterConf.getTracefile()), Charset.defaultCharset());
-        List<String> userIds = FileUtils.readLines(new File(twitterConf.getTracefile2()), Charset.defaultCharset());
-
-        if (tweetIds.size() != userIds.size()) {
-            throw new RuntimeException(String.format("there was a problem reading files, sizes don't match.  tweets %d, userids %d", tweetIds.size(), userIds.size()));
-        }
-
-        List<TwitterOperation> trace = new ArrayList<>();
-        for (int i = 0; i < tweetIds.size(); i++) {
-            trace.add(new TwitterOperation(Integer.parseInt(tweetIds.get(i)), Integer.parseInt(userIds.get(i))));
-        }
-
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         for (int i = 0; i < workConf.getTerminals(); ++i) {
-            TransactionGenerator<TwitterOperation> generator = new TraceTransactionGenerator(trace);
-            workers.add(new TwitterWorker(this, i, generator));
+            workers.add(new TwitterWorker(this, i));
         }
         return workers;
     }

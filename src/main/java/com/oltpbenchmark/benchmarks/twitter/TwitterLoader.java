@@ -74,7 +74,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadUsers(conn, lo, hi);
-
                 }
 
                 @Override
@@ -92,7 +91,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-
                     loadFollowData(conn, lo, hi);
                 }
 
@@ -116,8 +114,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
             threads.add(new LoaderThread(this.benchmark) {
                 @Override
                 public void load(Connection conn) throws SQLException {
-
-
                     loadTweets(conn, lo, hi);
                 }
 
@@ -200,10 +196,7 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
         String sql = SQLUtil.getInsertSQL(catalog_tbl, this.getDatabaseType());
 
         int total = 0;
-
         try (PreparedStatement tweetInsert = conn.prepareStatement(sql)) {
-
-
             int batchSize = 0;
             ScrambledZipfianGenerator zy = new ScrambledZipfianGenerator(1, this.num_users);
 
@@ -259,8 +252,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
 
         try (PreparedStatement followsInsert = conn.prepareStatement(followsTableSql);
              PreparedStatement followersInsert = conn.prepareStatement(followersTableSql)) {
-
-
             int batchSize = 0;
 
             ZipfianGenerator zipfFollowee = new ZipfianGenerator(rng(),1, this.num_users, 1.75);
@@ -288,7 +279,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                         total++;
                         batchSize++;
 
-
                         if ((batchSize % workConf.getBatchSize()) == 0) {
                             followsInsert.executeBatch();
                             followersInsert.executeBatch();
@@ -300,7 +290,6 @@ public class TwitterLoader extends Loader<TwitterBenchmark> {
                             }
                         }
                     }
-
                     f++;
                 }
             }
