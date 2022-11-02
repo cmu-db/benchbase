@@ -191,11 +191,11 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                         LOG.info("\n=================Cleanup Phase taking from Yaml=========\n");
                         List<String> ddls = config.getList(String.class, "cleanup");
                         try {
-                            Statement stmtOBj = conn.createStatement();
+                            Statement stmtObj = conn.createStatement();
                             for (String ddl : ddls) {
-                                stmtOBj.execute(ddl);
+                                stmtObj.execute(ddl);
                             }
-                            stmtOBj.close();
+                            stmtObj.close();
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

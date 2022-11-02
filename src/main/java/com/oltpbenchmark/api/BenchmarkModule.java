@@ -233,11 +233,11 @@ public abstract class BenchmarkModule {
         LOG.info("Using YAML for create phase");
         List<String> createDDLs = workConf.getXmlConfig().getList(String.class, "microbenchmark/properties/create");
         try {
-            Statement stmtOBj = conn.createStatement();
+            Statement stmtObj = conn.createStatement();
             for (String ddl : createDDLs) {
-                stmtOBj.execute(ddl);
+                stmtObj.execute(ddl);
             }
-            stmtOBj.close();
+            stmtObj.close();
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException("Error Occurred in Create Phase");

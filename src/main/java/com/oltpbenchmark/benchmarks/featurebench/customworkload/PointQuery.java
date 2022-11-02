@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class PointQuery extends YBMicroBenchmark {
 
-    private Statement stmtOBj = null;
+    private Statement stmtObj = null;
 
     public PointQuery(HierarchicalConfiguration<ImmutableNode> config) {
         super(config);
@@ -18,20 +18,20 @@ public class PointQuery extends YBMicroBenchmark {
 
     @Override
     public void create(Connection conn) throws SQLException {
-        stmtOBj = conn.createStatement();
-        stmtOBj.execute("create table t1(a int primary key, b int)");
+        stmtObj = conn.createStatement();
+        stmtObj.execute("create table t1(a int primary key, b int)");
     }
 
     @Override
     public void cleanUp(Connection conn) throws SQLException {
-        stmtOBj = conn.createStatement();
-        stmtOBj.execute("drop table t1");
+        stmtObj = conn.createStatement();
+        stmtObj.execute("drop table t1");
     }
 
     @Override
     public void loadOnce(Connection conn) throws SQLException {
-        stmtOBj = conn.createStatement();
-        stmtOBj.execute("insert into t1 select generate_series a, generate_series b from generate_series(1,100000)");
+        stmtObj = conn.createStatement();
+        stmtObj.execute("insert into t1 select generate_series a, generate_series b from generate_series(1,100000)");
     }
 
 
@@ -46,7 +46,6 @@ public class PointQuery extends YBMicroBenchmark {
             if (!result.next()) {
                 throw new UserAbortException("msg");
             }
-
 
         }
     }

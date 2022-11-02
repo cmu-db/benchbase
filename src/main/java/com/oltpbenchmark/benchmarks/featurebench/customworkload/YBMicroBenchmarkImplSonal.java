@@ -25,15 +25,15 @@ public class YBMicroBenchmarkImplSonal extends YBMicroBenchmark {
     @Override
     public void create(Connection conn) throws SQLException {
         try {
-            Statement stmtOBj = conn.createStatement();
+            Statement stmtObj = conn.createStatement();
             LOG.info("Recreating tables if already exists");
-            stmtOBj.executeUpdate("DROP TABLE IF EXISTS distributors;");
-            stmtOBj.execute("DROP SEQUENCE IF EXISTS serial_no;");
-            stmtOBj.execute("CREATE SEQUENCE serial_no increment 1 start 1;");
-            stmtOBj.execute("CREATE TABLE distributors(did DECIMAL(5) DEFAULT NEXTVAL('serial_no'), " +
+            stmtObj.executeUpdate("DROP TABLE IF EXISTS distributors;");
+            stmtObj.execute("DROP SEQUENCE IF EXISTS serial_no;");
+            stmtObj.execute("CREATE SEQUENCE serial_no increment 1 start 1;");
+            stmtObj.execute("CREATE TABLE distributors(did DECIMAL(5) DEFAULT NEXTVAL('serial_no'), " +
                 "dname varchar(40) DEFAULT 'Lusofilms');");
 
-            stmtOBj.close();
+            stmtObj.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -106,11 +106,11 @@ public class YBMicroBenchmarkImplSonal extends YBMicroBenchmark {
 
 /*    public void cleanUp(Connection conn) throws SQLException {
         try {
-            Statement stmtOBj = conn.createStatement();
+            Statement stmtObj = conn.createStatement();
             LOG.info("\n=======DROP ALL THE TABLES=======");
-            stmtOBj.executeUpdate("DROP TABLE distributors");
+            stmtObj.executeUpdate("DROP TABLE distributors");
             LOG.info("\n=======TABLES ARE SUCCESSFULLY DROPPED FROM THE DATABASE=======\n");
-            stmtOBj.close();
+            stmtObj.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

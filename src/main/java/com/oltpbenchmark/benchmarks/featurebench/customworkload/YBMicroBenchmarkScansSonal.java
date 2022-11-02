@@ -22,12 +22,12 @@ public class YBMicroBenchmarkScansSonal extends YBMicroBenchmark {
     @Override
     public void create(Connection conn) throws SQLException {
         try {
-            Statement stmtOBj = conn.createStatement();
+            Statement stmtObj = conn.createStatement();
             LOG.info("Recreating tables if already exists");
-            stmtOBj.executeUpdate("DROP TABLE IF EXISTS demoScans;");
-            stmtOBj.execute("CREATE TABLE demoScans(num numeric,id int);");
-            stmtOBj.execute("CREATE INDEX demoid ON demoScans(num);");
-            stmtOBj.close();
+            stmtObj.executeUpdate("DROP TABLE IF EXISTS demoScans;");
+            stmtObj.execute("CREATE TABLE demoScans(num numeric,id int);");
+            stmtObj.execute("CREATE INDEX demoid ON demoScans(num);");
+            stmtObj.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -36,14 +36,14 @@ public class YBMicroBenchmarkScansSonal extends YBMicroBenchmark {
     public void loadOnce(Connection conn) throws SQLException{
 
         String insertStmt = "INSERT INTO demoScans SELECT random() * 1000,  generate_series(1, 1000);";
-        Statement stmtOBj = conn.createStatement();
-        stmtOBj.execute(insertStmt);
+        Statement stmtObj = conn.createStatement();
+        stmtObj.execute(insertStmt);
 
     }
     public void executeOnce(Connection conn)throws SQLException{
         String selectStmt = "SELECT * from demoScans;";
-        Statement stmtOBj = conn.createStatement();
-        stmtOBj.execute(selectStmt);
+        Statement stmtObj = conn.createStatement();
+        stmtObj.execute(selectStmt);
 
     }
 

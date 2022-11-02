@@ -759,8 +759,8 @@ public class DBWorkload {
     }
 
     private static String runCreatorDB(BenchmarkModule benchmark, String createDbDDL) throws SQLException {
-        Statement stmtOBj = benchmark.makeConnection().createStatement();
-        stmtOBj.execute(createDbDDL);
+        Statement stmtObj = benchmark.makeConnection().createStatement();
+        stmtObj.execute(createDbDDL);
         String[] splitUrl = createDbDDL.split(" ");
         String dbName = splitUrl[2];
         String url = benchmark.getWorkloadConfiguration().getUrl();
