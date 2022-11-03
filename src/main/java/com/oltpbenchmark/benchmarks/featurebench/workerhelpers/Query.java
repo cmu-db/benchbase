@@ -12,6 +12,8 @@ public class Query {
     public List<UtilToMethod> baseUtils;
     public boolean isSelectQuery = false;
 
+    public boolean isUpdateQuery = false;
+
     public List<UtilToMethod> getBaseUtils() {
         return baseUtils;
     }
@@ -42,5 +44,13 @@ public class Query {
 
     public void setSelectQuery(boolean selectQuery) {
         isSelectQuery = selectQuery;
+    }
+
+    public boolean isUpdateQuery() {
+        return isUpdateQuery;
+    }
+
+    public void setUpdateQuery(boolean updateQuery) {
+        isUpdateQuery = updateQuery;
     }
 }

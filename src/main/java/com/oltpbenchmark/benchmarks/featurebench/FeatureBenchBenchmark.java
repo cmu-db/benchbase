@@ -75,7 +75,10 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                 }
                 if (querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("select")) {
                     query.setSelectQuery(true);
-                };
+                }
+                if (querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("update")) {
+                    query.setUpdateQuery(true);
+                }
                 List<UtilToMethod> baseutils = new ArrayList<>();
                 for (HierarchicalConfiguration<ImmutableNode> bindingsList : confquery.configurationsAt("bindings")) {
                     if (bindingsList.containsKey("count")) {
