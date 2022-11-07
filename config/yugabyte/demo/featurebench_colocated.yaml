@@ -1,5 +1,5 @@
 type: YUGABYTE
-createdb: create database cyugabyte with colocated=true;
+createdb: DROP database if exists yb1;CREATE database yb1 WITH colocated = true;
 driver: com.yugabyte.Driver
 url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
 username: yugabyte

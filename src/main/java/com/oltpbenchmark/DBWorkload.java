@@ -758,15 +758,26 @@ public class DBWorkload {
         bench.createDatabase();
     }
 
-    private static String runCreatorDB(BenchmarkModule benchmark, String createDbDDL) throws SQLException {
+    private static String runCreatorDB(BenchmarkModule benchmark, String totalDDL) throws SQLException {
         Statement stmtObj = benchmark.makeConnection().createStatement();
-        stmtObj.execute(createDbDDL);
-        String[] splitUrl = createDbDDL.split(" ");
-        String dbName = splitUrl[2];
+        stmtObj.execute(totalDDL);
+        Pattern patternCreateDB = Pattern.compile("create database (.+?);", Pattern.CASE_INSENSITIVE);
+        Matcher matcherCreateDB = patternCreateDB.matcher(totalDDL);
+        boolean matchFoundforcreate = matcherCreateDB.find();
+        String createDDL = matcherCreateDB.group(0);
+        String pattern = "database\\s(\\w+)\\s";
+        Pattern db = Pattern.compile(pattern);
+        Matcher m = db.matcher(createDDL);
+        String dbName = "";
+        if (m.find()) {
+            dbName = m.group(1);
+        } else {
+            LOG.warn("Incorrect DDL for create database");
+        }
         String url = benchmark.getWorkloadConfiguration().getUrl();
         String[] pieces = url.split("\\?", 10);
-        Pattern pattern = Pattern.compile("[a-zA-Z_]+$", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(pieces[0]);
+        Pattern p = Pattern.compile("[a-zA-Z_]+$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = p.matcher(pieces[0]);
         boolean matchFound = matcher.find();
         if (matchFound) {
             LOG.info(matcher.group(0));
