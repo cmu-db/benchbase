@@ -1,0 +1,42 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/test_db?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderThreads: 1
+terminals: 1
+works:
+    work:
+        time: 3
+        active_terminals: 1
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        create:
+            - DROP TABLE IF EXISTS accounts;
+            - CREATE TABLE accounts (id int NOT NULL, name varchar(64) NOT NULL, CONSTRAINT pk_accounts PRIMARY KEY (id),namesArray TEXT[],date DATE);
+        loadRules:
+            - table: accounts
+              rows: 10
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 100
+                  - name: name
+                    util: RandomStringNumeric
+                    params:
+                        - 10
+                  - name: namesArray
+                    util: RandomStringTextArrayGen
+                    params:
+                        - 5
+                        - 2
+                        - 8
+                  - name: date
+                    util: RandDate

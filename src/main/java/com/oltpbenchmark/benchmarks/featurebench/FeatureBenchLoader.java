@@ -25,6 +25,9 @@ import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Statement;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,6 +42,7 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
     public HierarchicalConfiguration<ImmutableNode> config = null;
     public YBMicroBenchmark ybm = null;
     public int sizeOfLoadRule = 0;
+    static AtomicBoolean isAfterLoadDone = new AtomicBoolean(false);
     PreparedStatement stmt;
 
     public FeatureBenchLoader(FeatureBenchBenchmark benchmark) {
@@ -226,7 +230,27 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
         @Override
         public void afterLoad() {
             if (numberOfGeneratorFinished != sizeOfLoadRule) return;
-            afterLoadPhase();
+            afterLoadPhaseYaml();
+        }
+    }
+
+    private synchronized void afterLoadPhaseYaml() {
+        if (config.containsKey("afterLoad") && !isAfterLoadDone.get()) {
+            try {
+                System.out.println("In after load");
+                Statement stmtObj = benchmark.makeConnection().createStatement();
+                List<String> afterLoadDDLs = config.getList(String.class, "afterLoad");
+                long afterLoadStart = System.currentTimeMillis();
+                for (String ddl : afterLoadDDLs) {
+                    stmtObj.execute(ddl);
+                }
+                long afterLoadEnd = System.currentTimeMillis();
+                LOG.info("Elapsed time in after load phase: {} milliseconds", afterLoadEnd - afterLoadStart);
+                stmtObj.close();
+                isAfterLoadDone.set(true);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

@@ -1,0 +1,53 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/test_db?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+terminals: 1
+loaderthreads: 1
+works:
+    work:
+        time: 4
+        active_terminals: 1
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit : true
+        create:
+            - DROP TABLE IF EXISTS categories cascade;
+            - CREATE TABLE categories(categoryId int NOT NULL, categoryName varchar(100) NOT NULL,PRIMARY KEY (categoryId));
+            - DROP TABLE IF EXISTS products;
+            - CREATE TABLE products(productId int NOT NULL,productName varchar(100) NOT NULL, PRIMARY KEY (productId));
+        loadRules:
+            - table: categories
+              rows: 50
+              columns:
+                  - name: categoryId
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 50
+                  - name: categoryName
+                    util: RandomAString
+                    params:
+                        - 3
+                        - 5
+            - table: products
+              rows: 50
+              columns:
+                  - name: productId
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 50
+                  - name: productName
+                    util: RandomAString
+                    params:
+                        - 3
+                        - 5
+        afterLoad :
+            - ALTER TABLE products add column categoryId int constraint fk_category_categoryId REFERENCES categories(categoryId);
