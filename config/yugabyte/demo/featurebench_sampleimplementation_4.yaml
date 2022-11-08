@@ -9,7 +9,7 @@ loaderThreads: 1
 terminals: 1
 works:
     work:
-        time: 10
+        time_secs: 10
         rate: 1000
         weights: 100
 transactiontypes:
@@ -36,16 +36,16 @@ microbenchmark:
                     params:
                         - 10
         executeRules:
-            -   workload: RangeScan
-                run:
-                    -   name: AccountQuery
-                        weight: 100
-                        queries:
-                            -   query: SELECT * FROM accounts WHERE id > ?
-                                bindings :
-                                    - util:   RowRandomBoundedInt
-                                      params:
-                                          - 5
-                                          - 10
+            - workload: RangeScan
+              run:
+                  - name: AccountQuery
+                    weight: 100
+                    queries:
+                        - query: SELECT * FROM accounts WHERE id > ?
+                          bindings:
+                              - util: RowRandomBoundedInt
+                                params:
+                                    - 5
+                                    - 10
         cleanup:
             - DROP TABLE accounts;

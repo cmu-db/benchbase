@@ -9,7 +9,7 @@ loaderthreads: 1
 terminals: 1
 works:
     work:
-        time: 3
+        time_secs: 3
         active_terminals: 1
         rate: 1000
         warmup: 0

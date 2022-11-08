@@ -1,0 +1,65 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 2
+works:
+    work:
+        time_secs: 33
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - DROP TABLE IF EXISTS inserttest;
+            - CREATE TABLE inserttest(id int,name text, primary key (id))
+        loadRules:
+            - table: inserttest
+              rows: 10
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 10
+                  - name: name
+                    util: RandomAString
+                    params:
+                        - 5
+                        - 5
+        executeRules:
+            -   workload: scanG4_yb_pkey_INclause_rangescan_increasing_rows_1row
+                run:
+                  -   name: pkey_INclause_rangescan_increasing_rows_1row_test
+                      weight: 100
+                      queries:
+                          -   query: select * from inserttest where id IN (?)
+                              bindings:
+                               -  count: 1
+                                  util: PrimaryIntGen
+                                  params: [ 1, 1000000 ]
+
+
+#        executeRules:
+#            - workload: InsertScan
+#              run:
+#                  - name: Inserts
+#                    weight: 100
+#                    queries:
+#                        - query: INSERT INTO inserttest(id,name) values(? , ?);
+#                          bindings:
+#                              - util: PrimaryIntGen
+#                                params:
+#                                    - 20
+#                                    - 100000
+#                              - util: RandomAString
+#                                params:
+#                                    - 4
+#                                    - 4
+

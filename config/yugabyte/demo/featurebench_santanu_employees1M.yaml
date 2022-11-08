@@ -9,7 +9,7 @@ loaderThreads: 1
 terminals: 1
 works:
     work:
-        time: 10
+        time_secs: 10
         rate: 1000
         weights: 100
 transactiontypes:
@@ -22,34 +22,34 @@ microbenchmark:
             - DROP TABLE IF EXISTS employees1M;
             - CREATE TABLE employees1M(id BIGINT PRIMARY KEY, name TEXT,email VARCHAR(10) NOT NULL,salary INT,hire_date DATE);
         loadRules:
-            -   table: employees1M
-                rows: 5
-                columns:
-                    -   name: id
-                        util: PrimaryIntGen
-                        params:
-                            - 1
-                            - 1000000
-                    -   name: name
-                        util: RandomAString
-                        params:
-                            - 4
-                            - 6
-                    -   name: email
-                        util: RandomAString
-                        params:
-                            - 7
-                            - 10
-                    -   name: salary
-                        util: RandomInt
-                        params:
-                            - 1000000
-                            - 9999999
-                    -   name: hire_date
-                        util: RandomDateBtwYears
-                        params:
-                            - 2009
-                            - 2023
+            - table: employees1M
+              rows: 5
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 1000000
+                  - name: name
+                    util: RandomAString
+                    params:
+                        - 4
+                        - 6
+                  - name: email
+                    util: RandomAString
+                    params:
+                        - 7
+                        - 10
+                  - name: salary
+                    util: RandomInt
+                    params:
+                        - 1000000
+                        - 9999999
+                  - name: hire_date
+                    util: RandomDateBtwYears
+                    params:
+                        - 2009
+                        - 2023
 
         cleanup:
             - DROP TABLE employees1M;

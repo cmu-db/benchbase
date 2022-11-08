@@ -9,15 +9,15 @@ loaderthreads: 1
 terminals: 1
 works:
     work:
-        time: 5
+        time_secs: 5
         active_terminals: 1
         rate: 1000
         warmup: 0
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkWriteImpactWithExtraIndex0
     properties:
-        setAutoCommit : true
-        create :
+        setAutoCommit: true
+        create:
             - DROP PROCEDURE if exists insert_demo;
             - CREATE PROCEDURE insert_demo(_numRows int)
               LANGUAGE plpgsql
@@ -29,5 +29,3 @@ microbenchmark:
               $$;
             - drop table if exists demo;
             - create table demo (id bigint primary key, col1 int, col2 int, col3 int, col4 int, col5 varchar(20), col6 date, col7 int, col8 bigint, col9 varchar(10), col10 int, col11 bigint, col12 varchar(10), col13 boolean, col14 int, col15 int);
-
-

@@ -9,7 +9,7 @@ loaderThreads: 1
 terminals: 1
 works:
     work:
-        time: 10
+        time_secs: 10
         rate: 1000
         weights: 100
 transactiontypes:

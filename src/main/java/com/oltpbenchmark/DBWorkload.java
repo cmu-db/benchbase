@@ -334,10 +334,14 @@ public class DBWorkload {
 
                     // use a workaround if there are multiple workloads or single
                     // attributed workload
+                    int time = work.getInt("/time", 0);
+                    int warmup = work.getInt("/warmup", 0);
+
                     if (targetList.length > 1 || work.containsKey("weights[@bench]")) {
                         weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
                     } else if (plugin.equalsIgnoreCase("featurebench")) {
                         weight_strings = List.of();
+                        time =  work.getInt("/time_secs", 0);
                     } else {
                         weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
                     }
@@ -394,8 +398,7 @@ public class DBWorkload {
                         System.exit(-1);
                     }
 
-                    int time = work.getInt("/time", 0);
-                    int warmup = work.getInt("/warmup", 0);
+
                     //----------->
                     if (plugin.equalsIgnoreCase("featurebench") && executeRules == null && !isExecuteTrue) {
                         serial = true;

@@ -9,7 +9,7 @@ loaderThreads: 1
 terminals: 1
 works:
     work:
-        time: 1
+        time_secs: 1
         active_terminals: 1
         rate: 1000
         warmup: 0
@@ -18,5 +18,4 @@ works:
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBMicroBenchmarkImplSonal
     properties:
-       execute : true
-
+        execute: true

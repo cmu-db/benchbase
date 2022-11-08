@@ -1,5 +1,5 @@
 type: YUGABYTE
-createdb : CREATE DATABASE yb1 WITH colocated = true;
+createdb: CREATE DATABASE yb1 WITH colocated = true;
 driver: com.yugabyte.Driver
 url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
 username: yugabyte
@@ -10,7 +10,7 @@ loaderthreads: 1
 terminals: 1
 works:
     work:
-        time: 3
+        time_secs: 3
         active_terminals: 1
         rate: 1000
         warmup: 0
