@@ -17,6 +17,14 @@ public class RandDate implements BaseUtil {
 
         }
     }
+    public RandDate(List<Object> values,int workerId,int totalWorkers)
+    {
+        if (values.size() != 0) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+
+        }
+    }
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
         InstantiationException, IllegalAccessException {

@@ -21,6 +21,18 @@ public class RowRandomBoundedInt implements BaseUtil {
 
     }
 
+    public RowRandomBoundedInt(List<Object> values, int workerId, int totalWorkers) {
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.lowValue = ((Number) values.get(0)).intValue();
+        this.highValue = ((Number) values.get(1)).intValue();
+        if (lowValue > highValue)
+            throw new RuntimeException("Please enter correct value for max and min value");
+
+    }
+
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException,
         NoSuchMethodException, InstantiationException, IllegalAccessException {

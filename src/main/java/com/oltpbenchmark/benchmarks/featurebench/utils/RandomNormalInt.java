@@ -19,6 +19,17 @@ public class RandomNormalInt extends Random implements BaseUtil {
         this.deviation = ((Number) values.get(1)).intValue();
     }
 
+    public RandomNormalInt(List<Object> values, int workerId, int totalWorkers) {
+        super((int) System.nanoTime());
+
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.center = ((Number) values.get(0)).intValue();
+        this.deviation = ((Number) values.get(1)).intValue();
+    }
+
     /**
      * Returns a random normal distribution int value with average equal to center
      */

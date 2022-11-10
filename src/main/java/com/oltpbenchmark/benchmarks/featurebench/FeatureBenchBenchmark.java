@@ -52,10 +52,41 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
 
         List<Worker<? extends BenchmarkModule>> workers = new ArrayList<>();
         HierarchicalConfiguration<ImmutableNode> conf = workConf.getXmlConfig().configurationAt("microbenchmark");
-
-        List<ExecuteRule> executeRules = new ArrayList<>();
         List<HierarchicalConfiguration<ImmutableNode>> confExecuteRules = conf.configurationsAt("properties/executeRules[" + workcount + "]/run");
         String workloadName = conf.getString("properties/executeRules[" + workcount + "]/workload") != null ? conf.getString("properties/executeRules[" + workcount + "]/workload") : TimeUtil.getCurrentTimeString();
+
+        for (int i = 0; i < workConf.getTerminals(); ++i) {
+            FeatureBenchWorker worker = new FeatureBenchWorker(this, i);
+            worker.workloadClass = conf.getString("class");
+            worker.config = conf.configurationAt("properties");
+            worker.executeRules = configToExecuteRues(confExecuteRules, i, workConf.getTerminals());
+            worker.workloadName = workloadName;
+            workers.add(worker);
+        }
+        return workers;
+    }
+
+    @Override
+    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
+        return null;
+    }
+
+    @Override
+    protected Loader<FeatureBenchBenchmark> makeLoaderImpl() {
+        HierarchicalConfiguration<ImmutableNode> conf = workConf.getXmlConfig().configurationAt("microbenchmark");
+        FeatureBenchLoader loader = new FeatureBenchLoader(this);
+        loader.workloadClass = conf.getString("class");
+        loader.config = conf.configurationAt("properties");
+        return loader;
+    }
+
+    @Override
+    protected Package getProcedurePackageImpl() {
+        return FeatureBench.class.getPackage();
+    }
+
+    private List<ExecuteRule> configToExecuteRues(List<HierarchicalConfiguration<ImmutableNode>> confExecuteRules, int workerId, int totalWorker) {
+        List<ExecuteRule> executeRules = new ArrayList<>();
         for (HierarchicalConfiguration<ImmutableNode> confExecuteRule : confExecuteRules) {
 
             if (!confExecuteRule.containsKey("name")) {
@@ -84,11 +115,11 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                     if (bindingsList.containsKey("count")) {
                         int count = bindingsList.getInt("count");
                         for (int i = 0; i < count; i++) {
-                            UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"));
+                            UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"),workerId,totalWorker);
                             baseutils.add(obj);
                         }
                     } else {
-                        UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"));
+                        UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"),workerId,totalWorker);
                         baseutils.add(obj);
                     }
                 }
@@ -98,36 +129,7 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
             rule.setQueries(queries);
             executeRules.add(rule);
         }
-
-
-        for (int i = 0; i < workConf.getTerminals(); ++i) {
-            FeatureBenchWorker worker = new FeatureBenchWorker(this, i);
-            worker.workloadClass = conf.getString("class");
-            worker.config = conf.configurationAt("properties");
-            worker.executeRules = executeRules;
-            worker.workloadName = workloadName;
-            workers.add(worker);
-        }
-        return workers;
-    }
-
-    @Override
-    protected List<Worker<? extends BenchmarkModule>> makeWorkersImpl() throws IOException {
-        return null;
-    }
-
-    @Override
-    protected Loader<FeatureBenchBenchmark> makeLoaderImpl() {
-        HierarchicalConfiguration<ImmutableNode> conf = workConf.getXmlConfig().configurationAt("microbenchmark");
-        FeatureBenchLoader loader = new FeatureBenchLoader(this);
-        loader.workloadClass = conf.getString("class");
-        loader.config = conf.configurationAt("properties");
-        return loader;
-    }
-
-    @Override
-    protected Package getProcedurePackageImpl() {
-        return FeatureBench.class.getPackage();
+        return executeRules;
     }
 
 }

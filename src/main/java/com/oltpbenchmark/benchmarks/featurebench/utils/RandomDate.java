@@ -15,12 +15,25 @@ yearupperBound:- 2020
 Return type : (String):- 24-4-2014
 */
 public class RandomDate implements BaseUtil {
-    private Random rd;
     private final int yearlowerBound;
     private final int yearupperBound;
+    private Random rd;
 
 
     public RandomDate(List<Object> values) {
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        Random rnd = new Random();
+        this.yearlowerBound = ((Number) values.get(0)).intValue();
+        this.yearupperBound = ((Number) values.get(1)).intValue();
+        if (yearlowerBound > yearupperBound || yearlowerBound == 0 && yearupperBound == 0 || yearlowerBound < 0)
+            throw new RuntimeException("Please enter correct bounds for max and min year");
+
+    }
+
+    public RandomDate(List<Object> values, int workerId, int totalWorkers) {
         if (values.size() != 2) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());

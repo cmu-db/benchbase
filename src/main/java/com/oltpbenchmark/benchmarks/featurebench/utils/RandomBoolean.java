@@ -18,6 +18,13 @@ public class RandomBoolean implements BaseUtil {
         }
         Random rd = new Random();
     }
+    public RandomBoolean(List<Object> values,int workerId,int totalWorkers) {
+        if (values.size() != 0) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        Random rd = new Random();
+    }
 
     @Override
     public Object run() {

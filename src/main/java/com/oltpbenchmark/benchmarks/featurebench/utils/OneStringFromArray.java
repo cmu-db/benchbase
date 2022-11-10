@@ -26,6 +26,16 @@ public class OneStringFromArray implements BaseUtil {
             str.add((String) value);
         }
     }
+    public OneStringFromArray(List<Object> values,int workerId,int totalWorkers) {
+        if (values.size() == 0) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        str = new ArrayList<>();
+        for (Object value : values) {
+            str.add((String) value);
+        }
+    }
 
     public Object run() throws ClassNotFoundException, InvocationTargetException,
         NoSuchMethodException, InstantiationException, IllegalAccessException {

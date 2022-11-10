@@ -15,9 +15,9 @@ Return type :- String (Numeric)
 */
 
 public class PrimaryStringGen implements BaseUtil {
-    private int currentValue;
     private final int desiredLength;
     private final int startNumber;
+    private int currentValue;
     private String key;
 
     public PrimaryStringGen(List<Object> values) {
@@ -28,6 +28,21 @@ public class PrimaryStringGen implements BaseUtil {
         this.startNumber = ((Number) values.get(0)).intValue();
         this.currentValue = startNumber - 1;
         this.desiredLength = ((Number) values.get(1)).intValue();
+        if (desiredLength <= 0) {
+            throw new RuntimeException("Please use positive desired length for string primary keys");
+        }
+    }
+
+    public PrimaryStringGen(List<Object> values, int workerId, int totalWorkers) {
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        int divide = (((Number) values.get(1)).intValue() - ((Number) values.get(0)).intValue()) / totalWorkers;
+        this.startNumber = ((Number) values.get(0)).intValue() - 1 + divide * workerId;
+        this.currentValue = startNumber - 1;
+        int upperRangeTemp = (((Number) values.get(0)).intValue() + (divide) * (workerId + 1) + (workerId == 0 ? 0 : 1));
+        this.desiredLength = Math.min(upperRangeTemp, ((Number) values.get(1)).intValue());
         if (desiredLength <= 0) {
             throw new RuntimeException("Please use positive desired length for string primary keys");
         }

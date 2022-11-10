@@ -20,6 +20,18 @@ public class RandomNstring extends Random implements BaseUtil {
             throw new RuntimeException("Please enter correct bounds for max and min length");
     }
 
+    public RandomNstring(List<Object> values, int workerId, int totalWorkers) {
+        super((int) System.nanoTime());
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.minimumLength = ((Number) values.get(0)).intValue();
+        this.maximumLength = ((Number) values.get(1)).intValue();
+        if (minimumLength > maximumLength || minimumLength == 0 && maximumLength == 0 || minimumLength < 0)
+            throw new RuntimeException("Please enter correct bounds for max and min length");
+    }
+
     /**
      * @returns a random numeric string with length in range [minimum_length,
      * maximum_length].

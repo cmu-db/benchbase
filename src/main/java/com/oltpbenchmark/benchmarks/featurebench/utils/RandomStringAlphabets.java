@@ -15,6 +15,15 @@ public class RandomStringAlphabets implements BaseUtil {
         if (desiredLength <= 0)
             throw new RuntimeException("Please enter positive string length");
     }
+    public RandomStringAlphabets(List<Object> values,int workerId,int totalWorkers) {
+        if (values.size() != 1) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.desiredLength = ((Number) values.get(0)).intValue();
+        if (desiredLength <= 0)
+            throw new RuntimeException("Please enter positive string length");
+    }
 
     @Override
     public Object run() {

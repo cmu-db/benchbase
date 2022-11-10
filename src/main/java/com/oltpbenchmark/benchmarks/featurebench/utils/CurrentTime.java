@@ -20,6 +20,12 @@ public class CurrentTime implements BaseUtil {
                 + this.getClass());
         }
     }
+    public CurrentTime(List<Object> values,int workerId, int totalWorkers) {
+        if (values.size() != 0) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+    }
 
     public Object run() {
         return new Timestamp(System.currentTimeMillis());

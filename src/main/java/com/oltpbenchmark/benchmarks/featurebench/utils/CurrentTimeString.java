@@ -21,6 +21,13 @@ public class CurrentTimeString implements BaseUtil {
         }
         DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     }
+    public CurrentTimeString(List<Object> values,int workerId, int totalWorkers) {
+        if (values.size() != 0) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    }
 
     public Object run() {
         return CurrentTimeString.DATE_FORMAT.format(new java.util.Date());

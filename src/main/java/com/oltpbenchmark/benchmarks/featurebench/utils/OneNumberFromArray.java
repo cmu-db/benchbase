@@ -18,6 +18,16 @@ public class OneNumberFromArray implements BaseUtil {
             listOfIntegers.add((Integer) value);
         }
     }
+    public OneNumberFromArray(List<Object> values,int workerId,int totalWorkers) {
+        if (values.size() == 0) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        listOfIntegers = new ArrayList<>();
+        for (Object value : values) {
+            listOfIntegers.add((Integer) value);
+        }
+    }
 
     public Object run() throws ClassNotFoundException, InvocationTargetException,
         NoSuchMethodException, InstantiationException, IllegalAccessException {

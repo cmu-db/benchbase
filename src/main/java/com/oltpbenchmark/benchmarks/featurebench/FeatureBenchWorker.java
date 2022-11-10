@@ -68,7 +68,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         FileUtil.makeDirIfNotExists(outputDirectory);
         String explainDir = "ResultsForExplain";
         FileUtil.makeDirIfNotExists(outputDirectory + "/" + explainDir);
-        String fileForExplain = explainDir + "/" + workloadName+"_"+ TimeUtil.getCurrentTimeString() + ".json";
+        String fileForExplain = explainDir + "/" + workloadName + "_" + TimeUtil.getCurrentTimeString() + ".json";
         PrintStream ps;
         String explain = "explain (analyze,verbose,costs,buffers) ";
 
@@ -82,22 +82,24 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
         for (ExecuteRule er : executeRules) {
             for (Query query : er.getQueries()) {
-                String querystmt = query.getQuery();
-                PreparedStatement stmt = null;
-                try {
-                    stmt = conn.prepareStatement(explain + querystmt);
-                    List<UtilToMethod> baseUtils = query.getBaseUtils();
-                    for (int j = 0; j < baseUtils.size(); j++) {
-                        try {
-                            stmt.setObject(j + 1, baseUtils.get(j).get());
-                        } catch (SQLException | InvocationTargetException | IllegalAccessException |
-                                 ClassNotFoundException | NoSuchMethodException | InstantiationException e) {
-                            throw new RuntimeException(e);
+                if (query.isSelectQuery() || query.isUpdateQuery()) {
+                    String querystmt = query.getQuery();
+                    PreparedStatement stmt = null;
+                    try {
+                        stmt = conn.prepareStatement(explain + querystmt);
+                        List<UtilToMethod> baseUtils = query.getBaseUtils();
+                        for (int j = 0; j < baseUtils.size(); j++) {
+                            try {
+                                stmt.setObject(j + 1, baseUtils.get(j).get());
+                            } catch (SQLException | InvocationTargetException | IllegalAccessException |
+                                     ClassNotFoundException | NoSuchMethodException | InstantiationException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
+                        explainDDLs.add(stmt);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                    explainDDLs.add(stmt);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
 
             }
@@ -105,7 +107,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         try {
             writeExplain(ps, explainDDLs);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -132,7 +134,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             }
             long explainEnd = System.currentTimeMillis();
             jsonObject.put("ResultSet", data.toString());
-            jsonObject.put("Time(ms) ",explainEnd-explainStart);
+            jsonObject.put("Time(ms) ", explainEnd - explainStart);
             summaryMap.put("ExplainDDL" + count, jsonObject);
         }
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));

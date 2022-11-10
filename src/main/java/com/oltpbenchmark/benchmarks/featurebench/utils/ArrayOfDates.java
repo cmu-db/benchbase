@@ -22,6 +22,17 @@ public class ArrayOfDates implements BaseUtil {
         }
 
     }
+    public ArrayOfDates(List<Object> values,int workerId,int totalWorkers) {
+        if (values.size() != 1) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.arraySize = ((Number) values.get(0)).intValue();
+        if (arraySize <= 0) {
+            throw new RuntimeException("Incorrect value for parameter " + this.getClass());
+        }
+
+    }
 
     @Override
     public Object run() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {

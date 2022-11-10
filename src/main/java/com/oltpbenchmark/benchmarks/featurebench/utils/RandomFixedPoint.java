@@ -37,6 +37,20 @@ public class RandomFixedPoint extends Random implements BaseUtil {
             throw new RuntimeException("Please enter a correct range for min and max values");
     }
 
+    public RandomFixedPoint(List<Object> values, int workerId, int totalWorkers) {
+
+        super((int) System.nanoTime());
+        if (values.size() != 3) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.decimalPlaces = ((Number) values.get(0)).intValue();
+        this.minimum = ((Number) values.get(1)).doubleValue();
+        this.maximum = ((Number) values.get(2)).doubleValue();
+        if (maximum < minimum)
+            throw new RuntimeException("Please enter a correct range for min and max values");
+    }
+
     public int number(int minimum, int maximum) {
 
         int range_size = maximum - minimum + 1;

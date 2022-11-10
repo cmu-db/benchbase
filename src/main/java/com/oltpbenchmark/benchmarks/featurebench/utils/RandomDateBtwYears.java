@@ -22,6 +22,18 @@ public class RandomDateBtwYears implements BaseUtil {
         }
     }
 
+    public RandomDateBtwYears(List<Object> values,int workerId,int totalWorkers) {
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.yearLowerBound = ((Number) values.get(0)).intValue();
+        this.yearUpperBound = ((Number) values.get(1)).intValue();
+        if (yearLowerBound > yearUpperBound) {
+            throw new RuntimeException("Please enter correct values for yearLowerBound and yearUpperBound");
+        }
+    }
+
     public static int createRandomIntBetween(int start, int end) {
         return start + (int) Math.round(Math.random() * (end - start));
     }

@@ -18,6 +18,17 @@ public class RandomExpoInt extends Random implements BaseUtil {
         this.deviation = ((Number) values.get(1)).intValue();
     }
 
+    public RandomExpoInt(List<Object> values, int workerId, int totalWorkers) {
+        super((int) System.nanoTime());
+
+        if (values.size() != 2) {
+            throw new RuntimeException("Incorrect number of parameters for util function "
+                + this.getClass());
+        }
+        this.center = ((Number) values.get(0)).intValue();
+        this.deviation = ((Number) values.get(1)).intValue();
+    }
+
     /**
      * Returns a random exponential distribution int value with average equal to center
      */
