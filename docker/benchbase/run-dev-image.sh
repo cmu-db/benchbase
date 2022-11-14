@@ -9,7 +9,7 @@ rootdir=$(readlink -f "$scriptdir/../../")
 
 cd "$scriptdir"
 . ./common-env.sh
-./build-dev-image.sh
+./build-dev-image.sh >&2
 
 if [ "$imagename" != 'benchbase-dev' ]; then
     echo "ERROR: Unexpected imagename: $imagename" >&2
