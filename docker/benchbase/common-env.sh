@@ -69,3 +69,7 @@ if [ -n "$git_vers_tag" ]; then
         image_tag_args+=" -t $CONTAINER_REGISTRY_NAME/$imagename:$git_vers_tag"
     fi
 fi
+
+if [ "${DOCKER_BUILDKIT:-0}" != '1' ]; then
+    echo "WARNING: This script is tested with DOCKER_BUILDKIT=1 set.  Unexpected errors may occur without that." >&2
+fi

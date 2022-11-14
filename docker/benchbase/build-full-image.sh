@@ -11,7 +11,7 @@ cd "$scriptdir"
 
 if [ "$CLEAN_BUILD" == 'true' ]; then
     grep '^FROM ' fullimage/Dockerfile \
-        | sed -r -e 's/^FROM\s+//' -e 's/\s+AS \S+\s*$/ /' \
+        | sed -r -e 's/^FROM\s+//' -e 's/--platform=\S+\s+//' -e 's/\s+AS \S+\s*$/ /' \
         | while read base_image; do
             set -x
             docker pull $base_image &
