@@ -10,8 +10,10 @@ def main():
     with open(sys.argv[2]) as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
         for key, value in data.items():
-            if key=="warmup":
+            if key == "warmup":
                 doc["works"]["work"]["warmup"] = value
+            elif key == "time":
+                doc["works"]["work"]["time_secs"] = value
             elif key == "url":
                 doc[key] = doc[key].replace("localhost",value)
                 if "sslmode" in data:
