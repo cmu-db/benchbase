@@ -211,7 +211,7 @@ public class DBWorkload {
                 if (executeRules == null) {
                     LOG.info("Starting Workload " + workcount);
                 } else {
-                   LOG.info("Starting Workload " + (workloads.get(workcount - 1).containsKey("workload") ? workloads.get(workcount - 1).getString("workload") : workcount));
+                    LOG.info("Starting Workload " + (workloads.get(workcount - 1).containsKey("workload") ? workloads.get(workcount - 1).getString("workload") : workcount));
                 }
 
                 boolean isExecutePresent = xmlConfig.containsKey("microbenchmark/properties/execute");
@@ -341,7 +341,7 @@ public class DBWorkload {
                         weight_strings = Arrays.asList(work.getString("weights" + pluginTest).split("\\s*,\\s*"));
                     } else if (plugin.equalsIgnoreCase("featurebench")) {
                         weight_strings = List.of();
-                        time =  work.getInt("/time_secs", 0);
+                        time = work.getInt("/time_secs", 0);
                     } else {
                         weight_strings = Arrays.asList(work.getString("weights[not(@bench)]").split("\\s*,\\s*"));
                     }
@@ -432,13 +432,13 @@ public class DBWorkload {
                             boolean containWeight = executeRules.get(0).containsKey("weight");
                             for (HierarchicalConfiguration<ImmutableNode> rule : executeRules) {
                                 double weight;
-                                if(containWeight){
-                                    if(!rule.containsKey("weight")){
+                                if (containWeight) {
+                                    if (!rule.containsKey("weight")) {
                                         throw new RuntimeException("Please Provide weight or not to all queries");
                                     }
                                     weight = rule.getDouble("weight");
-                                }else{
-                                    if(rule.containsKey("weight")){
+                                } else {
+                                    if (rule.containsKey("weight")) {
                                         throw new RuntimeException("Please Provide weight or not to all queries");
                                     }
                                     weight = defaultweight;
@@ -516,6 +516,17 @@ public class DBWorkload {
                 } else {
                     LOG.debug("Skipping creating benchmark database tables");
                 }
+                if (!isBooleanOptionSet(argsLine, "create") && !createDone) {
+                    for (BenchmarkModule benchmark : benchList) {
+                        if (benchmark.getBenchmarkName().equalsIgnoreCase("featurebench") && benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("createdb")) {
+                            String newUrl = runCreatorDB(benchmark, benchmark.getWorkloadConfiguration().getXmlConfig().getString("createdb"));
+                            benchmark.getWorkloadConfiguration().setUrl(newUrl);
+                            benchmark.getWorkloadConfiguration().getXmlConfig().setProperty("url", newUrl);
+                        }
+                    }
+                    createDone = true;
+                }
+
 
                 // Refresh the catalog.
                 for (BenchmarkModule benchmark : benchList) {
