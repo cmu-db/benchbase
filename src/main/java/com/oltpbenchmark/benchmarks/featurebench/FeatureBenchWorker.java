@@ -63,6 +63,16 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     protected void initialize() {
 
+        if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
+            this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
+            LOG.info("Resetting pg_stat_statements");
+            try {
+                Statement stmt = conn.createStatement();
+                stmt.executeQuery("SELECT pg_stat_statements_reset();");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         String outputDirectory = "results";
         FileUtil.makeDirIfNotExists(outputDirectory);
@@ -105,7 +115,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             }
         }
         try {
-            writeExplain(ps, explainDDLs);
+            if (explainDDLs.size() > 0)
+                writeExplain(ps, explainDDLs);
         } catch (SQLException e) {
             e.printStackTrace();
         }

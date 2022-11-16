@@ -1,0 +1,83 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 3
+        active_terminals: 1
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS demo2col;
+            - CREATE TABLE demo2col (id INT, col1 TEXT, primary key (id ASC)) ;
+        loadRules:
+            - table: demo2col
+              rows: 10
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params:
+                        - 1
+                        - 10
+                  - name: col1
+                    util: RandomStringNumeric
+                    params:
+                        - 128
+        executeRules:
+            - workload: RangeScan
+              run:
+                  - name: ReadQuery1
+                    weight: 50
+                    queries:
+                        - query: SELECT * FROM demo2col WHERE id < 10
+                        - query: SELECT * FROM demo2col WHERE id > ?
+                          bindings:
+                              - util: RandomNumber
+                                params:
+                                    - 50
+                                    - 100
+                  - name: WriteQuery1
+                    weight: 50
+                    queries:
+                        - query: UPDATE demo2col set col1 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params:
+                                    - 10
+                                    - 20
+                              - util: RandomNumber
+                                params:
+                                    - 1
+                                    - 1000
+
+            - workload: UpdateScan
+              run:
+                  - name: ReadQuery2
+                    weight: 50
+                    queries:
+                        - query: SELECT * FROM demo2col WHERE id < 10
+
+                  - name: WriteQuery2
+                    weight: 50
+                    queries:
+                        - query: UPDATE demo2col set col1 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params:
+                                    - 10
+                                    - 20
+                              - util: RandomNumber
+                                params:
+                                    - 1
+                                    - 1000
