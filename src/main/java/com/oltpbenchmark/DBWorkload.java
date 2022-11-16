@@ -519,7 +519,7 @@ public class DBWorkload {
                 if (!isBooleanOptionSet(argsLine, "create") && !createDone) {
                     for (BenchmarkModule benchmark : benchList) {
                         if (benchmark.getBenchmarkName().equalsIgnoreCase("featurebench") && benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("createdb")) {
-                            String newUrl = runCreatorDB(benchmark, benchmark.getWorkloadConfiguration().getXmlConfig().getString("createdb"));
+                            String newUrl = getNewUrl(benchmark, benchmark.getWorkloadConfiguration().getXmlConfig().getString("createdb"));
                             benchmark.getWorkloadConfiguration().setUrl(newUrl);
                             benchmark.getWorkloadConfiguration().getXmlConfig().setProperty("url", newUrl);
                         }
@@ -802,6 +802,34 @@ public class DBWorkload {
         String newUrl = url.substring(0, index) + dbName + url.substring(index + matcher.group(0).length());
         stmtObj.close();
         return newUrl;
+    }
+
+    private static String getNewUrl(BenchmarkModule benchmark, String totalDDL) throws SQLException {
+        Pattern patternCreateDB = Pattern.compile("create database (.+?);", Pattern.CASE_INSENSITIVE);
+        Matcher matcherCreateDB = patternCreateDB.matcher(totalDDL);
+        boolean matchFoundforcreate = matcherCreateDB.find();
+        String createDDL = matcherCreateDB.group(0);
+        String pattern = "database\\s(\\w+)\\s";
+        Pattern db = Pattern.compile(pattern);
+        Matcher m = db.matcher(createDDL);
+        String dbName = "";
+        if (m.find()) {
+            dbName = m.group(1);
+        } else {
+            LOG.warn("Incorrect DDL for create database");
+        }
+        String url = benchmark.getWorkloadConfiguration().getUrl();
+        String[] pieces = url.split("\\?", 10);
+        Pattern p = Pattern.compile("[a-zA-Z_]+$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = p.matcher(pieces[0]);
+        boolean matchFound = matcher.find();
+        if (matchFound) {
+            LOG.info(matcher.group(0));
+        } else {
+            LOG.info("No match!");
+        }
+        int index = url.indexOf(matcher.group(0), url.indexOf(matcher.group(0)) + 1);
+        return url.substring(0, index) + dbName + url.substring(index + matcher.group(0).length());
     }
 
     private static void runLoader(BenchmarkModule bench) throws SQLException, InterruptedException {
