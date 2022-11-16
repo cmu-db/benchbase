@@ -73,8 +73,9 @@ java -jar benchbase.jar -b featurebench -c config/yugabyte/demo/featurebench_mic
 | setAutoCommit | True/False                                                                                                       |
 
 
-NOTE :- `properties: {}` in YAML ( under `microbenchmark/properties`) implies user has made their own customworkload class overriding the create(), loadOnce and executeOnce() of YBMicrobenchmark abstract class.
-
+NOTE :-
+1. `properties: {}` in YAML ( under `microbenchmark/properties`) implies user has made their own customworkload class overriding the create(), loadOnce and executeOnce() of YBMicrobenchmark abstract class.
+2.  If you are using `execute` or `executeOnce` in YAML set the flag `setAutoCommit` to `false`.
 ### Utility Functions:-
 
 Utility functions are present inside the folder :-
