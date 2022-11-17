@@ -81,7 +81,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         FileUtil.makeDirIfNotExists(outputDirectory + "/" + explainDir);
         String fileForExplain = explainDir + "/" + workloadName + "_" + TimeUtil.getCurrentTimeString() + ".json";
         PrintStream ps;
-        String explain = "explain (analyze,verbose,costs,buffers) ";
+        String explainSelect = "explain (analyze,verbose,costs,buffers) ";
+        String explainUpdate = "explain (analyze) ";
 
         try {
             ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileForExplain));
@@ -97,7 +98,8 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                     String querystmt = query.getQuery();
                     PreparedStatement stmt = null;
                     try {
-                        stmt = conn.prepareStatement(explain + querystmt);
+
+                        stmt = conn.prepareStatement((query.isSelectQuery() ? explainSelect : explainUpdate) + querystmt);
                         List<UtilToMethod> baseUtils = query.getBaseUtils();
                         for (int j = 0; j < baseUtils.size(); j++) {
                             try {
