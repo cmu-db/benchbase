@@ -213,12 +213,12 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     @Override
     public void tearDown() {
-        if (!this.configuration.getNewConnectionPerTxn() && this.conn != null) {
+        if (!this.configuration.getNewConnectionPerTxn() && this.configuration.getWorkloadState().getGlobalState() == State.EXIT) {
             if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
                 this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
                 LOG.info("Collecting pg_stat_statements");
                 try {
-                    excutePgStatStatements(conn);
+                    excutePgStatStatements();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -253,11 +253,11 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         }
     }
 
-    private void excutePgStatStatements(Connection conn) throws SQLException {
+    private void excutePgStatStatements() throws SQLException {
         String pgStatDDL = "select * from pg_stat_statements;";
         String PgStatsDir = "ResultsForPgStats";
         FileUtil.makeDirIfNotExists("results" + "/" + PgStatsDir);
-        String fileForPgStats = PgStatsDir + "/" + workloadName + "_"+TimeUtil.getCurrentTimeString()+".json";
+        String fileForPgStats = PgStatsDir + "/" + workloadName + "_" + TimeUtil.getCurrentTimeString() + ".json";
         PrintStream ps;
         try {
             ps = new PrintStream(FileUtil.joinPath("results", fileForPgStats));
@@ -266,7 +266,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         }
 
         Map<String, JSONObject> summaryMap = new TreeMap<>();
-        Statement stmt = conn.createStatement();
+        Statement stmt = this.getBenchmark().makeConnection().createStatement();
         JSONObject outer = new JSONObject();
         int count = 0;
         ResultSet resultSet = stmt.executeQuery(pgStatDDL);
