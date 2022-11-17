@@ -63,6 +63,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     protected void initialize() {
 
+
         if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
             this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
             LOG.info("Resetting pg_stat_statements");
@@ -213,6 +214,16 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     @Override
     public void tearDown() {
 
+        if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
+            this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
+            LOG.info("Collecting pg_stat_statements");
+            try {
+                excutePgStatStatements(conn);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         if (!this.configuration.getNewConnectionPerTxn() && this.conn != null && ybm != null) {
             try {
                 if (this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isCleanUpDone.get()) {
@@ -239,5 +250,37 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 LOG.error("Connection couldn't be closed.", e);
             }
         }
+    }
+
+    private void excutePgStatStatements(Connection conn) throws SQLException {
+        String pgStatDDL = "select * from pg_stat_statements;";
+        String PgStatsDir = "ResultsForPgStats";
+        FileUtil.makeDirIfNotExists("results" + "/" + PgStatsDir);
+        String fileForPgStats = PgStatsDir + "/" + workloadName + "_"+TimeUtil.getCurrentTimeString()+".json";
+        PrintStream ps;
+        try {
+            ps = new PrintStream(FileUtil.joinPath("results", fileForPgStats));
+        } catch (FileNotFoundException exc) {
+            throw new RuntimeException(exc);
+        }
+
+        Map<String, JSONObject> summaryMap = new TreeMap<>();
+        Statement stmt = conn.createStatement();
+        JSONObject outer = new JSONObject();
+        int count = 0;
+        ResultSet resultSet = stmt.executeQuery(pgStatDDL);
+        ResultSetMetaData rsmd = resultSet.getMetaData();
+        int columnsNumber = rsmd.getColumnCount();
+        while (resultSet.next()) {
+            JSONObject inner = new JSONObject();
+            for (int i = 1; i <= columnsNumber; i++) {
+                String columnValue = resultSet.getString(i);
+                inner.put(rsmd.getColumnName(i), columnValue);
+            }
+            outer.put("Record_" + count, inner);
+            count++;
+        }
+        summaryMap.put("PgStats", outer);
+        ps.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }
 }
