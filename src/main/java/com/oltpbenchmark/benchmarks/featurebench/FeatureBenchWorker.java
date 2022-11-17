@@ -213,14 +213,15 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     @Override
     public void tearDown() {
-
-        if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
-            this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
-            LOG.info("Collecting pg_stat_statements");
-            try {
-                excutePgStatStatements(conn);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        if (!this.configuration.getNewConnectionPerTxn() && this.conn != null) {
+            if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
+                this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
+                LOG.info("Collecting pg_stat_statements");
+                try {
+                    excutePgStatStatements(conn);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
