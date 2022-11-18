@@ -22,19 +22,17 @@ import com.oltpbenchmark.api.Procedure.UserAbortException;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
-import com.oltpbenchmark.util.FileUtil;
 import com.oltpbenchmark.util.Histogram;
-import com.oltpbenchmark.util.JSONUtil;
-import com.oltpbenchmark.util.TimeUtil;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.oltpbenchmark.types.State.MEASURE;
@@ -42,30 +40,25 @@ import static com.oltpbenchmark.types.State.MEASURE;
 public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
     private static final Logger ABORT_LOG = LoggerFactory.getLogger("com.oltpbenchmark.api.ABORT_LOG");
-
-    private WorkloadState workloadState;
-    private LatencyRecord latencies;
-    private final Statement currStatement;
-
-    // Interval requests used by the monitor
-    private final AtomicInteger intervalRequests = new AtomicInteger(0);
-
-    private final int id;
-    private final T benchmark;
-    protected Connection conn = null;
     protected final WorkloadConfiguration configuration;
     protected final TransactionTypes transactionTypes;
     protected final Map<TransactionType, Procedure> procedures = new HashMap<>();
     protected final Map<String, Procedure> name_procedures = new HashMap<>();
     protected final Map<Class<? extends Procedure>, Procedure> class_procedures = new HashMap<>();
-
+    private final Statement currStatement;
+    // Interval requests used by the monitor
+    private final AtomicInteger intervalRequests = new AtomicInteger(0);
+    private final int id;
+    private final T benchmark;
     private final Histogram<TransactionType> txnUnknown = new Histogram<>();
     private final Histogram<TransactionType> txnSuccess = new Histogram<>();
     private final Histogram<TransactionType> txnAbort = new Histogram<>();
     private final Histogram<TransactionType> txnRetry = new Histogram<>();
     private final Histogram<TransactionType> txnErrors = new Histogram<>();
     private final Histogram<TransactionType> txtRetryDifferent = new Histogram<>();
-
+    protected Connection conn = null;
+    private WorkloadState workloadState;
+    private LatencyRecord latencies;
     private boolean seenDone = false;
 
     public Worker(T benchmark, int id) {
@@ -75,11 +68,15 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         this.workloadState = this.configuration.getWorkloadState();
         this.currStatement = null;
         this.transactionTypes = this.configuration.getTransTypes();
-
+        boolean autoCommitVal = false;
+        if (this.benchmark.getBenchmarkName().equalsIgnoreCase("featurebench") &&
+            this.benchmark.getWorkloadConfiguration().getXmlConfig().containsKey("microbenchmark/properties/setAutoCommit")) {
+            autoCommitVal = this.benchmark.getWorkloadConfiguration().getXmlConfig().getBoolean("microbenchmark/properties/setAutoCommit");
+        }
         if (!this.configuration.getNewConnectionPerTxn()) {
             try {
                 this.conn = this.benchmark.makeConnection();
-                this.conn.setAutoCommit(false);
+                this.conn.setAutoCommit(autoCommitVal);
                 this.conn.setTransactionIsolation(this.configuration.getIsolationMode());
             } catch (SQLException ex) {
                 throw new RuntimeException("Failed to connect to database", ex);
@@ -343,13 +340,10 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
         }
 
 
-
         LOG.debug("worker calling teardown");
 
         tearDown();
     }
-
-
 
 
     private TransactionType getTransactionType(SubmittedProcedure pieceOfWork, Phase phase, State state, WorkloadState workloadState) {
@@ -387,7 +381,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
      * implementing worker should return the TransactionType handle that was
      * executed.
      *
-     * @param databaseType TODO
+     * @param databaseType    TODO
      * @param transactionType TODO
      */
     protected final void doWork(DatabaseType databaseType, TransactionType transactionType) {
