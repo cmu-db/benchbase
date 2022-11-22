@@ -57,71 +57,79 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     public List<ExecuteRule> executeRules = null;
     public String workloadName = "";
 
+    public boolean isTearDownDone = false;
+
+    public boolean isInitializeDone = false;
+
     public FeatureBenchWorker(FeatureBenchBenchmark benchmarkModule, int id) {
         super(benchmarkModule, id);
     }
 
     protected void initialize() {
 
+        synchronized (this) {
+            if (isInitializeDone) return;
 
-        if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
-            this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
-            LOG.info("Resetting pg_stat_statements");
-            try {
-                Statement stmt = conn.createStatement();
-                stmt.executeQuery("SELECT pg_stat_statements_reset();");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        String outputDirectory = "results";
-        FileUtil.makeDirIfNotExists(outputDirectory);
-        String explainDir = "ResultsForExplain";
-        FileUtil.makeDirIfNotExists(outputDirectory + "/" + explainDir);
-        String fileForExplain = explainDir + "/" + workloadName + "_" + TimeUtil.getCurrentTimeString() + ".json";
-        PrintStream ps;
-        String explainSelect = "explain (analyze,verbose,costs,buffers) ";
-        String explainUpdate = "explain (analyze) ";
-
-        try {
-            ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileForExplain));
-        } catch (FileNotFoundException exc) {
-            throw new RuntimeException(exc);
-        }
-
-        List<PreparedStatement> explainDDLs = new ArrayList<>();
-
-        for (ExecuteRule er : executeRules) {
-            for (Query query : er.getQueries()) {
-                if (query.isSelectQuery() || query.isUpdateQuery()) {
-                    String querystmt = query.getQuery();
-                    PreparedStatement stmt = null;
-                    try {
-
-                        stmt = conn.prepareStatement((query.isSelectQuery() ? explainSelect : explainUpdate) + querystmt);
-                        List<UtilToMethod> baseUtils = query.getBaseUtils();
-                        for (int j = 0; j < baseUtils.size(); j++) {
-                            try {
-                                stmt.setObject(j + 1, baseUtils.get(j).get());
-                            } catch (SQLException | InvocationTargetException | IllegalAccessException |
-                                     ClassNotFoundException | NoSuchMethodException | InstantiationException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        explainDDLs.add(stmt);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
+            if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
+                this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
+                LOG.info("Resetting pg_stat_statements");
+                try {
+                    Statement stmt = conn.createStatement();
+                    stmt.executeQuery("SELECT pg_stat_statements_reset();");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
-
             }
-        }
-        try {
-            if (explainDDLs.size() > 0)
-                writeExplain(ps, explainDDLs);
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            String outputDirectory = "results";
+            FileUtil.makeDirIfNotExists(outputDirectory);
+            String explainDir = "ResultsForExplain";
+            FileUtil.makeDirIfNotExists(outputDirectory + "/" + explainDir);
+            String fileForExplain = explainDir + "/" + workloadName + "_" + TimeUtil.getCurrentTimeString() + ".json";
+            PrintStream ps;
+            String explainSelect = "explain (analyze,verbose,costs,buffers) ";
+            String explainUpdate = "explain (analyze) ";
+
+            try {
+                ps = new PrintStream(FileUtil.joinPath(outputDirectory, fileForExplain));
+            } catch (FileNotFoundException exc) {
+                throw new RuntimeException(exc);
+            }
+
+            List<PreparedStatement> explainDDLs = new ArrayList<>();
+
+            for (ExecuteRule er : executeRules) {
+                for (Query query : er.getQueries()) {
+                    if (query.isSelectQuery() || query.isUpdateQuery()) {
+                        String querystmt = query.getQuery();
+                        PreparedStatement stmt = null;
+                        try {
+
+                            stmt = conn.prepareStatement((query.isSelectQuery() ? explainSelect : explainUpdate) + querystmt);
+                            List<UtilToMethod> baseUtils = query.getBaseUtils();
+                            for (int j = 0; j < baseUtils.size(); j++) {
+                                try {
+                                    stmt.setObject(j + 1, baseUtils.get(j).get());
+                                } catch (SQLException | InvocationTargetException | IllegalAccessException |
+                                         ClassNotFoundException | NoSuchMethodException | InstantiationException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            explainDDLs.add(stmt);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                }
+            }
+            try {
+                if (explainDDLs.size() > 0)
+                    writeExplain(ps, explainDDLs);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            isInitializeDone = true;
         }
     }
 
@@ -139,14 +147,14 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 ddl.executeQuery();
                 countResultSetGen++;
             }
-            long explainStart = System.currentTimeMillis();
+            double explainStart = System.currentTimeMillis();
             ResultSet rs = ddl.executeQuery();
             StringBuilder data = new StringBuilder();
             while (rs.next()) {
                 data.append(rs.getString(1));
                 data.append(" ");
             }
-            long explainEnd = System.currentTimeMillis();
+            double explainEnd = System.currentTimeMillis();
             jsonObject.put("ResultSet", data.toString());
             jsonObject.put("Time(ms) ", explainEnd - explainStart);
             summaryMap.put("ExplainDDL" + count, jsonObject);
@@ -215,42 +223,47 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
     @Override
     public void tearDown() {
-        if (!this.configuration.getNewConnectionPerTxn() && this.configuration.getWorkloadState().getGlobalState() == State.EXIT) {
-            if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
-                this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
-                LOG.info("Collecting pg_stat_statements");
-                try {
-                    excutePgStatStatements();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+
+
+        synchronized (this) {
+            if (!this.configuration.getNewConnectionPerTxn() && this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isTearDownDone) {
+                if (this.getWorkloadConfiguration().getXmlConfig().containsKey("collect_pg_stat_statements") &&
+                    this.getWorkloadConfiguration().getXmlConfig().getBoolean("collect_pg_stat_statements")) {
+                    LOG.info("Collecting pg_stat_statements");
+                    try {
+                        excutePgStatStatements();
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
-
-        if (!this.configuration.getNewConnectionPerTxn() && this.conn != null && ybm != null) {
-            try {
-                if (this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isCleanUpDone.get()) {
-                    if (config.containsKey("cleanup")) {
-                        LOG.info("\n=================Cleanup Phase taking from Yaml=========\n");
-                        List<String> ddls = config.getList(String.class, "cleanup");
-                        try {
-                            Statement stmtObj = conn.createStatement();
-                            for (String ddl : ddls) {
-                                stmtObj.execute(ddl);
+        synchronized (this) {
+            if (!this.configuration.getNewConnectionPerTxn() && this.conn != null && ybm != null) {
+                try {
+                    if (this.configuration.getWorkloadState().getGlobalState() == State.EXIT && !isCleanUpDone.get()) {
+                        if (config.containsKey("cleanup")) {
+                            LOG.info("\n=================Cleanup Phase taking from Yaml=========\n");
+                            List<String> ddls = config.getList(String.class, "cleanup");
+                            try {
+                                Statement stmtObj = conn.createStatement();
+                                for (String ddl : ddls) {
+                                    stmtObj.execute(ddl);
+                                }
+                                stmtObj.close();
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
                             }
-                            stmtObj.close();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
 
-                    } else {
-                        ybm.cleanUp(conn);
+                        } else {
+                            ybm.cleanUp(conn);
+                        }
+                        conn.close();
+                        isCleanUpDone.set(true);
                     }
-                    conn.close();
-                    isCleanUpDone.set(true);
+                } catch (SQLException e) {
+                    LOG.error("Connection couldn't be closed.", e);
                 }
-            } catch (SQLException e) {
-                LOG.error("Connection couldn't be closed.", e);
             }
         }
     }
@@ -285,5 +298,6 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         }
         summaryMap.put("PgStats", outer);
         ps.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
+        isTearDownDone = true;
     }
 }
