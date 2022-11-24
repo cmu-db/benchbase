@@ -211,6 +211,7 @@ public class DBWorkload {
 
             Set<String> uniqueRunWorkloads = new HashSet<>();
             List<String> workloadsFromExecuteRules = new ArrayList<>();
+            String fileForAllWorkloadList = "allWorkloads" + ".txt";
 
             if (workloads != null && workloads.size() != 0) {
                 for (int workCount = 1; workCount <= totalWorkloadCount; workCount++) {
@@ -218,11 +219,8 @@ public class DBWorkload {
                         .containsKey("workload") ? workloads.get(workCount - 1)
                         .getString("workload") : String.valueOf(workCount));
                 }
-            }
 
-            String fileForAllWorkloadList = "allWorkloads" + ".txt";
-            try (PrintStream ps = new PrintStream(FileUtil.joinPath(fileForAllWorkloadList))) {
-                if (workloads != null && workloads.size() != 0) {
+                try (PrintStream ps = new PrintStream(FileUtil.joinPath(fileForAllWorkloadList))) {
                     System.out.println("All Workloads:");
                     for (int workCount = 1; workCount <= totalWorkloadCount; workCount++) {
                         ps.println((workloads.get(workCount - 1)
@@ -232,18 +230,25 @@ public class DBWorkload {
                     }
                 }
             }
+            else {
+                try (PrintStream ps = new PrintStream(FileUtil.joinPath(fileForAllWorkloadList))) {
+                    ps.println("DEFAULT_WORKLOAD");
+                }
+            }
 
             if (isBooleanOptionSet(argsLine, "execute")) {
-                String targetWorkloads;
-                List<String> RunWorkloads;
                 if ((argsLine.hasOption("workloads")) && !argsLine.getOptionValue("workloads").isEmpty()) {
-                    targetWorkloads = argsLine.getOptionValue("workloads");
-                    RunWorkloads = List.of(targetWorkloads.trim().split("\\s*,\\s*"));
-                    uniqueRunWorkloads.addAll(RunWorkloads);
+                    List<String> runWorkloads = List.of(argsLine.getOptionValue("workloads").trim().split("\\s*,\\s*"));
+                    uniqueRunWorkloads.addAll(runWorkloads);
                     uniqueRunWorkloads.forEach(uniqueWorkload -> {
                         if (workloadsFromExecuteRules.contains(uniqueWorkload)) {
                             LOG.info("Workload: " + uniqueWorkload + " will be scheduled to run");
-                        } else {
+                        }
+                        else if(workloadsFromExecuteRules.size() == 0 &&
+                            uniqueWorkload.equalsIgnoreCase("DEFAULT_WORKLOAD")) {
+                            LOG.info("Running workload specified through code implementation");
+                        }
+                        else {
                             throw new RuntimeException("Wrong workload name provided in --workloads args: " + uniqueWorkload);
                         }
                     });
@@ -251,6 +256,7 @@ public class DBWorkload {
                     workloadsFromExecuteRules
                         .forEach(workloadFromExecuteRule -> LOG.info("Workload: "
                             + workloadFromExecuteRule + " will be scheduled to run"));
+                    uniqueRunWorkloads.addAll(workloadsFromExecuteRules);
                 }
             }
 
@@ -621,7 +627,7 @@ public class DBWorkload {
 
                 if (isBooleanOptionSet(argsLine, "execute") && (argsLine.hasOption("workloads")) && executeRules != null) {
                     String val = workloads.get(workCount - 1).getString("workload");
-                    if (uniqueRunWorkloads.contains(val)) {
+                    if (uniqueRunWorkloads.contains(val) || uniqueRunWorkloads.contains("DEFAULT_WORKLOAD")) {
                         LOG.info("Starting Workload " + (workloads.get(workCount - 1).containsKey("workload") ? workloads.get(workCount - 1).getString("workload") : workCount));
                         try {
                             Results r = runWorkload(benchList, intervalMonitor, workCount);
