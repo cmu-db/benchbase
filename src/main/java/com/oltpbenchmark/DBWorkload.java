@@ -777,7 +777,7 @@ public class DBWorkload {
     private static String runCreatorDB(BenchmarkModule benchmark, String totalDDL) throws SQLException {
         Statement stmtObj = benchmark.makeConnection().createStatement();
         stmtObj.execute(totalDDL);
-        Pattern patternCreateDB = Pattern.compile("create database (.+?)", Pattern.CASE_INSENSITIVE);
+        Pattern patternCreateDB = Pattern.compile("create database (.+?) ", Pattern.CASE_INSENSITIVE);
         Matcher matcherCreateDB = patternCreateDB.matcher(totalDDL);
         boolean matchFoundforcreate = matcherCreateDB.find();
         String createDDL = matcherCreateDB.group(0);
