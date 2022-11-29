@@ -1,6 +1,7 @@
 package com.oltpbenchmark.benchmarks.featurebench.utils;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /*
 
@@ -14,42 +15,42 @@ String Numeric Primary keys generated :- "0aaaa","1aaaa","2aaaa","3aaaa",......
 Return type :- String (Numeric)
 */
 
-public class PrimaryStringGen implements BaseUtil {
+public class RandomPKString implements BaseUtil {
     private final int desiredLength;
     private final int startNumber;
-    private int currentValue;
+    private final int endNumber;
+
     private String key;
 
-    public PrimaryStringGen(List<Object> values) {
-        if (values.size() != 2) {
+    public RandomPKString(List<Object> values) {
+        if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
         }
         this.startNumber = ((Number) values.get(0)).intValue();
-        this.currentValue = startNumber - 1;
-        this.desiredLength = ((Number) values.get(1)).intValue();
+        this.endNumber = ((Number) values.get(1)).intValue();
+        this.desiredLength = ((Number) values.get(2)).intValue();
         if (desiredLength <= 0) {
             throw new RuntimeException("Please use positive desired length for string primary keys");
         }
     }
 
-    public PrimaryStringGen(List<Object> values, int workerId, int totalWorkers) {
-        if (values.size() != 2) {
+    public RandomPKString(List<Object> values, int workerId, int totalWorkers) {
+        if (values.size() != 3) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
         }
-        int divide = (((Number) values.get(1)).intValue() - ((Number) values.get(0)).intValue()) / totalWorkers;
-        this.startNumber = ((Number) values.get(0)).intValue() - 1 + divide * workerId;
-        this.currentValue = startNumber - 1;
-        int upperRangeTemp = (((Number) values.get(0)).intValue() + (divide) * (workerId + 1) + (workerId == 0 ? 0 : 1));
-        this.desiredLength = Math.min(upperRangeTemp, ((Number) values.get(1)).intValue());
+        this.startNumber = ((Number) values.get(0)).intValue();
+        this.endNumber = ((Number) values.get(1)).intValue();
+        this.desiredLength = ((Number) values.get(2)).intValue();
         if (desiredLength <= 0) {
             throw new RuntimeException("Please use positive desired length for string primary keys");
         }
+
     }
 
-    public String numberToIdString() {
-        StringBuilder baseNumberStr = new StringBuilder(String.valueOf(currentValue));
+    public String numberToIdString(int number) {
+        StringBuilder baseNumberStr = new StringBuilder(String.valueOf(number));
         while (baseNumberStr.length() < desiredLength) {
             baseNumberStr.append('a');
         }
@@ -58,8 +59,7 @@ public class PrimaryStringGen implements BaseUtil {
 
     @Override
     public Object run() {
-        currentValue++;
-        key = numberToIdString();
+        key = numberToIdString(ThreadLocalRandom.current().nextInt(startNumber, endNumber + 1));
         return key;
     }
 }

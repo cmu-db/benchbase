@@ -92,7 +92,7 @@ Utility functions are present inside the folder :-
 | OneNumberFromArray        | Returns a number randomly from a predefined array of numbers passed by user.                                                          | listOfIntegers                          | List of Integers         |
 | OneStringFromArray        | Returns a string randomly from a predefined array of strings passed by user.                                                          | str                                     | List of Strings          |
 | PrimaryIntGen             | Integer Primary key generator between a range.(sequential incremental keys generated).                                                | upperRange,lowerRange                   | Integer,Integer          |
-| PrimaryStringGen          | String Integer Primary key generator between a range.(sequential incremental numeric strings generated).                              | startNumber,desiredLength               | Integer,Integer          |
+| PrimaryStringGen          | String Integer Primary key generator starting from a numeric no.(sequential incremental numeric strings generated).                   | startNumber,desiredLength               | Integer,Integer          |
 | RandomAString             | Returns a random alphabetic string with length in range [minimumlength,maximumlength].                                                | minimumLength,maximumLength             | Integer,Integer          |
 | RandomBoolean             | Returns a random boolean value.                                                                                                       | None                                    | None                     |
 | RandomDate                | Returns a random date string in range [yearlowerBound,yearupperBound]                                                                 | yearlowerBound,yearupperBound           | Integer,Integer          |
@@ -115,7 +115,7 @@ Utility functions are present inside the folder :-
 | RowRandomBoundedLong      | Returns a random long in the range[lowValue,highValue]                                                                                | lowValue,highValue                      | Long,Long                |
 | RandomDateBtwYears        | Returns a random date in the range[yearLowerBound,yearUpperBound]                                                                     | yearLowerBound,yearUpperBound           | Integer,Integer          |
 | RandomNumberDefault       | Returns a random number in range [Integer.MIN_VALUE,Integer.MAX_VALUE]                                                                | None                                    | None                     |
-
+| RandomPKString            | Returns a random Primary key of String type in range [startNumber, endNumber] of desired length.(extra characters appended with 'a')  | startNumber,endNumber,desiredLength     | Integer,Integer,Integer  |
 
 ### Results:-
 
