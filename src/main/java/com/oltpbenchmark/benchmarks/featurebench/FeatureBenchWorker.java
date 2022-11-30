@@ -134,13 +134,13 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
     }
 
 
-    public void writeExplain(PrintStream os, List<PreparedStatement> explainDDLs) throws SQLException {
+    public void writeExplain(PrintStream os, List<PreparedStatement> explainSQLS) throws SQLException {
         LOG.info("Running explain for select/update queries before execute phase");
         Map<String, JSONObject> summaryMap = new TreeMap<>();
         int count = 0;
-        for (PreparedStatement ddl : explainDDLs) {
+        for (PreparedStatement ddl : explainSQLS) {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("ddl", ddl);
+            jsonObject.put("SQL", ddl);
             count++;
             int countResultSetGen = 0;
             while (countResultSetGen < 3) {
@@ -157,7 +157,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             double explainEnd = System.currentTimeMillis();
             jsonObject.put("ResultSet", data.toString());
             jsonObject.put("Time(ms) ", explainEnd - explainStart);
-            summaryMap.put("ExplainDDL" + count, jsonObject);
+            summaryMap.put("ExplainSQL" + count, jsonObject);
         }
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }
