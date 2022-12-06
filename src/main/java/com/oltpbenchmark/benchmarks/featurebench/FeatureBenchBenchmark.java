@@ -104,10 +104,18 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                 if (confquery.containsKey("count")) {
                     query.setCount(confquery.getInt("count"));
                 }
-                if (querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("select")) {
+
+                int query_hint_index = querystmt.indexOf("*/");
+                String query_type="";
+                if(query_hint_index == -1){
+                    query_type = querystmt.substring(0, querystmt.indexOf(' ')).trim();
+                }else{
+                    query_type = querystmt.substring(query_hint_index+2, querystmt.indexOf(' ',query_hint_index+4)).trim();
+                }
+                if (query_type.equalsIgnoreCase("select")) {
                     query.setSelectQuery(true);
                 }
-                if (querystmt.substring(0, querystmt.indexOf(' ')).equalsIgnoreCase("update")) {
+                if (query_type.equalsIgnoreCase("update")) {
                     query.setUpdateQuery(true);
                 }
                 List<UtilToMethod> baseutils = new ArrayList<>();
