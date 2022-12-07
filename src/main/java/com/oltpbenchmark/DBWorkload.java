@@ -18,6 +18,10 @@
 
 package com.oltpbenchmark;
 
+
+import com.hubspot.jinjava.Jinjava;
+import com.hubspot.jinjava.JinjavaConfig;
+import com.hubspot.jinjava.interpret.RenderResult;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.TransactionTypes;
@@ -39,14 +43,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DBWorkload {
     private static final Logger LOG = LoggerFactory.getLogger(DBWorkload.class);
@@ -112,7 +115,15 @@ public class DBWorkload {
         for (String plugin : targetList) {
             String pluginTest = "[@bench='" + plugin + "']";
             if (plugin.equalsIgnoreCase("featurebench"))
+            {
+                String[] params=null;
+                if (argsLine.hasOption("params")) {
+                    params = argsLine.getOptionValues("params");
+                    LOG.info("Creating modified temporary input yaml with passed parameters from : "+ configFile);
+                    configFile = replaceParametersInYaml(params,configFile);
+                }
                 xmlConfig = buildConfigurationFromYaml(configFile);
+            }
             else
                 xmlConfig = buildConfiguration(configFile);
 
@@ -229,8 +240,7 @@ public class DBWorkload {
                             .containsKey("workload") ? workloads.get(workCount - 1).getString("workload") : workCount));
                     }
                 }
-            }
-            else {
+            } else {
                 try (PrintStream ps = new PrintStream(FileUtil.joinPath(fileForAllWorkloadList))) {
                     ps.println("DEFAULT_WORKLOAD");
                 }
@@ -243,12 +253,10 @@ public class DBWorkload {
                     uniqueRunWorkloads.forEach(uniqueWorkload -> {
                         if (workloadsFromExecuteRules.contains(uniqueWorkload)) {
                             LOG.info("Workload: " + uniqueWorkload + " will be scheduled to run");
-                        }
-                        else if(workloadsFromExecuteRules.size() == 0 &&
+                        } else if (workloadsFromExecuteRules.size() == 0 &&
                             uniqueWorkload.equalsIgnoreCase("DEFAULT_WORKLOAD")) {
                             LOG.info("Running workload specified through code implementation");
-                        }
-                        else {
+                        } else {
                             throw new RuntimeException("Wrong workload name provided in --workloads args: " + uniqueWorkload);
                         }
                     });
@@ -697,6 +705,7 @@ public class DBWorkload {
         options.addOption(null, "dialects-export", true, "Export benchmark SQL to a dialects file");
         options.addOption("jh", "json-histograms", true, "Export histograms to JSON file");
         options.addOption("workloads", "workloads", true, "Run some specific workloads");
+        options.addOption("p", "params", true, "Use varibles through CLI for YAML");
         return options;
     }
 
@@ -967,5 +976,46 @@ public class DBWorkload {
             return (val != null && val.equalsIgnoreCase("true"));
         }
         return (false);
+    }
+    private static String replaceParametersInYaml(String[] params, String file) throws IOException {
+
+        Map<String, Object> context = new HashMap<>();
+        JinjavaConfig jc = JinjavaConfig.newBuilder().withFailOnUnknownTokens(true).build();
+        Jinjava jinjava = new Jinjava(jc);
+
+        int index;
+        for (String var : params) {
+            index = var.indexOf('=');
+            context.put(var.substring(0, index), var.substring(index + 1));
+        }
+
+        String configFilename = file.substring(file.lastIndexOf("/") + 1);
+        InputStream inputStream = new FileInputStream(file);
+        assert inputStream != null;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String template = reader.lines().collect(Collectors.joining(System.lineSeparator()));
+
+        RenderResult renderResult = jinjava.renderForResult(template, context);
+        if (renderResult.getErrors().isEmpty()) {
+
+            String newYaml = jinjava.render(template, context);
+            String newPath = file.substring(0, file.lastIndexOf("/") + 1) + "temp_input.yaml";
+            File newfile = new File(newPath);
+
+            if (!newfile.exists()) {
+                newfile.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(newfile);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(newYaml);
+            bw.close();
+            return newPath;
+
+        } else {
+            throw new IllegalArgumentException(renderResult.getErrors().stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(",")));
+        }
     }
 }
