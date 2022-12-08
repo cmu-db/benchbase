@@ -106,11 +106,16 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                 }
 
                 int query_hint_index = querystmt.indexOf("*/");
-                String query_type="";
-                if(query_hint_index == -1){
-                    query_type = querystmt.substring(0, querystmt.indexOf(' ')).trim();
-                }else{
-                    query_type = querystmt.substring(query_hint_index+2, querystmt.indexOf(' ',query_hint_index+4)).trim();
+                String startWord = querystmt.substring(0, querystmt.indexOf(' ')).trim();
+                String query_type = "";
+                if (startWord.equalsIgnoreCase("with")) {
+                    int with_index = querystmt.indexOf("(");
+                    query_type = querystmt.substring(with_index + 1, querystmt.indexOf(' ', with_index + 4)).trim();
+                } else if (query_hint_index != -1) {
+                    query_type = querystmt.substring(query_hint_index + 2, querystmt.indexOf(' ', query_hint_index + 4)).trim();
+
+                } else {
+                    query_type = startWord;
                 }
                 if (query_type.equalsIgnoreCase("select")) {
                     query.setSelectQuery(true);
@@ -123,11 +128,11 @@ public class FeatureBenchBenchmark extends BenchmarkModule {
                     if (bindingsList.containsKey("count")) {
                         int count = bindingsList.getInt("count");
                         for (int i = 0; i < count; i++) {
-                            UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"),workerId,totalWorker);
+                            UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"), workerId, totalWorker);
                             baseutils.add(obj);
                         }
                     } else {
-                        UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"),workerId,totalWorker);
+                        UtilToMethod obj = new UtilToMethod(bindingsList.getString("util"), bindingsList.getList("params"), workerId, totalWorker);
                         baseutils.add(obj);
                     }
                 }

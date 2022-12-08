@@ -185,6 +185,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
 
             int executeRuleIndex = txnType.getId() - 1;
             ExecuteRule executeRule = executeRules.get(executeRuleIndex);
+            boolean isRetry = false;
             for (Query query : executeRule.getQueries()) {
                 String querystmt = query.getQuery();
                 PreparedStatement stmt = conn.prepareStatement(querystmt);
@@ -201,16 +202,18 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                             countSet++;
                         }
                         if (countSet == 0) {
-                            return TransactionStatus.RETRY;
+                            isRetry = true;
                         }
                     } else {
                         int updatedRows = stmt.executeUpdate();
                         if (updatedRows == 0) {
-                            return TransactionStatus.RETRY;
+                            isRetry = true;
                         }
                     }
                 }
             }
+            if (isRetry)
+                return TransactionStatus.RETRY;
 
         } catch (ClassNotFoundException | InvocationTargetException
                  | InstantiationException | IllegalAccessException |
