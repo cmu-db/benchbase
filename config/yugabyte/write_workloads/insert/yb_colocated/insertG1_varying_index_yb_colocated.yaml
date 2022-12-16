@@ -1,8 +1,10 @@
 type: YUGABYTE
 driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
-username: yugabyte
-password: Password321@
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 4
@@ -10,10 +12,10 @@ terminals: 1
 collect_pg_stat_statements: true
 works:
     work:
-        time_secs: 3
+        time_secs: 300
         active_terminals: 1
         rate: unlimited
-        warmup: 0
+        warmup: 60
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
@@ -46,7 +48,7 @@ microbenchmark:
         loadRules:
             -   table: index_test_
                 count: 4
-                rows: 10
+                rows: 1000000
                 columns:
                     -   name: id
                         util: PrimaryIntGen
@@ -82,7 +84,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -99,7 +101,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -116,7 +118,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -133,7 +135,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -141,3 +143,4 @@ microbenchmark:
                                         count: 4
                                         params: [ 20, 20 ]
                                     -   util: RandomBoolean
+

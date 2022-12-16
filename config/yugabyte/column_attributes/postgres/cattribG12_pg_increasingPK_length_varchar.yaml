@@ -1,0 +1,116 @@
+#TEST FOR POSTGRES TABLES
+#GOAL12 Range lookup with different column size
+#Projection: Increasing column size(non indexed)
+#Filter: Primary key
+#Schema: 25 columns in a table with varchar datatype
+#Purpose: Impact of increasing column size
+#TESTS:
+#Time to fetch 1 column of 64 bytes
+#Time to fetch 1 column of 256 bytes
+#Time to fetch 1 column of 512 bytes
+#Time to fetch 1 column of 5k bytes
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 300
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS pkey_64blength_rangescan_fullTable_25column_1;
+            - DROP TABLE IF EXISTS pkey_256blength_rangescan_fullTable_25column_1;
+            - DROP TABLE IF EXISTS pkey_512blength_rangescan_fullTable_25column_1;
+            - DROP TABLE IF EXISTS pkey_5120blength_rangescan_fullTable_25column_1;
+            - CREATE TABLE pkey_64blength_rangescan_fullTable_25column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar,PRIMARY KEY(col_varchar_id_1));
+            - CREATE TABLE pkey_256blength_rangescan_fullTable_25column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar,PRIMARY KEY(col_varchar_id_1));
+            - CREATE TABLE pkey_512blength_rangescan_fullTable_25column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar,PRIMARY KEY(col_varchar_id_1));
+            - CREATE TABLE pkey_5120blength_rangescan_fullTable_25column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar,PRIMARY KEY(col_varchar_id_1));
+
+        loadRules:
+            - table: pkey_64blength_rangescan_fullTable_25column_1
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 64]
+                  - name: col_varchar_
+                    count: 1
+                    util: RandomAString
+                    params: [16, 16]
+            - table: pkey_256blength_rangescan_fullTable_25column_1
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 256]
+                  - name: col_varchar_
+                    count: 9
+                    util: RandomAString
+                    params: [16, 16]
+            - table: pkey_512blength_rangescan_fullTable_25column_1
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 512]
+                  - name: col_varchar_
+                    count: 24
+                    util: RandomAString
+                    params: [16, 16]
+            - table: pkey_5120blength_rangescan_fullTable_25column_1
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 5120]
+                  - name: col_varchar_
+                    count: 99
+                    util: RandomAString
+                    params: [16, 16]
+
+        executeRules:
+            - workload: cattribG12_pg_pkey64b_rangescan_fullTable_table25column
+              run:
+                  - name: pkey64b_rangescan_fullTable_table25column
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_64blength_rangescan_fullTable_25column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG12_pg_pkey256b_rangescan_fullTable_table25column
+              run:
+                  - name: pkey256b_rangescan_fullTable_table25column
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_256blength_rangescan_fullTable_25column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG12_pg_pkey512b_rangescan_fullTable_table25column
+              run:
+                  - name: pkey512b_rangescan_fullTable_table25column
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_512blength_rangescan_fullTable_25column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG12_pg_pkey5120b_rangescan_fullTable_table25column
+              run:
+                  - name: pkey5120b_rangescan_fullTable_table25column
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_5120blength_rangescan_fullTable_25column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'

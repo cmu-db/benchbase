@@ -1,0 +1,63 @@
+#TEST FOR POSTGRES TABLES
+#GOAL5 Range lookup on varying column count fetched on a table with 25 columns. Full table scan with all rows returned
+#Projection: Indexed column or covered column
+#Filter: On Index key
+#Schema: 25 columns in a table with varchar datatype
+#Purpose: PK vs indexed vs covered column
+#TESTS:
+#Time to fetch 2 column based on one indexed column
+#Time to fetch 2 covered column based on one indexed column
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 300
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_idx_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_idxcover_1;
+            - CREATE TABLE pkey_rangescan_fullTable_25column_idx_1(col_varchar_id_1 varchar,col_varchar_id_2 varchar,col_varchar_id_3 varchar,col_varchar_id_4 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,PRIMARY KEY(col_varchar_id_1));
+            - CREATE INDEX ON pkey_rangescan_fullTable_25column_idx_1(col_varchar_id_2);
+            - CREATE TABLE pkey_rangescan_fullTable_25column_idxcover_1(col_varchar_id_1 varchar,col_varchar_id_2 varchar,col_varchar_id_3 varchar,col_varchar_id_4 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,PRIMARY KEY(col_varchar_id_1));
+            - CREATE INDEX ON pkey_rangescan_fullTable_25column_idx_1(col_varchar_id_2) INCLUDE (col_varchar_id_3,col_varchar_id_4);
+
+        loadRules:
+            -   table: pkey_rangescan_fullTable_25column_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_varchar_id_
+                        count: 4
+                        util: PrimaryStringGen
+                        params: [ 1, 128 ]
+                    -   name: col_varchar_
+                        count: 21
+                        util: RandomAString
+                        params: [ 16, 16 ]
+        executeRules:
+            - workload: cattribG5_pg_pkey_rangescan_fullTable_table25column_fetch2column_usingIdx_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table25column_fetch2column_usingIdx_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select col_varchar_id_3,col_varchar_id_4 from pkey_rangescan_fullTable_25column_idx_1 where col_varchar_id_2>'1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG5_pg_pkey_rangescan_fullTable_table25column_fetch2CoveredColumn_usingIdx_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table25column_fetch2CoveredColumn_usingIdx_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select col_varchar_id_3,col_varchar_id_4 from pkey_rangescan_fullTable_25column_idxcover_1 where col_varchar_id_2>'1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'

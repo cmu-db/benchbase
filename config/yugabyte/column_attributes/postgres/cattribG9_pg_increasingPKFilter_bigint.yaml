@@ -1,0 +1,113 @@
+#TEST FOR POSTGRES TABLES
+#GOAL9 Lookup on a table with 25 column with increasing count of filter columns
+#Projection: All columns
+#Filter: Increasing column count | Non indexed columns
+#Schema: 25 columns in a table with bigint datatype
+#Purpose: Impact of increasing filter column count
+#TESTS:
+#Time to fetch all columns based on 2 non indexed column
+#Time to fetch all columns based on 5 non indexed column
+#Time to fetch all columns based on 10 non indexed column
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 300
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_bigint_2pk_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_bigint_5pk_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_bigint_10pk_1;
+            - CREATE TABLE pkey_rangescan_fullTable_25column_bigint_2pk_1(col_bigint_id_1 bigint,col_bigint_id_2 bigint,col_bigint_id_3 bigint,col_bigint_id_4 bigint,col_bigint_id_5 bigint,col_bigint_id_6 bigint,col_bigint_id_7 bigint,col_bigint_id_8 bigint,col_bigint_id_9 bigint,col_bigint_id_10 bigint,col_bigint_1 bigint ,col_bigint_2 bigint ,col_bigint_3 bigint ,col_bigint_4 bigint ,col_bigint_5 bigint ,col_bigint_6 bigint ,col_bigint_7 bigint ,col_bigint_8 bigint ,col_bigint_9 bigint, col_bigint_10 bigint ,col_bigint_11 bigint ,col_bigint_12 bigint ,col_bigint_13 bigint ,col_bigint_14 bigint,col_bigint_15 bigint , PRIMARY KEY(col_bigint_id_1,col_bigint_id_2));
+            - CREATE TABLE pkey_rangescan_fullTable_25column_bigint_5pk_1(col_bigint_id_1 bigint,col_bigint_id_2 bigint,col_bigint_id_3 bigint,col_bigint_id_4 bigint,col_bigint_id_5 bigint,col_bigint_id_6 bigint,col_bigint_id_7 bigint,col_bigint_id_8 bigint,col_bigint_id_9 bigint,col_bigint_id_10 bigint,col_bigint_1 bigint ,col_bigint_2 bigint ,col_bigint_3 bigint ,col_bigint_4 bigint ,col_bigint_5 bigint ,col_bigint_6 bigint ,col_bigint_7 bigint ,col_bigint_8 bigint ,col_bigint_9 bigint, col_bigint_10 bigint ,col_bigint_11 bigint ,col_bigint_12 bigint ,col_bigint_13 bigint ,col_bigint_14 bigint,col_bigint_15 bigint , PRIMARY KEY(col_bigint_id_1,col_bigint_id_2,col_bigint_id_3,col_bigint_id_4,col_bigint_id_5));
+            - CREATE TABLE pkey_rangescan_fullTable_25column_bigint_10pk_1(col_bigint_id_1 bigint,col_bigint_id_2 bigint,col_bigint_id_3 bigint,col_bigint_id_4 bigint,col_bigint_id_5 bigint,col_bigint_id_6 bigint,col_bigint_id_7 bigint,col_bigint_id_8 bigint,col_bigint_id_9 bigint,col_bigint_id_10 bigint,col_bigint_1 bigint ,col_bigint_2 bigint ,col_bigint_3 bigint ,col_bigint_4 bigint ,col_bigint_5 bigint ,col_bigint_6 bigint ,col_bigint_7 bigint ,col_bigint_8 bigint ,col_bigint_9 bigint, col_bigint_10 bigint ,col_bigint_11 bigint ,col_bigint_12 bigint ,col_bigint_13 bigint ,col_bigint_14 bigint,col_bigint_15 bigint , PRIMARY KEY(col_bigint_id_1,col_bigint_id_2,col_bigint_id_3,col_bigint_id_4,col_bigint_id_5,col_bigint_id_6,col_bigint_id_7,col_bigint_id_8,col_bigint_id_9,col_bigint_id_10));
+        loadRules:
+            -   table: pkey_rangescan_fullTable_25column_bigint_2pk_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 10
+                        util: PrimaryIntGen
+                        params: [1, 1000000]
+                    -   name: col_bigint_
+                        count: 15
+                        util: RandomNumber
+                        params: [1, 1000000]
+            -   table: pkey_rangescan_fullTable_25column_bigint_5pk_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 10
+                        util: PrimaryIntGen
+                        params: [1, 1000000]
+                    -   name: col_bigint_
+                        count: 15
+                        util: RandomNumber
+                        params: [1, 1000000]
+            -   table: pkey_rangescan_fullTable_25column_bigint_10pk_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_bigint_id_
+                        count: 10
+                        util: PrimaryIntGen
+                        params: [1, 1000000]
+                    -   name: col_bigint_
+                        count: 15
+                        util: RandomNumber
+                        params: [1, 1000000]
+
+        executeRules:
+            - workload: cattribG9_pg_seqscan_table25column_2pk_bigint_noRowsFetched
+              run:
+                  - name: seqscan_table25column_2pk_bigint_noRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_25column_bigint_2pk_1 where col_bigint_id_1=1000001 and col_bigint_id_2=1000001
+            -   workload: cattribG9_pg_seqscan_table25column_2pk_bigint_1RowFetched
+                run:
+                    -   name: seqscan_table25column_2pk_bigint_1RowFetched
+                        weight: 100
+                        queries:
+                            -   query: select * from pkey_rangescan_fullTable_25column_bigint_2pk_1 where col_bigint_id_1=999998 and col_bigint_id_2=999998
+            - workload: cattribG9_pg_seqscan_table25column_5pk_bigint_noRowsFetched
+              run:
+                  - name: seqscan_table25column_5pk_bigint_noRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_25column_bigint_5pk_1 where col_bigint_id_1=1000001 and col_bigint_id_2=1000001 and col_bigint_id_3=1000001 and col_bigint_id_4=1000001 and col_bigint_id_5=1000001
+            -   workload: cattribG9_pg_seqscan_table25column_5pk_bigint_1RowFetched
+                run:
+                    -   name: seqscan_table25column_5pk_bigint_1RowFetched
+                        weight: 100
+                        queries:
+                            -   query: select * from pkey_rangescan_fullTable_25column_bigint_5pk_1 where col_bigint_id_1=999998 and col_bigint_id_2=999998 and col_bigint_id_3=999998 and col_bigint_id_4=999998 and col_bigint_id_5=999998
+            - workload: cattribG9_pg_seqscan_table25column_10pk_bigint_noRowsFetched
+              run:
+                  - name: seqscan_table25column_10pk_bigint_noRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_25column_bigint_10pk_1 where col_bigint_id_1=1000001 and col_bigint_id_2=1000001 and col_bigint_id_3=1000001 and col_bigint_id_4=1000001 and col_bigint_id_5=1000001 and col_bigint_id_6=1000001 and col_bigint_id_7=1000001 and col_bigint_id_8=1000001 and col_bigint_id_9=1000001 and col_bigint_id_10=1000001
+            -   workload: cattribG9_pg_seqscan_table25column_10pk_bigint_1RowFetched
+                run:
+                    -   name: pg_seqscan_table25column_10pk_bigint_1RowFetched
+                        weight: 100
+                        queries:
+                            -   query: select * from pkey_rangescan_fullTable_25column_bigint_10pk_1 where col_bigint_id_1=999998 and col_bigint_id_2=999998 and col_bigint_id_3=999998 and col_bigint_id_4=999998 and col_bigint_id_5=999998 and col_bigint_id_6=999998 and col_bigint_id_7=999998 and col_bigint_id_8=999998 and col_bigint_id_9=999998 and col_bigint_id_10=999998
+

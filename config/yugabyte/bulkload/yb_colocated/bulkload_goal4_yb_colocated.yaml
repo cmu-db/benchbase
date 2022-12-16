@@ -1,0 +1,43 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+collect_pg_stat_statements: true
+loaderthreads: 1
+terminals: 1
+
+works:
+    work:
+        time_secs: 10
+        rate: 1000
+        weights: 100
+transactiontypes:
+    transactiontype:
+        name: FeatureBench
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.bulkload.Goal4
+    properties:
+        # Goal4 - 1 :: create table with 10 fields, 3M rows -> load data (only PK)
+        tableName: orders
+        columns: 10
+        rows: 3000000
+        filePath: orders.csv
+        stringLength: 32
+
+#        # Goal4 - 2 :: create table with 20 fields, 3M rows -> load data (only PK)
+#        tableName: orders
+#        columns: 20
+#        rows: 3000000
+#        filePath: orders.csv
+#        stringLength: 32
+#
+#        # Goal4 - 3 :: create table with 100 fields, 3M rows -> load data (only PK)
+#        tableName: orders
+#        columns: 100
+#        rows: 3000000
+#        filePath: orders.csv
+#        stringLength: 32

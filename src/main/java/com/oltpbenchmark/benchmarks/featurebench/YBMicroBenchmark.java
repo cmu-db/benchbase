@@ -1,5 +1,6 @@
 package com.oltpbenchmark.benchmarks.featurebench;
 
+import com.oltpbenchmark.api.BenchmarkModule;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 
@@ -30,8 +31,11 @@ public abstract class YBMicroBenchmark {
     public void loadOnce(Connection conn) throws SQLException{
     }
 
+    public void executeOnce(Connection conn, BenchmarkModule benchmarkModule) throws SQLException {
+    }
     public void executeOnce(Connection conn) throws SQLException {
     }
+
 
     public void afterLoad(Connection conn) throws SQLException {
     }

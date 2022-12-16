@@ -1,0 +1,56 @@
+benchmarks:
+    - name: perf-sysbench
+      workloadSpec:
+          type: sysbench
+          properties:
+              create: false
+              load: false
+              run: false
+              client-instance-type: c5.xlarge
+              sysbench-repo-branch: master
+              tables: 100
+              table_size: 4000000
+              workload_subtype: oltp_read_only
+              load_threads: 10
+              run_threads: 10
+              point_selects: 10
+              num_rows_in_insert: 10
+              test-user: <>
+              time: 100
+              warmup-time: 100
+              range_key_partitioning: false
+              range_selects: false
+              serial_cache_size: 1000
+              thread-init-timeout: 90
+              yb_owner: perf-team
+      clusterSpec:
+          platformId: 301
+          #Template has ysql auth enabled . Password is Password@321
+          templateName: m6i_8core_3node_1az_secure
+          properties:
+              ybSoftwareVersion: 2.17.1.0-b44
+              # Review the gflags with actual before using in this yaml.
+              masterGFlags:
+                  - "name": "enable_automatic_tablet_splitting"
+                    "value": true
+                  - "name": "ysql_enable_packed_row"
+                    "value": true
+              #          - "name": "ysql_yb_enable_expression_pushdown"
+              #            "value": true
+              tserverGFlags:
+                  - "name": "enable_automatic_tablet_splitting"
+                    "value": true
+                  - "name": "ysql_enable_packed_row"
+                    "value": true
+          #       - "name": "ysql_yb_enable_expression_pushdown"
+          #          "value": true
+      jobGroup:
+          - name: sysbench
+            numClusters: 1
+            reuse: true
+            clusterSpec:
+                overrides: {}
+            workloadSpec:
+                overrides:
+                    workload_subtype:
+                        - '{"workload": "oltp_read_only", "threads": [120]}'

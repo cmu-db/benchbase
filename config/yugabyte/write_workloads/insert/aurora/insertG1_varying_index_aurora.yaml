@@ -1,8 +1,8 @@
-type: YUGABYTE
-driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
-username: yugabyte
-password: Password321@
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
 batchsize: 128
 isolation: TRANSACTION_REPEATABLE_READ
 loaderthreads: 4
@@ -10,10 +10,10 @@ terminals: 1
 collect_pg_stat_statements: true
 works:
     work:
-        time_secs: 3
+        time_secs: 300
         active_terminals: 1
         rate: unlimited
-        warmup: 0
+        warmup: 60
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
@@ -23,10 +23,10 @@ microbenchmark:
             - drop table if exists index_test_2;
             - drop table if exists index_test_3;
             - drop table if exists index_test_4;
-            - create table index_test_1 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
-            - create table index_test_2 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
-            - create table index_test_3 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
-            - create table index_test_4 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create table index_test_1 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create table index_test_2 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create table index_test_3 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
+            - create table index_test_4 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id))
             - create index index_test_2_idx1 on index_test_2(col_int_1);
             - create index index_test_3_idx1 on index_test_3(col_int_1);
             - create index index_test_3_idx2 on index_test_3(col_int_2);
@@ -46,30 +46,22 @@ microbenchmark:
         loadRules:
             -   table: index_test_
                 count: 4
-                rows: 10
+                rows: 1000000
                 columns:
                     -   name: id
                         util: PrimaryIntGen
-                        params:
-                            - 1
-                            - 1000000
+                        params: [ 1, 1000000 ]
                     -   name: col_int_
                         count: 10
                         util: RandomNumber
-                        params:
-                            - 1
-                            - 1000000
+                        params: [ 1, 1000000 ]
                     -   name: col_varchar_
                         count: 3
                         util: RandomAString
-                        params:
-                            - 5
-                            - 5
+                        params: [ 20, 20 ]
                     -   name: col_date
                         util: RandomAString
-                        params:
-                            - 5
-                            - 5
+                        params: [ 20, 20 ]
                     -   name: col_boolean
                         util: RandomBoolean
         executeRules:
@@ -82,7 +74,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -99,7 +91,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -116,7 +108,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]
@@ -133,7 +125,7 @@ microbenchmark:
                                 count: 10
                                 bindings:
                                     -   util: PrimaryIntGen
-                                        params: [ 10000001, 90000000 ]
+                                        params: [ 1000001, 9000000 ]
                                     -   util: RandomNumber
                                         count: 10
                                         params: [ 1000001, 9000000 ]

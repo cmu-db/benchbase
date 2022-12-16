@@ -1,0 +1,65 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+#url: jdbc:yugabytedb://172.151.23.87:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        serial: true
+        #        time_secs: 300
+        #        active_terminals: 1
+        rate: unlimited
+        warmup: 0
+microbenchmark:
+    #    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.batchinsert.BatchInsertYB
+    properties:
+        setAutoCommit: true
+#        create:
+#            - drop table if exists index_test_4;
+#            - create table index_test_4 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+#            - DROP PROCEDURE IF EXISTS insert_demo_hash;
+#            - CREATE PROCEDURE insert_demo_hash(_numRows int)
+#                LANGUAGE plpgsql
+#                AS $$
+#                DECLARE
+#                BEGIN
+#                insert into index_test_4 (id, col_int_1, col_int_2, col_int_3, col_int_4, col_int_5, col_int_6, col_int_7, col_int_8, col_int_9, col_int_10, col_varchar_1, col_varchar_2, col_varchar_3, col_date, col_boolean) select n, n, n+100, (n%100)+1, (n%1000)+1, n%50, n*10, n%10, n*2, n, n, 'aaa'||(n%1000)+1,  'bbb'||n, 'ccc'||(n%100), '2022-12-10', RANDOM()::INT::BOOLEAN from generate_series(1,_numRows) n;
+#                END;
+#                $$;
+#            - call insert_demo_hash(1000);
+#        executeRules:
+#            - workload: BatchedInsert
+#              run:
+#                  - name: insert_1m_rows
+#                    weight: 100
+#                    queries:
+#                        - query: INSERT INTO index_test_4 values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+#                          count: 2000
+#                          bindings:
+#                              - util: PrimaryIntGen
+#                                params:
+#                                    - 1001
+#                                    - 11000
+#                              - util: RandomNumber
+#                                count: 10
+#                                params:
+#                                    - 1001
+#                                    - 11000
+#                              - util: RandomAString
+#                                count: 3
+#                                params:
+#                                    - 4
+#                                    - 4
+#                              - util: RandomDate
+#                                params:
+#                                    - 2007
+#                                    - 2011
+#                              - util: RandomBoolean

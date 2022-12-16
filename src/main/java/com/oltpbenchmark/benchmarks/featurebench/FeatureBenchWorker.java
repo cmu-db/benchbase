@@ -178,7 +178,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                 return TransactionStatus.SUCCESS;
             } else if (executeRules == null || executeRules.size() == 0) {
                 if (this.configuration.getWorkloadState().getGlobalState() == State.MEASURE) {
-                    ybm.executeOnce(conn);
+                    ybm.executeOnce(conn, this.getBenchmark());
                 }
                 return TransactionStatus.SUCCESS;
             }

@@ -1,0 +1,66 @@
+#TEST FOR POSTGRES TABLES
+#GOAL2 Range lookup on varying column count fetched on a table with 25 columns. Full table scan with all rows returned
+#Projection: Increasing number of columns
+#Filter: On Primary key
+#Schema: 25 columns in a table with varchar datatype
+#Purpose: Full table scan time + row handling(de/serialise, encoding) for increasing fetched column being fetched
+#TESTS:
+#Time to fetch 2 columns based on one PK
+#Time to fetch 5 columns based on one PK
+#Time to fetch 15 columns based on one PK
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 300
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_1;
+            - CREATE TABLE pkey_rangescan_fullTable_25column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar,PRIMARY KEY(col_varchar_id_1));
+
+        loadRules:
+            -   table: pkey_rangescan_fullTable_25column_
+                count: 1
+                rows: 1000000
+                columns:
+                    -   name: col_varchar_id_
+                        count: 1
+                        util: PrimaryStringGen
+                        params: [ 1, 128 ]
+                    -   name: col_varchar_
+                        count: 24
+                        util: RandomAString
+                        params: [ 16, 16 ]
+        executeRules:
+            - workload: cattribG3_pg_pkey_rangescan_fullTable_table25column_fetch2column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table25column_fetch2column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select col_varchar_1,col_varchar_2 from pkey_rangescan_fullTable_25column_1 where col_varchar_id_1>'1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG3_pg_pkey_rangescan_fullTable_table25column_fetch5column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table25column_fetch5column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select col_varchar_1,col_varchar_2,col_varchar_3,col_varchar_4,col_varchar_5 from pkey_rangescan_fullTable_25column_1 where col_varchar_id_1>'1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG3_pg_pkey_rangescan_fullTable_table25column_fetch15column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table25column_fetch15column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select col_varchar_1,col_varchar_2,col_varchar_3,col_varchar_4,col_varchar_5,col_varchar_6,col_varchar_7,col_varchar_8,col_varchar_9,col_varchar_10,col_varchar_11,col_varchar_12,col_varchar_13,col_varchar_14,col_varchar_15 from pkey_rangescan_fullTable_25column_1 where col_varchar_id_1>'1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'

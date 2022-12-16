@@ -1,0 +1,115 @@
+#TEST FOR POSTGRES TABLES
+#GOAL1 Range lookup(PK) on a column of varchar datatype with increasing column count
+#Projection: Increasing number of columns
+#Filter: On Primary key
+#Schema: Same number of column as in the projection
+#TESTS:
+#Projection: Increasing number of columns(Select *)
+#Filter: On Primary key
+#Schema: Same number of column as in the projection
+#Purpose: Full table scan time with increasing columns being fetched
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://{{endpoint}}:5432/postgres?sslmode=require
+username: {{username}}
+password: {{password}}
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 300
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_2column_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_10column_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_25column_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_fullTable_100column_1;
+            - CREATE TABLE pkey_rangescan_fullTable_2column_1(col_varchar_id_1 varchar,col_varchar_1 varchar,PRIMARY KEY(col_varchar_id_1));
+            - CREATE TABLE pkey_rangescan_fullTable_10column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar,PRIMARY KEY(col_varchar_id_1));
+            - CREATE TABLE pkey_rangescan_fullTable_25column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar, col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar,PRIMARY KEY(col_varchar_id_1));
+            - CREATE TABLE pkey_rangescan_fullTable_100column_1(col_varchar_id_1 varchar,col_varchar_1 varchar ,col_varchar_2 varchar ,col_varchar_3 varchar ,col_varchar_4 varchar ,col_varchar_5 varchar ,col_varchar_6 varchar ,col_varchar_7 varchar ,col_varchar_8 varchar ,col_varchar_9 varchar ,col_varchar_10 varchar ,col_varchar_11 varchar ,col_varchar_12 varchar ,col_varchar_13 varchar ,col_varchar_14 varchar ,col_varchar_15 varchar ,col_varchar_16 varchar ,col_varchar_17 varchar ,col_varchar_18 varchar ,col_varchar_19 varchar ,col_varchar_20 varchar ,col_varchar_21 varchar ,col_varchar_22 varchar ,col_varchar_23 varchar ,col_varchar_24 varchar ,col_varchar_25 varchar ,col_varchar_26 varchar ,col_varchar_27 varchar ,col_varchar_28 varchar ,col_varchar_29 varchar ,col_varchar_30 varchar ,col_varchar_31 varchar ,col_varchar_32 varchar ,col_varchar_33 varchar ,col_varchar_34 varchar ,col_varchar_35 varchar ,col_varchar_36 varchar ,col_varchar_37 varchar ,col_varchar_38 varchar ,col_varchar_39 varchar ,col_varchar_40 varchar ,col_varchar_41 varchar ,col_varchar_42 varchar ,col_varchar_43 varchar ,col_varchar_44 varchar ,col_varchar_45 varchar ,col_varchar_46 varchar ,col_varchar_47 varchar ,col_varchar_48 varchar ,col_varchar_49 varchar ,col_varchar_50 varchar ,col_varchar_51 varchar ,col_varchar_52 varchar ,col_varchar_53 varchar ,col_varchar_54 varchar ,col_varchar_55 varchar ,col_varchar_56 varchar ,col_varchar_57 varchar ,col_varchar_58 varchar ,col_varchar_59 varchar ,col_varchar_60 varchar ,col_varchar_61 varchar ,col_varchar_62 varchar ,col_varchar_63 varchar ,col_varchar_64 varchar ,col_varchar_65 varchar ,col_varchar_66 varchar ,col_varchar_67 varchar ,col_varchar_68 varchar ,col_varchar_69 varchar ,col_varchar_70 varchar ,col_varchar_71 varchar ,col_varchar_72 varchar ,col_varchar_73 varchar ,col_varchar_74 varchar ,col_varchar_75 varchar ,col_varchar_76 varchar ,col_varchar_77 varchar ,col_varchar_78 varchar ,col_varchar_79 varchar ,col_varchar_80 varchar ,col_varchar_81 varchar ,col_varchar_82 varchar ,col_varchar_83 varchar ,col_varchar_84 varchar ,col_varchar_85 varchar ,col_varchar_86 varchar ,col_varchar_87 varchar ,col_varchar_88 varchar ,col_varchar_89 varchar ,col_varchar_90 varchar ,col_varchar_91 varchar ,col_varchar_92 varchar ,col_varchar_93 varchar ,col_varchar_94 varchar ,col_varchar_95 varchar ,col_varchar_96 varchar ,col_varchar_97 varchar ,col_varchar_98 varchar ,col_varchar_99 varchar,PRIMARY KEY(col_varchar_id_1));
+
+        loadRules:
+            - table: pkey_rangescan_fullTable_2column_
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 128]
+                  - name: col_varchar_
+                    count: 1
+                    util: RandomAString
+                    params: [16, 16]
+            - table: pkey_rangescan_fullTable_10column_
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 128]
+                  - name: col_varchar_
+                    count: 9
+                    util: RandomAString
+                    params: [16, 16]
+            - table: pkey_rangescan_fullTable_25column_
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 128]
+                  - name: col_varchar_
+                    count: 24
+                    util: RandomAString
+                    params: [16, 16]
+            - table: pkey_rangescan_fullTable_100column_
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 128]
+                  - name: col_varchar_
+                    count: 99
+                    util: RandomAString
+                    params: [16, 16]
+
+        executeRules:
+            - workload: cattribG1_pg_pkey_rangescan_fullTable_table2column_fetch2column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table2column_fetch2column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_2column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG1_pg_pkey_rangescan_fullTable_table10column_fetch10column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table10column_fetch10column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_10column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG1_pg_pkey_rangescan_fullTable_table25column_fetch25column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table25column_fetch25column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_25column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            - workload: cattribG1_pg_pkey_rangescan_fullTable_table100column_fetch100column_1MRowsFetched
+              run:
+                  - name: pkey_rangescan_fullTable_table100column_fetch100column_1MRowsFetched
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_rangescan_fullTable_100column_1 where col_varchar_id_1 = '1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
