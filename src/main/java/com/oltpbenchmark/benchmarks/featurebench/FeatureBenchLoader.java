@@ -182,16 +182,26 @@ public class FeatureBenchLoader extends Loader<FeatureBenchBenchmark> {
                 int batchSize = workConf.getBatchSize();
                 StringBuilder columnString = new StringBuilder();
                 StringBuilder valueString = new StringBuilder();
-
-                for (Map<String, Object> columnsDetails : this.columns) {
+                for (int index=0; index < this.columns.size(); index++) {
+                    Map<String, Object> columnsDetails = this.columns.get(index);
                     if (columnsDetails.containsKey("count")) {
                         for (int i = 0; i < (int) columnsDetails.get("count"); i++) {
                             columnString.append(columnsDetails.get("name") + String.valueOf(i + 1)).append(",");
-                            valueString.append("?,");
+                            if (this.baseutils.get(index).getInstance().getClass().getName().
+                                toLowerCase().indexOf("json") >= 0)
+                                valueString.append("?::JSON,");
+                            else {
+                                valueString.append("?,");
+                            }
                         }
                     } else {
                         columnString.append(columnsDetails.get("name")).append(",");
-                        valueString.append("?,");
+                        if (this.baseutils.get(index).getInstance().getClass().getName().
+                            toLowerCase().indexOf("json") >= 0)
+                            valueString.append("?::JSON,");
+                        else {
+                            valueString.append("?,");
+                        }
                     }
 
                 }

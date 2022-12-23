@@ -8,10 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UtilToMethod {
+    private BaseUtil clsInstance;
 
-    public Method run;
-    public BaseUtil clsInstance;
-
+    public BaseUtil getInstance() {
+        return clsInstance;
+    }
     public UtilToMethod(Object util, Object params, int workerId, int totalWorkers) {
         String className = "com.oltpbenchmark.benchmarks.featurebench.utils." + util;
         try {
