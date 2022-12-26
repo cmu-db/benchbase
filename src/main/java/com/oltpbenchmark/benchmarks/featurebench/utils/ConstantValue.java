@@ -5,14 +5,14 @@ import java.util.List;
 
 public class ConstantValue implements BaseUtil {
 
-    List<Object> constantVal;
+    Object constantVal;
 
     public ConstantValue(List<Object> values) {
-        if (values.size() == 0) {
+        if (values.size() != 1) {
             throw new RuntimeException("Incorrect number of parameters for util function "
                 + this.getClass());
         }
-        this.constantVal = values;
+        this.constantVal = values.get(0);
     }
 
     @Override

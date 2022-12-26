@@ -57,7 +57,6 @@ public class GenerateRandomString implements BaseUtil {
     private void generateList() {
         for (int i = 0; i < sizeOfStringArray; i++) {
             RandomStringGen.add((String) new RandomStringAlphabets(List.of(desiredLength)).run());
-            System.out.println(RandomStringGen.get(i));
         }
     }
 

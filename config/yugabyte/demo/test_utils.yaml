@@ -1,0 +1,121 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 10
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit : true
+        create:
+            - DROP TABLE IF EXISTS STUDENTS;
+            - DROP TABLE IF EXISTS ALUMNI;
+            - DROP TABLE IF EXISTS USERS;
+            - DROP TABLE IF EXISTS CUSTOMERS;
+            - DROP TABLE IF EXISTS EMPLOYEE;
+            - CREATE TABLE STUDENTS(id text PRIMARY KEY, name text,subject text,merits int, time1 DATE,time2 text,time3 text,cgpa numeric(6,2),standard int)
+            - CREATE TABLE ALUMNI(regno text,is_2022_passout boolean,passoutYear text,no_of_subjects int, savings int)
+            - CREATE TABLE users (id uuid PRIMARY KEY, name varchar(255), customer_code text, credits int,total_expenditure bigint,date_issue DATE);
+            - CREATE TABLE customers(id serial primary key,cid text, customer_points numeric(5,2));
+            - CREATE TABLE employee(id serial primary key, basic_sal bigint, variable_sal int,hra bigint,ppa int)
+        loadRules:
+            -   table: students
+                rows: 10
+                columns:
+                    -   name: id
+                        util: PrimaryStringGen
+                        params: [1,5]
+                    -   name: name
+                        util: GenerateRandomString
+                        params: [5,4]
+                    -   name : subject
+                        util: OneStringFromArray
+                        params : ["maths","computer","english","physics"]
+                    -   name : merits
+                        util : OneNumberFromArray
+                        params: [1,2,3,5,7]
+                    -   name: time1
+                        util: CurrentTime
+                    -   name: time2
+                        util: CurrentTimeString
+                    -   name: time3
+                        util: CurrentTimeString14
+                    -   name: cgpa
+                        util: RandomNormalFloat
+                        params: [5,2]
+                    -   name: standard
+                        util: ConstantValue
+                        params: [5.5]
+            -   table: alumni
+                rows: 10
+                columns:
+                    -   name: regno
+                        util: PrimaryStringGen
+                        params: [1,5]
+                    -   name: is_2022_passout
+                        util: RandomBoolean
+                    -   name : passoutYear
+                        util: RandomDate
+                        params : [2013,2022]
+                    -   name : no_of_subjects
+                        util: RandomInt
+                        params : [5,8]
+                    -   name: savings
+                        util: RandomNumberDefault
+            -   table: users
+                rows: 10
+                columns:
+                    -   name: id
+                        util: RandomUUID
+                    -   name: name
+                        util: RandomStringAlphabets
+                        params: [7]
+                    -   name: customer_code
+                        util: RandomStringNumeric
+                        params: [5]
+                    -   name : credits
+                        util : RandomNumber
+                        params : [1,10]
+                    -   name: total_expenditure
+                        util: RandomLong
+                        params : [223372036854775808, 9223372036854775807]
+                    -   name: date_issue
+                        util: RandomDateBtwYears
+                        params: [2013,2022]
+            -   table: customers
+                rows: 10
+                columns:
+                    -   name: cid
+                        util: RandomNstring
+                        params: [4,6]
+                    -   name: customer_points
+                        util : RandomNoWithDecimalPoints
+                        params: [4,5,2]
+            -   table: employee
+                rows: 10
+                columns:
+                    -   name: basic_sal
+                        util: RowRandomBoundedLong
+                        params: [100000000,2000000000]
+                    -   name: variable_sal
+                        util: RowRandomBoundedInt
+                        params: [10000,20000]
+                    -   name: hra
+                        util: RandomNormalLong
+                        params: [1000000,20000]
+                    -   name: ppa
+                        util: RandomNormalInt
+                        params: [10000,2000]
+
+
+
