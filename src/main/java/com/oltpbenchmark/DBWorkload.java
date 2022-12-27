@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
@@ -999,7 +1000,7 @@ public class DBWorkload {
         if (renderResult.getErrors().isEmpty()) {
 
             String newYaml = jinjava.render(template, context);
-            String newPath = file.substring(0, file.lastIndexOf("/") + 1) + "temp_input.yaml";
+            String newPath = Paths.get("").toAbsolutePath() + "/temp_input.yaml";
             File newfile = new File(newPath);
 
             if (!newfile.exists()) {
