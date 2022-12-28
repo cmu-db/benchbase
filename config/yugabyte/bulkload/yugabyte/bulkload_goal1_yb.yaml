@@ -20,7 +20,7 @@ microbenchmark:
         # Goal 1 - 1 :: create table with PK -> load data (no index)
         tableName: orders
         columns: 15
-        rows: 3000
+        rows: 3000000
         indexes: 0
         filePath: orders.csv
         stringLength: 32
@@ -28,7 +28,7 @@ microbenchmark:
 #        # Goal 1 - 2 :: create table with PK -> create 1 index -> load data (1 index)
 #        tableName: orders
 #        columns: 15
-#        rows: 3000
+#        rows: 3000000
 #        indexes: 1
 #        filePath: orders.csv
 #        stringLength: 32
