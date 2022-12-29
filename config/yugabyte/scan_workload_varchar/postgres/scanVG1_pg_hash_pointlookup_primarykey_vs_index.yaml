@@ -1,0 +1,118 @@
+#TEST FOR POSTGRES
+#GOAL1 from tab Scan queries of doc https://docs.google.com/spreadsheets/d/1-M1i5tWJQJdbmtv7mz_20MZsT2Oqh_T3-6m12qKAMcA/edit#gid=796784261:
+#    Range Primary lookup vs Range Index lookup (Index Scan)
+#TESTS:
+#    Time to fetch 1 row based (= operator) on a predicate column which is Range Primary key
+#    Time to fetch 1 row based (= operator) on a predicate column which is Range indexed
+type: POSTGRES
+driver: org.postgresql.Driver
+url: jdbc:postgresql://sgupta-pg-i-westc-validate.cbtcvpszcgdq.us-west-2.rds.amazonaws.com:5432/postgres?sslmode=require
+username: postgres
+password: Password321
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 180
+        active_terminals: 1
+        rate: unlimited
+        warmup: 60
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: true
+        create:
+
+            - DROP TABLE IF EXISTS pkey_hash_point_lookup_v100_tbl_1;
+            - DROP TABLE IF EXISTS indx_hash_point_lookup_v100_tbl_1;
+            - CREATE TABLE pkey_hash_point_lookup_v100_tbl_1(col_varchar100_id_1 varchar(100), col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_bigint_6 bigint,col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_1 varchar(10), col_varchar100_1 varchar(100), col_varchar500_1 varchar(500), PRIMARY KEY(col_varchar100_id_1));
+            - CREATE TABLE indx_hash_point_lookup_v100_tbl_1(col_varchar100_id_1 varchar(100), col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_bigint_6 bigint,col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_1 varchar(10), col_varchar100_1 varchar(100), col_varchar500_1 varchar(500));
+            - CREATE INDEX ON indx_hash_point_lookup_v100_tbl_1(col_varchar100_id_1);
+        loadRules:
+            - table: pkey_hash_point_lookup_v100_tbl_
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar100_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 100]
+                  - name: col_bigint_
+                    count: 6
+                    util: RandomNumber
+                    params: [1, 1000000]
+                  - name: col_float2_
+                    count: 2
+                    util: RandomNoWithDecimalPoints
+                    params: [1, 1000000, 2]
+                  - name: col_float5_
+                    count: 2
+                    util: RandomNoWithDecimalPoints
+                    params: [1, 1000000, 5]
+                  - name: col_boolean_
+                    count: 1
+                    util: RandomBoolean
+                  - name: col_varchar10_
+                    count: 1
+                    util: RandomAString
+                    params: [10, 10]
+                  - name: col_varchar100_
+                    count: 1
+                    util: RandomAString
+                    params: [100, 100]
+                  - name: col_varchar500_
+                    count: 1
+                    util: RandomAString
+                    params: [500, 500]
+            - table: indx_hash_point_lookup_v100_tbl_
+              count: 1
+              rows: 1000000
+              columns:
+                  - name: col_varchar100_id_
+                    count: 1
+                    util: PrimaryStringGen
+                    params: [1, 100]
+                  - name: col_bigint_
+                    count: 6
+                    util: RandomNumber
+                    params: [1, 1000000]
+                  - name: col_float2_
+                    count: 2
+                    util: RandomNoWithDecimalPoints
+                    params: [1, 1000000, 2]
+                  - name: col_float5_
+                    count: 2
+                    util: RandomNoWithDecimalPoints
+                    params: [1, 1000000, 5]
+                  - name: col_boolean_
+                    count: 1
+                    util: RandomBoolean
+                  - name: col_varchar10_
+                    count: 1
+                    util: RandomAString
+                    params: [10, 10]
+                  - name: col_varchar100_
+                    count: 1
+                    util: RandomAString
+                    params: [100, 100]
+                  - name: col_varchar500_
+                    count: 1
+                    util: RandomAString
+                    params: [500, 500]
+        executeRules:
+            - workload: scanVG1_pg_pkey_v100_hash_point_lookup
+              run:
+                  - name: pkey_v100_hash_point_lookup_test
+                    weight: 100
+                    queries:
+                        - query: select * from pkey_hash_point_lookup_v100_tbl_1 where col_varchar100_id_1='500009aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+            - workload: scanVG1_pg_indx_v100_hash_point_lookup
+              run:
+                  - name: indx_v100_hash_point_lookup_test
+                    weight: 100
+                    queries:
+                        - query: select * from indx_hash_point_lookup_v100_tbl_1 where col_varchar100_id_1='500009aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
