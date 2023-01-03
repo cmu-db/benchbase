@@ -53,7 +53,7 @@ microbenchmark:
                   -   name: WriteQuery2
                       weight: 50
                       queries:
-                          -   query: UPDATE demo100col set col3 = ? where id = ?
+                          -   query: UPDATE demo100col set col1 = ? where id = ?
                               bindings:
                                   -   util: RandomAString
                                       params:
