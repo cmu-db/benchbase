@@ -852,17 +852,22 @@ public class DBWorkload {
             }
         }
 
-        if (!name.equalsIgnoreCase("featurebench")) {
-            String configFileName = baseFileName + ".config.xml";
-            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
-                LOG.info("Output benchmark config into file: {}", configFileName);
-                rw.writeConfig(ps);
-            }
-        } else {
+        if (name.equalsIgnoreCase("featurebench")) {
             String configFileName = baseFileName + ".config.yaml";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
                 LOG.info("Output benchmark config into file: {}", configFileName);
                 rw.writeYamlConfig(ps);
+            }
+            String fbDetailedFileName = baseFileName + ".detailed.json";
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fbDetailedFileName))) {
+                LOG.info("Output detailed summary into file: {}", fbDetailedFileName);
+                rw.writeDetailedSummary(ps);
+            }
+        } else {
+            String configFileName = baseFileName + ".config.xml";
+            try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, configFileName))) {
+                LOG.info("Output benchmark config into file: {}", configFileName);
+                rw.writeConfig(ps);
             }
         }
 

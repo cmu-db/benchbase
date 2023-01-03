@@ -157,6 +157,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             jsonObject.put("Time(ms) ", explainEnd - explainStart);
             summaryMap.put("ExplainSQL" + count, jsonObject);
         }
+        this.featurebenchAdditionalResults.setExplainAnalyze(summaryMap);
         os.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
     }
 
@@ -243,7 +244,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
                         for (int i = 0; i < allqueries.size(); i++) {
                             allqueryStrings.add(allqueries.get(i).getQuery());
                         }
-                        excutePgStatStatements(allqueryStrings);
+                        executePgStatStatements(allqueryStrings);
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
@@ -268,7 +269,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         }
     }
 
-    private void excutePgStatStatements(List<String> allqueries) throws SQLException {
+    private void executePgStatStatements(List<String> allQueries) throws SQLException {
         String pgStatDDL = "select * from pg_stat_statements;";
         String PgStatsDir = "ResultsForPgStats";
         FileUtil.makeDirIfNotExists("results" + "/" + PgStatsDir);
@@ -301,7 +302,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
         JSONObject outerQueries = new JSONObject();
         int minDistance;
         String keymatters;
-        for (String query : allqueries) {
+        for (String query : allQueries) {
             minDistance = Integer.MAX_VALUE;
             keymatters = null;
             JSONObject allrecords = summaryMap.get("PgStats");
@@ -315,12 +316,14 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             }
             outerQueries.put(keymatters, allrecords.get(keymatters));
         }
-        Map<String, JSONObject> QueryMap = new TreeMap<>();
-        QueryMap.put("PgStats", outerQueries);
-        if (allqueries.size() == 0) {
+        Map<String, JSONObject> queryMap = new TreeMap<>();
+        queryMap.put("PgStats", outerQueries);
+        if (allQueries.size() == 0) {
             ps.println(JSONUtil.format(JSONUtil.toJSONString(summaryMap)));
+            this.featurebenchAdditionalResults.setPgStats(outer);
         } else {
-            ps.println(JSONUtil.format(JSONUtil.toJSONString(QueryMap)));
+            ps.println(JSONUtil.format(JSONUtil.toJSONString(queryMap)));
+            this.featurebenchAdditionalResults.setPgStats(outerQueries);
         }
         isTearDownDone = true;
     }

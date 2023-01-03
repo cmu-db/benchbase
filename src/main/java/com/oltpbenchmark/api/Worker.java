@@ -19,6 +19,7 @@ package com.oltpbenchmark.api;
 
 import com.oltpbenchmark.*;
 import com.oltpbenchmark.api.Procedure.UserAbortException;
+import com.oltpbenchmark.benchmarks.featurebench.FeaturebenchAdditionalResults;
 import com.oltpbenchmark.types.DatabaseType;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.types.TransactionStatus;
@@ -60,6 +61,7 @@ public abstract class Worker<T extends BenchmarkModule> implements Runnable {
     private WorkloadState workloadState;
     private LatencyRecord latencies;
     private boolean seenDone = false;
+    public final FeaturebenchAdditionalResults featurebenchAdditionalResults = new FeaturebenchAdditionalResults();
 
     public Worker(T benchmark, int id) {
         this.id = id;

@@ -20,6 +20,7 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.TransactionType;
+import com.oltpbenchmark.benchmarks.featurebench.FeaturebenchAdditionalResults;
 import com.oltpbenchmark.util.Histogram;
 
 import java.util.HashMap;
@@ -39,6 +40,7 @@ public final class Results {
     private final Histogram<TransactionType> error = new Histogram<>(false);
     private final Histogram<TransactionType> retryDifferent = new Histogram<>(false);
     private final Map<TransactionType, Histogram<String>> abortMessages = new HashMap<>();
+    private final FeaturebenchAdditionalResults featurebenchAdditionalResults = new FeaturebenchAdditionalResults();
 
     public Results(long nanoseconds, int measuredRequests, DistributionStatistics distributionStatistics, final List<LatencyRecord.Sample> latencySamples) {
         this.nanoseconds = nanoseconds;
@@ -80,6 +82,10 @@ public final class Results {
 
     public Histogram<TransactionType> getRetryDifferent() {
         return retryDifferent;
+    }
+
+    public FeaturebenchAdditionalResults getFeaturebenchAdditionalResults() {
+        return featurebenchAdditionalResults;
     }
 
     public Map<TransactionType, Histogram<String>> getAbortMessages() {

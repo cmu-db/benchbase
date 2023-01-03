@@ -236,5 +236,24 @@ public class ResultWriter {
         }
     }
 
-
+    public void writeDetailedSummary(PrintStream os) {
+        Map<String, Object> summaryMap = new TreeMap<>();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        Date now = new Date();
+        summaryMap.put("Current Timestamp (milliseconds)", now.getTime());
+        summaryMap.put("DBMS Type", dbType);
+        summaryMap.put("DBMS Version", collector.collectVersion());
+        summaryMap.put("Benchmark Type", benchType);
+        summaryMap.put("Latency Distribution", results.getDistributionStatistics().toMap());
+        summaryMap.put("Throughput (requests/second)", results.requestsPerSecondThroughput());
+        summaryMap.put("Goodput (requests/second)", results.requestsPerSecondGoodput());
+        for (String field : BENCHMARK_KEY_FIELD) {
+            summaryMap.put(field, expConf.getString(field));
+        }
+        Map<String, Object> detailedSummaryMap = new TreeMap<>();
+        detailedSummaryMap.put("Summary", summaryMap);
+        detailedSummaryMap.put("pg_stat_statements", results.getFeaturebenchAdditionalResults().getPgStats().toMap());
+        detailedSummaryMap.put("explainAnalyze", results.getFeaturebenchAdditionalResults().getExplainAnalyze());
+        os.println(JSONUtil.format(JSONUtil.toJSONString(detailedSummaryMap)));
+    }
 }
