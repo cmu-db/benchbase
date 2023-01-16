@@ -236,7 +236,7 @@ public class ResultWriter {
         }
     }
 
-    public void writeDetailedSummary(PrintStream os) {
+    public Map<String, Object> writeDetailedSummary(PrintStream os) {
         Map<String, Object> summaryMap = new TreeMap<>();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         Date now = new Date();
@@ -252,8 +252,8 @@ public class ResultWriter {
         }
         Map<String, Object> detailedSummaryMap = new TreeMap<>();
         detailedSummaryMap.put("Summary", summaryMap);
-        detailedSummaryMap.put("pg_stat_statements", results.getFeaturebenchAdditionalResults().getPgStats().toMap());
-        detailedSummaryMap.put("explainAnalyze", results.getFeaturebenchAdditionalResults().getExplainAnalyze());
+        detailedSummaryMap.put("queries", results.getFeaturebenchAdditionalResults().getJsonResultsList());
         os.println(JSONUtil.format(JSONUtil.toJSONString(detailedSummaryMap)));
+        return detailedSummaryMap;
     }
 }

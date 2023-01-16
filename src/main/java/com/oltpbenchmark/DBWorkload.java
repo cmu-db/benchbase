@@ -19,6 +19,10 @@
 package com.oltpbenchmark;
 
 
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.hubspot.jinjava.Jinjava;
 import com.hubspot.jinjava.JinjavaConfig;
 import com.hubspot.jinjava.interpret.RenderResult;
@@ -804,6 +808,9 @@ public class DBWorkload {
         // If an output directory is used, store the information
         String outputDirectory = "results";
 
+        String filePathForOutputJson = "results/output.json";
+        Map<String, Map<String, Object>> workloadToSummaryMap = new TreeMap<>();
+
         if (argsLine.hasOption("d")) {
             outputDirectory = argsLine.getOptionValue("d");
         }
@@ -861,7 +868,21 @@ public class DBWorkload {
             String fbDetailedFileName = baseFileName + ".detailed.json";
             try (PrintStream ps = new PrintStream(FileUtil.joinPath(outputDirectory, fbDetailedFileName))) {
                 LOG.info("Output detailed summary into file: {}", fbDetailedFileName);
-                rw.writeDetailedSummary(ps);
+                File file = new File(filePathForOutputJson);
+                if (file.exists()) {
+                    ObjectMapper mapper = new ObjectMapper(new JsonFactory());
+                    workloadToSummaryMap.putAll(mapper.readValue(file, TreeMap.class));
+                }
+                workloadToSummaryMap.put(workload_name, rw.writeDetailedSummary(ps));
+
+                try {
+                    FileWriter writer = new FileWriter(filePathForOutputJson);
+                    writer.write(JSONUtil.format(JSONUtil.toJSONString(workloadToSummaryMap)));
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         } else {
             String configFileName = baseFileName + ".config.xml";

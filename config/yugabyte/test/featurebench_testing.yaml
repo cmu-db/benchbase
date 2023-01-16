@@ -1,0 +1,97 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://localhost:5433/yugabyte?sslmode=disable&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: yugabyte
+password:
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 1
+terminals: 1
+#collect_pg_stat_statements: false
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 3
+        rate: 1000
+        warmup: 0
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit : true
+        create:
+            - DROP TABLE IF EXISTS demo1;
+            - CREATE TABLE demo1 (id INT);
+            - DROP TABLE IF EXISTS demo2;
+            - CREATE TABLE demo2 (id INT);
+            - DROP TABLE IF EXISTS demo3;
+            - CREATE TABLE demo3 (id INT);
+            - DROP TABLE IF EXISTS demo3col;
+            - CREATE TABLE demo3col (id INT, col1 TEXT, col2 TEXT, col3 TEXT)
+        loadRules:
+            -   table: demo3col
+                rows: 10
+                columns:
+                    -   name: id
+                        util: PrimaryIntGen
+                        params:
+                            - 1
+                            - 1000
+                    -   name: col
+                        count: 3
+                        util: RandomStringNumeric
+                        params:
+                            - 128
+        executeRules:
+            - workload: test1
+              run:
+                  -   name: INSERT1
+                      weight: 50
+                      queries:
+                          -   query: INSERT INTO demo1(id) values (?)
+                              count : 3
+                              bindings:
+                                  -   util: RandomNumber
+                                      params:
+                                          - 1
+                                          - 1000
+                          -   query: INSERT INTO demo2(id) values (?)
+                              bindings:
+                                  -   util: RandomNumber
+                                      params:
+                                          - 1
+                                          - 1000
+                  -   name: INSERT2
+                      weight: 50
+                      queries:
+                          -   query: INSERT INTO demo3(id) values (?)
+                              bindings:
+                                  -   util: RandomNumber
+                                      params:
+                                          - 1
+                                          - 1000
+            - workload: test2
+              run:
+                  -   name: ReadQuery1
+                      weight: 50
+                      queries:
+                          -   query: SELECT * FROM demo3col WHERE id < 10
+
+                  -   name: WriteQuery1
+                      weight: 50
+                      queries:
+                          -   query: UPDATE demo3col set col2 = ? where id = ?
+                              bindings:
+                                  -   util: RandomAString
+                                      params:
+                                          - 10
+                                          - 20
+                                  -   util: RandomNumber
+                                      params:
+                                          - 1
+                                          - 1000
+
+
+
+
+
+

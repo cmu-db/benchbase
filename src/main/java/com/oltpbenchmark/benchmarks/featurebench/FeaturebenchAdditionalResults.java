@@ -1,35 +1,19 @@
 package com.oltpbenchmark.benchmarks.featurebench;
 
 import org.json.JSONObject;
+import java.util.List;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class FeaturebenchAdditionalResults {
+    List<JSONObject> jsonResultsList;
 
-    public Map<String, JSONObject> explainAnalyze = null;
-
-    public JSONObject pgStats = null;
-
-    public FeaturebenchAdditionalResults() {
-        this.explainAnalyze = new HashMap<>();
-        this.pgStats = new JSONObject();
+    public List<JSONObject> getJsonResultsList() {
+        return jsonResultsList;
     }
 
-    public Map<String, JSONObject> getExplainAnalyze() {
-        return explainAnalyze;
-    }
+    public void setJsonResultsList(List<JSONObject> jsonResultsList) {
+        this.jsonResultsList = jsonResultsList;
 
-    public void setExplainAnalyze(Map<String, JSONObject> explainAnalyze) {
-        this.explainAnalyze = explainAnalyze;
-    }
-
-    public JSONObject getPgStats() {
-        return pgStats;
-    }
-
-    public void setPgStats(JSONObject pgStats) {
-        this.pgStats = pgStats;
     }
 
 }
