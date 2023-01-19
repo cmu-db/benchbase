@@ -313,7 +313,7 @@ jobs:
     strategy:
       matrix:
         # TODO: add more benchmarks
-        benchmark: [ 'tpcc', 'tpch' ]
+        benchmark: [ 'tpcc', 'tpch', 'noop', 'twitter' ]
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
