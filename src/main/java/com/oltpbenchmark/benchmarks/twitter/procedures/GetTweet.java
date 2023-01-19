@@ -29,6 +29,7 @@ import java.sql.SQLException;
 public class GetTweet extends Procedure {
 
     public SQLStmt getTweet = new SQLStmt(
+            "/*monitor-getTweet*/" +
             "SELECT * FROM " + TwitterConstants.TABLENAME_TWEETS + " WHERE id = ?"
     );
 

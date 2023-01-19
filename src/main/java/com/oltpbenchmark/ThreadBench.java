@@ -21,6 +21,8 @@ import com.oltpbenchmark.LatencyRecord.Sample;
 import com.oltpbenchmark.api.BenchmarkModule;
 import com.oltpbenchmark.api.TransactionType;
 import com.oltpbenchmark.api.Worker;
+import com.oltpbenchmark.api.collectors.monitoring.Monitor;
+import com.oltpbenchmark.api.collectors.monitoring.MonitorGen;
 import com.oltpbenchmark.types.State;
 import com.oltpbenchmark.util.StringUtil;
 import org.apache.commons.collections4.map.ListOrderedMap;
@@ -38,6 +40,8 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
     private final List<WorkloadConfiguration> workConfs;
     private final ArrayList<LatencyRecord.Sample> samples = new ArrayList<>();
     private final int intervalMonitor;
+
+    private Monitor monitor = null;
 
     private ThreadBench(List<? extends Worker<? extends BenchmarkModule>> workers,
             List<WorkloadConfiguration> workConfs, int intervalMonitoring) {
@@ -111,16 +115,10 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         this.createWorkerThreads();
 
-        // long measureStart = start;
+        Phase phase = null;
 
-        long start = System.nanoTime();
-        long warmupStart = System.nanoTime();
-        long warmup = warmupStart;
-        long measureEnd = -1;
         // used to determine the longest sleep interval
         int lowestRate = Integer.MAX_VALUE;
-
-        Phase phase = null;
 
         for (WorkloadState workState : workStates) {
             workState.switchToNextPhase();
@@ -140,6 +138,11 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
         }
 
+        long start = System.nanoTime();
+        long warmupStart = System.nanoTime();
+        long warmup = warmupStart;
+        long measureEnd = -1;
+
         long intervalNs = getInterval(lowestRate, phase.getArrival());
 
         long nextInterval = start + intervalNs;
@@ -153,7 +156,9 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
 
         // Initialize the Monitor
         if (this.intervalMonitor > 0) {
-            new MonitorThread(this.intervalMonitor).start();
+            this.monitor = MonitorGen.getMonitor(
+                    this.intervalMonitor, this.testState, this.workers, this.workConfs.get(0));
+            this.monitor.start();
         }
 
         // Allow workers to start work.
@@ -292,6 +297,20 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
                 // Time to quit.
                 break;
             }
+        }
+
+        // Stop the monitoring thread separately from cleanup all the workers so
+        // we can ignore errors from these threads (including possible
+        // SQLExceptions), but not the others.
+        try {
+            if (this.monitor != null) {
+                this.monitor.interrupt();
+                this.monitor.join(60000); // wait for 60second for monitor thread to rejoin
+                this.monitor.tearDown();
+            }
+        }
+        catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
 
         try {
@@ -504,43 +523,4 @@ public class ThreadBench implements Thread.UncaughtExceptionHandler {
             }
         }
     }
-
-    private class MonitorThread extends Thread {
-        private final int intervalMonitor;
-
-        {
-            this.setDaemon(true);
-        }
-
-        /**
-         * @param interval How long to wait between polling in milliseconds
-         */
-        MonitorThread(int interval) {
-            this.intervalMonitor = interval;
-        }
-
-        @Override
-        public void run() {
-            LOG.info("Starting MonitorThread Interval [{}ms]", this.intervalMonitor);
-            while (true) {
-                try {
-                    Thread.sleep(this.intervalMonitor);
-                } catch (InterruptedException ex) {
-                    return;
-                }
-
-                // Compute the last throughput
-                long measuredRequests = 0;
-                synchronized (testState) {
-                    for (Worker<?> w : workers) {
-                        measuredRequests += w.getAndResetIntervalRequests();
-                    }
-                }
-                double seconds = this.intervalMonitor / 1000d;
-                double tps = (double) measuredRequests / seconds;
-                LOG.info("Throughput: {} txn/sec", tps);
-            }
-        }
-    }
-
 }

@@ -29,6 +29,7 @@ import java.sql.SQLException;
 public class Q2 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q02*/
              SELECT
                 s_acctbal,
                 s_name,

@@ -29,6 +29,7 @@ import java.sql.SQLException;
 public class Q8 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q08*/
             SELECT
                o_year,
                SUM(

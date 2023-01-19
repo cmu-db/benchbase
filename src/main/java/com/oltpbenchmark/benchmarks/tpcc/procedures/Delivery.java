@@ -34,6 +34,7 @@ public class Delivery extends TPCCProcedure {
     private static final Logger LOG = LoggerFactory.getLogger(Delivery.class);
 
     public SQLStmt delivGetOrderIdSQL = new SQLStmt(
+            "/*monitor-delivGetOrderIdSQL*/ " +
             "SELECT NO_O_ID FROM " + TPCCConstants.TABLENAME_NEWORDER +
             " WHERE NO_D_ID = ? " +
             "   AND NO_W_ID = ? " +
@@ -41,18 +42,21 @@ public class Delivery extends TPCCProcedure {
             " LIMIT 1");
 
     public SQLStmt delivDeleteNewOrderSQL = new SQLStmt(
+            "/*monitor-delivDeleteNewOrderSQL*/ " +
             "DELETE FROM " + TPCCConstants.TABLENAME_NEWORDER +
             " WHERE NO_O_ID = ? " +
             "   AND NO_D_ID = ?" +
             "   AND NO_W_ID = ?");
 
     public SQLStmt delivGetCustIdSQL = new SQLStmt(
+            "/*monitor-delivGetCustIdSQL*/ " +
             "SELECT O_C_ID FROM " + TPCCConstants.TABLENAME_OPENORDER +
             " WHERE O_ID = ? " +
             "   AND O_D_ID = ? " +
             "   AND O_W_ID = ?");
 
     public SQLStmt delivUpdateCarrierIdSQL = new SQLStmt(
+            "/*monitor-delivUpdateCarrierIdSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_OPENORDER +
             "   SET O_CARRIER_ID = ? " +
             " WHERE O_ID = ? " +
@@ -60,6 +64,7 @@ public class Delivery extends TPCCProcedure {
             "   AND O_W_ID = ?");
 
     public SQLStmt delivUpdateDeliveryDateSQL = new SQLStmt(
+            "/*monitor-delivUpdateDeliveryDateSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_ORDERLINE +
             "   SET OL_DELIVERY_D = ? " +
             " WHERE OL_O_ID = ? " +
@@ -67,6 +72,7 @@ public class Delivery extends TPCCProcedure {
             "   AND OL_W_ID = ? ");
 
     public SQLStmt delivSumOrderAmountSQL = new SQLStmt(
+            "/*monitor-delivSumOrderAmountSQL*/ " +
             "SELECT SUM(OL_AMOUNT) AS OL_TOTAL " +
             "  FROM " + TPCCConstants.TABLENAME_ORDERLINE +
             " WHERE OL_O_ID = ? " +
@@ -74,6 +80,7 @@ public class Delivery extends TPCCProcedure {
             "   AND OL_W_ID = ?");
 
     public SQLStmt delivUpdateCustBalDelivCntSQL = new SQLStmt(
+            "/*monitor-delivUpdateCustBalDelivCntSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
             "   SET C_BALANCE = C_BALANCE + ?," +
             "       C_DELIVERY_CNT = C_DELIVERY_CNT + 1 " +

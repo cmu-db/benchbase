@@ -1,0 +1,132 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+package com.oltpbenchmark.api.collectors.monitoring.proto;
+
+option java_multiple_files = true;
+
+// Enum for string values.
+// Next id: 2
+enum StringType {
+    QUERY_TEXT = 0;
+    QUERY_PLAN = 1;
+    IDENTIFIER = 2;
+    PLAN_HANDLE = 3;
+}
+
+// Enum for long values.
+// Next id: 42
+enum LongType {
+    EXECUTION_COUNT = 0;
+    MIN_WORKER_TIME = 1;
+    MAX_WORKER_TIME = 2;
+    TOTAL_WORKER_TIME = 3;
+    MIN_PHYSICAL_READS = 4;
+    MAX_PHYSICAL_READS = 5;
+    TOTAL_PHYSICAL_READS = 6;
+    MIN_ELAPSED_TIME = 7;
+    MAX_ELAPSED_TIME = 8;
+    TOTAL_ELAPSED_TIME = 9;
+    MIN_ROWS = 10;
+    MAX_ROWS = 11;
+    TOTAL_ROWS = 12;
+    MIN_SPILLS = 13;
+    MAX_SPILLS = 14;
+    TOTAL_SPILLS = 15;
+    USED_MEMORY = 16;
+    TARGET_MEMORY = 17;
+    CPU_USAGE_PERC = 18;
+    CPU_EFFECTIVE_PERC = 19;
+    CPU_VIOLATED_PERC = 20;
+    TOTAL_LOGICAL_WRITES = 21;
+    MIN_LOGICAL_WRITES = 22;
+    MAX_LOGICAL_WRITES = 23;
+    TOTAL_LOGICAL_READS = 24;
+    MIN_LOGICAL_READS = 25;
+    MAX_LOGICAL_READS = 26;
+    TOTAL_USED_GRANT_KB = 27;
+    MIN_USED_GRANT_KB = 28;
+    MAX_USED_GRANT_KB = 29;
+    TOTAL_USED_THREADS = 30;
+    MIN_USED_THREADS = 31;
+    MAX_USED_THREADS = 32;
+    CPU_USAGE_PERC_BASE = 33;
+    CPU_EFFECTIVE_PERC_BASE = 34;
+    CPU_USAGE_TARGET_PERC = 35;
+    DISK_READ_IOPS = 36;
+    DISK_WRITE_IOPS = 37;
+    LOCKS_AVG_WAIT_TIME = 38;
+    LOCKS_AVG_WAIT_TIME_BASE = 39;
+    LOCK_REQUESTS = 40;
+    MS_TICKS = 41;
+}
+
+// Proto representation for one-off query metrics logged through BenchBase.
+message QueryInfo {
+    optional string identifier = 1;
+
+    // Encodes a pair of info type and value.
+    // Next id: 5
+    message InfoPair {
+        oneof type {
+            StringType string_type = 1;
+            LongType long_type = 2;
+        }
+        oneof value {
+            string string_value = 3;
+            int64 long_value = 4;
+        } 
+    }
+    repeated InfoPair info_pair = 3;
+}
+
+// Encodes one-off query info in a log.
+// Next id: 2
+message QueryInfoLog {
+    repeated QueryInfo info = 1;
+}
+
+// Proto representation for query metrics logged through BenchBase.
+// Next id: 4
+message QueryEvent {
+	optional string identifier = 1;
+    optional google.protobuf.Timestamp timestamp = 2;
+    
+    // Encodes a pair of event type and value.
+    // Next id: 5
+    message EventPair {
+        oneof type {
+            StringType string_type = 1;
+            LongType long_type = 2;
+        }
+        oneof value {
+            string string_value = 3;
+            int64 long_value = 4;
+        } 
+    }
+    repeated EventPair event_pair = 3;
+}
+
+// Encodes query events in a log.
+// Next id: 2
+message QueryEventLog {
+    repeated QueryEvent event = 1;
+}
+
+message PerfEvent {
+    optional google.protobuf.Timestamp timestamp = 1;
+
+    // Encodes a pair of event type and value.
+    // Next id: 5
+    message EventPair {
+        LongType long_type = 1;
+        int64 long_value = 2;
+    }
+    repeated EventPair event_pair = 2;
+}
+
+// Encodes performance events in a log.
+// Next id: 2
+message PerfEventLog {
+    repeated PerfEvent event = 1;
+}

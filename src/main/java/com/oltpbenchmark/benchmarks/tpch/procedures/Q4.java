@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class Q4 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q04*/
             SELECT
                o_orderpriority,
                COUNT(*) AS order_count

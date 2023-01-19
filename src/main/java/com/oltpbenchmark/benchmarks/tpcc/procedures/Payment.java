@@ -38,28 +38,33 @@ public class Payment extends TPCCProcedure {
     private static final Logger LOG = LoggerFactory.getLogger(Payment.class);
 
     public SQLStmt payUpdateWhseSQL = new SQLStmt(
+            "/*monitor-payUpdateWhseSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE +
             "   SET W_YTD = W_YTD + ? " +
             " WHERE W_ID = ? ");
 
     public SQLStmt payGetWhseSQL = new SQLStmt(
+            "/*monitor-payGetWhseSQL*/ " +
             "SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME" +
             "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE +
             " WHERE W_ID = ?");
 
     public SQLStmt payUpdateDistSQL = new SQLStmt(
+            "/*monitor-payUpdateDistSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_DISTRICT +
             "   SET D_YTD = D_YTD + ? " +
             " WHERE D_W_ID = ? " +
             "   AND D_ID = ?");
 
     public SQLStmt payGetDistSQL = new SQLStmt(
+            "/*monitor-payGetDistSQL*/ " +
             "SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME" +
             "  FROM " + TPCCConstants.TABLENAME_DISTRICT +
             " WHERE D_W_ID = ? " +
             "   AND D_ID = ?");
 
     public SQLStmt payGetCustSQL = new SQLStmt(
+            "/*monitor-payGetCustSQL*/ " +
             "SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, " +
             "       C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, " +
             "       C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
@@ -69,6 +74,7 @@ public class Payment extends TPCCProcedure {
             "   AND C_ID = ?");
 
     public SQLStmt payGetCustCdataSQL = new SQLStmt(
+            "/*monitor-payGetCustCdataSQL*/ " +
             "SELECT C_DATA " +
             "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
             " WHERE C_W_ID = ? " +
@@ -76,6 +82,7 @@ public class Payment extends TPCCProcedure {
             "   AND C_ID = ?");
 
     public SQLStmt payUpdateCustBalCdataSQL = new SQLStmt(
+        "/*monitor-payUpdateCustBalCdataSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
             "   SET C_BALANCE = ?, " +
             "       C_YTD_PAYMENT = ?, " +
@@ -86,6 +93,7 @@ public class Payment extends TPCCProcedure {
             "   AND C_ID = ?");
 
     public SQLStmt payUpdateCustBalSQL = new SQLStmt(
+            "/*monitor-payUpdateCustBalSQL*/ " +
             "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
             "   SET C_BALANCE = ?, " +
             "       C_YTD_PAYMENT = ?, " +
@@ -95,11 +103,13 @@ public class Payment extends TPCCProcedure {
             "   AND C_ID = ?");
 
     public SQLStmt payInsertHistSQL = new SQLStmt(
+            "/*monitor-payInsertHistSQL*/ " +
             "INSERT INTO " + TPCCConstants.TABLENAME_HISTORY +
             " (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) " +
             " VALUES (?,?,?,?,?,?,?,?)");
 
     public SQLStmt customerByNameSQL = new SQLStmt(
+            "/*monitor-customerByNameSQL*/ " +
             "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " +
             "       C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, " +
             "       C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +

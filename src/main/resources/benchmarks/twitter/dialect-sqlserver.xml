@@ -3,29 +3,35 @@
     <dialect type="SQLSERVER">
         <procedure name="GetTweet">
             <statement name="getTweet">
+                /*monitor-getTweet*/
                 SELECT * FROM "tweets" WHERE id = ?
             </statement>
         </procedure>
         <procedure name="GetTweetsFromFollowing">
             <statement name="getFollowing">
+                /*monitor-getTwtFolGetFollowing*/
                 SELECT TOP 20 f2 FROM "follows" WHERE f1 = ?
             </statement>
             <statement name="getTweets">
+                /*monitor-getTwtFolGetTweets*/
                 SELECT * FROM "tweets" WHERE uid IN (??)
             </statement>
-        </procedure>        
+        </procedure>
         <procedure name="GetFollowers">
             <statement name="getFollowers">
+                /*monitor-getFolGetFollowers*/
                 SELECT TOP 20 f2 FROM "followers" WHERE f1 = ?
             </statement>
             <statement name="getFollowerNames">
+                /*monitor-getFolGetFollowerNames*/
                 SELECT uid, name FROM "user_profiles" WHERE uid IN (??)
             </statement>
         </procedure>
         <procedure name="GetUserTweets">
             <statement name="getTweets">
+                /*monitor-getUserTweets*/
                 SELECT TOP 10 * FROM "tweets" WHERE uid = ?
             </statement>
         </procedure>
     </dialect>
-</dialects>    
+</dialects>

@@ -29,6 +29,7 @@ import java.sql.SQLException;
 public class Q21 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q21*/
             SELECT
                s_name,
                COUNT(*) AS numwait

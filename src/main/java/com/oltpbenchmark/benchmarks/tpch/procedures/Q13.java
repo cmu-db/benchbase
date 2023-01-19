@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class Q13 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q13*/
             SELECT
                c_count,
                COUNT(*) AS custdist

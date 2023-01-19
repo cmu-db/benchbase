@@ -34,6 +34,7 @@ public class NewOrder extends TPCCProcedure {
     private static final Logger LOG = LoggerFactory.getLogger(NewOrder.class);
 
     public final SQLStmt stmtGetCustSQL = new SQLStmt(
+            "/*monitor-stmtGetCustSQL*/" +
             "SELECT C_DISCOUNT, C_LAST, C_CREDIT" +
             "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
             " WHERE C_W_ID = ? " +
@@ -41,37 +42,44 @@ public class NewOrder extends TPCCProcedure {
             "   AND C_ID = ?");
 
     public final SQLStmt stmtGetWhseSQL = new SQLStmt(
+            "/*monitor-stmtGetWhseSQL*/" +
             "SELECT W_TAX " +
             "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE +
             " WHERE W_ID = ?");
 
     public final SQLStmt stmtGetDistSQL = new SQLStmt(
+            "/*monitor-stmtGetDistSQL*/" +
             "SELECT D_NEXT_O_ID, D_TAX " +
             "  FROM " + TPCCConstants.TABLENAME_DISTRICT +
             " WHERE D_W_ID = ? AND D_ID = ? FOR UPDATE");
 
     public final SQLStmt stmtInsertNewOrderSQL = new SQLStmt(
+            "/*monitor-stmtInsertNewOrderSQL*/" +
             "INSERT INTO " + TPCCConstants.TABLENAME_NEWORDER +
             " (NO_O_ID, NO_D_ID, NO_W_ID) " +
             " VALUES ( ?, ?, ?)");
 
     public final SQLStmt stmtUpdateDistSQL = new SQLStmt(
+            "/*monitor-stmtUpdateDistSQL*/" +
             "UPDATE " + TPCCConstants.TABLENAME_DISTRICT +
             "   SET D_NEXT_O_ID = D_NEXT_O_ID + 1 " +
             " WHERE D_W_ID = ? " +
             "   AND D_ID = ?");
 
     public final SQLStmt stmtInsertOOrderSQL = new SQLStmt(
+            "/*monitor-stmtInsertOOrderSQL*/" +
             "INSERT INTO " + TPCCConstants.TABLENAME_OPENORDER +
             " (O_ID, O_D_ID, O_W_ID, O_C_ID, O_ENTRY_D, O_OL_CNT, O_ALL_LOCAL)" +
             " VALUES (?, ?, ?, ?, ?, ?, ?)");
 
     public final SQLStmt stmtGetItemSQL = new SQLStmt(
+            "/*monitor-stmtGetItemSQL*/" +
             "SELECT I_PRICE, I_NAME , I_DATA " +
             "  FROM " + TPCCConstants.TABLENAME_ITEM +
             " WHERE I_ID = ?");
 
     public final SQLStmt stmtGetStockSQL = new SQLStmt(
+            "/*monitor-stmtGetStockSQL*/" +
             "SELECT S_QUANTITY, S_DATA, S_DIST_01, S_DIST_02, S_DIST_03, S_DIST_04, S_DIST_05, " +
             "       S_DIST_06, S_DIST_07, S_DIST_08, S_DIST_09, S_DIST_10" +
             "  FROM " + TPCCConstants.TABLENAME_STOCK +
@@ -79,6 +87,7 @@ public class NewOrder extends TPCCProcedure {
             "   AND S_W_ID = ? FOR UPDATE");
 
     public final SQLStmt stmtUpdateStockSQL = new SQLStmt(
+            "/*monitor-stmtUpdateStockSQL*/" +
             "UPDATE " + TPCCConstants.TABLENAME_STOCK +
             "   SET S_QUANTITY = ? , " +
             "       S_YTD = S_YTD + ?, " +
@@ -88,6 +97,7 @@ public class NewOrder extends TPCCProcedure {
             "   AND S_W_ID = ?");
 
     public final SQLStmt stmtInsertOrderLineSQL = new SQLStmt(
+            "/*monitor-stmtInsertOrderLineSQL*/" +
             "INSERT INTO " + TPCCConstants.TABLENAME_ORDERLINE +
             " (OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO) " +
             " VALUES (?,?,?,?,?,?,?,?,?)");

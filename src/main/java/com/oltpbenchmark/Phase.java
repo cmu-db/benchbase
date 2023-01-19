@@ -19,11 +19,16 @@ package com.oltpbenchmark;
 
 import com.oltpbenchmark.util.StringUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Phase {
+    private static final Logger LOG = LoggerFactory.getLogger(Phase.class);
+
     public enum Arrival {
         REGULAR, POISSON,
     }

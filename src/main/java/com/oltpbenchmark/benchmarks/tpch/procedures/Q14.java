@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class Q14 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q14*/
             SELECT
                100.00 * SUM(
                CASE

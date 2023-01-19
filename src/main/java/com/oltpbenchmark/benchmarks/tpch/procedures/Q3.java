@@ -30,6 +30,7 @@ import java.sql.SQLException;
 public class Q3 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q03*/
             SELECT
                l_orderkey,
                SUM(l_extendedprice * (1 - l_discount)) AS revenue,

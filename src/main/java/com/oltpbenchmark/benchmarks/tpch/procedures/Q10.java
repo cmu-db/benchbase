@@ -28,6 +28,7 @@ import java.sql.SQLException;
 public class Q10 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q10*/
             SELECT
                c_custkey,
                c_name,

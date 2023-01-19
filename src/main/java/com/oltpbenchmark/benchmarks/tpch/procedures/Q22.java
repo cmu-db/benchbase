@@ -29,6 +29,7 @@ import java.util.Set;
 public class Q22 extends GenericQuery {
 
     public final SQLStmt query_stmt = new SQLStmt("""
+            /*monitor-Q22*/
             SELECT
                cntrycode,
                COUNT(*) AS numcust,
