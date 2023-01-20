@@ -1,0 +1,80 @@
+type: YUGABYTE
+driver: com.yugabyte.Driver
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true
+username: {{username}}
+password: {{password}}
+
+createdb: drop database if exists yb_colocated; create database yb_colocated with colocated=true
+batchsize: 128
+isolation: TRANSACTION_REPEATABLE_READ
+loaderthreads: 4
+terminals: 1
+collect_pg_stat_statements: true
+works:
+    work:
+        time_secs: 60
+        rate: unlimited
+        warmup: 30
+microbenchmark:
+    class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
+    properties:
+        setAutoCommit: false
+        create:
+            - drop table if exists update_test_table1;
+            - drop table if exists update_test_table2;
+            - drop table if exists update_test_table3;
+            - create table update_test_table1 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create table update_test_table2 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+            - create table update_test_table3 (id bigint, col_int_1 int, col_int_2 int, col_int_3 int, col_int_4 int, col_int_5 int, col_int_6 int, col_int_7 int, col_int_8 int, col_int_9 int, col_int_10 int, col_varchar_1 varchar(20), col_varchar_2 varchar(20), col_varchar_3 varchar(20), col_date text, col_boolean boolean, primary key (id asc))
+        loadRules:
+            - table: update_test_table
+              count: 3
+              rows: 1000000
+              columns:
+                  - name: id
+                    util: PrimaryIntGen
+                    params: [1, 1000000]
+                  - name: col_int_
+                    count: 10
+                    util: RandomNumber
+                    params: [1, 1000000]
+                  - name: col_varchar_
+                    count: 3
+                    util: RandomAString
+                    params: [20, 20]
+                  - name: col_date
+                    util: RandomAString
+                    params: [20, 20]
+                  - name: col_boolean
+                    util: RandomBoolean
+        executeRules:
+            - workload: update_1_row
+              run:
+                  - name: Update_1_row
+                    weight: 100
+                    queries:
+                        - query: UPDATE update_test_table1 set col_varchar_3 = ? where id = ?
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+                              - util: RandomNumber
+                                params: [1, 1000000]
+            - workload: update_100
+              run:
+                  - name: update_100_rows
+                    weight: 100
+                    queries:
+                        - query: UPDATE update_test_table2 set col_varchar_3 = ? where id > 100 and id <= 200
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
+
+            - workload: update_1000
+              run:
+                  - name: update_1000_rows
+                    weight: 100
+                    queries:
+                        - query: UPDATE update_test_table3 set col_varchar_3 = ? where id > 1000 and id <= 2000
+                          bindings:
+                              - util: RandomAString
+                                params: [20, 20]
