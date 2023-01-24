@@ -139,19 +139,19 @@ microbenchmark:
                     util: RandomAString
                     params: [500, 500]
         executeRules:
-            - workload: scanG10_yb_noIndex_fullTable_seqScan_1M_rows_3tablets
+            - workload: scanG10_noIndex_fullTable_seqScan_1M_rows_3tablets
               run:
                   -   name: noIndex_fullTable_seqScan_1M_rows_3tablets_test
                       weight: 100
                       queries:
                           -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_1M_rows_3tablets_1 where col_bigint_id_1>1000001
-            - workload: scanG10_yb_noIndex_fullTable_seqScan_1M_rows_6tablets
+            - workload: scanG10_noIndex_fullTable_seqScan_1M_rows_6tablets
               run:
                   -   name: noIndex_fullTable_seqScan_1M_rows_6tablets_test
                       weight: 100
                       queries:
                           -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_1M_rows_6tablets_1 where col_bigint_id_1>1000001
-            - workload: scanG10_yb_noIndex_fullTable_seqScan_1M_rows_12tablets
+            - workload: scanG10_noIndex_fullTable_seqScan_1M_rows_12tablets
               run:
                   -   name: noIndex_fullTable_seqScan_1M_rows_12tablets_test
                       weight: 100

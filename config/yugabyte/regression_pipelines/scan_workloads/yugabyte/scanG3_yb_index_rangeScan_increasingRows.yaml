@@ -68,25 +68,25 @@ microbenchmark:
                     params: [500, 500]
 
         executeRules:
-            - workload: scanG3_yb_indx_rangescan_varying_rows_1row
+            - workload: scanG3_indx_rangescan_varying_rows_1row
               run:
                   - name: indx_rangescan_1row_test
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>999999
-            - workload: scanG3_yb_indx_rangescan_varying_rows_100Krows
+            - workload: scanG3_indx_rangescan_varying_rows_100Krows
               run:
                   - name: indx_rangescan_100krow_test
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>900000
-            - workload: scanG3_yb_indx_rangescan_varying_rows_500Krows
+            - workload: scanG3_indx_rangescan_varying_rows_500Krows
               run:
                   - name: indx_rangescan_500krow_test
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from indx_rangescan_tbl_1 where col_bigint_id_1>500000
-            - workload: scanG3_yb_indx_rangescan_varying_rows_1Mrows
+            - workload: scanG3_indx_rangescan_varying_rows_1Mrows
               run:
                   - name: indx_rangescan_1Mrow_test
                     weight: 100

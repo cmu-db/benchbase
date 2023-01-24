@@ -140,19 +140,19 @@ microbenchmark:
                     util: RandomAString
                     params: [500, 500]
         executeRules:
-            - workload: scanG9_colo_count_noIndex_fullTable_seqScan_1M_rows
+            - workload: scanG9_count_noIndex_fullTable_seqScan_1M_rows
               run:
                   -   name: count_noIndex_fullTable_seqScan_1M_rows_test
                       weight: 100
                       queries:
                           -   query: select count(col_bigint_id_1) from count_noIndex_fullTable_seqScan_1M_rows_1
-            - workload: scanG9_colo_count_noIndex_fullTable_seqScan_5M_rows
+            - workload: scanG9_count_noIndex_fullTable_seqScan_5M_rows
               run:
                   -   name: count_noIndex_fullTable_seqScan_5M_rows_test
                       weight: 100
                       queries:
                           -   query: select count(col_bigint_id_1) from count_noIndex_fullTable_seqScan_5M_rows_1
-            - workload: scanG9_colo_count_noIndex_fullTable_seqScan_10M_rows
+            - workload: scanG9_count_noIndex_fullTable_seqScan_10M_rows
               run:
                   -   name: count_noIndex_fullTable_seqScan_10M_rows_test
                       weight: 100

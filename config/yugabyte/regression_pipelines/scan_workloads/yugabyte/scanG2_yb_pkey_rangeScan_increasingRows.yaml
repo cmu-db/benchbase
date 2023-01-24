@@ -66,25 +66,25 @@ microbenchmark:
                     util: RandomAString
                     params: [500, 500]
         executeRules:
-            - workload: scanG2_yb_pkey_rangescan_varying_rows_1row
+            - workload: scanG2_pkey_rangescan_varying_rows_1row
               run:
                   - name: pkey_rangescan_1row_test
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>999999
-            - workload: scanG2_yb_pkey_rangescan_varying_rows_100Krows
+            - workload: scanG2_pkey_rangescan_varying_rows_100Krows
               run:
                   - name: pkey_rangescan_100krow_test
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>900000
-            - workload: scanG2_yb_pkey_rangescan_varying_rows_500Krows
+            - workload: scanG2_pkey_rangescan_varying_rows_500Krows
               run:
                   - name: pkey_rangescan_500krow_test
                     weight: 100
                     queries:
                         - query: select col_bigint_id_1 from pkey_rangescan_tbl_1 where col_bigint_id_1>500000
-            - workload: scanG2_yb_pkey_rangescan_varying_rows_1Mrows
+            - workload: scanG2_pkey_rangescan_varying_rows_1Mrows
               run:
                   - name: pkey_rangescan_1Mrow_test
                     weight: 100
