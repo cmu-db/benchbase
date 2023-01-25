@@ -31,6 +31,9 @@ microbenchmark:
             - CREATE TABLE pkey_hash_point_lookup_tbl_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_1 varchar(10), col_varchar100_1 varchar(100), col_varchar100_2 varchar(100), col_varchar500_1 varchar(500), PRIMARY KEY(col_bigint_id_1));
             - CREATE TABLE indx_hash_point_lookup_tbl_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_1 varchar(10), col_varchar100_1 varchar(100), col_varchar100_2 varchar(100), col_varchar500_1 varchar(500));
             - CREATE INDEX ON indx_hash_point_lookup_tbl_1(col_bigint_id_1);
+        cleanup:
+            - DROP TABLE IF EXISTS pkey_hash_point_lookup_tbl_1;
+            - DROP TABLE IF EXISTS indx_hash_point_lookup_tbl_1;
         loadRules:
             - table: pkey_hash_point_lookup_tbl_
               count: 1

@@ -27,6 +27,9 @@ microbenchmark:
             - DROP TABLE IF EXISTS pkey_rangescan_join_2;
             - CREATE TABLE pkey_rangescan_join_1(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_1 varchar(10), col_varchar100_1 varchar(100), col_varchar100_2 varchar(100), col_varchar500_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC, col_bigint_1 ASC));
             - CREATE TABLE pkey_rangescan_join_2(col_bigint_id_1 bigint, col_bigint_1 bigint, col_bigint_2 bigint, col_bigint_3 bigint, col_bigint_4 bigint, col_bigint_5 bigint, col_float2_1 float(2), col_float2_2 float(2), col_float5_1 float(5), col_float5_2 float(5), col_boolean_1 boolean, col_varchar10_1 varchar(10), col_varchar100_1 varchar(100), col_varchar100_2 varchar(100), col_varchar500_1 varchar(500), PRIMARY KEY(col_bigint_id_1 ASC, col_bigint_1 ASC));
+        cleanup:
+            - DROP TABLE IF EXISTS pkey_rangescan_join_1;
+            - DROP TABLE IF EXISTS pkey_rangescan_join_2;
         loadRules:
             - table: pkey_rangescan_join_
               count: 2

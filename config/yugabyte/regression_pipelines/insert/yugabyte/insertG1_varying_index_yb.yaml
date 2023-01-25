@@ -44,6 +44,11 @@ microbenchmark:
             - create index index_test_4_idx8 on index_test_4(col_int_8);
             - create index index_test_4_idx9 on index_test_4(col_int_9);
             - create index index_test_4_idx10 on index_test_4(col_int_10);
+        cleanup:
+            - drop table if exists index_test_1;
+            - drop table if exists index_test_2;
+            - drop table if exists index_test_3;
+            - drop table if exists index_test_4;
         loadRules:
             -   table: index_test_
                 count: 4
