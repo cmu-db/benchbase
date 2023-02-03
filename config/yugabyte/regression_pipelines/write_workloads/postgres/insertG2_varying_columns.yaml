@@ -11,10 +11,10 @@ terminals: 4
 collect_pg_stat_statements: true
 works:
     work:
-        time_secs: 300
+        time_secs: 60
         active_terminals: 1
         rate: unlimited
-        warmup: 60
+        warmup: 30
 microbenchmark:
     class: com.oltpbenchmark.benchmarks.featurebench.customworkload.YBDefaultMicroBenchmark
     properties:
