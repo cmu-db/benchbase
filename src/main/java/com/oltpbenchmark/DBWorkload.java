@@ -873,6 +873,8 @@ public class DBWorkload {
                     ObjectMapper mapper = new ObjectMapper(new JsonFactory());
                     workloadToSummaryMap.putAll(mapper.readValue(file, TreeMap.class));
                 }
+                if(workload_name == null || workload_name.isEmpty())
+                    workload_name = baseFileName;
                 workloadToSummaryMap.put(workload_name, rw.writeDetailedSummary(ps));
 
                 try {
