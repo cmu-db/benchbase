@@ -159,7 +159,7 @@ public class FeatureBenchWorker extends Worker<FeatureBenchBenchmark> {
             StringBuilder data = new StringBuilder();
             while (rs.next()) {
                 data.append(rs.getString(1));
-                data.append(" ");
+                data.append("\n");
             }
             double explainEnd = System.currentTimeMillis();
             jsonObject.put("ResultSet", data.toString());
