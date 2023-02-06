@@ -148,16 +148,16 @@ microbenchmark:
                   -   name: noIndex_fullTable_seqScan_1M_rows_test
                       weight: 100
                       queries:
-                          -   query: select * from noIndex_fullTable_seqScan_1M_rows_1 where col_bigint_id_1>1000001
+                          -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_1M_rows_1 where col_bigint_id_1>1000001
             -   workload: scanG8_noIndex_fullTable_seqScan_5M_rows
                 run:
                     -   name: noIndex_fullTable_seqScan_1M_rows_test
                         weight: 100
                         queries:
-                            -   query: select * from noIndex_fullTable_seqScan_5M_rows_1 where col_bigint_id_1>5000001
+                            -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_5M_rows_1 where col_bigint_id_1>5000001
             -   workload: scanG8_noIndex_fullTable_seqScan_10M_rows
                 run:
                     -   name: noIndex_fullTable_seqScan_1M_rows_test
                         weight: 100
                         queries:
-                            -   query: select * from noIndex_fullTable_seqScan_10M_rows_1 where col_bigint_id_1>10000001
+                            -   query: select col_bigint_id_1 from noIndex_fullTable_seqScan_10M_rows_1 where col_bigint_id_1>10000001

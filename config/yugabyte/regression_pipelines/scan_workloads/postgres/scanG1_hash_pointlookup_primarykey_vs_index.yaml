@@ -110,10 +110,10 @@ microbenchmark:
                   - name: pkey_hash_point_lookup_test
                     weight: 100
                     queries:
-                        - query: select * from pkey_hash_point_lookup_tbl_1 where col_bigint_id_1=500009
+                        - query: select col_bigint_id_1 from pkey_hash_point_lookup_tbl_1 where col_bigint_id_1=500009
             - workload: scanG1_indx_hash_point_lookup
               run:
                   - name: indx_hash_point_lookup_test
                     weight: 100
                     queries:
-                        - query: select * from indx_hash_point_lookup_tbl_1 where col_bigint_id_1=500009
+                        - query: select col_bigint_id_1 from indx_hash_point_lookup_tbl_1 where col_bigint_id_1=500009
