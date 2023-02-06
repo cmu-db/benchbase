@@ -1,0 +1,577 @@
+<?xml version="1.0"?>
+<dialects>
+    <dialect type="CALCITEAVATICA">
+        <procedure name="Q1">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q2">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q3">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q4">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q5">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q6">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q7">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q8">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q9">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q10">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q11">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q12">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q13">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q14">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q15">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q16">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q17">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q18">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q19">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q20">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q21">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+        <procedure name="Q22">
+            <statement name="query_stmt">
+                SELECT
+                "l_returnflag",
+                "l_linestatus",
+                SUM("l_quantity") AS sum_qty,
+                SUM("l_extendedprice") AS sum_base_price,
+                SUM("l_extendedprice" * (1 - "l_discount")) AS sum_disc_price,
+                SUM("l_extendedprice" * (1 - "l_discount") * (1 + "l_tax")) AS sum_charge,
+                AVG("l_quantity") AS avg_qty,
+                AVG("l_extendedprice") AS avg_price,
+                AVG("l_discount") AS avg_disc,
+                COUNT(*) AS count_order
+                FROM
+                "benchbase"."lineitem"
+                WHERE
+                "l_shipdate" &lt;= DATE '1998-12-01' - INTERVAL 1 DAY
+                GROUP BY
+                "l_returnflag",
+                "l_linestatus"
+                ORDER BY
+                "l_returnflag",
+                "l_linestatus"
+            </statement>
+        </procedure>
+
+    </dialect>
+</dialects>

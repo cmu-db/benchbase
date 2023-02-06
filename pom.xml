@@ -138,6 +138,19 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>calciteavatica</id>
+            <properties>
+                <classifier>calciteavatica</classifier>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.calcite.avatica</groupId>
+                    <artifactId>avatica-core</artifactId>
+                    <version>1.23.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <dependencies>
