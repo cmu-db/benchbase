@@ -77,7 +77,7 @@ microbenchmark:
                   - name: pkey_hash_pointLookup_table1column_fetch1column_test
                     weight: 100
                     queries:
-                        - query: select col_bigint_id_1 from pkey_hash_pointLookup_1column_1 where col_bigint_id_1=(?)
+                        - query: select * from pkey_hash_pointLookup_1column_1 where col_bigint_id_1=(?)
                           bindings:
                               count: 1
                               util: RandomNumber
@@ -87,7 +87,7 @@ microbenchmark:
                   - name: pkey_hash_pointLookup_table10column_fetch10column_test
                     weight: 100
                     queries:
-                        - query: select col_bigint_id_1 from pkey_hash_pointLookup_10column_1 where col_bigint_id_1=(?)
+                        - query: select * from pkey_hash_pointLookup_10column_1 where col_bigint_id_1=(?)
                           bindings:
                               count: 1
                               util: RandomNumber
@@ -97,7 +97,7 @@ microbenchmark:
                   - name: pkey_hash_pointLookup_table100column_fetch100column_test
                     weight: 100
                     queries:
-                        - query: select col_bigint_id_1 from pkey_hash_pointLookup_100column_1 where col_bigint_id_1=(?)
+                        - query: select * from pkey_hash_pointLookup_100column_1 where col_bigint_id_1=(?)
                           bindings:
                               count: 1
                               util: RandomNumber

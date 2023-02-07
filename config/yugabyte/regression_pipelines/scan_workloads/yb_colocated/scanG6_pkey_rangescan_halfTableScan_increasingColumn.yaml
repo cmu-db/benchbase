@@ -76,16 +76,16 @@ microbenchmark:
                   - name: pkey_rangescan_halfTable_table1column_fetch1column_test
                     weight: 100
                     queries:
-                        - query: select col_bigint_id_1 from pkey_rangescan_halfTable_1column_1 where col_bigint_id_1>500001
+                        - query: select * from pkey_rangescan_halfTable_1column_1 where col_bigint_id_1>500001
             - workload: scanG6_pkey_rangescan_halfTable_table10column_fetch10column
               run:
                   - name: pkey_rangescan_halfTable_table10column_fetch10column_test
                     weight: 100
                     queries:
-                        - query: select col_bigint_id_1 from pkey_rangescan_halfTable_10column_1 where col_bigint_id_1>500001
+                        - query: select * from pkey_rangescan_halfTable_10column_1 where col_bigint_id_1>500001
             - workload: scanG6_pkey_rangescan_halfTable_table100column_fetch100column
               run:
                   - name: pkey_rangescan_halfTable_table100column_fetch100column_test
                     weight: 100
                     queries:
-                        - query: select col_bigint_id_1 from pkey_rangescan_halfTable_100column_1 where col_bigint_id_1>500001
+                        - query: select * from pkey_rangescan_halfTable_100column_1 where col_bigint_id_1>500001
