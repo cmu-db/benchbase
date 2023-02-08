@@ -3,7 +3,7 @@
 
     <!-- Connection details -->
     <type>CALCITEAVATICA</type>
-    <driver>org.apache.calcite.avatica</driver>
+    <driver>org.apache.calcite.avatica.remote.Driver</driver>
     <url>jdbc:avatica://localhost/;serialization=PROTOBUF;</url>
     <username>admin</username>
     <password>password</password>
