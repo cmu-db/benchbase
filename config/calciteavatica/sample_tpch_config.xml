@@ -2,8 +2,8 @@
 <parameters>
 
     <!-- Connection details -->
-    <type>POSTGRES</type>
-    <driver>org.postgresql.Driver</driver>
+    <type>CALCITEAVATICA</type>
+    <driver>org.apache.calcite.avatica</driver>
     <url>jdbc:avatica://localhost/;serialization=PROTOBUF;</url>
     <username>admin</username>
     <password>password</password>
