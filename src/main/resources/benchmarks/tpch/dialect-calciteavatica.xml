@@ -197,6 +197,12 @@
             <statement name="query_stmt">
                 SELECT true
             </statement>
+            <statement name="createview_stmt">
+                SELECT true
+            </statement>
+            <statement name="dropview_stmt">
+                SELECT true
+            </statement>
         </procedure>
 
         <procedure name="Q16">
