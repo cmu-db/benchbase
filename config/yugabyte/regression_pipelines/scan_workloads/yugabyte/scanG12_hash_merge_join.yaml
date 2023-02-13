@@ -4,7 +4,7 @@
 # Filter condition returns 1000 rows .
 type: YUGABYTE
 driver: com.yugabyte.Driver
-url: jdbc:yugabytedb://{{ endpoint }}:5433/yugabyte?sslmode=require
+url: jdbc:yugabytedb://{{endpoint}}:5433/yugabyte?sslmode=require&ApplicationName=featurebench&reWriteBatchedInserts=true&load-balance=false
 username: {{ username }}
 password: {{ password }}
 isolation: TRANSACTION_REPEATABLE_READ
